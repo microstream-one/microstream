@@ -2261,7 +2261,7 @@ public final class JadothChars
 	 * amounts of data.
 	 * Properly executed performance tests (large loop sizes, averages, nanosecond precision, etc.) showed
 	 * that this algorithms is more than twice as fast as the one used in JDK
-	 * (average of ~33µs vs ~75µs for long literals on same machine with measuring overhead of ~1.5µs)
+	 * (average of ~33Âµs vs ~75Âµs for long literals on same machine with measuring overhead of ~1.5Âµs)
 	 *
 	 * @param input
 	 * @param offset

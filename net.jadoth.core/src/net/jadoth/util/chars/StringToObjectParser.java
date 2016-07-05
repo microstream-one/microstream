@@ -30,8 +30,8 @@ public interface StringToObjectParser<T> extends Function<String, T>
 		// pattern, das alle escapten newline (\n) erkennt aber nicht die escapt escapten (\\n).
 //		private static final String REGEXP_PATTERN_TRUE_NEWLINE = "([^\\\\])\\\\n";
 //		private static final String REGEXP_REPLACEMENT_NEWLINE  = "$1\n";
-		/* (26.09.2012 TM)NOTE: Das pattern oben erkennt keine doppelten Zeilenumbrüche
-		 * Da aber keine Zeit ist, daran ewig rumzuforschen und ein "\n" in Reporttexten höchstwahrscheinlich
+		/* (26.09.2012 TM)NOTE: Das pattern oben erkennt keine doppelten ZeilenumbrÃ¼che
+		 * Da aber keine Zeit ist, daran ewig rumzuforschen und ein "\n" in Reporttexten hÃ¶chstwahrscheinlich
 		 * sowieso nie vorkommen wird, wird einfach die einfachere Variante genommen, die
 		 * escapte Escapezeichen ignoriert.
 		 * Bei bedarf muss da oben halt nochmal Gehirnschmalz reingescteckt werden
@@ -41,7 +41,7 @@ public interface StringToObjectParser<T> extends Function<String, T>
 
 		private static final Pattern P = Pattern.compile(REGEXP_PATTERN_TRUE_NEWLINE);
 
-		// ersetze alle escapten Zeilenumbrüche durch einen Zeilenumbruch
+		// ersetze alle escapten ZeilenumbrÃ¼che durch einen Zeilenumbruch
 		public static final String parseBackslashNToNewLine(final String s)
 		{
 			return P.matcher(s).replaceAll(REGEXP_REPLACEMENT_NEWLINE);

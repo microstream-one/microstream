@@ -125,7 +125,7 @@ public final class ConfigEntryAggregator implements CsvRowCollector
 
 	public final EqHashTable<String, ConfigFile> yield()
 	{
-		this.completeConfig(); // letzte eingelesene datei abschlieﬂen
+		this.completeConfig(); // letzte eingelesene datei abschlie√üen
 		return this.configs;
 	}
 
