@@ -1264,7 +1264,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		System.out.println("----");
 	}
 
-	// CHECKSTYLE:OFF only für debugging
+	// CHECKSTYLE:OFF only for debugging
 	@Deprecated
 	private static int[] DEBUG_analyze(final Entry[][] slots)
 	{

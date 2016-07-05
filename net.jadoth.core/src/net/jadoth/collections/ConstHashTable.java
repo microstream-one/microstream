@@ -352,14 +352,14 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	protected int internalCountingAddAll(final KeyValue<K, V>[] elements, final int offset, final int length) 
+	protected int internalCountingAddAll(final KeyValue<K, V>[] elements, final int offset, final int length)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected int internalCountingAddAll(final XGettingCollection<? extends KeyValue<K, V>> elements) 
+	protected int internalCountingAddAll(final XGettingCollection<? extends KeyValue<K, V>> elements)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -372,14 +372,14 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	protected int internalCountingPutAll(final KeyValue<K, V>[] elements, final int offset, final int length) 
+	protected int internalCountingPutAll(final KeyValue<K, V>[] elements, final int offset, final int length)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected int internalCountingPutAll(final XGettingCollection<? extends KeyValue<K, V>> elements) 
+	protected int internalCountingPutAll(final XGettingCollection<? extends KeyValue<K, V>> elements)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -909,7 +909,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		ConstHashTable.this.chain.iterate(procedure);
 		return procedure;
@@ -1409,7 +1409,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
 		{
 			ConstHashTable.this.chain.keyIterate(procedure);
 			return procedure;
@@ -1599,7 +1599,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
 		{
 			ConstHashTable.this.chain.valuesIterate(procedure);
 			return procedure;

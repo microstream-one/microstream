@@ -1755,7 +1755,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		EqHashTable.this.chain.iterate(procedure);
 		return procedure;
@@ -2832,7 +2832,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
 		{
 			EqHashTable.this.chain.keyIterate(procedure);
 			return procedure;
@@ -3344,7 +3344,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
 		{
 			EqHashTable.this.chain.valuesIterate(procedure);
 			return procedure;

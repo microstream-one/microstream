@@ -4,6 +4,7 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -13,7 +14,6 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.KeyValue;
 
@@ -25,8 +25,8 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 
 	final XGettingTable<K, V> subject;
 
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
@@ -38,9 +38,9 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	}
 
 	@Override
-	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
-		return this.subject.iterate(procedure);
+		return this.subject.iterateIndexed(procedure);
 	}
 
 	@Override
@@ -345,8 +345,8 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 		this.subject = notNull(subject);
 	}
 
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
@@ -416,7 +416,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	{
 		return this.subject.searchValue(keyPredicate);
 	}
-	
+
 	@Override
 	public final <C extends Consumer<? super V>> C query(final XIterable<? extends K> keys, final C collector)
 	{
@@ -440,7 +440,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME TableView#old
 	}
-	
+
 	@Override
 	public Bridge<K, V> oldMap()
 	{
@@ -476,5 +476,5 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	{
 		return this.subject.toString();
 	}
-	
+
 }

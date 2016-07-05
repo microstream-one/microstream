@@ -278,7 +278,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
 		AbstractArrayStorage.iterate(this.data, this.size, procedure);
 		return procedure;
@@ -734,11 +734,11 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		{
 			throw new IndexBoundsException(this.size, indexB);
 		}
-		
+
 		final E t = this.data[(int)indexA];
 		this.data[(int)indexA] = this.data[(int)indexB];
 		this.data[(int)indexB] = t;
-		
+
 		return this;
 	}
 
@@ -950,9 +950,9 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -963,10 +963,10 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final E old = this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 

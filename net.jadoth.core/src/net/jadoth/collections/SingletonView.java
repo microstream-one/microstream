@@ -3,6 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -11,7 +12,6 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 
 public class SingletonView<E> implements XReferencing<E>
@@ -61,9 +61,9 @@ public class SingletonView<E> implements XReferencing<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
-		return this.subject.iterate(procedure);
+		return this.subject.iterateIndexed(procedure);
 	}
 
 	@Override

@@ -17,7 +17,7 @@ public class ItemMatchResult<T>
 	static <T> ConstList<T> collectRemaining(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
 		final BulkList<T> remaining = new BulkList<>(Jadoth.to_int(input.size()));
-		input.iterate(new IndexProcedure<T>()
+		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
 			public void accept(final T e, final long index)
@@ -31,7 +31,7 @@ public class ItemMatchResult<T>
 	static <T> ConstList<T> collectUnmatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
 		final BulkList<T> unmatched = new BulkList<>(Jadoth.to_int(input.size()));
-		input.iterate(new IndexProcedure<T>()
+		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
 			public void accept(final T e, final long index)
@@ -48,7 +48,7 @@ public class ItemMatchResult<T>
 	static <T> ConstList<T> collectMatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
 		final BulkList<T> matched = new BulkList<>(Jadoth.to_int(input.size()));
-		input.iterate(new IndexProcedure<T>()
+		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
 			public void accept(final T e, final long index)
