@@ -1,0 +1,48 @@
+package net.jadoth.persistence.binary.internal;
+
+import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.functional._longProcedure;
+import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.swizzling.types.SwizzleFunction;
+
+public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public AbstractBinaryHandlerNativeArrayPrimitive(
+		final long typeId,
+		final Class<A> arrayType,
+		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	)
+	{
+		super(typeId, arrayType, pseudoFields);
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// override methods //
+	/////////////////////
+
+	@Override
+	public final void iterateInstanceReferences(final A instance, final SwizzleFunction iterator)
+	{
+		// no references to iterate
+	}
+
+	@Override
+	public final void iteratePersistedReferences(final Binary offset, final _longProcedure iterator)
+	{
+		// no-op, no references
+	}
+
+	@Override
+	public final boolean hasInstanceReferences()
+	{
+		return false;
+	}
+
+}

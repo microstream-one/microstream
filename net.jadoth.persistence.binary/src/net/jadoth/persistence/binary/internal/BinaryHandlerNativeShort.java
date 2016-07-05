@@ -1,0 +1,60 @@
+package net.jadoth.persistence.binary.internal;
+
+import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.SwizzleStoreLinker;
+
+public final class BinaryHandlerNativeShort extends AbstractBinaryHandlerNativeCustom<Short>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public BinaryHandlerNativeShort(final long tid)
+	{
+		super(tid, Short.class, defineValueType(short.class));
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// override methods //
+	/////////////////////
+
+//	@Override
+//	public long getFixedBinaryContentLength()
+//	{
+//		return 2L;
+//	}
+
+	@Override
+	public boolean isVariableBinaryLengthType()
+	{
+		return false;
+	}
+
+	@Override
+	public void store(final Binary bytes, final Short instance, final long oid, final SwizzleStoreLinker linker)
+	{
+		BinaryPersistence.storeShort(bytes, this.typeId(), oid, instance.shortValue());
+	}
+
+	@Override
+	public Short create(final Binary bytes)
+	{
+		return BinaryPersistence.buildShort(bytes);
+	}
+
+	@Override
+	public final boolean hasInstanceReferences()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean hasVariableBinaryLengthInstances()
+	{
+		return false;
+	}
+
+}

@@ -1,0 +1,64 @@
+package net.jadoth.storage.types;
+
+import static net.jadoth.math.JadothMath.positive;
+import net.jadoth.swizzling.types.SwizzleTypeManager;
+
+public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProvider
+{
+	public void initialize(SwizzleTypeManager typeIdResolver);
+
+
+
+	public static EmbeddedStorageRootTypeIdProvider New(final Class<?> rootType)
+	{
+		return new EmbeddedStorageRootTypeIdProvider.Implementation(rootType);
+	}
+
+	public final class Implementation implements EmbeddedStorageRootTypeIdProvider
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields  //
+		/////////////////////
+
+		private final Class<?> rootType;
+
+		private transient Long cachedRootTypeId;
+
+
+
+		///////////////////////////////////////////////////////////////////////////
+		// constructors     //
+		/////////////////////
+
+		Implementation(final Class<?> rootType)
+		{
+			super();
+			this.rootType = rootType;
+		}
+
+
+
+		///////////////////////////////////////////////////////////////////////////
+		// override methods //
+		/////////////////////
+
+		@Override
+		public final long provideRootTypeId()
+		{
+			if(this.cachedRootTypeId == null)
+			{
+				throw new IllegalStateException("not initialized"); // (20.05.2013)EXCP: proper exception maybe
+			}
+			return this.cachedRootTypeId;
+		}
+
+		@Override
+		public final void initialize(final SwizzleTypeManager typeIdResolver)
+		{
+			final long typeId = typeIdResolver.ensureTypeId(this.rootType);
+			this.cachedRootTypeId = positive(typeId);
+		}
+
+	}
+
+}

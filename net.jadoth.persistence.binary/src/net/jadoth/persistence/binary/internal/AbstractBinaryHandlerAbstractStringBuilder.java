@@ -1,0 +1,55 @@
+package net.jadoth.persistence.binary.internal;
+
+
+
+public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends AbstractStringBuilder*/>
+extends AbstractBinaryHandlerNativeCustom<B>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// constants        //
+	/////////////////////
+
+	private   static final int  BITS_3        = 3                      ;
+	protected static final long LENGTH_LENGTH = Integer.SIZE >>> BITS_3;
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public AbstractBinaryHandlerAbstractStringBuilder(final long typeId, final Class<B> type)
+	{
+		super(typeId, type, pseudoFields(
+			pseudoField(long.class, "capacity"),
+			chars("value")
+		));
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// override methods //
+	/////////////////////
+
+	// sadly, a common abstract handling logic can't be done because AbstractStringBuilder is not public (geniuses)
+
+	@Override
+	public final boolean hasInstanceReferences()
+	{
+		return false;
+	}
+
+	@Override
+	public final boolean isVariableBinaryLengthType()
+	{
+		return true;
+	}
+
+	@Override
+	public final boolean hasVariableBinaryLengthInstances()
+	{
+		return false;
+	}
+
+}
