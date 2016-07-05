@@ -11,7 +11,7 @@
 	<!-- <artifactId>oss-parent</artifactId> -->
 	<!-- <version>9</version> -->
 	<!-- </parent> -->
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jadoth-version>1.0.0-SNAPSHOT</jadoth-version>
@@ -26,15 +26,15 @@
 		<module>net.jadoth.storage.embedded</module>
 		<!-- Test / Work in Progress -->
 		<module>net.jadoth.core.work-in-progress</module>
-		<module>net.jadoth.core.network</module>
-		<module>net.jadoth.core.network.binary.persistence</module>
-		<module>net.jadoth.core.network.simple-session-protocol</module>
+		<module>net.jadoth.network</module>
+		<module>net.jadoth.network.binary.persistence</module>
+		<module>net.jadoth.network.simple-session-protocol</module>
 		<module>net.jadoth.test.core</module>
 		<module>net.jadoth.test.persistence</module>
 		<module>net.jadoth.test.storage</module>
 		<module>net.jadoth.test.network</module>
 	</modules>
-	
+
 	<!-- <properties> -->
 	<!-- <nexusServerId>ossrh</nexusServerId> -->
 	<!-- <nexusServer>http://localhost:8081/nexus/</nexusServer> -->
@@ -53,6 +53,14 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -60,7 +68,15 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<compilerId>jdt</compilerId>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.xdev-software</groupId>
+						<artifactId>xdev-maven-eclipse-compiler</artifactId>
+						<version>4.6-201606061100</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 
