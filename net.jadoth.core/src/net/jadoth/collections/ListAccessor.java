@@ -231,9 +231,9 @@ public class ListAccessor<E> implements XSettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
-		return this.subject.iterateIndexed(procedure);
+		return this.subject.iterate(procedure);
 	}
 
 	@Override

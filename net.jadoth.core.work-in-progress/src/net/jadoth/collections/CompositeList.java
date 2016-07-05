@@ -556,7 +556,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		// this will get really ugly... :-/
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#iterate()

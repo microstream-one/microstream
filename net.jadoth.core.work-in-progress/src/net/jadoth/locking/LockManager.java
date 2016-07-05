@@ -412,7 +412,7 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 
 		private void uncheckedRemove(final Object object)
 		{
-			this.lockTable.removeFor(object);
+			this.lockTable.remove(object);
 		}
 	}
 

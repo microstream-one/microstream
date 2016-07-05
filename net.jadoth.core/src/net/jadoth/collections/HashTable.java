@@ -460,7 +460,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 	final void removeNullEntry()
 	{
-		this.removeFor((K)null);
+		this.remove((K)null);
 	}
 
 	boolean nullKeyPut()
@@ -1049,7 +1049,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final V removeFor(final K key)
+	public final V remove(final K key)
 	{
 		final int hash;
 		ChainMapEntryLinkedStrongStrong<K, V> last, e;
@@ -1634,7 +1634,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
 	{
 		HashTable.this.chain.iterate(procedure);
 		return procedure;
@@ -2627,7 +2627,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		public final long removeAll(final XGettingCollection<? extends K> elements)
 		{
 			final int oldSize = HashTable.this.size;
-			elements.iterate(HashTable.this::removeFor);
+			elements.iterate(HashTable.this::remove);
 			return oldSize - HashTable.this.size;
 		}
 
@@ -2674,7 +2674,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
 		{
 			HashTable.this.chain.keyIterate(procedure);
 			return procedure;
@@ -3192,7 +3192,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
 		{
 			HashTable.this.chain.valuesIterate(procedure);
 			return procedure;
@@ -4046,7 +4046,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		{
 			try
 			{
-				return HashTable.this.removeFor((K)key);
+				return HashTable.this.remove((K)key);
 			}
 			catch(final Exception e)
 			{

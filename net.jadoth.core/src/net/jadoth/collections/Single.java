@@ -1016,7 +1016,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XList<E>#iterate()
 	}

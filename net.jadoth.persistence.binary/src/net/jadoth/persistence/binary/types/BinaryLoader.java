@@ -285,7 +285,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		{
 			synchronized(this.helpers)
 			{
-				return this.helpers.removeFor(subject);
+				return this.helpers.remove(subject);
 			}
 		}
 

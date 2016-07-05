@@ -267,7 +267,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		AbstractArrayStorage.iterate((E[])this.data, this.data.length, procedure);
 		return procedure;

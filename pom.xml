@@ -74,7 +74,7 @@
 					<dependency>
 						<groupId>com.xdev-software</groupId>
 						<artifactId>xdev-maven-eclipse-compiler</artifactId>
-						<version>4.6-201606061100</version>
+						<version>3.11.2</version>
 					</dependency>
 				</dependencies>
 			</plugin>

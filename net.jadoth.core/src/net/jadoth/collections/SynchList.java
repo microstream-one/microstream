@@ -490,9 +490,9 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final synchronized <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final synchronized <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
-		this.subject.iterateIndexed(procedure);
+		this.subject.iterate(procedure);
 		return procedure;
 	}
 

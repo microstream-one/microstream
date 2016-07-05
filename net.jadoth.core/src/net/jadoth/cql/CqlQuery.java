@@ -103,7 +103,7 @@ public interface CqlQuery<I, O, R>
 			this.getSelector()  ,
 			this.getProjector() ,
 			this.getOrder()     ,
-			CqlResultor.NewFromSupplier(supplier)
+			CqlResultor.New(supplier)
 		);
 	}
 
@@ -155,7 +155,7 @@ public interface CqlQuery<I, O, R>
 			this.getSelector() ,
 			this.getProjector(),
 			this.getOrder()    ,
-			CqlResultor.NewFromAggregator(collector)
+			CqlResultor.New(collector)
 		);
 	}
 
@@ -287,7 +287,7 @@ public interface CqlQuery<I, O, R>
 			selector                ,
 			projector               ,
 			comparator              ,
-			CqlResultor.NewFromAggregator(aggregator)
+			CqlResultor.New(aggregator)
 		);
 	}
 

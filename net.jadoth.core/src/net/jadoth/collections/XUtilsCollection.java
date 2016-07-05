@@ -2246,14 +2246,14 @@ public final class XUtilsCollection
 	public static <E> int[] index(final XGettingSequence<E> sequence, final Predicate<? super E> predicate)
 	{
 		final Indexer<E> indexer;
-		sequence.iterateIndexed(indexer = new Indexer<>(predicate));
+		sequence.iterate(indexer = new Indexer<>(predicate));
 		return indexer.yield();
 	}
 
 	public static <E> int[] orderedIndex(final XGettingSequence<E> sequence, final Predicate<? super E> predicate)
 	{
 		final Indexer<E> indexer;
-		sequence.iterateIndexed(indexer = new Indexer<>(predicate));
+		sequence.iterate(indexer = new Indexer<>(predicate));
 		return indexer.sortAndYield();
 	}
 

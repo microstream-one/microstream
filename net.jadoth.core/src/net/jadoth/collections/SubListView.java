@@ -574,7 +574,7 @@ public class SubListView<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		XUtilsCollection.rngIterate(this.list, this.startIndex, this.length, offset(procedure, this.startIndex, this.d));
 		return procedure;

@@ -30,15 +30,13 @@ public interface CqlResultor<O, R>
 		return e -> new CqlWrapperCollectorProcedure<>(target);
 	}
 
-	// (05.07.2016 TM)NOTE: while eclipse could distinct the 3 New here properly, javac cannot. So it must be worked around via names.
-	public static <O, R> CqlResultor<O, R> NewFromAggregator(final Aggregator<O, R> collector)
+	public static <O, R> CqlResultor<O, R> New(final Aggregator<O, R> collector)
 	{
 		notNull(collector);
 		return e -> collector;
 	}
 
-	// (05.07.2016 TM)NOTE: while eclipse could distinct the 3 New here properly, javac cannot. So it must be worked around via names.
-	public static <O, T extends Consumer<O>> CqlResultor<O, T> NewFromSupplier(final Supplier<T> supplier)
+	public static <O, T extends Consumer<O>> CqlResultor<O, T> New(final Supplier<T> supplier)
 	{
 		return e -> new CqlWrapperCollectorProcedure<>(supplier.get());
 	}
@@ -50,7 +48,7 @@ public interface CqlResultor<O, R>
 	{
 		notNull(supplier);
 		return order == null
-			? CqlResultor.NewFromSupplier(supplier)
+			? CqlResultor.New(supplier)
 			: e -> new CqlWrapperCollectorSequenceSorting<>(supplier.get(), order)
 		;
 	}

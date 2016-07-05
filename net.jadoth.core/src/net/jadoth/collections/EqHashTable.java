@@ -527,7 +527,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 
 	final void removeNullEntry()
 	{
-		this.removeFor((K)null);
+		this.remove((K)null);
 	}
 
 	boolean nullKeyPut()
@@ -1161,7 +1161,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final V removeFor(final K key)
+	public final V remove(final K key)
 	{
 		final int hash;
 		ChainMapEntryLinkedHashedStrongStrong<K, V> last, e;
@@ -1755,7 +1755,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
 	{
 		EqHashTable.this.chain.iterate(procedure);
 		return procedure;
@@ -2785,7 +2785,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final long removeAll(final XGettingCollection<? extends K> elements)
 		{
 			final int oldSize = EqHashTable.this.size;
-			elements.iterate(EqHashTable.this::removeFor);
+			elements.iterate(EqHashTable.this::remove);
 			return oldSize - EqHashTable.this.size;
 		}
 
@@ -2832,7 +2832,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
 		{
 			EqHashTable.this.chain.keyIterate(procedure);
 			return procedure;
@@ -3344,7 +3344,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
 		{
 			EqHashTable.this.chain.valuesIterate(procedure);
 			return procedure;
@@ -4204,7 +4204,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			try
 			{
-				return EqHashTable.this.removeFor((K)key);
+				return EqHashTable.this.remove((K)key);
 			}
 			catch(final Exception e)
 			{

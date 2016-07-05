@@ -803,7 +803,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		AbstractArrayStorage.iterate(this.internalGetStorageArray(), this.subject.size(), procedure);
 		return procedure;

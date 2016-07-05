@@ -234,9 +234,9 @@ public class ListView<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
-		this.subject.iterateIndexed(procedure);
+		this.subject.iterate(procedure);
 		return procedure;
 	}
 

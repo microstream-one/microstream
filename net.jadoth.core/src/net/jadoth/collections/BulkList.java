@@ -695,7 +695,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		AbstractArrayStorage.iterate(this.data, this.size, procedure);
 		return procedure;

@@ -98,7 +98,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
 	{
 		procedure.accept(this.element, 0);
 		return procedure;

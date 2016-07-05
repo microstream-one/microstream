@@ -409,61 +409,61 @@ public final class CQL
 
 	public static <O, T extends Consumer<O>> CqlResultor<O, T> resulting(final Supplier<T> supplier)
 	{
-		return CqlResultor.NewFromSupplier(supplier);
+		return CqlResultor.New(supplier);
 	}
 
 	public static <O, T extends Consumer<O> & XIterable<O>> CqlResultor<O, T> resultingIterable(
 		final Supplier<T> supplier
 	)
 	{
-		return CqlResultor.NewFromSupplier(supplier);
+		return CqlResultor.New(supplier);
 	}
 
 	public static <O> CqlResultor<O, BulkList<O>> resultingBulkList()
 	{
-		return CqlResultor.NewFromSupplier((Supplier<BulkList<O>>)BulkList::New);
+		return CqlResultor.New((Supplier<BulkList<O>>)BulkList::New);
 	}
 
 	public static <O> CqlResultor<O, BulkList<O>> resultingBulkList(final int initialCapacity)
 	{
-		return CqlResultor.NewFromSupplier(() -> BulkList.<O>New(initialCapacity));
+		return CqlResultor.New(() -> BulkList.<O>New(initialCapacity));
 	}
 
 	public static <O> CqlResultor<O, LimitList<O>> resultingLimitList(final int initialCapacity)
 	{
-		return CqlResultor.NewFromSupplier(() -> LimitList.<O>New(initialCapacity));
+		return CqlResultor.New(() -> LimitList.<O>New(initialCapacity));
 	}
 
 	public static <O> CqlResultor<O, HashEnum<O>> resultingHashEnum()
 	{
-		return CqlResultor.NewFromSupplier(() -> HashEnum.<O>New());
+		return CqlResultor.New(() -> HashEnum.<O>New());
 	}
 
 	public static <O> CqlResultor<O, EqHashEnum<O>> resultingEqHashEnum()
 	{
-		return CqlResultor.NewFromSupplier(() -> EqHashEnum.<O>New());
+		return CqlResultor.New(() -> EqHashEnum.<O>New());
 	}
 
 	public static <O> CqlResultor<O, EqHashEnum<O>> resultingEqHashEnum(final HashEqualator<? super O> hashEqualator)
 	{
-		return CqlResultor.NewFromSupplier(() -> EqHashEnum.<O>New(hashEqualator));
+		return CqlResultor.New(() -> EqHashEnum.<O>New(hashEqualator));
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, HashTable<K, V>> resultingHashTable()
 	{
-		return CqlResultor.NewFromSupplier(() -> HashTable.<K, V>New());
+		return CqlResultor.New(() -> HashTable.<K, V>New());
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, EqHashTable<K, V>> resultingEqHashTable()
 	{
-		return CqlResultor.NewFromSupplier(() -> EqHashTable.<K, V>New());
+		return CqlResultor.New(() -> EqHashTable.<K, V>New());
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, EqHashTable<K, V>> resultingEqHashTable(
 		final HashEqualator<? super K> hashEqualator
 	)
 	{
-		return CqlResultor.NewFromSupplier(() -> EqHashTable.<K, V>New(hashEqualator));
+		return CqlResultor.New(() -> EqHashTable.<K, V>New(hashEqualator));
 	}
 
 	// (25.03.2014 Tm)TODO: CQL: more resulting~

@@ -397,7 +397,7 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	public void validateFields(final XGettingSequence<Field> fieldDescriptions)
 		throws SwizzleExceptionConsistency
 	{
-		fieldDescriptions.iterateIndexed(new IndexProcedure<Field>()
+		fieldDescriptions.iterate(new IndexProcedure<Field>()
 		{
 			@Override
 			public void accept(final Field e, final long index)

@@ -138,7 +138,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 			selector                ,
 			projector               ,
 			comparator              ,
-			CqlResultor.NewFromAggregator(aggregator)
+			CqlResultor.New(aggregator)
 		);
 	}
 

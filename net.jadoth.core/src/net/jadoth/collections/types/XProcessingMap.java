@@ -9,11 +9,7 @@ public interface XProcessingMap<K, V> extends XRemovingMap<K, V>, XGettingMap<K,
 		public XProcessingMap<K, V> newInstance();
 	}
 
-	/*
-	 * (05.07.2016 TM)NOTE: must be named different from XRemovingCollection#remove
-	 * Otherwise, javac gets confused. Even though the Eclipse compiler understands it correctly
-	 */
-	public V removeFor(final K key);
+	public V remove(final K key);
 
 	@Override
 	public XProcessingMap<K, V> copy();
