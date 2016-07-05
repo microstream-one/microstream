@@ -24,6 +24,8 @@
 		<module>net.jadoth.persistence.binary</module>
 		<module>net.jadoth.storage</module>
 		<module>net.jadoth.storage.embedded</module>
+		<!-- Test / Work in Progress -->
+		<module>net.jadoth.core.work-in-progress</module>
 	</modules>
 	
 	<!-- <properties> -->
