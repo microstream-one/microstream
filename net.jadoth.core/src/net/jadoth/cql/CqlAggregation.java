@@ -140,7 +140,7 @@ public interface CqlAggregation<I, R> extends CqlQuery<I, I, R>
 			this.getLimit()    ,
 			this.getSelector() ,
 			this.getOrder()    ,
-			CqlResultor.New(collector)
+			CqlResultor.NewFromAggregator(collector)
 		);
 	}
 

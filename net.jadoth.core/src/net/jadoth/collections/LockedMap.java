@@ -142,11 +142,11 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 	}
 
 	@Override
-	public final V remove(final K key)
+	public final V removeFor(final K key)
 	{
 		synchronized(this.lock)
 		{
-			return this.subject.remove(key);
+			return this.subject.removeFor(key);
 		}
 	}
 

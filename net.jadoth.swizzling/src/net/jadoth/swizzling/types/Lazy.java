@@ -37,7 +37,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
+
 	@SuppressWarnings("all")
 	public static final Class<Lazy<?>> genericType()
 	{
@@ -338,26 +338,26 @@ public final class Lazy<T> implements LazyReferencing<T>
 		}
 
 	}
-	
-	
+
+
 	public static <F extends ObjectGraphTraverserFactory> F registerWith(final F objectGraphTraverserFactory)
 	{
 		objectGraphTraverserFactory.registerTraversalHandlerProviderByType(
 			Lazy.genericType(),
 			new TraversalHandlerLazy.Provider()
 		);
-		
+
 		return objectGraphTraverserFactory;
 	}
-	
-	
-	
+
+
+
 	public static final TraversalHandlerCustomProvider<Lazy<?>> TraversalHandlerCustomProvider()
 	{
 		return new TraversalHandlerLazy.Provider();
 	}
-	
-	
+
+
 	// not sure if it's particularly clean or particularly unclean to nest that here instead of in its own file.
 	public static final class TraversalHandlerLazy extends TraversalHandler.AbstractImplementation<Lazy<?>>
 	{
@@ -365,7 +365,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 		{
 			super(logic);
 		}
-		
+
 		@Override
 		public final Class<Lazy<?>> handledType()
 		{
@@ -379,11 +379,11 @@ public final class Lazy<T> implements LazyReferencing<T>
 //			{
 //				debugln("loading " + instance.objectId);
 //			}
-			
+
 			// the loader reference is a meta helper that is no actual entity, so it is ignored.
 			referenceHandler.accept(instance.get());
 		}
-		
+
 		public static final class Provider implements TraversalHandlerCustomProvider<Lazy<?>>
 		{
 			@Override
@@ -391,7 +391,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 			{
 				return Lazy.genericType();
 			}
-			
+
 			@Override
 			public TraversalHandler<Lazy<?>> provideTraversalHandler(
 				final Class<? extends Lazy<?>>       type         ,
@@ -402,16 +402,17 @@ public final class Lazy<T> implements LazyReferencing<T>
 				 * this is guaranteed by the using logic, but just in case.
 				 * Performance doesn't matter in one-time analyzing logic.
 				 */
+				// (06.07.2016 TM)NOTE: javac reports an error here. Probably one of several bugs encountered when trying to use it.
 				if(type != Lazy.class)
 				{
 					throw new IllegalArgumentException();
 				}
-				
+
 				return new TraversalHandlerLazy(logicProvider.provideHandlingLogic(type));
 			}
-			
+
 		}
-		
+
 	}
 
 }

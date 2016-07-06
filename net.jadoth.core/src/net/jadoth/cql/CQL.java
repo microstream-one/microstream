@@ -101,7 +101,7 @@ public final class CQL
 
 	public static <I, R> CqlAggregation<I, R> aggregate(final Supplier<R> supplier, final BiProcedure<I, R> linker)
 	{
-		return aggregate(CqlResultor.New(supplier, linker));
+		return aggregate(CqlResultor.NewFromSupplier(supplier, linker));
 	}
 
 	public static <I, R extends Sortable<I>> CqlAggregation<I, R> aggregate(
@@ -110,7 +110,7 @@ public final class CQL
 		final Comparator<? super I> order
 	)
 	{
-		return aggregate(CqlResultor.New(supplier, linker, order));
+		return aggregate(CqlResultor.NewFromSupplier(supplier, linker, order));
 	}
 
 	public static <I, R> CqlAggregation<I, R> aggregate(
@@ -119,7 +119,7 @@ public final class CQL
 		final Consumer<? super R> finalizer
 	)
 	{
-		return aggregate(CqlResultor.New(supplier, linker, finalizer));
+		return aggregate(CqlResultor.NewFromSupplier(supplier, linker, finalizer));
 	}
 
 	public static <I> CqlSelection<I> from(final XIterable<? extends I> source)
@@ -409,61 +409,61 @@ public final class CQL
 
 	public static <O, T extends Consumer<O>> CqlResultor<O, T> resulting(final Supplier<T> supplier)
 	{
-		return CqlResultor.New(supplier);
+		return CqlResultor.NewFromSupplier(supplier);
 	}
 
 	public static <O, T extends Consumer<O> & XIterable<O>> CqlResultor<O, T> resultingIterable(
 		final Supplier<T> supplier
 	)
 	{
-		return CqlResultor.New(supplier);
+		return CqlResultor.NewFromSupplier(supplier);
 	}
 
 	public static <O> CqlResultor<O, BulkList<O>> resultingBulkList()
 	{
-		return CqlResultor.New((Supplier<BulkList<O>>)BulkList::New);
+		return CqlResultor.NewFromSupplier((Supplier<BulkList<O>>)BulkList::New);
 	}
 
 	public static <O> CqlResultor<O, BulkList<O>> resultingBulkList(final int initialCapacity)
 	{
-		return CqlResultor.New(() -> BulkList.<O>New(initialCapacity));
+		return CqlResultor.NewFromSupplier(() -> BulkList.<O>New(initialCapacity));
 	}
 
 	public static <O> CqlResultor<O, LimitList<O>> resultingLimitList(final int initialCapacity)
 	{
-		return CqlResultor.New(() -> LimitList.<O>New(initialCapacity));
+		return CqlResultor.NewFromSupplier(() -> LimitList.<O>New(initialCapacity));
 	}
 
 	public static <O> CqlResultor<O, HashEnum<O>> resultingHashEnum()
 	{
-		return CqlResultor.New(() -> HashEnum.<O>New());
+		return CqlResultor.NewFromSupplier(() -> HashEnum.<O>New());
 	}
 
 	public static <O> CqlResultor<O, EqHashEnum<O>> resultingEqHashEnum()
 	{
-		return CqlResultor.New(() -> EqHashEnum.<O>New());
+		return CqlResultor.NewFromSupplier(() -> EqHashEnum.<O>New());
 	}
 
 	public static <O> CqlResultor<O, EqHashEnum<O>> resultingEqHashEnum(final HashEqualator<? super O> hashEqualator)
 	{
-		return CqlResultor.New(() -> EqHashEnum.<O>New(hashEqualator));
+		return CqlResultor.NewFromSupplier(() -> EqHashEnum.<O>New(hashEqualator));
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, HashTable<K, V>> resultingHashTable()
 	{
-		return CqlResultor.New(() -> HashTable.<K, V>New());
+		return CqlResultor.NewFromSupplier(() -> HashTable.<K, V>New());
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, EqHashTable<K, V>> resultingEqHashTable()
 	{
-		return CqlResultor.New(() -> EqHashTable.<K, V>New());
+		return CqlResultor.NewFromSupplier(() -> EqHashTable.<K, V>New());
 	}
 
 	public static <K, V> CqlResultor<KeyValue<K, V>, EqHashTable<K, V>> resultingEqHashTable(
 		final HashEqualator<? super K> hashEqualator
 	)
 	{
-		return CqlResultor.New(() -> EqHashTable.<K, V>New(hashEqualator));
+		return CqlResultor.NewFromSupplier(() -> EqHashTable.<K, V>New(hashEqualator));
 	}
 
 	// (25.03.2014 Tm)TODO: CQL: more resulting~
