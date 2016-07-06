@@ -6,15 +6,14 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<!-- <parent> -->
-	<!-- <groupId>org.sonatype.oss</groupId> -->
-	<!-- <artifactId>oss-parent</artifactId> -->
-	<!-- <version>9</version> -->
-	<!-- </parent> -->
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jadoth-version>1.0.0-SNAPSHOT</jadoth-version>
 	</properties>
 
 	<modules>
@@ -35,21 +34,31 @@
 		<module>net.jadoth.test.network</module>
 	</modules>
 
-	<!-- <properties> -->
-	<!-- <nexusServerId>ossrh</nexusServerId> -->
-	<!-- <nexusServer>http://localhost:8081/nexus/</nexusServer> -->
-	<!-- </properties> -->
+	<distributionManagement>
+		<repository>
+			<id>xdevmaven</id>
+			<name>XDEV Maven Release Repository</name>
+			<url>http://xdevmaven/repository/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>xdevmaven</id>
+			<name>XDEV Maven Snapshot Repository</name>
+			<url>http://xdevmaven/repository/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
-	<!-- <distributionManagement> -->
-	<!-- <snapshotRepository> -->
-	<!-- <id>${nexusServerId}</id> -->
-	<!-- <url>http://localhost:8081/nexus/content/repositories/snapshots</url> -->
-	<!-- </snapshotRepository> -->
-	<!-- <repository> -->
-	<!-- <id>${nexusServerId}</id> -->
-	<!-- <url>http://localhost:8081/nexus/service/local/staging/deploy/maven2/</url> -->
-	<!-- </repository> -->
-	<!-- </distributionManagement> -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>xdevmaven-releases</id>
+			<url>http://xdevmaven/repository/releases/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -68,110 +77,98 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<compilerId>jdt</compilerId>
+					<compilerId>eclipse</compilerId>
 				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>com.xdev-software</groupId>
 						<artifactId>xdev-maven-eclipse-compiler</artifactId>
-						<version>3.11.2</version>
+						<version>4.5.2</version>
 					</dependency>
 				</dependencies>
 			</plugin>
 		</plugins>
 
 		<!-- Get rid of enforcer warning, see http://stackoverflow.com/questions/13040788/ -->
-		<!-- <pluginManagement> -->
-		<!-- <plugins> -->
-		<!-- <plugin> -->
-		<!-- <groupId>org.eclipse.m2e</groupId> -->
-		<!-- <artifactId>lifecycle-mapping</artifactId> -->
-		<!-- <version>1.0.0</version> -->
-		<!-- <configuration> -->
-		<!-- <lifecycleMappingMetadata> -->
-		<!-- <pluginExecutions> -->
-		<!-- <pluginExecution> -->
-		<!-- <pluginExecutionFilter> -->
-		<!-- <groupId>org.apache.maven.plugins</groupId> -->
-		<!-- <artifactId>maven-enforcer-plugin</artifactId> -->
-		<!-- <versionRange>[1.0.0,)</versionRange> -->
-		<!-- <goals> -->
-		<!-- <goal>enforce</goal> -->
-		<!-- </goals> -->
-		<!-- </pluginExecutionFilter> -->
-		<!-- <action> -->
-		<!-- <ignore /> -->
-		<!-- </action> -->
-		<!-- </pluginExecution> -->
-		<!-- <pluginExecution> -->
-		<!-- <pluginExecutionFilter> -->
-		<!-- <groupId> -->
-		<!-- org.apache.maven.plugins -->
-		<!-- </groupId> -->
-		<!-- <artifactId> -->
-		<!-- maven-antrun-plugin -->
-		<!-- </artifactId> -->
-		<!-- <versionRange> -->
-		<!-- [1.7,) -->
-		<!-- </versionRange> -->
-		<!-- <goals> -->
-		<!-- <goal>run</goal> -->
-		<!-- </goals> -->
-		<!-- </pluginExecutionFilter> -->
-		<!-- <action> -->
-		<!-- <ignore></ignore> -->
-		<!-- </action> -->
-		<!-- </pluginExecution> -->
-		<!-- </pluginExecutions> -->
-		<!-- </lifecycleMappingMetadata> -->
-		<!-- </configuration> -->
-		<!-- </plugin> -->
-		<!-- </plugins> -->
-		<!-- </pluginManagement> -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
-	<!-- <profiles> -->
-	<!-- <profile> -->
-	<!-- <id>release</id> -->
-	<!-- <build> -->
-	<!-- <plugins> -->
-	<!-- <plugin> -->
-	<!-- <groupId>org.apache.maven.plugins</groupId> -->
-	<!-- <artifactId>maven-gpg-plugin</artifactId> -->
-	<!-- <version>1.6</version> -->
-	<!-- <executions> -->
-	<!-- <execution> -->
-	<!-- <id>sign-artifacts</id> -->
-	<!-- <phase>verify</phase> -->
-	<!-- <goals> -->
-	<!-- <goal>sign</goal> -->
-	<!-- </goals> -->
-	<!-- </execution> -->
-	<!-- </executions> -->
-	<!-- </plugin> -->
-	<!-- <plugin> -->
-	<!-- <groupId>org.apache.maven.plugins</groupId> -->
-	<!-- <artifactId>maven-release-plugin</artifactId> -->
-	<!-- <configuration> -->
-	<!-- <autoVersionSubmodules>true</autoVersionSubmodules> -->
-	<!-- <useReleaseProfile>false</useReleaseProfile> -->
-	<!-- <releaseProfiles>release</releaseProfiles> -->
-	<!-- <goals>deploy</goals> -->
-	<!-- </configuration> -->
-	<!-- </plugin> -->
-	<!-- <plugin> -->
-	<!-- <groupId>org.sonatype.plugins</groupId> -->
-	<!-- <artifactId>nexus-staging-maven-plugin</artifactId> -->
-	<!-- <version>1.6.5</version> -->
-	<!-- <extensions>true</extensions> -->
-	<!-- <configuration> -->
-	<!-- <serverId>${nexusServerId}</serverId> -->
-	<!-- <nexusUrl>${nexusServer}</nexusUrl> -->
-	<!-- <autoReleaseAfterClose>true</autoReleaseAfterClose> -->
-	<!-- </configuration> -->
-	<!-- </plugin> -->
-	<!-- </plugins> -->
-	<!-- </build> -->
-	<!-- </profile> -->
-	<!-- </profiles> -->
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<goals>deploy</goals>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
 </project>
