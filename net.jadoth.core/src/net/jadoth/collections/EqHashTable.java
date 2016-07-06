@@ -527,7 +527,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 
 	final void removeNullEntry()
 	{
-		this.remove((K)null);
+		this.removeFor((K)null);
 	}
 
 	boolean nullKeyPut()
@@ -1161,7 +1161,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final V remove(final K key)
+	public final V removeFor(final K key)
 	{
 		final int hash;
 		ChainMapEntryLinkedHashedStrongStrong<K, V> last, e;
@@ -2785,7 +2785,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final long removeAll(final XGettingCollection<? extends K> elements)
 		{
 			final int oldSize = EqHashTable.this.size;
-			elements.iterate(EqHashTable.this::remove);
+			elements.iterate(EqHashTable.this::removeFor);
 			return oldSize - EqHashTable.this.size;
 		}
 
@@ -4204,7 +4204,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			try
 			{
-				return EqHashTable.this.remove((K)key);
+				return EqHashTable.this.removeFor((K)key);
 			}
 			catch(final Exception e)
 			{

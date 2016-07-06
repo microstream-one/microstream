@@ -798,7 +798,7 @@ public interface StorageFileManager
 				final long actualFileLength = file.file().length();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
-				final StorageTransactionFile entryFile = fileEntries.remove(file.number());
+				final StorageTransactionFile entryFile = fileEntries.removeFor(file.number());
 				if(entryFile == null)
 				{
 					// special case: empty file was created but not registered, can be safely ignored

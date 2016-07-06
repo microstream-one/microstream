@@ -134,7 +134,7 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 			selector                ,
 			projector               ,
 			comparator              ,
-			CqlResultor.New(aggregator)
+			CqlResultor.NewFromAggregator(aggregator)
 		);
 	}
 

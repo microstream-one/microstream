@@ -134,7 +134,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 			JadothConsole.debugln("Removing session " + session);
 			this.messageManager.remove(session);
 			JadothConsole.debugln(Thread.currentThread() + " Session manager removing session " + session);
-			this.sessionsPerConnection.remove(session.channel());
+			this.sessionsPerConnection.removeFor(session.channel());
 			JadothConsole.debugln(Thread.currentThread() + " Registered sessions now " + this.sessionsPerConnection.size());
 		}
 
