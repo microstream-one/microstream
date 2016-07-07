@@ -6,40 +6,11 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
-	<modules>
-		<module>net.jadoth.core</module>
-		<module>net.jadoth.swizzling</module>
-		<module>net.jadoth.persistence.engine</module>
-		<module>net.jadoth.persistence.binary</module>
-		<module>net.jadoth.storage</module>
-		<module>net.jadoth.storage.embedded</module>
-		<!-- Test / Work in Progress -->
-		<module>net.jadoth.core.work-in-progress</module>
-		<module>net.jadoth.network</module>
-		<module>net.jadoth.network.binary.persistence</module>
-		<module>net.jadoth.network.simple-session-protocol</module>
-		<module>net.jadoth.test.core</module>
-		<module>net.jadoth.test.persistence</module>
-		<module>net.jadoth.test.storage</module>
-		<module>net.jadoth.test.network</module>
-	</modules>
-
-	<distributionManagement>
-		<repository>
-			<id>xdevmaven</id>
-			<name>XDEV Maven Release Repository</name>
-			<url>http://xdevmaven/repository/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>xdevmaven</id>
-			<name>XDEV Maven Snapshot Repository</name>
-			<url>http://xdevmaven/repository/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
+	<parent>
+		<groupId>com.xdev-software</groupId>
+		<artifactId>xdev-maven-inhouse</artifactId>
+		<version>1.0.0</version>
+	</parent>
 
 	<repositories>
 		<repository>
@@ -64,170 +35,22 @@
 		</repository>
 	</repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>xdevmaven-releases</id>
-			<url>http://xdevmaven/repository/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<compilerId>eclipse</compilerId>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.xdev-software</groupId>
-						<artifactId>xdev-maven-eclipse-compiler</artifactId>
-						<version>4.5.2</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
-
-		<!-- Get rid of enforcer warning, see http://stackoverflow.com/questions/13040788/ -->
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>enforce</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-antrun-plugin
-										</artifactId>
-										<versionRange>
-											[1.7,)
-										</versionRange>
-										<goals>
-											<goal>run</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-
-	<profiles>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-enforcer-plugin</artifactId>
-						<version>1.2</version>
-						<executions>
-							<execution>
-								<id>enforce-maven</id>
-								<goals>
-									<goal>enforce</goal>
-								</goals>
-								<configuration>
-									<rules>
-										<requireMavenVersion>
-											<version>(,2.1.0),(2.1.0,2.2.0),(2.2.0,)</version>
-											<message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums respectively.</message>
-										</requireMavenVersion>
-									</rules>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>flatten-maven-plugin</artifactId>
-						<version>1.0.0</version>
-						<executions>
-							<execution>
-								<id>flatten</id>
-								<phase>process-resources</phase>
-								<goals>
-									<goal>flatten</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>flatten.clean</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>clean</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
-						<configuration>
-							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<goals>deploy</goals>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
+	<modules>
+		<module>net.jadoth.core</module>
+		<module>net.jadoth.swizzling</module>
+		<module>net.jadoth.persistence.engine</module>
+		<module>net.jadoth.persistence.binary</module>
+		<module>net.jadoth.storage</module>
+		<module>net.jadoth.storage.embedded</module>
+		<!-- Test / Work in Progress -->
+		<module>net.jadoth.core.work-in-progress</module>
+		<module>net.jadoth.network</module>
+		<module>net.jadoth.network.binary.persistence</module>
+		<module>net.jadoth.network.simple-session-protocol</module>
+		<module>net.jadoth.test.core</module>
+		<module>net.jadoth.test.persistence</module>
+		<module>net.jadoth.test.storage</module>
+		<module>net.jadoth.test.network</module>
+	</modules>
+	
 </project>
