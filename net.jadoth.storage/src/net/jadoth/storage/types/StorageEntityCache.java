@@ -1755,6 +1755,19 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.pendingMarksCount++;
 		}
 
+		final synchronized void enqueueBulk(final long[] oids)
+		{
+			final OidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+			final int            channelHash   = this.channelHash  ;
+
+			for(final long oid : oids)
+			{
+				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
+			}
+
+			this.pendingMarksCount += oids.length;
+		}
+
 		final synchronized boolean isMarkingComplete()
 		{
 			return this.pendingMarksCount == 0;
