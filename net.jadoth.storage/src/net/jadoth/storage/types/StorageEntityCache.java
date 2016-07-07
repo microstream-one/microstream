@@ -97,7 +97,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final GraySegment                         graySegmentRoot   = new GraySegment()   ;
 		private       GraySegment                         graySegmentHead   = this.graySegmentRoot;
 		private       GraySegment                         graySegmentTail   = this.graySegmentRoot;
-		
+
 		private       StorageEntity.Implementation[]      oidHashTable     ;
 		private       int                                 oidModulo        ; // long modulo makes not difference
 		private       long                                oidSize          ;
@@ -1741,6 +1741,36 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private boolean gcColdPhaseComplete;
 
 		private boolean gcComplete;
+
+
+		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
+
+		private final OidMarkQueue[] oidMarkQueues     = new OidMarkQueue[0];
+		private final int            channelCount      = this.oidMarkQueues.length;
+		private       long           pendingMarksCount;
+
+		final synchronized void enqueue(final long oid)
+		{
+			this.oidMarkQueues[(int)(oid & this.channelCount)].enqueue(oid);
+			this.pendingMarksCount++;
+		}
+
+		final synchronized boolean isMarkingComplete()
+		{
+			return this.pendingMarksCount == 0;
+		}
+
+		final synchronized void advanceMarking(final int channelIndex, final int amount)
+		{
+			if(this.pendingMarksCount < amount)
+			{
+				throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
+			}
+			this.oidMarkQueues[channelIndex].advanceTail(amount);
+			this.pendingMarksCount -= amount;
+		}
+
+		// (07.07.2016 TM)NOTE:
 
 
 

@@ -312,6 +312,7 @@ public interface StorageManager extends StorageController
 			this.writeListener.stop();
 			synchronized(task)
 			{
+				// (07.07.2016 TM)FIXME: OGS-23: shutdown doesn't wait for the shutdown to be completed.
 				task.waitOnCompletion();
 			}
 //			DEBUGStorage.println("shutdown complete");

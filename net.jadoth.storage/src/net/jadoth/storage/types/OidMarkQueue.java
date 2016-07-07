@@ -114,9 +114,10 @@ final class OidMarkQueue
 				return 0;
 			}
 
-			System.arraycopy(this.oids, this.lowIndex, buffer, 0, this.highIndex - this.lowIndex);
+			final int copyLength = Math.min(this.highIndex - this.lowIndex, buffer.length);
+			System.arraycopy(this.oids, this.lowIndex, buffer, 0, copyLength);
 
-			return this.highIndex - this.lowIndex;
+			return copyLength;
 		}
 
 		boolean advanceLowIndex(final int amount)
@@ -127,7 +128,7 @@ final class OidMarkQueue
 				throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
 			}
 
-			// report whether this segment is fully processed
+			// report whether this segment is fully processed.
 			return (this.lowIndex += amount) == this.length;
 		}
 

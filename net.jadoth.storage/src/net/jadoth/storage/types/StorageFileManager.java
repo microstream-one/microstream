@@ -316,6 +316,7 @@ public interface StorageFileManager
 
 		final void clearRegisteredFiles()
 		{
+			// (07.07.2016 TM)FIXME: why close silent? What about OS/IO/network problems?
 			StorageFile.closeSilent(this.fileTransactions);
 
 			if(this.headFile == null)
@@ -323,11 +324,14 @@ public interface StorageFileManager
 				return; // already cleared or no files in the first place
 			}
 
-			final StorageDataFile.Implementation currentFile = this.headFile;
-			for(StorageDataFile.Implementation file = currentFile; file.next != currentFile; file = file.next)
+			final StorageDataFile.Implementation headFile = this.headFile;
+
+			StorageDataFile.Implementation file = headFile;
+			do
 			{
 				StorageFile.closeSilent(file);
 			}
+			while((file = file.next) != headFile);
 
 			this.fileCleanupCursor = this.headFile = null;
 		}
@@ -989,7 +993,7 @@ public interface StorageFileManager
 				throw new RuntimeException(
 					"Inconsistent last timestamps in last file of channel " + this.channelIndex()
 				);
-				
+
 			}
 		}
 

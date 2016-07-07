@@ -50,6 +50,9 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			 * thus letting the calling thread (main) wait forever
 			 * thus preventing the program from terminating.
 			 */
+			/* (07.07.2016 TM)FIXME: Shutdown must properly handle completion notification
+			 * so that the issuing shutdown method waits for the shutdown to actually complete.
+			 */
 
 			// may not be done before to give every channel a safe way to notice the processing progress
 			this.channelController.deactivate();
