@@ -29,7 +29,7 @@ public class MainTestStorageExampleTiny
 			Test.print("STORAGE: storing completed.");
 		}
 
-//		STORAGE.shutdown();
+		STORAGE.shutdown();
 		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
 	}
 }

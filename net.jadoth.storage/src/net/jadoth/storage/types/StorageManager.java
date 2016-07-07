@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import net.jadoth.storage.exceptions.StorageExceptionNotRunning;
 import net.jadoth.swizzling.types.Swizzle;
@@ -203,6 +204,7 @@ public interface StorageManager extends StorageController
 		private StorageIdRangeAnalysis startThreads(final StorageChannelTaskInitialize initializingTask)
 			throws InterruptedException
 		{
+			// (07.07.2016 TM)TODO: StorageThreadStarter instead of hardcoded call
 			synchronized(initializingTask)
 			{
 				for(final ChannelKeeper keeper : this.keepers)

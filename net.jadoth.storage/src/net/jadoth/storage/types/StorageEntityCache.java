@@ -97,7 +97,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final GraySegment                         graySegmentRoot   = new GraySegment()   ;
 		private       GraySegment                         graySegmentHead   = this.graySegmentRoot;
 		private       GraySegment                         graySegmentTail   = this.graySegmentRoot;
-
+		
 		private       StorageEntity.Implementation[]      oidHashTable     ;
 		private       int                                 oidModulo        ; // long modulo makes not difference
 		private       long                                oidSize          ;
@@ -2013,11 +2013,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final StorageEntity.Implementation get()
 		{
+			// (07.07.2016 TM)NOTE: the safety of the low index is guaranteed by preceeding hasElements() calls.
 			return this.entities[this.lowIndex];
 		}
 
 		final void advanceProcessed()
 		{
+			// (07.07.2016 TM)NOTE: the safety of the low index is guaranteed by preceeding hasElements() calls.
 			this.entities[this.lowIndex++] = null;
 		}
 
