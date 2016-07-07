@@ -1746,12 +1746,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
 
 		private final OidMarkQueue[] oidMarkQueues     = new OidMarkQueue[0];
-		private final int            channelCount      = this.oidMarkQueues.length;
+		private final int            channelHash       = this.oidMarkQueues.length - 1;
 		private       long           pendingMarksCount;
 
 		final synchronized void enqueue(final long oid)
 		{
-			this.oidMarkQueues[(int)(oid & this.channelCount)].enqueue(oid);
+			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 			this.pendingMarksCount++;
 		}
 
@@ -1760,17 +1760,22 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.pendingMarksCount == 0;
 		}
 
-		final synchronized void advanceMarking(final int channelIndex, final int amount)
+		final synchronized void advanceMarking(final OidMarkQueue oidMarkQueue, final int amount)
 		{
 			if(this.pendingMarksCount < amount)
 			{
 				throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
 			}
-			this.oidMarkQueues[channelIndex].advanceTail(amount);
+
+			/*
+			 * Advance the oidMarkQueue not before the gc phase monitor has been locked and the amount has been validated.
+			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outsied.
+			 */
+			oidMarkQueue.advanceTail(amount);
 			this.pendingMarksCount -= amount;
 		}
 
-		// (07.07.2016 TM)NOTE:
+		// (07.07.2016 TM)NOTE: end of new part
 
 
 

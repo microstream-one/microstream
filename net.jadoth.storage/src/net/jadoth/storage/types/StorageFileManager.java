@@ -317,6 +317,11 @@ public interface StorageFileManager
 		final void clearRegisteredFiles()
 		{
 			// (07.07.2016 TM)FIXME: why close silent? What about OS/IO/network problems?
+			/* (07.07.2016 TM)TODO: StorageFileCloser
+			 * to abstract the delicate task of closing files.
+			 * Or better enhance StorageFileProvider to a StorageFileHandler
+			 * that handles both creation and closing.
+			 */
 			StorageFile.closeSilent(this.fileTransactions);
 
 			if(this.headFile == null)
