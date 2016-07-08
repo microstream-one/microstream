@@ -844,6 +844,12 @@ public final class JadothChars
 		}
 	}
 
+	// aaand another method missing in the JDK.
+	public static final String String(final char... chars)
+	{
+		return String.valueOf(chars);
+	}
+
 	/**
 	 * Ensures that the first character of the passed {@link String} is in upper case.
 	 * <p>

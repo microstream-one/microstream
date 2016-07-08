@@ -870,6 +870,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		private synchronized void promoteGray(final StorageEntity.Implementation entry)
 		{
+			/* (08.07.2016 TM)TODO: optimize gc already handled check?
+			 * Shouldn't the already handled check come first?
+			 * Does it matter if an entry is gray or black in the end?
+			 * Would it be an error if an initially gray non-reference entity remains gray instead of black?
+			 * Why do processed reference entities have to be marked black instead of just remain gray?
+			 * (to check if they have already been processed? But the isBlack state is never queried...)
+			 * Why not simply make an isBlack check here as a first check?
+			 */
+
 			if(!entry.hasReferences())
 			{
 				entry.markBlack(); // mark non-reference entries black right away
@@ -1717,7 +1726,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	}
 
-	static final class GcPhaseMonitor
+	static final class GcPhaseMonitor implements _longProcedure
 	{
 		private boolean isSweepMode;
 
@@ -1745,9 +1754,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
 
-		private final OidMarkQueue[] oidMarkQueues     = new OidMarkQueue[0];
-		private final int            channelHash       = this.oidMarkQueues.length - 1;
-		private       long           pendingMarksCount;
+		private final OidMarkQueue[] oidMarkQueues         = new OidMarkQueue[0];
+		private final int            channelCount          = this.oidMarkQueues.length;
+		private final int            channelHash           = this.channelCount - 1;
+		private       long           pendingMarksCount    ;
+
+		private final boolean[]      sweepBoard            = new boolean[this.channelCount];
+		private       int            sweepingChannelsCount;
 
 		final synchronized void enqueue(final long oid)
 		{
@@ -1786,6 +1799,42 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			 */
 			oidMarkQueue.advanceTail(amount);
 			this.pendingMarksCount -= amount;
+		}
+
+		final synchronized boolean isSweepMode_New()
+		{
+			return this.sweepingChannelsCount > 0;
+		}
+
+		final synchronized void beginSweepMode_New()
+		{
+			if(this.isSweepMode_New())
+			{
+				return;
+			}
+
+			for(int i = 0; i < this.sweepBoard.length; i++)
+			{
+				this.sweepBoard[i] = true;
+			}
+			this.sweepingChannelsCount = this.channelCount;
+		}
+
+		final synchronized boolean reportSweepingComplete_New(final StorageEntityCache<?> channel)
+		{
+			if(this.sweepBoard[channel.channelIndex()])
+			{
+				this.sweepBoard[channel.channelIndex()] = false;
+				this.sweepingChannelsCount--;
+			}
+
+			return this.isSweepMode_New();
+		}
+
+		@Override
+		public final void accept(final long oid)
+		{
+			this.enqueue(oid);
 		}
 
 		// (07.07.2016 TM)NOTE: end of new part

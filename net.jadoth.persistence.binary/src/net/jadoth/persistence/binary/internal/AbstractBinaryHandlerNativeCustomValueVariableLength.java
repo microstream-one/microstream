@@ -1,26 +1,50 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
 
 
-public abstract class AbstractBinaryHandlerNativeCustom<T>
-extends AbstractBinaryHandlerNative<T>
-implements PersistenceTypeHandlerCustom<Binary, T>
+public abstract class AbstractBinaryHandlerNativeCustomValueVariableLength<T>
+extends AbstractBinaryHandlerNativeCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNativeCustom(
+	public AbstractBinaryHandlerNativeCustomValueVariableLength(
 		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
 		super(typeId, type, pseudoFields);
+	}
+
+	/**
+	 * No instance references as it is a value type format.
+	 */
+	@Override
+	public final boolean hasInstanceReferences()
+	{
+		return false;
+	}
+
+	/**
+	 * Variable length.
+	 */
+	@Override
+	public final boolean isVariableBinaryLengthType()
+	{
+		return true;
+	}
+
+	/**
+	 * Variable length.
+	 */
+	@Override
+	public final boolean hasVariableBinaryLengthInstances()
+	{
+		return true;
 	}
 
 }

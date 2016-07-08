@@ -56,17 +56,27 @@ final class OidMarkQueue
 	{
 		if(this.tail.advanceLowIndex(amount))
 		{
+//			debugln("advance segment");
+
 			this.tail = this.tail.advanceTail();
 		}
 	}
 
 	synchronized void enqueue(final long oid)
 	{
+//		debugln("enqueue "+oid + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
 		if(this.head.enqueue(oid))
 		{
+//			debugln("segment full");
+
 			// either the next segment itself or a new segment created and enqueued by it.
 			this.head = this.head.advanceHead();
 		}
+	}
+
+	synchronized boolean hasElements()
+	{
+		return this.head != this.tail || this.head.hasElements();
 	}
 
 
@@ -85,15 +95,16 @@ final class OidMarkQueue
 			super();
 			this.oids = new long[this.length = JadothMath.positive(length)];
 			this.next = next;
+//			debugln("new segment");
 		}
 
-		Segment advanceTail()
+		final Segment advanceTail()
 		{
 			this.clear();
 			return this.next;
 		}
 
-		Segment advanceHead()
+		final Segment advanceHead()
 		{
 			// either the next segment if it is empty or a new segment hooked in between this segment and the next
 			return this.next.highIndex == 0
@@ -102,12 +113,17 @@ final class OidMarkQueue
 			;
 		}
 
-		void clear()
+		final boolean hasElements()
+		{
+			return this.lowIndex < this.highIndex;
+		}
+
+		final void clear()
 		{
 			this.lowIndex = this.highIndex = 0;
 		}
 
-		int getNext(final long[] buffer)
+		final int getNext(final long[] buffer)
 		{
 			if(this.lowIndex >= this.highIndex)
 			{
@@ -117,10 +133,12 @@ final class OidMarkQueue
 			final int copyLength = Math.min(this.highIndex - this.lowIndex, buffer.length);
 			System.arraycopy(this.oids, this.lowIndex, buffer, 0, copyLength);
 
+//			debugln("get next "+copyLength);
+
 			return copyLength;
 		}
 
-		boolean advanceLowIndex(final int amount)
+		final boolean advanceLowIndex(final int amount)
 		{
 			// should never happen, but just in case. Better check here than causing data to get deleted erroneously by the GC.
 			if(this.lowIndex + amount > this.highIndex)
@@ -132,7 +150,7 @@ final class OidMarkQueue
 			return (this.lowIndex += amount) == this.length;
 		}
 
-		boolean enqueue(final long oid)
+		final boolean enqueue(final long oid)
 		{
 			// store oid in the current bucket.
 			this.oids[this.highIndex] = oid;
@@ -142,5 +160,33 @@ final class OidMarkQueue
 		}
 
 	}
+
+
+//	public static void main(final String[] args)
+//	{
+//		final OidMarkQueue q = new OidMarkQueue(10);
+//
+//		final long[] buffer = new long[20];
+//		final int amount = 999;
+//		int i = 0;
+//		while(true)
+//		{
+//			if(i >= amount && !q.hasElements())
+//			{
+//				break;
+//			}
+//
+//			if(i < amount && Math.random() < 0.9)
+//			{
+//				q.enqueue(i++);
+//			}
+//			else
+//			{
+//				final int bufferSize = q.getNext(buffer);
+//				q.advanceTail(bufferSize);
+//			}
+//		}
+//		debugln(q.toString());
+//	}
 
 }
