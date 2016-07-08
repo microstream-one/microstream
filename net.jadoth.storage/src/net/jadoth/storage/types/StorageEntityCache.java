@@ -1071,16 +1071,29 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 
+		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
+		{
+			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
+			{
+//				DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
+				// use ensure method for that for purpose of uniformity / simplicity
+				this.ensureNoCachedData(entry);
+			}
+			else
+			{
+				// if the loaded entity data can stay in memory, touch the entity to mark now as its last use.
+				entry.touch();
+			}
+		}
+
 		private boolean incrementalMark_New(final long timeBudgetBound)
 		{
-			final StorageEntityCacheEvaluator entityCacheEvaluator = this.entityCacheEvaluator ;
-			final GcPhaseMonitor              gc                   = this.gcPhaseMonitor  ;
-			final long                        evalTime             = System.currentTimeMillis();
+			final long           evalTime = System.currentTimeMillis();
+			final GcPhaseMonitor gc       = this.gcPhaseMonitor       ;
 
 			// (08.07.2016 TM)TODO: move to fields
 			final OidMarkQueue q = OidMarkQueue.New(1024);
 			final long[] oids = new long[1024];
-
 
 			int oidsToMarkCount = 0;
 			int oidsIndex       = 0;
@@ -1122,17 +1135,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				if(entry.iterateReferenceIds(gc))
 				{
 					// must check for clearing the cache again if marking required loading
-					if(entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
-					{
-//						DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
-						// use ensure method for that for purpose of uniformity / simplicity
-						this.ensureNoCachedData(entry);
-					}
-					else
-					{
-						// if the loaded entity data can stay in memory, touch the entity to mark now as its last use.
-						entry.touch();
-					}
+					this.checkForCacheClear(entry, evalTime);
 				}
 
 				// note: if the cached data was already present, to NOT touch, otherwise it might never time out
