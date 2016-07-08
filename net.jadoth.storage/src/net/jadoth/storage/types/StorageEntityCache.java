@@ -1071,6 +1071,90 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 
+		private boolean incrementalMark_New(final long timeBudgetBound)
+		{
+			final StorageEntityCacheEvaluator entityCacheEvaluator = this.entityCacheEvaluator ;
+			final GcPhaseMonitor              gc                   = this.gcPhaseMonitor  ;
+			final long                        evalTime             = System.currentTimeMillis();
+
+			// (08.07.2016 TM)TODO: move to fields
+			final OidMarkQueue q = OidMarkQueue.New(1024);
+			final long[] oids = new long[1024];
+
+
+			int oidsToMarkCount = 0;
+			int oidsIndex       = 0;
+
+			// mark at least one entity, even if there no time, to avoid starvation
+			do
+			{
+				// fetch next batch of oids to mark and advance gray queue if necessary
+				if(oidsIndex >= oidsToMarkCount)
+				{
+					if(oidsIndex > 0)
+					{
+						// must advance via central gc monitor to update the total pending mark count
+						gc.advanceMarking_New(q, oidsIndex);
+					}
+
+					// reset oids index and fetch next batch
+					oidsIndex = 0;
+					if((oidsToMarkCount = q.getNext(oids)) == 0)
+					{
+						// if there are no oids to mark, marking might be complete or the channel has to wait for others to provide more.
+						return gc.isMarkingComplete_New();
+					}
+				}
+
+				// get the entry for the current oid to be marked
+				final StorageEntity.Implementation entry = this.getEntry(oids[oidsIndex++]);
+
+				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
+				if(entry.isGcBlack())
+				{
+					continue;
+				}
+
+				// note: iterateReferenceIds already checks for references and returns false if none are present
+
+				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency
+//				DEBUGStorage.println(this.channelIndex + " marking references of " + current.objectId() + " with cache size " + this.usedCacheSize);
+				if(entry.iterateReferenceIds(gc))
+				{
+					// must check for clearing the cache again if marking required loading
+					if(entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
+					{
+//						DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
+						// use ensure method for that for purpose of uniformity / simplicity
+						this.ensureNoCachedData(entry);
+					}
+					else
+					{
+						// if the loaded entity data can stay in memory, touch the entity to mark now as its last use.
+						entry.touch();
+					}
+				}
+
+				// note: if the cached data was already present, to NOT touch, otherwise it might never time out
+
+				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
+				entry.markBlack();
+
+//				DEBUGStorage.println(this.channelIndex + " marked " + current);
+//				DEBUG_marked++;
+			}
+			while(System.nanoTime() < timeBudgetBound);
+
+			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
+			if(oidsIndex > 0)
+			{
+				gc.advanceMarking_New(q, oidsIndex);
+			}
+
+//			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
+			return false;
+		}
+
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
 			final StorageEntityCacheEvaluator entityCacheEvaluator = this.entityCacheEvaluator ;
@@ -1762,13 +1846,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final boolean[]      sweepBoard            = new boolean[this.channelCount];
 		private       int            sweepingChannelsCount;
 
-		final synchronized void enqueue(final long oid)
+		final synchronized void enqueue_New(final long oid)
 		{
 			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 			this.pendingMarksCount++;
 		}
 
-		final synchronized void enqueueBulk(final long[] oids)
+		final synchronized void enqueueBulk_New(final long[] oids)
 		{
 			final OidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
 			final int            channelHash   = this.channelHash  ;
@@ -1781,12 +1865,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.pendingMarksCount += oids.length;
 		}
 
-		final synchronized boolean isMarkingComplete()
+		final synchronized boolean isMarkingComplete_New()
 		{
 			return this.pendingMarksCount == 0;
 		}
 
-		final synchronized void advanceMarking(final OidMarkQueue oidMarkQueue, final int amount)
+		final synchronized void advanceMarking_New(final OidMarkQueue oidMarkQueue, final int amount)
 		{
 			if(this.pendingMarksCount < amount)
 			{
@@ -1834,7 +1918,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public final void accept(final long oid)
 		{
-			this.enqueue(oid);
+			// do not enqueue null oids, not even get the lock
+			if(oid == Swizzle.nullId())
+			{
+				return;
+			}
+
+			this.enqueue_New(oid);
 		}
 
 		// (07.07.2016 TM)NOTE: end of new part
