@@ -1,12 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-import static net.jadoth.Jadoth.coalesce;
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.Jadoth.to_int;
-import static net.jadoth.math.JadothMath.log2pow2;
-import static net.jadoth.math.JadothMath.notNegative;
-
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
@@ -16,18 +9,19 @@ import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
-import net.jadoth.storage.types.StorageEntityCache.GrayReferenceMarker;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.branching.ThrowBreak;
+
+public class WIP
+{
+	// dummy
+}
 
 
-public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
+interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
 {
 	public StorageTypeDictionary typeDictionary();
 
 	public StorageEntityType<I> lookupType(long typeId);
-
-	public void markGray(long objectId);
 
 	public boolean incrementalLiveCheck(long timeBudgetBound);
 
@@ -78,7 +72,8 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator ;
 		private final StorageTypeDictionary               typeDictionary       ;
 		private final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor     ;
-		private final StorageValidRootIdCalculator        validRootIdCalculator;
+		private final OidMarkQueue                        oidMarkQueue         ;
+		private final long[]                              markingOidBuffer     ;
 
 
 		/* (19.04.2016 TM)TODO: StorageFileManager in StorageEntityCache
@@ -88,7 +83,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //		private final StorageFileManager.Implementation   fileManager          ;
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
-		private final GrayInitializer                     grayInitializer   = new GrayInitializer();
 		private final MaxObjectId                         maxObjectId       = new MaxObjectId()    ;
 		private final MinObjectId                         minObjectId       = new MinObjectId()    ;
 
@@ -106,9 +100,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 
 //		private       StorageEntityType.Implementation    liveCursorType   ;
 		private       StorageEntity.Implementation        liveCursor       ;
-
-		private       StorageEntityType.Implementation    sweepCursorType  ;
-		private       StorageEntity.Implementation        sweepCursor      ;
 
 		private       long                                usedCacheSize    ;
 
@@ -142,26 +133,28 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		/////////////////////
 
 		public Implementation(
-			final int                                 channelIndex         ,
-			final StorageEntityCacheEvaluator         cacheEvaluator       ,
-			final StorageTypeDictionary               typeDictionary       ,
-			final StorageEntityCache_New.Implementation[] colleagues           ,
-			final StorageEntityCache_New.GcPhaseMonitor   gcPhaseMonitor       ,
-			final long                                rootTypeId           ,
-			final StorageValidRootIdCalculator        validRootIdCalculator,
-			final StorageFileManager.Implementation   fileManager
+			final int                                   channelIndex         ,
+			final int                                   channelCount         ,
+			final StorageEntityCacheEvaluator           cacheEvaluator       ,
+			final StorageTypeDictionary                 typeDictionary       ,
+			final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor       ,
+			final long                                  rootTypeId           ,
+			final StorageFileManager.Implementation     fileManager          ,
+			final OidMarkQueue                          oidMarkQueue         ,
+			final int                                   markingBufferLength
 		)
 		{
 			super();
-			this.channelIndex          = notNegative(channelIndex)             ;
+			this.channelIndex          = JadothMath.notNegative(channelIndex)             ;
 			this.rootTypeId            =             rootTypeId                ;
-			this.entityCacheEvaluator  = notNull    (cacheEvaluator)           ;
-			this.typeDictionary        = notNull    (typeDictionary)           ;
-			this.gcPhaseMonitor        = notNull    (gcPhaseMonitor)           ;
+			this.entityCacheEvaluator  = Jadoth.notNull    (cacheEvaluator)           ;
+			this.typeDictionary        = Jadoth.notNull    (typeDictionary)           ;
+			this.gcPhaseMonitor        = Jadoth.notNull    (gcPhaseMonitor)           ;
 //			this.fileManager           =             fileManager               ;
-			this.channelHashModulo     =             colleagues.length - 1     ;
-			this.channelHashShift      = log2pow2   (colleagues.length)        ;
-			this.validRootIdCalculator =             validRootIdCalculator     ;
+			this.channelHashModulo     =             channelCount - 1     ;
+			this.channelHashShift      = JadothMath.log2pow2   (channelCount)        ;
+			this.oidMarkQueue          = Jadoth.notNull    (oidMarkQueue);
+			this.markingOidBuffer      = new long[markingBufferLength]   ;
 
 			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
 
@@ -233,10 +226,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 
 			// create a new root type instance on every clear. Everything else is not worth the reset&register-hassle.
 			this.rootType       = this.getType(this.rootTypeId);
-
-			// gc stuff
-			this.sweepCursorType   = this.typeHead;
-			this.sweepCursor       = this.sweepCursorType.head;
 		}
 
 		final void clearState()
@@ -553,8 +542,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 
 		final StorageEntity.Implementation putEntityValidated(
 			final long                             objectId ,
-			final StorageEntityType.Implementation type     ,
-			final boolean                          isMarking
+			final StorageEntityType.Implementation type
 		)
 		{
 			/* This logic is a copy from #putEntity(long).
@@ -572,15 +560,15 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			if((entry = this.getEntry(objectId)) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
-				this.updatePutEntity(entry, isMarking);
+				this.updatePutEntity(entry);
 				return entry;
 			}
 
 //			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
-			return this.createEntity(objectId, type, isMarking);
+			return this.createEntity(objectId, type);
 		}
 
-		final StorageEntity.Implementation updatePutEntity(final long entityAddress, final boolean isMarking)
+		final StorageEntity.Implementation updatePutEntity(final long entityAddress)
 		{
 			// ensure (lookup or create) complete entity item for storing
 //			DEBUGStorage.println("looking for " + BinaryPersistence.getEntityObjectId(entityAddress));
@@ -589,32 +577,23 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			{
 //				DEBUGStorage.println("updating entry " + entry);
 				// same as updatePutEntity() but without the retro-reference-marking
-				this.updatePutEntity(entry, isMarking);
+				this.updatePutEntity(entry);
 				return entry;
 			}
 
 //			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
 			return this.createEntity(
 				BinaryPersistence.getEntityObjectId(entityAddress),
-				this.getType(BinaryPersistence.getEntityTypeId(entityAddress)),
-				isMarking
+				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
 			);
 		}
 
-		private void updatePutEntity(final StorageEntity.Implementation entry, final boolean isMarking)
+		private void updatePutEntity(final StorageEntity.Implementation entry)
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
 			entry.detachFromFile();
-
-			if(isMarking)
-			{
-				this.markPhaseEnsureGray(entry);
-			}
-			else
-			{
-				this.sweepPhaseMarkInitial(entry);
-			}
+			this.oidMarkQueue.enqueue(entry.objectId());
 		}
 
 		public final long entityCount()
@@ -629,8 +608,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		 */
 		private StorageEntity.Implementation createEntity(
 			final long                             objectId,
-			final StorageEntityType.Implementation type    ,
-			final boolean                          enqueueGray
+			final StorageEntityType.Implementation type
 		)
 		{
 			// increment size and check for necessary (and reasonable) rebuild
@@ -664,167 +642,13 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			 * current cycle and hence will be collected, desite being referenced by C.
 			 * To avoid this, newly created entities with references must be enqueued gray right away.
 			 */
-			if(enqueueGray && entity.hasReferences())
+			if(entity.hasReferences())
 			{
 				// enqueuing is sufficient as new entities are initially gray anyway
-				this.gcPhaseMonitor.enqueue_New(objectId);
+				this.oidMarkQueue.enqueue(objectId);
 			}
 
 			return entity;
-		}
-
-
-		private synchronized void initializeRootGray(final StorageEntity.Implementation entry)
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageEntityCache_New.Implementation#initializeRootGray()
-		}
-
-		/* instantly promote white entities upon update (for 1 cycle) or demote already black entities for recheck
-		 * Rationale:
-		 * Consider the following scenario:
-		 * A does not reference C, B references C.
-		 * A's refs have already been marked, B's not yet.
-		 * A and B get stored (updated), now A references C, B does not anymore.
-		 * this results in C being still unmarked (=doomed) when entering sweep mode.
-		 * Therefore, every entity with references must be checked again when being updated.
-		 *
-		 * This is, however, only viale during mark phase, as graying entities during sweep phase
-		 * would cause inconcistencies (already swept entities begin falsely interpreted as aready marked in the next
-		 * mark phase, not being reference-iterated, causing their exclusively referenced entities to be deleted.
-		 */
-		final synchronized void markPhaseEnsureGray(final StorageEntity.Implementation entry)
-		{
-			// non-referential entities have no references to be checked, hence mark black right away
-			if(!entry.hasReferences())
-			{
-				entry.markBlack(); // mark non-reference entries black right away
-				return;
-			}
-
-			// marked gray means being already gray-enqueued and not handled yet (would be black otherwise)
-			if(entry.isGcGray())
-			{
-				return;
-			}
-
-			// set to gray, both white (promotion) and black (demotion for recheck)
-			this.enqueueAndMarkGray(entry);
-		}
-
-		/*
-		 * Used to mark an updated entity as initial (neither white nor gray/black, see states) during sweep mode.
-		 * Rationale for the additional state:
-		 * On updating entities after a store (or import etc) during sweep mode, it can't be determined if
-		 * a white entity is an already visited black entity (resetted to white) or an actually not marked entity
-		 * yet to be visited (i.e. normally doomed entity that got saved by the store's update).
-		 * Simply setting white entities to black here could cause already visited entities to remain black in the
-		 * next mark phase, being falsely considered as already handled, thus not having their references iterated
-		 * and thus falsely dooming all their excklusively referenced entities. This MAY NOT happen.
-		 * The solution:
-		 * A special "initial" (or "light gray") state, that prevents the entity from beeing deleted in this sweep
-		 * ("more than white)" but does not prevent the next marking from handling it ("less than gray").
-		 * The light gray state will either be resetted to white in the current sweep (saved but whited) if the
-		 * entity was not yet visited, or in the next mark phase (set to gray or black by marking) if the entity
-		 * is reachable or at the latest in the next sweep (saved but whited).
-		 * Note that this also influences how the state of "GC completeness" is determined.
-		 *
-		 */
-		/* (11.07.2016 TM)FIXME: isn't this complete bullshit?
-		 * An updated/imported/whatever new entity is supposed to have one GC cycle grace time.
-		 * It could only falsely persist through GC-cycles if it got stored (=updated) on every cycle.
-		 * But even then: As long as it's stored anew, the GC will never complete (two cycles without change) and the entity
-		 * gets one grace cycle after another.
-		 * Using light gray instead of gray has the same effect, only with additional complexity.
-		 */
-		final void sweepPhaseMarkInitial(final StorageEntity.Implementation entry)
-		{
-			// if an entity is still marked (definitely yet to be visited during sweep)
-			if(entry.isGcMarked())
-			{
-				return;
-			}
-			entry.markInitial();
-		}
-
-		private synchronized void promoteGray(final StorageEntity.Implementation entry)
-		{
-			/* (08.07.2016 TM)TODO: optimize gc already handled check?
-			 * Shouldn't the already handled check come first?
-			 * Does it matter if an entry is gray or black in the end?
-			 * Would it be an error if an initially gray non-reference entity remains gray instead of black?
-			 * Why do processed reference entities have to be marked black instead of just remain gray?
-			 * (to check if they have already been processed? But the isBlack state is never queried...)
-			 * Why not simply make an isBlack check here as a first check?
-			 */
-
-			if(!entry.hasReferences())
-			{
-				entry.markBlack(); // mark non-reference entries black right away
-				return;
-			}
-
-			if(entry.isGcAlreadyHandled())
-			{
-				return; // if meanwhile already gray or black, do nothing
-			}
-
-			// only set to gray if entity was white before (neither gray or black)
-			this.enqueueAndMarkGray(entry);
-		}
-
-		final synchronized boolean isMarking()
-		{
-			// the flag is not updated on every graychain advance, it's only a helper to handle stores.
-			return this.isMarking
-				|| this.graySegmentTail.hasElements() || this.graySegmentTail != this.graySegmentHead
-			;
-		}
-
-		final boolean isInMarkPhase()
-		{
-			return !this.gcPhaseMonitor.isSweepMode();
-		}
-
-		final synchronized StorageEntity.Implementation getNextGray()
-		{
-			/* advancing the chain before graying current references
-			 * could cause those gray items to slip through completion check.
-			 * reference graying can't be done in here to avoid deadlocks
-			 * (thread/channel 1 being locked in here,
-			 * needing the lock on thread/channel 2 to gray a reference and vice versa)
-			 * so the progression has to be made in three separate steps:
-			 * 1.) (locked) read (NOT advance!) next gray item
-			 * 2.) (no lock) iterate references, gray them in their respective channels (acquire locks as needed)
-			 * 3.) (locked) advance gray chain
-			 */
-			if(this.graySegmentTail.hasElements())
-			{
-				return this.graySegmentTail.get();
-			}
-
-			// if tail has no elements (checked above) and caught up to head, then there are no more elements at all.
-			if(this.graySegmentTail == this.graySegmentHead)
-			{
-				this.clearIsMarking();
-				return null; // no more elements to process at all
-			}
-
-			// next (non-head) segment is guaranteed to have elements to be processed
-			return (this.graySegmentTail = this.graySegmentTail.next).get();
-		}
-
-		private void advanceGrayChain()
-		{
-			// acquire lock on gcPhaseMonitor to avoid gray references slipping through mark phase finish check
-			synchronized(this.gcPhaseMonitor)
-			{
-				// acquire lock on this to guarantee gray item enqueing safety
-				synchronized(this)
-				{
-//					this.DEBUG_marked++;
-					this.graySegmentTail.advanceProcessed();
-				}
-			}
 		}
 
 		final void deleteEntity(
@@ -868,86 +692,46 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //			return (this.liveCursorType = type).head;
 //		}
 
-		private boolean incrementalSweep(final long timeBudgetBound, final StorageChannel channel)
+		private void sweep()
 		{
 //			DEBUGStorage.println(this.channelIndex + " sweeping a little (" + (timeBudgetBound - System.nanoTime()) + ")");
 //			int DEBUG_safed = 0, DEBUG_collected = 0;
 //			final long DEBUG_starttime = System.nanoTime();
 
-			StorageEntityType.Implementation sweepType  = this.sweepCursorType;
-			// never null, neither initially nor incrementally
-			StorageEntity.Implementation     item, last = this.sweepCursor;
+			final StorageEntityType.Implementation typeHead = this.typeHead;
 
-			// sweep at least one item, even if there no time, to avoid starvation
-			do
+			for(StorageEntityType.Implementation sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
 			{
 				// get next item and check for end of type (switch to next type required)
-				if((item = last.typeNext) == null)
+				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
-					// current type completed. Seek next type with entities.
-					do
+					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
+					if(item.isGcMarked())
 					{
-						// advance to next type and check for full cycle (reach head type again)
-						if((sweepType = sweepType.next) == this.typeHead)
-						{
-							this.completeSweepCycle(channel);
-//							DEBUGStorage.println(this.channelIndex + " sweep COMPLETED, safed " + DEBUG_safed + ", collected " + DEBUG_collected + " (" + (System.nanoTime() - DEBUG_starttime) + "ns) gcComplete: " + this.gcPhaseMonitor.isPartialComplete());
-							return true;
-						}
+//						DEBUGStorage.println("Saving " + item);
+						(last = item).markWhite(); // reset to white and advance one item
+//						DEBUG_safed++;
 					}
-					while(sweepType.head.typeNext == null);
-					last = (this.sweepCursorType = sweepType).head;
-					continue;
-				}
-
-				// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
-				if(item.isGcMarked())
-				{
-//					DEBUGStorage.println("Saving " + item);
-					(last = item).markWhite(); // reset to white and advance one item
-//					DEBUG_safed++;
-				}
-				else
-				{
-					// otherwise white entity, so collect it
-//					DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
-					this.deleteEntity(item, sweepType, last);
-					// decrement entity count (strictly only once per remove as guaranteed by check above)
-//					DEBUG_collected++;
-					/* even if another thread concurrently grays the item, it can only cause a single
-					 * "pre-death" grace cycle as the item is no longer reachable from now on for future marking.
-					 */
+					else
+					{
+						// otherwise white entity, so collect it
+//						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
+						this.deleteEntity(item, sweepType, last);
+						// decrement entity count (strictly only once per remove as guaranteed by check above)
+//						DEBUG_collected++;
+						/* even if another thread concurrently grays the item, it can only cause a single
+						 * "pre-death" grace cycle as the item is no longer reachable from now on for future marking.
+						 */
+					}
 				}
 			}
-			while(System.nanoTime() < timeBudgetBound);
-			/*
-			 * Surprising but true:
-			 * Checking time on every item is not slower than only checking it every 10th, 100th or 1000ths.
-			 * The time per item was always around 16-32 ns on the same machine. Despite the normal case
-			 * being only a tiny amount of work, the nanoTime() call still seems to be insignificant in comparison.
+
+			/* (12.07.2016 TM)FIXME:
+			 * Old code had a detour over StorageChannel to basically call the following after a sweep is complete:
+			 * this.fileManager.resetFileCleanupCursor();
+			 * Why?
 			 */
-
-			// time ran out, update current sweep cursor position for next run
-			this.sweepCursor = last;
-
-//			DEBUGStorage.println(this.channelIndex + " sweep timed out, safed " + DEBUG_safed + ", collected " + DEBUG_collected);
-
-			// report back as not completed yet
-			return false;
 		}
-
-		private void completeSweepCycle(final StorageChannel channel)
-		{
-			// mark sweeping as done
-			this.completedSweeping = true;
-
-			// reset sweep cursors
-			this.sweepCursor = (this.sweepCursorType = this.typeHead).head;
-
-			// signal to channel
-			channel.signalGarbageCollectionSweepCompleted();
-		}
-
 
 		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
 		{
@@ -964,14 +748,19 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			}
 		}
 
-		private boolean incrementalMark_New(final long timeBudgetBound)
+		/**
+		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * (Meaning the returned boolean effectively means "Was there enough time?")
+		 *
+		 * @param timeBudgetBound
+		 * @return
+		 */
+		private boolean incrementalMark(final long timeBudgetBound)
 		{
 			final long           evalTime = System.currentTimeMillis();
 			final GcPhaseMonitor gc       = this.gcPhaseMonitor       ;
-
-			// (08.07.2016 TM)TODO: move to fields
-			final OidMarkQueue q = OidMarkQueue.New(1024);
-			final long[] oids = new long[1024];
+			final OidMarkQueue   q        = this.oidMarkQueue         ;
+			final long[]         oids     = this.markingOidBuffer     ;
 
 			int oidsToMarkCount = 0;
 			int oidsIndex       = 0;
@@ -992,16 +781,29 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 					oidsIndex = 0;
 					if((oidsToMarkCount = q.getNext(oids)) == 0)
 					{
-						// if there are no oids to mark, marking might be complete or the channel has to wait for others to provide more.
-						return gc.isMarkingComplete_New();
+						// ran out of work before time ran out. So return true.
+						return true;
 					}
 				}
 
 				// get the entry for the current oid to be marked
 				final StorageEntity.Implementation entry = this.getEntry(oids[oidsIndex++]);
 
+				/*
+				 * Note on null entry:
+				 * This should of course never happen and must be seen as a bug.
+				 * However the GC is not the place to break in such a case.
+				 * Currently, this can even happen regularly, if the last reference to an entity is removed, then the GC
+				 * deleted the entity and then a store reestablishes the reference to the then deleted entity.
+				 * This might be a bug in the user code or in the storer or swizzle registry or whatever, but it should
+				 * be recognized and handled at that point, not break the GC.
+				 * For that reason, encountering a zombie OID is ignored.
+				 *
+				 * (12.07.2016 TM)TODO: ZombieOidHandler callback
+				 */
+
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
-				if(entry.isGcBlack())
+				if(entry == null || entry.isGcBlack())
 				{
 					continue;
 				}
@@ -1033,78 +835,9 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			}
 
 //			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
+
+			// time ran out, return false.
 			return false;
-		}
-
-		private boolean incrementalMark(final long timeBudgetBound)
-		{
-			final StorageEntityCacheEvaluator entityCacheEvaluator = this.entityCacheEvaluator ;
-			final GrayReferenceMarker         grayReferenceMarker  = this.grayReferenceMarker  ;
-			final long                        evalTime             = System.currentTimeMillis();
-
-			this.setIsMarking(); // will be cleared in #getNextGray() if apropriate
-
-//			int DEBUG_marked = 0;
-//			DEBUGStorage.println(this.channelIndex + " marking a little (" + (timeBudgetBound - evalTime) + ")");
-
-			// mark at least one entity, even if there no time, to avoid starvation
-			do
-			{
-				final StorageEntity.Implementation current;
-				if((current = this.getNextGray()) == null)
-				{
-//					DEBUGStorage.println(this.channelIndex + " Gray chain processed.");
-					// no more gray entities, nothing to do here any more, sweep is next
-					return this.gcPhaseMonitor.isMarkPhaseComplete(this.colleagues);
-				}
-
-//				DEBUGStorage.println(this.channelIndex + " marking references of " + current.objectId() + " with cache size " + this.usedCacheSize);
-				if(current.iterateReferenceIds(grayReferenceMarker))
-				{
-					// must check for clearing the cache again if marking required loading
-					if(entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, current))
-					{
-//						DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
-						// use ensure method for that for purpose of uniformity / simplicity
-						this.ensureNoCachedData(current);
-					}
-					else
-					{
-						// if the loaded entity data can stay in memory, touch the entity to mark now as its last use.
-						current.touch();
-					}
-				}
-				else if(current.hasReferences())
-				{
-					// if data was already present from an referencing entity, touch the entity to keep the data alive.
-					current.touch();
-				}
-				// never touch non-referencing entity via reference marking.
-
-				current.markBlack();
-//				DEBUGStorage.println(this.channelIndex + " marked " + current);
-//				DEBUG_marked++;
-
-				/* advance gray chain after graying current entity's reference
-				 * to prevent those gray items from slipping through the completion check
-				 */
-				this.advanceGrayChain();
-//				this.advanceGrayChain(current);
-			}
-			while(System.nanoTime() < timeBudgetBound);
-
-//			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
-			return false;
-		}
-
-		final void initializeGrayChain()
-		{
-//			DEBUGStorage.println(this.channelIndex + " initializing gray chain with " + this.rootType.typeId + " (" + this.rootType.entityCount() + ")");
-
-			this.ensureSingletonRootInstance();
-
-			// initialize gray chain with all root type instances, remove all empty root type instances in the process
-			this.rootType.iterateEntities(this.grayInitializer);
 		}
 
 		private void ensureSingletonRootInstance()
@@ -1126,8 +859,10 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			 * This algorithm is a little clums and redundant, however channel count and root instances count
 			 * are both very low (usually in the one-digits), so it still should run through in an instant.
 			 */
-			final long validRootsId = this.validRootIdCalculator.determineValidRootId(this.colleagues);
-			this.rootType.removeAll(this.rootsDeleter.setValidRootId(validRootsId));
+//			final long validRootsId = this.validRootIdCalculator.determineValidRootId(this.colleagues);
+//			this.rootType.removeAll(this.rootsDeleter.setValidRootId(validRootsId));
+
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageEntityCache_New.Implementation#enclosing_method()
 		}
 
 
@@ -1135,8 +870,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		final void internalUpdateEntities(
 			final ByteBuffer                     chunk               ,
 			final long                           chunkStoragePosition,
-			final StorageDataFile.Implementation file                ,
-			final boolean                        isMarking
+			final StorageDataFile.Implementation file
 		)
 		{
 			final long chunkStartAddress   = Memory.directByteBufferAddress(chunk);
@@ -1149,12 +883,12 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
 			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += BinaryPersistence.getEntityLength(adr))
 			{
-				// (11.07.2016 TM)FIXME: should lock GC and enqueue here en block if needed, not check and lock for every entity
-				this.updatePutEntity(adr, isMarking)
+				// (11.07.2016 TM)TODO: should lock GC and enqueue here en block if needed, not check and lock for every entity
+				this.updatePutEntity(adr)
 				.updateStorageInformation(
-					checkArrayRange(BinaryPersistence.getEntityLength(adr)),
+					Jadoth.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
-					to_int(storageBackset + adr)
+					Jadoth.to_int(storageBackset + adr)
 				);
 			}
 		}
@@ -1196,11 +930,9 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		)
 			throws InterruptedException
 		{
-			final boolean isMarking = this.isInMarkPhase();
-
 			for(int i = 0; i < chunks.length; i++)
 			{
-				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile, isMarking);
+				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
 			}
 
 			// signal to gc phase monitor that this channel has no more pending update
@@ -1406,10 +1138,14 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //			DEBUGStorage.println(this.channelIndex + " issuedCacheCheck until " + nanoTimeBudget + " at " + System.nanoTime());
 			return this.internalLiveCheck(
 				nanoTimeBudget,
-				coalesce(entityEvaluator, this.entityCacheEvaluator)
+				Jadoth.coalesce(entityEvaluator, this.entityCacheEvaluator)
 			);
 		}
 
+		/**
+		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * (Meaning the returned boolean effectively means "Was there enough time?")
+		 */
 		@Override
 		public final boolean incrementalGarbageCollection(final long timeBudgetBound, final StorageChannel channel)
 		{
@@ -1418,75 +1154,36 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //				return true;
 //			}
 
-			final boolean doSweep;
-
-			// lock the phase monitor for the complete process of state querying to avoid concurrent changes.
-			synchronized(this.gcPhaseMonitor)
+			if(this.gcPhaseMonitor.isComplete())
 			{
-				if(this.gcPhaseMonitor.isComplete())
-				{
-//					DEBUGStorage.println(this.channelIndex + " aborting GC (no new data since last sweep)");
-					return true;
-				}
-
-//				DEBUGStorage.println(this.channelIndex + " GC with budget of " + (timeBudgetBound - System.nanoTime()));
-
-				if(this.gcPhaseMonitor.isSweepMode())
-				{
-					if(this.completedSweeping)
-					{
-						// global sweep mode, but this channel is already done sweeping, so just check/wait for global completion
-//						DEBUGStorage.println(this.channelIndex + " waiting for other channels to complete sweeping.");
-						return this.gcPhaseMonitor.isSweepPhaseComplete(this.colleagues);
-					}
-					doSweep = true;
-				}
-				else
-				{
-					doSweep = false;
-				}
-			}
-
-			// perform the actual operation without/outside the phase monitor lock
-			return doSweep
-				? this.doSweep(timeBudgetBound, channel)
-				: this.doMark(timeBudgetBound, channel)
-			;
-		}
-
-
-		final synchronized void resetAfterSweep()
-		{
-			this.checkOidHashTableConsolidation(); // check for shrink after sweep
-			this.resetGraySegments(); // must reset BEFORE gray initializing!
-			this.initializeGrayChain();
-		}
-
-		private boolean doSweep(final long timeBudgetBound, final StorageChannel channel)
-		{
-//			DEBUGStorage.println(this.channelIndex + " sweeping...");
-			if(this.incrementalSweep(timeBudgetBound, channel))
-			{
-//				DEBUGStorage.println(this.channelIndex + " sweeping completed.");
+				// optimize hash table if storage is potentially going to be inactive
+				this.checkOidHashTableConsolidation();
 				return true;
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " sweeping adjourned.");
-			return false;
-		}
+			if(this.gcPhaseMonitor.needsSweep(this))
+			{
+				this.sweep();
 
-		private boolean doMark(final long timeBudgetBound, final StorageChannel channel)
-		{
-//			DEBUGStorage.println(this.channelIndex + " marking....");
+				if(System.nanoTime() >= timeBudgetBound)
+				{
+					return false;
+				}
+			}
+
 			if(this.incrementalMark(timeBudgetBound))
 			{
-//				DEBUGStorage.println(this.channelIndex + " marking completed.");
 				return true;
 			}
-//			DEBUGStorage.println(this.channelIndex + " marking adjourned.");
+
 			return false;
 		}
 
+
+		/**
+		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * (Meaning the returned boolean effectively means "Was there enough time?")
+		 */
 		@Override
 		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound, final StorageChannel channel)
 		{
@@ -1495,97 +1192,72 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //				return true;
 //			}
 
-			while(true)
+//			DEBUGStorage.println(this.hashIndex() + " issued gc (" + this.debugGcState() + ")");
+
+			// check time budget first for explicitly issued calls.
+			performGC:
+			while(System.nanoTime() < nanoTimeBudgetBound)
 			{
 				// call gc for the given time budget and evaluate result
-//				DEBUGStorage.println(this.hashIndex() + " issued gc (" + this.debugGcState() + ")");
-				if(this.incrementalGarbageCollection(nanoTimeBudgetBound, channel))
+				if(!this.incrementalGarbageCollection(nanoTimeBudgetBound, channel))
 				{
-					// check for completion. Also aborts unnecessary gc issuing very quickly.
-					if(this.gcPhaseMonitor.isComplete())
-					{
-						// garbage collection complete, at least for this channel, others will complete their sweeping.
-						return true;
-					}
-//					DEBUGStorage.println(this.hashIndex() + " continue gc (" + this.debugGcState() + ")");
-				}
-
-				// has to be checked BEFORE the sleep in case the gc call returned due to expired time budget
-				if(System.nanoTime() >= nanoTimeBudgetBound)
-				{
-					// time ran out
+					// if the call returned indicating that time ran out, return accordingly immediately.
 					return false;
 				}
+				// reaching here means the gc loop ran out of work before it ran out of time. Check why.
+
 
 				/*
-				 * If there is still enough time, but gc call returned false, it means that this channel has
-				 * currently no work but is waiting for others to complete their phase.
-				 * So it would burn all CPU time in the loop with active waiting for its colleagues to catch up.
-				 * So in this case, a small wait is necessary.
+				 * This is a tricky wait loop:
+				 * In the gc phase monitor implementation, first a lock on the monitor itself is obtained and then on the mark queue.
+				 * Meaning the code here can't just lock the mark queue and then lock the monitor to check for completion inside the loop.
+				 * This would cause a deadlock.
+				 *
+				 * So the loop has to be split:
+				 * The loop only checks for completion and time budget.
+				 * Inside the loop, a simple if checks for newly fed oids (queue elements) to be processed (= new work)
+				 * If there aren't any, a tiny wait on the queue is performed.
+				 *
+				 * Note: this is a defense against spurious wakeups, however slightly complicated due to the deadlock matter:
+				 * On any wakeup, a check for time and completion is perf
+				 *
 				 */
-//				DEBUGStorage.println(this.channelIndex() + " waiting due to (" + this.debugGcState() + ")");
-				try
+				waitForWork:
+				while(System.nanoTime() < nanoTimeBudgetBound)
 				{
-					/* (16.04.2016)FIXME: possible GC race condition reason.
-					 * a proper wait-notify structure has to be done here, not some clumsy wait
-					 */
-					// CHECKSTYLE.OFF: MagicNumber: must be replaced anyway
-					Thread.sleep(10);
-					// CHECKSTYLE.ON: MagicNumber
-				}
-				catch(final InterruptedException e)
-				{
-					// thread got interrupted while waiting for other threads to proceed, so abort unfinished
-					return false;
-				}
-			}
-		}
+					// check for completion on every attempt to wait for new work
+					if(this.gcPhaseMonitor.isComplete())
+					{
+						return true;
+					}
 
-		/* must be synchronized to avoid inconsistencies if one thread wants to mark while
-		 * another is currently rebuilding the hashtable
-		 */
-		@Override
-		public final synchronized void markGray(final long objectId)
-		{
-			/* Note:
-			 * If an entry has not been created yet and thus is missed here, it is no big deal.
-			 * Newly created entries are marked as gray initially, meaning they get to live
-			 * until the next sweep in any case and may get collected in the next cycle.
-			 */
-			for(StorageEntity.Implementation e = this.getOidHashChainHead(objectId); e != null; e = e.hashNext)
-			{
-				if(e.objectId() == objectId)
-				{
-					this.promoteGray(e);
-					return;
+					// check/wait for missing oids to mark, which have to be provided by other channels' marking.
+					synchronized(this.oidMarkQueue)
+					{
+						// if the mark queue is empty and there is still time, wait for new
+						if(this.oidMarkQueue.hasElements())
+						{
+							break waitForWork;
+						}
+
+						try
+						{
+							this.oidMarkQueue.wait(10);
+						}
+						catch(final InterruptedException e)
+						{
+							// thread has been interrupted while trying to perform garbage collection. So abort and return.
+							break performGC;
+						}
+					}
+					// end of waiting, perform checks again
 				}
+				// end of waitForWork, continue performGC
 			}
-		}
+			// end of performGC
 
-		final void markGrayIfNonNullReferences(final StorageEntity.Implementation rootEntity)
-		{
-			// not sure if this is extremely elegant or hacky. Anyway, it's strictly local, so perfectly safe
-			try
-			{
-				// iterate references and break on first non-null value (see #accept())
-				rootEntity.iterateReferenceIds(BREAK_ON_NONNULL_REFERENCE_VALUE);
-				// iterated all reference and found no non-null value, so return leaving the root entity doomed for GC.
-			}
-			catch(final ThrowBreak b)
-			{
-				// break signals found non-null value, so mark gray
-				this.initializeRootGray(rootEntity);
-			}
-		}
-
-		// this class only exists to shorten the type length in the class' field list. True story :).
-		final class GrayInitializer implements ThrowingProcedure<StorageEntity.Implementation, RuntimeException>
-		{
-			@Override
-			public void accept(final StorageEntity.Implementation e) throws RuntimeException
-			{
-				Implementation.this.markGrayIfNonNullReferences(e);
-			}
+			// either time ran out or thread was interrupted. In any case, report back the current state of the garbage collection.
+			return this.gcPhaseMonitor.isComplete();
 		}
 
 //		private void DEBUG_PRINT_OID_HASH_VALUES()
@@ -1669,7 +1341,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 
 	static final class GcPhaseMonitor implements _longProcedure
 	{
-		private boolean isSweepMode;
 
 		/*
 		 * Indicates that no new data (store) has been received since the last sweep.
@@ -1690,8 +1361,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		 */
 		private boolean gcColdPhaseComplete;
 
-		private boolean gcComplete;
-
 
 		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
 
@@ -1700,8 +1369,8 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		private final int            channelHash           = this.channelCount - 1;
 		private       long           pendingMarksCount    ;
 
-		private final boolean[]      sweepBoard            = new boolean[this.channelCount];
-		private       int            sweepingChannelsCount;
+		private final boolean[]      needsSweep            = new boolean[this.channelCount];
+		private       int            pendingSweeps        ;
 
 		final synchronized void enqueue_New(final long oid)
 		{
@@ -1742,34 +1411,74 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			this.pendingMarksCount -= amount;
 		}
 
-		final synchronized boolean isSweepMode_New()
+		private synchronized void advanceCompletion()
 		{
-			return this.sweepingChannelsCount > 0;
-		}
-
-		final synchronized void beginSweepMode_New()
-		{
-			if(this.isSweepMode_New())
+			if(this.gcColdPhaseComplete)
 			{
 				return;
 			}
 
-			for(int i = 0; i < this.sweepBoard.length; i++)
+			if(this.gcHotPhaseComplete)
 			{
-				this.sweepBoard[i] = true;
+				this.gcColdPhaseComplete = true;
 			}
-			this.sweepingChannelsCount = this.channelCount;
+
+			this.gcHotPhaseComplete = true;
 		}
 
-		final synchronized boolean reportSweepingComplete_New(final StorageEntityCache_New<?> channel)
+		private synchronized boolean sweepingRequired()
 		{
-			if(this.sweepBoard[channel.channelIndex()])
+			if(!this.isMarkingComplete_New())
 			{
-				this.sweepBoard[channel.channelIndex()] = false;
-				this.sweepingChannelsCount--;
+				return false;
 			}
 
-			return this.isSweepMode_New();
+			for(int i = 0; i < this.needsSweep.length; i++)
+			{
+				this.needsSweep[i] = true;
+			}
+			this.pendingSweeps = this.needsSweep.length;
+
+			if(System.currentTimeMillis() > 0)
+			{
+				// FIXME initialize root OID
+				throw new net.jadoth.meta.NotImplementedYetError();
+			}
+
+			return true;
+		}
+
+		final synchronized boolean needsSweep(final StorageEntityCache_New<?> channel)
+		{
+			/*
+			 * If there is a pending sweep to be executed by the passed (= calling) channel, then mark as done
+			 * and return that sweep is required, causing a sweep.
+			 *
+			 * Otherwise, check if the passed/calling channel/thread is the first to recognize
+			 * the current marking is complete (no more pending oids to mark) and issue that a channel-wide sweep is required.
+			 * If so, again the current channel marks its own sweep to be done and returns causing a sweep.
+			 *
+			 * If both checks yield false, no sweep is needed.
+			 *
+			 * Note that the actual timing of when the sweep is done or before or after other threads already marking again is irrelevant.
+			 * What is relevant is the logical order:
+			 * - A required sweep is ONLY issued if the marking is safely completed (lock-secured central count == 0 check)
+			 * - The sweep check itself is lock-secured and central, a sweep cannot be issues or done twice.
+			 * - After the count == 0 case is detected, every channel will exactely sweep once before it can go back to marking
+			 * - The mark oid queue (long[]) does not in any way interfere with the sweeping (local Entry instances) or vice versa.
+			 */
+			if(this.needsSweep[channel.channelIndex()] || this.sweepingRequired())
+			{
+				this.needsSweep[channel.channelIndex()] = false;
+				if(--this.pendingSweeps == 0)
+				{
+					this.advanceCompletion();
+				}
+
+				return true;
+			}
+
+			return false;
 		}
 
 		@Override
@@ -1784,198 +1493,14 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			this.enqueue_New(oid);
 		}
 
-		// (07.07.2016 TM)NOTE: end of new part
-
-
-
-		final synchronized boolean isSweepMode()
-		{
-			return this.isSweepMode;
-		}
-
-		final synchronized void setCompletion()
-		{
-			this.gcHotPhaseComplete = this.gcColdPhaseComplete = this.gcComplete = true;
-		}
-
 		final synchronized void resetCompletion()
 		{
-			this.gcHotPhaseComplete = this.gcColdPhaseComplete = this.gcComplete = false;
-		}
-
-		final synchronized boolean isPartialComplete()
-		{
-			return this.gcHotPhaseComplete;
+			this.gcHotPhaseComplete = this.gcColdPhaseComplete = false;
 		}
 
 		final synchronized boolean isComplete()
 		{
-			return this.gcComplete;
-		}
-
-		final synchronized void reset(final StorageEntityCache_New.Implementation[] colleagues)
-		{
-			this.resetGcPhaseState(colleagues);
-			this.setCompletion();
-
-			// truncate gray segments AFTER completion has been resetted so that no other channel marks entities again.
-			for(final Implementation e : colleagues)
-			{
-				e.truncateGraySegments();
-			}
-		}
-
-		final synchronized void resetGcPhaseState(final StorageEntityCache_New.Implementation[] colleagues)
-		{
-			if(!this.isSweepMode)
-			{
-				return;
-			}
-			this.isSweepMode = false;
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-			}
-		}
-
-		final synchronized boolean isMarkPhaseComplete(final StorageEntityCache_New.Implementation[] colleagues)
-		{
-			// mode is switched only once by the first channel no notice mark phase completion (last to check in)
-			if(this.isSweepMode)
-			{
-				return true;
-			}
-
-			/* note on tricky concurrency:
-			 * because a lock on this instance is required to complete the gray chain (see #advanceGrayChain),
-			 * checking all channels while having the lock is guaranteed to not let any gray marking slip through.
-			 * Even if another channel is about to process its last gray item and mark an already checked channel in
-			 * the process, it cannot complete its gray chain until this channel releases the lock.
-			 * Hence, this channel will see the other channel as still having a gray item (its last one) and therefore
-			 * will return false (meaning mark phase not complete).
-			 * If it really was the last gray item of all channels, it will get recognized properly in the next check,
-			 * when all channel will have nextGray == null and nothing more gets enqueued.
-			 */
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				if(colleagues[i].isMarking())
-				{
-//					DEBUGStorage.println(i + " not finished mark phase yet.");
-					return false;
-				}
-			}
-
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-//				DEBUGStorage.println(colleagues[i].channelIndex() + " " + colleagues[i].DEBUG_grayCount);
-//				colleagues[i].DEBUG_grayCount = 0;
-
-//				synchronized(colleagues[i])
-//				{
-//					if(colleagues[i].DEBUG_marked < 1500000 && colleagues[i].DEBUG_marked > 0)
-//					{
-//						DEBUGStorage.println(i + " incomplete marking!");
-//						for(int j = 0; j < colleagues.length; j++)
-//						{
-//							colleagues[j].DEBUG_gcState();
-//						}
-//						DEBUGStorage.println("x_x");
-//					}
-//					DEBUGStorage.println(i + " Gray chain processed. Marked " + colleagues[i].DEBUG_marked);
-//					colleagues[i].DEBUG_marked = 0;
-//				}
-
-			}
-
-			// switch mode (only once, see check above)
-			this.isSweepMode = true;
-
-			/*
-			 * It is important to set the completion state here (end of mark phase) and not at the end of the sweep
-			 * phase.
-			 * Rationale:
-			 * An entity update (e.g. store, etc.) during a sweep phase sets white entities to initial (light gray).
-			 * That mark gets resetted in the next sweep phase.
-			 * If the flags were set at the end of the sweep phase, the following might occur:
-			 * - store during sweep1 phase
-			 * - completion gets resetted
-			 * - some entities get marked as initial but not resetted by the sweep as they were already visited
-			 * - sweep1 finishes, setting completion1
-			 * - sweep2 visits the entities, resets them to white, but does not delete them
-			 * - sweep2 finishes, setting completion2
-			 * - GC effectively stops until the next store
-			 * However some (potentially meanwhile unreachable) entities did not get deleted as sweep2 just
-			 * resetted the initial mark but did not delete the entities yet.
-			 *
-			 * If the completion state setting is located here, an ongoing sweep phase with an intermediate store
-			 * won't nullify the store's state resetting.
-			 */
-			if(this.gcHotPhaseComplete)
-			{
-//				DEBUGStorage.println("Cold mark phase complete.");
-				this.gcColdPhaseComplete = true;
-			}
-			else
-			{
-//				DEBUGStorage.println("Hot mark phase complete.");
-				this.gcHotPhaseComplete = true;
-			}
-
-			return true;
-		}
-
-		final synchronized boolean isSweepPhaseComplete(final StorageEntityCache_New.Implementation[] colleagues)
-		{
-			// mode is switched only once by the first channel no notice mark phase completion (last to check in)
-			if(!this.isSweepMode)
-			{
-				return true;
-			}
-
-			// simple completed-check: sooner or later, every channels completes sweeping without rollback.
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				if(!colleagues[i].completedSweeping)
-				{
-					return false;
-				}
-			}
-
-			// switch modes in all channels while under the lock's protection
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-
-				/*
-				 * calling this method here is essential because the gray chain must be initialized while the lock
-				 * on the gc phase monitor is still hold to guarantee there is at least one gray item
-				 * before the next check for completed mark phase.
-				 * Calling that complex logic for all channels in one channel thread at this point is
-				 * no concurrency problem for the simple reason that this method can only be entered if
-				 * all other channels have completed sweeping and wait for the last channel to end the sweep mode,
-				 * meaning they aren't doing anything (mutating state) at the moment.
-				 */
-				colleagues[i].resetAfterSweep();
-			}
-
-			// switch mode (only once, see check above)
-			this.isSweepMode = false;
-
-//			DEBUGStorage.println("Sweep phase complete");
-
-			/* after a cold mark phase (no new data) has been done, the following sweep will establish a stable
-			 * state in which additional marks and sweeps won't cause any change. Hence, the GC can be considered
-			 * "complete" (until the next mutation in entities like store or import) and turned off.
-			 * This is indicated by the flag set here.
-			 */
-			if(this.gcColdPhaseComplete)
-			{
-				this.gcComplete = true;
-				DEBUGStorage.println("GC complete");
-			}
-
-			return true;
+			return this.gcColdPhaseComplete;
 		}
 
 	}
