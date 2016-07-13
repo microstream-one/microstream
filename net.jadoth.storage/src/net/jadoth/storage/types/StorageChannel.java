@@ -684,6 +684,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 				for(int i = 0; i < channels.length; i++)
 				{
+					final StorageFileManager.Implementation fileManager;
 					channels[i] = new StorageChannel.Implementation(
 						i                     ,
 						problemHandler        ,
@@ -697,10 +698,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 							caches              ,
 							gcPhsMon            ,
 							rootTypeId          ,
-							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount),
-							null // (01.04.2016)FIXME: fix circlic initialization dependency
+							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
 						),
-						new StorageFileManager.Implementation(
+						fileManager = new StorageFileManager.Implementation(
 							i                              ,
 							initialDataFileNumberProvider  ,
 							timestampProvider              ,
@@ -712,6 +712,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 							writeListener
 						)
 					);
+
+					// required to resolve the initializer cyclic depedency
+					caches[i].initializeStorageManager(fileManager);
 				}
 				return channels;
 			}

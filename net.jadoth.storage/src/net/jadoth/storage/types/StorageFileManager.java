@@ -1357,7 +1357,7 @@ public interface StorageFileManager
 		public final void resetFileCleanupCursor()
 		{
 			this.fileCleanupCursor = this.headFile.next;
-//			DEBUGStorage.println(this.channelIndex + " resetted housekeeping to file " + this.housekeepingFile.number() + " for head file " + this.headFile.number());
+//			DEBUGStorage.println(this.channelIndex + " resetted housekeeping to first file " + this.housekeepingFile.number() + " for head file " + this.headFile.number());
 		}
 
 		@Override

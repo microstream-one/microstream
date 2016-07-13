@@ -1,5 +1,9 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.math.JadothMath.log2pow2;
+import static net.jadoth.math.JadothMath.notNegative;
+
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
@@ -44,24 +48,6 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 	public final class Implementation implements StorageEntityCache_New<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-
-		static final _longProcedure BREAK_ON_NONNULL_REFERENCE_VALUE = new _longProcedure()
-		{
-			@Override
-			public final void accept(final long value)
-			{
-				if(value != Swizzle.nullId())
-				{
-					throw Jadoth.BREAK; // found a non-null reference, break to signal
-				}
-			}
-		};
-
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
@@ -74,13 +60,10 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 		private final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor     ;
 		private final OidMarkQueue                        oidMarkQueue         ;
 		private final long[]                              markingOidBuffer     ;
+		private final StorageGCZombieOidHandler           zombieOidHandler     ;
 
-
-		/* (19.04.2016 TM)TODO: StorageFileManager in StorageEntityCache
-		 * fix call-site init-loop for that
-		 */
 		// currently only used for entity iteration
-//		private final StorageFileManager.Implementation   fileManager          ;
+		private       StorageFileManager.Implementation   fileManager          ; // pseudo-final
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
 		private final MaxObjectId                         maxObjectId       = new MaxObjectId()    ;
@@ -133,28 +116,28 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 		/////////////////////
 
 		public Implementation(
-			final int                                   channelIndex         ,
-			final int                                   channelCount         ,
-			final StorageEntityCacheEvaluator           cacheEvaluator       ,
-			final StorageTypeDictionary                 typeDictionary       ,
-			final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor       ,
-			final long                                  rootTypeId           ,
-			final StorageFileManager.Implementation     fileManager          ,
-			final OidMarkQueue                          oidMarkQueue         ,
+			final int                                   channelIndex       ,
+			final int                                   channelCount       ,
+			final StorageEntityCacheEvaluator           cacheEvaluator     ,
+			final StorageTypeDictionary                 typeDictionary     ,
+			final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor     ,
+			final StorageGCZombieOidHandler             zombieOidHandler   ,
+			final long                                  rootTypeId         ,
+			final OidMarkQueue                          oidMarkQueue       ,
 			final int                                   markingBufferLength
 		)
 		{
 			super();
-			this.channelIndex          = JadothMath.notNegative(channelIndex)             ;
-			this.rootTypeId            =             rootTypeId                ;
-			this.entityCacheEvaluator  = Jadoth.notNull    (cacheEvaluator)           ;
-			this.typeDictionary        = Jadoth.notNull    (typeDictionary)           ;
-			this.gcPhaseMonitor        = Jadoth.notNull    (gcPhaseMonitor)           ;
-//			this.fileManager           =             fileManager               ;
-			this.channelHashModulo     =             channelCount - 1     ;
-			this.channelHashShift      = JadothMath.log2pow2   (channelCount)        ;
-			this.oidMarkQueue          = Jadoth.notNull    (oidMarkQueue);
-			this.markingOidBuffer      = new long[markingBufferLength]   ;
+			this.channelIndex          = notNegative(channelIndex)    ;
+			this.rootTypeId            =             rootTypeId       ;
+			this.entityCacheEvaluator  = notNull    (cacheEvaluator)  ;
+			this.typeDictionary        = notNull    (typeDictionary)  ;
+			this.gcPhaseMonitor        = notNull    (gcPhaseMonitor)  ;
+			this.zombieOidHandler      = notNull    (zombieOidHandler);
+			this.channelHashModulo     =             channelCount - 1 ;
+			this.channelHashShift      = log2pow2   (channelCount)    ;
+			this.oidMarkQueue          = notNull    (oidMarkQueue)    ;
+			this.markingOidBuffer      = new long[markingBufferLength];
 
 			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
 
@@ -166,6 +149,15 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+
+		final void initializeStorageManager(final StorageFileManager.Implementation fileManager)
+		{
+			if(this.fileManager != null && this.fileManager != fileManager)
+			{
+				throw new RuntimeException();
+			}
+			this.fileManager = fileManager;
+		}
 
 //		final void DEBUG_gcState()
 //		{
@@ -726,11 +718,8 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 				}
 			}
 
-			/* (12.07.2016 TM)FIXME:
-			 * Old code had a detour over StorageChannel to basically call the following after a sweep is complete:
-			 * this.fileManager.resetFileCleanupCursor();
-			 * Why?
-			 */
+			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
+			this.fileManager.resetFileCleanupCursor();
 		}
 
 		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
@@ -789,21 +778,18 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 				// get the entry for the current oid to be marked
 				final StorageEntity.Implementation entry = this.getEntry(oids[oidsIndex++]);
 
-				/*
-				 * Note on null entry:
-				 * This should of course never happen and must be seen as a bug.
-				 * However the GC is not the place to break in such a case.
-				 * Currently, this can even happen regularly, if the last reference to an entity is removed, then the GC
-				 * deleted the entity and then a store reestablishes the reference to the then deleted entity.
-				 * This might be a bug in the user code or in the storer or swizzle registry or whatever, but it should
-				 * be recognized and handled at that point, not break the GC.
-				 * For that reason, encountering a zombie OID is ignored.
-				 *
-				 * (12.07.2016 TM)TODO: ZombieOidHandler callback
-				 */
+				if(entry == null)
+				{
+					if(this.zombieOidHandler.ignoreZombieOid(oids[oidsIndex - 1]))
+					{
+						continue;
+					}
+					// (29.07.2014 TM)EXCP: proper exception
+					throw new RuntimeException("Zombie OID " + oids[oidsIndex - 1]);
+				}
 
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
-				if(entry == null || entry.isGcBlack())
+				if(entry.isGcBlack())
 				{
 					continue;
 				}
@@ -883,7 +869,6 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
 			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += BinaryPersistence.getEntityLength(adr))
 			{
-				// (11.07.2016 TM)TODO: should lock GC and enqueue here en block if needed, not check and lock for every entity
 				this.updatePutEntity(adr)
 				.updateStorageInformation(
 					Jadoth.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
@@ -935,7 +920,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
 			}
 
-			// (13.07.2016 TM)TODO: move to StorageRequestTaskSaveEntities#cleanUp to cover error cases properly
+			// (13.07.2016 TM)FIXME: move to StorageRequestTaskSaveEntities#cleanUp to cover error cases properly
 			this.gcPhaseMonitor.clearPendingStoreUpdate();
 		}
 
@@ -1156,7 +1141,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 
 			if(this.gcPhaseMonitor.isComplete(this))
 			{
-				// optimize hash table if storage is potentially going to be inactive
+				// minimize hash table memory consumption if storage is potentially going to be inactive
 				this.checkOidHashTableConsolidation();
 				return true;
 			}
@@ -1401,7 +1386,8 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 		{
 			if(this.pendingMarksCount < amount)
 			{
-				throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
+				// (07.07.2016 TM)EXCP: proper exception
+				throw new RuntimeException();
 			}
 
 			/*

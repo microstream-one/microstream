@@ -86,7 +86,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * fix call-site init-loop for that
 		 */
 		// currently only used for entity iteration
-//		private final StorageFileManager.Implementation   fileManager          ;
+		private StorageFileManager.Implementation   fileManager          ; // pseudo-final
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
 		private final GrayInitializer                     grayInitializer   = new GrayInitializer();
@@ -171,8 +171,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntityCache.Implementation[] colleagues           ,
 			final StorageEntityCache.GcPhaseMonitor   gcPhaseMonitor       ,
 			final long                                rootTypeId           ,
-			final StorageValidRootIdCalculator        validRootIdCalculator,
-			final StorageFileManager.Implementation   fileManager
+			final StorageValidRootIdCalculator        validRootIdCalculator
 		)
 		{
 			super();
@@ -199,6 +198,16 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+
+
+		final void initializeStorageManager(final StorageFileManager.Implementation fileManager)
+		{
+			if(this.fileManager != null && this.fileManager != fileManager)
+			{
+				throw new RuntimeException();
+			}
+			this.fileManager = fileManager;
+		}
 
 //		final void DEBUG_gcState()
 //		{
