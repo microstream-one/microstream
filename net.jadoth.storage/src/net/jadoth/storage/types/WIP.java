@@ -430,11 +430,6 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 			return null;
 		}
 
-		final boolean isGarbageCollectionComplete()
-		{
-			return this.gcPhaseMonitor.isComplete();
-		}
-
 		final void resetGarbageCollectionCompletionForEntityUpdate()
 		{
 			this.gcPhaseMonitor.resetCompletion();
@@ -1154,7 +1149,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 //				return true;
 //			}
 
-			if(this.gcPhaseMonitor.isComplete())
+			if(this.gcPhaseMonitor.isComplete(this))
 			{
 				// optimize hash table if storage is potentially going to be inactive
 				this.checkOidHashTableConsolidation();
@@ -1226,7 +1221,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 				while(System.nanoTime() < nanoTimeBudgetBound)
 				{
 					// check for completion on every attempt to wait for new work
-					if(this.gcPhaseMonitor.isComplete())
+					if(this.gcPhaseMonitor.isComplete(this))
 					{
 						return true;
 					}
@@ -1257,7 +1252,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 			// end of performGC
 
 			// either time ran out or thread was interrupted. In any case, report back the current state of the garbage collection.
-			return this.gcPhaseMonitor.isComplete();
+			return this.gcPhaseMonitor.isComplete(this);
 		}
 
 //		private void DEBUG_PRINT_OID_HASH_VALUES()
@@ -1498,9 +1493,16 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 			this.gcHotPhaseComplete = this.gcColdPhaseComplete = false;
 		}
 
-		final synchronized boolean isComplete()
+		final synchronized boolean isComplete(final StorageEntityCache_New<?> channel)
 		{
-			return this.gcColdPhaseComplete;
+			/*
+			 * GC is effectively complete if either:
+			 * - the cold phase is complete (meaning nothing will/can change until the next store
+			 * - the hot phase (first sweep) is complete and the cold phase has only some sweeps pending from other channelss
+			 */
+			return this.gcColdPhaseComplete
+				|| this.gcHotPhaseComplete && this.pendingSweeps > 0 && !this.needsSweep[channel.channelIndex()]
+			;
 		}
 
 	}

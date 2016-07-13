@@ -350,6 +350,12 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			 * Also see  postStoreUpdateEntityCache
 			 */
 
+			/* (13.07.2016 TM)FIXME: simple GC fix in conjunction with the new OidMarkQueue:
+			 * Must register a "pending store update" marker with the gc phase monitor.
+			 * As long as the marker count is greater than 0, no sweep can be done.
+			 * The post store update will revert entities from black to gray, enqueue oids and decrement the marker.
+			 */
+
 			// reset even if there is no new data to account for (potential) new data in other channel
 			this.entityCache.resetGarbageCollectionCompletionForEntityUpdate();
 
