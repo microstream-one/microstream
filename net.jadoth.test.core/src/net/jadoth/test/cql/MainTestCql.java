@@ -121,7 +121,7 @@ public class MainTestCql
 			CQL
 			.<KeyValue<Integer, String>, EqHashTable<Integer, BulkList<String>>>aggregate(
 				EqHashTable::New,
-				(e, r) -> r.ensure(e.key(), BulkList::New).add(e.value()),
+				(e, r) -> r.ensure(e.key(), i -> BulkList.<String>New(i)).add(e.value()),
 				r -> r.keys().sort(Integer::compare)
 			)
 			.from(
