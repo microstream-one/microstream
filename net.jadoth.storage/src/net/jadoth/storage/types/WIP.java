@@ -432,7 +432,12 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 
 		final void resetGarbageCollectionCompletionForEntityUpdate()
 		{
-			this.gcPhaseMonitor.resetCompletion();
+			synchronized(this.gcPhaseMonitor)
+			{
+				this.gcPhaseMonitor.signalPendingStoreUpdate();
+				this.gcPhaseMonitor.resetCompletion();
+			}
+
 		}
 
 		@Override
@@ -930,8 +935,8 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
 			}
 
-			// signal to gc phase monitor that this channel has no more pending update
-//			this.gcPhaseMonitor.decrementPostStorePendingUpdateCount();
+			// (13.07.2016 TM)TODO: move to StorageRequestTaskSaveEntities#cleanUp to cover error cases properly
+			this.gcPhaseMonitor.clearPendingStoreUpdate();
 		}
 
 		@Override
@@ -1363,6 +1368,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 		private final int            channelCount          = this.oidMarkQueues.length;
 		private final int            channelHash           = this.channelCount - 1;
 		private       long           pendingMarksCount    ;
+		private       int            pendingStoreUpdates  ;
 
 		private final boolean[]      needsSweep            = new boolean[this.channelCount];
 		private       int            pendingSweeps        ;
@@ -1388,7 +1394,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 
 		final synchronized boolean isMarkingComplete_New()
 		{
-			return this.pendingMarksCount == 0;
+			return this.pendingMarksCount == 0 && this.pendingStoreUpdates == 0;
 		}
 
 		final synchronized void advanceMarking_New(final OidMarkQueue oidMarkQueue, final int amount)
@@ -1404,6 +1410,21 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 			 */
 			oidMarkQueue.advanceTail(amount);
 			this.pendingMarksCount -= amount;
+		}
+
+		final synchronized void signalPendingStoreUpdate()
+		{
+			this.pendingStoreUpdates++;
+		}
+
+		final synchronized void clearPendingStoreUpdate()
+		{
+			/* (13.07.2016 TM)TODO: shouldn't this be a channel-board array to make the calls idempotent?
+			 * Can multiple signalling can occur before a clear? Should not be possible due to the thread processing
+			 * tasks serially.
+			 */
+
+			this.pendingStoreUpdates--;
 		}
 
 		private synchronized void advanceCompletion()
