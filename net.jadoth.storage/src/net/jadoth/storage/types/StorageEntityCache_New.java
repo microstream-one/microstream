@@ -15,13 +15,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
 
-public class WIP
-{
-	// dummy
-}
-
-
-interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
+public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -849,7 +843,7 @@ interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends St
 //			final long validRootsId = this.validRootIdCalculator.determineValidRootId(this.colleagues);
 //			this.rootType.removeAll(this.rootsDeleter.setValidRootId(validRootsId));
 
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageEntityCache_New.Implementation#enclosing_method()
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME WIP.Implementation#enclosing_method()
 		}
 
 
