@@ -81,6 +81,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public void truncateData();
 
+	public void cleanupStore();
+
 
 
 	public final class Implementation implements StorageChannel
@@ -625,6 +627,12 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.fileManager.resetFileCleanupCursor();
 		}
 
+		@Override
+		public void cleanupStore()
+		{
+			this.entityCache.cleanupPendingStoreUpdate();
+		}
+
 	}
 
 
@@ -647,6 +655,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageFileWriter.Provider            writerProvider               ,
 			StorageWriteListener                  writeListener                ,
 			StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
+			StorageGCZombieOidHandler             zombieOidHandler             ,
 			long                                  rootTypeId
 		);
 
@@ -675,12 +684,17 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageFileWriter.Provider            writerProvider               ,
 				final StorageWriteListener                  writeListener                ,
 				final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
+				final StorageGCZombieOidHandler             zombieOidHandler             ,
 				final long                                  rootTypeId
 			)
 			{
-				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
-				final StorageEntityCache.Implementation[] caches   = new StorageEntityCache.Implementation[channelCount];
-				final StorageEntityCache.GcPhaseMonitor   gcPhsMon = new StorageEntityCache.GcPhaseMonitor();
+				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
+				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
+				final OidMarkQueue[]                      markQueues = new OidMarkQueue[channels.length];
+				final StorageGcPhaseMonitor               gcPhsMon   = new StorageGcPhaseMonitor(markQueues);
+
+				// (14.07.2016 TM)TODO: make markBufferLength configurable
+				final int                                 markBufferLength = 500;
 
 				for(int i = 0; i < channels.length; i++)
 				{
@@ -693,11 +707,15 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						housekeepingController,
 						caches[i] = new StorageEntityCache.Implementation(
 							i                   ,
+							channels.length     ,
 							entityCacheEvaluator,
 							typeDictionary      ,
 							caches              ,
 							gcPhsMon            ,
+							zombieOidHandler    ,
 							rootTypeId          ,
+							markQueues[i] = OidMarkQueue.New(markBufferLength),
+							markBufferLength    ,
 							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
 						),
 						fileManager = new StorageFileManager.Implementation(

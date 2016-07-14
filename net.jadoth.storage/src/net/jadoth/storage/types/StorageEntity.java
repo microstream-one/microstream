@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -91,6 +92,7 @@ public interface StorageEntity
 		 * For garbage collection algorithm, see http://en.wikipedia.org/wiki/Garbage_collection_(computer_science)
 		 */
 
+		// (14.07.2016 TM)TODO: remove useless initial state after switch to new StorageEntityCache implementation
 		static final byte GC_BLACK      = +2; // fully handled by marking
 		static final byte GC_GRAY       = +1; // marked but waiting for reference iteration marking
 		static final byte GC_INITIAL    =  0; // created/updated. Not marked, but not to be deleted in current GC round.
@@ -585,6 +587,58 @@ public interface StorageEntity
 		 * 3.) Above all: every instance of a class implementing it causes the creation of a java.lang.ref.Finalizer
 		 *     which requires 64 byte in COOPS mode. Which is almost ridiculous.
 		 */
+
+	}
+
+	public final class MaxObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
+	{
+		private long maxObjectId;
+
+		public final MaxObjectId reset()
+		{
+			this.maxObjectId = 0;
+			return this;
+		}
+
+		@Override
+		public final void accept(final StorageEntity e)
+		{
+			if(e.objectId() >= this.maxObjectId)
+			{
+				this.maxObjectId = e.objectId();
+			}
+		}
+
+		public final long yield()
+		{
+			return this.maxObjectId;
+		}
+
+	}
+
+	public final class MinObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
+	{
+		private long minObjectId;
+
+		public final MinObjectId reset()
+		{
+			this.minObjectId = Long.MAX_VALUE;
+			return this;
+		}
+
+		@Override
+		public final void accept(final StorageEntity e)
+		{
+			if(e.objectId() < this.minObjectId)
+			{
+				this.minObjectId = e.objectId();
+			}
+		}
+
+		public final long yield()
+		{
+			return this.minObjectId == Long.MAX_VALUE ? 0 : this.minObjectId;
+		}
 
 	}
 

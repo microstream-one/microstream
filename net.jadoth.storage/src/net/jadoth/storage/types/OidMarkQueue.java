@@ -62,16 +62,38 @@ final class OidMarkQueue
 		}
 	}
 
-	synchronized void enqueue(final long oid)
+	synchronized void enqueueAndNotify(final long oid)
 	{
 //		debugln("enqueue "+oid + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
 		if(this.head.enqueue(oid))
 		{
 //			debugln("segment full");
 
+			/* (14.07.2016 TM)TODO: prevent OidMarkQueue size excess
+			 * if the queue exceeds a certain size, a consolidation action should be taken
+			 * to remove redundant OIDs.
+			 * Otherwise, very frequent stores and the entity updates they cause could fill
+			 * up the whole memory with a massively redundant mark queue.
+			 * A consolidated mark queue can never fill the memory as it can in the very worst academic case
+			 * only contain all OIDs of all entities, meaning a range of megabytes for millions of entities or gigabytes
+			 * for billions. In other words: it will always pale in comparison to the memory already consumed for the
+			 * meta data.
+			 *
+			 * An open addressing long set implementation should be used for that.
+			 * See OpenAdressingMiniSet
+			 */
+
 			// either the next segment itself or a new segment created and enqueued by it.
 			this.head = this.head.advanceHead();
 		}
+
+		/*
+		 * notify potentially waiting channel that new work is waiting.
+		 * Only owner channels ever wait on a mark queue instance.
+		 * Only marking channels ever notify on a mark queue instance
+		 * (including the owner channel itself, but then it is not waiting in the first place).
+		 */
+		this.notify();
 	}
 
 	synchronized boolean hasElements()

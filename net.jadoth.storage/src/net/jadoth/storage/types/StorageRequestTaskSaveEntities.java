@@ -85,6 +85,9 @@ public interface StorageRequestTaskSaveEntities extends StorageRequestTask
 		{
 			// at this point the chunks are definitely not used anymore by anyone
 			this.data[channel.channelIndex()].clear();
+
+			// signal channel to cleanup the current store, e.g. remove pending store updates to re-enable GC sweeping
+			channel.cleanupStore();
 		}
 
 	}

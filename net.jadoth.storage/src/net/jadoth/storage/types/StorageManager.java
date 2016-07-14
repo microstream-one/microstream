@@ -71,6 +71,7 @@ public interface StorageManager extends StorageController
 		private final StorageTimestampProvider                timestampProvider            ;
 		private final StorageObjectIdRangeEvaluator           objectIdRangeEvaluator       ;
 		private final StorageValidRootIdCalculator.Provider   validRootIdCalculatorProvider;
+		private final StorageGCZombieOidHandler               zombieOidHandler             ;
 
 
 		// state flags //
@@ -110,6 +111,7 @@ public interface StorageManager extends StorageController
 			final StorageFileWriter.Provider            writerProvider               ,
 			final StorageWriteListener.Provider         writeListenerProvider        ,
 			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
+			final StorageGCZombieOidHandler             zombieOidHandler             ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -134,6 +136,7 @@ public interface StorageManager extends StorageController
 			this.writerProvider                = notNull(writerProvider)                      ;
 			this.writeListenerProvider         = notNull(writeListenerProvider)               ;
 			this.validRootIdCalculatorProvider = notNull(validRootIdCalculatorProvider)       ;
+			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
 
 			/* must not leave processing information implementation choice to outside context
@@ -243,21 +246,22 @@ public interface StorageManager extends StorageController
 			 * Give analysis result to configurable callback handler (exception by default).
 			 */
 			final StorageChannel[] channels = this.channelCreator.createChannels(
-				this.channelCount()               ,
-				this.initialDataFileNumberProvider,
-				this.exceptionHandler             ,
-				this.fileDissolver                ,
-				this.fileProvider                 ,
-				this.entityCacheEvaluator         ,
-				this.typeDictionary               ,
-				this.taskbroker                   ,
-				this.channelController            ,
-				this.housekeepingController       ,
-				this.timestampProvider            ,
-				this.readerProvider               ,
-				this.writerProvider               ,
-				this.createWriteListener()        ,
-				this.validRootIdCalculatorProvider,
+				this.channelCount()                        ,
+				this.initialDataFileNumberProvider         ,
+				this.exceptionHandler                      ,
+				this.fileDissolver                         ,
+				this.fileProvider                          ,
+				this.entityCacheEvaluator                  ,
+				this.typeDictionary                        ,
+				this.taskbroker                            ,
+				this.channelController                     ,
+				this.housekeepingController                ,
+				this.timestampProvider                     ,
+				this.readerProvider                        ,
+				this.writerProvider                        ,
+				this.createWriteListener()                 ,
+				this.validRootIdCalculatorProvider         ,
+				this.zombieOidHandler                      ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

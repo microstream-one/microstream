@@ -11,7 +11,23 @@ package net.jadoth.storage.types;
  * For that reason, handling an encountered zombie OID is modularized with the default of ignoring it.
  *
  */
+@FunctionalInterface
 public interface StorageGCZombieOidHandler
 {
 	public boolean ignoreZombieOid(long oid);
+
+
+	/**
+	 * Default implementation always returns <code>true</code>.
+	 *
+	 * @author TM
+	 */
+	public final class Implementation implements StorageGCZombieOidHandler
+	{
+		@Override
+		public final boolean ignoreZombieOid(final long oid)
+		{
+			return true;
+		}
+	}
 }

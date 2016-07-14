@@ -26,8 +26,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	public StorageEntityType<I> lookupType(long typeId);
 
-	public void markGray(long objectId);
-
 	public boolean incrementalLiveCheck(long timeBudgetBound);
 
 	public boolean incrementalGarbageCollection(long timeBudgetBound, StorageChannel channel);
@@ -43,6 +41,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public long getHighestRootInstanceObjectId();
 
 	public long getLowestRootInstanceObjectId();
+
+	@Deprecated
+	public void markGray(long objectId);
 
 
 
@@ -77,7 +78,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator ;
 		private final StorageTypeDictionary               typeDictionary       ;
 		private final StorageEntityCache.Implementation[] colleagues           ;
-		private final StorageEntityCache.GcPhaseMonitor   gcPhaseMonitor       ;
+		private final StorageGcPhaseMonitor   gcPhaseMonitor       ;
 		private final GrayReferenceMarker                 grayReferenceMarker  ;
 		private final StorageValidRootIdCalculator        validRootIdCalculator;
 
@@ -89,9 +90,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private StorageFileManager.Implementation   fileManager          ; // pseudo-final
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
+		private final StorageEntity.MaxObjectId           maxObjectId       = new StorageEntity.MaxObjectId();
+		private final StorageEntity.MinObjectId           minObjectId       = new StorageEntity.MinObjectId();
 		private final GrayInitializer                     grayInitializer   = new GrayInitializer();
-		private final MaxObjectId                         maxObjectId       = new MaxObjectId()    ;
-		private final MinObjectId                         minObjectId       = new MinObjectId()    ;
 		private final RootsDeleter                        rootsDeleter      = new RootsDeleter()   ;
 
 		private final GraySegment                         graySegmentRoot   = new GraySegment()   ;
@@ -166,26 +167,29 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		public Implementation(
 			final int                                 channelIndex         ,
+			final int                                 channelCount         ,
 			final StorageEntityCacheEvaluator         cacheEvaluator       ,
 			final StorageTypeDictionary               typeDictionary       ,
 			final StorageEntityCache.Implementation[] colleagues           ,
-			final StorageEntityCache.GcPhaseMonitor   gcPhaseMonitor       ,
+			final StorageGcPhaseMonitor               gcPhaseMonitor       ,
+			final StorageGCZombieOidHandler           zombieOidHandler     ,
 			final long                                rootTypeId           ,
+			final OidMarkQueue                        oidMarkQueue         ,
+			final int                                 markingBufferLength  ,
 			final StorageValidRootIdCalculator        validRootIdCalculator
 		)
 		{
 			super();
-			this.channelIndex          = notNegative(channelIndex)             ;
-			this.rootTypeId            =             rootTypeId                ;
-			this.entityCacheEvaluator  = notNull    (cacheEvaluator)           ;
-			this.typeDictionary        = notNull    (typeDictionary)           ;
-			this.colleagues            = notNull    (colleagues)               ;
-			this.gcPhaseMonitor        = notNull    (gcPhaseMonitor)           ;
-//			this.fileManager           =             fileManager               ;
-			this.channelHashModulo     =             colleagues.length - 1     ;
-			this.channelHashShift      = log2pow2   (colleagues.length)        ;
-			this.validRootIdCalculator =             validRootIdCalculator     ;
-			this.graySegmentRoot.next  =             this.graySegmentRoot      ; // grayRoot always marked as not used
+			this.channelIndex          = notNegative(channelIndex)        ;
+			this.rootTypeId            =             rootTypeId           ;
+			this.entityCacheEvaluator  = notNull    (cacheEvaluator)      ;
+			this.typeDictionary        = notNull    (typeDictionary)      ;
+			this.colleagues            = notNull    (colleagues)          ;
+			this.gcPhaseMonitor        = notNull    (gcPhaseMonitor)      ;
+			this.channelHashModulo     =             colleagues.length - 1;
+			this.channelHashShift      = log2pow2   (colleagues.length)   ;
+			this.validRootIdCalculator =             validRootIdCalculator;
+			this.graySegmentRoot.next  =             this.graySegmentRoot ; // grayRoot always marked as not used
 
 			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
 			this.grayReferenceMarker   = new GrayReferenceMarker(colleagues, this.channelHashModulo);
@@ -546,6 +550,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 				this.gcPhaseMonitor.resetCompletion();
 			}
+		}
+
+		final void cleanupPendingStoreUpdate()
+		{
+			// (14.07.2016 TM)NOTE: dummy stub to prepare for new StorageEntityCache implementation
 		}
 
 		private final synchronized void setIsMarking()
@@ -1077,22 +1086,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			// signal to channel
 			channel.signalGarbageCollectionSweepCompleted();
-		}
-
-
-		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
-		{
-			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
-			{
-//				DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
-				// use ensure method for that for purpose of uniformity / simplicity
-				this.ensureNoCachedData(entry);
-			}
-			else
-			{
-				// if the loaded entity data can stay in memory, touch the entity to mark now as its last use.
-				entry.touch();
-			}
 		}
 
 		private boolean incrementalMark(final long timeBudgetBound)
@@ -1701,372 +1694,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	}
 
-
-
-	static final class MaxObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
-	{
-		private long maxObjectId;
-
-		public final MaxObjectId reset()
-		{
-			this.maxObjectId = 0;
-			return this;
-		}
-
-		@Override
-		public final void accept(final StorageEntity e)
-		{
-			if(e.objectId() >= this.maxObjectId)
-			{
-				this.maxObjectId = e.objectId();
-			}
-		}
-
-		public final long yield()
-		{
-			return this.maxObjectId;
-		}
-
-	}
-
-	static final class MinObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
-	{
-		private long minObjectId;
-
-		public final MinObjectId reset()
-		{
-			this.minObjectId = Long.MAX_VALUE;
-			return this;
-		}
-
-		@Override
-		public final void accept(final StorageEntity e)
-		{
-			if(e.objectId() < this.minObjectId)
-			{
-				this.minObjectId = e.objectId();
-			}
-		}
-
-		public final long yield()
-		{
-			return this.minObjectId == Long.MAX_VALUE ? 0 : this.minObjectId;
-		}
-
-	}
-
-	static final class GcPhaseMonitor implements _longProcedure
-	{
-		private boolean isSweepMode;
-
-		/*
-		 * Indicates that no new data (store) has been received since the last sweep.
-		 * This basically means that no more gc marking or sweeping is necessary, however as stored entities
-		 * (both newly created and updated) are forced gray, potentially any number of entities can be
-		 * virtually doomed but still be kept alive. Those will only be found in a second mark and sweep since the
-		 * last store.
-		 * This flag can be seen as "no new data level 1".
-		 */
-		private boolean gcHotPhaseComplete; // sweep once after startup in any case
-
-		/*
-		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
-		 * has already been executed since then, removing all unreachable entities and effectively establishing
-		 * a clean / optimized / stable state.
-		 * This flag can be seen as "no new data level 2".
-		 * It will shut off all GC activity until the next store resets the flags.
-		 */
-		private boolean gcColdPhaseComplete;
-
-		private boolean gcComplete;
-
-
-		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
-
-		private final OidMarkQueue[] oidMarkQueues         = new OidMarkQueue[0];
-		private final int            channelCount          = this.oidMarkQueues.length;
-		private final int            channelHash           = this.channelCount - 1;
-		private       long           pendingMarksCount    ;
-
-		private final boolean[]      sweepBoard            = new boolean[this.channelCount];
-		private       int            sweepingChannelsCount;
-
-		final synchronized void enqueue_New(final long oid)
-		{
-			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
-			this.pendingMarksCount++;
-		}
-
-		final synchronized void enqueueBulk_New(final long[] oids)
-		{
-			final OidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
-			final int            channelHash   = this.channelHash  ;
-
-			for(final long oid : oids)
-			{
-				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
-			}
-
-			this.pendingMarksCount += oids.length;
-		}
-
-		final synchronized boolean isMarkingComplete_New()
-		{
-			return this.pendingMarksCount == 0;
-		}
-
-		final synchronized void advanceMarking_New(final OidMarkQueue oidMarkQueue, final int amount)
-		{
-			if(this.pendingMarksCount < amount)
-			{
-				throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
-			}
-
-			/*
-			 * Advance the oidMarkQueue not before the gc phase monitor has been locked and the amount has been validated.
-			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outsied.
-			 */
-			oidMarkQueue.advanceTail(amount);
-			this.pendingMarksCount -= amount;
-		}
-
-		final synchronized boolean isSweepMode_New()
-		{
-			return this.sweepingChannelsCount > 0;
-		}
-
-		final synchronized void beginSweepMode_New()
-		{
-			if(this.isSweepMode_New())
-			{
-				return;
-			}
-
-			for(int i = 0; i < this.sweepBoard.length; i++)
-			{
-				this.sweepBoard[i] = true;
-			}
-			this.sweepingChannelsCount = this.channelCount;
-		}
-
-		final synchronized boolean reportSweepingComplete_New(final StorageEntityCache<?> channel)
-		{
-			if(this.sweepBoard[channel.channelIndex()])
-			{
-				this.sweepBoard[channel.channelIndex()] = false;
-				this.sweepingChannelsCount--;
-			}
-
-			return this.isSweepMode_New();
-		}
-
-		@Override
-		public final void accept(final long oid)
-		{
-			// do not enqueue null oids, not even get the lock
-			if(oid == Swizzle.nullId())
-			{
-				return;
-			}
-
-			this.enqueue_New(oid);
-		}
-
-		// (07.07.2016 TM)NOTE: end of new part
-
-
-
-		final synchronized boolean isSweepMode()
-		{
-			return this.isSweepMode;
-		}
-
-		final synchronized void setCompletion()
-		{
-			this.gcHotPhaseComplete = this.gcColdPhaseComplete = this.gcComplete = true;
-		}
-
-		final synchronized void resetCompletion()
-		{
-			this.gcHotPhaseComplete = this.gcColdPhaseComplete = this.gcComplete = false;
-		}
-
-		final synchronized boolean isPartialComplete()
-		{
-			return this.gcHotPhaseComplete;
-		}
-
-		final synchronized boolean isComplete()
-		{
-			return this.gcComplete;
-		}
-
-		final synchronized void reset(final StorageEntityCache.Implementation[] colleagues)
-		{
-			this.resetGcPhaseState(colleagues);
-			this.setCompletion();
-
-			// truncate gray segments AFTER completion has been resetted so that no other channel marks entities again.
-			for(final Implementation e : colleagues)
-			{
-				e.truncateGraySegments();
-			}
-		}
-
-		final synchronized void resetGcPhaseState(final StorageEntityCache.Implementation[] colleagues)
-		{
-			if(!this.isSweepMode)
-			{
-				return;
-			}
-			this.isSweepMode = false;
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-			}
-		}
-
-		final synchronized boolean isMarkPhaseComplete(final StorageEntityCache.Implementation[] colleagues)
-		{
-			// mode is switched only once by the first channel no notice mark phase completion (last to check in)
-			if(this.isSweepMode)
-			{
-				return true;
-			}
-
-			/* note on tricky concurrency:
-			 * because a lock on this instance is required to complete the gray chain (see #advanceGrayChain),
-			 * checking all channels while having the lock is guaranteed to not let any gray marking slip through.
-			 * Even if another channel is about to process its last gray item and mark an already checked channel in
-			 * the process, it cannot complete its gray chain until this channel releases the lock.
-			 * Hence, this channel will see the other channel as still having a gray item (its last one) and therefore
-			 * will return false (meaning mark phase not complete).
-			 * If it really was the last gray item of all channels, it will get recognized properly in the next check,
-			 * when all channel will have nextGray == null and nothing more gets enqueued.
-			 */
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				if(colleagues[i].isMarking())
-				{
-//					DEBUGStorage.println(i + " not finished mark phase yet.");
-					return false;
-				}
-			}
-
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-//				DEBUGStorage.println(colleagues[i].channelIndex() + " " + colleagues[i].DEBUG_grayCount);
-//				colleagues[i].DEBUG_grayCount = 0;
-
-//				synchronized(colleagues[i])
-//				{
-//					if(colleagues[i].DEBUG_marked < 1500000 && colleagues[i].DEBUG_marked > 0)
-//					{
-//						DEBUGStorage.println(i + " incomplete marking!");
-//						for(int j = 0; j < colleagues.length; j++)
-//						{
-//							colleagues[j].DEBUG_gcState();
-//						}
-//						DEBUGStorage.println("x_x");
-//					}
-//					DEBUGStorage.println(i + " Gray chain processed. Marked " + colleagues[i].DEBUG_marked);
-//					colleagues[i].DEBUG_marked = 0;
-//				}
-
-			}
-
-			// switch mode (only once, see check above)
-			this.isSweepMode = true;
-
-			/*
-			 * It is important to set the completion state here (end of mark phase) and not at the end of the sweep
-			 * phase.
-			 * Rationale:
-			 * An entity update (e.g. store, etc.) during a sweep phase sets white entities to initial (light gray).
-			 * That mark gets resetted in the next sweep phase.
-			 * If the flags were set at the end of the sweep phase, the following might occur:
-			 * - store during sweep1 phase
-			 * - completion gets resetted
-			 * - some entities get marked as initial but not resetted by the sweep as they were already visited
-			 * - sweep1 finishes, setting completion1
-			 * - sweep2 visits the entities, resets them to white, but does not delete them
-			 * - sweep2 finishes, setting completion2
-			 * - GC effectively stops until the next store
-			 * However some (potentially meanwhile unreachable) entities did not get deleted as sweep2 just
-			 * resetted the initial mark but did not delete the entities yet.
-			 *
-			 * If the completion state setting is located here, an ongoing sweep phase with an intermediate store
-			 * won't nullify the store's state resetting.
-			 */
-			if(this.gcHotPhaseComplete)
-			{
-//				DEBUGStorage.println("Cold mark phase complete.");
-				this.gcColdPhaseComplete = true;
-			}
-			else
-			{
-//				DEBUGStorage.println("Hot mark phase complete.");
-				this.gcHotPhaseComplete = true;
-			}
-
-			return true;
-		}
-
-		final synchronized boolean isSweepPhaseComplete(final StorageEntityCache.Implementation[] colleagues)
-		{
-			// mode is switched only once by the first channel no notice mark phase completion (last to check in)
-			if(!this.isSweepMode)
-			{
-				return true;
-			}
-
-			// simple completed-check: sooner or later, every channels completes sweeping without rollback.
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				if(!colleagues[i].completedSweeping)
-				{
-					return false;
-				}
-			}
-
-			// switch modes in all channels while under the lock's protection
-			for(int i = 0; i < colleagues.length; i++)
-			{
-				colleagues[i].completedSweeping = false;
-
-				/*
-				 * calling this method here is essential because the gray chain must be initialized while the lock
-				 * on the gc phase monitor is still hold to guarantee there is at least one gray item
-				 * before the next check for completed mark phase.
-				 * Calling that complex logic for all channels in one channel thread at this point is
-				 * no concurrency problem for the simple reason that this method can only be entered if
-				 * all other channels have completed sweeping and wait for the last channel to end the sweep mode,
-				 * meaning they aren't doing anything (mutating state) at the moment.
-				 */
-				colleagues[i].resetAfterSweep();
-			}
-
-			// switch mode (only once, see check above)
-			this.isSweepMode = false;
-
-//			DEBUGStorage.println("Sweep phase complete");
-
-			/* after a cold mark phase (no new data) has been done, the following sweep will establish a stable
-			 * state in which additional marks and sweeps won't cause any change. Hence, the GC can be considered
-			 * "complete" (until the next mutation in entities like store or import) and turned off.
-			 * This is indicated by the flag set here.
-			 */
-			if(this.gcColdPhaseComplete)
-			{
-				this.gcComplete = true;
-				DEBUGStorage.println("GC complete");
-			}
-
-			return true;
-		}
-
-	}
 
 	static final class GrayReferenceMarker implements _longProcedure
 	{

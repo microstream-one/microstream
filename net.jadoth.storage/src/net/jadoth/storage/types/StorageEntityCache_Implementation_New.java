@@ -7,39 +7,14 @@ import static net.jadoth.math.JadothMath.notNegative;
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
-import net.jadoth.functional.ThrowingProcedure;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
 
-public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
-{
-	public StorageTypeDictionary typeDictionary();
 
-	public StorageEntityType<I> lookupType(long typeId);
-
-	public boolean incrementalLiveCheck(long timeBudgetBound);
-
-	public boolean incrementalGarbageCollection(long timeBudgetBound, StorageChannel channel);
-
-	public boolean issuedGarbageCollection(long nanoTimeBudget, StorageChannel channel);
-
-	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
-
-	public void copyRoots(ChunksBuffer dataCollector);
-
-	public long cacheSize();
-
-	public long getHighestRootInstanceObjectId();
-
-	public long getLowestRootInstanceObjectId();
-
-
-
-	public final class Implementation implements StorageEntityCache_New<StorageEntity.Implementation>
+	public final class StorageEntityCache_Implementation_New implements StorageEntityCache<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -51,7 +26,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		private final long                                rootTypeId           ;
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator ;
 		private final StorageTypeDictionary               typeDictionary       ;
-		private final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor     ;
+		private final GcMonitor                           gcMonitor            ;
 		private final OidMarkQueue                        oidMarkQueue         ;
 		private final long[]                              markingOidBuffer     ;
 		private final StorageGCZombieOidHandler           zombieOidHandler     ;
@@ -60,8 +35,8 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		private       StorageFileManager.Implementation   fileManager          ; // pseudo-final
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
-		private final MaxObjectId                         maxObjectId       = new MaxObjectId()    ;
-		private final MinObjectId                         minObjectId       = new MinObjectId()    ;
+		private final StorageEntity.MaxObjectId           maxObjectId       = new StorageEntity.MaxObjectId()    ;
+		private final StorageEntity.MinObjectId           minObjectId       = new StorageEntity.MinObjectId()    ;
 
 		private       StorageEntity.Implementation[]      oidHashTable     ;
 		private       int                                 oidModulo        ; // long modulo makes not difference
@@ -75,30 +50,9 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		private       StorageEntityType.Implementation    typeTail         ;
 		private       StorageEntityType.Implementation    rootType         ;
 
-//		private       StorageEntityType.Implementation    liveCursorType   ;
 		private       StorageEntity.Implementation        liveCursor       ;
 
 		private       long                                usedCacheSize    ;
-
-
-		/* Note on concurrency:
-		 * There are two aspects to concurrency that have to be considered:
-		 *
-		 * 1.) GC-internal concurrency
-		 * Meaning channels may not switch prematurely to sweep mode while others are still marking.
-		 * There STILL seems to be a bug in it (07.04.2015) and it is not clear where or how.
-		 *
-		 * 2.) Interference from storing entities.
-		 * A store can occur at any given time and stir up existing data (also see "doomed-kept-alive" and "slipped-through" cases)
-		 * It also has concurrency aspect: Channels only wait for each other on completion of the write, not on
-		 * updating all entities. This happens after the waiting point, followed by house keeping (GC) and advancing to the
-		 * next task.
-		 * Stores during the mark phase (~90% of the time) must set an additional isMarking flag BEFORE the waiting point
-		 * to avoid race conditions afterwards and must (re-)enqueue changed entities.
-		 * Stores during the sweep phase may NOT enqueue gray items as this would make the gray chain inconsistent
-		 * (gray chain must be empty during sweep).
-		 *
-		 */
 
 //		long DEBUG_grayCount = 0;
 //		int DEBUG_marked = 0;
@@ -109,12 +63,12 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		public StorageEntityCache_Implementation_New(
 			final int                                   channelIndex       ,
 			final int                                   channelCount       ,
 			final StorageEntityCacheEvaluator           cacheEvaluator     ,
 			final StorageTypeDictionary                 typeDictionary     ,
-			final StorageEntityCache_New.GcPhaseMonitor gcPhaseMonitor     ,
+			final GcMonitor                             gcMonitor     ,
 			final StorageGCZombieOidHandler             zombieOidHandler   ,
 			final long                                  rootTypeId         ,
 			final OidMarkQueue                          oidMarkQueue       ,
@@ -126,7 +80,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			this.rootTypeId            =             rootTypeId       ;
 			this.entityCacheEvaluator  = notNull    (cacheEvaluator)  ;
 			this.typeDictionary        = notNull    (typeDictionary)  ;
-			this.gcPhaseMonitor        = notNull    (gcPhaseMonitor)  ;
+			this.gcMonitor             = notNull    (gcMonitor)       ;
 			this.zombieOidHandler      = notNull    (zombieOidHandler);
 			this.channelHashModulo     =             channelCount - 1 ;
 			this.channelHashShift      = log2pow2   (channelCount)    ;
@@ -418,10 +372,10 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 
 		final void resetGarbageCollectionCompletionForEntityUpdate()
 		{
-			synchronized(this.gcPhaseMonitor)
+			synchronized(this.gcMonitor)
 			{
-				this.gcPhaseMonitor.signalPendingStoreUpdate();
-				this.gcPhaseMonitor.resetCompletion();
+				this.gcMonitor.signalPendingStoreUpdate(this);
+				this.gcMonitor.resetCompletion();
 			}
 
 		}
@@ -578,9 +532,36 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
+			this.ensureGray(entry);
 			entry.detachFromFile();
-			this.oidMarkQueue.enqueue(entry.objectId());
 		}
+
+
+		/**
+		 * This purpose of this method is to handle the tricky interaction between data updates (stores/imports) and GC.
+		 * When new data comes in, it has to be ensured that the updated entities' references are revisited.
+		 * See "doomed kept alive" and "slipped through" cases.
+		 * This means an entity with references that is already black (saved from sweep and has its references iterated)
+		 * must be demoted to gray (saved from sweep but references not handled yet) and have its OID enqueued in the gray chain.
+		 *
+		 * If the entity has no reference, it can be marked black right away. This either anticipates/replaces the black marking
+		 * by the GC and should actually not be necessary, however as the effort to do it at this point is rather minimal, it's done
+		 * nonetheless.
+		 *
+		 * @param entry
+		 */
+		private void ensureGray(final StorageEntity.Implementation entry)
+		{
+			if(!entry.hasReferences())
+			{
+				entry.markBlack();
+				return;
+			}
+
+			entry.markGray();
+			this.oidMarkQueue.enqueueAndNotify(entry.objectId());
+		}
+
 
 		public final long entityCount()
 		{
@@ -618,21 +599,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			type.add(entity);
 			this.oidSize++; // increment size not before creating and registering succeeded
 
-			/* must enqueue referencing entities in case the new entity holds the last reference to an existing one.
-			 * Example:
-			 * A and B already exit. A references B.
-			 * Then A and C get stored.
-			 * A no longer references B. Instead, C now references B.
-			 * If A was not already processed, then B has not been marked yet.
-			 * If the new C does not get enqueued to have its references checked, B will not get marked in the
-			 * current cycle and hence will be collected, desite being referenced by C.
-			 * To avoid this, newly created entities with references must be enqueued gray right away.
-			 */
-			if(entity.hasReferences())
-			{
-				// enqueuing is sufficient as new entities are initially gray anyway
-				this.oidMarkQueue.enqueue(objectId);
-			}
+			this.ensureGray(entity);
 
 			return entity;
 		}
@@ -667,16 +634,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			// 5.) mark entity as deleted
 			entity.setDeleted();
 		}
-
-//		final StorageEntity.Implementation getNextSweepPreNonNullEntity()
-//		{
-//			StorageEntityType.Implementation type = this.liveCursorType;
-//			while(type.head.typeNext == null)
-//			{
-//				type = type.next;
-//			}
-//			return (this.liveCursorType = type).head;
-//		}
 
 		private void sweep()
 		{
@@ -740,10 +697,10 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
-			final long           evalTime = System.currentTimeMillis();
-			final GcPhaseMonitor gc       = this.gcPhaseMonitor       ;
-			final OidMarkQueue   q        = this.oidMarkQueue         ;
-			final long[]         oids     = this.markingOidBuffer     ;
+			final long         evalTime = System.currentTimeMillis();
+			final GcMonitor    gc       = this.gcMonitor            ;
+			final OidMarkQueue q        = this.oidMarkQueue         ;
+			final long[]       oids     = this.markingOidBuffer     ;
 
 			int oidsToMarkCount = 0;
 			int oidsIndex       = 0;
@@ -915,8 +872,14 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
 			}
 
-			// (13.07.2016 TM)FIXME: move to StorageRequestTaskSaveEntities#cleanUp to cover error cases properly
-			this.gcPhaseMonitor.clearPendingStoreUpdate();
+			// must be done by the store task's cleanup, but as it is idempotent, call it here right away
+			this.cleanupPendingStoreUpdate();
+		}
+
+		final void cleanupPendingStoreUpdate()
+		{
+			// (14.07.2016 TM)NOTE: dummy stub to prepare for new StorageEntityCache implementation
+			this.gcMonitor.clearPendingStoreUpdate(this);
 		}
 
 		@Override
@@ -975,25 +938,6 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			}
 			return e;
 		}
-
-//		private void DEBUG_trailingLiveCheck_NPE(
-//			final StorageEntity.Implementation entity    ,
-//			final StorageEntity.Implementation terminator
-//		)
-//		{
-//			// (06.10.2015 TM)NOTE: null entity in trailingLiveCheck. +liveCursorType typeID = 1015220. passed entity = @1380463763 type = 1015220. terminator = @373245650 type = 1035230. this.liveCursorType head = @1380463763.
-//
-//			final NullPointerException e = new NullPointerException(
-//			"null entity in trailingLiveCheck. "
-//				+ " + liveCursorType typeID = " + this.liveCursorType.typeId + ". "
-//				+ "passed entity = @" + System.identityHashCode(entity) + " type = " + entity.typeId() + ". "
-//				+ "terminator = @" + System.identityHashCode(terminator) + " type = " + terminator.typeId() + ". "
-//				+ "this.liveCursorType head = @" + System.identityHashCode(this.liveCursorType.head) + "."
-//				+ "terminator type next type = " + terminator.type.type.next.typeId
-//			);
-//			e.printStackTrace();
-//			throw e;
-//		}
 
 		private StorageEntity.Implementation getNonDeletedCursor()
 		{
@@ -1134,14 +1078,14 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //				return true;
 //			}
 
-			if(this.gcPhaseMonitor.isComplete(this))
+			if(this.gcMonitor.isComplete(this))
 			{
 				// minimize hash table memory consumption if storage is potentially going to be inactive
 				this.checkOidHashTableConsolidation();
 				return true;
 			}
 
-			if(this.gcPhaseMonitor.needsSweep(this))
+			if(this.gcMonitor.needsSweep(this))
 			{
 				this.sweep();
 
@@ -1206,7 +1150,7 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 				while(System.nanoTime() < nanoTimeBudgetBound)
 				{
 					// check for completion on every attempt to wait for new work
-					if(this.gcPhaseMonitor.isComplete(this))
+					if(this.gcMonitor.isComplete(this))
 					{
 						return true;
 					}
@@ -1237,7 +1181,17 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 			// end of performGC
 
 			// either time ran out or thread was interrupted. In any case, report back the current state of the garbage collection.
-			return this.gcPhaseMonitor.isComplete(this);
+			return this.gcMonitor.isComplete(this);
+		}
+
+
+
+		@Deprecated
+		@Override
+		public void markGray(final long objectId)
+		{
+			// (14.07.2016 TM)TODO: remove markGray() after switch to new implementation
+			throw new UnsupportedOperationException();
 		}
 
 //		private void DEBUG_PRINT_OID_HASH_VALUES()
@@ -1264,249 +1218,3 @@ public interface StorageEntityCache_New<I extends StorageEntityCacheItem<I>> ext
 //		}
 
 	}
-
-
-
-	static final class MaxObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
-	{
-		private long maxObjectId;
-
-		public final MaxObjectId reset()
-		{
-			this.maxObjectId = 0;
-			return this;
-		}
-
-		@Override
-		public final void accept(final StorageEntity e)
-		{
-			if(e.objectId() >= this.maxObjectId)
-			{
-				this.maxObjectId = e.objectId();
-			}
-		}
-
-		public final long yield()
-		{
-			return this.maxObjectId;
-		}
-
-	}
-
-	static final class MinObjectId implements ThrowingProcedure<StorageEntity, RuntimeException>
-	{
-		private long minObjectId;
-
-		public final MinObjectId reset()
-		{
-			this.minObjectId = Long.MAX_VALUE;
-			return this;
-		}
-
-		@Override
-		public final void accept(final StorageEntity e)
-		{
-			if(e.objectId() < this.minObjectId)
-			{
-				this.minObjectId = e.objectId();
-			}
-		}
-
-		public final long yield()
-		{
-			return this.minObjectId == Long.MAX_VALUE ? 0 : this.minObjectId;
-		}
-
-	}
-
-	static final class GcPhaseMonitor implements _longProcedure
-	{
-
-		/*
-		 * Indicates that no new data (store) has been received since the last sweep.
-		 * This basically means that no more gc marking or sweeping is necessary, however as stored entities
-		 * (both newly created and updated) are forced gray, potentially any number of entities can be
-		 * virtually doomed but still be kept alive. Those will only be found in a second mark and sweep since the
-		 * last store.
-		 * This flag can be seen as "no new data level 1".
-		 */
-		private boolean gcHotPhaseComplete; // sweep once after startup in any case
-
-		/*
-		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
-		 * has already been executed since then, removing all unreachable entities and effectively establishing
-		 * a clean / optimized / stable state.
-		 * This flag can be seen as "no new data level 2".
-		 * It will shut off all GC activity until the next store resets the flags.
-		 */
-		private boolean gcColdPhaseComplete;
-
-
-		// (07.07.2016 TM)NOTE: new for oidMarkQueue concept
-
-		private final OidMarkQueue[] oidMarkQueues         = new OidMarkQueue[0];
-		private final int            channelCount          = this.oidMarkQueues.length;
-		private final int            channelHash           = this.channelCount - 1;
-		private       long           pendingMarksCount    ;
-		private       int            pendingStoreUpdates  ;
-
-		private final boolean[]      needsSweep            = new boolean[this.channelCount];
-		private       int            pendingSweeps        ;
-
-		final synchronized void enqueue_New(final long oid)
-		{
-			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
-			this.pendingMarksCount++;
-		}
-
-		final synchronized void enqueueBulk_New(final long[] oids)
-		{
-			final OidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
-			final int            channelHash   = this.channelHash  ;
-
-			for(final long oid : oids)
-			{
-				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
-			}
-
-			this.pendingMarksCount += oids.length;
-		}
-
-		final synchronized boolean isMarkingComplete_New()
-		{
-			return this.pendingMarksCount == 0 && this.pendingStoreUpdates == 0;
-		}
-
-		final synchronized void advanceMarking_New(final OidMarkQueue oidMarkQueue, final int amount)
-		{
-			if(this.pendingMarksCount < amount)
-			{
-				// (07.07.2016 TM)EXCP: proper exception
-				throw new RuntimeException();
-			}
-
-			/*
-			 * Advance the oidMarkQueue not before the gc phase monitor has been locked and the amount has been validated.
-			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outsied.
-			 */
-			oidMarkQueue.advanceTail(amount);
-			this.pendingMarksCount -= amount;
-		}
-
-		final synchronized void signalPendingStoreUpdate()
-		{
-			this.pendingStoreUpdates++;
-		}
-
-		final synchronized void clearPendingStoreUpdate()
-		{
-			/* (13.07.2016 TM)TODO: shouldn't this be a channel-board array to make the calls idempotent?
-			 * Can multiple signalling can occur before a clear? Should not be possible due to the thread processing
-			 * tasks serially.
-			 */
-
-			this.pendingStoreUpdates--;
-		}
-
-		private synchronized void advanceCompletion()
-		{
-			if(this.gcColdPhaseComplete)
-			{
-				return;
-			}
-
-			if(this.gcHotPhaseComplete)
-			{
-				this.gcColdPhaseComplete = true;
-			}
-
-			this.gcHotPhaseComplete = true;
-		}
-
-		private synchronized boolean sweepingRequired()
-		{
-			if(!this.isMarkingComplete_New())
-			{
-				return false;
-			}
-
-			for(int i = 0; i < this.needsSweep.length; i++)
-			{
-				this.needsSweep[i] = true;
-			}
-			this.pendingSweeps = this.needsSweep.length;
-
-			if(System.currentTimeMillis() > 0)
-			{
-				// FIXME initialize root OID
-				throw new net.jadoth.meta.NotImplementedYetError();
-			}
-
-			return true;
-		}
-
-		final synchronized boolean needsSweep(final StorageEntityCache_New<?> channel)
-		{
-			/*
-			 * If there is a pending sweep to be executed by the passed (= calling) channel, then mark as done
-			 * and return that sweep is required, causing a sweep.
-			 *
-			 * Otherwise, check if the passed/calling channel/thread is the first to recognize
-			 * the current marking is complete (no more pending oids to mark) and issue that a channel-wide sweep is required.
-			 * If so, again the current channel marks its own sweep to be done and returns causing a sweep.
-			 *
-			 * If both checks yield false, no sweep is needed.
-			 *
-			 * Note that the actual timing of when the sweep is done or before or after other threads already marking again is irrelevant.
-			 * What is relevant is the logical order:
-			 * - A required sweep is ONLY issued if the marking is safely completed (lock-secured central count == 0 check)
-			 * - The sweep check itself is lock-secured and central, a sweep cannot be issues or done twice.
-			 * - After the count == 0 case is detected, every channel will exactely sweep once before it can go back to marking
-			 * - The mark oid queue (long[]) does not in any way interfere with the sweeping (local Entry instances) or vice versa.
-			 */
-			if(this.needsSweep[channel.channelIndex()] || this.sweepingRequired())
-			{
-				this.needsSweep[channel.channelIndex()] = false;
-				if(--this.pendingSweeps == 0)
-				{
-					this.advanceCompletion();
-				}
-
-				return true;
-			}
-
-			return false;
-		}
-
-		@Override
-		public final void accept(final long oid)
-		{
-			// do not enqueue null oids, not even get the lock
-			if(oid == Swizzle.nullId())
-			{
-				return;
-			}
-
-			this.enqueue_New(oid);
-		}
-
-		final synchronized void resetCompletion()
-		{
-			this.gcHotPhaseComplete = this.gcColdPhaseComplete = false;
-		}
-
-		final synchronized boolean isComplete(final StorageEntityCache_New<?> channel)
-		{
-			/*
-			 * GC is effectively complete if either:
-			 * - the cold phase is complete (meaning nothing will/can change until the next store
-			 * - the hot phase (first sweep) is complete and the cold phase has only some sweeps pending from other channelss
-			 */
-			return this.gcColdPhaseComplete
-				|| this.gcHotPhaseComplete && this.pendingSweeps > 0 && !this.needsSweep[channel.channelIndex()]
-			;
-		}
-
-	}
-
-}
