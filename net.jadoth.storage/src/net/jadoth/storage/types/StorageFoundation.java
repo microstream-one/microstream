@@ -40,6 +40,8 @@ public interface StorageFoundation
 
 	public StorageGCZombieOidHandler getGCZombieOidHandler();
 
+	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
+
 	public StorageExceptionHandler getExceptionHandler();
 
 
@@ -78,6 +80,8 @@ public interface StorageFoundation
 
 	public StorageFoundation setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 
+	public StorageFoundation setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
+
 	public StorageFoundation setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
 	public StorageManager createStorageManager();
@@ -107,6 +111,7 @@ public interface StorageFoundation
 		private StorageWriteListener.Provider         writeListenerProvider        ;
 		private StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
+		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
 
@@ -490,6 +495,17 @@ public interface StorageFoundation
 		}
 
 		@Override
+		public StorageRootOidSelector.Provider getRootOidSelectorProvider()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageFoundation.Implementation#getRootOidSelectorProvider()
+//			if(this.rootOidSelectorProvider == null)
+//			{
+//				this.rootOidSelectorProvider = this.dispatch(todo);
+//			}
+//			return this.rootOidSelectorProvider;
+		}
+
+		@Override
 		public StorageExceptionHandler getExceptionHandler()
 		{
 			if(this.exceptionHandler == null)
@@ -633,6 +649,14 @@ public interface StorageFoundation
 		}
 
 		@Override
+		public StorageFoundation.Implementation setRootOidSelectorProvider(
+			final StorageRootOidSelector.Provider rootOidSelectorProvider
+		)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageFoundation.Implementation#setRootOidSelector()
+		}
+
+		@Override
 		public StorageFoundation setExceptionHandler(final StorageExceptionHandler exceptionHandler)
 		{
 			this.internalSetExceptionHandler(exceptionHandler);
@@ -660,6 +684,7 @@ public interface StorageFoundation
 				this.getWriteListenerProvider()        ,
 				this.getValidRootIdCalculatorProvider(),
 				this.getGCZombieOidHandler()           ,
+				this.getRootOidSelectorProvider()      ,
 				this.getExceptionHandler()
 			);
 		}

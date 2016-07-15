@@ -13,11 +13,13 @@ final class GcMonitor implements _longProcedure
 	private final int            channelCount           ;
 	private final int            channelHash            ;
 	private       long           pendingMarksCount      ;
-	private final boolean[]      pendingStoreUpdates     = new boolean[this.channelCount];
+	private final boolean[]      pendingStoreUpdates    ;
 	private       int            pendingStoreUpdateCount;
 
-	private final boolean[]      needsSweep              = new boolean[this.channelCount];
-	private       int            sweepingChannelCount          ;
+	private final boolean[]      needsSweep             ;
+	private       int            sweepingChannelCount   ;
+
+	private final long[]         channelRootIds         ;
 
 	/*
 	 * Indicates that no new data (store) has been received since the last sweep.
@@ -50,6 +52,9 @@ final class GcMonitor implements _longProcedure
 		this.oidMarkQueues = oidMarkQueues        ;
 		this.channelCount  = oidMarkQueues.length ;
 		this.channelHash   = this.channelCount - 1;
+		this.pendingStoreUpdates = new boolean[this.channelCount];
+		this.needsSweep          = new boolean[this.channelCount];
+		this.channelRootIds      = new long   [this.channelCount];
 	}
 
 	final synchronized void enqueue(final long oid)
@@ -141,21 +146,15 @@ final class GcMonitor implements _longProcedure
 			return false;
 		}
 
+		// reset channel root ids board because channels will update it upon ecountering the need to sweep.
+		this.resetChannelRootIds();
+
 		// no current sweep and completed marking means a new seep has to be initiated. So do it.
 		for(int i = 0; i < this.needsSweep.length; i++)
 		{
 			this.needsSweep[i] = true;
 		}
 		this.sweepingChannelCount = this.needsSweep.length;
-
-		if(System.currentTimeMillis() > 0)
-		{
-			/* FIXME initialize root OID
-			 * - Must determine the valid one single root OID over all channels
-			 * - the last channel to sweep must enqueue the determined valid root id
-			 */
-			throw new net.jadoth.meta.NotImplementedYetError();
-		}
 
 		return true;
 	}
@@ -187,10 +186,51 @@ final class GcMonitor implements _longProcedure
 				this.advanceCompletion();
 			}
 
+			this.updateRootId(channel);
+
 			return true;
 		}
 
 		return false;
+	}
+
+	final synchronized void updateRootId(final StorageEntityCache<?> channel)
+	{
+		this.channelRootIds[channel.channelIndex()] = channel.queryRootObjectId();
+
+		if(this.sweepingChannelCount == 0)
+		{
+			this.determineAndEnqueueRootId();
+		}
+	}
+
+	final synchronized void resetChannelRootIds()
+	{
+		for(int i = 0; i < this.channelRootIds.length; i++)
+		{
+			this.channelRootIds[i] = Swizzle.nullId();
+		}
+	}
+
+	final synchronized void determineAndEnqueueRootId()
+	{
+		long currentMaxRootId = Swizzle.nullId();
+
+		for(int i = 0; i < this.channelRootIds.length; i++)
+		{
+			if(this.channelRootIds[i] >= currentMaxRootId)
+			{
+				currentMaxRootId = this.channelRootIds[i];
+			}
+		}
+
+		if(currentMaxRootId == Swizzle.nullId())
+		{
+			throw new RuntimeException("No root oid could have been found."); // (15.07.2016 TM)EXCP: proper exception
+		}
+
+		// this initializes the next marking. From here on, pendingMarksCount can only be 0 again if marking is complete.
+		this.enqueue(currentMaxRootId);
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import net.jadoth.swizzling.types.Swizzle;
 		private final OidMarkQueue                        oidMarkQueue         ;
 		private final long[]                              markingOidBuffer     ;
 		private final StorageGCZombieOidHandler           zombieOidHandler     ;
+		private final StorageRootOidSelector              rootOidSelector      ;
 
 		// currently only used for entity iteration
 		private       StorageFileManager.Implementation   fileManager          ; // pseudo-final
@@ -68,8 +69,9 @@ import net.jadoth.swizzling.types.Swizzle;
 			final int                                   channelCount       ,
 			final StorageEntityCacheEvaluator           cacheEvaluator     ,
 			final StorageTypeDictionary                 typeDictionary     ,
-			final GcMonitor                             gcMonitor     ,
+			final GcMonitor                             gcMonitor          ,
 			final StorageGCZombieOidHandler             zombieOidHandler   ,
+			final StorageRootOidSelector                rootOidSelector    ,
 			final long                                  rootTypeId         ,
 			final OidMarkQueue                          oidMarkQueue       ,
 			final int                                   markingBufferLength
@@ -82,6 +84,7 @@ import net.jadoth.swizzling.types.Swizzle;
 			this.typeDictionary        = notNull    (typeDictionary)  ;
 			this.gcMonitor             = notNull    (gcMonitor)       ;
 			this.zombieOidHandler      = notNull    (zombieOidHandler);
+			this.rootOidSelector       = notNull    (rootOidSelector) ;
 			this.channelHashModulo     =             channelCount - 1 ;
 			this.channelHashShift      = log2pow2   (channelCount)    ;
 			this.oidMarkQueue          = notNull    (oidMarkQueue)    ;
@@ -380,16 +383,24 @@ import net.jadoth.swizzling.types.Swizzle;
 
 		}
 
+
+
+		@Override
+		public final synchronized long queryRootObjectId()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageEntityCache_Implementation_New#queryRootObjectId()
+		}
+
 		@Override
 		public final synchronized long getHighestRootInstanceObjectId()
 		{
-			return this.rootType.iterateEntities(this.maxObjectId.reset()).yield();
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public final synchronized long getLowestRootInstanceObjectId()
 		{
-			return this.rootType.iterateEntities(this.minObjectId.reset()).yield();
+			throw new UnsupportedOperationException();
 		}
 
 		private void ensureNoCachedData(final StorageEntity.Implementation entry)

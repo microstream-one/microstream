@@ -72,6 +72,7 @@ public interface StorageManager extends StorageController
 		private final StorageObjectIdRangeEvaluator           objectIdRangeEvaluator       ;
 		private final StorageValidRootIdCalculator.Provider   validRootIdCalculatorProvider;
 		private final StorageGCZombieOidHandler               zombieOidHandler             ;
+		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 
 
 		// state flags //
@@ -112,6 +113,7 @@ public interface StorageManager extends StorageController
 			final StorageWriteListener.Provider         writeListenerProvider        ,
 			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			final StorageGCZombieOidHandler             zombieOidHandler             ,
+			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -137,6 +139,7 @@ public interface StorageManager extends StorageController
 			this.writeListenerProvider         = notNull(writeListenerProvider)               ;
 			this.validRootIdCalculatorProvider = notNull(validRootIdCalculatorProvider)       ;
 			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
+			this.rootOidSelectorProvider       = notNull(rootOidSelectorProvider)             ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
 
 			/* must not leave processing information implementation choice to outside context
@@ -262,6 +265,7 @@ public interface StorageManager extends StorageController
 				this.createWriteListener()                 ,
 				this.validRootIdCalculatorProvider         ,
 				this.zombieOidHandler                      ,
+				this.rootOidSelectorProvider               ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

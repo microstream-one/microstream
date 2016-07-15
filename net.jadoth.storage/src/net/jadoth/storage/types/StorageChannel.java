@@ -656,6 +656,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageWriteListener                  writeListener                ,
 			StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			StorageGCZombieOidHandler             zombieOidHandler             ,
+			StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			long                                  rootTypeId
 		);
 
@@ -671,7 +672,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			public final StorageChannel.Implementation[] createChannels(
 				final int                                   channelCount                 ,
 				final StorageInitialDataFileNumberProvider  initialDataFileNumberProvider,
-				final StorageExceptionHandler       problemHandler               ,
+				final StorageExceptionHandler               exceptionHandler             ,
 				final StorageDataFileEvaluator              fileDissolver                ,
 				final StorageFileProvider                   storageFileProvider          ,
 				final StorageEntityCacheEvaluator           entityCacheEvaluator         ,
@@ -685,6 +686,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageWriteListener                  writeListener                ,
 				final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 				final StorageGCZombieOidHandler             zombieOidHandler             ,
+				final StorageRootOidSelector.Provider       rootOidSelectorProvider     ,
 				final long                                  rootTypeId
 			)
 			{
@@ -701,21 +703,22 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 					final StorageFileManager.Implementation fileManager;
 					channels[i] = new StorageChannel.Implementation(
 						i                     ,
-						problemHandler        ,
+						exceptionHandler      ,
 						taskBroker            ,
 						channelController     ,
 						housekeepingController,
 						caches[i] = new StorageEntityCache.Implementation(
-							i                   ,
-							channels.length     ,
-							entityCacheEvaluator,
-							typeDictionary      ,
-							caches              ,
-							gcPhsMon            ,
-							zombieOidHandler    ,
-							rootTypeId          ,
+							i                                                 ,
+							channels.length                                   ,
+							entityCacheEvaluator                              ,
+							typeDictionary                                    ,
+							caches                                            ,
+							gcPhsMon                                          ,
+							zombieOidHandler                                  ,
+							rootOidSelectorProvider.provideRootOidSelector(i) ,
+							rootTypeId                                        ,
 							markQueues[i] = OidMarkQueue.New(markBufferLength),
-							markBufferLength    ,
+							markBufferLength                                  ,
 							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
 						),
 						fileManager = new StorageFileManager.Implementation(

@@ -38,8 +38,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	public long cacheSize();
 
+	public long queryRootObjectId();
+
+	@Deprecated
 	public long getHighestRootInstanceObjectId();
 
+	@Deprecated
 	public long getLowestRootInstanceObjectId();
 
 	@Deprecated
@@ -173,6 +177,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntityCache.Implementation[] colleagues           ,
 			final StorageGcPhaseMonitor               gcPhaseMonitor       ,
 			final StorageGCZombieOidHandler           zombieOidHandler     ,
+			final StorageRootOidSelector              rootOidSelector      ,
 			final long                                rootTypeId           ,
 			final OidMarkQueue                        oidMarkQueue         ,
 			final int                                 markingBufferLength  ,
@@ -565,6 +570,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final void clearIsMarking()
 		{
 			this.isMarking = false;
+		}
+
+		@Override
+		public final synchronized long queryRootObjectId()
+		{
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
