@@ -62,17 +62,21 @@ import net.jadoth.swizzling.types.Swizzle;
 		// constructors     //
 		/////////////////////
 
+		// (18.07.2016 TM)XXX: remove deprecated parameters after switch to new implementation
 		public StorageEntityCache_Implementation_New(
-			final int                         channelIndex       ,
-			final int                         channelCount       ,
-			final StorageEntityCacheEvaluator cacheEvaluator     ,
-			final StorageTypeDictionary       typeDictionary     ,
-			final StorageEntityMarkMonitor    markMonitor        ,
-			final StorageGCZombieOidHandler   zombieOidHandler   ,
-			final StorageRootOidSelector      rootOidSelector    ,
-			final long                        rootTypeId         ,
-			final StorageOidMarkQueue         oidMarkQueue       ,
-			final int                         markingBufferLength
+			final int                                 channelIndex         ,
+			final int                                 channelCount         ,
+			final StorageEntityCacheEvaluator         cacheEvaluator       ,
+			final StorageTypeDictionary               typeDictionary       ,
+			final StorageEntityCache.Implementation[] colleagues           ,
+			final StorageGcPhaseMonitor               gcPhaseMonitor       ,
+			final StorageEntityMarkMonitor            markMonitor          ,
+			final StorageGCZombieOidHandler           zombieOidHandler     ,
+			final StorageRootOidSelector              rootOidSelector      ,
+			final long                                rootTypeId           ,
+			final StorageOidMarkQueue                 oidMarkQueue         ,
+			final int                                 markingBufferLength  ,
+			final StorageValidRootIdCalculator        validRootIdCalculator
 		)
 		{
 			super();
@@ -538,6 +542,28 @@ import net.jadoth.swizzling.types.Swizzle;
 
 //			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
 			return this.createEntity(objectId, type);
+		}
+
+		// (18.07.2016 TM)XXX: remove after switch to new implementation
+		final StorageEntity.Implementation putEntityValidated(
+			final long                             objectId  ,
+			final StorageEntityType.Implementation type      ,
+			final boolean                          deprecated
+		)
+		{
+			return this.putEntityValidated(objectId, type);
+		}
+
+		// (18.07.2016 TM)XXX: remove after switch to new implementation
+		final StorageEntity.Implementation updatePutEntity(final long entityAddress, final boolean deprecated)
+		{
+			return this.updatePutEntity(entityAddress);
+		}
+
+		// (18.07.2016 TM)XXX: remove after switch to new implementation
+		final boolean isInMarkPhase()
+		{
+			return false;
 		}
 
 		final StorageEntity.Implementation updatePutEntity(final long entityAddress)

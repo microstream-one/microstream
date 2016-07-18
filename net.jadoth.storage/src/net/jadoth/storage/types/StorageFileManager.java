@@ -155,7 +155,7 @@ public interface StorageFileManager
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
 		private final StorageDataFileEvaluator             fileEvaluator                ;
-		private final StorageEntityCache.Implementation    entityCache                  ;
+		private final StorageEntityCache.Implementation   entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageWriteListener                 writeListener                ;

@@ -82,7 +82,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator ;
 		private final StorageTypeDictionary               typeDictionary       ;
 		private final StorageEntityCache.Implementation[] colleagues           ;
-		private final StorageGcPhaseMonitor   gcPhaseMonitor       ;
+		private final StorageGcPhaseMonitor               gcPhaseMonitor       ;
 		private final GrayReferenceMarker                 grayReferenceMarker  ;
 		private final StorageValidRootIdCalculator        validRootIdCalculator;
 
@@ -91,7 +91,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * fix call-site init-loop for that
 		 */
 		// currently only used for entity iteration
-		private StorageFileManager.Implementation   fileManager          ; // pseudo-final
+		private StorageFileManager.Implementation         fileManager      ; // pseudo-final
 
 		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
 		private final StorageEntity.MaxObjectId           maxObjectId       = new StorageEntity.MaxObjectId();
@@ -169,7 +169,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final int                                 channelIndex         ,
 			final int                                 channelCount         ,
 			final StorageEntityCacheEvaluator         cacheEvaluator       ,

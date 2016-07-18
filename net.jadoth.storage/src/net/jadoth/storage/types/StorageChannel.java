@@ -793,12 +793,13 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			if((entry = this.entityCache.getEntry(oid)) == null)
 			{
 				/* (14.01.2015 TM)NOTE: this actually is an error, as every oid request comes
-				 * from a referencing entity from inside the same database. So if any load request
+				 * from a referencing entity from inside the same database. So if any load request lookup
 				 * yields null, it is a inconcistency that has to be expressed rather sooner than later.
 				 *
 				 * If some kind of querying request (look if an arbitrary oid yields an entity) is needed,
 				 * is has to be a dedicated kind of request, not this one.
-				 * This one does recursice graph loading (consistency required), not arbitrary querying.
+				 * This one does recursive graph loading (consistency required), not arbitrary querying
+				 * with optional results.
 				 */
 				// (14.01.2015 TM)EXCP: proper exception
 				throw new StorageException("No entity found for objectId " + oid);
