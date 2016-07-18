@@ -73,6 +73,8 @@ public interface StorageManager extends StorageController
 		private final StorageValidRootIdCalculator.Provider   validRootIdCalculatorProvider;
 		private final StorageGCZombieOidHandler               zombieOidHandler             ;
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
+		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
+		private final StorageEntityMarkMonitor.Creator        entityMarkMonitorCreator     ;
 
 
 		// state flags //
@@ -114,6 +116,8 @@ public interface StorageManager extends StorageController
 			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			final StorageGCZombieOidHandler             zombieOidHandler             ,
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
+			final StorageOidMarkQueue.Creator                  oidMarkQueueCreator          ,
+			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -140,6 +144,8 @@ public interface StorageManager extends StorageController
 			this.validRootIdCalculatorProvider = notNull(validRootIdCalculatorProvider)       ;
 			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
 			this.rootOidSelectorProvider       = notNull(rootOidSelectorProvider)             ;
+			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
+			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
 
 			/* must not leave processing information implementation choice to outside context
@@ -266,6 +272,8 @@ public interface StorageManager extends StorageController
 				this.validRootIdCalculatorProvider         ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,
+				this.oidMarkQueueCreator                   ,
+				this.entityMarkMonitorCreator              ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

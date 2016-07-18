@@ -176,10 +176,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageTypeDictionary               typeDictionary       ,
 			final StorageEntityCache.Implementation[] colleagues           ,
 			final StorageGcPhaseMonitor               gcPhaseMonitor       ,
+			final StorageEntityMarkMonitor            markMonitor          ,
 			final StorageGCZombieOidHandler           zombieOidHandler     ,
 			final StorageRootOidSelector              rootOidSelector      ,
 			final long                                rootTypeId           ,
-			final OidMarkQueue                        oidMarkQueue         ,
+			final StorageOidMarkQueue                 oidMarkQueue         ,
 			final int                                 markingBufferLength  ,
 			final StorageValidRootIdCalculator        validRootIdCalculator
 		)

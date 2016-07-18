@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 
+@Deprecated
 @FunctionalInterface
 public interface StorageValidRootIdCalculator
 {

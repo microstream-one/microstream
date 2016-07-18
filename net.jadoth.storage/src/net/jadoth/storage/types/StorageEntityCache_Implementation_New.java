@@ -7,6 +7,7 @@ import static net.jadoth.math.JadothMath.notNegative;
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -20,40 +21,37 @@ import net.jadoth.swizzling.types.Swizzle;
 		// instance fields  //
 		/////////////////////
 
-		private final int                                 channelIndex         ;
-		private final int                                 channelHashModulo    ;
-		private final int                                 channelHashShift     ;
-		private final long                                rootTypeId           ;
-		        final StorageEntityCacheEvaluator         entityCacheEvaluator ;
-		private final StorageTypeDictionary               typeDictionary       ;
-		private final GcMonitor                           gcMonitor            ;
-		private final OidMarkQueue                        oidMarkQueue         ;
-		private final long[]                              markingOidBuffer     ;
-		private final StorageGCZombieOidHandler           zombieOidHandler     ;
-		private final StorageRootOidSelector              rootOidSelector      ;
+		private final int                                 channelIndex        ;
+		private final int                                 channelHashModulo   ;
+		private final int                                 channelHashShift    ;
+		private final long                                rootTypeId          ;
+		        final StorageEntityCacheEvaluator         entityCacheEvaluator;
+		private final StorageTypeDictionary               typeDictionary      ;
+		private final StorageEntityMarkMonitor            markMonitor         ;
+		private final StorageOidMarkQueue                 oidMarkQueue        ;
+		private final long[]                              markingOidBuffer    ;
+		private final StorageGCZombieOidHandler           zombieOidHandler    ;
+		private final StorageRootOidSelector              rootOidSelector     ;
+		private final RootEntityRootOidSelectionIterator  rootEntityIterator  ;
 
 		// currently only used for entity iteration
-		private       StorageFileManager.Implementation   fileManager          ; // pseudo-final
+		private       StorageFileManager.Implementation   fileManager         ; // pseudo-final
 
-		// cache function pointers because this::method creates a new instance on every call (tested, at least in Java 8).
-		private final StorageEntity.MaxObjectId           maxObjectId       = new StorageEntity.MaxObjectId()    ;
-		private final StorageEntity.MinObjectId           minObjectId       = new StorageEntity.MinObjectId()    ;
+		private       StorageEntity.Implementation[]      oidHashTable        ;
+		private       int                                 oidModulo           ; // long modulo makes not difference
+		private       long                                oidSize             ;
 
-		private       StorageEntity.Implementation[]      oidHashTable     ;
-		private       int                                 oidModulo        ; // long modulo makes not difference
-		private       long                                oidSize          ;
+		private       StorageEntityType.Implementation[]  tidHashTable        ;
+		private       int                                 tidModulo           ;
+		private       int                                 tidSize             ;
 
-		private       StorageEntityType.Implementation[]  tidHashTable     ;
-		private       int                                 tidModulo        ;
-		private       int                                 tidSize          ;
+		private final StorageEntityType.Implementation    typeHead            ;
+		private       StorageEntityType.Implementation    typeTail            ;
+		private       StorageEntityType.Implementation    rootType            ;
 
-		private final StorageEntityType.Implementation    typeHead         ;
-		private       StorageEntityType.Implementation    typeTail         ;
-		private       StorageEntityType.Implementation    rootType         ;
+		private       StorageEntity.Implementation        liveCursor          ;
 
-		private       StorageEntity.Implementation        liveCursor       ;
-
-		private       long                                usedCacheSize    ;
+		private       long                                usedCacheSize       ;
 
 //		long DEBUG_grayCount = 0;
 //		int DEBUG_marked = 0;
@@ -65,16 +63,16 @@ import net.jadoth.swizzling.types.Swizzle;
 		/////////////////////
 
 		public StorageEntityCache_Implementation_New(
-			final int                                   channelIndex       ,
-			final int                                   channelCount       ,
-			final StorageEntityCacheEvaluator           cacheEvaluator     ,
-			final StorageTypeDictionary                 typeDictionary     ,
-			final GcMonitor                             gcMonitor          ,
-			final StorageGCZombieOidHandler             zombieOidHandler   ,
-			final StorageRootOidSelector                rootOidSelector    ,
-			final long                                  rootTypeId         ,
-			final OidMarkQueue                          oidMarkQueue       ,
-			final int                                   markingBufferLength
+			final int                         channelIndex       ,
+			final int                         channelCount       ,
+			final StorageEntityCacheEvaluator cacheEvaluator     ,
+			final StorageTypeDictionary       typeDictionary     ,
+			final StorageEntityMarkMonitor    markMonitor        ,
+			final StorageGCZombieOidHandler   zombieOidHandler   ,
+			final StorageRootOidSelector      rootOidSelector    ,
+			final long                        rootTypeId         ,
+			final StorageOidMarkQueue         oidMarkQueue       ,
+			final int                         markingBufferLength
 		)
 		{
 			super();
@@ -82,13 +80,14 @@ import net.jadoth.swizzling.types.Swizzle;
 			this.rootTypeId            =             rootTypeId       ;
 			this.entityCacheEvaluator  = notNull    (cacheEvaluator)  ;
 			this.typeDictionary        = notNull    (typeDictionary)  ;
-			this.gcMonitor             = notNull    (gcMonitor)       ;
+			this.markMonitor           = notNull    (markMonitor)     ;
 			this.zombieOidHandler      = notNull    (zombieOidHandler);
 			this.rootOidSelector       = notNull    (rootOidSelector) ;
 			this.channelHashModulo     =             channelCount - 1 ;
 			this.channelHashShift      = log2pow2   (channelCount)    ;
 			this.oidMarkQueue          = notNull    (oidMarkQueue)    ;
 			this.markingOidBuffer      = new long[markingBufferLength];
+			this.rootEntityIterator    = new RootEntityRootOidSelectionIterator(rootOidSelector);
 
 			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
 
@@ -375,12 +374,11 @@ import net.jadoth.swizzling.types.Swizzle;
 
 		final void resetGarbageCollectionCompletionForEntityUpdate()
 		{
-			synchronized(this.gcMonitor)
+			synchronized(this.markMonitor)
 			{
-				this.gcMonitor.signalPendingStoreUpdate(this);
-				this.gcMonitor.resetCompletion();
+				this.markMonitor.signalPendingStoreUpdate(this);
+				this.markMonitor.resetCompletion();
 			}
-
 		}
 
 
@@ -388,7 +386,30 @@ import net.jadoth.swizzling.types.Swizzle;
 		@Override
 		public final synchronized long queryRootObjectId()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageEntityCache_Implementation_New#queryRootObjectId()
+			final StorageEntityType.Implementation rootType = this.getType(this.rootTypeId);
+
+			this.rootOidSelector.reset();
+			rootType.iterateEntities(this.rootEntityIterator);
+			return this.rootOidSelector.yield();
+		}
+
+		static final class RootEntityRootOidSelectionIterator
+		implements ThrowingProcedure<StorageEntity.Implementation, RuntimeException>
+		{
+			final StorageRootOidSelector rootOidSelector;
+
+			public RootEntityRootOidSelectionIterator(final StorageRootOidSelector rootOidSelector)
+			{
+				super();
+				this.rootOidSelector = rootOidSelector;
+			}
+
+			@Override
+			public void accept(final StorageEntity.Implementation e) throws RuntimeException
+			{
+				this.rootOidSelector.accept(e.objectId());
+			}
+
 		}
 
 		@Override
@@ -570,7 +591,7 @@ import net.jadoth.swizzling.types.Swizzle;
 			}
 
 			entry.markGray();
-			this.oidMarkQueue.enqueueAndNotify(entry.objectId());
+			this.oidMarkQueue.enqueue(entry.objectId());
 		}
 
 
@@ -708,10 +729,10 @@ import net.jadoth.swizzling.types.Swizzle;
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
-			final long         evalTime = System.currentTimeMillis();
-			final GcMonitor    gc       = this.gcMonitor            ;
-			final OidMarkQueue q        = this.oidMarkQueue         ;
-			final long[]       oids     = this.markingOidBuffer     ;
+			final long                     evalTime = System.currentTimeMillis();
+			final StorageEntityMarkMonitor mm       = this.markMonitor          ;
+			final StorageOidMarkQueue      q        = this.oidMarkQueue         ;
+			final long[]                   oids     = this.markingOidBuffer     ;
 
 			int oidsToMarkCount = 0;
 			int oidsIndex       = 0;
@@ -725,7 +746,7 @@ import net.jadoth.swizzling.types.Swizzle;
 					if(oidsIndex > 0)
 					{
 						// must advance via central gc monitor to update the total pending mark count
-						gc.advanceMarking_New(q, oidsIndex);
+						mm.advanceMarking(q, oidsIndex);
 					}
 
 					// reset oids index and fetch next batch
@@ -760,7 +781,7 @@ import net.jadoth.swizzling.types.Swizzle;
 
 				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency
 //				DEBUGStorage.println(this.channelIndex + " marking references of " + current.objectId() + " with cache size " + this.usedCacheSize);
-				if(entry.iterateReferenceIds(gc))
+				if(entry.iterateReferenceIds(mm))
 				{
 					// must check for clearing the cache again if marking required loading
 					this.checkForCacheClear(entry, evalTime);
@@ -780,7 +801,7 @@ import net.jadoth.swizzling.types.Swizzle;
 			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
 			if(oidsIndex > 0)
 			{
-				gc.advanceMarking_New(q, oidsIndex);
+				mm.advanceMarking(q, oidsIndex);
 			}
 
 //			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
@@ -788,33 +809,6 @@ import net.jadoth.swizzling.types.Swizzle;
 			// time ran out, return false.
 			return false;
 		}
-
-		private void ensureSingletonRootInstance()
-		{
-			/*
-			 * On retrieving the root instance, effectively only the first root type instance of the lowest channel
-			 * is considered. Everything else is is just dead weight, at least at the moment.
-			 * Also, loading and building multiple roots instances causes OID conflicts in the swizzle registry
-			 * for class constant instances (same instance, different OIDs).
-			 * It is currently not foreseeable that that will/should/must change, as everything beyond a single
-			 * root instance would be nothing more than a special-cased hashtable overhead.
-			 * The only conceivable case would be multiple independent domain model object graphs, each with
-			 * its own class loader and own constant instances etc. But that would also mean as a consequence:
-			 * Why not make separate databases for them in the first place?
-			 * Meaning a simple rule "one database per domain model graph / class loader".
-			 *
-			 * As a consequence, all but one root instance gets deleted here.
-			 * The kept instance is the one with the highest OID (newest saved).
-			 * This algorithm is a little clums and redundant, however channel count and root instances count
-			 * are both very low (usually in the one-digits), so it still should run through in an instant.
-			 */
-//			final long validRootsId = this.validRootIdCalculator.determineValidRootId(this.colleagues);
-//			this.rootType.removeAll(this.rootsDeleter.setValidRootId(validRootsId));
-
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME WIP.Implementation#enclosing_method()
-		}
-
-
 
 		final void internalUpdateEntities(
 			final ByteBuffer                     chunk               ,
@@ -890,7 +884,7 @@ import net.jadoth.swizzling.types.Swizzle;
 		final void cleanupPendingStoreUpdate()
 		{
 			// (14.07.2016 TM)NOTE: dummy stub to prepare for new StorageEntityCache implementation
-			this.gcMonitor.clearPendingStoreUpdate(this);
+			this.markMonitor.clearPendingStoreUpdate(this);
 		}
 
 		@Override
@@ -914,8 +908,17 @@ import net.jadoth.swizzling.types.Swizzle;
 		{
 //			this.DEBUG_PRINT_OID_HASH_VALUES();
 
-			// better to a quick ensure here, see inside for detailed explanation
-			this.ensureSingletonRootInstance();
+			/* (18.07.2016 TM)TODO: ensure singleton root instance over all channels
+			 * If there may be only one root instance, it should be guaranteed here to determine the valid
+			 * one and ignore the rest.
+			 * The tricky part is: this has to be done accross all channels and in a thread safe way.
+			 * To achieve this, the MarkMonitor would have to do it in a centralized method.
+			 * For that, it has to know the entity caches, which it does / can not currently.
+			 * Also, letting one thread call methods of all channels would mean to break the strict thread locality
+			 * of the channels (only the dedicated channel thread may operate on the EntityCache instances).
+			 *
+  			 * This issue is ignored for now, but must be fixed if root instances are to be updateable.
+			 */
 
 			// iterate over all entities of all root types and copy their data
 			this.rootType.iterateEntities(e -> e.copyCachedData(dataCollector));
@@ -1089,14 +1092,14 @@ import net.jadoth.swizzling.types.Swizzle;
 //				return true;
 //			}
 
-			if(this.gcMonitor.isComplete(this))
+			if(this.markMonitor.isComplete(this))
 			{
 				// minimize hash table memory consumption if storage is potentially going to be inactive
 				this.checkOidHashTableConsolidation();
 				return true;
 			}
 
-			if(this.gcMonitor.needsSweep(this))
+			if(this.markMonitor.needsSweep(this))
 			{
 				this.sweep();
 
@@ -1144,24 +1147,24 @@ import net.jadoth.swizzling.types.Swizzle;
 
 				/*
 				 * This is a tricky wait loop:
-				 * In the gc phase monitor implementation, first a lock on the monitor itself is obtained and then on the mark queue.
-				 * Meaning the code here can't just lock the mark queue and then lock the monitor to check for completion inside the loop.
-				 * This would cause a deadlock.
+				 * In the gc phase monitor implementation, first a lock on the monitor itself is obtained
+				 * and then a lock on the mark queue. Meaning the code here can't just lock the mark queue
+				 * and then lock the monitor to check for completion inside the loop. This would cause a deadlock.
 				 *
 				 * So the loop has to be split:
-				 * The loop only checks for completion and time budget.
+				 * The loop itself only checks for completion and time budget.
 				 * Inside the loop, a simple if checks for newly fed oids (queue elements) to be processed (= new work)
 				 * If there aren't any, a tiny wait on the queue is performed.
 				 *
-				 * Note: this is a defense against spurious wakeups, however slightly complicated due to the deadlock matter:
-				 * On any wakeup, a check for time and completion is perf
-				 *
+				 * Note:
+				 * This is a defense against spurious wakeups, however slightly complicated due to the deadlock matter:
+				 * On any wakeup, a check for time and completion is performed.
 				 */
 				waitForWork:
 				while(System.nanoTime() < nanoTimeBudgetBound)
 				{
 					// check for completion on every attempt to wait for new work
-					if(this.gcMonitor.isComplete(this))
+					if(this.markMonitor.isComplete(this))
 					{
 						return true;
 					}
@@ -1192,7 +1195,7 @@ import net.jadoth.swizzling.types.Swizzle;
 			// end of performGC
 
 			// either time ran out or thread was interrupted. In any case, report back the current state of the garbage collection.
-			return this.gcMonitor.isComplete(this);
+			return this.markMonitor.isComplete(this);
 		}
 
 
@@ -1201,7 +1204,7 @@ import net.jadoth.swizzling.types.Swizzle;
 		@Override
 		public void markGray(final long objectId)
 		{
-			// (14.07.2016 TM)TODO: remove markGray() after switch to new implementation
+			// (14.07.2016 TM)XXX: remove markGray() after switch to new implementation
 			throw new UnsupportedOperationException();
 		}
 

@@ -175,7 +175,7 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 			vs.lf().tab().tab().add("private ")
 			.padRight(this.typeName(), typeLength, ' ').blank()
 			.padRight(this.fieldName(), nameLength, ' ')
-			.add(" = null;")
+			.add(";")
 			;
 		}
 
@@ -198,7 +198,8 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 			Code.appendOverride(vs, 2)
 			.lf().tab(2).add("public ").add(this.typeName()).blank().add("get").add(this.upperFieldName).add("()")
 			.lf().tab(2).add('{')
-			.lf().tab(3).add("if(this.").add(this.fieldName()).add(" == null){")
+			.lf().tab(3).add("if(this.").add(this.fieldName()).add(" == null)")
+			.lf().tab(3).add("{")
 			.lf().tab(4).add("this.").add(this.fieldName()).add(" = this.dispatch(this.create").add(this.upperFieldName).add("());")
 			.lf().tab(3).add('}')
 			.lf().tab(3).add("return this.").add(this.fieldName()).add(';')
@@ -228,9 +229,8 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 	public static void main(final String[] args)
 	{
 		final CodeGeneratorFoundation generator = new CodeGeneratorFoundation(
-			"Bla",
-//			"Builder",
-			Member("StorageTimestampProvider"  , "storageTimestampProvider")
+			"StorageFoundation",
+			Member("StorageEntityMarkMonitor.Creator", "entityMarkMonitorCreator")
 
 //			Member("char"  , "segmentStarter"         ),
 //			Member("char"  , "segmentTerminator"      ),

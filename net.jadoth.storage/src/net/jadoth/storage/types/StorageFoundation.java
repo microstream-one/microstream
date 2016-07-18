@@ -42,6 +42,10 @@ public interface StorageFoundation
 
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
 
+	public StorageOidMarkQueue.Creator getOidMarkQueueCreator();
+
+	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
+
 	public StorageExceptionHandler getExceptionHandler();
 
 
@@ -84,6 +88,12 @@ public interface StorageFoundation
 
 	public StorageFoundation setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
+	public StorageFoundation setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
+
+	public StorageFoundation setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
+
+
+
 	public StorageManager createStorageManager();
 
 
@@ -112,6 +122,8 @@ public interface StorageFoundation
 		private StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
+		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
+		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
 
@@ -217,7 +229,31 @@ public interface StorageFoundation
 			this.gCZombieOidHandler = gCZombieOidHandler;
 		}
 
-		protected final void internalSetExceptionHandler(final StorageExceptionHandler exceptionHandler)
+		protected final void internalSetRootOidSelectorProvider(
+			final StorageRootOidSelector.Provider rootOidSelectorProvider
+		)
+		{
+			this.rootOidSelectorProvider = rootOidSelectorProvider;
+		}
+
+		protected final void internalSetOidMarkQueueCreator(
+			final StorageOidMarkQueue.Creator oidMarkQueueCreator
+		)
+		{
+			this.oidMarkQueueCreator = oidMarkQueueCreator;
+		}
+
+		protected final void internalSetEntityMarkMonitorCreator(
+			final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator
+		)
+		{
+			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
+		}
+
+
+		protected final void internalSetExceptionHandler(
+			final StorageExceptionHandler exceptionHandler
+		)
 		{
 			this.exceptionHandler = exceptionHandler;
 		}
@@ -317,6 +353,21 @@ public interface StorageFoundation
 		protected StorageWriteListener.Provider createWriteListenerProvider()
 		{
 			return new StorageWriteListener.Provider.Implementation();
+		}
+
+		protected StorageRootOidSelector.Provider createRootOidSelectorProvider()
+		{
+			return new StorageRootOidSelector.Provider.Implementation();
+		}
+
+		protected StorageOidMarkQueue.Creator createOidMarkQueueCreator()
+		{
+			return new StorageOidMarkQueue.Creator.Implementation();
+		}
+
+		protected StorageEntityMarkMonitor.Creator createEntityMarkMonitorCreator()
+		{
+			return new StorageEntityMarkMonitor.Creator.Implementation();
 		}
 
 		protected StorageExceptionHandler createExceptionHandler()
@@ -497,12 +548,31 @@ public interface StorageFoundation
 		@Override
 		public StorageRootOidSelector.Provider getRootOidSelectorProvider()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageFoundation.Implementation#getRootOidSelectorProvider()
-//			if(this.rootOidSelectorProvider == null)
-//			{
-//				this.rootOidSelectorProvider = this.dispatch(todo);
-//			}
-//			return this.rootOidSelectorProvider;
+			if(this.rootOidSelectorProvider == null)
+			{
+				this.rootOidSelectorProvider = this.dispatch(this.createRootOidSelectorProvider());
+			}
+			return this.rootOidSelectorProvider;
+		}
+
+		@Override
+		public StorageOidMarkQueue.Creator getOidMarkQueueCreator()
+		{
+			if(this.oidMarkQueueCreator == null)
+			{
+				this.oidMarkQueueCreator = this.dispatch(this.createOidMarkQueueCreator());
+			}
+			return this.oidMarkQueueCreator;
+		}
+
+		@Override
+		public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator()
+		{
+			if(this.entityMarkMonitorCreator == null)
+			{
+				this.entityMarkMonitorCreator = this.dispatch(this.createEntityMarkMonitorCreator());
+			}
+			return this.entityMarkMonitorCreator;
 		}
 
 		@Override
@@ -653,7 +723,22 @@ public interface StorageFoundation
 			final StorageRootOidSelector.Provider rootOidSelectorProvider
 		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageFoundation.Implementation#setRootOidSelector()
+			this.internalSetRootOidSelectorProvider(rootOidSelectorProvider);
+			return this;
+		}
+
+		@Override
+		public StorageFoundation.Implementation setOidMarkQueueCreator(final StorageOidMarkQueue.Creator oidMarkQueueCreator)
+		{
+			this.internalSetOidMarkQueueCreator(oidMarkQueueCreator);
+			return this;
+		}
+
+		@Override
+		public StorageFoundation.Implementation setEntityMarkMonitorCreator(final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator)
+		{
+			this.internalSetEntityMarkMonitorCreator(entityMarkMonitorCreator);
+			return this;
 		}
 
 		@Override
@@ -685,6 +770,8 @@ public interface StorageFoundation
 				this.getValidRootIdCalculatorProvider(),
 				this.getGCZombieOidHandler()           ,
 				this.getRootOidSelectorProvider()      ,
+				this.getOidMarkQueueCreator()          ,
+				this.getEntityMarkMonitorCreator()     ,
 				this.getExceptionHandler()
 			);
 		}

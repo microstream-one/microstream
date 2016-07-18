@@ -1,7 +1,5 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.storage.types.StorageEntityCache.Implementation;
-
 public final class StorageGcPhaseMonitor
 	{
 		private boolean isSweepMode;
@@ -29,7 +27,7 @@ public final class StorageGcPhaseMonitor
 
 
 		// (14.07.2016 TM)NOTE: dummy constructor to prepare for the new EntityCache Implementation
-		StorageGcPhaseMonitor(final OidMarkQueue[] oidMarkQueues)
+		StorageGcPhaseMonitor(final StorageOidMarkQueue[] oidMarkQueues)
 		{
 			super();
 		}

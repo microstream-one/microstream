@@ -657,6 +657,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			StorageGCZombieOidHandler             zombieOidHandler             ,
 			StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
+			StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
+			StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
 			long                                  rootTypeId
 		);
 
@@ -686,20 +688,25 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageWriteListener                  writeListener                ,
 				final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 				final StorageGCZombieOidHandler             zombieOidHandler             ,
-				final StorageRootOidSelector.Provider       rootOidSelectorProvider     ,
+				final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
+				final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
+				final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
 				final long                                  rootTypeId
 			)
 			{
 				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
 				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
-				final OidMarkQueue[]                      markQueues = new OidMarkQueue[channels.length];
+				final StorageOidMarkQueue[]               markQueues = new StorageOidMarkQueue[channels.length];
 				final StorageGcPhaseMonitor               gcPhsMon   = new StorageGcPhaseMonitor(markQueues);
+				final StorageEntityMarkMonitor            markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
 
 				// (14.07.2016 TM)TODO: make markBufferLength configurable
-				final int                                 markBufferLength = 500;
+				final int markBufferLength = 500;
 
 				for(int i = 0; i < channels.length; i++)
 				{
+					markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);
+
 					final StorageFileManager.Implementation fileManager;
 					channels[i] = new StorageChannel.Implementation(
 						i                     ,
@@ -708,17 +715,18 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						channelController     ,
 						housekeepingController,
 						caches[i] = new StorageEntityCache.Implementation(
-							i                                                 ,
-							channels.length                                   ,
-							entityCacheEvaluator                              ,
-							typeDictionary                                    ,
-							caches                                            ,
-							gcPhsMon                                          ,
-							zombieOidHandler                                  ,
-							rootOidSelectorProvider.provideRootOidSelector(i) ,
-							rootTypeId                                        ,
-							markQueues[i] = OidMarkQueue.New(markBufferLength),
-							markBufferLength                                  ,
+							i                                                ,
+							channels.length                                  ,
+							entityCacheEvaluator                             ,
+							typeDictionary                                   ,
+							caches                                           ,
+							gcPhsMon                                         ,
+							markMonitor                                      ,
+							zombieOidHandler                                 ,
+							rootOidSelectorProvider.provideRootOidSelector(i),
+							rootTypeId                                       ,
+							markQueues[i]                                    ,
+							markBufferLength                                 ,
 							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
 						),
 						fileManager = new StorageFileManager.Implementation(

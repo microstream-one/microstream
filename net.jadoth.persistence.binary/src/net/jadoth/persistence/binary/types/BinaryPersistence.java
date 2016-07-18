@@ -966,9 +966,9 @@ public final class BinaryPersistence extends Persistence
 			typeId,
 			objectId
 		);
-		
+
 		storeArrayContentAsList(contentAddress + binaryOffset, persister, array, offset, length);
-		
+
 		return contentAddress;
 	}
 
@@ -1003,7 +1003,7 @@ public final class BinaryPersistence extends Persistence
 		Memory.set_long(storeAddress + LIST_OFFSET_COUNT , elementsCount);
 		return storeAddress + LIST_OFFSET_ELEMENTS;
 	}
-	
+
 	public static final void storeIterableContentAsList(
 		final long            storeAddress,
 		final SwizzleFunction persister   ,
@@ -1012,14 +1012,14 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final Iterator<?> iterator = elements.iterator();
-		
+
 		final long referenceLength     = referenceBinaryLength(1);
 		final long elementsBinaryRange = elementCount * referenceLength;
 		final long elementsDataAddress = storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
-		
+
 		long address = elementsDataAddress;
-		
+
 		/*
 		 * must check elementCount on every element because under no circumstances may the memory be set
 		 * longer than the elementCount indicates (e.g. concurrent modification of the passed collection)
@@ -1030,7 +1030,7 @@ public final class BinaryPersistence extends Persistence
 			Memory.set_long(address, persister.apply(element));
 			address += referenceLength;
 		}
-		
+
 		/* if there are fewer elements than specified, it is an error just the same.
 		 * The element count must match exactely, no matter what.
 		 */
@@ -1052,18 +1052,18 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final Iterator<? extends KeyValue<?, ?>> iterator = elements.iterator();
-		
+
 		final long referenceLength = referenceBinaryLength(1);
-		
+
 		// two references per entry
 		final long entryLength = 2 * referenceLength;
 
 		final long elementsBinaryRange = elementCount * entryLength;
 		final long elementsDataAddress = storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
-				
+
 		long address = elementsDataAddress;
-		
+
 		/*
 		 * must check elementCount on every element because under no circumstances may the memory be set
 		 * longer than the elementCount indicates (e.g. concurrent modification of the passed collection)
@@ -1075,7 +1075,7 @@ public final class BinaryPersistence extends Persistence
 			Memory.set_long(address + referenceLength, persister.apply(element.value()));
 			address += entryLength; // advance index for both in one step
 		}
-		
+
 		/* if there are fewer elements than specified, it is an error just the same.
 		 * The element count must match exactely, no matter what.
 		 */
@@ -1697,7 +1697,7 @@ public final class BinaryPersistence extends Persistence
 			);
 		}
 	}
-	
+
 	public static final void collectElementsIntoArray(
 		final Binary                   bytes       ,
 		final long                     binaryOffset,
