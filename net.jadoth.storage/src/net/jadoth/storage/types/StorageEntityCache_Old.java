@@ -228,6 +228,16 @@ public interface StorageEntityCache_Old
 			this.graySegmentRoot.clear();
 		}
 
+		final void completeSweeping()
+		{
+			this.completedSweeping = true;
+		}
+
+		final boolean hasCompletedSweeping()
+		{
+			return this.hasCompletedSweeping();
+		}
+
 		final void resetGraySegments()
 		{
 //			DEBUGStorage.println(this.channelIndex() + " resetting gray segements.");
@@ -1511,7 +1521,6 @@ public interface StorageEntityCache_Old
 				: this.doMark(timeBudgetBound, channel)
 			;
 		}
-
 
 		final synchronized void resetAfterSweep()
 		{

@@ -1236,6 +1236,40 @@ public interface StorageEntityCache_New
 			throw new UnsupportedOperationException();
 		}
 
+		final void truncateGraySegments()
+		{
+			// (19.07.2016 TM)XXX: remove after switch to new implementation
+			// no-op for implementation transitioning
+		}
+
+		final void completeSweeping()
+		{
+			// (19.07.2016 TM)XXX: remove after switch to new implementation
+			// no-op for implementation transitioning
+		}
+
+		final boolean hasCompletedSweeping()
+		{
+			// (19.07.2016 TM)XXX: remove after switch to new implementation
+			// no-op for implementation transitioning
+			return true;
+		}
+
+		final void resetAfterSweep()
+		{
+			// (19.07.2016 TM)XXX: remove after switch to new implementation
+			// no-op for implementation transitioning
+		}
+
+
+
+		final boolean isMarking()
+		{
+			// (19.07.2016 TM)XXX: remove after switch to new implementation
+			// no-op for implementation transitioning
+			return false;
+		}
+
 //		private void DEBUG_PRINT_OID_HASH_VALUES()
 //		{
 //			final VarString vs = VarString.New(

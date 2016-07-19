@@ -78,7 +78,7 @@ public final class StorageGcPhaseMonitor
 			this.isSweepMode = false;
 			for(int i = 0; i < colleagues.length; i++)
 			{
-				colleagues[i].completedSweeping = false;
+				colleagues[i].completeSweeping();
 			}
 		}
 
@@ -111,7 +111,7 @@ public final class StorageGcPhaseMonitor
 
 			for(int i = 0; i < colleagues.length; i++)
 			{
-				colleagues[i].completedSweeping = false;
+				colleagues[i].completeSweeping();
 //				DEBUGStorage.println(colleagues[i].channelIndex() + " " + colleagues[i].DEBUG_grayCount);
 //				colleagues[i].DEBUG_grayCount = 0;
 
@@ -180,7 +180,7 @@ public final class StorageGcPhaseMonitor
 			// simple completed-check: sooner or later, every channels completes sweeping without rollback.
 			for(int i = 0; i < colleagues.length; i++)
 			{
-				if(!colleagues[i].completedSweeping)
+				if(!colleagues[i].hasCompletedSweeping())
 				{
 					return false;
 				}
@@ -189,7 +189,7 @@ public final class StorageGcPhaseMonitor
 			// switch modes in all channels while under the lock's protection
 			for(int i = 0; i < colleagues.length; i++)
 			{
-				colleagues[i].completedSweeping = false;
+				colleagues[i].completeSweeping();
 
 				/*
 				 * calling this method here is essential because the gray chain must be initialized while the lock

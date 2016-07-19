@@ -122,7 +122,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private       StorageEntity.Implementation        sweepCursor      ;
 
 		private       long                                usedCacheSize    ;
-		volatile      boolean                             completedSweeping;
+		private       volatile boolean                    completedSweeping;
 
 
 
@@ -256,6 +256,16 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			this.graySegmentRoot.next = this.graySegmentRoot;
 			this.graySegmentRoot.clear();
+		}
+
+		final void completeSweeping()
+		{
+			this.completedSweeping = true;
+		}
+
+		final boolean hasCompletedSweeping()
+		{
+			return this.hasCompletedSweeping();
 		}
 
 		final void resetGraySegments()
@@ -1217,7 +1227,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				final StorageEntity.Implementation     previousInType
 			)
 			{
-				Implementation.this.deleteEntity(entity, type, previousInType);
+				deleteEntity(entity, type, previousInType);
 			}
 		}
 
@@ -1542,7 +1552,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			;
 		}
 
-
 		final synchronized void resetAfterSweep()
 		{
 			this.checkOidHashTableConsolidation(); // check for shrink after sweep
@@ -1677,7 +1686,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			@Override
 			public void accept(final StorageEntity.Implementation e) throws RuntimeException
 			{
-				Implementation.this.markGrayIfNonNullReferences(e);
+				markGrayIfNonNullReferences(e);
 			}
 		}
 
