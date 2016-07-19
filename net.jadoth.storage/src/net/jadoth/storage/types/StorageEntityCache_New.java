@@ -810,6 +810,8 @@ public interface StorageEntityCache_New
 					continue;
 				}
 
+				// (20.07.2016)TODO: buffer reference OIDs per channel instead of enqueuing them one by one.
+				
 				// note: iterateReferenceIds already checks for references and returns false if none are present
 
 				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency

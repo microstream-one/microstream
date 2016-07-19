@@ -5,6 +5,8 @@ import net.jadoth.math.JadothMath;
 public interface StorageOidMarkQueue
 {
 	public void enqueue(long oid);
+	
+	public void enqueue(long[] oids, int size);
 
 	public int getNext(long[] buffer);
 
@@ -98,8 +100,7 @@ public interface StorageOidMarkQueue
 //			this.size -= amount;
 		}
 
-		@Override
-		public final synchronized void enqueue(final long oid)
+		private void internalEnqueue(final long oid)
 		{
 //			debugln("enqueue "+oid + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
 			if(this.head.enqueue(oid))
@@ -128,7 +129,30 @@ public interface StorageOidMarkQueue
 			}
 
 //			this.size++;
+		}
+		
+		@Override
+		public final synchronized void enqueue(final long oid)
+		{
+			this.internalEnqueue(oid);
 
+			/*
+			 * notify potentially waiting channel that new work is waiting.
+			 * Only owner channels ever wait on a mark queue instance.
+			 * Only marking channels ever notify on a mark queue instance
+			 * (including the owner channel itself, but then it is not waiting in the first place).
+			 */
+			this.notify();
+		}
+		
+		@Override
+		public synchronized void enqueue(final long[] oids, final int size)
+		{
+			for(int i = 0; i < size; i++)
+			{
+				this.internalEnqueue(oids[i]);
+			}
+			
 			/*
 			 * notify potentially waiting channel that new work is waiting.
 			 * Only owner channels ever wait on a mark queue instance.

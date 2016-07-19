@@ -108,32 +108,10 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			this.channelRootIds      = new long   [this.channelCount];
 		}
 
-		final synchronized void enqueue(final long oid)
+		private synchronized void incrementPendingMarksCount()
 		{
-			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 			this.pendingMarksCount++;
-
-			// (19.07.2016 TM)NOTE: debugging
-//			final StorageOidMarkQueue oidMarkQueue = this.oidMarkQueues[(int)(oid & this.channelHash)];
-//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >+  " + this.pendingMarksCount + " " + oidMarkQueue.size());
-//			oidMarkQueue.enqueue(oid);
-//			this.pendingMarksCount++;
-//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + "  +> " + this.pendingMarksCount + " " + oidMarkQueue.size());
 		}
-
-		// (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
-//		final synchronized void enqueueBulk(final long[] oids)
-//		{
-//			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
-//			final int                   channelHash   = this.channelHash  ;
-//
-//			for(final long oid : oids)
-//			{
-//				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
-//			}
-//
-//			this.pendingMarksCount += oids.length;
-//		}
 
 		@Override
 		public final synchronized boolean isMarkingComplete()
@@ -311,7 +289,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 
 			// this initializes the next marking. From here on, pendingMarksCount can only be 0 again if marking is complete.
-			this.enqueue(currentMaxRootId);
+			this.accept(currentMaxRootId);
 		}
 
 		@Override
@@ -323,7 +301,31 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				return;
 			}
 
-			this.enqueue(oid);
+			// no need to keep the lock longer than necessary or nested with the queue lock.
+			this.incrementPendingMarksCount();
+			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
+		}
+		
+
+		
+		// (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
+		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
+		{
+			synchronized(this)
+			{
+				for(final int size : sizes)
+				{
+					this.pendingMarksCount += size;
+				}
+			}
+
+			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+			
+			// lock for every queue is only acquired once and all oids are enqueued efficiently
+			for(int i = 0; i < oidsPerChannel.length; i++)
+			{
+				oidMarkQueues[i].enqueue(oidsPerChannel[i], sizes[i]);
+			}
 		}
 
 		@Override
