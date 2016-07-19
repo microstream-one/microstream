@@ -619,7 +619,9 @@ public interface StorageEntityCache_New
 			}
 
 			entry.markGray();
-			this.oidMarkQueue.enqueue(entry.objectId());
+
+			// must mark via mark monitor to keep central mark count consistent. NEVER directly via the queue!
+			this.markMonitor.accept(entry.objectId());
 		}
 
 
@@ -677,7 +679,7 @@ public interface StorageEntityCache_New
 //				DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + type.typeHandler().typeName());
 //			}
 
-//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
+			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
 
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
@@ -697,14 +699,17 @@ public interface StorageEntityCache_New
 
 		private void sweep()
 		{
-//			DEBUGStorage.println(this.channelIndex + " sweeping a little (" + (timeBudgetBound - System.nanoTime()) + ")");
-//			int DEBUG_safed = 0, DEBUG_collected = 0;
-//			final long DEBUG_starttime = System.nanoTime();
+			DEBUGStorage.println(this.channelIndex + " sweeping");
+			int DEBUG_safed = 0, DEBUG_collected = 0;
+			final long DEBUG_starttime = System.nanoTime();
 
 			final StorageEntityType.Implementation typeHead = this.typeHead;
 
 			for(StorageEntityType.Implementation sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
 			{
+				DEBUGStorage.println(this.channelIndex + " sweeping " + sweepType.typeHandler().typeName());
+
+
 				// get next item and check for end of type (switch to next type required)
 				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
@@ -713,7 +718,7 @@ public interface StorageEntityCache_New
 					{
 //						DEBUGStorage.println("Saving " + item);
 						(last = item).markWhite(); // reset to white and advance one item
-//						DEBUG_safed++;
+						DEBUG_safed++;
 					}
 					else
 					{
@@ -721,13 +726,16 @@ public interface StorageEntityCache_New
 //						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
 						this.deleteEntity(item, sweepType, last);
 						// decrement entity count (strictly only once per remove as guaranteed by check above)
-//						DEBUG_collected++;
+						DEBUG_collected++;
 						/* even if another thread concurrently grays the item, it can only cause a single
 						 * "pre-death" grace cycle as the item is no longer reachable from now on for future marking.
 						 */
 					}
 				}
 			}
+
+			final long DEBUG_stoptime = System.nanoTime();
+			DEBUGStorage.println(this.channelIndex + " sweep COMPLETED, safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + (DEBUG_stoptime - DEBUG_starttime));
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
 			this.fileManager.resetFileCleanupCursor();
@@ -762,24 +770,24 @@ public interface StorageEntityCache_New
 			final StorageOidMarkQueue      q        = this.oidMarkQueue         ;
 			final long[]                   oids     = this.markingOidBuffer     ;
 
-			int oidsToMarkCount = 0;
-			int oidsIndex       = 0;
+			// total amount of oids to mark in the current batch. Range: [0; oids.length]
+			int oidsMarkAmount = 0;
+
+			// index of next oid to be marked (and current amount of already marked oids). Range: [0; oidsMarkAmount]
+			int oidsMarkIndex  = 0;
 
 			// mark at least one entity, even if there no time, to avoid starvation
 			do
 			{
 				// fetch next batch of oids to mark and advance gray queue if necessary
-				if(oidsIndex >= oidsToMarkCount)
+				if(oidsMarkIndex >= oidsMarkAmount)
 				{
-					if(oidsIndex > 0)
-					{
-						// must advance via central gc monitor to update the total pending mark count
-						mm.advanceMarking(q, oidsIndex);
-					}
+					// must advance via central gc monitor to update the total pending mark count (0-case ignored).
+					mm.advanceMarking(q, oidsMarkIndex);
 
 					// reset oids index and fetch next batch
-					oidsIndex = 0;
-					if((oidsToMarkCount = q.getNext(oids)) == 0)
+					oidsMarkIndex = 0;
+					if((oidsMarkAmount = q.getNext(oids)) == 0)
 					{
 						// ran out of work before time ran out. So return true.
 						return true;
@@ -787,16 +795,13 @@ public interface StorageEntityCache_New
 				}
 
 				// get the entry for the current oid to be marked
-				final StorageEntity.Implementation entry = this.getEntry(oids[oidsIndex++]);
+				final StorageEntity.Implementation entry = this.getEntry(oids[oidsMarkIndex++]);
 
+				// externalized/modularized zombie oid handling
 				if(entry == null)
 				{
-					if(this.zombieOidHandler.ignoreZombieOid(oids[oidsIndex - 1]))
-					{
-						continue;
-					}
-					// (29.07.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Zombie OID " + oids[oidsIndex - 1]);
+					this.zombieOidHandler.handleZombieOid(oids[oidsMarkIndex - 1]);
+					continue;
 				}
 
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
@@ -827,9 +832,9 @@ public interface StorageEntityCache_New
 			while(System.nanoTime() < timeBudgetBound);
 
 			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
-			if(oidsIndex > 0)
+			if(oidsMarkIndex > 0)
 			{
-				mm.advanceMarking(q, oidsIndex);
+				mm.advanceMarking(q, oidsMarkIndex);
 			}
 
 //			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
@@ -1120,29 +1125,43 @@ public interface StorageEntityCache_New
 //				return true;
 //			}
 
-			if(this.markMonitor.isComplete(this))
+			try
 			{
-				// minimize hash table memory consumption if storage is potentially going to be inactive
-				this.checkOidHashTableConsolidation();
-				return true;
-			}
-
-			if(this.markMonitor.needsSweep(this))
-			{
-				this.sweep();
-
-				if(System.nanoTime() >= timeBudgetBound)
+				if(this.markMonitor.isComplete(this))
 				{
-					return false;
+					// minimize hash table memory consumption if storage is potentially going to be inactive
+					this.checkOidHashTableConsolidation();
+					return true;
 				}
-			}
 
-			if(this.incrementalMark(timeBudgetBound))
+				/* (19.07.2016 TM)FIXME: empty marking / instant sweep
+				 * sweeps seems to sweep immediately again, deleting all entities in the process.
+				 * The reason should be that marking after a sweep does noething.
+				 * Probably root id stuff is not working correctly.
+				 */
+
+				if(this.markMonitor.needsSweep(this))
+				{
+					DEBUGStorage.println(this.channelIndex + " sweeping (incrementalGarbageCollection)");
+					this.sweep();
+
+					if(System.nanoTime() >= timeBudgetBound)
+					{
+						return false;
+					}
+				}
+
+				if(this.incrementalMark(timeBudgetBound))
+				{
+					return true;
+				}
+
+				return false;
+			}
+			catch(final Exception e)
 			{
-				return true;
+				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
 			}
-
-			return false;
 		}
 
 
@@ -1158,7 +1177,7 @@ public interface StorageEntityCache_New
 //				return true;
 //			}
 
-//			DEBUGStorage.println(this.hashIndex() + " issued gc (" + this.debugGcState() + ")");
+			DEBUGStorage.println(this.channelIndex() + " issued gc");
 
 			// check time budget first for explicitly issued calls.
 			performGC:
@@ -1196,6 +1215,14 @@ public interface StorageEntityCache_New
 					{
 						return true;
 					}
+
+					// check if marking has been completed while waiting.
+					if(this.markMonitor.isMarkingComplete())
+					{
+						break waitForWork;
+					}
+
+//					DEBUGStorage.println(this.channelIndex() + " waiting for work.\n" + this.markMonitor.DEBUG_state());
 
 					// check/wait for missing oids to mark, which have to be provided by other channels' marking.
 					synchronized(this.oidMarkQueue)

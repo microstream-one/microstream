@@ -81,7 +81,7 @@ public final class Memory
 		OFFSET_ArrayList_size        = internalGetFieldOffset(ArrayList.class    , "size"       ),
 		OFFSET_HashSet_map           = internalGetFieldOffset(HashSet.class      , "map"        ),
 		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" )
-			
+
 	;
 	// CHECKSTYLE.ON: ConstantName
 
@@ -331,7 +331,7 @@ public final class Memory
 		// must check not null here explictely to prevent VM crashes
 		VM.putInt(notNull(arrayList), OFFSET_ArrayList_size, size);
 	}
-	
+
 	/**
 	 * My god. How incompetent can one be: they provide a constructor for configuring the load factor,
 	 * but they provide no means to querying it. So if a hashset instance shall be transformed to another
@@ -343,7 +343,7 @@ public final class Memory
 	 * <p>
 	 * So another hack method has to provide basic functionality that is missing in the JDK.
 	 * And should they ever get the idea to implement the set properly, this method will break.
-	 * 
+	 *
 	 * @param hashSet
 	 * @return
 	 */

@@ -12,6 +12,8 @@ public interface StorageOidMarkQueue
 
 	public void advanceTail(int amount);
 
+	// (19.07.2016 TM)TODO: only for debugging, demove afterwards
+//	public long size();
 
 
 
@@ -44,6 +46,15 @@ public interface StorageOidMarkQueue
 
 		private Segment head, tail;
 
+		// (19.07.2016 TM)TODO: only for debugging, demove afterwards
+//		long size;
+//
+//		@Override
+//		public final long size()
+//		{
+//			return this.size;
+//		}
+
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -66,6 +77,7 @@ public interface StorageOidMarkQueue
 		synchronized final void reset()
 		{
 			(this.head = this.tail = this.root.next = this.root).clear();
+//			this.size = 0;
 		}
 
 		@Override
@@ -83,6 +95,7 @@ public interface StorageOidMarkQueue
 
 				this.tail = this.tail.advanceTail();
 			}
+//			this.size -= amount;
 		}
 
 		@Override
@@ -113,6 +126,8 @@ public interface StorageOidMarkQueue
 				// either the next segment itself or a new segment created and enqueued by it.
 				this.head = this.head.advanceHead();
 			}
+
+//			this.size++;
 
 			/*
 			 * notify potentially waiting channel that new work is waiting.

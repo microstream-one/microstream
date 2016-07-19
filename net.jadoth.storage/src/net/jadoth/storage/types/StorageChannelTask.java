@@ -54,7 +54,7 @@ public interface StorageChannelTask extends StorageTask
 			{
 				if(this.problems[i] != null)
 				{
-					throw new RuntimeException(this.problems[i]); // (09.09.2014 TM)EXCP: proper exception
+					throw new RuntimeException("Problem in channel " + i, this.problems[i]); // (09.09.2014 TM)EXCP: proper exception
 				}
 			}
 		}

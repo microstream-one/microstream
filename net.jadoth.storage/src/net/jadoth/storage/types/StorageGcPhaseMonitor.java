@@ -26,8 +26,7 @@ public final class StorageGcPhaseMonitor
 		private boolean gcComplete;
 
 
-		// (14.07.2016 TM)NOTE: dummy constructor to prepare for the new EntityCache Implementation
-		StorageGcPhaseMonitor(final StorageOidMarkQueue[] oidMarkQueues)
+		StorageGcPhaseMonitor()
 		{
 			super();
 		}

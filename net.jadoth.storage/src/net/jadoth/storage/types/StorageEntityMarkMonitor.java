@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.chars.VarString;
 
 
 /**
@@ -26,6 +27,11 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 	public boolean isComplete(StorageEntityCache<?> channel);
 
 	public boolean needsSweep(StorageEntityCache<?> channel);
+
+	public boolean isMarkingComplete();
+
+	// (19.07.2016 TM)TODO: debugging
+	public String DEBUG_state();
 
 
 
@@ -106,22 +112,31 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		{
 			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 			this.pendingMarksCount++;
+
+			// (19.07.2016 TM)NOTE: debugging
+//			final StorageOidMarkQueue oidMarkQueue = this.oidMarkQueues[(int)(oid & this.channelHash)];
+//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >+  " + this.pendingMarksCount + " " + oidMarkQueue.size());
+//			oidMarkQueue.enqueue(oid);
+//			this.pendingMarksCount++;
+//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + "  +> " + this.pendingMarksCount + " " + oidMarkQueue.size());
 		}
 
-		final synchronized void enqueueBulk(final long[] oids)
-		{
-			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
-			final int                   channelHash   = this.channelHash  ;
+		// (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
+//		final synchronized void enqueueBulk(final long[] oids)
+//		{
+//			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+//			final int                   channelHash   = this.channelHash  ;
+//
+//			for(final long oid : oids)
+//			{
+//				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
+//			}
+//
+//			this.pendingMarksCount += oids.length;
+//		}
 
-			for(final long oid : oids)
-			{
-				oidMarkQueues[(int)(oid & channelHash)].enqueue(oid);
-			}
-
-			this.pendingMarksCount += oids.length;
-		}
-
-		final synchronized boolean isMarkingComplete()
+		@Override
+		public final synchronized boolean isMarkingComplete()
 		{
 			return this.pendingMarksCount == 0 && this.pendingStoreUpdateCount == 0;
 		}
@@ -129,18 +144,24 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		@Override
 		public final synchronized void advanceMarking(final StorageOidMarkQueue oidMarkQueue, final int amount)
 		{
+//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
+
 			if(this.pendingMarksCount < amount)
 			{
 				// (07.07.2016 TM)EXCP: proper exception
-				throw new RuntimeException();
+				throw new RuntimeException(
+					"pending marks count (" + this.pendingMarksCount +
+					") is smaller than the number to be advanced (" + amount + ").");
 			}
 
 			/*
 			 * Advance the oidMarkQueue not before the gc phase monitor has been locked and the amount has been validated.
-			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outsied.
+			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outside.
 			 */
 			oidMarkQueue.advanceTail(amount);
 			this.pendingMarksCount -= amount;
+
+//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + "  >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
 		}
 
 		@Override
@@ -149,6 +170,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// check array to ensure idempotence
 			if(!this.pendingStoreUpdates[channel.channelIndex()])
 			{
+				DEBUGStorage.println(channel.channelIndex() + " signals pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = true;
 				this.pendingStoreUpdateCount++;
 			}
@@ -160,6 +182,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// check array to ensure idempotence
 			if(this.pendingStoreUpdates[channel.channelIndex()])
 			{
+				DEBUGStorage.println(channel.channelIndex() + " clears pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = false;
 				this.pendingStoreUpdateCount--;
 			}
@@ -169,15 +192,20 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		{
 			if(this.gcColdPhaseComplete)
 			{
+				DEBUGStorage.println("GC already complete.");
 				return;
 			}
 
 			if(this.gcHotPhaseComplete)
 			{
+				DEBUGStorage.println("Completed GC fully.");
 				this.gcColdPhaseComplete = true;
 			}
-
-			this.gcHotPhaseComplete = true;
+			else
+			{
+				DEBUGStorage.println("Completed GC Hot Phase");
+				this.gcHotPhaseComplete = true;
+			}
 		}
 
 		private synchronized boolean callToSweepRequired()
@@ -193,6 +221,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			{
 				return false;
 			}
+
+			DEBUGStorage.println("Marking complete.");
 
 			// reset channel root ids board because channels will update it upon ecountering the need to sweep.
 			this.resetChannelRootIds();
@@ -229,6 +259,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			 */
 			if(this.needsSweep[channel.channelIndex()] || this.callToSweepRequired())
 			{
+				DEBUGStorage.println(channel.channelIndex() + " needs sweeping.");
+
 				this.needsSweep[channel.channelIndex()] = false;
 				if(--this.sweepingChannelCount == 0)
 				{
@@ -311,6 +343,55 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			return this.gcColdPhaseComplete
 				|| this.gcHotPhaseComplete && this.sweepingChannelCount > 0 && !this.needsSweep[channel.channelIndex()]
 			;
+		}
+
+
+		@Override
+		public synchronized String DEBUG_state()
+		{
+			// (19.07.2016 TM)NOTE: ultra hacky hardcoded multi-lock for 4 channels
+			synchronized(this.oidMarkQueues[0])
+			{
+				synchronized(this.oidMarkQueues[1])
+				{
+					synchronized(this.oidMarkQueues[2])
+					{
+						synchronized(this.oidMarkQueues[3])
+						{
+							final VarString vs = VarString.New("GC state");
+
+							vs
+							.lf().padLeft(Long.toString(this.pendingMarksCount), 10, ' ').add(" pending marks count")
+							;
+//							for(int i = 0; i < this.oidMarkQueues.length; i++)
+//							{
+//								vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+//							}
+
+							vs
+							.lf()
+							.lf().add("Hot  complete\t" + this.gcHotPhaseComplete)
+							.lf().add("Cold complete\t" + this.gcColdPhaseComplete)
+							.lf().add("Needs sweep (" + this.sweepingChannelCount+"):")
+							;
+							for(int i = 0; i < this.needsSweep.length; i++)
+							{
+								vs.lf().blank().add(i + ": " + this.needsSweep[i]);
+							}
+
+							vs
+							.lf().padLeft(Long.toString(this.pendingStoreUpdateCount), 10, ' ').blank().add("pending store updates")
+							;
+							for(int i = 0; i < this.pendingStoreUpdates.length; i++)
+							{
+								vs.lf().blank().add(i + ": " + this.pendingStoreUpdates[i]);
+							}
+
+							return vs.toString();
+						}
+					}
+				}
+			}
 		}
 
 	}

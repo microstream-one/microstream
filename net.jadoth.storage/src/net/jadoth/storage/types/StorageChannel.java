@@ -694,19 +694,22 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final long                                  rootTypeId
 			)
 			{
-				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
-				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
-				final StorageOidMarkQueue[]               markQueues = new StorageOidMarkQueue[channels.length];
-				final StorageGcPhaseMonitor               gcPhsMon   = new StorageGcPhaseMonitor(markQueues);
-				final StorageEntityMarkMonitor            markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
-
 				// (14.07.2016 TM)TODO: make markBufferLength configurable
 				final int markBufferLength = 500;
 
-				for(int i = 0; i < channels.length; i++)
+				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
+				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
+				final StorageGcPhaseMonitor               gcPhsMon   = new StorageGcPhaseMonitor();
+
+				final StorageOidMarkQueue[]    markQueues = new StorageOidMarkQueue[channels.length];
+				for(int i = 0; i < markQueues.length; i++)
 				{
 					markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);
+				}
+				final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
 
+				for(int i = 0; i < channels.length; i++)
+				{
 					final StorageFileManager.Implementation fileManager;
 					channels[i] = new StorageChannel.Implementation(
 						i                     ,

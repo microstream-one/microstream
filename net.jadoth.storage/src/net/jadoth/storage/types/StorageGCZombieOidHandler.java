@@ -14,7 +14,7 @@ package net.jadoth.storage.types;
 @FunctionalInterface
 public interface StorageGCZombieOidHandler
 {
-	public boolean ignoreZombieOid(long oid);
+	public boolean handleZombieOid(long oid);
 
 
 	/**
@@ -25,7 +25,7 @@ public interface StorageGCZombieOidHandler
 	public final class Implementation implements StorageGCZombieOidHandler
 	{
 		@Override
-		public final boolean ignoreZombieOid(final long oid)
+		public final boolean handleZombieOid(final long oid)
 		{
 			return true;
 		}
