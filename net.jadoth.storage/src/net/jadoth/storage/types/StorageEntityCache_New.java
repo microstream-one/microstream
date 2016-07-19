@@ -14,8 +14,10 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
 
+public interface StorageEntityCache_New
+{
 
-	public final class StorageEntityCache_Implementation_New implements StorageEntityCache<StorageEntity.Implementation>
+	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -63,7 +65,7 @@ import net.jadoth.swizzling.types.Swizzle;
 		/////////////////////
 
 		// (18.07.2016 TM)XXX: remove deprecated parameters after switch to new implementation
-		public StorageEntityCache_Implementation_New(
+		public Implementation(
 			final int                                 channelIndex         ,
 			final int                                 channelCount         ,
 			final StorageEntityCacheEvaluator         cacheEvaluator       ,
@@ -1258,3 +1260,5 @@ import net.jadoth.swizzling.types.Swizzle;
 //		}
 
 	}
+
+}
