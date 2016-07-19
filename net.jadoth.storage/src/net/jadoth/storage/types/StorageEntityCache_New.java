@@ -677,7 +677,7 @@ public interface StorageEntityCache_New
 //				DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + type.typeHandler().typeName());
 //			}
 
-//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.type.type.typeHandler().typeName());
+//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
 
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
