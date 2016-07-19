@@ -122,7 +122,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private       StorageEntity.Implementation        sweepCursor      ;
 
 		private       long                                usedCacheSize    ;
-		private       volatile boolean                    completedSweeping;
+		volatile      boolean                             completedSweeping;
 
 
 
@@ -265,7 +265,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final boolean hasCompletedSweeping()
 		{
-			return this.hasCompletedSweeping();
+			return this.completedSweeping;
 		}
 
 		final void resetGraySegments()
@@ -1002,7 +1002,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //				DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + type.typeHandler().typeName());
 //			}
 
-//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.type.type.typeHandler().typeName());
+			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
 
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);

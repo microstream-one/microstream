@@ -235,7 +235,7 @@ public interface StorageEntityCache_Old
 
 		final boolean hasCompletedSweeping()
 		{
-			return this.hasCompletedSweeping();
+			return this.completedSweeping;
 		}
 
 		final void resetGraySegments()
