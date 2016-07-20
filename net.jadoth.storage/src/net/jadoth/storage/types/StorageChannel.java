@@ -694,8 +694,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final long                                  rootTypeId
 			)
 			{
-				// (14.07.2016 TM)TODO: make markBufferLength configurable
-				final int markBufferLength = 500;
+				// (14.07.2016 TM)TODO: make config values configurable
+				final int  markBufferLength  = 500;
+				final long markingWaitTimeMs =  10;
 
 				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
 				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
@@ -730,6 +731,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 							rootTypeId                                       ,
 							markQueues[i]                                    ,
 							markBufferLength                                 ,
+							markingWaitTimeMs                                ,
 							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
 						),
 						fileManager = new StorageFileManager.Implementation(

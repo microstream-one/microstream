@@ -28,7 +28,7 @@ public class MainSearchStringInFiles
 //		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest/csv").listFiles(), "26920708");
 //		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest_2015-10-16_10-13-11.301/csv").listFiles(), "1000000000000000008");
 
-		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest_2016-06-22_11-22-26.826/csv").listFiles(), "1000000000039693602");
+		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest_2016-07-20_12-53-40.706/csv").listFiles(), "1000000000044806574");
 
 
 		// 1000000000040456642 ist eqHashTable mit UmsatzAhVlUst 1000000000040485361

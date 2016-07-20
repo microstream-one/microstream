@@ -1,18 +1,23 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.Jadoth.coalesce;
 import static net.jadoth.Jadoth.notNull;
 import static net.jadoth.math.JadothMath.log2pow2;
 import static net.jadoth.math.JadothMath.notNegative;
+import static net.jadoth.math.JadothMath.positive;
 
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.collections.HashTable;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.KeyValue;
+import net.jadoth.util.chars.VarString;
 
 public interface StorageEntityCache_New
 {
@@ -27,6 +32,7 @@ public interface StorageEntityCache_New
 		private final int                                 channelHashModulo   ;
 		private final int                                 channelHashShift    ;
 		private final long                                rootTypeId          ;
+		private final long                                markingWaitTimeMs   ;
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator;
 		private final StorageTypeDictionary               typeDictionary      ;
 		private final StorageEntityMarkMonitor            markMonitor         ;
@@ -55,9 +61,6 @@ public interface StorageEntityCache_New
 
 		private       long                                usedCacheSize       ;
 
-//		long DEBUG_grayCount = 0;
-//		int DEBUG_marked = 0;
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -78,6 +81,7 @@ public interface StorageEntityCache_New
 			final long                                rootTypeId           ,
 			final StorageOidMarkQueue                 oidMarkQueue         ,
 			final int                                 markingBufferLength  ,
+			final long                                markingWaitTimeMs    ,
 			final StorageValidRootIdCalculator        validRootIdCalculator
 		)
 		{
@@ -92,6 +96,7 @@ public interface StorageEntityCache_New
 			this.channelHashModulo     =             channelCount - 1 ;
 			this.channelHashShift      = log2pow2   (channelCount)    ;
 			this.oidMarkQueue          = notNull    (oidMarkQueue)    ;
+			this.markingWaitTimeMs     = positive  (markingWaitTimeMs);
 			this.markingOidBuffer      = new long[markingBufferLength];
 			this.rootEntityIterator    = new RootEntityRootOidSelectionIterator(rootOidSelector);
 
@@ -679,7 +684,7 @@ public interface StorageEntityCache_New
 //				DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + type.typeHandler().typeName());
 //			}
 
-			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
+//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
 
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
@@ -695,50 +700,6 @@ public interface StorageEntityCache_New
 
 			// 5.) mark entity as deleted
 			entity.setDeleted();
-		}
-
-		private void sweep()
-		{
-			DEBUGStorage.println(this.channelIndex + " sweeping");
-			int DEBUG_safed = 0, DEBUG_collected = 0;
-			final long DEBUG_starttime = System.nanoTime();
-
-			final StorageEntityType.Implementation typeHead = this.typeHead;
-
-			for(StorageEntityType.Implementation sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
-			{
-				DEBUGStorage.println(this.channelIndex + " sweeping " + sweepType.typeHandler().typeName());
-
-
-				// get next item and check for end of type (switch to next type required)
-				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
-				{
-					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
-					if(item.isGcMarked())
-					{
-//						DEBUGStorage.println("Saving " + item);
-						(last = item).markWhite(); // reset to white and advance one item
-						DEBUG_safed++;
-					}
-					else
-					{
-						// otherwise white entity, so collect it
-//						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
-						this.deleteEntity(item, sweepType, last);
-						// decrement entity count (strictly only once per remove as guaranteed by check above)
-						DEBUG_collected++;
-						/* even if another thread concurrently grays the item, it can only cause a single
-						 * "pre-death" grace cycle as the item is no longer reachable from now on for future marking.
-						 */
-					}
-				}
-			}
-
-			final long DEBUG_stoptime = System.nanoTime();
-			DEBUGStorage.println(this.channelIndex + " sweep COMPLETED, safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + (DEBUG_stoptime - DEBUG_starttime));
-
-			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
-			this.fileManager.resetFileCleanupCursor();
 		}
 
 		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
@@ -811,7 +772,7 @@ public interface StorageEntityCache_New
 				}
 
 				// (20.07.2016)TODO: buffer reference OIDs per channel instead of enqueuing them one by one.
-				
+
 				// note: iterateReferenceIds already checks for references and returns false if none are present
 
 				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency
@@ -829,7 +790,7 @@ public interface StorageEntityCache_New
 				entry.markBlack();
 
 //				DEBUGStorage.println(this.channelIndex + " marked " + current);
-//				DEBUG_marked++;
+				this.DEBUG_marked++;
 			}
 			while(System.nanoTime() < timeBudgetBound);
 
@@ -845,14 +806,92 @@ public interface StorageEntityCache_New
 			return false;
 		}
 
+
+		int DEBUG_marked;
+
+		private void sweep()
+		{
+			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
+//			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
+
+//			DEBUGStorage.println(this.channelIndex + " sweeping");
+
+			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0;
+			final long DEBUG_starttime = System.nanoTime();
+
+			final StorageEntityType.Implementation typeHead = this.typeHead;
+
+			for(StorageEntityType.Implementation sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
+			{
+//				DEBUGStorage.println(this.channelIndex + " sweeping " + sweepType.typeHandler().typeName());
+
+				// get next item and check for end of type (switch to next type required)
+				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
+				{
+					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
+					if(item.isGcMarked())
+					{
+//						DEBUGStorage.println("Saving " + item);
+//						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
+						DEBUG_safed++;
+
+						(last = item).markWhite(); // reset to white and advance one item
+					}
+					else
+					{
+//						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
+
+						DEBUG_collected++;
+						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
+						if(item.objectId() < DEBUG_lowest_collected)
+						{
+							DEBUG_lowest_collected = item.objectId();
+						}
+						if(item.objectId() >= DEBUG_highest_collected)
+						{
+							DEBUG_highest_collected = item.objectId();
+						}
+
+						// otherwise white entity, so collect it
+						this.deleteEntity(item, sweepType, last);
+					}
+				}
+			}
+
+			final long DEBUG_stoptime = System.nanoTime();
+			final VarString vs = VarString.New();
+			vs.add(this.channelIndex + " sweep COMPLETED.");
+			vs.add(" Marked: ").add(this.DEBUG_marked);
+			this.DEBUG_marked = 0;
+			vs.add(" Safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + (DEBUG_stoptime - DEBUG_starttime));
+			vs
+			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
+			.add(" Highest collected: ").add(DEBUG_highest_collected)
+			;
+			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
+			{
+				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+			}
+//			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
+//			{
+//				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+//			}
+			DEBUGStorage.println(vs.toString());
+
+
+			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
+			this.fileManager.resetFileCleanupCursor();
+		}
+
+
 		final void internalUpdateEntities(
 			final ByteBuffer                     chunk               ,
 			final long                           chunkStoragePosition,
 			final StorageDataFile.Implementation file
 		)
 		{
-			final long chunkStartAddress   = Memory.directByteBufferAddress(chunk);
-			final long chunkLength         = chunk.limit();
+			final long chunkStartAddress = Memory.directByteBufferAddress(chunk);
+			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter
 			final long storageBackset    = chunkStoragePosition - chunkStartAddress;
@@ -1120,58 +1159,6 @@ public interface StorageEntityCache_New
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
-		public final boolean incrementalGarbageCollection(final long timeBudgetBound, final StorageChannel channel)
-		{
-//			if(!DEBUG_GC_ENABLED)
-//			{
-//				return true;
-//			}
-
-			try
-			{
-				if(this.markMonitor.isComplete(this))
-				{
-					// minimize hash table memory consumption if storage is potentially going to be inactive
-					this.checkOidHashTableConsolidation();
-					return true;
-				}
-
-				/* (19.07.2016 TM)FIXME: empty marking / instant sweep
-				 * sweeps seems to sweep immediately again, deleting all entities in the process.
-				 * The reason should be that marking after a sweep does noething.
-				 * Probably root id stuff is not working correctly.
-				 */
-
-				if(this.markMonitor.needsSweep(this))
-				{
-					DEBUGStorage.println(this.channelIndex + " sweeping (incrementalGarbageCollection)");
-					this.sweep();
-
-					if(System.nanoTime() >= timeBudgetBound)
-					{
-						return false;
-					}
-				}
-
-				if(this.incrementalMark(timeBudgetBound))
-				{
-					return true;
-				}
-
-				return false;
-			}
-			catch(final Exception e)
-			{
-				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
-			}
-		}
-
-
-		/**
-		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
-		 * (Meaning the returned boolean effectively means "Was there enough time?")
-		 */
-		@Override
 		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound, final StorageChannel channel)
 		{
 //			if(!DEBUG_GC_ENABLED)
@@ -1196,17 +1183,12 @@ public interface StorageEntityCache_New
 
 				/*
 				 * This is a tricky wait loop:
-				 * In the gc phase monitor implementation, first a lock on the monitor itself is obtained
-				 * and then a lock on the mark queue. Meaning the code here can't just lock the mark queue
-				 * and then lock the monitor to check for completion inside the loop. This would cause a deadlock.
-				 *
-				 * So the loop has to be split:
 				 * The loop itself only checks for completion and time budget.
-				 * Inside the loop, a simple if checks for newly fed oids (queue elements) to be processed (= new work)
-				 * If there aren't any, a tiny wait on the queue is performed.
+				 * Inside the loop, a simple if checks for newly enqueued oids to be marked/processed (= new work)
+				 * If there aren't any, a wait on the queue is performed.
 				 *
 				 * Note:
-				 * This is a defense against spurious wakeups, however slightly complicated due to the deadlock matter:
+				 * This covers spurious wakeups, however slightly complicated:
 				 * On any wakeup, a check for time and completion is performed.
 				 */
 				waitForWork:
@@ -1237,7 +1219,7 @@ public interface StorageEntityCache_New
 
 						try
 						{
-							this.oidMarkQueue.wait(10);
+							this.oidMarkQueue.wait(this.markingWaitTimeMs);
 						}
 						catch(final InterruptedException e)
 						{
@@ -1245,7 +1227,7 @@ public interface StorageEntityCache_New
 							break performGC;
 						}
 					}
-					// end of waiting, perform checks again
+					// end of waiting, continue with waitForWork checks
 				}
 				// end of waitForWork, continue performGC
 			}
@@ -1255,7 +1237,58 @@ public interface StorageEntityCache_New
 			return this.markMonitor.isComplete(this);
 		}
 
+		/**
+		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * (Meaning the returned boolean effectively means "Was there enough time?")
+		 */
+		@Override
+		public final boolean incrementalGarbageCollection(final long timeBudgetBound, final StorageChannel channel)
+		{
+//			if(!DEBUG_GC_ENABLED)
+//			{
+//				return true;
+//			}
 
+			try
+			{
+				return this.internalIncrementalGarbageCollection(timeBudgetBound, channel);
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
+			}
+		}
+
+		private final boolean internalIncrementalGarbageCollection(
+			final long           timeBudgetBound,
+			final StorageChannel channel
+		)
+		{
+			if(this.markMonitor.isComplete(this))
+			{
+				// minimize hash table memory consumption if storage is potentially going to be inactive
+				this.checkOidHashTableConsolidation();
+				return true;
+			}
+
+			if(this.markMonitor.needsSweep(this))
+			{
+				this.sweep();
+
+				if(System.nanoTime() >= timeBudgetBound)
+				{
+					return false;
+				}
+			}
+
+//			DEBUGStorage.println(this.channelIndex + " marking ...");
+			if(this.incrementalMark(timeBudgetBound))
+			{
+				return true;
+			}
+
+			return false;
+		}
 
 		@Deprecated
 		@Override
@@ -1323,5 +1356,4 @@ public interface StorageEntityCache_New
 //		}
 
 	}
-
 }

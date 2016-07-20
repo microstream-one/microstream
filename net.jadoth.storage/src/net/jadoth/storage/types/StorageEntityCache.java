@@ -182,6 +182,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final long                                rootTypeId           ,
 			final StorageOidMarkQueue                 oidMarkQueue         ,
 			final int                                 markingBufferLength  ,
+			final long                                markingWaitTimeMs    ,
 			final StorageValidRootIdCalculator        validRootIdCalculator
 		)
 		{

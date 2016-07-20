@@ -70,7 +70,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		private final boolean[]             needsSweep             ;
 		private       int                   sweepingChannelCount   ;
 
-		private final long[]                channelRootIds         ;
+		private final long[]                channelRootOids         ;
 
 		/*
 		 * Indicates that no new data (store) has been received since the last sweep.
@@ -105,7 +105,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			this.channelHash         = this.channelCount - 1         ;
 			this.pendingStoreUpdates = new boolean[this.channelCount];
 			this.needsSweep          = new boolean[this.channelCount];
-			this.channelRootIds      = new long   [this.channelCount];
+			this.channelRootOids      = new long   [this.channelCount];
 		}
 
 		private synchronized void incrementPendingMarksCount()
@@ -239,13 +239,15 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			{
 				DEBUGStorage.println(channel.channelIndex() + " needs sweeping.");
 
+				this.channelRootOids[channel.channelIndex()] = channel.queryRootObjectId();
+
 				this.needsSweep[channel.channelIndex()] = false;
 				if(--this.sweepingChannelCount == 0)
 				{
+					// logic that only the last channel to sweep may / has to perform.
 					this.advanceCompletion();
+					this.determineAndEnqueueRootOid();
 				}
-
-				this.updateRootId(channel);
 
 				return true;
 			}
@@ -253,43 +255,38 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			return false;
 		}
 
-		final synchronized void updateRootId(final StorageEntityCache<?> channel)
-		{
-			this.channelRootIds[channel.channelIndex()] = channel.queryRootObjectId();
-
-			if(this.sweepingChannelCount == 0)
-			{
-				this.determineAndEnqueueRootId();
-			}
-		}
-
 		final synchronized void resetChannelRootIds()
 		{
-			for(int i = 0; i < this.channelRootIds.length; i++)
+			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				this.channelRootIds[i] = Swizzle.nullId();
+				this.channelRootOids[i] = Swizzle.nullId();
 			}
 		}
 
-		final synchronized void determineAndEnqueueRootId()
+		final synchronized void determineAndEnqueueRootOid()
 		{
-			long currentMaxRootId = Swizzle.nullId();
+			long currentMaxRootOid = Swizzle.nullId();
 
-			for(int i = 0; i < this.channelRootIds.length; i++)
+			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				if(this.channelRootIds[i] >= currentMaxRootId)
+				if(this.channelRootOids[i] >= currentMaxRootOid)
 				{
-					currentMaxRootId = this.channelRootIds[i];
+					currentMaxRootOid = this.channelRootOids[i];
 				}
 			}
 
-			if(currentMaxRootId == Swizzle.nullId())
+			if(currentMaxRootOid == Swizzle.nullId())
 			{
 				throw new RuntimeException("No root oid could have been found."); // (15.07.2016 TM)EXCP: proper exception
 			}
 
+//			DEBUGStorage.println(this.DEBUG_state());
+			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);
+
 			// this initializes the next marking. From here on, pendingMarksCount can only be 0 again if marking is complete.
-			this.accept(currentMaxRootId);
+			this.accept(currentMaxRootOid);
+
+//			DEBUGStorage.println(this.DEBUG_state());
 		}
 
 		@Override
@@ -305,9 +302,9 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			this.incrementPendingMarksCount();
 			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 		}
-		
 
-		
+
+
 		// (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
 		{
@@ -320,7 +317,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 
 			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
-			
+
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)
 			{
