@@ -725,6 +725,8 @@ public interface StorageEntityCache_New
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
+//			DEBUGStorage.println(this.channelIndex + " marking ...");
+
 			final long                     evalTime = System.currentTimeMillis();
 			final StorageEntityMarkMonitor mm       = this.markMonitor          ;
 			final StorageOidMarkQueue      q        = this.oidMarkQueue         ;
@@ -1003,6 +1005,11 @@ public interface StorageEntityCache_New
 			 * Thread-local work of a channel would suddenly have to subject to a lock on the mark monitor
 			 *
   			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
+  			 *
+  			 * Possible fixes:
+  			 * - pre-enqueue a root instance update task (hacky)
+  			 * - update the current root id on every store of an instance of the root type (inefficient check)
+  			 * - maybe copy all root type instance and select the valid one afterwards
 			 */
 
 			// iterate over all entities of all root types and copy their data
@@ -1272,10 +1279,7 @@ public interface StorageEntityCache_New
 			}
 		}
 
-		private final boolean internalIncrementalGarbageCollection(
-			final long           timeBudgetBound,
-			final StorageChannel channel
-		)
+		private boolean checkForGcCompletion()
 		{
 			if(this.markMonitor.isComplete(this))
 			{
@@ -1284,23 +1288,46 @@ public interface StorageEntityCache_New
 				return true;
 			}
 
+			return false;
+		}
+
+		private final boolean internalIncrementalGarbageCollection(
+			final long           timeBudgetBound,
+			final StorageChannel channel
+		)
+		{
+			// check for completion to abort no-op calls
+			if(this.checkForGcCompletion())
+			{
+				return true;
+			}
+
+			// check if there is sweeping to be done
 			if(this.markMonitor.needsSweep(this))
 			{
 				this.sweep();
 
+				// must check for completion again, otherwise a channel might restart marking beyond a completed gc.
+				if(this.checkForGcCompletion())
+				{
+					return true;
+				}
 
+				// check if there is still time to proceed with the next (second) marking right away
 				if(System.nanoTime() >= timeBudgetBound)
 				{
 					return false;
 				}
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " marking ...");
+			// otherwise, mark incrementally until work or time runs out
 			if(this.incrementalMark(timeBudgetBound))
 			{
+				// work ran out
 				return true;
 			}
 
+			// time ran out
 			return false;
 		}
 
