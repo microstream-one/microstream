@@ -27,6 +27,12 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 	public boolean needsSweep(StorageEntityCache<?> channel);
 
+	public void completeSweep(
+		StorageEntityCache<?>  channel        ,
+		StorageRootOidSelector rootOidSelector,
+		long                   channelRootOid
+	);
+
 	public boolean isMarkingComplete();
 
 //	public String DEBUG_state();
@@ -164,7 +170,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 		}
 
-		private synchronized void advanceCompletion()
+		private synchronized void advanceGcCompletion()
 		{
 			if(this.gcColdPhaseComplete)
 			{
@@ -233,24 +239,28 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			 * - After the count == 0 case is detected, every channel will exactely sweep once before it can go back to marking
 			 * - The mark oid queue (long[]) does not in any way interfere with the sweeping (local Entry instances) or vice versa.
 			 */
-			if(this.needsSweep[channel.channelIndex()] || this.callToSweepRequired())
+			return this.needsSweep[channel.channelIndex()] || this.callToSweepRequired();
+		}
+
+		@Override
+		public final synchronized void completeSweep(
+			final StorageEntityCache<?>  channel        ,
+			final StorageRootOidSelector rootOidSelector,
+			final long                   channelRootOid
+		)
+		{
+			// register the channel's current valid root Oid after the performed sweep (potentially 0).
+			this.channelRootOids[channel.channelIndex()] = channelRootOid;
+
+			// mark this channel as having completed the sweep
+			this.needsSweep[channel.channelIndex()] = false;
+
+			// decrement sweep channel count and execute completion logic if required.
+			if(--this.sweepingChannelCount == 0)
 			{
-				DEBUGStorage.println(channel.channelIndex() + " needs sweeping.");
-
-				this.channelRootOids[channel.channelIndex()] = channel.queryRootObjectId();
-
-				this.needsSweep[channel.channelIndex()] = false;
-				if(--this.sweepingChannelCount == 0)
-				{
-					// logic that only the last channel to sweep may / has to perform.
-					this.advanceCompletion();
-					this.determineAndEnqueueRootOid();
-				}
-
-				return true;
+				this.advanceGcCompletion();
+				this.determineAndEnqueueRootOid(rootOidSelector);
 			}
-
-			return false;
 		}
 
 		final synchronized void resetChannelRootIds()
@@ -261,26 +271,32 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 		}
 
-		final synchronized void determineAndEnqueueRootOid()
+		final synchronized void determineAndEnqueueRootOid(final StorageRootOidSelector rootOidSelector)
 		{
-			long currentMaxRootOid = Swizzle.nullId();
-
+			/*
+			 * note that no lock on the selector instance is required because every channel thread
+			 * brings his own exclusive instance and only uses it "in here" by itself.
+			 */
+			rootOidSelector.reset();
 			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				if(this.channelRootOids[i] >= currentMaxRootOid)
-				{
-					currentMaxRootOid = this.channelRootOids[i];
-				}
+				rootOidSelector.accept(this.channelRootOids[i]);
 			}
 
+			// at least one channel MUST have a non-null root oid, otherwise the whole database would be wiped.
+			final long currentMaxRootOid = rootOidSelector.yield();
 			if(currentMaxRootOid == Swizzle.nullId())
 			{
-				throw new RuntimeException("No root oid could have been found."); // (15.07.2016 TM)EXCP: proper exception
+				// (15.07.2016 TM)EXCP: proper exception
+				throw new RuntimeException("No root oid could have been found.");
 			}
 
 //			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);
 
-			// this initializes the next marking. From here on, pendingMarksCount can only be 0 again if marking is complete.
+			/*
+			 * this initializes the next marking.
+			 * From here on, pendingMarksCount can only be 0 again if marking is complete.
+			 */
 			this.accept(currentMaxRootOid);
 		}
 

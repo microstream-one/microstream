@@ -394,8 +394,7 @@ public interface StorageEntityCache_New
 
 
 
-		@Override
-		public final synchronized long queryRootObjectId()
+		final long queryRootObjectId()
 		{
 			final StorageEntityType.Implementation rootType = this.getType(this.rootTypeId);
 
@@ -823,7 +822,7 @@ public interface StorageEntityCache_New
 			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
 //			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
 
-//			DEBUGStorage.println(this.channelIndex + " sweeping");
+			DEBUGStorage.println(this.channelIndex + " sweeping");
 
 			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0;
 			final long DEBUG_starttime = System.nanoTime();
@@ -890,6 +889,10 @@ public interface StorageEntityCache_New
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
 			this.fileManager.resetFileCleanupCursor();
+
+			// signal mark monitor that the sweep is complete and provide this channel's valid rootOid
+			final long channelRootOid = this.queryRootObjectId();
+			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
 
 
@@ -1284,6 +1287,7 @@ public interface StorageEntityCache_New
 			if(this.markMonitor.needsSweep(this))
 			{
 				this.sweep();
+
 
 				if(System.nanoTime() >= timeBudgetBound)
 				{

@@ -555,12 +555,6 @@ public interface StorageEntityCache_Old
 		}
 
 		@Override
-		public final synchronized long queryRootObjectId()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public final synchronized long getHighestRootInstanceObjectId()
 		{
 			return this.rootType.iterateEntities(this.maxObjectId.reset()).yield();
