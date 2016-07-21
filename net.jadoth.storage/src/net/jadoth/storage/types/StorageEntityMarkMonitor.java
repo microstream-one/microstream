@@ -2,7 +2,6 @@ package net.jadoth.storage.types;
 
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.chars.VarString;
 
 
 /**
@@ -30,8 +29,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 	public boolean isMarkingComplete();
 
-	// (19.07.2016 TM)TODO: debugging
-	public String DEBUG_state();
+//	public String DEBUG_state();
 
 
 
@@ -280,13 +278,10 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				throw new RuntimeException("No root oid could have been found."); // (15.07.2016 TM)EXCP: proper exception
 			}
 
-//			DEBUGStorage.println(this.DEBUG_state());
-			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);
+//			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);
 
 			// this initializes the next marking. From here on, pendingMarksCount can only be 0 again if marking is complete.
 			this.accept(currentMaxRootOid);
-
-//			DEBUGStorage.println(this.DEBUG_state());
 		}
 
 		@Override
@@ -305,7 +300,13 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 
 
-		// (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
+		/*
+		 * (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
+		 * Initial quick testing showed that channel blocking and waiting is minimal.
+		 * Threads spend most of their time in IO to shuffle in reference data.
+		 * Maybe with more channels / bigger cache / faster IO / other data,
+		 * the need to reduce blocking becomes real. But for now, it isn't.
+		 */
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
 		{
 			synchronized(this)
@@ -344,54 +345,54 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			;
 		}
 
-
-		@Override
-		public synchronized String DEBUG_state()
-		{
-			// (19.07.2016 TM)NOTE: ultra hacky hardcoded multi-lock for 4 channels
-			synchronized(this.oidMarkQueues[0])
-			{
-				synchronized(this.oidMarkQueues[1])
-				{
-					synchronized(this.oidMarkQueues[2])
-					{
-						synchronized(this.oidMarkQueues[3])
-						{
-							final VarString vs = VarString.New("GC state");
-
-							vs
-							.lf().padLeft(Long.toString(this.pendingMarksCount), 10, ' ').add(" pending marks count")
-							;
-//							for(int i = 0; i < this.oidMarkQueues.length; i++)
+//		@Override
+//		public synchronized String DEBUG_state()
+//		{
+//			// (19.07.2016 TM)NOTE: ultra hacky hardcoded multi-lock for 4 channels
+//			synchronized(this.oidMarkQueues[0])
+//			{
+//				synchronized(this.oidMarkQueues[1])
+//				{
+//					synchronized(this.oidMarkQueues[2])
+//					{
+//						synchronized(this.oidMarkQueues[3])
+//						{
+//							final VarString vs = VarString.New("GC state");
+//
+//							vs
+//							.lf().padLeft(Long.toString(this.pendingMarksCount), 10, ' ').add(" pending marks count")
+//							;
+////							for(int i = 0; i < this.oidMarkQueues.length; i++)
+////							{
+////								vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+////							}
+//
+//							vs
+//							.lf()
+//							.lf().add("Hot  complete\t" + this.gcHotPhaseComplete)
+//							.lf().add("Cold complete\t" + this.gcColdPhaseComplete)
+//							.lf().add("Needs sweep (" + this.sweepingChannelCount+"):")
+//							;
+//							for(int i = 0; i < this.needsSweep.length; i++)
 //							{
-//								vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+//								vs.lf().blank().add(i + ": " + this.needsSweep[i]);
 //							}
-
-							vs
-							.lf()
-							.lf().add("Hot  complete\t" + this.gcHotPhaseComplete)
-							.lf().add("Cold complete\t" + this.gcColdPhaseComplete)
-							.lf().add("Needs sweep (" + this.sweepingChannelCount+"):")
-							;
-							for(int i = 0; i < this.needsSweep.length; i++)
-							{
-								vs.lf().blank().add(i + ": " + this.needsSweep[i]);
-							}
-
-							vs
-							.lf().padLeft(Long.toString(this.pendingStoreUpdateCount), 10, ' ').blank().add("pending store updates")
-							;
-							for(int i = 0; i < this.pendingStoreUpdates.length; i++)
-							{
-								vs.lf().blank().add(i + ": " + this.pendingStoreUpdates[i]);
-							}
-
-							return vs.toString();
-						}
-					}
-				}
-			}
-		}
+//
+//							vs
+//							.lf().padLeft(Long.toString(this.pendingStoreUpdateCount), 10, ' ').blank().add("pending store updates")
+//							;
+//							for(int i = 0; i < this.pendingStoreUpdates.length; i++)
+//							{
+//								vs.lf().blank().add(i + ": " + this.pendingStoreUpdates[i]);
+//							}
+//
+//							return vs.toString();
+//						}
+//					}
+//				}
+//			}
+//		}
 
 	}
+
 }

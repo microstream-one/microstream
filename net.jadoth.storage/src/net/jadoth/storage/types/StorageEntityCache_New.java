@@ -771,7 +771,17 @@ public interface StorageEntityCache_New
 					continue;
 				}
 
-				// (20.07.2016)TODO: buffer reference OIDs per channel instead of enqueuing them one by one.
+				/*
+				 * (21.07.2016 TM)NOTE: possible performance optimization:
+				 * buffer reference OIDs per channel instead of enqueuing them one by one.
+				 * See StorageEntityMarkMonitor.Implementation#enqueueBulk.
+				 *
+				 * However:
+				 * Initial quick testing showed that channel blocking and waiting is minimal.
+				 * Threads spend most of their time in IO to shuffle in reference data.
+				 * Maybe with more channels / bigger cache / faster IO / other data,
+				 * the need to reduce blocking becomes real. But for now, it isn't.
+				 */
 
 				// note: iterateReferenceIds already checks for references and returns false if none are present
 
@@ -782,7 +792,6 @@ public interface StorageEntityCache_New
 					// must check for clearing the cache again if marking required loading
 					this.checkForCacheClear(entry, evalTime);
 				}
-
 
 				// note: if the cached data was already present, to NOT touch, otherwise it might never time out
 
@@ -980,8 +989,6 @@ public interface StorageEntityCache_New
 		@Override
 		public void copyRoots(final ChunksBuffer dataCollector)
 		{
-//			this.DEBUG_PRINT_OID_HASH_VALUES();
-
 			/* (18.07.2016 TM)TODO: ensure singleton root instance over all channels
 			 * If there may be only one root instance, it should be guaranteed here to determine the valid
 			 * one and ignore the rest.
@@ -990,12 +997,15 @@ public interface StorageEntityCache_New
 			 * For that, it has to know the entity caches, which it does / can not currently.
 			 * Also, letting one thread call methods of all channels would mean to break the strict thread locality
 			 * of the channels (only the dedicated channel thread may operate on the EntityCache instances).
+			 * Thread-local work of a channel would suddenly have to subject to a lock on the mark monitor
 			 *
-  			 * This issue is ignored for now, but must be fixed if root instances are to be updateable.
+  			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
 			 */
 
 			// iterate over all entities of all root types and copy their data
-			this.rootType.iterateEntities(e -> e.copyCachedData(dataCollector));
+			this.rootType.iterateEntities(e ->
+				e.copyCachedData(dataCollector)
+			);
 		}
 
 		@Override
@@ -1290,6 +1300,8 @@ public interface StorageEntityCache_New
 			return false;
 		}
 
+
+
 		@Deprecated
 		@Override
 		public void markGray(final long objectId)
@@ -1322,8 +1334,6 @@ public interface StorageEntityCache_New
 			// (19.07.2016 TM)XXX: remove after switch to new implementation
 			// no-op for implementation transitioning
 		}
-
-
 
 		final boolean isMarking()
 		{
