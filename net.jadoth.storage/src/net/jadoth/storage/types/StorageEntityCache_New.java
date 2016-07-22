@@ -33,6 +33,7 @@ public interface StorageEntityCache_New
 		        final StorageEntityCacheEvaluator         entityCacheEvaluator;
 		private final StorageTypeDictionary               typeDictionary      ;
 		private final StorageEntityMarkMonitor            markMonitor         ;
+		private final StorageReferenceMarker              referenceMarker     ;
 		private final StorageOidMarkQueue                 oidMarkQueue        ;
 		private final long[]                              markingOidBuffer    ;
 		private final StorageGCZombieOidHandler           zombieOidHandler    ;
@@ -96,10 +97,9 @@ public interface StorageEntityCache_New
 			this.markingWaitTimeMs     = positive  (markingWaitTimeMs);
 			this.markingOidBuffer      = new long[markingBufferLength];
 			this.rootEntityIterator    = new RootEntityRootOidSelectionIterator(rootOidSelector);
-
 			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
-
 			this.initializeState();
+			this.referenceMarker       = markMonitor.provideReferenceMarker(this);
 		}
 
 
@@ -393,10 +393,8 @@ public interface StorageEntityCache_New
 
 		final long queryRootObjectId()
 		{
-			final StorageEntityType.Implementation rootType = this.getType(this.rootTypeId);
-
 			this.rootOidSelector.reset();
-			rootType.iterateEntities(this.rootEntityIterator);
+			this.rootType.iterateEntities(this.rootEntityIterator);
 			return this.rootOidSelector.yield();
 		}
 
@@ -724,10 +722,11 @@ public interface StorageEntityCache_New
 		{
 //			DEBUGStorage.println(this.channelIndex + " marking ...");
 
-			final long                     evalTime = System.currentTimeMillis();
-			final StorageEntityMarkMonitor mm       = this.markMonitor          ;
-			final StorageOidMarkQueue      q        = this.oidMarkQueue         ;
-			final long[]                   oids     = this.markingOidBuffer     ;
+			final long                     evalTime        = System.currentTimeMillis();
+			final StorageEntityMarkMonitor markMonitor     = this.markMonitor          ;
+			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
+			final StorageOidMarkQueue      oidMarkQueue    = this.oidMarkQueue         ;
+			final long[]                   oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
 			int oidsMarkAmount = 0;
@@ -742,24 +741,27 @@ public interface StorageEntityCache_New
 				if(oidsMarkIndex >= oidsMarkAmount)
 				{
 					// must advance via central gc monitor to update the total pending mark count (0-case ignored).
-					mm.advanceMarking(q, oidsMarkIndex);
+					markMonitor.advanceMarking(oidMarkQueue, oidsMarkIndex);
 
 					// reset oids index and fetch next batch
 					oidsMarkIndex = 0;
-					if((oidsMarkAmount = q.getNext(oids)) == 0)
+					if((oidsMarkAmount = oidMarkQueue.getNext(oidsBuffer)) == 0)
 					{
+						// if there is no more work, better check if this channel still has some cached oids to flush
+						this.referenceMarker.tryFlush();
+
 						// ran out of work before time ran out. So return true.
 						return true;
 					}
 				}
 
 				// get the entry for the current oid to be marked
-				final StorageEntity.Implementation entry = this.getEntry(oids[oidsMarkIndex++]);
+				final StorageEntity.Implementation entry = this.getEntry(oidsBuffer[oidsMarkIndex++]);
 
 				// externalized/modularized zombie oid handling
 				if(entry == null)
 				{
-					this.zombieOidHandler.handleZombieOid(oids[oidsMarkIndex - 1]);
+					this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]);
 					continue;
 				}
 
@@ -781,7 +783,7 @@ public interface StorageEntityCache_New
 
 				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency
 //				DEBUGStorage.println(this.channelIndex + " marking references of " + current.objectId() + " with cache size " + this.usedCacheSize);
-				if(entry.iterateReferenceIds(mm))
+				if(entry.iterateReferenceIds(referenceMarker))
 				{
 					// must check for clearing the cache again if marking required loading
 					this.checkForCacheClear(entry, evalTime);
@@ -800,7 +802,7 @@ public interface StorageEntityCache_New
 			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
 			if(oidsMarkIndex > 0)
 			{
-				mm.advanceMarking(q, oidsMarkIndex);
+				markMonitor.advanceMarking(oidMarkQueue, oidsMarkIndex);
 			}
 
 //			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
@@ -1219,6 +1221,9 @@ public interface StorageEntityCache_New
 					{
 						break waitForWork;
 					}
+
+					// better try for pending local mark oids to flush before waiting for work
+					this.referenceMarker.tryFlush();
 
 //					DEBUGStorage.println(this.channelIndex() + " waiting for work.\n" + this.markMonitor.DEBUG_state());
 

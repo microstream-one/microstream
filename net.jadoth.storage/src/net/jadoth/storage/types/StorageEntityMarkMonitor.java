@@ -35,6 +35,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 	public boolean isMarkingComplete();
 
+	public StorageReferenceMarker provideReferenceMarker(StorageEntityCache<?> channel);
+
 //	public String DEBUG_state();
 
 
@@ -58,7 +60,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 	}
 
 
-	final class Implementation implements StorageEntityMarkMonitor
+	final class Implementation implements StorageEntityMarkMonitor, StorageReferenceMarker
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -323,6 +325,23 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
 		}
 
+		@Override
+		public final boolean tryFlush()
+		{
+			// nothing to flush in a single-oid-enqueing implementation.
+			return false;
+		}
+
+		@Override
+		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
+		{
+			return this;
+
+			// (22.07.2016 TM)TODO: test CachingReferenceMarker
+//			// (22.07.2016 TM)TODO: make constant dynamic
+//			return new CachingReferenceMarker(this, this.channelCount, 500);
+		}
+
 
 
 		/*
@@ -360,18 +379,89 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		@Override
 		public final synchronized boolean isComplete(final StorageEntityCache<?> channel)
 		{
-			// only for testing
-			return false;
+//			// only for testing
+//			return false;
 
-//			/*
-//			 * GC is effectively complete if either:
-//			 * - the cold phase is complete (meaning nothing will/can change until the next store)
-//			 * - the hot phase (first sweep) is complete and the cold phase has only sweeps pending from other channels
-//			 * ! NOT if hot phase is completed and sweepingChannelCount is 0, because that applies to marking, too.
-//			 */
-//			return this.gcColdPhaseComplete
-//				|| this.gcHotPhaseComplete && this.sweepingChannelCount > 0 && !this.needsSweep[channel.channelIndex()]
-//			;
+			/*
+			 * GC is effectively complete if either:
+			 * - the cold phase is complete (meaning nothing will/can change until the next store)
+			 * - the hot phase (first sweep) is complete and the cold phase has only sweeps pending from other channels
+			 * ! NOT if hot phase is completed and sweepingChannelCount is 0, because that applies to marking, too.
+			 */
+			return this.gcColdPhaseComplete
+				|| this.gcHotPhaseComplete && this.sweepingChannelCount > 0 && !this.needsSweep[channel.channelIndex()]
+			;
+		}
+
+		static final class CachingReferenceMarker implements StorageReferenceMarker
+		{
+			private final StorageEntityMarkMonitor.Implementation markMonitor        ;
+			private final long[][]                                oidsPerChannel     ;
+			private final int[]                                   oidsPerChannelSizes;
+			private final int                                     channelHash        ;
+			private final int                                     bufferLength       ;
+
+			CachingReferenceMarker(
+				final StorageEntityMarkMonitor.Implementation markMonitor ,
+				final int                                     channelCount,
+				final int                                     bufferLength
+			)
+			{
+				super();
+				this.markMonitor         = markMonitor             ;
+				this.bufferLength        = bufferLength            ;
+				this.channelHash         = channelCount - 1        ;
+				this.oidsPerChannel      = new long[channelCount][];
+				this.oidsPerChannelSizes = new int[channelCount]   ;
+
+				for(int i = 0; i < channelCount; i++)
+				{
+					this.oidsPerChannel[i] = new long[bufferLength];
+				}
+			}
+
+			@Override
+			public final void accept(final long oid)
+			{
+				// do not enqueue null oids
+				if(oid == Swizzle.nullId())
+				{
+					return;
+				}
+
+				final int i = (int)(oid & this.channelHash);
+
+				this.oidsPerChannel[i][this.oidsPerChannelSizes[i]] = oid;
+				if((this.oidsPerChannelSizes[i] = this.oidsPerChannelSizes[i] + 1) == this.bufferLength)
+				{
+					this.flush();
+				}
+			}
+
+			final void flush()
+			{
+				this.markMonitor.enqueueBulk(this.oidsPerChannel, this.oidsPerChannelSizes);
+
+				for(int i = 0; i < this.oidsPerChannelSizes.length; i++)
+				{
+					this.oidsPerChannelSizes[i] = 0;
+				}
+			}
+
+			@Override
+			public final boolean tryFlush()
+			{
+				for(int i = 0; i < this.oidsPerChannelSizes.length; i++)
+				{
+					if(this.oidsPerChannelSizes[i] != 0)
+					{
+						this.flush();
+						return true;
+					}
+				}
+
+				return false;
+			}
 		}
 
 //		@Override
