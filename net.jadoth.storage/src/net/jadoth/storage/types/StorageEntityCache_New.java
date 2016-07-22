@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.coalesce;
 import static net.jadoth.Jadoth.notNull;
 import static net.jadoth.math.JadothMath.log2pow2;
 import static net.jadoth.math.JadothMath.notNegative;
@@ -9,14 +8,12 @@ import static net.jadoth.math.JadothMath.positive;
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.HashTable;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 public interface StorageEntityCache_New
@@ -773,15 +770,11 @@ public interface StorageEntityCache_New
 				}
 
 				/*
-				 * (21.07.2016 TM)NOTE: possible performance optimization:
+				 * (21.07.2016 TM)TODO: marking concurrency performance optimization:
 				 * buffer reference OIDs per channel instead of enqueuing them one by one.
 				 * See StorageEntityMarkMonitor.Implementation#enqueueBulk.
 				 *
-				 * However:
-				 * Initial quick testing showed that channel blocking and waiting is minimal.
-				 * Threads spend most of their time in IO to shuffle in reference data.
-				 * Maybe with more channels / bigger cache / faster IO / other data,
-				 * the need to reduce blocking becomes real. But for now, it isn't.
+				 * if data is already in the cache, channels spend a lot of their time waiting for locks
 				 */
 
 				// note: iterateReferenceIds already checks for references and returns false if none are present
@@ -794,7 +787,7 @@ public interface StorageEntityCache_New
 					this.checkForCacheClear(entry, evalTime);
 				}
 
-				// note: if the cached data was already present, to NOT touch, otherwise it might never time out
+				// note: no general touch here to not touch entities without references.
 
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
@@ -821,7 +814,7 @@ public interface StorageEntityCache_New
 
 		private void sweep()
 		{
-			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
+//			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
 //			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
 
 			DEBUGStorage.println(this.channelIndex + " sweeping");
@@ -852,7 +845,7 @@ public interface StorageEntityCache_New
 //						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
 
 						DEBUG_collected++;
-						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
+//						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
 						if(item.objectId() < DEBUG_lowest_collected)
 						{
 							DEBUG_lowest_collected = item.objectId();
@@ -873,15 +866,16 @@ public interface StorageEntityCache_New
 			vs.add(this.channelIndex + " sweep COMPLETED.");
 			vs.add(" Marked: ").add(this.DEBUG_marked);
 			this.DEBUG_marked = 0;
-			vs.add(" Safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + (DEBUG_stoptime - DEBUG_starttime));
+			vs.add(" Safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
 			vs
 			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
 			.add(" Highest collected: ").add(DEBUG_highest_collected)
+			.add(" used cache size: ").add(this.cacheSize())
 			;
-			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
-			{
-				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-			}
+//			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
+//			{
+//				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+//			}
 //			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
 //			{
 //				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
@@ -1323,6 +1317,8 @@ public interface StorageEntityCache_New
 			// otherwise, mark incrementally until work or time runs out
 			if(this.incrementalMark(timeBudgetBound))
 			{
+				// (22.07.2016 TM)TODO: why is this return reached dozens of times PER ms?
+
 				// work ran out
 				return true;
 			}

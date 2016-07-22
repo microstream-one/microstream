@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.math.JadothMath.positive;
+
 import net.jadoth.util.chars.VarString;
 
 /**
@@ -26,16 +27,16 @@ public interface StorageEntityCacheEvaluator
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
 		/////////////////////
-		
+
 		// To satisfy CheckStyle. See algorithm comment below. Shifting by 16 means roughly age in minutes and is fast.
 		private static final int C16 = 16;
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
+
 		/**
 		 * Abstract threshold value, roughly comparable to size in bytes with a time component, at which a cache
 		 * must be cleared of some entities.
@@ -84,7 +85,7 @@ public interface StorageEntityCacheEvaluator
 //			DEBUGStorage.println("evaluating " + e);
 			/* simple default algorithm to take cache size, entity cached data length, age and reference into account:
 			 *
-			 * - subtract current cache size from threashold, resulting in an abstract value how "free" the cache is.
+			 * - subtract current cache size from threshold, resulting in an abstract value how "free" the cache is.
 			 *   This also means that if the current cache size alone reaches the threshold, the entity will definitely
 			 *   be cleared from the cache, no matter what (panic mode to avoid out of memory situations).
 			 *
@@ -104,7 +105,7 @@ public interface StorageEntityCacheEvaluator
 			 * cleared from the cache, especially large, old, non-reference entities.
 			 * And the older (not recently used) entities become, the more likely it gets that they will be cleared,
 			 * to a point where eventually every entity will be unloaded in a system without activity, resulting in
-			 * dormant systems automatically only consuming a minimum of memory.
+			 * dormant systems automatically having an empty cache.
 			 *
 			 * Example:
 			 * Assume an "abstract" threshold value of 10 billion and a current cache size of 5 GB ("50% full")
@@ -123,8 +124,14 @@ public interface StorageEntityCacheEvaluator
 			 */
 			final long ageInMs = evalTime - e.lastTouched();
 //			DEBUGStorage.println("evaluating with cache size " + cacheSize + " and entity age " + ageInMs + " " + e);
+			/*
+			 * Note on ">>":
+			 * Cannot use ">>>" here, because some entities are touched "in the future", making age negative.
+			 * Unsigned shifting makes that a giant positive age, causing an unwanted unload.
+			 * For the formula to be correct, the signed shift has to be used.
+			 */
 			return ageInMs >= this.msTimeout
-				|| this.threshold - cacheSize < e.cachedDataLength() * (ageInMs >>> C16) << (e.hasReferences() ? 0 : 1)
+				|| this.threshold - cacheSize < e.cachedDataLength() * (ageInMs >> C16) << (e.hasReferences() ? 0 : 1)
 			;
 		}
 

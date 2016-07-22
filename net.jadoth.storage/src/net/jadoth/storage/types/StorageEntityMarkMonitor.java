@@ -181,6 +181,15 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			if(this.gcHotPhaseComplete)
 			{
 				DEBUGStorage.println("Completed GC fully.");
+				/*
+				 * Note for debugging:
+				 * For testing repeated GC runs, do NOT just deactivate the cold completion flag here.
+				 * It will create a completion state inconcistency and thus a race condition in isComplete(),
+				 * occasionally causing one channel to forever wait for itself while all others assumed
+				 * completion via the hot phase + sweep count check.
+				 * Nasty problem to find.
+				 * To let the GC run repeatedly, modify the logic in isComplete() directly (always return false).
+				 */
 				this.gcColdPhaseComplete = true;
 			}
 			else
@@ -351,14 +360,18 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		@Override
 		public final synchronized boolean isComplete(final StorageEntityCache<?> channel)
 		{
-			/*
-			 * GC is effectively complete if either:
-			 * - the cold phase is complete (meaning nothing will/can change until the next store)
-			 * - the hot phase (first sweep) is complete and the cold phase has only sweeps pending from other channels
-			 */
-			return this.gcColdPhaseComplete
-				|| this.gcHotPhaseComplete && this.sweepingChannelCount > 0 && !this.needsSweep[channel.channelIndex()]
-			;
+			// only for testing
+			return false;
+
+//			/*
+//			 * GC is effectively complete if either:
+//			 * - the cold phase is complete (meaning nothing will/can change until the next store)
+//			 * - the hot phase (first sweep) is complete and the cold phase has only sweeps pending from other channels
+//			 * ! NOT if hot phase is completed and sweepingChannelCount is 0, because that applies to marking, too.
+//			 */
+//			return this.gcColdPhaseComplete
+//				|| this.gcHotPhaseComplete && this.sweepingChannelCount > 0 && !this.needsSweep[channel.channelIndex()]
+//			;
 		}
 
 //		@Override

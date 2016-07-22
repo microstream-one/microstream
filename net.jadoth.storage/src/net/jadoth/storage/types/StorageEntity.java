@@ -80,7 +80,7 @@ public interface StorageEntity
 		private static final long TOUCHED_SHIFT_COUNT  = 8;
 		private static final long TOUCHED_START_OFFSET = System.currentTimeMillis()
 			- ((long)Integer.MIN_VALUE << TOUCHED_SHIFT_COUNT)
-		;
+			;
 
 		/*
 		 * GC state meaning:
@@ -193,7 +193,6 @@ public interface StorageEntity
 			/*
 			 * dummy entry has "no" object id or "null object id"
 			 * length remains at initial value of 0, so it will never be deemed "too big"
-			 * touched "in eternity", so it will never be deemed "too old"
 			 * typeNext null: explicit statement that head does not reference itself
 			 *
 			 * Note that there are (2 * channelCount) dummy entity instances, all with an OID of 0:
@@ -204,7 +203,6 @@ public interface StorageEntity
 			return new Implementation(
 				0                ,
 				type             ,
-				Integer.MAX_VALUE,
 				null             ,
 				(byte)0
 			);
@@ -221,7 +219,6 @@ public interface StorageEntity
 			return new Implementation(
 				objectId                                                    ,
 				type                                                        ,
-				0                                                           ,
 				hashNext                                                    ,
 				calculateReferenceCount(hasReferences, simpleReferenceCount)
 			);
@@ -240,7 +237,6 @@ public interface StorageEntity
 		private Implementation(
 			final long                         objectId      ,
 			final TypeInFile                   type          ,
-			final int                          lastTouched   ,
 			final StorageEntity.Implementation hashNext      ,
 			final byte                         referenceCount
 		)
@@ -248,7 +244,7 @@ public interface StorageEntity
 			super();
 			this.objectId       = objectId      ;
 			this.hashNext       = hashNext      ;
-			this.lastTouched    = lastTouched   ;
+			this.lastTouched    = Integer.MAX_VALUE; // initially "touched in eternity", especially for dummy entities.
 			this.typeInFile     = type          ;
 			this.referenceCount = referenceCount;
 			this.gcState        = GC_INITIAL    ;
@@ -357,6 +353,7 @@ public interface StorageEntity
 				// already data present which means at least all reference data must be available already, so abort.
 				return false;
 			}
+
 
 			// load only simple references if applicable, otherwise load entity data completely
 			if(this.hasSimpleReferences())
@@ -537,6 +534,14 @@ public interface StorageEntity
 			}
 
 			final boolean requiredLoading = this.ensureCachedReferenceData();
+
+			/*
+			 * must touch for two reasons:
+			 * - to update the initial "in eternity" timestamp and make their loaded data unloadable in the future
+			 * - to cache-favor entities with references over entities without.
+			 */
+			this.touch();
+
 			this.typeInFile.type.iterateEntityReferenceIds(this, referenceIdIterator);
 			return requiredLoading;
 		}
