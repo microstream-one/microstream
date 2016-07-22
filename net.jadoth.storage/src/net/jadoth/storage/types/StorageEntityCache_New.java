@@ -1317,7 +1317,11 @@ public interface StorageEntityCache_New
 			// otherwise, mark incrementally until work or time runs out
 			if(this.incrementalMark(timeBudgetBound))
 			{
-				// (22.07.2016 TM)TODO: why is this return reached dozens of times PER ms?
+				/* (22.07.2016 TM)TODO: why is this return reached dozens of times PER ms?
+				 * Probably simply because every single enqueued oid causes one notify,
+				 * the channel processes (in worst case) only one entity and then has to wait again.
+				 * Another reason for caching mark-oids locally and committing them batch-wise
+				 */
 
 				// work ran out
 				return true;
