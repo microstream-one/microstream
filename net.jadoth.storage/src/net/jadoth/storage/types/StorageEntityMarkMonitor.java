@@ -342,23 +342,17 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 //			return new CachingReferenceMarker(this, this.channelCount, 500);
 		}
 
-
-
-		/*
-		 * (19.07.2016 TM)NOTE: possible performance optimization. Not used for now.
-		 * Initial quick testing showed that channel blocking and waiting is minimal.
-		 * Threads spend most of their time in IO to shuffle in reference data.
-		 * Maybe with more channels / bigger cache / faster IO / other data,
-		 * the need to reduce blocking becomes real. But for now, it isn't.
-		 */
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
 		{
+			long totalSize = 0;
+			for(final int size : sizes)
+			{
+				totalSize += size;
+			}
+			
 			synchronized(this)
 			{
-				for(final int size : sizes)
-				{
-					this.pendingMarksCount += size;
-				}
+				this.pendingMarksCount += totalSize;
 			}
 
 			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;

@@ -740,6 +740,9 @@ public interface StorageEntityCache_New
 				// fetch next batch of oids to mark and advance gray queue if necessary
 				if(oidsMarkIndex >= oidsMarkAmount)
 				{
+					// it is crucial to effectively enqueue cached references before decreasing the pending marks count.
+					this.referenceMarker.tryFlush();
+					
 					// must advance via central gc monitor to update the total pending mark count (0-case ignored).
 					markMonitor.advanceMarking(oidMarkQueue, oidsMarkIndex);
 
@@ -747,8 +750,6 @@ public interface StorageEntityCache_New
 					oidsMarkIndex = 0;
 					if((oidsMarkAmount = oidMarkQueue.getNext(oidsBuffer)) == 0)
 					{
-						// if there is no more work, better check if this channel still has some cached oids to flush
-						this.referenceMarker.tryFlush();
 
 						// ran out of work before time ran out. So return true.
 						return true;
