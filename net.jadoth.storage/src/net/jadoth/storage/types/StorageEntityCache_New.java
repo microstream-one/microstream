@@ -710,12 +710,12 @@ public interface StorageEntityCache_New
 				entry.touch();
 			}
 		}
-		
+
 		private void advanceMarking(final int oidsCount)
 		{
 			// it is crucial to enqueue cached references effectively before updating the pending marks count.
 			this.referenceMarker.tryFlush();
-			
+
 			// must advance via central gc monitor to update the total pending mark count (0-case ignored).
 			this.markMonitor.advanceMarking(this.oidMarkQueue, oidsCount);
 		}
@@ -967,7 +967,6 @@ public interface StorageEntityCache_New
 
 		final void cleanupPendingStoreUpdate()
 		{
-			// (14.07.2016 TM)NOTE: dummy stub to prepare for new StorageEntityCache implementation
 			this.markMonitor.clearPendingStoreUpdate(this);
 		}
 

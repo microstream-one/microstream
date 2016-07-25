@@ -335,11 +335,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		@Override
 		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
 		{
-			return this;
-
-			// (22.07.2016 TM)TODO: test CachingReferenceMarker
-//			// (22.07.2016 TM)TODO: make constant dynamic
-//			return new CachingReferenceMarker(this, this.channelCount, 500);
+			// (22.07.2016 TM)TODO: make constant dynamic
+			return new CachingReferenceMarker(this, this.channelCount, 500);
 		}
 
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
@@ -349,7 +346,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			{
 				totalSize += size;
 			}
-			
+
 			synchronized(this)
 			{
 				this.pendingMarksCount += totalSize;
@@ -360,7 +357,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)
 			{
-				oidMarkQueues[i].enqueue(oidsPerChannel[i], sizes[i]);
+				oidMarkQueues[i].enqueueBulk(oidsPerChannel[i], sizes[i]);
 			}
 		}
 

@@ -345,19 +345,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		@Override
 		public KeyValue<ByteBuffer[], long[]> storeEntities(final long timestamp, final Chunks chunkData)
 		{
-			/* (19.10.2015 TM)FIXME: GC problem 1a
-			 * Again GC error. Probably the recent housekeeping time check and resulting performance boost
-			 * made the race condition more tight, causing it to appear again.
-			 * Must be here, because pure GC or mixed load/GC runs NEVER cause the problem.
-			 * Also see  postStoreUpdateEntityCache
-			 */
-
-			/* (13.07.2016 TM)FIXME: simple GC fix in conjunction with the new OidMarkQueue:
-			 * Must register a "pending store update" marker with the gc phase monitor.
-			 * As long as the marker count is greater than 0, no sweep can be done.
-			 * The post store update will revert entities from black to gray, enqueue oids and decrement the marker.
-			 */
-
 			// reset even if there is no new data to account for (potential) new data in other channel
 			this.entityCache.resetGarbageCollectionCompletionForEntityUpdate();
 
@@ -370,9 +357,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		public void postStoreUpdateEntityCache(final ByteBuffer[] chunks, final long[] chunksStoragePositions)
 			throws InterruptedException
 		{
-			/* (19.10.2015 TM)FIXME: GC problem 1b.
-			 * see storeEntities()
-			 */
 			// all chunks were written into the same file, so it is viable to pass the current file right here
 			this.entityCache.postStoreUpdateEntities(chunks, chunksStoragePositions, this.fileManager.currentStorageFile());
 		}
