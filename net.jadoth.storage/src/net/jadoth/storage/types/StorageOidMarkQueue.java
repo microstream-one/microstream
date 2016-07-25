@@ -148,10 +148,17 @@ public interface StorageOidMarkQueue
 		@Override
 		public synchronized void enqueueBulk(final long[] oids, final int size)
 		{
-			for(int i = 0; i < size; i++)
+			// enqueuing oids bulk-wise by using array copying is faster than enqueuing oids one by one
+			Segment head = this.head;
+			for(int index = 0; index < size;)
 			{
-				this.internalEnqueue(oids[i]);
+				index = head.enqueueBulk(oids, index, size);
+				if(head.isFull())
+				{
+					head = head.advanceHead();
+				}
 			}
+			this.head = head;
 
 			/*
 			 * notify potentially waiting channel that new work is waiting.
@@ -202,6 +209,11 @@ public interface StorageOidMarkQueue
 				;
 			}
 
+			final boolean isFull()
+			{
+				return this.highIndex >= this.length;
+			}
+
 			final boolean hasElements()
 			{
 				return this.lowIndex < this.highIndex;
@@ -246,6 +258,21 @@ public interface StorageOidMarkQueue
 
 				// report whether this segment is filled.
 				return ++this.highIndex >= this.length;
+			}
+
+			final int enqueueBulk(final long[] oids, final int offset, final int bound)
+			{
+				final int copyLength;
+				System.arraycopy(
+					oids,
+					offset,
+					this.oids,
+					this.highIndex,
+					copyLength = Math.min(bound - offset, this.length - this.highIndex)
+				);
+				this.highIndex += copyLength;
+
+				return offset + copyLength;
 			}
 
 		}
