@@ -111,7 +111,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			this.channelHash         = this.channelCount - 1         ;
 			this.pendingStoreUpdates = new boolean[this.channelCount];
 			this.needsSweep          = new boolean[this.channelCount];
-			this.channelRootOids      = new long   [this.channelCount];
+			this.channelRootOids     = new long   [this.channelCount];
 		}
 
 		private synchronized void incrementPendingMarksCount()

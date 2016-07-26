@@ -47,8 +47,8 @@ public class TestStorage extends TestComponentProvider
 			Storage.Configuration(
 				createTestFileProvider()  , // storage channel/thread count (default 1)
 				Storage.ChannelCountProvider(channelCount), // time configuration for housekeeping, caching, etc.
-				Storage.HousekeepingController(10, 7_000_000)                    , // file paths and names for storage files
-				Storage.DataFileEvaluator(100, 10_000, 0.75)     , // evalutator for dissolving old files
+				Storage.HousekeepingController(1000, 7_000_000)                    , // file paths and names for storage files
+				Storage.DataFileEvaluator(100, 10_000_000, 0.75)     , // evalutator for dissolving old files
 //				Storage.FileDissolver()                     ,
 				Storage.EntityCacheEvaluatorCustomTimeout(10_000) // evalutator for removing entities from the cache
 			)
@@ -371,7 +371,7 @@ public class TestStorage extends TestComponentProvider
 //			100000008,
 //			100000009
 //		);
-		final int SIZE = 10;
+		final int SIZE = 10000;
 		final Object[] objects = new Object[SIZE];
 		for(int i = 0; i < SIZE; i++)
 		{
@@ -397,8 +397,9 @@ public class TestStorage extends TestComponentProvider
 	{
 		final StorageConnection connection = STORAGE.createConnection();
 
-		for(int i = 100; i --> 0;)
+		for(int i = 0; i < 100; i++)
 		{
+			JadothConsole.debugln("Continuous Call #" + i);
 			connection.storeRequired(ROOT);
 			storageCleanup(connection);
 		}
