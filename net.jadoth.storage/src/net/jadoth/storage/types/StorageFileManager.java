@@ -155,7 +155,7 @@ public interface StorageFileManager
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
 		private final StorageDataFileEvaluator             fileEvaluator                ;
-		private final StorageEntityCache.Implementation   entityCache                  ;
+		private final StorageEntityCache.Implementation    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageWriteListener                 writeListener                ;
@@ -892,10 +892,14 @@ public interface StorageFileManager
 			// set temporary entity cache evaluator for use in entity initialization
 			this.setEntityInitializingCacheEvaluator(entityInitializingCacheEvaluator);
 
+			boolean isEmpty = true;
 			try
 			{
+				isEmpty = storageInventory.dataFiles().isEmpty();
+
+
 				final StorageIdRangeAnalysis idRangeAnalysis;
-				if(storageInventory.dataFiles().isEmpty())
+				if(isEmpty)
 				{
 					// initialize if there are no files at all (create first file, ensure transactions file)
 					this.initializeForNoFiles(taskTimestamp, storageInventory);
@@ -903,6 +907,9 @@ public interface StorageFileManager
 				}
 				else
 				{
+					// register a pending store update to keep state (e.g. GC) in a consistent state.
+					this.entityCache.registerPendingStoreUpdate();
+
 					// handle files (read, parse, register items) and ensure transactions file
 					idRangeAnalysis = this.initializesForExistingFiles(
 						taskTimestamp                  ,
@@ -927,6 +934,12 @@ public interface StorageFileManager
 			{
 				// release temporary reference in any case
 				this.clearEntityInitializingCacheEvaluator();
+
+				if(isEmpty)
+				{
+					// clear the previously registered pending store update
+					this.entityCache.clearPendingStoreUpdate();
+				}
 			}
 		}
 

@@ -86,7 +86,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		 * last store.
 		 * This flag can be seen as "no new data level 1".
 		 */
-		private boolean gcHotPhaseComplete; // sweep once after startup in any case
+		private boolean gcHotPhaseComplete = true; // GC is initially completed because there is no data at all
 
 		/*
 		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
@@ -95,7 +95,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		 * This flag can be seen as "no new data level 2".
 		 * It will shut off all GC activity until the next store resets the flags.
 		 */
-		private boolean gcColdPhaseComplete;
+		private boolean gcColdPhaseComplete = true; // GC is initially completed because there is no data at all
 
 
 
@@ -298,6 +298,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			final long currentMaxRootOid = rootOidSelector.yield();
 			if(currentMaxRootOid == Swizzle.nullId())
 			{
+				// (27.07.2016 TM)FIXME: what about the firct GC call in a new/empty DB?
+
 				// (15.07.2016 TM)EXCP: proper exception
 				throw new RuntimeException("No root oid could have been found.");
 			}

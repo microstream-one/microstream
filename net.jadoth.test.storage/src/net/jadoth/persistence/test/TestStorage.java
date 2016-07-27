@@ -45,11 +45,10 @@ public class TestStorage extends TestComponentProvider
 		.setRootResolver(Storage.RootResolver(ROOT))
 		.setConfiguration(
 			Storage.Configuration(
-				createTestFileProvider()  , // storage channel/thread count (default 1)
-				Storage.ChannelCountProvider(channelCount), // time configuration for housekeeping, caching, etc.
-				Storage.HousekeepingController(1000, 7_000_000)                    , // file paths and names for storage files
-				Storage.DataFileEvaluator(100, 10_000_000, 0.75)     , // evalutator for dissolving old files
-//				Storage.FileDissolver()                     ,
+				createTestFileProvider()                        ,
+				Storage.ChannelCountProvider(channelCount)      , // storage channel/thread count (default 1)
+				Storage.HousekeepingController(100, 7_000_000)  , // time configuration for housekeeping, caching, etc.
+				Storage.DataFileEvaluator(100, 10_000_000, 0.75), // evalutator for dissolving old files
 				Storage.EntityCacheEvaluatorCustomTimeout(10_000) // evalutator for removing entities from the cache
 			)
 		)
@@ -371,7 +370,7 @@ public class TestStorage extends TestComponentProvider
 //			100000008,
 //			100000009
 //		);
-		final int SIZE = 10000;
+		final int SIZE = 1000;
 		final Object[] objects = new Object[SIZE];
 		for(int i = 0; i < SIZE; i++)
 		{

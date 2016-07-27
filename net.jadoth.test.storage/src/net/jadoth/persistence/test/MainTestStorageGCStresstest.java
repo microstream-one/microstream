@@ -25,7 +25,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 	static final int  RUNS      = 10000;
 	static final long WAIT_TIME = 400;
 
-	static final StorageDataFileEvaluator fileEvaluatorHard = Storage.DataFileEvaluator(100, 10_000, 0.99999);
+	static final StorageDataFileEvaluator fileEvaluatorHard = Storage.DataFileEvaluator(100, 10_000_000, 0.99999);
 
 	@SuppressWarnings("unchecked")
 	public static void main(final String[] args)
@@ -51,7 +51,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 		{
 			connection.storeFull(ref.get()[JadothMath.random(size)]);
 
-			DEBUGStorage.println(i+" stored");
+			DEBUGStorage.println("stored #"+i);
 			ref.clear();
 			System.gc();
 			JadothThreads.sleep(WAIT_TIME);

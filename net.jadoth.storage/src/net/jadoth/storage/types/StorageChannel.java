@@ -102,7 +102,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final HousekeepingTask[] housekeepingTasks =
 		{
 			this::houseKeepingCheckFileCleanup ,
-//			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
+			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
 			this::houseKeepingLiveCheck
 		};
 		private int nextHouseKeepingIndex;
@@ -346,7 +346,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		public KeyValue<ByteBuffer[], long[]> storeEntities(final long timestamp, final Chunks chunkData)
 		{
 			// reset even if there is no new data to account for (potential) new data in other channel
-			this.entityCache.resetGarbageCollectionCompletionForEntityUpdate();
+			this.entityCache.registerPendingStoreUpdate();
 
 			final ByteBuffer[] buffers = chunkData.buffers();
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
@@ -614,7 +614,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		@Override
 		public void cleanupStore()
 		{
-			this.entityCache.cleanupPendingStoreUpdate();
+			this.entityCache.clearPendingStoreUpdate();
 		}
 
 	}
