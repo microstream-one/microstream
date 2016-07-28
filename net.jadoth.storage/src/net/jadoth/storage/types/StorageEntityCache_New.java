@@ -380,7 +380,7 @@ public interface StorageEntityCache_New
 			return null;
 		}
 
-		final void resetGarbageCollectionCompletionForEntityUpdate()
+		final void registerPendingStoreUpdate()
 		{
 			synchronized(this.markMonitor)
 			{
@@ -611,16 +611,61 @@ public interface StorageEntityCache_New
 		 */
 		private void ensureGray(final StorageEntity.Implementation entry)
 		{
-			if(!entry.hasReferences())
+			/* (28.07.2016 TM)TODO: still marking count inconsistencies:
+			 * Marked: 140709 Safed 140754
+			 * (of 140754 total, meaning GC is correct, counting logic is off)
+			 * The difference is always exactely the amount of gray entities being safed.
+			 * The question is: why can entities still be gray at the time of the sweep in the new implementation?
+			 *
+			 * It must have to do with store updates because without stor updates (infinite testing GC cycles),
+			 * there is never a difference.
+			 *
+			 * It has nothing to do with erroneously created new entities (tested).
+			 * Must be marking of existing entities.
+			 * Very strange.
+			 *
+			 * It's always around ~45 entities in the used test. Probably all entities in one store.
+			 * Halving the number of stored entities also halves the difference to ~19.
+			 * Also, the less entities are stored, the MORE likely the difference occures.
+			 *
+			 * the post store update is always properly called by the owning thread, never from someone else.
+			 *
+			 * Both referencing and non-referencing types of entities.
+			 *
+			 * GC State is always +1 (proper gray). Not initial, no weird (>= 3).
+			 * The value +1 is ALWAYS only assigned by markGray().
+			 * markGray() is ALWAYS only called here. Nowhere else.
+			 * Hence the +1 MUST come from here.
+			 *
+			 * Come on. So much indication. The reason HAS to be obvious somewhere ...
+			 *
+			 * The logic in this method and its uses seem correct.
+			 * The actual question is: how can a sweep be executed if there are still gray entities?
+			 *
+			 */
+
+			// entities with references
+			if(entry.hasReferences())
 			{
-				entry.markBlack();
+				if(entry.isGcBlack())
+				{
+					this.DEBUG_marked--;
+				}
+
+				entry.markGray();
+
+				// must mark via mark monitor to keep central mark count consistent. NEVER directly via the queue!
+				this.markMonitor.accept(entry.objectId());
 				return;
 			}
 
-			entry.markGray();
+			if(!entry.isGcBlack())
+			{
+				this.DEBUG_marked++;
+			}
 
-			// must mark via mark monitor to keep central mark count consistent. NEVER directly via the queue!
-			this.markMonitor.accept(entry.objectId());
+			// entities without references
+			entry.markBlack();
 		}
 
 
@@ -729,7 +774,7 @@ public interface StorageEntityCache_New
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
-//			DEBUGStorage.println(this.channelIndex + " marking ...");
+//			DEBUGStorage.println(this.channelIndex + " marking ... (" + (timeBudgetBound - System.nanoTime()) + ")");
 
 			final long                   evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker referenceMarker = this.referenceMarker      ;
@@ -821,7 +866,8 @@ public interface StorageEntityCache_New
 
 			DEBUGStorage.println(this.channelIndex + " sweeping");
 
-			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0;
+			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_non_Black = 0;
+
 			final long DEBUG_starttime = System.nanoTime();
 
 			final StorageEntityType.Implementation typeHead = this.typeHead;
@@ -836,6 +882,12 @@ public interface StorageEntityCache_New
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
+						if(!item.isGcBlack())
+						{
+//							DEBUGStorage.println("Saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
+							DEBUG_safed_non_Black++;
+						}
+
 //						DEBUGStorage.println("Saving " + item);
 //						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
 						DEBUG_safed++;
@@ -868,7 +920,7 @@ public interface StorageEntityCache_New
 			vs.add(this.channelIndex + " sweep COMPLETED.");
 			vs.add(" Marked: ").add(this.DEBUG_marked);
 			this.DEBUG_marked = 0;
-			vs.add(" Safed " + DEBUG_safed + ", collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
+			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_non_Black + " non-black), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
 			vs
 			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
 			.add(" Highest collected: ").add(DEBUG_highest_collected)
@@ -883,6 +935,10 @@ public interface StorageEntityCache_New
 //				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
 //			}
 			DEBUGStorage.println(vs.toString());
+			if(DEBUG_collected != 0)
+			{
+				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
+			}
 
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
@@ -952,7 +1008,6 @@ public interface StorageEntityCache_New
 			final ByteBuffer[]                   chunks                ,
 			final long[]                         chunksStoragePositions,
 			final StorageDataFile.Implementation dataFile
-
 		)
 			throws InterruptedException
 		{
@@ -962,10 +1017,10 @@ public interface StorageEntityCache_New
 			}
 
 			// must be done by the store task's cleanup, but as it is idempotent, call it here right away
-			this.cleanupPendingStoreUpdate();
+			this.clearPendingStoreUpdate();
 		}
 
-		final void cleanupPendingStoreUpdate()
+		final void clearPendingStoreUpdate()
 		{
 			this.markMonitor.clearPendingStoreUpdate(this);
 		}
@@ -1001,10 +1056,9 @@ public interface StorageEntityCache_New
 			 *
   			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
   			 *
-  			 * Possible fixes:
-  			 * - pre-enqueue a root instance update task (hacky)
-  			 * - update the current root id on every store of an instance of the root type (inefficient check)
-  			 * - maybe copy all root type instance and select the valid one afterwards
+  			 * Clean solution:
+  			 * Copy all roots, but not directly into a ChunksBuffer, but into a special intermediate data structure
+  			 * with a OID->binary map and reported valid rootId of each channel.
 			 */
 
 			// iterate over all entities of all root types and copy their data
@@ -1326,6 +1380,7 @@ public interface StorageEntityCache_New
 				 * the channel processes (in worst case) only one entity and then has to wait again.
 				 * Another reason for caching mark-oids locally and committing them batch-wise
 				 */
+				// (28.07.2016 TM)NOTE: should be fixed/better now, must test.
 
 				// work ran out
 				return true;

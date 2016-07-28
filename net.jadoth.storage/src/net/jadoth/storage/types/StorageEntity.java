@@ -495,7 +495,7 @@ public interface StorageEntity
 		@Override
 		public final boolean hasReferences()
 		{
-			return this.referenceCount != 0; // both "normal"/"full" (<0) or simple references are references.
+			return this.referenceCount != 0; // both "normal"/"full" (<0) or simple references are loaded.
 		}
 
 		@Override

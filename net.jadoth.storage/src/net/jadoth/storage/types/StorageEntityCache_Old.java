@@ -526,7 +526,7 @@ public interface StorageEntityCache_Old
 			return this.gcPhaseMonitor.isComplete();
 		}
 
-		final void resetGarbageCollectionCompletionForEntityUpdate()
+		final void registerPendingStoreUpdate()
 		{
 			synchronized(this.gcPhaseMonitor)
 			{
@@ -539,7 +539,7 @@ public interface StorageEntityCache_Old
 			}
 		}
 
-		final void cleanupPendingStoreUpdate()
+		final void clearPendingStoreUpdate()
 		{
 			// (14.07.2016 TM)NOTE: dummy stub to prepare for new StorageEntityCache implementation
 		}

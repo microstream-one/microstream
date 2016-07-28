@@ -314,7 +314,7 @@ public class TestStorage extends TestComponentProvider
 //			new Integer(12)
 //		};
 
-		final int SIZE = 10;
+		final int SIZE = 5;
 		final HashTable<Object, Object> root = HashTable.New();
 
 		root.add(createPrimitiveArrays(SIZE), createArray(SIZE, () ->

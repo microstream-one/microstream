@@ -53,9 +53,8 @@ public class MainTestStorageGCStresstest extends TestStorage
 
 			DEBUGStorage.println("stored #"+i);
 			ref.clear();
-			System.gc();
 			JadothThreads.sleep(WAIT_TIME);
-			connection.issueFullCacheCheck((a, b, c) -> true);
+//			connection.issueFullCacheCheck((a, b, c) -> true);
 //			connection.issueFullFileCheck(fileEvaluatorHard);
 			final Object o = ref.get();
 			DEBUGStorage.println("loaded: "+Jadoth.systemString(o));
