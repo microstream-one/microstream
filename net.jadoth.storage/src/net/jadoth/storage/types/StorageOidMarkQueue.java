@@ -15,7 +15,7 @@ public interface StorageOidMarkQueue
 	public void advanceTail(int amount);
 
 	// (19.07.2016 TM)TODO: only for debugging, demove afterwards
-//	public long size();
+	public long size();
 
 
 
@@ -49,13 +49,13 @@ public interface StorageOidMarkQueue
 		private Segment head, tail;
 
 		// (19.07.2016 TM)TODO: only for debugging, demove afterwards
-//		long size;
-//
-//		@Override
-//		public final long size()
-//		{
-//			return this.size;
-//		}
+		long size;
+
+		@Override
+		public final long size()
+		{
+			return this.size;
+		}
 
 
 
@@ -79,7 +79,7 @@ public interface StorageOidMarkQueue
 		synchronized final void reset()
 		{
 			(this.head = this.tail = this.root.next = this.root).clear();
-//			this.size = 0;
+			this.size = 0;
 		}
 
 		@Override
@@ -97,10 +97,11 @@ public interface StorageOidMarkQueue
 
 				this.tail = this.tail.advanceTail();
 			}
-//			this.size -= amount;
+			this.size -= amount;
 		}
 
-		private void internalEnqueue(final long oid)
+		@Override
+		public final synchronized void enqueue(final long oid)
 		{
 //			debugln("enqueue "+oid + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
 			if(this.head.enqueue(oid))
@@ -128,13 +129,7 @@ public interface StorageOidMarkQueue
 				this.head = this.head.advanceHead();
 			}
 
-//			this.size++;
-		}
-
-		@Override
-		public final synchronized void enqueue(final long oid)
-		{
-			this.internalEnqueue(oid);
+			this.size++;
 
 			/*
 			 * notify potentially waiting channel that new work is waiting.
@@ -159,6 +154,7 @@ public interface StorageOidMarkQueue
 				}
 			}
 			this.head = head;
+			this.size += size;
 
 			/*
 			 * notify potentially waiting channel that new work is waiting.

@@ -1,7 +1,10 @@
 package net.jadoth.storage.types;
 
+import java.util.function.Supplier;
+
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.chars.VarString;
 
 
 /**
@@ -27,6 +30,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 	public boolean needsSweep(StorageEntityCache<?> channel);
 
+	public boolean isPendingSweep(StorageEntityCache<?> channel);
+
 	public void completeSweep(
 		StorageEntityCache<?>  channel        ,
 		StorageRootOidSelector rootOidSelector,
@@ -36,6 +41,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 	public boolean isMarkingComplete();
 
 	public StorageReferenceMarker provideReferenceMarker(StorageEntityCache<?> channel);
+
+	public void enqueue(StorageOidMarkQueue oidMarkQueue, long oid);
 
 //	public String DEBUG_state();
 
@@ -77,6 +84,14 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		private       int                   sweepingChannelCount   ;
 
 		private final long[]                channelRootOids         ;
+
+		private long sweepGeneration     ;
+		private long lastSweepStart      ;
+		private long lastSweepEnd        ;
+		private long gcHotGeneration     ;
+		private long gcColdGeneration    ;
+		private long lastGcHotCompletion ;
+		private long lastGcColdCompletion;
 
 		/*
 		 * Indicates that no new data (store) has been received since the last sweep.
@@ -154,7 +169,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// check array to ensure idempotence
 			if(!this.pendingStoreUpdates[channel.channelIndex()])
 			{
-				DEBUGStorage.println(channel.channelIndex() + " signals pending store update.");
+//				DEBUGStorage.println(channel.channelIndex() + " signals pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = true;
 				this.pendingStoreUpdateCount++;
 			}
@@ -166,7 +181,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// check array to ensure idempotence
 			if(this.pendingStoreUpdates[channel.channelIndex()])
 			{
-				DEBUGStorage.println(channel.channelIndex() + " clears pending store update.");
+//				DEBUGStorage.println(channel.channelIndex() + " clears pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = false;
 				this.pendingStoreUpdateCount--;
 			}
@@ -182,7 +197,6 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 			if(this.gcHotPhaseComplete)
 			{
-				DEBUGStorage.println("Completed GC fully.");
 				/*
 				 * Note for debugging:
 				 * For testing repeated GC runs, do NOT just deactivate the cold completion flag here.
@@ -193,11 +207,16 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				 * To let the GC run repeatedly, modify the logic in isComplete() directly (always return false).
 				 */
 				this.gcColdPhaseComplete = true;
+				this.lastGcColdCompletion = System.currentTimeMillis();
+				this.gcColdGeneration++;
+				DEBUGStorage.println("Completed GC #" + this.gcColdGeneration);
 			}
 			else
 			{
-				DEBUGStorage.println("Completed GC Hot Phase");
 				this.gcHotPhaseComplete = true;
+				this.lastGcHotCompletion = System.currentTimeMillis();
+				this.gcHotGeneration++;
+				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration);
 			}
 		}
 
@@ -214,6 +233,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			{
 				return false;
 			}
+
+			this.lastSweepStart = System.currentTimeMillis();
 
 			DEBUGStorage.println("Marking complete.");
 
@@ -250,7 +271,13 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			 * - After the count == 0 case is detected, every channel will exactely sweep once before it can go back to marking
 			 * - The mark oid queue (long[]) does not in any way interfere with the sweeping (local Entry instances) or vice versa.
 			 */
-			return this.needsSweep[channel.channelIndex()] || this.callToSweepRequired();
+			return this.isPendingSweep(channel) || this.callToSweepRequired();
+		}
+
+		@Override
+		public final synchronized boolean isPendingSweep(final StorageEntityCache<?> channel)
+		{
+			return this.needsSweep[channel.channelIndex()];
 		}
 
 		@Override
@@ -269,6 +296,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// decrement sweep channel count and execute completion logic if required.
 			if(--this.sweepingChannelCount == 0)
 			{
+				this.lastSweepEnd = System.currentTimeMillis();
+				this.sweepGeneration++;
 				this.advanceGcCompletion();
 				this.determineAndEnqueueRootOid(rootOidSelector);
 			}
@@ -298,8 +327,6 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			final long currentMaxRootOid = rootOidSelector.yield();
 			if(currentMaxRootOid == Swizzle.nullId())
 			{
-				// (27.07.2016 TM)FIXME: what about the firct GC call in a new/empty DB?
-
 				// (15.07.2016 TM)EXCP: proper exception
 				throw new RuntimeException("No root oid could have been found.");
 			}
@@ -322,9 +349,15 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				return;
 			}
 
-			// no need to keep the lock longer than necessary or nested with the queue lock.
+			this.enqueue(this.oidMarkQueues[(int)(oid & this.channelHash)], oid);
+		}
+
+		@Override
+		public final void enqueue(final StorageOidMarkQueue oidMarkQueue, final long oid)
+		{
 			this.incrementPendingMarksCount();
-			this.oidMarkQueues[(int)(oid & this.channelHash)].enqueue(oid);
+			// no need to keep the lock longer than necessary or nested with the queue lock.
+			oidMarkQueue.enqueue(oid);
 		}
 
 		@Override
@@ -457,53 +490,67 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 		}
 
-//		@Override
-//		public synchronized String DEBUG_state()
-//		{
-//			// (19.07.2016 TM)NOTE: ultra hacky hardcoded multi-lock for 4 channels
-//			synchronized(this.oidMarkQueues[0])
-//			{
-//				synchronized(this.oidMarkQueues[1])
-//				{
-//					synchronized(this.oidMarkQueues[2])
-//					{
-//						synchronized(this.oidMarkQueues[3])
-//						{
-//							final VarString vs = VarString.New("GC state");
-//
-//							vs
-//							.lf().padLeft(Long.toString(this.pendingMarksCount), 10, ' ').add(" pending marks count")
-//							;
-////							for(int i = 0; i < this.oidMarkQueues.length; i++)
-////							{
-////								vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
-////							}
-//
-//							vs
-//							.lf()
-//							.lf().add("Hot  complete\t" + this.gcHotPhaseComplete)
-//							.lf().add("Cold complete\t" + this.gcColdPhaseComplete)
-//							.lf().add("Needs sweep (" + this.sweepingChannelCount+"):")
-//							;
-//							for(int i = 0; i < this.needsSweep.length; i++)
-//							{
-//								vs.lf().blank().add(i + ": " + this.needsSweep[i]);
-//							}
-//
-//							vs
-//							.lf().padLeft(Long.toString(this.pendingStoreUpdateCount), 10, ' ').blank().add("pending store updates")
-//							;
-//							for(int i = 0; i < this.pendingStoreUpdates.length; i++)
-//							{
-//								vs.lf().blank().add(i + ": " + this.pendingStoreUpdates[i]);
-//							}
-//
-//							return vs.toString();
-//						}
-//					}
-//				}
-//			}
-//		}
+
+		private synchronized <T> T lockAllMarkQueues(final int currentIndex, final Supplier<T> logic)
+		{
+			// funny: dynamic locking via trivial recursion
+			if(currentIndex >= 0)
+			{
+				synchronized(this.oidMarkQueues[currentIndex])
+				{
+					return lockAllMarkQueues(currentIndex - 1, logic);
+				}
+			}
+
+			return logic.get();
+		}
+
+
+		public synchronized String DEBUG_state()
+		{
+			return this.lockAllMarkQueues(this.channelHash, () ->
+			{
+				final VarString vs = VarString.New("GC state");
+
+				vs
+				.lf().padLeft(Long.toString(this.pendingMarksCount), 10, ' ').add(" pending marks count")
+				;
+				for(int i = 0; i < this.oidMarkQueues.length; i++)
+				{
+					vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+				}
+
+				vs
+				.lf()
+				.lf().add("Hot  complete: ").add(this.gcHotPhaseComplete)
+				.lf().add("Cold complete: ").add(this.gcColdPhaseComplete)
+				.lf()
+				.lf().add("sweepGeneration     : ").add(this.sweepGeneration     )
+				.lf().add("lastSweepEnd        : ").add(this.lastSweepEnd        )
+				.lf().add("lastSweepStart      : ").add(this.lastSweepStart      )
+				.lf().add("gcHotGeneration     : ").add(this.gcHotGeneration     )
+				.lf().add("gcColdGeneration    : ").add(this.gcColdGeneration    )
+				.lf().add("lastGcColdCompletion: ").add(this.lastGcColdCompletion)
+				.lf().add("lastGcHotCompletion : ").add(this.lastGcHotCompletion )
+				.lf()
+				.lf().add("Needs sweep (").add(this.sweepingChannelCount).add("):")
+				;
+				for(int i = 0; i < this.needsSweep.length; i++)
+				{
+					vs.lf().blank().add(i).add(": ").add(this.needsSweep[i]);
+				}
+
+				vs
+				.lf().padLeft(Long.toString(this.pendingStoreUpdateCount), 10, ' ').blank().add("pending store updates")
+				;
+				for(int i = 0; i < this.pendingStoreUpdates.length; i++)
+				{
+					vs.lf().blank().add(i).add(": ").add(this.pendingStoreUpdates[i]);
+				}
+
+				return vs.toString();
+			});
+		}
 
 	}
 

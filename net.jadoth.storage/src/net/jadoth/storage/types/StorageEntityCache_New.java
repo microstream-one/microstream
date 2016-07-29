@@ -59,6 +59,11 @@ public interface StorageEntityCache_New
 
 		private       long                                usedCacheSize       ;
 
+		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
+		private       long                                sweepGeneration     ;
+		private       long                                lastSweepStart      ;
+		private       long                                lastSweepEnd        ;
+
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -107,6 +112,21 @@ public interface StorageEntityCache_New
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+
+		final long sweepGeneration()
+		{
+			return this.sweepGeneration;
+		}
+
+		final long lastSweepStart()
+		{
+			return this.lastSweepStart;
+		}
+
+		final long lastSweepEnd()
+		{
+			return this.lastSweepEnd;
+		}
 
 		final void initializeStorageManager(final StorageFileManager.Implementation fileManager)
 		{
@@ -630,7 +650,7 @@ public interface StorageEntityCache_New
 			 *
 			 * the post store update is always properly called by the owning thread, never from someone else.
 			 *
-			 * Both referencing and non-referencing types of entities.
+			 * Gray entities are always referencing entities (obviously).
 			 *
 			 * GC State is always +1 (proper gray). Not initial, no weird (>= 3).
 			 * The value +1 is ALWAYS only assigned by markGray().
@@ -641,7 +661,6 @@ public interface StorageEntityCache_New
 			 *
 			 * The logic in this method and its uses seem correct.
 			 * The actual question is: how can a sweep be executed if there are still gray entities?
-			 *
 			 */
 
 			// entities with references
@@ -652,10 +671,30 @@ public interface StorageEntityCache_New
 					this.DEBUG_marked--;
 				}
 
+				/*
+				 * The gray state is still required even despite the oidMarkQueue
+				 *
+				 * Consider the following scenario of 4 threads:
+				 * - Some (random) channels initiates a sweep (all channels get their sweep flag set)
+				 * - channel #2 and #3 perform the sweep
+				 * - a store task comes in to be processed
+				 * - channel #0 and #1 see the task and do not sweep
+				 * - the store task gets processed by all channels
+				 * - all channels gray-mark in their entity update the stored entities and enqueue their OIDs to be marked
+				 * - the task processing is completed
+				 * - ch #0 and #1 continue doing housekeeping, see the sweep flag and perform their pending sweep.
+				 * - ch #0 and #1 check gray entities in the sweep and (correctly!) rescue them as they are not white.
+				 * - ch #0 and #1 complete their sweep and continue with marking, inluding marking the enqueued stored entities
+				 *
+				 * The gray state might be superfluous if entities are not gray marked if a sweep is pending,
+				 * but this might complicate things and maybe there are other scenarios that wouldn't be covered
+				 * correctly anymore. In the very least, the gray state is a safety net of indicating:
+				 * The entity must not be collected, but it must be revisted.
+				 */
 				entry.markGray();
 
 				// must mark via mark monitor to keep central mark count consistent. NEVER directly via the queue!
-				this.markMonitor.accept(entry.objectId());
+				this.markMonitor.enqueue(this.oidMarkQueue, entry.objectId());
 				return;
 			}
 
@@ -861,12 +900,14 @@ public interface StorageEntityCache_New
 
 		private void sweep()
 		{
+			this.lastSweepStart = System.currentTimeMillis();
+
 //			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
 //			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
 
 			DEBUGStorage.println(this.channelIndex + " sweeping");
 
-			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_non_Black = 0;
+			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
 
 			final long DEBUG_starttime = System.nanoTime();
 
@@ -882,10 +923,10 @@ public interface StorageEntityCache_New
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
-						if(!item.isGcBlack())
+						if(item.isGcGray())
 						{
-//							DEBUGStorage.println("Saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
-							DEBUG_safed_non_Black++;
+//							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
+							DEBUG_safed_gray++;
 						}
 
 //						DEBUGStorage.println("Saving " + item);
@@ -915,12 +956,15 @@ public interface StorageEntityCache_New
 				}
 			}
 
+			this.lastSweepEnd = System.currentTimeMillis();
+			this.sweepGeneration++;
+
 			final long DEBUG_stoptime = System.nanoTime();
 			final VarString vs = VarString.New();
-			vs.add(this.channelIndex + " sweep COMPLETED.");
+			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
 			vs.add(" Marked: ").add(this.DEBUG_marked);
 			this.DEBUG_marked = 0;
-			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_non_Black + " non-black), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
+			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
 			vs
 			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
 			.add(" Highest collected: ").add(DEBUG_highest_collected)
@@ -1011,6 +1055,9 @@ public interface StorageEntityCache_New
 		)
 			throws InterruptedException
 		{
+//			final long startTime = System.currentTimeMillis();
+//			DEBUGStorage.println(this.channelIndex + " " + startTime +" doing post store updating entities.");
+
 			for(int i = 0; i < chunks.length; i++)
 			{
 				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
@@ -1018,6 +1065,9 @@ public interface StorageEntityCache_New
 
 			// must be done by the store task's cleanup, but as it is idempotent, call it here right away
 			this.clearPendingStoreUpdate();
+
+//			final long endTime = System.currentTimeMillis();
+//			DEBUGStorage.println(this.channelIndex + " " + endTime +" completed post store updating entities.");
 		}
 
 		final void clearPendingStoreUpdate()

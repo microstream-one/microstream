@@ -34,17 +34,17 @@ public interface StorageGCZombieOidHandler
 			 * but are resolved at runtime by the loading mechanism.
 			 * It is NOT an error that these OIDs cannot be resolved on the persistent level.
 			 */
-//			if(Swizzle.IdType.TID.isInRange(oid))
-//			{
-//				// debug hook for TypeIDs
-//				return true;
-//			}
-//			if(Swizzle.IdType.CID.isInRange(oid))
-//			{
-//				// debug hook for ConstantIDs
-//				return true;
-//			}
-//			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
+			if(Swizzle.IdType.TID.isInRange(oid))
+			{
+				// debug hook for TypeIDs
+				return true;
+			}
+			if(Swizzle.IdType.CID.isInRange(oid))
+			{
+				// debug hook for ConstantIDs
+				return true;
+			}
+			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
 
 			return true;
 		}
