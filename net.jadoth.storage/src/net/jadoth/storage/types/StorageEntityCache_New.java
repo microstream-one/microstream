@@ -631,38 +631,6 @@ public interface StorageEntityCache_New
 		 */
 		private void ensureGray(final StorageEntity.Implementation entry)
 		{
-			/* (28.07.2016 TM)TODO: still marking count inconsistencies:
-			 * Marked: 140709 Safed 140754
-			 * (of 140754 total, meaning GC is correct, counting logic is off)
-			 * The difference is always exactely the amount of gray entities being safed.
-			 * The question is: why can entities still be gray at the time of the sweep in the new implementation?
-			 *
-			 * It must have to do with store updates because without stor updates (infinite testing GC cycles),
-			 * there is never a difference.
-			 *
-			 * It has nothing to do with erroneously created new entities (tested).
-			 * Must be marking of existing entities.
-			 * Very strange.
-			 *
-			 * It's always around ~45 entities in the used test. Probably all entities in one store.
-			 * Halving the number of stored entities also halves the difference to ~19.
-			 * Also, the less entities are stored, the MORE likely the difference occures.
-			 *
-			 * the post store update is always properly called by the owning thread, never from someone else.
-			 *
-			 * Gray entities are always referencing entities (obviously).
-			 *
-			 * GC State is always +1 (proper gray). Not initial, no weird (>= 3).
-			 * The value +1 is ALWAYS only assigned by markGray().
-			 * markGray() is ALWAYS only called here. Nowhere else.
-			 * Hence the +1 MUST come from here.
-			 *
-			 * Come on. So much indication. The reason HAS to be obvious somewhere ...
-			 *
-			 * The logic in this method and its uses seem correct.
-			 * The actual question is: how can a sweep be executed if there are still gray entities?
-			 */
-
 			// entities with references
 			if(entry.hasReferences())
 			{
