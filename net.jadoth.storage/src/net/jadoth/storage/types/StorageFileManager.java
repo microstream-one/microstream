@@ -238,7 +238,7 @@ public interface StorageFileManager
 
 		final <L extends Consumer<StorageEntity.Implementation>> L iterateEntities(final L logic)
 		{
-			// (01.04.2016)NOTE: not tested yet
+			// (01.04.2016)TODO: /!\ not tested yet
 
 			final StorageDataFile.Implementation head = this.headFile;
 			StorageDataFile.Implementation file = head; // initial reference, but gets handled at the end
