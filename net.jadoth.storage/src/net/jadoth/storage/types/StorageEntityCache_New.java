@@ -1515,3 +1515,5 @@ public interface StorageEntityCache_New
 
 	}
 }
+
+// (01.08.2016 TM)FIXME: having a never-finishing GC in the stresstest main causes a missing rootid exception
