@@ -154,7 +154,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 
 			/*
-			 * Advance the oidMarkQueue not before the gc phase monitor has been locked and the amount has been validated.
+			 * Advance the oidMarkQueue not before the mark monitor has been locked and the amount has been validated.
 			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outside.
 			 */
 			oidMarkQueue.advanceTail(amount);
@@ -209,14 +209,14 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				this.gcColdPhaseComplete = true;
 				this.lastGcColdCompletion = System.currentTimeMillis();
 				this.gcColdGeneration++;
-				DEBUGStorage.println("Completed GC #" + this.gcColdGeneration);
+				DEBUGStorage.println("Completed GC #" + this.gcColdGeneration + " @ " + this.lastGcColdCompletion);
 			}
 			else
 			{
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
-				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration);
+				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
 			}
 		}
 
@@ -236,17 +236,19 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 			this.lastSweepStart = System.currentTimeMillis();
 
-			DEBUGStorage.println("Marking complete.");
+//			DEBUGStorage.println("Marking complete.");
 
 			// reset channel root ids board because channels will update it upon ecountering the need to sweep.
 			this.resetChannelRootIds();
 
-			// no current sweep and completed marking means a new seep has to be initiated. So do it.
-			for(int i = 0; i < this.needsSweep.length; i++)
-			{
-				this.needsSweep[i] = true;
-			}
-			this.sweepingChannelCount = this.needsSweep.length;
+			/*
+			 * This is the (lock-secured) only time where it is guaranteed that all mark queues are empty.
+			 * So reset them to free memory occupied by the last mark.
+			 */
+			this.resetMarkQueues();
+
+			// no current sweep and completed marking means a new sweep has to be initiated.
+			this.initiateSweep();
 
 			return true;
 		}
@@ -311,6 +313,27 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 		}
 
+		final synchronized void resetMarkQueues()
+		{
+			for(int i = 0; i < this.oidMarkQueues.length; i++)
+			{
+				if(this.oidMarkQueues[i].hasElements())
+				{
+					throw new RuntimeException(); // (01.08.2016 TM)EXCP: proper exception
+				}
+				this.oidMarkQueues[i].reset();
+			}
+		}
+
+		final synchronized void initiateSweep()
+		{
+			for(int i = 0; i < this.needsSweep.length; i++)
+			{
+				this.needsSweep[i] = true;
+			}
+			this.sweepingChannelCount = this.needsSweep.length;
+		}
+
 		final synchronized void determineAndEnqueueRootOid(final StorageRootOidSelector rootOidSelector)
 		{
 			/*
@@ -370,8 +393,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		@Override
 		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
 		{
-			// (22.07.2016 TM)TODO: make constant dynamic
-			return new CachingReferenceMarker(this, this.channelCount, 500);
+			// (14.07.2016 TM)TODO: make marking configuration dynamic
+			return new CachingReferenceMarker(this, this.channelCount, 10000);
 		}
 
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
@@ -392,6 +415,11 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)
 			{
+				if(sizes[i] == 0)
+				{
+					// avoid unnecessary locking and execution overhead
+					continue;
+				}
 				oidMarkQueues[i].enqueueBulk(oidsPerChannel[i], sizes[i]);
 			}
 		}

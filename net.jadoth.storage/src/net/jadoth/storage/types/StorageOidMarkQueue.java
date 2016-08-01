@@ -14,7 +14,8 @@ public interface StorageOidMarkQueue
 
 	public void advanceTail(int amount);
 
-	// (19.07.2016 TM)TODO: only for debugging, demove afterwards
+	public void reset();
+
 	public long size();
 
 
@@ -48,7 +49,13 @@ public interface StorageOidMarkQueue
 
 		private Segment head, tail;
 
-		// (19.07.2016 TM)TODO: only for debugging, demove afterwards
+		/* (01.08.2016 TM)NOTE:
+		 * the performance cost for updating this field
+		 * is negligible, even if all data required for marking is cached.
+		 * Tests with a 20 million entity DB showed absolutely no difference in performance.
+		 * For now, it's only a nice-to-have value for debugging purposes, but in the future it might
+		 * be required to prevent size excesses (see task below).
+		 */
 		long size;
 
 		@Override
@@ -76,7 +83,8 @@ public interface StorageOidMarkQueue
 		// declared methods //
 		/////////////////////
 
-		synchronized final void reset()
+		@Override
+		public final synchronized void reset()
 		{
 			(this.head = this.tail = this.root.next = this.root).clear();
 			this.size = 0;
@@ -162,6 +170,7 @@ public interface StorageOidMarkQueue
 			 * Only marking channels ever notify on a mark queue instance
 			 * (including the owner channel itself, but then it is not waiting in the first place).
 			 */
+//			DEBUGStorage.println("notify " + size);
 			this.notify();
 		}
 
@@ -240,7 +249,8 @@ public interface StorageOidMarkQueue
 				// should never happen, but just in case. Better check here than causing data to get deleted erroneously by the GC.
 				if(this.lowIndex + amount > this.highIndex)
 				{
-					throw new RuntimeException(); // (07.07.2016 TM)EXCP: proper exception
+					// (07.07.2016 TM)EXCP: proper exception
+					throw new RuntimeException("Inconsistent OidMarkQueue low index advance");
 				}
 
 				// report whether this segment is fully processed.

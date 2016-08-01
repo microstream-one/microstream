@@ -32,7 +32,7 @@ public interface StorageGCZombieOidHandler
 			/*
 			 * Note that types and constants are intentionally not represented in the persistent form
 			 * but are resolved at runtime by the loading mechanism.
-			 * It is NOT an error that these OIDs cannot be resolved on the persistent level.
+			 * It is NOT an error that these OIDs cannot be resolved on the persistent form level.
 			 */
 			if(Swizzle.IdType.TID.isInRange(oid))
 			{
@@ -44,6 +44,8 @@ public interface StorageGCZombieOidHandler
 				// debug hook for ConstantIDs
 				return true;
 			}
+
+			// default implementation just naively warns about the problem
 			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
 
 			return true;

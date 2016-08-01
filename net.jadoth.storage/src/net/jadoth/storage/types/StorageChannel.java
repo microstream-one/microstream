@@ -102,7 +102,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final HousekeepingTask[] housekeepingTasks =
 		{
 			this::houseKeepingCheckFileCleanup ,
-			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
+//			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
 			this::houseKeepingLiveCheck
 		};
 		private int nextHouseKeepingIndex;
@@ -678,9 +678,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final long                                  rootTypeId
 			)
 			{
-				// (14.07.2016 TM)TODO: make config values configurable
-				final int  markBufferLength  = 500;
-				final long markingWaitTimeMs =  10;
+				// (14.07.2016 TM)TODO: make marking configuration dynamic
+				final int  markBufferLength  = 10000;
+				final long markingWaitTimeMs =    10;
 
 				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
 				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];

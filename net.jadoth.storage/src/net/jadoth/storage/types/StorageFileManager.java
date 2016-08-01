@@ -897,7 +897,6 @@ public interface StorageFileManager
 			{
 				isEmpty = storageInventory.dataFiles().isEmpty();
 
-
 				final StorageIdRangeAnalysis idRangeAnalysis;
 				if(isEmpty)
 				{
@@ -935,7 +934,7 @@ public interface StorageFileManager
 				// release temporary reference in any case
 				this.clearEntityInitializingCacheEvaluator();
 
-				if(isEmpty)
+				if(!isEmpty)
 				{
 					// clear the previously registered pending store update
 					this.entityCache.clearPendingStoreUpdate();

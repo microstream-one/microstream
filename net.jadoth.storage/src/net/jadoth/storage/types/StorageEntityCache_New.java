@@ -14,7 +14,6 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.chars.VarString;
 
 public interface StorageEntityCache_New
 {
@@ -58,6 +57,7 @@ public interface StorageEntityCache_New
 		private       StorageEntity.Implementation        liveCursor          ;
 
 		private       long                                usedCacheSize       ;
+		private       boolean                             hasUpdatePendingSweep     ;
 
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
 		private       long                                sweepGeneration     ;
@@ -611,7 +611,7 @@ public interface StorageEntityCache_New
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
-			this.ensureGray(entry);
+			this.markEntityForChangedData(entry);
 			entry.detachFromFile();
 		}
 
@@ -629,8 +629,44 @@ public interface StorageEntityCache_New
 		 *
 		 * @param entry
 		 */
-		private void ensureGray(final StorageEntity.Implementation entry)
+		private void markEntityForChangedData(final StorageEntity.Implementation entry)
 		{
+			/*
+			 * (01.08.2016 TM)NOTE:
+			 * Having a sweep pending when new data changes requires a distinction here to achieve correct behavior:
+			 * A pending sweep means the marking phase of a gc cycle is complete and all reachable entities
+			 * have already been marked.
+			 * The data change did reset the GC completion state.
+			 * The following sweep will complete the hot phase.
+			 * Enqueing entities with references here would mean to have them safed in the next marking phase
+			 * (potentially a final/cold gc sweep) even if they are not reachable at all. This would be an error.
+			 * Their references do not have to be checked anyway because the marking has been completed beforehand
+			 * and the purpose of re-marking references is not to safe some priorly unreachable entity by a race
+			 * conditional store. It is only to prevent "slipped through" cases during live marking.
+			 * Entities have, however, to be safed in the coming sweep because they might be new or referenced
+			 * by an entity in the same store and have not been marked in the conventional way.
+			 *
+			 * In short:
+			 * Changing data with a pending sweep (marking completed):
+			 * - Mark everything black, no gray enqueing
+			 *
+			 * Changing data during incomplte marking:
+			 * - Mark non-referential entities black
+			 * - Mark referential entities gray (actually white would suffice) and enqueue them into the gray chain.
+			 */
+			if(this.hasUpdatePendingSweep)
+			{
+				if(entry.isGcBlack())
+				{
+					return;
+				}
+
+				this.DEBUG_marked++;
+				entry.markBlack();
+				return;
+			}
+
+
 			// entities with references
 			if(entry.hasReferences())
 			{
@@ -712,7 +748,7 @@ public interface StorageEntityCache_New
 			type.add(entity);
 			this.oidSize++; // increment size not before creating and registering succeeded
 
-			this.ensureGray(entity);
+			this.markEntityForChangedData(entity);
 
 			return entity;
 		}
@@ -873,11 +909,10 @@ public interface StorageEntityCache_New
 //			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
 //			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
 
-			DEBUGStorage.println(this.channelIndex + " sweeping");
+//			DEBUGStorage.println(this.channelIndex + " sweeping");
 
-			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
-
-			final long DEBUG_starttime = System.nanoTime();
+//			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
+//			final long DEBUG_starttime = System.nanoTime();
 
 			final StorageEntityType.Implementation typeHead = this.typeHead;
 
@@ -891,15 +926,15 @@ public interface StorageEntityCache_New
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
-						if(item.isGcGray())
-						{
-//							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
-							DEBUG_safed_gray++;
-						}
+//						if(item.isGcGray())
+//						{
+////							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
+//							DEBUG_safed_gray++;
+//						}
 
 //						DEBUGStorage.println("Saving " + item);
 //						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
-						DEBUG_safed++;
+//						DEBUG_safed++;
 
 						(last = item).markWhite(); // reset to white and advance one item
 					}
@@ -907,16 +942,16 @@ public interface StorageEntityCache_New
 					{
 //						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
 
-						DEBUG_collected++;
-//						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
-						if(item.objectId() < DEBUG_lowest_collected)
-						{
-							DEBUG_lowest_collected = item.objectId();
-						}
-						if(item.objectId() >= DEBUG_highest_collected)
-						{
-							DEBUG_highest_collected = item.objectId();
-						}
+//						DEBUG_collected++;
+////						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
+//						if(item.objectId() < DEBUG_lowest_collected)
+//						{
+//							DEBUG_lowest_collected = item.objectId();
+//						}
+//						if(item.objectId() >= DEBUG_highest_collected)
+//						{
+//							DEBUG_highest_collected = item.objectId();
+//						}
 
 						// otherwise white entity, so collect it
 						this.deleteEntity(item, sweepType, last);
@@ -927,30 +962,30 @@ public interface StorageEntityCache_New
 			this.lastSweepEnd = System.currentTimeMillis();
 			this.sweepGeneration++;
 
-			final long DEBUG_stoptime = System.nanoTime();
-			final VarString vs = VarString.New();
-			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
-			vs.add(" Marked: ").add(this.DEBUG_marked);
-			this.DEBUG_marked = 0;
-			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
-			vs
-			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
-			.add(" Highest collected: ").add(DEBUG_highest_collected)
-			.add(" used cache size: ").add(this.cacheSize())
-			;
-//			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
+//			final long DEBUG_stoptime = System.nanoTime();
+//			final VarString vs = VarString.New();
+//			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
+//			vs.add(" Marked: ").add(this.DEBUG_marked);
+//			this.DEBUG_marked = 0;
+//			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
+//			vs
+//			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
+//			.add(" Highest collected: ").add(DEBUG_highest_collected)
+//			.add(" used cache size: ").add(this.cacheSize())
+//			;
+////			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
+////			{
+////				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+////			}
+////			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
+////			{
+////				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+////			}
+//			DEBUGStorage.println(vs.toString());
+//			if(DEBUG_collected != 0)
 //			{
-//				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+//				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
 //			}
-//			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
-//			{
-//				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-//			}
-			DEBUGStorage.println(vs.toString());
-			if(DEBUG_collected != 0)
-			{
-				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
-			}
 
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
@@ -1026,6 +1061,11 @@ public interface StorageEntityCache_New
 //			final long startTime = System.currentTimeMillis();
 //			DEBUGStorage.println(this.channelIndex + " " + startTime +" doing post store updating entities.");
 
+			this.hasUpdatePendingSweep = this.markMonitor.isPendingSweep(this);
+
+			// reset completion here, too, in case the store happed before the sweep and the post-store happens after it
+			this.markMonitor.resetCompletion();
+
 			for(int i = 0; i < chunks.length; i++)
 			{
 				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
@@ -1040,6 +1080,7 @@ public interface StorageEntityCache_New
 
 		final void clearPendingStoreUpdate()
 		{
+			this.hasUpdatePendingSweep = false;
 			this.markMonitor.clearPendingStoreUpdate(this);
 		}
 
@@ -1253,7 +1294,7 @@ public interface StorageEntityCache_New
 //				return true;
 //			}
 
-			DEBUGStorage.println(this.channelIndex() + " issued gc");
+//			DEBUGStorage.println(this.channelIndex() + " issued gc");
 
 			// check time budget first for explicitly issued calls.
 			performGC:
@@ -1393,12 +1434,11 @@ public interface StorageEntityCache_New
 			// otherwise, mark incrementally until work or time runs out
 			if(this.incrementalMark(timeBudgetBound))
 			{
-				/* (22.07.2016 TM)TODO: why is this return reached dozens of times PER ms?
-				 * Probably simply because every single enqueued oid causes one notify,
-				 * the channel processes (in worst case) only one entity and then has to wait again.
-				 * Another reason for caching mark-oids locally and committing them batch-wise
+				/* note:
+				 * if the buffer length is chosen too low, this return is done countless times per millisecond.
+				 * Initially, 500 was chosen, but 10000 or 50000 seem to be much more appropriate.
 				 */
-				// (28.07.2016 TM)NOTE: should be fixed/better now, must test.
+//				DEBUGStorage.println(this.channelIndex + " no more mark work");
 
 				// work ran out
 				return true;
