@@ -340,18 +340,23 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			 * note that no lock on the selector instance is required because every channel thread
 			 * brings his own exclusive instance and only uses it "in here" by itself.
 			 */
-			rootOidSelector.reset();
+			rootOidSelector.resetGlobal();
 			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				rootOidSelector.accept(this.channelRootOids[i]);
+				rootOidSelector.acceptGlobal(this.channelRootOids[i]);
 			}
 
 			// at least one channel MUST have a non-null root oid, otherwise the whole database would be wiped.
-			final long currentMaxRootOid = rootOidSelector.yield();
+			final long currentMaxRootOid = rootOidSelector.yieldGlobal();
+
 			if(currentMaxRootOid == Swizzle.nullId())
 			{
-				// (15.07.2016 TM)EXCP: proper exception
-				throw new RuntimeException("No root oid could have been found.");
+				/*
+				 * no error here. Strictly seen, an empty or cleared database is valid.
+				 * Should the need for an error arise, StorageRootOidSelector#yieldGlobal
+				 * is the right place to do it in a customized way.
+				 */
+				return;
 			}
 
 //			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);

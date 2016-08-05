@@ -47,13 +47,15 @@ public class MainTestStorageGCStresstest extends TestStorage
 		final StorageConnection connection = STORAGE.createConnection();
 		connection.storeRequired(ROOT);
 
+//		storageCleanup(connection);
+
 		for(int i = 0; i < RUNS; i++)
 		{
-			if(Math.random() < 0.1)
-			{
-				DEBUGStorage.println("#### GC #### (#"+i+") @ " + System.currentTimeMillis());
-				storageCleanup(connection);
-			}
+//			if(Math.random() < 0.1)
+//			{
+//				DEBUGStorage.println("#### GC #### (#"+i+") @ " + System.currentTimeMillis());
+//				storageCleanup(connection);
+//			}
 
 			connection.storeFull(ref.get()[JadothMath.random(size)]);
 			DEBUGStorage.println("stored #"+i);

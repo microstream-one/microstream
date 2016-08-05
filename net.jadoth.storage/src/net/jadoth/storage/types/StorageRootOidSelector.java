@@ -8,6 +8,21 @@ public interface StorageRootOidSelector extends _longProcedure
 
 	public long yield();
 
+	public default void resetGlobal()
+	{
+		this.reset();
+	}
+
+	public default void acceptGlobal(final long rootOid)
+	{
+		this.accept(rootOid);
+	}
+
+	public default long yieldGlobal()
+	{
+		return this.yield();
+	}
+
 
 
 	public final class Implementation implements StorageRootOidSelector

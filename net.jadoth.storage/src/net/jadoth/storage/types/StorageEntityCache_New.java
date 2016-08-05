@@ -14,6 +14,7 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.chars.VarString;
 
 public interface StorageEntityCache_New
 {
@@ -911,8 +912,8 @@ public interface StorageEntityCache_New
 
 //			DEBUGStorage.println(this.channelIndex + " sweeping");
 
-//			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
-//			final long DEBUG_starttime = System.nanoTime();
+			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
+			final long DEBUG_starttime = System.nanoTime();
 
 			final StorageEntityType.Implementation typeHead = this.typeHead;
 
@@ -926,15 +927,15 @@ public interface StorageEntityCache_New
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
-//						if(item.isGcGray())
-//						{
-////							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
-//							DEBUG_safed_gray++;
-//						}
+						if(item.isGcGray())
+						{
+//							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
+							DEBUG_safed_gray++;
+						}
 
 //						DEBUGStorage.println("Saving " + item);
 //						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
-//						DEBUG_safed++;
+						DEBUG_safed++;
 
 						(last = item).markWhite(); // reset to white and advance one item
 					}
@@ -942,16 +943,16 @@ public interface StorageEntityCache_New
 					{
 //						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
 
-//						DEBUG_collected++;
-////						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
-//						if(item.objectId() < DEBUG_lowest_collected)
-//						{
-//							DEBUG_lowest_collected = item.objectId();
-//						}
-//						if(item.objectId() >= DEBUG_highest_collected)
-//						{
-//							DEBUG_highest_collected = item.objectId();
-//						}
+						DEBUG_collected++;
+//						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
+						if(item.objectId() < DEBUG_lowest_collected)
+						{
+							DEBUG_lowest_collected = item.objectId();
+						}
+						if(item.objectId() >= DEBUG_highest_collected)
+						{
+							DEBUG_highest_collected = item.objectId();
+						}
 
 						// otherwise white entity, so collect it
 						this.deleteEntity(item, sweepType, last);
@@ -962,30 +963,30 @@ public interface StorageEntityCache_New
 			this.lastSweepEnd = System.currentTimeMillis();
 			this.sweepGeneration++;
 
-//			final long DEBUG_stoptime = System.nanoTime();
-//			final VarString vs = VarString.New();
-//			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
-//			vs.add(" Marked: ").add(this.DEBUG_marked);
-//			this.DEBUG_marked = 0;
-//			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
-//			vs
-//			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
-//			.add(" Highest collected: ").add(DEBUG_highest_collected)
-//			.add(" used cache size: ").add(this.cacheSize())
-//			;
-////			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
-////			{
-////				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-////			}
-////			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
-////			{
-////				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-////			}
-//			DEBUGStorage.println(vs.toString());
-//			if(DEBUG_collected != 0)
+			final long DEBUG_stoptime = System.nanoTime();
+			final VarString vs = VarString.New();
+			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
+			vs.add(" Marked: ").add(this.DEBUG_marked);
+			this.DEBUG_marked = 0;
+			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
+			vs
+			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
+			.add(" Highest collected: ").add(DEBUG_highest_collected)
+			.add(" used cache size: ").add(this.cacheSize())
+			;
+//			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
 //			{
-//				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
+//				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
 //			}
+//			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
+//			{
+//				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
+//			}
+			DEBUGStorage.println(vs.toString());
+			if(DEBUG_collected != 0)
+			{
+				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
+			}
 
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
@@ -1515,5 +1516,3 @@ public interface StorageEntityCache_New
 
 	}
 }
-
-// (01.08.2016 TM)FIXME: having a never-finishing GC in the stresstest main causes a missing rootid exception
