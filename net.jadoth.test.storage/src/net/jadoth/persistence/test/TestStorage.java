@@ -37,7 +37,7 @@ public class TestStorage extends TestComponentProvider
 	// trivial root instance as an example and for testing
 	protected static final Reference<Object> ROOT = Reference.New(null);
 
-	protected static final int channelCount = 4;
+	protected static final int channelCount = 2;
 
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
@@ -54,7 +54,7 @@ public class TestStorage extends TestComponentProvider
 		)
 		.setConnectionFoundation(createTestConnectionFoundation())     // config and files for persistence layer
 		.createEmbeddedStorageManager()
-		.start() // start storage threads and load all non-lazy referenced instances starting at root
+//		.start() // start storage threads and load all non-lazy referenced instances starting at root
 	;
 
 

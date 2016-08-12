@@ -862,6 +862,11 @@ public interface StorageEntityCache_New
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
 				if(entry.isGcBlack())
 				{
+					if(entry.typeId() == 35)
+					{
+						DEBUGStorage.println(this.channelIndex + " already black Date " + entry.objectId());
+					}
+
 					continue;
 				}
 
@@ -877,6 +882,11 @@ public interface StorageEntityCache_New
 				 * - iterateReferenceIds already checks for references and returns false if none are present
 				 * - no general touch here to not touch entities without references.
 				 */
+
+				if(entry.typeId() == 35)
+				{
+					DEBUGStorage.println(this.channelIndex + " marking Date " + entry.objectId());
+				}
 
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
@@ -927,6 +937,11 @@ public interface StorageEntityCache_New
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
+						if(item.typeId() == 35)
+						{
+							DEBUGStorage.println(this.channelIndex + " safed Date " + item.objectId());
+						}
+
 						if(item.isGcGray())
 						{
 //							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
@@ -941,7 +956,11 @@ public interface StorageEntityCache_New
 					}
 					else
 					{
-//						DEBUGStorage.println("Collecting " + item.objectId() + " (" + item.type.type.typeHandler().typeId() + " " + item.type.type.typeHandler().typeName() + ")");
+						if(item.typeId() == 35)
+						{
+							DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
+						}
+
 
 						DEBUG_collected++;
 //						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
@@ -983,10 +1002,10 @@ public interface StorageEntityCache_New
 //				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
 //			}
 			DEBUGStorage.println(vs.toString());
-			if(DEBUG_collected != 0)
-			{
-				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
-			}
+//			if(DEBUG_collected != 0)
+//			{
+//				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
+//			}
 
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.

@@ -102,7 +102,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final HousekeepingTask[] housekeepingTasks =
 		{
 			this::houseKeepingCheckFileCleanup ,
-//			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
+			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
 			this::houseKeepingLiveCheck
 		};
 		private int nextHouseKeepingIndex;
