@@ -859,13 +859,15 @@ public interface StorageEntityCache_New
 					continue;
 				}
 
+//				DEBUGStorage.println(this.channelIndex + " marking " + entry.typeInFile.type.typeHandler().typeName() + " " + entry.objectId());
+
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
 				if(entry.isGcBlack())
 				{
-					if(entry.typeId() == 35)
-					{
-						DEBUGStorage.println(this.channelIndex + " already black Date " + entry.objectId());
-					}
+//					if(entry.typeId() == 35)
+//					{
+//						DEBUGStorage.println(this.channelIndex + " already black Date " + entry.objectId());
+//					}
 
 					continue;
 				}
@@ -883,10 +885,10 @@ public interface StorageEntityCache_New
 				 * - no general touch here to not touch entities without references.
 				 */
 
-				if(entry.typeId() == 35)
-				{
-					DEBUGStorage.println(this.channelIndex + " marking Date " + entry.objectId());
-				}
+//				if(entry.typeId() == 35)
+//				{
+//					DEBUGStorage.println(this.channelIndex + " marking Date " + entry.objectId());
+//				}
 
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
@@ -934,13 +936,17 @@ public interface StorageEntityCache_New
 				// get next item and check for end of type (switch to next type required)
 				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
+//					DEBUGStorage.println(this.channelIndex + " sweep checking " + item.typeInFile.type.typeHandler().typeName() + " " + item.objectId());
+
+
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
-						if(item.typeId() == 35)
-						{
-							DEBUGStorage.println(this.channelIndex + " safed Date " + item.objectId());
-						}
+//						if(item.typeId() == 35)
+//						{
+//							DEBUGStorage.println(this.channelIndex + " saved Date " + item.objectId());
+//						}
+//						DEBUGStorage.println(this.channelIndex + " saved Date " + item.objectId());
 
 						if(item.isGcGray())
 						{
@@ -948,7 +954,7 @@ public interface StorageEntityCache_New
 							DEBUG_safed_gray++;
 						}
 
-//						DEBUGStorage.println("Saving " + item);
+//						DEBUGStorage.println(this.channelIndex + " saving " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
 //						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
 						DEBUG_safed++;
 
@@ -956,10 +962,11 @@ public interface StorageEntityCache_New
 					}
 					else
 					{
-						if(item.typeId() == 35)
-						{
-							DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
-						}
+//						if(item.typeId() == 35)
+//						{
+//							DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
+//						}
+//						DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
 
 
 						DEBUG_collected++;
@@ -1007,6 +1014,11 @@ public interface StorageEntityCache_New
 //				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
 //			}
 
+//			final StorageEntityType.Implementation typeDate = this.lookupType(35);
+//			for(StorageEntity.Implementation e = typeDate.head; e != null; e = e.typeNext)
+//			{
+//				DEBUGStorage.println(this.channelIndex + " date " + e.objectId());
+//			}
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
 			this.fileManager.resetFileCleanupCursor();

@@ -121,10 +121,15 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 //				return;
 //			}
 
-			// last item next null strategy requires special case handling in removing logic
-//			((entry.typeNext == null  ? this.head :entry.typeNext).typePrev = entry.typePrev).typeNext = entry.typeNext;
-
-			previousInType.typeNext = entry.typeNext;
+			// tail reference requires special handling logic
+			if(entry == this.tail)
+			{
+				(this.tail = previousInType).typeNext = null;
+			}
+			else
+			{
+				previousInType.typeNext = entry.typeNext;
+			}
 
 			// mark as removed
 //			entry.typePrev = null;

@@ -31,6 +31,7 @@ import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
 import net.jadoth.storage.types.StorageFileProvider;
+import net.jadoth.util.UtilResetDirectory;
 
 public class TestStorage extends TestComponentProvider
 {
@@ -39,9 +40,16 @@ public class TestStorage extends TestComponentProvider
 
 	protected static final int channelCount = 2;
 
+	protected static final File DIRECTORY = new File("c:/Files");
+
+	static
+	{
+		deleteOutput();
+	}
+
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation(Storage.FileProvider(new File("c:/Files")))
+		.createFoundation(Storage.FileProvider(DIRECTORY))
 		.setRootResolver(Storage.RootResolver(ROOT))
 		.setConfiguration(
 			Storage.Configuration(
@@ -56,6 +64,19 @@ public class TestStorage extends TestComponentProvider
 		.createEmbeddedStorageManager()
 //		.start() // start storage threads and load all non-lazy referenced instances starting at root
 	;
+
+
+	static void deleteOutput()
+	{
+		deleteOutput(DIRECTORY);
+	}
+
+	static void deleteOutput(final File dir)
+	{
+		System.out.println("Resetting " + dir);
+		UtilResetDirectory.deleteAllFiles(dir, false);
+		System.out.println("done");
+	}
 
 
 	static final StorageFileProvider createTestFileProvider()

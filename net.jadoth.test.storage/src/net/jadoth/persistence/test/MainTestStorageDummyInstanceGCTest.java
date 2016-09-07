@@ -12,7 +12,7 @@ import net.jadoth.util.UtilResetDirectory;
 
 
 /*
- * Test to investigate why/how (really if) initial dummy instances that get replace afterwards
+ * Test to investigate why/how (really if) initial dummy instances that get replaced afterwards
  * cause the replacement instance to not be covered by GC and erroneously deleted instead.
  *
  * Original situation in production code (4 channels):
@@ -37,31 +37,6 @@ import net.jadoth.util.UtilResetDirectory;
  * Tried to reproduce that here.
  * With no success.
  *
- * However:
- * Using 4 channels, after always exactely 4 GC cycles the old date instance from the previous generation
- * no longer gets collected as it should be (and is in the first 4 cycles).
- * One channel explicitely collects only 2499 instances instead of 2500 as it should.
- * That is a bug.
- * Maybe the same bug causing the erroneous collection of reachable entities.
- * Or maybe another bug, that causes unreachable entities to remain uncollected
- * (already observed reproducably in production)
- *
- * Using 2 channels it always occurs after 2 GC cycles.
- * Using 8 channels after 8 GC cycles.
- *
- * This is due to the OID incrementation, every iteration of the store loop puts the date instance
- * into another channel. E.g. 2, 3, 4, 5, 6, 7, 0, 1
- * Maybe something gets "stuck" in the channel local type meta structure or something like that
- *
- * For 1 channel, it never occurs.
- *
- * debug-printlns showed:
- * After the provlem struck, no Date instance ever gets marked again. Neither the new ones nor the old ones.
- * Everyting stays marked as it was and gets safed by the sweep every time.
- * This CANNOT be as the sweep resets the GC state after marking, but still: yet it is.
- * 
- * If the graph is reduced to 1/1/1 length, the date gets collected correctly every time.
- * Only if multiple entities reference the date instance, it stays alive somehow
  *
  */
 public class MainTestStorageDummyInstanceGCTest extends TestStorage
@@ -71,14 +46,15 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 	public static void main(final String[] args)
 	{
-		deleteOutput();
+//		deleteOutput();
 		STORAGE.start();
-		
+
 //		doit();
-		doitSimple();
+//		doitSimple();
+		doitSimple_NoPerson();
 		exit();
 	}
-	
+
 	static void doit()
 	{
 		final Object[][][] data = generateGraph(4);
@@ -122,20 +98,20 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 			JadothThreads.sleep(WAIT_TIME);
 		}
 	}
-	
-	
+
+
 	/* (25.08.2016)NOTE:
-	 * 
+	 *
 	 *  For channelCount = 2, this collects a replaced date exactely two times (one for each channel),
 	 *  e.g.:
 	 *  0 Collecting 1000000000000005016 (35 java.util.Date)
-	 * 
+	 *
 	 *  And from then on, no date instances are ever being collected.
 	 *  Something must "hang" in the channel's per type entity chain or so
 	 */
 	static void doitSimple()
 	{
-		final Object[] data = generateGraphSimple(4);
+		final Object[] data = generateGraphSimple(2);
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
@@ -167,13 +143,59 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		}
 	}
 
+	static void doitSimple_NoPerson()
+	{
+		final Object[] data = generateGraphSimple(2, new Date());
+		ROOT.set(data);
+
+		final StorageConnection connection = STORAGE.createConnection();
+		connection.storeRequired(ROOT);
+
+		for(int i = 0; i < RUNS; i++)
+		{
+			final Date now = new Date();
+
+			DEBUGStorage.println("#" + i + " storing @" + now.getTime());
+
+			final Storer storer = connection.createStorer();
+
+			for(int i3 = 0; i3 < data.length; i3++)
+			{
+				data[i3] = Lazy.Reference(now);
+			}
+			storer.storeRequired(data);
+
+			final long dateOid = connection.persistenceManager().lookupObjectId(now);
+
+			DEBUGStorage.println("#" + i + " storing " + storer.size());
+
+			storer.commit();
+
+			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
+
+			JadothThreads.sleep(WAIT_TIME);
+		}
+	}
+
+	static Object[] generateGraphSimple(final int amount, final Date d)
+	{
+		final Object[] e3 = new Object[amount];
+
+		for(int i3 = 0; i3 < amount; i3++)
+		{
+			e3[i3] = Lazy.Reference(d);
+		}
+
+		return e3;
+	}
+
 
 	static Object[][][] generateGraph(final int amount)
 	{
 //		final int length1 = 2;
 //		final int length2 = 2;
 //		final int length3 = Math.max(amount / 4, 1);
-	
+
 		final int length1 = 2;
 		final int length2 = 1;
 		final int length3 = 1;
@@ -197,7 +219,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 		return e1;
 	}
-	
+
 	static Object[] generateGraphSimple(final int amount)
 	{
 		final Object[] e3 = new Object[amount];
