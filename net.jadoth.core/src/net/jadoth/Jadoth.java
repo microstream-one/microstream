@@ -804,3 +804,8 @@ public final class Jadoth
 		throw new UnsupportedOperationException();
 	}
 }
+
+/* code header replacements:
+\t\t// override methods //\R\t\t/////////////////////
+\t\t// methods //\R\t\t////////////
+*/
