@@ -36,8 +36,6 @@ public interface StorageFoundation
 
 	public StorageWriteListener.Provider getWriteListenerProvider();
 
-	public StorageValidRootIdCalculator.Provider getValidRootIdCalculatorProvider();
-
 	public StorageGCZombieOidHandler getGCZombieOidHandler();
 
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
@@ -80,8 +78,6 @@ public interface StorageFoundation
 
 	public StorageFoundation setWriteListenerProvider(StorageWriteListener.Provider writeListenerProvider);
 
-	public StorageFoundation setValidRootIdCalculatorProvider(StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider);
-
 	public StorageFoundation setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 
 	public StorageFoundation setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
@@ -119,7 +115,6 @@ public interface StorageFoundation
 		private StorageFileReader.Provider            readerProvider               ;
 		private StorageFileWriter.Provider            writerProvider               ;
 		private StorageWriteListener.Provider         writeListenerProvider        ;
-		private StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
@@ -215,13 +210,6 @@ public interface StorageFoundation
 			this.writeListenerProvider = writeListenerProvider;
 		}
 
-		protected final void internalSetValidRootIdCalculatorProvider(
-			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider
-		)
-		{
-			this.validRootIdCalculatorProvider = validRootIdCalculatorProvider;
-		}
-
 		protected final void internalSetGCZombieOidHandler(
 			final StorageGCZombieOidHandler gCZombieOidHandler
 		)
@@ -256,11 +244,6 @@ public interface StorageFoundation
 		)
 		{
 			this.exceptionHandler = exceptionHandler;
-		}
-
-		protected StorageValidRootIdCalculator.Provider createValidRootIdCalculatorProvider()
-		{
-			return new StorageValidRootIdCalculator.Provider.Implementation();
 		}
 
 		protected StorageGCZombieOidHandler createStorageGCZombieOidHandler()
@@ -526,16 +509,6 @@ public interface StorageFoundation
 		}
 
 		@Override
-		public StorageValidRootIdCalculator.Provider getValidRootIdCalculatorProvider()
-		{
-			if(this.validRootIdCalculatorProvider == null)
-			{
-				this.validRootIdCalculatorProvider = this.dispatch(this.createValidRootIdCalculatorProvider());
-			}
-			return this.validRootIdCalculatorProvider;
-		}
-
-		@Override
 		public StorageGCZombieOidHandler getGCZombieOidHandler()
 		{
 			if(this.gCZombieOidHandler == null)
@@ -703,15 +676,6 @@ public interface StorageFoundation
 		}
 
 		@Override
-		public StorageFoundation.Implementation setValidRootIdCalculatorProvider(
-			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider
-		)
-		{
-			this.internalSetValidRootIdCalculatorProvider(validRootIdCalculatorProvider);
-			return this;
-		}
-
-		@Override
 		public StorageFoundation.Implementation setGCZombieOidHandler(final StorageGCZombieOidHandler gCZombieOidHandler)
 		{
 			this.internalSetGCZombieOidHandler(gCZombieOidHandler);
@@ -767,7 +731,6 @@ public interface StorageFoundation
 				this.getReaderProvider()               ,
 				this.getWriterProvider()               ,
 				this.getWriteListenerProvider()        ,
-				this.getValidRootIdCalculatorProvider(),
 				this.getGCZombieOidHandler()           ,
 				this.getRootOidSelectorProvider()      ,
 				this.getOidMarkQueueCreator()          ,

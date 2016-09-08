@@ -35,15 +35,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	public long cacheSize();
 
-	@Deprecated
-	public long getHighestRootInstanceObjectId();
-
-	@Deprecated
-	public long getLowestRootInstanceObjectId();
-
-	@Deprecated
-	public void markGray(long objectId);
-
 
 
 	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>
@@ -98,22 +89,18 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// constructors     //
 		/////////////////////
 
-		// (18.07.2016 TM)XXX: remove deprecated parameters after switch to new implementation
 		public Implementation(
 			final int                                 channelIndex         ,
 			final int                                 channelCount         ,
 			final StorageEntityCacheEvaluator         cacheEvaluator       ,
 			final StorageTypeDictionary               typeDictionary       ,
-			final StorageEntityCache.Implementation[] colleagues           ,
-			final StorageGcPhaseMonitor               gcPhaseMonitor       ,
 			final StorageEntityMarkMonitor            markMonitor          ,
 			final StorageGCZombieOidHandler           zombieOidHandler     ,
 			final StorageRootOidSelector              rootOidSelector      ,
 			final long                                rootTypeId           ,
 			final StorageOidMarkQueue                 oidMarkQueue         ,
 			final int                                 markingBufferLength  ,
-			final long                                markingWaitTimeMs    ,
-			final StorageValidRootIdCalculator        validRootIdCalculator
+			final long                                markingWaitTimeMs
 		)
 		{
 			super();
@@ -465,18 +452,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		}
 
-		@Override
-		public final synchronized long getHighestRootInstanceObjectId()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public final synchronized long getLowestRootInstanceObjectId()
-		{
-			throw new UnsupportedOperationException();
-		}
-
 		private void ensureNoCachedData(final StorageEntity.Implementation entry)
 		{
 			if(entry.isLive())
@@ -591,28 +566,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 //			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
 			return this.createEntity(objectId, type);
-		}
-
-		// (18.07.2016 TM)XXX: remove after switch to new implementation
-		final StorageEntity.Implementation putEntityValidated(
-			final long                             objectId  ,
-			final StorageEntityType.Implementation type      ,
-			final boolean                          deprecated
-		)
-		{
-			return this.putEntityValidated(objectId, type);
-		}
-
-		// (18.07.2016 TM)XXX: remove after switch to new implementation
-		final StorageEntity.Implementation updatePutEntity(final long entityAddress, final boolean deprecated)
-		{
-			return this.updatePutEntity(entityAddress);
-		}
-
-		// (18.07.2016 TM)XXX: remove after switch to new implementation
-		final boolean isInMarkPhase()
-		{
-			return false;
 		}
 
 		final StorageEntity.Implementation updatePutEntity(final long entityAddress)
@@ -1504,48 +1457,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			// time ran out
-			return false;
-		}
-
-
-
-		@Deprecated
-		@Override
-		public void markGray(final long objectId)
-		{
-			// (14.07.2016 TM)XXX: remove markGray() after switch to new implementation
-			throw new UnsupportedOperationException();
-		}
-
-		final void truncateGraySegments()
-		{
-			// (19.07.2016 TM)XXX: remove after switch to new implementation
-			// no-op for implementation transitioning
-		}
-
-		final void completeSweeping()
-		{
-			// (19.07.2016 TM)XXX: remove after switch to new implementation
-			// no-op for implementation transitioning
-		}
-
-		final boolean hasCompletedSweeping()
-		{
-			// (19.07.2016 TM)XXX: remove after switch to new implementation
-			// no-op for implementation transitioning
-			return true;
-		}
-
-		final void resetAfterSweep()
-		{
-			// (19.07.2016 TM)XXX: remove after switch to new implementation
-			// no-op for implementation transitioning
-		}
-
-		final boolean isMarking()
-		{
-			// (19.07.2016 TM)XXX: remove after switch to new implementation
-			// no-op for implementation transitioning
 			return false;
 		}
 

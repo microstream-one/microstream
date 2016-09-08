@@ -70,7 +70,6 @@ public interface StorageManager extends StorageController
 		private final StorageHousekeepingController           housekeepingController       ;
 		private final StorageTimestampProvider                timestampProvider            ;
 		private final StorageObjectIdRangeEvaluator           objectIdRangeEvaluator       ;
-		private final StorageValidRootIdCalculator.Provider   validRootIdCalculatorProvider;
 		private final StorageGCZombieOidHandler               zombieOidHandler             ;
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
@@ -113,10 +112,9 @@ public interface StorageManager extends StorageController
 			final StorageFileReader.Provider            readerProvider               ,
 			final StorageFileWriter.Provider            writerProvider               ,
 			final StorageWriteListener.Provider         writeListenerProvider        ,
-			final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			final StorageGCZombieOidHandler             zombieOidHandler             ,
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
-			final StorageOidMarkQueue.Creator                  oidMarkQueueCreator          ,
+			final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
 			final StorageExceptionHandler               exceptionHandler
 		)
@@ -141,7 +139,6 @@ public interface StorageManager extends StorageController
 			this.readerProvider                = notNull(readerProvider)                      ;
 			this.writerProvider                = notNull(writerProvider)                      ;
 			this.writeListenerProvider         = notNull(writeListenerProvider)               ;
-			this.validRootIdCalculatorProvider = notNull(validRootIdCalculatorProvider)       ;
 			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
 			this.rootOidSelectorProvider       = notNull(rootOidSelectorProvider)             ;
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
@@ -269,7 +266,6 @@ public interface StorageManager extends StorageController
 				this.readerProvider                        ,
 				this.writerProvider                        ,
 				this.createWriteListener()                 ,
-				this.validRootIdCalculatorProvider         ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,

@@ -102,7 +102,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final HousekeepingTask[] housekeepingTasks =
 		{
 			this::houseKeepingCheckFileCleanup ,
-//			this::houseKeepingGarbageCollection, // (19.10.2015 TM)FIXME: ! disabled Housekeeing GC until fix
+			this::houseKeepingGarbageCollection,
 			this::houseKeepingLiveCheck
 		};
 		private int nextHouseKeepingIndex;
@@ -638,7 +638,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageFileReader.Provider            readerProvider               ,
 			StorageFileWriter.Provider            writerProvider               ,
 			StorageWriteListener                  writeListener                ,
-			StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 			StorageGCZombieOidHandler             zombieOidHandler             ,
 			StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
@@ -670,7 +669,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageFileReader.Provider            readerProvider               ,
 				final StorageFileWriter.Provider            writerProvider               ,
 				final StorageWriteListener                  writeListener                ,
-				final StorageValidRootIdCalculator.Provider validRootIdCalculatorProvider,
 				final StorageGCZombieOidHandler             zombieOidHandler             ,
 				final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 				final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
@@ -682,9 +680,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final int  markBufferLength  = 10000;
 				final long markingWaitTimeMs =    10;
 
-				final StorageChannel.Implementation[]     channels   = new StorageChannel.Implementation[channelCount];
-				final StorageEntityCache.Implementation[] caches     = new StorageEntityCache.Implementation[channelCount];
-				final StorageGcPhaseMonitor               gcPhsMon   = new StorageGcPhaseMonitor();
+				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
 
 				final StorageOidMarkQueue[]    markQueues = new StorageOidMarkQueue[channels.length];
 				for(int i = 0; i < markQueues.length; i++)
@@ -695,44 +691,48 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 				for(int i = 0; i < channels.length; i++)
 				{
-					final StorageFileManager.Implementation fileManager;
+					// entity cache to register entities, cache entity data, perform garbage collection
+					final StorageEntityCache.Implementation entityCache = new StorageEntityCache.Implementation(
+						i                                                ,
+						channels.length                                  ,
+						entityCacheEvaluator                             ,
+						typeDictionary                                   ,
+						markMonitor                                      ,
+						zombieOidHandler                                 ,
+						rootOidSelectorProvider.provideRootOidSelector(i),
+						rootTypeId                                       ,
+						markQueues[i]                                    ,
+						markBufferLength                                 ,
+						markingWaitTimeMs
+					);
+
+					// file manager to handle "file" IO (whatever "file" might be, might be a RDBMS binary table as well)
+					final StorageFileManager.Implementation fileManager = new StorageFileManager.Implementation(
+						i                              ,
+						initialDataFileNumberProvider  ,
+						timestampProvider              ,
+						storageFileProvider            ,
+						fileDissolver                  ,
+						entityCache                      ,
+						readerProvider.provideReader(i),
+						writerProvider.provideWriter(i),
+						writeListener
+					);
+
+					// required to resolve the initializer cyclic depedency
+					entityCache.initializeStorageManager(fileManager);
+
+					// everything bundled together in a "channel".
 					channels[i] = new StorageChannel.Implementation(
 						i                     ,
 						exceptionHandler      ,
 						taskBroker            ,
 						channelController     ,
 						housekeepingController,
-						caches[i] = new StorageEntityCache.Implementation(
-							i                                                ,
-							channels.length                                  ,
-							entityCacheEvaluator                             ,
-							typeDictionary                                   ,
-							caches                                           ,
-							gcPhsMon                                         ,
-							markMonitor                                      ,
-							zombieOidHandler                                 ,
-							rootOidSelectorProvider.provideRootOidSelector(i),
-							rootTypeId                                       ,
-							markQueues[i]                                    ,
-							markBufferLength                                 ,
-							markingWaitTimeMs                                ,
-							validRootIdCalculatorProvider.provideValidRootIdCalculator(channelCount)
-						),
-						fileManager = new StorageFileManager.Implementation(
-							i                              ,
-							initialDataFileNumberProvider  ,
-							timestampProvider              ,
-							storageFileProvider            ,
-							fileDissolver                  ,
-							caches[i]                      ,
-							readerProvider.provideReader(i),
-							writerProvider.provideWriter(i),
-							writeListener
-						)
+						entityCache,
+						fileManager
 					);
 
-					// required to resolve the initializer cyclic depedency
-					caches[i].initializeStorageManager(fileManager);
 				}
 				return channels;
 			}

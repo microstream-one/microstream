@@ -1286,7 +1286,7 @@ public interface StorageFileManager
 			 */
 
 			// no special gray enqueuing required on initialization, hence false.
-			final StorageEntity.Implementation entity = this.entityCache.updatePutEntity(address, false);
+			final StorageEntity.Implementation entity = this.entityCache.updatePutEntity(address);
 			entity.updateStorageInformation(
 				checkArrayRange(length),
 				this.headFile,
@@ -1658,8 +1658,6 @@ public interface StorageFileManager
 			final long currentTotalLength = this.headFile.totalLength();
 			      long loopFileLength     = currentTotalLength;
 
-			final boolean isMarking = entityCache.isInMarkPhase();
-
 			// (05.01.2015)TODO: batch copying must ensure that entity position limit of 2 GB os not exceeded
 			for(final StorageChannelImportBatch batch : this.importHelper.importBatches)
 			{
@@ -1667,7 +1665,7 @@ public interface StorageFileManager
 				for(StorageChannelImportEntity entity = batch.first(); entity != null; entity = entity.next())
 				{
 					entityCache
-					.putEntityValidated(entity.objectId(), entity.type(), isMarking)
+					.putEntityValidated(entity.objectId(), entity.type())
 					.updateStorageInformation(entity.length(), headFile, checkArrayRange(loopFileLength));
 					loopFileLength += entity.length();
 				}
