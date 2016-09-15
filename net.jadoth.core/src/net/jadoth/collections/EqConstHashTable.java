@@ -111,6 +111,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		).internalAddEntries(entries);
 	}
 
+	public static final <K, V> EqConstHashTable<K, V> NewSingle(final K key, final V value)
+	{
+		final EqConstHashTable<K, V> instance = New();
+		instance.internalAdd(key, value);
+		return instance;
+	}
+
 	@SafeVarargs
 	public static final <K, V> EqConstHashTable<K, V> New(final KeyValue<? extends K, ? extends V>... entries)
 	{

@@ -106,11 +106,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries
 	)
 	{
-		return new EqHashTable<K, V>(
-			DEFAULT_HASH_LENGTH,
-			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
-		).internalAddEntries(entries);
+		return EqHashTable.<K, V>New()
+			.internalAddEntries(entries)
+		;
 	}
 
 	public static final <K, V> EqHashTable<K, V> NewCustom(
@@ -126,16 +124,21 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		).internalAddEntries(entries);
 	}
 
+	public static final <K, V> EqHashTable<K, V> NewSingle(final K key, final V value)
+	{
+		final EqHashTable<K, V> instance = New();
+		instance.internalAdd(key, value);
+		return instance;
+	}
+
 	@SafeVarargs
 	public static final <K, V> EqHashTable<K, V> New(
 		final KeyValue<? extends K, ? extends V>... entries
 	)
 	{
-		return new EqHashTable<K, V>(
-			DEFAULT_HASH_LENGTH,
-			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
-		).internalAddEntries(new ArrayView<>(entries));
+		return EqHashTable.<K, V>New()
+			.internalAddEntries(new ArrayView<>(entries))
+		;
 	}
 
 	@SafeVarargs

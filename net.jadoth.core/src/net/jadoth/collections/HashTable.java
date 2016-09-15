@@ -101,10 +101,9 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries
 	)
 	{
-		return new HashTable<K, V>(
-			DEFAULT_HASH_LENGTH,
-			DEFAULT_HASH_FACTOR
-		).internalAddEntries(entries);
+		return HashTable.<K,V>New()
+			.internalAddEntries(entries)
+		;
 	}
 
 	public static final <K, V> HashTable<K, V> NewCustom(
@@ -119,15 +118,21 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		).internalAddEntries(entries);
 	}
 
+	public static final <K, V> HashTable<K, V> NewSingle(final K key, final V value)
+	{
+		final HashTable<K, V> instance = New();
+		instance.internalAdd(key, value);
+		return instance;
+	}
+
 	@SafeVarargs
 	public static final <K, V> HashTable<K, V> New(
 		final KeyValue<? extends K, ? extends V>... entries
 	)
 	{
-		return new HashTable<K, V>(
-			DEFAULT_HASH_LENGTH,
-			DEFAULT_HASH_FACTOR
-		).internalAddEntries(new ArrayView<>(entries));
+		return HashTable.<K,V>New()
+			.internalAddEntries(new ArrayView<>(entries))
+		;
 	}
 
 	@SafeVarargs
