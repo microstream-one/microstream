@@ -14,7 +14,6 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.chars.VarString;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -221,7 +220,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		private void resetLiveCursor()
 		{
-			this.liveCursor = this.typeHead.head;
+			// live cursor may never be a head dummy-entity (but it may be a tail entity as this is checked)
+			this.liveCursor = null;
+
+			// (22.09.2016 TM)NOTE: old
+//			this.liveCursor = this.typeHead.head;
 		}
 
 		// must use lock to keep other channels from marking while rebuild is in progress
@@ -731,6 +734,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			this.markEntityForChangedData(entity);
 
+			// must explicitely touch the entity to overwrite initial timestamp
+			entity.touch();
+
 			return entity;
 		}
 
@@ -904,8 +910,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 //			DEBUGStorage.println(this.channelIndex + " sweeping");
 
-			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
-			final long DEBUG_starttime = System.nanoTime();
+//			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
+//			final long DEBUG_starttime = System.nanoTime();
 
 			final StorageEntityType.Implementation typeHead = this.typeHead;
 
@@ -928,15 +934,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //						}
 //						DEBUGStorage.println(this.channelIndex + " saved Date " + item.objectId());
 
-						if(item.isGcGray())
-						{
-//							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
-							DEBUG_safed_gray++;
-						}
+//						if(item.isGcGray())
+//						{
+////							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
+//							DEBUG_safed_gray++;
+//						}
 
 //						DEBUGStorage.println(this.channelIndex + " saving " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
 //						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
-						DEBUG_safed++;
+//						DEBUG_safed++;
 
 						(last = item).markWhite(); // reset to white and advance one item
 					}
@@ -949,16 +955,16 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //						DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
 
 
-						DEBUG_collected++;
-//						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
-						if(item.objectId() < DEBUG_lowest_collected)
-						{
-							DEBUG_lowest_collected = item.objectId();
-						}
-						if(item.objectId() >= DEBUG_highest_collected)
-						{
-							DEBUG_highest_collected = item.objectId();
-						}
+//						DEBUG_collected++;
+////						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
+//						if(item.objectId() < DEBUG_lowest_collected)
+//						{
+//							DEBUG_lowest_collected = item.objectId();
+//						}
+//						if(item.objectId() >= DEBUG_highest_collected)
+//						{
+//							DEBUG_highest_collected = item.objectId();
+//						}
 
 						// otherwise white entity, so collect it
 						this.deleteEntity(item, sweepType, last);
@@ -969,17 +975,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.lastSweepEnd = System.currentTimeMillis();
 			this.sweepGeneration++;
 
-			final long DEBUG_stoptime = System.nanoTime();
-			final VarString vs = VarString.New();
-			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
-			vs.add(" Marked: ").add(this.DEBUG_marked);
-			this.DEBUG_marked = 0;
-			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
-			vs
-			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
-			.add(" Highest collected: ").add(DEBUG_highest_collected)
-			.add(" used cache size: ").add(this.cacheSize())
-			;
+//			final long DEBUG_stoptime = System.nanoTime();
+//			final VarString vs = VarString.New();
+//			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
+//			vs.add(" Marked: ").add(this.DEBUG_marked);
+//			this.DEBUG_marked = 0;
+//			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
+//			vs
+//			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
+//			.add(" Highest collected: ").add(DEBUG_highest_collected)
+//			.add(" used cache size: ").add(this.cacheSize())
+//			;
 //			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
 //			{
 //				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
@@ -988,7 +994,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			{
 //				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
 //			}
-			DEBUGStorage.println(vs.toString());
+//			DEBUGStorage.println(vs.toString());
 //			if(DEBUG_collected != 0)
 //			{
 //				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
@@ -1144,44 +1150,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.internalLiveCheck(timeBudgetBound, this.entityCacheEvaluator);
 		}
 
-		private StorageEntity.Implementation completeFullCircleLiveCheck(
-			final long                         timeBudgetBound,
-			final StorageEntity.Implementation entity         ,
-			final StorageEntity.Implementation terminator     ,
-			final StorageEntityCacheEvaluator  evaluator      ,
-			final long                         evalTime
-		)
-		{
-			StorageEntity.Implementation e = entity;
-
-			while(this.usedCacheSize > 0 && System.nanoTime() < timeBudgetBound && e != terminator)
-			{
-				if(e.isLive() && evaluator.clearEntityCache(this.usedCacheSize, evalTime, e))
-				{
-//					DEBUGStorage.println(this.channelIndex + " clearing entity " + live);
-					// entity has cached data but was deemed as having to be cleared, so clear it
-					this.ensureNoCachedData(e); // use ensure method for that for purpose of uniformity / simplicity
-				}
-				e = e.typeNext;
-			}
-			return e;
-		}
-
-		private StorageEntity.Implementation getNonDeletedCursor()
-		{
-			// seek the first non-deleted entity in the same type starting at the current cursor
-			for(StorageEntity.Implementation cursor = this.liveCursor; (cursor = cursor.typeNext) != null;)
-			{
-				if(!cursor.isDeleted())
-				{
-					return cursor;
-				}
-			}
-
-			// all remaining entities in the type were deleted. So the whole type is advanced and its head returned.
-			return this.liveCursor.typeInFile.type.next.head; // note that types are circularly linked
-		}
-
 		private boolean internalLiveCheck(final long timeBudgetBound, final StorageEntityCacheEvaluator evaluator)
 		{
 			// quick check before setting up the local stuff.
@@ -1191,85 +1159,103 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				return true;
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " checking live entries, cache size " + this.usedCacheSize + ", budget " + (timeBudgetBound - System.nanoTime()));
+			final long evalTime = System.currentTimeMillis();
 
-//			debugPrintLiveChain(this.liveCursor);
+			final StorageEntity.Implementation   cursor;
+			      StorageDataFile.Implementation file  ;
+			      StorageEntity.Implementation   tail  ;
+			      StorageEntity.Implementation   entity;
 
-			final long                             evalTime   = System.currentTimeMillis();
+			if(this.liveCursor == null || !this.liveCursor.isProper())
+			{
+				file   = this.fileManager.currentStorageFile();
+				cursor = file.head.fileNext;
+			}
+			else if(this.liveCursor.isDeleted())
+			{
+				file   = this.liveCursor.typeInFile.file;
+				cursor = file.head.fileNext;
+			}
+			else
+			{
+				cursor = this.liveCursor;
+				file   = cursor.typeInFile.file;
+			}
+			tail   = file.tail;
+			entity = cursor;
 
 
-			// update if necessary and setup consistent cursors. Cursor is guaranteed to be re-reachable in the loop.
-			final StorageEntity.Implementation     cursor     = this.getNonDeletedCursor();
-			final StorageEntityType.Implementation cursorType = cursor.typeInFile.type;
-			      StorageEntity.Implementation     entity     = cursor;
-			      StorageEntityType.Implementation entityType = entity.typeInFile.type;
-//			int DEBUG_checked = 0;
+			final long DEBUG_live = 0, DEBUG_unlive = 0;
 
-			/*
-			 * Loop has three aborting conditions:
-			 * 1.) Time is up
-			 * 2.) The loop has done a full circle (cursor's type is encountered again) within one time budget / method call
-			 * 3.) The cache has been cleared completely, hence there is nothing more to do.
-			 */
-			// check at least one entity, even if there no time, to avoid starvation
+			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or
 			do
 			{
-//				DEBUGStorage.println(this.channelIndex + " checking " + entity + " with cached size " + this.usedCacheSize);
-				// actual live check
+				// for empty files, head.fileNext is the tail. check and skip.
+				if(entity == tail)
+				{
+					// proceed to next file
+					file = file.next;
+					tail = file.tail;
+					entity = file.head.fileNext;
+					continue;
+				}
+
+
+				// debug stuff
+//				if(entity.isProper())
+//				{
+//					if(entity.isLive())
+//					{
+//						DEBUG_live++;
+//					}
+//					else
+//					{
+//						DEBUG_unlive++;
+//					}
+//				}
+
+				// check for clearing the current entity's cache
 				if(entity.isLive() && evaluator.clearEntityCache(this.usedCacheSize, evalTime, entity))
 				{
-//					DEBUGStorage.println(this.channelIndex + " clearing entity " + live);
+//					DEBUGStorage.println(this.channelIndex + " clearing entity " + entity);
 					// entity has cached data but was deemed as having to be cleared, so clear it
-					this.ensureNoCachedData(entity); // use ensure method for that for purpose of uniformity / simplicity
-				}
-//				DEBUG_checked++;
+					// use ensure method for that for the purpose of uniformity / simplicity
+					this.ensureNoCachedData(entity);
 
-				// proceed to next entity and do special case checking
-				if((entity = entity.typeNext) == null)
-				{
-					/*
-					 * if the cursor type when the method was called is encountered again, it means the
-					 * live check has (almost) done a complete cycle. Only the entities from the beginning
-					 * of the type until the cursor remain to be checked. This is done in a special
-					 * simplified "trailing iteration".
-					 * After that, the cycle is guaranteed to be complete (cursor reached again), so the
-					 * live check can be aborted. The cursor does not have to be updated.
-					 * Note:
-					 * The live entity could be checked directly, however then the check would have to be
-					 * done on every entity instead of just on every type change. This is a dramatic difference:
-					 * millions of per-entity check compared to a few hundreds or thousands of per-type checks.
-					 */
-					if((entityType = entityType.next) != cursorType)
+					// check if this was the last entity in the cache, effectively suspending live check
+					if(this.usedCacheSize == 0)
 					{
-						// simply proceed with head entity of the next type
-						entity = entityType.head;
-					}
-					else
-					{
-//						DEBUGStorage.println(this.channelIndex + " almost completed live check. Checked " + DEBUG_checked);
-
-						// check remaining trailing entities, account for meanwhile
-						entity = this.completeFullCircleLiveCheck(timeBudgetBound, cursorType.head, cursor, evaluator, evalTime);
-
-						// this break does NOT mean usedCacheSize is 0. It means only that there was a full circle
 						break;
 					}
 				}
-			}
-			while(this.usedCacheSize > 0 && System.nanoTime() < timeBudgetBound);
-//			DEBUGStorage.println(this.channelIndex + " checked " + DEBUG_checked + ", usedCacheSize = " + this.usedCacheSize);
-//			DEBUGStorage.println(this.channelIndex + " done live checking (used cache = " + this.usedCacheSize + ") Live cursor = " + this.liveCursor + ", time left = " + (timeBudgetBound - System.nanoTime()));
 
-			// loop aborted, update live cursor and return result
+				// if the end of one file is reached, proceed to the next file
+				if((entity = entity.fileNext) == cursor)
+				{
+					break;
+				}
+
+				// check time budget at the end to make 1 entity progress in any case to avoid starvation
+			}
+			while(System.nanoTime() < timeBudgetBound);
+
+
 			if(this.usedCacheSize == 0)
 			{
 				this.resetLiveCursor();
-//				DEBUGStorage.println(this.channelIndex + " completed live check. Timebudget left = " + (timeBudgetBound - System.nanoTime()));
+
+				DEBUGStorage.println(this.channelIndex + " completed live check.");
+
+				// report live check completed
 				return true;
 			}
 
+			// keep last checked entity as a cursor / base / starting point for the next cycle's check
 			this.liveCursor = entity;
-//			DEBUGStorage.println(this.channelIndex + " interrupts live heck. cache size = " + this.usedCacheSize + ". Timebudget left = " + (timeBudgetBound - System.nanoTime()));
+
+//			DEBUGStorage.println(this.channelIndex + " suspends live check. Live = " + DEBUG_live + ", unlive = " + DEBUG_unlive + ", cache size = " + this.usedCacheSize + ", time left = " + (System.nanoTime() - timeBudgetBound));
+
+			// report live check ends incomplete
 			return false;
 		}
 
@@ -1422,6 +1408,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// check for completion to abort no-op calls
 			if(this.checkForGcCompletion())
 			{
+//				DEBUGStorage.println(this.channelIndex + " GC complete.");
 				return true;
 			}
 

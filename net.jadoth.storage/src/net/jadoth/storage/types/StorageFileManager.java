@@ -1522,7 +1522,7 @@ public interface StorageFileManager
 					/* House keeping can be completely disabled for now as everything has been checked.
 					 * Will be resetted by the next write, see #resetHousekeeping.
 					 */
-//					DEBUGStorage.println(this.channelIndex + " completed file checking.");
+					DEBUGStorage.println(this.channelIndex + " completed file checking.");
 					this.fileCleanupCursor = null;
 				}
 			}

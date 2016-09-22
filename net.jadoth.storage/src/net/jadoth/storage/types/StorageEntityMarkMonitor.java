@@ -216,7 +216,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
-				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
+//				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
 			}
 		}
 

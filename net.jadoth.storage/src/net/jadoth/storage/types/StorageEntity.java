@@ -76,11 +76,9 @@ public interface StorageEntity
 			+ Memory.byteSizeReference() // take into account oid hash table slot in entity cache
 		;
 
-		// enough for ~35 years since class initialization with 256ms resolution
+		// enough for ~17 years since class initialization with 256ms resolution.
 		private static final long TOUCHED_SHIFT_COUNT  = 8;
-		private static final long TOUCHED_START_OFFSET = System.currentTimeMillis()
-			- ((long)Integer.MIN_VALUE << TOUCHED_SHIFT_COUNT)
-			;
+		private static final long TOUCHED_START_OFFSET = System.currentTimeMillis();
 
 		/*
 		 * GC state meaning:
@@ -439,6 +437,16 @@ public interface StorageEntity
 			this.typeInFile = file.typeInFile(this.typeInFile.type);
 			file.enqueueEntry(this);
 //			DEBUGStorage.println("current file state: " + file);
+		}
+
+		final boolean isProper()
+		{
+			return this.typeInFile != null;
+		}
+
+		final boolean isExisting()
+		{
+			return !this.isDeleted() && this.isProper();
 		}
 
 		/**
