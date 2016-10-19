@@ -27,7 +27,7 @@ public final class BinaryHandlerBulkList extends AbstractBinaryHandlerNativeCust
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
+	// static methods   //
 	/////////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
