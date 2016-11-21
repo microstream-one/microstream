@@ -43,8 +43,8 @@ public class MainSearchBinaryStringInFiles
 
 		searchStringsInFiles(
 			DIRECT,
-			new File("D:/Bonus25/storage/graveyard0").listFiles(),
-			Memory.toByteArray(1000000000038806068L)
+			new File("D:/Bonus25/storage_2016-11-11_1000_all").listFiles(),
+			Memory.toByteArray(1000000000049005584L)
 		);
 	}
 

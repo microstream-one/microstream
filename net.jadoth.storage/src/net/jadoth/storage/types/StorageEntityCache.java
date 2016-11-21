@@ -543,10 +543,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return type;
 		}
 
-		final StorageEntity.Implementation putEntityValidated(
-			final long                             objectId ,
-			final StorageEntityType.Implementation type
-		)
+		final StorageEntity.Implementation putEntity(final long objectId, final StorageEntityType.Implementation type)
 		{
 			/* This logic is a copy from #putEntity(long).
 			 * This is intentionally done for performance reasons:
@@ -563,7 +560,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			if((entry = this.getEntry(objectId)) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
-				this.updatePutEntity(entry);
+				this.resetExistingEntityForUpdate(entry);
 				return entry;
 			}
 
@@ -571,16 +568,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.createEntity(objectId, type);
 		}
 
-		final StorageEntity.Implementation updatePutEntity(final long entityAddress)
+		final StorageEntity.Implementation putEntity(final long entityAddress)
 		{
-			// ensure (lookup or create) complete entity item for storing
 //			DEBUGStorage.println("looking for " + BinaryPersistence.getEntityObjectId(entityAddress));
 			final StorageEntity.Implementation entry;
 			if((entry = this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress))) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
-				// same as updatePutEntity() but without the retro-reference-marking
-				this.updatePutEntity(entry);
+				this.resetExistingEntityForUpdate(entry);
 				return entry;
 			}
 
@@ -591,11 +586,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			);
 		}
 
-		private void updatePutEntity(final StorageEntity.Implementation entry)
+		private void resetExistingEntityForUpdate(final StorageEntity.Implementation entry)
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
-			this.markEntityForChangedData(entry);
+//			this.markEntityForChangedData(entry);
 			entry.detachFromFile();
 		}
 
@@ -617,7 +612,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			/*
 			 * (01.08.2016 TM)NOTE:
-			 * Having a sweep pending when new data changes requires a distinction here to achieve correct behavior:
+			 * Having a sweep pending when data changes requires a distinction here to achieve correct behavior:
 			 * A pending sweep means the marking phase of a gc cycle is complete and all reachable entities
 			 * have already been marked.
 			 * The data change did reset the GC completion state.
@@ -732,7 +727,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			type.add(entity);
 			this.oidSize++; // increment size not before creating and registering succeeded
 
-			this.markEntityForChangedData(entity);
+			// (17.11.2016 TM)NOTE: moved outside
+//			this.markEntityForChangedData(entity);
 
 			// must explicitely touch the entity to overwrite initial timestamp
 			entity.touch();
@@ -1015,7 +1011,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 
-		final void internalUpdateEntities(
+		final void internalPutEntities(
 			final ByteBuffer                     chunk               ,
 			final long                           chunkStoragePosition,
 			final StorageDataFile.Implementation file
@@ -1031,8 +1027,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
 			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += BinaryPersistence.getEntityLength(adr))
 			{
-				this.updatePutEntity(adr)
-				.updateStorageInformation(
+				final StorageEntity.Implementation entity = this.putEntity(adr);
+				this.markEntityForChangedData(entity);
+				entity.updateStorageInformation(
 					Jadoth.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
 					Jadoth.to_int(storageBackset + adr)
@@ -1069,7 +1066,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.typeDictionary;
 		}
 
-		public void postStoreUpdateEntities(
+		public void postStorePutEntities(
 			final ByteBuffer[]                   chunks                ,
 			final long[]                         chunksStoragePositions,
 			final StorageDataFile.Implementation dataFile
@@ -1086,7 +1083,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			for(int i = 0; i < chunks.length; i++)
 			{
-				this.internalUpdateEntities(chunks[i], chunksStoragePositions[i], dataFile);
+				this.internalPutEntities(chunks[i], chunksStoragePositions[i], dataFile);
 			}
 
 			// must be done by the store task's cleanup, but as it is idempotent, call it here right away
@@ -1186,6 +1183,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 			final long DEBUG_live = 0, DEBUG_unlive = 0;
+
+
+			/* (14.11.2016 TM)FIXME: can be caught in an infinite loop
+			 * notes:
+			 * - live cursor was a true entity and had a long list of different successing entities
+			 * - all of them had the SAME filePrev reference, which cannot be.
+			 * - apparently, none of them references the live cursor again
+			 */
 
 			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or
 			do

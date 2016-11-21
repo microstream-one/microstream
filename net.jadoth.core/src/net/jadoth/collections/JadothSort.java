@@ -155,6 +155,27 @@ public final class JadothSort
 		}
 	}
 
+
+	public static final int compareIdentityHash(final Object o1, final Object o2)
+	{
+		if(o1 == null)
+		{
+			return o2 == null ? 0 : -1;
+		}
+		else if(o2 == null)
+		{
+			return 1;
+		}
+		else
+		{
+			return System.identityHashCode(o2) >= System.identityHashCode(o1)
+				? System.identityHashCode(o2) != System.identityHashCode(o1)
+				? -1 : 0 : 1
+			;
+		}
+	}
+
+
 	public static final <E> Comparator<E> reverse(final Comparator<E> comparator)
 	{
 		return new Comparator<E>()
@@ -329,7 +350,7 @@ public final class JadothSort
 		values[l] = values[r];
 		values[r] = t;
 	}
-	
+
 	private static void swap(final long[] values, final int l, final int r)
 	{
 		final long t = values[l];
@@ -488,7 +509,7 @@ public final class JadothSort
 			}
 		}
 	}
-	
+
 	private static void insertionsort0(final long[] values, final int start, final int bound)
 	{
 		for(int i = start; i < bound; i++)
@@ -882,7 +903,7 @@ public final class JadothSort
 		}
 		return buffer;
 	}
-	
+
 	static <E> void adaptiveMergesort0(
 		final E[]                   buffer,
 		final E[]                   values,
@@ -1100,7 +1121,7 @@ public final class JadothSort
 	{
 		dualPivotQuicksort(values, 0, values.length - 1);
 	}
-	
+
 	public static final void sort(final long[] values) throws NullPointerException
 	{
 		dualPivotQuicksort(values, 0, values.length - 1);
@@ -1674,7 +1695,7 @@ public final class JadothSort
 			dualPivotQuicksort(a, right + 1, high);
 		}
 	}
-	
+
 	private static void dualPivotQuicksort(final long[] a, final int low, final int high)
 	{
 		if(high - low < 31)

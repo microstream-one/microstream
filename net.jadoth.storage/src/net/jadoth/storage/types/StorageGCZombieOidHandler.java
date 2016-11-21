@@ -46,7 +46,10 @@ public interface StorageGCZombieOidHandler
 			}
 
 			// default implementation just naively warns about the problem
-			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
+//			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
+			// (11.11.2016 TM)FIXME: /!\ DEBUG restore zombie ref output
+			System.out.println(oid);
+
 
 			return true;
 		}

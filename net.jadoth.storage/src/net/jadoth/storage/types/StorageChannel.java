@@ -358,7 +358,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			throws InterruptedException
 		{
 			// all chunks were written into the same file, so it is viable to pass the current file right here
-			this.entityCache.postStoreUpdateEntities(chunks, chunksStoragePositions, this.fileManager.currentStorageFile());
+			this.entityCache.postStorePutEntities(chunks, chunksStoragePositions, this.fileManager.currentStorageFile());
 		}
 
 		@Override

@@ -1677,6 +1677,25 @@ public final class JadothMath
 	}
 
 
+	public static final boolean isIn(final int value, final int... searchValues)
+	{
+		if(searchValues == null)
+		{
+			return false;
+		}
+
+		for(final int s : searchValues)
+		{
+			if(value == s)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
 	private JadothMath()
 	{
 		// static only

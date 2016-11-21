@@ -298,7 +298,7 @@ public interface StorageTaskBroker
 			 * in both cases, the actual task is the last to be processed, so the calling thread
 			 * must always wait on the actual task.
 			 */
-			
+
 			return task;
 		}
 
@@ -338,8 +338,11 @@ public interface StorageTaskBroker
 				this.channelCount,
 				exportFileProvider
 			);
+
 			// must let GC complete to get viable results
-			this.enqueueTaskPrependingFullGc(task, Long.MAX_VALUE);
+//			this.enqueueTaskPrependingFullGc(task, Long.MAX_VALUE);
+			DEBUGStorage.println("disabled type export prepended Gc!");
+			this.enqueueTaskAndNotifyAll(task);
 
 			// return actual task
 			return task;

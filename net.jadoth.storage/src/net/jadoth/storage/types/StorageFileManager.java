@@ -1024,7 +1024,7 @@ public interface StorageFileManager
 			// (16.06.2014 TM)NOTE: funny enough, tests showed no significant difference above page sized buffer
 			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
 				StorageDataFileItemIterator.BufferProvider.New(),
-				this::initializeStorageItem
+				this::initialPutEntity
 			);
 
 			for(final StorageInventoryFile file : files)
@@ -1262,7 +1262,7 @@ public interface StorageFileManager
 			}
 		}
 
-		final boolean initializeStorageItem(final long address, final long availableItemLength)
+		final boolean initialPutEntity(final long address, final long availableItemLength)
 		{
 			final long length = BinaryPersistence.getEntityLength(address);
 			if(length < 0)
@@ -1286,7 +1286,14 @@ public interface StorageFileManager
 			 */
 
 			// no special gray enqueuing required on initialization, hence false.
-			final StorageEntity.Implementation entity = this.entityCache.updatePutEntity(address);
+			final StorageEntity.Implementation entity = this.entityCache.putEntity(address);
+			/*
+			 * note:
+			 * intentionally no markEntityForChangedData here, as entities are initially not
+			 * guaranteed to be reachable. They might be unreachable (= junk) entities that
+			 * only exist because the storage file has not yet been cleaned up and might reference already
+			 * deleted entities. This would cause false positive zombie OID encounters.
+			 */
 			entity.updateStorageInformation(
 				checkArrayRange(length),
 				this.headFile,
@@ -1522,7 +1529,7 @@ public interface StorageFileManager
 					/* House keeping can be completely disabled for now as everything has been checked.
 					 * Will be resetted by the next write, see #resetHousekeeping.
 					 */
-					DEBUGStorage.println(this.channelIndex + " completed file checking.");
+//					DEBUGStorage.println(this.channelIndex + " completed file checking.");
 					this.fileCleanupCursor = null;
 				}
 			}
@@ -1665,7 +1672,7 @@ public interface StorageFileManager
 				for(StorageChannelImportEntity entity = batch.first(); entity != null; entity = entity.next())
 				{
 					entityCache
-					.putEntityValidated(entity.objectId(), entity.type())
+					.putEntity(entity.objectId(), entity.type())
 					.updateStorageInformation(entity.length(), headFile, checkArrayRange(loopFileLength));
 					loopFileLength += entity.length();
 				}
