@@ -640,7 +640,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					return;
 				}
 
-				this.DEBUG_marked++;
+//				this.DEBUG_marked++;
 				entry.markBlack();
 				return;
 			}
@@ -649,10 +649,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// entities with references
 			if(entry.hasReferences())
 			{
-				if(entry.isGcBlack())
-				{
-					this.DEBUG_marked--;
-				}
+//				if(entry.isGcBlack())
+//				{
+//					this.DEBUG_marked--;
+//				}
 
 				/*
 				 * The gray state is still required even despite the oidMarkQueue
@@ -681,10 +681,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				return;
 			}
 
-			if(!entry.isGcBlack())
-			{
-				this.DEBUG_marked++;
-			}
+//			if(!entry.isGcBlack())
+//			{
+//				this.DEBUG_marked++;
+//			}
 
 			// entities without references
 			entry.markBlack();
@@ -876,7 +876,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				entry.markBlack();
 
 //				DEBUGStorage.println(this.channelIndex + " marked " + current);
-				this.DEBUG_marked++;
+//				this.DEBUG_marked++;
 			}
 			while(System.nanoTime() < timeBudgetBound);
 
@@ -894,8 +894,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 
-		@Deprecated
-		int DEBUG_marked;
+//		@Deprecated
+//		int DEBUG_marked;
 
 		private void sweep()
 		{
@@ -1182,12 +1182,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			entity = cursor;
 
 
-			final long DEBUG_live = 0, DEBUG_unlive = 0;
+//			final long DEBUG_live = 0, DEBUG_unlive = 0;
 
 
 			/* (14.11.2016 TM)FIXME: can be caught in an infinite loop
 			 * notes:
-			 * - live cursor was a true entity and had a long list of different successing entities
+			 * - obviously only if the timebudget is (virtually) unlimited (issues cache check call)
+			 * - live cursor was a non-dummy entity and had a long list of different successing entities
 			 * - all of them had the SAME filePrev reference, which cannot be.
 			 * - apparently, none of them references the live cursor again
 			 */
@@ -1399,6 +1400,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				// minimize hash table memory consumption if storage is potentially going to be inactive
 				this.checkOidHashTableConsolidation();
+
 				return true;
 			}
 
@@ -1420,6 +1422,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// check if there is sweeping to be done
 			if(this.markMonitor.needsSweep(this))
 			{
+//				if(this.DEBUG_marked != 0)
+//				{
+//					DEBUGStorage.println(this.channelIndex() + " marked " + this.DEBUG_marked);
+//					this.DEBUG_marked = 0;
+//				}
+
 				this.sweep();
 
 				// must check for completion again, otherwise a channel might restart marking beyond a completed gc.

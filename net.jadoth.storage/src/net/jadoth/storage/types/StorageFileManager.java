@@ -381,7 +381,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
 		}
 
-		final void transferOneChainToHead(final StorageDataFile.Implementation sourceFile)
+		final void transferOneChainToHeadFile(final StorageDataFile.Implementation sourceFile)
 		{
 			final StorageDataFile.Implementation headFile = this.headFile           ;
 			final StorageEntity.Implementation   first    = sourceFile.head.fileNext;
@@ -442,7 +442,7 @@ public interface StorageFileManager
 
 			// udpate source file to keep consistency as it might not be cleared completely
 	//		DEBUGStorage.println("Updating source file " + sourceFile + " for content length " + transferLength);
-			sourceFile.removeTransferredChain(current, copyLength);
+			sourceFile.removeHeadBoundChain(current, copyLength);
 	//		DEBUGStorage.println("Updated source file: " + sourceFile);
 
 			// update target files's content length. Must be done here as next transfer depends on updated length
@@ -452,7 +452,7 @@ public interface StorageFileManager
 
 	//		DEBUGStorage.println(this.channelIndex + " transfering bytes, new length " + headFile.totalLength());
 
-			this.appendToHeadFile(sourceFile, copyStart, copyLength);
+			this.appendBytesToHeadFile(sourceFile, copyStart, copyLength);
 
 			// derive fullness state of target file. Can happen on exact fit or oversized single entity.
 			if(copyLength >= freeSpace)
@@ -461,7 +461,7 @@ public interface StorageFileManager
 			}
 		}
 
-		private void appendToHeadFile(
+		private void appendBytesToHeadFile(
 			final StorageDataFile.Implementation sourceFile,
 			final int                            copyStart ,
 			final int                            copyLength
@@ -1609,7 +1609,7 @@ public interface StorageFileManager
 				while(file.hasContent() && System.nanoTime() < nanoTimeBudgetBound)
 				{
 //					DEBUGStorage.println("transferring one head chain of " + file);
-					this.transferOneChainToHead(file);
+					this.transferOneChainToHeadFile(file);
 //					DEBUGStorage.println(" * result: " + file);
 				}
 			}

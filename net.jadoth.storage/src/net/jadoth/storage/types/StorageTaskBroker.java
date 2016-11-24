@@ -340,9 +340,9 @@ public interface StorageTaskBroker
 			);
 
 			// must let GC complete to get viable results
-//			this.enqueueTaskPrependingFullGc(task, Long.MAX_VALUE);
-			DEBUGStorage.println("disabled type export prepended Gc!");
-			this.enqueueTaskAndNotifyAll(task);
+			this.enqueueTaskPrependingFullGc(task, Long.MAX_VALUE);
+//			DEBUGStorage.println("disabled type export prepended Gc!");
+//			this.enqueueTaskAndNotifyAll(task);
 
 			// return actual task
 			return task;

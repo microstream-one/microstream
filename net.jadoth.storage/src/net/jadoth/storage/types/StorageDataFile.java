@@ -289,7 +289,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			this.decrementDataLength(entity.length);
 		}
 
-		final void removeTransferredChain(final StorageEntity.Implementation newFirst, final long copylength)
+		final void removeHeadBoundChain(final StorageEntity.Implementation newFirst, final long copylength)
 		{
 			// check for special case of completely clearing a file (no new first means empty file)
 
