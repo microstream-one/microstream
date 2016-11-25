@@ -333,14 +333,9 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	public final boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
 		final E element = this.element;
-		return elements.applies(new Predicate<E>()
-		{
-			@Override
-			public boolean test(final E e)
-			{
-				return element == e;
-			}
-		});
+		return elements.applies(e ->
+			e == element
+		);
 	}
 
 	@Override

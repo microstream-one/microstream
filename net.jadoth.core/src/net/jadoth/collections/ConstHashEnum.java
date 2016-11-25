@@ -237,14 +237,14 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	}
 
 	@Override
-	protected int internalCountingAddAll(final E[] elements, final int offset, final int length) 
+	protected int internalCountingAddAll(final E[] elements, final int offset, final int length)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected int internalCountingAddAll(final XGettingCollection<? extends E> elements) 
+	protected int internalCountingAddAll(final XGettingCollection<? extends E> elements)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -257,14 +257,14 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	}
 
 	@Override
-	protected int internalCountingPutAll(final E[] elements, final int offset, final int length) 
+	protected int internalCountingPutAll(final E[] elements, final int offset, final int length)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected int internalCountingPutAll(final XGettingCollection<? extends E> elements) 
+	protected int internalCountingPutAll(final XGettingCollection<? extends E> elements)
 		throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -567,12 +567,6 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public final boolean containsAll(final XGettingCollection<? extends E> elements)
-	{
-		return elements.applies(this::contains);
 	}
 
 	// boolean querying - equality //

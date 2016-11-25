@@ -768,12 +768,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		return null;
 	}
 
-	@Override
-	public final boolean containsAll(final XGettingCollection<? extends E> elements)
-	{
-		return elements.applies(this::contains);
-	}
-
 	// boolean querying - equality //
 
 	@Override

@@ -18,6 +18,7 @@ import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hash.JadothHash;
+import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
 
@@ -31,7 +32,7 @@ import net.jadoth.util.Equalator;
  * - high memory efficiency / low memory overhead
  * - low rebuild cost
  * - high iteration performance due to few cache misses
- * 
+ *
  * @author Thomas Muenz
  *
  * @param <E>
@@ -43,67 +44,67 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	// constants        //
 	/////////////////////
 
-	// anything below thwarts the whole idea of a segmented storage
-	static final int MINIMUM_SEGMENT_LENGTH = 8;
+	/*
+	 * Intentionally no minimum segment length because of the following rationale:
+	 * While anything below 8 or so (or actually 500) makes the concept very inefficient and overhead
+	 * pretty high, there are reasons against it:
+	 * - It is technically unnecessary
+	 * - Some application might need to create a lot of instances but only fill some of them.
+	 */
 
 	// 500 means one memory page of usual size (4096) can keep one segment with 8 byte references plus overhead.
 	static final int DEFAULT_SEGMENT_LENGTH = 500;
 
-	
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods   //
 	/////////////////////
-	
+
 	static final <E> E[] newArray(final int size)
 	{
 		return (E[])new Object[size];
 	}
-	
-	
-	static final <E> Segment<E> createHeadAndTail(final int segmentLength)
-	{
-		final Segment<E> head = new Segment<>(segmentLength, null, null);
-		final Segment<E> tail = new Segment<>(segmentLength, head, null);
-		head.next = tail;
-		
-		return head;
-	}
 
-	
-	
+
+
 	public final static <E> VarList<E> New()
 	{
-		return New(DEFAULT_SEGMENT_LENGTH);
+		return NewCustom(DEFAULT_SEGMENT_LENGTH);
 	}
 
-	public final static <E> VarList<E> New(final int segmentLength)
+	public final static <E> VarList<E> New(final long initialCapacity)
 	{
-		// (09.05.2016)FIXME: validate segment length (min length and even number)
-		
-		final VarList<E> newInstance = new VarList<>(segmentLength);
+		final VarList<E> newInstance = New();
+
+		return newInstance.ensureCapacity(initialCapacity);
+	}
+
+	public final static <E> VarList<E> NewCustom(final int segmentLength)
+	{
+		final VarList<E> newInstance = new VarList<>(
+			JadothMath.positive(segmentLength)
+		);
 		newInstance.initializeEmpty();
+
 		return newInstance;
 	}
 
-	public final static <E> VarList<E> NewCustom(final long initialCapacity)
+	public final static <E> VarList<E> NewCustom(final long initialCapacity, final int segmentLength)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#New()
-	}
+		final VarList<E> newInstance = New(segmentLength);
 
-	public final static <E> VarList<E> NewCustom(final int segmentLength, final long initialCapacity)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#New()
+		return newInstance.ensureCapacity(initialCapacity);
 	}
 
 
-	
+
 	static final class Segment<E>
 	{
 		      int     size      ;
 		      Segment prev, next;
 		final E[]     elements  ;
-		
+
 		Segment(final int capacity, final Segment prev, final Segment next)
 		{
 			super();
@@ -112,14 +113,14 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			this.next = next;
 			this.elements = newArray(capacity);
 		}
-		
+
 	}
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
-	
+
 	private final int        segmentLength             ;
 	              int        headSize, tailSize        ;
 	              long       restSize, capacity        ;
@@ -143,13 +144,16 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	///////////////////////////////////////////////////////////////////////////
 	// declared methods //
 	/////////////////////
-	
+
 	final void initializeEmpty()
 	{
-		final Segment<E> head = createHeadAndTail(this.segmentLength);
-		this.initialize(0, 2 * this.segmentLength, head, head.next);
+		final Segment<E> head = new Segment<>(this.segmentLength, null, null);
+		final Segment<E> tail = new Segment<>(this.segmentLength, head, null);
+		head.next = tail;
+
+		this.initialize(0, 2 * this.segmentLength, head, tail);
 	}
-	
+
 	final void initialize(
 		final long       restSize,
 		final long       capacity,
@@ -166,7 +170,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		this.tailSize      = tail.size    ;
 		this.capacity      = capacity     ;
 	}
-	
+
 	final void appendSegment()
 	{
 		// inlined assignments for performance reasons
@@ -175,35 +179,53 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		this.capacity += this.segmentLength;
 		this.tailSize = 0;
 	}
-	
+
+	final void prependSegment()
+	{
+		// inlined assignments for performance reasons
+		this.headElements = (this.head = this.head.prev = new Segment<>(this.segmentLength, null, this.head)).elements;
+		this.restSize += this.headSize;
+		this.capacity += this.segmentLength;
+		this.headSize = 0;
+	}
+
 	final void internalAdd(final E element)
 	{
 		if(this.tailSize >= this.segmentLength)
 		{
 			this.appendSegment();
 		}
-		
+
 		this.tailElements[this.tailSize++] = element;
 	}
-	
+
 	final void internalPrepend(final E element)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#internalPrepend()
+		if(this.headSize >= this.segmentLength)
+		{
+			this.prependSegment();
+		}
+		else
+		{
+			System.arraycopy(this.headElements, 0, this.headElements, 1, this.headSize);
+		}
+		this.headElements[0] = element;
+		this.headSize++;
 	}
-	
+
 	final void internalValidateIndex(final long index)
 	{
 		if(index >= 0 && index < this.size())
 		{
-			// index inside bounds
+			// index is inside bounds
 			return;
 		}
-		
-		// index outside bounds
+
+		// index is outside bounds
 		throw new IndexBoundsException(this.size(), index);
 	}
 
-	
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
@@ -255,7 +277,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		{
 			this.appendSegment();
 		}
-		
+
 		return this;
 	}
 
@@ -282,7 +304,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	{
 		return this.headSize + this.restSize + this.tailSize;
 	}
-	
+
 	@Override
 	public final boolean isEmpty()
 	{
@@ -293,7 +315,61 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final long optimize()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME OptimizableCollection#optimize()
+		// (25.11.2016 TM)TODO: test!
+
+		final int segmentLength = this.segmentLength;
+
+		Segment<E> target = this.head;
+
+		master:
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			while(target.size < segmentLength)
+			{
+				if(target == segment)
+				{
+					continue master;
+				}
+
+				if(segmentLength - target.size < segment.size)
+				{
+					if(target.size < segmentLength)
+					{
+						System.arraycopy(segment.elements, 0, target.elements, target.size, segmentLength - target.size);
+						segment.size -= segmentLength - target.size;
+						target.size = segmentLength;
+					}
+					target = target.next;
+				}
+				else
+				{
+					if(segment.size > 0)
+					{
+						System.arraycopy(segment.elements, 0, target.elements, target.size, segment.size);
+						target.size += segment.size;
+						segment.size = 0;
+					}
+					continue master;
+				}
+			}
+		}
+
+		if(target != this.tail)
+		{
+			long truncatedCapacity = 0;
+
+			for(Segment<E> s = target; (s = s.next) != null; )
+			{
+				truncatedCapacity += segmentLength;
+			}
+
+			this.tailElements = (this.tail = target).elements;
+			this.tailSize = target.size;
+			target.next = null;
+			this.capacity -= truncatedCapacity;
+		}
+
+		return this.capacity;
 	}
 
 	@Override
@@ -371,7 +447,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -390,22 +466,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
-		return false;
-	}
 
-	@Override
-	public final boolean containsAll(final XGettingCollection<? extends E> elements)
-	{
-		for(final E e : elements)
-		{
-			if(!this.contains(e))
-			{
-				return false;
-			}
-		}
-		
-		return true;
+		return false;
 	}
 
 	@Override
@@ -423,7 +485,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -443,7 +505,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
+
 		return count;
 	}
 
@@ -463,7 +525,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
+
 		return count;
 	}
 
@@ -494,7 +556,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				}
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -589,7 +651,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				procedure.accept(elements[i]);
 			}
 		}
-		
+
 		return procedure;
 	}
 
@@ -607,7 +669,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			}
 			index += bound;
 		}
-		
+
 		return procedure;
 	}
 
@@ -630,7 +692,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			}
 			segment.size = 0;
 		}
-		
+
 		this.headSize = 0;
 		this.tailSize = 0;
 	}
@@ -739,11 +801,11 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			: this.atHigh(index)
 		;
 	}
-	
+
 	public final E atLow(final long lowIndex)
 	{
 		this.internalValidateIndex(lowIndex);
-		
+
 		long idx = lowIndex;
 		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 		{
@@ -753,15 +815,15 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			}
 			idx -= segment.size;
 		}
-		
+
 		// getting here means an error in the logic above
 		throw new Error();
 	}
-	
+
 	public final E atHigh(final long highIndex)
 	{
 		this.internalValidateIndex(highIndex);
-		
+
 		long idx = highIndex;
 		for(Segment<E> segment = this.tail; segment != null; segment = segment.prev)
 		{
@@ -771,11 +833,11 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			}
 			idx -= segment.size;
 		}
-		
+
 		// getting here means an error in the logic above
 		throw new Error();
 	}
-	
+
 
 	@Override
 	public final E first()
@@ -838,7 +900,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			}
 			idx += bound;
 		}
-		
+
 		return -1;
 	}
 
@@ -1256,14 +1318,14 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		{
 			return this;
 		}
-		
+
 		// sort every segment on its own
 		final E[] buffer = newArray(this.segmentLength);
 		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 		{
 			JadothSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
 		}
-				
+
 		// once every segment is sorted in itself, a complete already-sorted check becomes trivial, so it is done.
 		alreadySortedCheck:
 		{
@@ -1275,19 +1337,19 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 					break alreadySortedCheck;
 				}
 			}
-			
+
 			// reaching this point means the list is already sorted
 			return this;
 		}
-		
-		
+
+
 		/* (09.05.2016)FIXME: merge sorted segments properly.
 		 * This is not as simple as it might sound at first.
 		 * But given the amount of established structure in the data and the already existing buffer instance,
 		 * a good algorithm should exist. Maybe even O(n).
-		 * 
+		 *
 		 * Must be stable sorting.
-		 * 
+		 *
 		 * Ideas:
 		 * - Maybe pre-sort segments by comparing highest of one with lowest of the other.
 		 *   But that should hardly have much effect on random data ...

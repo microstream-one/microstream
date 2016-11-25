@@ -455,12 +455,6 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 		return AbstractArrayStorage.containsAll(this.data, this.size, elements);
 	}
 
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> elements, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.containsAll(this.data, this.size, elements, equalator);
-//	}
-
 	// boolean querying - equality //
 
 	@SuppressWarnings("unchecked")

@@ -897,12 +897,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.containsAll(this.data, this.size, elements);
 	}
 
-//	@Override
-//	public final boolean containsAll(final XGettingCollection<? extends E> elements, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.containsAll(this.data, this.size, elements, equalator);
-//	}
-
 	// boolean querying - equality //
 
 	@Override
@@ -1086,7 +1080,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new IndexExceededException(this.size, sourceIndex);
 			}
-			
+
 			return this;
 		}
 
@@ -1102,7 +1096,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		System.arraycopy(shiftlings, 0, this.data, (int)targetIndex, (int)length);
-		
+
 		return this;
 	}
 
@@ -1124,11 +1118,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		validateIndex(this.size, indexA);
 		validateIndex(this.size, indexB);
-		
+
 		final E t = this.data[(int)indexA];
 		this.data[(int)indexA] = this.data[(int)indexB];
 		this.data[(int)indexB] = t;
-		
+
 		return this;
 	}
 
@@ -1173,7 +1167,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		validateIndex(this.size, offset);
 		validateIndex(this.size, offset + elements.length);
 		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
-		
+
 		return this;
 	}
 
@@ -1200,7 +1194,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			elementsOffset,
 			elementsLength
 		);
-		
+
 		return this;
 	}
 
@@ -1214,7 +1208,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			Jadoth.checkArrayRange(length),
 			element
 		);
-		
+
 		return this;
 	}
 
@@ -1650,10 +1644,10 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			System.arraycopy(this.data, (int)index, this.data, (int)index + 1, this.size - (int)index);
 		}
-		
+
 		this.data[(int)index] = element;
 		this.size++;
-		
+
 		return true;
 	}
 
@@ -1669,7 +1663,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexExceededException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, elements.length);
 	}
 
@@ -1684,7 +1678,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexExceededException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, offset, length);
 	}
 
@@ -1699,13 +1693,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexExceededException(this.size, index);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection
 			? ((AbstractSimpleArrayCollection<? extends E>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-			
+
 		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
@@ -1893,7 +1887,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexExceededException(this.size, index);
 		}
-		
+
 		final E oldValue = this.data[(int)index];
 
 		final int moveCount;
@@ -2051,7 +2045,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			Jadoth.checkArrayRange(startIndex),
 			Jadoth.checkArrayRange(length)
 		);
-		
+
 		return this;
 	}
 
@@ -2065,7 +2059,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			Jadoth.checkArrayRange(length)
 		);
 		this.size = (int)length;
-		
+
 		return this;
 	}
 
@@ -2112,9 +2106,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final boolean set(final long index, final E element) throws IndexBoundsException
 	{
 		validateIndex(this.size, index);
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -2122,10 +2116,10 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final E setGet(final long index, final E element) throws IndexBoundsException
 	{
 		validateIndex(this.size, index);
-		
+
 		final E old = this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 

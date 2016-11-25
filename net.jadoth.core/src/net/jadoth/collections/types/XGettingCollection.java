@@ -140,7 +140,10 @@ Copyable
 
 	public boolean containsSearched(Predicate<? super E> predicate);
 
-	public boolean containsAll(XGettingCollection<? extends E> elements);
+	public default boolean containsAll(final XGettingCollection<? extends E> elements)
+	{
+		return elements.applies(this::contains);
+	}
 
 	public boolean applies(Predicate<? super E> predicate);
 
@@ -155,7 +158,7 @@ Copyable
 	public E search(Predicate<? super E> predicate);
 
 	public E seek(E sample);
-	
+
 	public E max(Comparator<? super E> comparator);
 
 	public E min(Comparator<? super E> comparator);

@@ -1027,10 +1027,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		}
 
 		// iterate by predicate function
-		return elements.applies(e ->
-		{
-			return this.contains(e);
-		});
+		return elements.applies(this::contains);
 	}
 
 	@Override

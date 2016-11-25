@@ -666,12 +666,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return AbstractArrayStorage.containsAll(this.data, this.size, elements);
 	}
 
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> elements, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.containsAll(this.data, this.size, elements, equalator);
-//	}
-
 	// boolean querying - equality //
 
 	@SuppressWarnings("unchecked")
@@ -869,7 +863,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			{
 				throw new IndexExceededException(this.size, sourceIndex);
 			}
-			
+
 			return this;
 		}
 
@@ -885,7 +879,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		}
 
 		System.arraycopy(shiftlings, 0, this.data, (int)targetIndex, (int)length);
-		
+
 		return this;
 	}
 
@@ -913,11 +907,11 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			throw new IndexBoundsException(this.size, indexB);
 		}
-		
+
 		final E t = this.data[(int)indexA];
 		this.data[(int)indexA] = this.data[(int)indexB];
 		this.data[(int)indexB] = t;
-		
+
 		return this;
 	}
 
@@ -931,7 +925,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			Jadoth.checkArrayRange(indexB),
 			Jadoth.checkArrayRange(length)
 		);
-		
+
 		return this;
 	}
 
@@ -997,7 +991,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			Jadoth.checkArrayRange(length),
 			element
 		);
-		
+
 		return this;
 	}
 
@@ -1390,7 +1384,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		System.arraycopy(this.data, (int)index, this.data, (int)index + 1, this.size - (int)index);
 		this.data[(int)index] = element;
 		this.size++;
-		
+
 		return true;
 	}
 
@@ -1406,7 +1400,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInsertArray((int)index, elements, elements.length);
 	}
 
@@ -1421,7 +1415,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInsertArray((int)index, elements, offset, length);
 	}
 
@@ -1436,12 +1430,12 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
 			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-			
+
 		return this.internalInsertArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
@@ -1492,7 +1486,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, elements.length);
 	}
 
@@ -1507,7 +1501,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, offset, length);
 	}
 
@@ -1522,12 +1516,12 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
 			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-			
+
 		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
@@ -1805,7 +1799,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			Jadoth.checkArrayRange(length)
 		);
 		this.size = (int)length;
-		
+
 		return this;
 	}
 
@@ -1848,9 +1842,9 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -1861,10 +1855,10 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final E old = this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 

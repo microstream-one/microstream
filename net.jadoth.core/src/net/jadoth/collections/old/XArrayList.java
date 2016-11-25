@@ -443,12 +443,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		return AbstractArrayStorage.containsSame(this.internalGetStorageArray(), this.subject.size(), element);
 	}
 
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.containsAll(this.internalGetStorageArray(), this.subject.size(), samples, equalator);
-//	}
-
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
@@ -1158,7 +1152,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 			Jadoth.checkArrayRange(indexA),
 			Jadoth.checkArrayRange(indexB)
 		);
-		
+
 		return this;
 	}
 
@@ -1172,7 +1166,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 			Jadoth.checkArrayRange(indexB),
 			Jadoth.checkArrayRange(length)
 		);
-		
+
 		return this;
 	}
 
