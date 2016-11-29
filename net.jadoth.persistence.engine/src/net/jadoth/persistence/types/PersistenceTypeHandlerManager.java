@@ -433,10 +433,42 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 
 			/* (05.05.2015 TM)TODO: /!\ type refactoring:
-			 * ensure a map of runtime type descriptions for all type descriptions in the provided dictionary.
-			 * Then compare them, resulting in a comparison result.
-			 * Pass comparison result to a modularized handler (throwing an exception or creating a refactoring plan)
-			 * which returns a set of type descriptions to use for the update.
+			 * - ensure a map of runtime type descriptions for all type descriptions in the provided dictionary.
+			 * - Then compare them, resulting in a comparison result ("diff")
+			 * - Pass the result to a modularized handler (throwing an exception or creating a refactoring plan)
+			 * - use a returned refactoring plan for the update:
+			 *   All effected entities are loaded, transformed as necessary and stored,
+			 *   with a single transaction entry at the end of the whole refactoring.
+			 *
+			 * (29.11.2016 TM)NOTE:
+			 * The refactoring type change should be noted as a string in a comment storage item (negative length)
+			 * to maintain the ability to throw in all storage files ever created and process them up to the current
+			 * state.
+			 * This cannot be don in an outside type dictionary file, as the position and the existence is crucial
+			 * for correctly interpreting the data and must be covered by a storage transaction entry.
+			 *
+			 * The comment would contain the old and the new type definition. All entities lying physically
+			 * (which is the same as chronologically) before the type change entry are validated by the old definition,
+			 * all after type change the type change entry are validated by the new definition.
+			 * The type change entry would be the first item in the refactoring store and would be covered by the
+			 * closing transaction entry.
+			 * Processing a type change entry on startup would mean to hold a collection of all affected entities'
+			 * OIDs of that type and then validate if the entites after the entry replace every last one of them to
+			 * guarantee that no entity of the old structure is accessible. This would not be necessary for mere
+			 * name changes, only for strutural changes (number and position of fields).
+			 *
+			 * The need for such a intrinsic type information raises the question, if the type dictionary itself
+			 * should always be included in the storage data files. Currently, they only match "by chance", but
+			 * are not guaranteed to.
+			 * The external type dictionary could still be kept for the following two reasons ...
+			 * 1.) conveniently change naming (types and fields), which are non-structural and therefore arbitrary
+			 * 2.) provide type information and TIDs in advance, even if the application has no encountered them, yet.
+			 * ... but ultimately, it must be optional and derivable from the database files in case it is missing.
+			 *
+			 * This also means: EVERYTHING except actual DB files is optional:
+			 * - if a db is known to be consistent, transaction logs can be deleted (this is already the case)
+			 * - OID- and TID-files are optional, as the current highest IDs can be derived from the initialization
+			 * - type dictionary is optional, if an initial type entry and type change entries are used
 			 */
 
 			this.update(typeDictionary);
