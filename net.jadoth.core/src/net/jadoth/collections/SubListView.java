@@ -211,11 +211,11 @@ public class SubListView<E> implements XGettingList<E>
 		return XUtilsCollection.rngExcept(this.list, this.startIndex, this.length, other, equalator, target);
 	}
 
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length, equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length, equalator);
+//	}
 
 	@Override
 	public boolean contains(final E element)
@@ -229,11 +229,11 @@ public class SubListView<E> implements XGettingList<E>
 		return  XUtilsCollection.rngCount(this.list, this.startIndex, this.length, element);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length);
+//	}
 
 	@Override
 	public <C extends Consumer<? super E>> C intersect(

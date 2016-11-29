@@ -403,17 +403,17 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
+//	}
 
 	// boolean querying - applies //
 

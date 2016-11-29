@@ -20,50 +20,50 @@ public final class CompositeList<E> implements XGettingList<E>
 	///////////////////////////////////////////////////////////////////////////
 	// static methods   //
 	/////////////////////
-	
+
 	public static final <E> CompositeList<E> New(final XGettingList<E>[] lists)
 	{
 		return New(lists, 0, lists.length);
 	}
-	
+
 	public static final <E> CompositeList<E> New(final XGettingList<E>[] lists, final int length)
 	{
 		return New(lists, 0, length);
 	}
-	
+
 	public static final <E> CompositeList<E> New(final XGettingList<E>[] lists, final int offset, final int length)
 	{
 		return new CompositeList<>(lists, offset, length);
 	}
-	
-	
-	
+
+
+
 	/* (19.08.2013)FIXME: complete CompositeList implementation
 	 * (reenable and process all FIX-ME below)
 	 */
-	
+
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
-	
+
 	final XGettingList<E>[] lists;
 	final int               count;
 
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-	
+
 	CompositeList(final XGettingList<E>[] lists, final int offset, final int length)
 	{
 		super();
 		this.lists = JadothArrays.copyRange(lists, offset, length);
 		this.count = length;
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// getters         //
 	/////////////////////
@@ -78,7 +78,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final E at(final long index)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		// this can get pretty inefficient. However, the main intention of this implementation is to use iterate anyway
 		for(int c = 0, i = Jadoth.checkArrayRange(index); c < this.count; c++)
 		{
@@ -107,7 +107,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final E poll()
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = 0; c < this.count; c++)
 		{
 			if(!lists[c].isEmpty())
@@ -122,7 +122,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final E peek()
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(!lists[c].isEmpty())
@@ -198,11 +198,11 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#iterator()
 	}
-	
+
 	private static <S, E extends S> S[] toArray(final CompositeList<E> subject, final Class<S> type)
 	{
 		final XGettingList<E>[] lists = subject.lists;
-		
+
 		final BulkList<S> buffer = new BulkList<>(Jadoth.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
 		for(int c = 0; c < subject.count; c++)
 		{
@@ -216,7 +216,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		return toArray(this, Object.class); // oh the irony...
 	}
-	
+
 	@Override
 	public final E[] toArray(final Class<E> type)
 	{
@@ -233,7 +233,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final long size()
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		int size = 0;
 		for(int c = this.count; c --> 0;)
 		{
@@ -246,7 +246,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final boolean isEmpty()
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(!lists[c].isEmpty())
@@ -279,7 +279,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final boolean nullContained()
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(lists[c].nullContained())
@@ -306,7 +306,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final boolean containsId(final E element)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(lists[c].containsId(element))
@@ -321,7 +321,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final boolean contains(final E element)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(lists[c].contains(element))
@@ -336,7 +336,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = this.count; c --> 0;)
 		{
 			if(lists[c].containsSearched(predicate))
@@ -363,7 +363,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final long count(final E element)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		int count = 0;
 		for(int c = this.count; c --> 0;)
 		{
@@ -376,7 +376,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final long countBy(final Predicate<? super E> predicate)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		int count = 0;
 		for(int c = 0; c < this.count; c++)
 		{
@@ -385,17 +385,17 @@ public final class CompositeList<E> implements XGettingList<E>
 		return count;
 	}
 
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-	}
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
+//	}
 
 	@Override
 	public final E search(final Predicate<? super E> predicate)
@@ -533,12 +533,12 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = 0; c < this.count; c++)
 		{
 			lists[c].iterate(procedure);
 		}
-		
+
 		return procedure;
 	}
 
@@ -546,12 +546,12 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
 	{
 		final XGettingList<E>[] lists = this.lists;
-		
+
 		for(int c = 0; c < this.count; c++)
 		{
 			lists[c].join(joiner, aggregate);
 		}
-		
+
 		return aggregate;
 	}
 
@@ -579,5 +579,5 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#range()
 	}
-	
+
 }

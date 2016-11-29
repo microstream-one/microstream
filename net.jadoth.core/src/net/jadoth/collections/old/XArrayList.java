@@ -525,17 +525,17 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size());
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size(), equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size());
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size(), equalator);
+//	}
 
 	@Override
 	public boolean hasVolatileElements()

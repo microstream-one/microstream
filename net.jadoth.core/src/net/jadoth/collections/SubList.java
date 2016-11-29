@@ -170,7 +170,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	@Override

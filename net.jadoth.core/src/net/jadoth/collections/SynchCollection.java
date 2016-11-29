@@ -315,17 +315,17 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-	@Override
-	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public final synchronized boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public final synchronized boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public final synchronized boolean hasVolatileElements()

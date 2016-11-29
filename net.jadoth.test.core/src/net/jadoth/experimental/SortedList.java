@@ -293,17 +293,17 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 		return this.subject.last();
 	}
 
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 //	@Override
 //	public int indexOf(final E sample, final Equalator<? super E> equalator)
@@ -483,7 +483,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	@Override
 	public SortedList<E> addAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 

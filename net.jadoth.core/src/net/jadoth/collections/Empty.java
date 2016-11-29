@@ -361,17 +361,17 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 		return target;
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return true; // philosophical question, here
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return true; // philosophical question, here
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return true; // philosophical question, here
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return true; // philosophical question, here
+//	}
 
 	@Override
 	public boolean hasVolatileElements()

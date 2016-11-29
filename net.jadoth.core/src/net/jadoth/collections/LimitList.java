@@ -685,17 +685,17 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-	}
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -917,7 +917,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new IndexExceededException(this.size, sourceIndex);
 			}
-			
+
 			return this;
 		}
 
@@ -933,7 +933,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		System.arraycopy(shiftlings, 0, this.data, (int)targetIndex, (int)length);
-		
+
 		return this;
 	}
 
@@ -961,11 +961,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexBoundsException(this.size, indexB);
 		}
-		
+
 		final E t = this.data[(int)indexA];
 		this.data[(int)indexA] = this.data[(int)indexB];
 		this.data[(int)indexB] = t;
-		
+
 		return this;
 	}
 
@@ -1011,9 +1011,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.size, offset, offset + elements.length - 1));
 		}
-		
+
 		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
-		
+
 		return this;
 	}
 
@@ -1235,10 +1235,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final LimitList<E> addAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
-
-
 
 	@Override
 	public final boolean nullPut()
@@ -1283,7 +1281,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final LimitList<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 
@@ -1325,7 +1323,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		System.arraycopy(this.data, (int)index, this.data, (int)index + 1, this.size - (int)index);
 		this.data[(int)index] = element;
 		this.size++;
-		
+
 		return true;
 	}
 
@@ -1341,7 +1339,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInsertArray((int)index, elements, elements.length);
 	}
 
@@ -1356,7 +1354,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInsertArray((int)index, elements, offset, length);
 	}
 
@@ -1371,12 +1369,12 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
 			? AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements)
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-			
+
 		return this.internalInsertArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
@@ -1772,9 +1770,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -1785,10 +1783,10 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final E old = this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 

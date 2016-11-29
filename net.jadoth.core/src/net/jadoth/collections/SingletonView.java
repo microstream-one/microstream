@@ -352,17 +352,17 @@ public class SingletonView<E> implements XReferencing<E>
 		return this.subject.except(other, equalator, target);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
 
 	@Override
 	public boolean hasVolatileElements()

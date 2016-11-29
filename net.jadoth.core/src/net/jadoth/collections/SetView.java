@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -13,7 +14,6 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.functional.BiProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 
 
@@ -228,17 +228,17 @@ public final class SetView<E> implements XGettingSet<E>
 		return this.subject.join(joiner, aggregate);
 	}
 
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public <C extends Consumer<? super E>> C intersect(

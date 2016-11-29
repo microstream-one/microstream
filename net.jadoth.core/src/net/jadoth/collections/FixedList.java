@@ -444,19 +444,19 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		return AbstractArrayStorage.isSorted((E[])this.data, this.data.length, comparator);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length, equalator);
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length);
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length, equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -647,11 +647,11 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		{
 			throw new IndexBoundsException(this.data.length, indexB);
 		}
-		
+
 		final Object t = this.data[(int)indexA];
 		this.data[(int)indexA] = this.data[(int)indexB];
 		this.data[(int)indexB] = t;
-		
+
 		return this;
 	}
 
@@ -699,9 +699,9 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.data.length, offset, offset + elements.length - 1));
 		}
-			
+
 		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
-		
+
 		return this;
 	}
 
@@ -828,9 +828,9 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		{
 			throw new IndexBoundsException(this.data.length, index);
 		}
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -842,10 +842,10 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		{
 			throw new IndexBoundsException(this.data.length, index);
 		}
-		
+
 		final E old = (E)this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 
@@ -930,7 +930,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 			{
 				throw new IndexExceededException(this.data.length, sourceIndex);
 			}
-			
+
 			return this;
 		}
 
@@ -946,7 +946,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		}
 
 		System.arraycopy(shiftlings, 0, this.data, (int)targetIndex, (int)length);
-		
+
 		return this;
 	}
 

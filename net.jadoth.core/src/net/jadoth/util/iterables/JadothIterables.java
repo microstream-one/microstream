@@ -17,18 +17,18 @@ import net.jadoth.collections.types.XProcessingCollection;
  * As {@link Iterable}s have to be externally iterated anyway, there's no sense in implementing them
  * inherently in concrete implementations.<br>
  * Note that "Collections 1.0" (java.util) collections have to be iterated externally as well, so for many procedures,
- * the have to be treated as {@link Iterable}s and processed by the util methods in this class.
+ * they have to be treated as {@link Iterable}s and processed by the util methods in this class.
  *
  * @author Thomas Muenz.
  *
  */
 public final class JadothIterables
 {
-	public static <E, C extends Consumer<? super E>> C putAll(final C target, final Iterable<? extends E> iterable)
+	public static <E, C extends Consumer<? super E>> C acceptAll(final C target, final Iterable<? extends E> iterable)
 	{
 		if(iterable instanceof XGettingCollection<?>)
 		{
-			return ((XGettingCollection<? extends E>)iterable).copyTo(target);
+			return ((XGettingCollection<? extends E>)iterable).iterate(target);
 		}
 
 		for(final E e : iterable)
@@ -39,7 +39,7 @@ public final class JadothIterables
 		return target;
 	}
 
-	public static <E, C extends Consumer<? super E>> C putAll(
+	public static <E, C extends Consumer<? super E>> C acceptAll(
 		final C target,
 		final Iterable<? extends E> iterable,
 		final Predicate<? super E> predicate
@@ -73,9 +73,10 @@ public final class JadothIterables
 			return target;
 		}
 
+		long i = index;
 		for(final E e : iterable)
 		{
-			target.add(e);
+			target.insert(i++, e);
 		}
 
 		return target;
@@ -141,7 +142,7 @@ public final class JadothIterables
 		{
 			removeCount += collection.remove(e);
 		}
-		
+
 		return removeCount;
 	}
 
@@ -190,7 +191,7 @@ public final class JadothIterables
 				count++;
 			}
 		}
-		
+
 		return count;
 	}
 
@@ -223,8 +224,8 @@ public final class JadothIterables
 	{
 		return new ChainedArraysIterable<>(arrays);
 	}
-	
-		
+
+
 
 	private JadothIterables()
 	{

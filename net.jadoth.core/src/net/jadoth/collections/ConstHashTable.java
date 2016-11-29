@@ -703,28 +703,28 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		return ConstHashTable.this.chain.min(comparator);
 	}
 
-	/**
-	 * As per definition of a set, this method always returns true.<br>
-	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-	 * first place), so this information only has value if the elements' implementation is immutable or if the
-	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-	 * hashcode, effectively "immuting" it).
-	 *
-	 * @return
-	 * @see XGettingCollection#hasDistinctValues()
-	 */
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-	{
-		return ConstHashTable.this.chain.hasDistinctValues(equalator);
-	}
+//	/**
+//	 * As per definition of a set, this method always returns true.<br>
+//	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
+//	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
+//	 * first place), so this information only has value if the elements' implementation is immutable or if the
+//	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
+//	 * hashcode, effectively "immuting" it).
+//	 *
+//	 * @return
+//	 * @see XGettingCollection#hasDistinctValues()
+//	 */
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return true;
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
+//	{
+//		return ConstHashTable.this.chain.hasDistinctValues(equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -1185,32 +1185,32 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 			return true;
 		}
 
-		/**
-		 * As per definition of a set, this method always returns true.<br>
-		 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-		 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-		 * first place), so this information only has value if the elements' implementation is immutable or if the
-		 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-		 * hashcode, effectively "immuting" it).
-		 *
-		 * @return
-		 * @see XGettingCollection#hasDistinctValues()
-		 */
-		@Override
-		public final boolean hasDistinctValues()
-		{
-			return true;
-		}
-
-		@Override
-		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
-		{
-			if(equalator instanceof IdentityEqualator<?>)
-			{
-				return true;
-			}
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Keys#hasDistinctValues()
-		}
+//		/**
+//		 * As per definition of a set, this method always returns true.<br>
+//		 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
+//		 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
+//		 * first place), so this information only has value if the elements' implementation is immutable or if the
+//		 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
+//		 * hashcode, effectively "immuting" it).
+//		 *
+//		 * @return
+//		 * @see XGettingCollection#hasDistinctValues()
+//		 */
+//		@Override
+//		public final boolean hasDistinctValues()
+//		{
+//			return true;
+//		}
+//
+//		@Override
+//		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
+//		{
+//			if(equalator instanceof IdentityEqualator<?>)
+//			{
+//				return true;
+//			}
+//			throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Keys#hasDistinctValues()
+//		}
 
 		// boolean querying - applies //
 
@@ -1724,17 +1724,17 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 			return target;
 		}
 
-		@Override
-		public final boolean hasDistinctValues()
-		{
-			return ConstHashTable.this.chain.valuesHasDistinctValues();
-		}
-
-		@Override
-		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
-		{
-			return ConstHashTable.this.chain.valuesHasDistinctValues(equalator);
-		}
+//		@Override
+//		public final boolean hasDistinctValues()
+//		{
+//			return ConstHashTable.this.chain.valuesHasDistinctValues();
+//		}
+//
+//		@Override
+//		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
+//		{
+//			return ConstHashTable.this.chain.valuesHasDistinctValues(equalator);
+//		}
 
 		@Override
 		public final boolean hasVolatileElements()

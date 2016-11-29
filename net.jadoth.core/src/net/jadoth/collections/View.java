@@ -196,24 +196,24 @@ public class View<E> implements XGettingCollection<E>
 	{
 		return this.subject.iterate(procedure);
 	}
-	
+
 	@Override
 	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
 
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public <C extends Consumer<? super E>> C intersect(

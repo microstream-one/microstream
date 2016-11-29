@@ -396,10 +396,41 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		return this.headElements[0];
 	}
 
+	final class SegmentIterator implements Iterator<E>
+	{
+		Segment<E> currentSegment  = VarList.this.head;
+		E[]        currentElements = this.currentSegment.elements;
+		int        currentIndex    = 0;
+		int        currentSize     = this.currentSegment.size;
+
+		@Override
+		public boolean hasNext()
+		{
+			return this.currentIndex < this.currentSize;
+		}
+
+		@Override
+		public E next()
+		{
+			final E element = this.currentElements[this.currentIndex];
+
+			if(++this.currentIndex >= this.currentSize && this.currentSegment.next != null)
+			{
+				this.currentSegment = this.currentSegment.next;
+				this.currentElements = this.currentSegment.elements;
+				this.currentSize = this.currentSegment.size;
+				this.currentIndex = 0;
+			}
+
+			return element;
+		}
+
+	}
+
 	@Override
 	public final Iterator<E> iterator()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#iterator()
+		return new SegmentIterator();
 	}
 
 	@Override
@@ -411,7 +442,17 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equals()
+		if(samples == null || !(samples instanceof VarList<?>))
+		{
+			return false;
+		}
+
+		if(samples == this)
+		{
+			return true;
+		}
+
+		return this.equalsContent(samples, equalator);
 	}
 
 	@Override
@@ -530,18 +571,6 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	}
 
 	@Override
-	public final boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#hasDistinctValues()
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#hasDistinctValues()
-	}
-
-	@Override
 	public final E search(final Predicate<? super E> predicate)
 	{
 		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
@@ -569,13 +598,43 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final E max(final Comparator<? super E> comparator)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#max()
+		E currentMax = this.peek();
+
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				if(comparator.compare(elements[i], currentMax) >= 0)
+				{
+					currentMax = elements[i];
+				}
+			}
+		}
+
+		return currentMax;
 	}
 
 	@Override
 	public final E min(final Comparator<? super E> comparator)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#min()
+		E currentMin = this.peek();
+
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				if(comparator.compare(elements[i], currentMin) < 0)
+				{
+					currentMin = elements[i];
+				}
+			}
+		}
+
+		return currentMin;
 	}
 
 	@Override

@@ -425,17 +425,17 @@ public class Singleton<E> implements XReference<E>
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
 	}
 
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return true;
-	}
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return true;
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return true;
+//	}
 
 	@Override
 	public final boolean hasVolatileElements()

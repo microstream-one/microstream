@@ -263,17 +263,17 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#count()
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
+//	}
 
 	@Override
 	public KeyValue<K, V> search(final Predicate<? super KeyValue<K, V>> predicate)
@@ -769,17 +769,17 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 			return X.<V>empty().countBy(predicate);
 		}
 
-		@Override
-		public final boolean hasDistinctValues()
-		{
-			return X.<V>empty().hasDistinctValues();
-		}
-
-		@Override
-		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
-		{
-			return X.<V>empty().hasDistinctValues(equalator);
-		}
+//		@Override
+//		public final boolean hasDistinctValues()
+//		{
+//			return X.<V>empty().hasDistinctValues();
+//		}
+//
+//		@Override
+//		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
+//		{
+//			return X.<V>empty().hasDistinctValues(equalator);
+//		}
 
 		@Override
 		public final V search(final Predicate<? super V> predicate)
@@ -820,7 +820,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		@Override
 		public final <T extends Consumer<? super V>> T copyTo(final T target)
 		{
-			return X.<V>empty().copyTo(target);
+			return X.<V>empty().iterate(target);
 		}
 
 		@Override
@@ -1156,17 +1156,17 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 			return X.<K>empty().countBy(predicate);
 		}
 
-		@Override
-		public final boolean hasDistinctValues()
-		{
-			return X.<K>empty().hasDistinctValues();
-		}
-
-		@Override
-		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
-		{
-			return X.<K>empty().hasDistinctValues(equalator);
-		}
+//		@Override
+//		public final boolean hasDistinctValues()
+//		{
+//			return X.<K>empty().hasDistinctValues();
+//		}
+//
+//		@Override
+//		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
+//		{
+//			return X.<K>empty().hasDistinctValues(equalator);
+//		}
 
 		@Override
 		public final K search(final Predicate<? super K> predicate)
@@ -1201,25 +1201,25 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		@Override
 		public final <T extends Consumer<? super K>> T distinct(final T target, final Equalator<? super K> equalator)
 		{
-			return X.<K>empty().distinct(target, equalator);
+			return target;
 		}
 
 		@Override
 		public final <T extends Consumer<? super K>> T copyTo(final T target)
 		{
-			return X.<K>empty().copyTo(target);
+			return target;
 		}
 
 		@Override
 		public final <T extends Consumer<? super K>> T filterTo(final T target, final Predicate<? super K> predicate)
 		{
-			return X.<K>empty().filterTo(target, predicate);
+			return target;
 		}
 
 		@Override
 		public final <T> T[] copyTo(final T[] target, final int targetOffset)
 		{
-			return X.<K>empty().copyTo(target, targetOffset);
+			return target;
 		}
 
 		@Override

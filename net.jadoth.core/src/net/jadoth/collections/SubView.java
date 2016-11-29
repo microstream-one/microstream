@@ -293,17 +293,17 @@ public class SubView<E> implements XGettingSequence<E>
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError();
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError();
+//	}
 
 	@Override
 	public boolean hasVolatileElements()

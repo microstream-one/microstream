@@ -50,17 +50,27 @@ public class GenericListIterator<E> implements ListIterator<E>
 		super();
 		this.list = list;
 		/* (20.11.2011)NOTE:
-		 * the definition of java.util.list#listIterator(int) is bugged for all collections than can be empty
-		 * (i.e. for ALL collections).
+		 * the definition of java.util.List#listIterator(int) is flawed and should not be used.
+		 *
 		 * The exception definition says:
 		 * throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > size()})
-		 * JDK developers don't seem to understand that size() is not a valid value for an 0-based index.
-		 * With all that incompetence that can be found in every other JDK class, it's a miracle the JDK works
-		 * in the first place. Somehow ... . Still, if one wants proper non-moronic code, one has to rewrite
+		 *
+		 * JDK developers don't seem to understand that size() is not a valid value for a 0-based index.
+		 * Passing such an invalid value must cause an exception, otherwise it is a carried off bug.
+		 * That their implemented logic aborts safely for that invalid index doesn't make the flawed interface
+		 * definition correct. Some other implementation might let the invalid index value pass and create
+		 * wrong behavior, despite fulfilling the defined contract.
+		 * There is a huge difference between some hacky, but accidentally working implementation and a correct
+		 * interface contract definition. They did the former, but not the latter. Their interface is flawed and
+		 * should not be used.
+		 * Not to mention their fail fast bug and their plain string exception data instead of proper structures.
+		 *
+		 * With all that incompetence that can be found in many other JDK classes, it's a miracle the JDK works
+		 * in the first place. Somehow ... mostly. Still, if one wants proper non-moronic code, one has to rewrite
 		 * everything.
 		 *
 		 * The extended collection's backward-compatibility #listIterator(int) throws the correct exception in this
-		 * case.
+		 * case, deliberately breaking the flawed contract.
 		 */
 		if(index < 0 || index >= list.size())
 		{

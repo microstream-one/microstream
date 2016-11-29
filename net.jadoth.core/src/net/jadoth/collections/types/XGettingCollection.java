@@ -151,9 +151,9 @@ Copyable
 
 	public long countBy(Predicate<? super E> predicate);
 
-	public boolean hasDistinctValues();
+//	public boolean hasDistinctValues();
 
-	public boolean hasDistinctValues(Equalator<? super E> equalator);
+//	public boolean hasDistinctValues(Equalator<? super E> equalator);
 
 	public E search(Predicate<? super E> predicate);
 

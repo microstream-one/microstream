@@ -768,28 +768,28 @@ implements XEnum<E>, HashCollection<E>, Composition
 		return this.chain.min(comparator);
 	}
 
-	/**
-	 * As per definition of a set, this method always returns true.<br>
-	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-	 * first place), so this information only has value if the elements' implementation is immutable or if the
-	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-	 * hashcode, effectively "immuting" it).
-	 *
-	 * @return
-	 * @see XGettingCollection#hasDistinctValues()
-	 */
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.chain.hasDistinctValues(equalator);
-	}
+//	/**
+//	 * As per definition of a set, this method always returns true.<br>
+//	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
+//	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
+//	 * first place), so this information only has value if the elements' implementation is immutable or if the
+//	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
+//	 * hashcode, effectively "immuting" it).
+//	 *
+//	 * @return
+//	 * @see XGettingCollection#hasDistinctValues()
+//	 */
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return true;
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.chain.hasDistinctValues(equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -1051,7 +1051,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final EqHashEnum<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	// removing //

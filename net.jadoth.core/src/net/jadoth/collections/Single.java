@@ -331,17 +331,17 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#count()
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
+//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

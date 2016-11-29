@@ -3,6 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -33,7 +34,6 @@ import net.jadoth.collections.types.XSettingList;
 import net.jadoth.collections.types.XSortableSequence;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Clearable;
 import net.jadoth.util.Equalator;
 
@@ -661,7 +661,7 @@ public final class DownwrapList<E> implements XList<E>
 	{
 		if(this.subject instanceof XGettingCollection<?>)
 		{
-			return ((XGettingCollection<E>)this.subject).copyTo(target);
+			return ((XGettingCollection<E>)this.subject).iterate(target);
 		}
 		throw new UnsupportedOperationException();
 	}
@@ -907,27 +907,27 @@ public final class DownwrapList<E> implements XList<E>
 		return this.subject.hashCode();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		if(this.subject instanceof XGettingCollection<?>)
-		{
-			return ((XGettingCollection<E>)this.subject).hasDistinctValues(equalator);
-		}
-		throw new UnsupportedOperationException();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues()
-	{
-		if(this.subject instanceof XGettingCollection<?>)
-		{
-			return ((XGettingCollection<E>)this.subject).hasDistinctValues();
-		}
-		throw new UnsupportedOperationException();
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		if(this.subject instanceof XGettingCollection<?>)
+//		{
+//			return ((XGettingCollection<E>)this.subject).hasDistinctValues(equalator);
+//		}
+//		throw new UnsupportedOperationException();
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		if(this.subject instanceof XGettingCollection<?>)
+//		{
+//			return ((XGettingCollection<E>)this.subject).hasDistinctValues();
+//		}
+//		throw new UnsupportedOperationException();
+//	}
 
 	@SuppressWarnings("unchecked")
 	@Override

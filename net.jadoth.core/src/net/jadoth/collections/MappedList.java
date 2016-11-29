@@ -341,17 +341,17 @@ public class MappedList<E, S> implements XGettingList<E>
 		return this.subject.countBy(this.mapPredicate(predicate));
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
+//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

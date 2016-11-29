@@ -194,7 +194,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			);
 		}
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -249,7 +249,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		}
 
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -614,17 +614,17 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -1211,7 +1211,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> addAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	@Override
@@ -1253,7 +1253,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	@Override

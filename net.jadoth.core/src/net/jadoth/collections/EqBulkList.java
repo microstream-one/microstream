@@ -492,7 +492,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()));
 		}
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -543,7 +543,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		}
 
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -754,17 +754,17 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -1060,7 +1060,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			Jadoth.checkArrayRange(indexB),
 			Jadoth.checkArrayRange(length)
 		);
-		
+
 		return this;
 	}
 
@@ -1375,7 +1375,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		{
 			return this.addAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()));
 		}
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	@Override
@@ -1428,7 +1428,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public EqBulkList<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 
@@ -1612,10 +1612,10 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		{
 			System.arraycopy(this.data, (int)index, this.data, (int)index + 1, this.size - (int)index);
 		}
-		
+
 		this.data[(int)index] = element;
 		this.size++;
-		
+
 		return true;
 	}
 
@@ -1631,7 +1631,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, elements.length);
 	}
 
@@ -1646,7 +1646,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			}
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		return this.internalInputArray((int)index, elements, offset, length);
 	}
 
@@ -1665,7 +1665,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			? AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements)
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-			
+
 		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
@@ -2067,7 +2067,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			Jadoth.checkArrayRange(startIndex),
 			Jadoth.checkArrayRange(length)
 		);
-		
+
 		return this;
 	}
 
@@ -2081,7 +2081,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 			Jadoth.checkArrayRange(length)
 		);
 		this.size = (int)length;
-		
+
 		return this;
 	}
 
@@ -2118,9 +2118,9 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		this.data[(int)index] = element;
-		
+
 		return false;
 	}
 
@@ -2131,10 +2131,10 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		{
 			throw new IndexBoundsException(this.size, index);
 		}
-		
+
 		final E old = this.data[(int)index];
 		this.data[(int)index] = element;
-		
+
 		return old;
 	}
 

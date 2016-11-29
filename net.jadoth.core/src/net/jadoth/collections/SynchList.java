@@ -3,6 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -15,7 +16,6 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.concurrent.Synchronized;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.iterables.SynchronizedIterator;
 import net.jadoth.util.iterables.SynchronizedListIterator;
@@ -552,17 +552,17 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-	@Override
-	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public final synchronized boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public final synchronized boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public final synchronized boolean hasVolatileElements()

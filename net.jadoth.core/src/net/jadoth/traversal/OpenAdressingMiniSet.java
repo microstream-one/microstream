@@ -26,7 +26,7 @@ import net.jadoth.util.Equalator;
  * - only add() implemented so far
  * - even if fully implemented, the implementation would have no order and is technically restricted to a maximum
  *   element count equal to the maximum array length. Chain-based implementations do not have such a restriction.
- * 
+ *
  * @author Thomas Muenz
  *
  * @param <E>
@@ -36,12 +36,12 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
-	
+
 	private static final int   DEFAULT_INITIAL_CAPACITY = 32  ;
 	private static final float DEFAULT_HASH_DENSITY     = 1.0f;
-		
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -60,7 +60,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 		}
 		return capacity;
 	}
-	
+
 	private static int calculateHashRange(final int slotLength)
 	{
 		return slotLength >= Integer.MAX_VALUE ? Integer.MAX_VALUE : slotLength - 1;
@@ -71,27 +71,27 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	{
 		return (E[])new Object[length];
 	}
-	
-	
+
+
 	public static <E> OpenAdressingMiniSet<E> New()
 	{
 		return new OpenAdressingMiniSet<>(DEFAULT_INITIAL_CAPACITY, DEFAULT_HASH_DENSITY);
 	}
-	
+
 	public static <E> OpenAdressingMiniSet<E> New(final int initialCapacity)
 	{
 		return new OpenAdressingMiniSet<>(initialCapacity, DEFAULT_HASH_DENSITY);
 	}
-	
+
 	public static <E> OpenAdressingMiniSet<E> New(final XGettingCollection<? extends E> elements)
 	{
 		final OpenAdressingMiniSet<E> set = New(elements.intSize());
-		
+
 		for(final E element : elements)
 		{
 			set.add(element);
 		}
-		
+
 		return set;
 	}
 
@@ -128,17 +128,17 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	///////////////////////////////////////////////////////////////////////////
 	// declared methods //
 	/////////////////////
-	
+
 	private int calculateCapacity(final int slotLength)
 	{
 		return slotLength >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)(slotLength * this.hashDensity);
 	}
-	
+
 	private final void rebuildStorage(final int newSlotLength)
 	{
 		final int newHashRange = calculateHashRange(newSlotLength);
 		final E[] newHashTable = newArray(newSlotLength);
-		
+
 		rebuild:
 		for(final E element : this.hashtable)
 		{
@@ -163,7 +163,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 					continue rebuild;
 				}
 			}
-			
+
 			// can only happen due to a bug in this implementation
 			throw new Error("Rebuilding Error");
 		}
@@ -172,7 +172,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 		this.hashtable = newHashTable;
 		this.hashRange = newHashRange;
 	}
-		
+
 	private void increaseStorage()
 	{
 		this.rebuildStorage((int)(this.hashtable.length * 2.0f));
@@ -182,7 +182,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	 * This method can only be called if:
 	 * - the element is guaranteed to be not yet contained
 	 * - the hashtable has a free slot
-	 * 
+	 *
 	 * @param element the element to be added
 	 */
 	private void guaranteedAddNew(final E element)
@@ -232,8 +232,8 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 		}
 	}
 
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
@@ -287,7 +287,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	{
 		return this.size;
 	}
-	
+
 	// (13.04.2016)NOTE: from here on, every method is an unimplemented generated method stub
 
 	@Override
@@ -398,17 +398,17 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError();
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		throw new net.jadoth.meta.NotImplementedYetError();
+//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

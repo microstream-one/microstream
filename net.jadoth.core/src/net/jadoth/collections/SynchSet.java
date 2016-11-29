@@ -341,17 +341,17 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-	@Override
-	public synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public synchronized boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public synchronized boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public synchronized boolean hasVolatileElements()

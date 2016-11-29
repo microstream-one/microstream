@@ -576,7 +576,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			);
 		}
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -631,7 +631,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		final int oldSize = this.size;
-		elements.copyTo(this);
+		elements.iterate(this);
 		return this.size - oldSize;
 	}
 
@@ -845,17 +845,17 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-	}
-
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-	}
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
+//	}
 
 	// boolean querying - applies //
 
@@ -1417,7 +1417,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 				Jadoth.to_int(elements.size())
 			);
 		}
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 	@Override
@@ -1470,7 +1470,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final BulkList<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		return elements.copyTo(this);
+		return elements.iterate(this);
 	}
 
 

@@ -2,6 +2,7 @@
 package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -12,7 +13,6 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XProcessingEnum;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 
 
@@ -160,7 +160,7 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return this.subject.copyTo(target);
+		return target;
 	}
 
 //	@Override
@@ -285,17 +285,17 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 		return this.subject.hashCode();
 	}
 
-	@Override
-	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return this.subject.hasDistinctValues(equalator);
-	}
-
-	@Override
-	public final boolean hasDistinctValues()
-	{
-		return this.subject.hasDistinctValues();
-	}
+//	@Override
+//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return this.subject.hasDistinctValues(equalator);
+//	}
+//
+//	@Override
+//	public final boolean hasDistinctValues()
+//	{
+//		return this.subject.hasDistinctValues();
+//	}
 
 	@Override
 	public final boolean hasVolatileElements()

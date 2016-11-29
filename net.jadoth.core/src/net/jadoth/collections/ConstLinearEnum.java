@@ -379,19 +379,19 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 		return AbstractArrayStorage.isSorted((E[])this.data, this.data.length, comparator);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length, equalator);
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length);
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length, equalator);
+//	}
 
 	// boolean querying - applies //
 

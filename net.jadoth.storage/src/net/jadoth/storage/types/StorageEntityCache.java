@@ -1171,6 +1171,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			else if(this.liveCursor.isDeleted())
 			{
 				file   = this.liveCursor.typeInFile.file;
+
+				/* (28.11.2016 TM)FIXME: infinite loop cause?
+				 * what if that file's first entry is unreachable? (e.g. deleted as well)
+				 * this is not a problem for incremental calls of this method, but it is for one giant-budgeted call.
+				 * And that is exactely the behavior observed in productive use: incremental never hangs, only issued.
+				 * But:
+				 * A newly fetched entity cannot be deleted, as the deletion logic removes it from the file chain
+				 * before setting the deleted flag. A bug in that logic (e.g. in the chain disjoining) would be
+				 * required for that.
+				 *
+				 */
 				cursor = file.head.fileNext;
 			}
 			else

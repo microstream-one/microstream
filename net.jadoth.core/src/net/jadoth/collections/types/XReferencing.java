@@ -6,11 +6,11 @@ package net.jadoth.collections.types;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.old.OldList;
-import java.util.function.Consumer;
 import net.jadoth.reference.Referencing;
 import net.jadoth.util.Equalator;
 
@@ -121,12 +121,6 @@ public interface XReferencing<E> extends XGettingList<E>, XGettingEnum<E>, Refer
 
 	@Override
 	public long countBy(Predicate<? super E> predicate);
-
-	@Override
-	public boolean hasDistinctValues();
-
-	@Override
-	public boolean hasDistinctValues(Equalator<? super E> equalator);
 
 	@Override
 	public E search(Predicate<? super E> predicate);

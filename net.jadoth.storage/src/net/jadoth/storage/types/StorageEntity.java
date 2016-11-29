@@ -168,6 +168,13 @@ public interface StorageEntity
 		// reference to the type meta data instance and the parent channel file
 		TypeInFile typeInFile     ;
 
+
+		/* (28.11.2016 TM)FIXME: all-same filePrev
+		 *  There was a case once, when a issued live check hung in an infinite loop, where
+		 *  the live cursor entity and all its successors had the SAME filePrev reference, which is clearly an error.
+		 *  Write a test that checks for same filePrev references and let it run as part of the housekeeping.
+		 */
+
 		StorageEntity.Implementation
 			filePrev, // the prev in the file, potentially with a gap in between. Required for entity reassignment.
 			fileNext, // the next in the file, potentially with a gap in between.

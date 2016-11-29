@@ -202,12 +202,6 @@ public interface XReference<E> extends XReferencing<E>, XSettingList<E>, XSortab
 	public long countBy(Predicate<? super E> predicate);
 
 	@Override
-	public boolean hasDistinctValues();
-
-	@Override
-	public boolean hasDistinctValues(Equalator<? super E> equalator);
-
-	@Override
 	public E search(Predicate<? super E> predicate);
 
 	@Override

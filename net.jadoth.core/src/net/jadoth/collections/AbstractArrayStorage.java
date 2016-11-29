@@ -31,6 +31,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.functional.JadothProcedures;
+import net.jadoth.hash.HashEqualator;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Equalator;
@@ -2943,10 +2944,10 @@ public abstract class AbstractArrayStorage
 		{
 			data[(int)indices[i]] = removeMarker;
 		}
-		
+
 		// actual moving
 		final int removeCount = JadothArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
-		
+
 		return removeCount;
 	}
 
@@ -3996,7 +3997,7 @@ public abstract class AbstractArrayStorage
 		}
 		System.arraycopy(elements, 0, data, offset, elements.length);
 	}
-	
+
 	public static final <E> void set(
 		final E[]                           data          ,
 		final int                           size          ,
@@ -4633,14 +4634,13 @@ public abstract class AbstractArrayStorage
 	public static final <E> boolean hasDistinctValues(final E[] data, final int size)
 	{
 		final HashEnum<E> uniques = HashEnum.NewCustom(size);
+
 		for(int i = 0; i < size; i++)
 		{
-			final E element = data[i];
-			if(uniques.containsId(element))
+			if(!uniques.add(data[i]))
 			{
 				return false;
 			}
-			uniques.add(element);
 		}
 
 		return true;
@@ -4680,6 +4680,11 @@ public abstract class AbstractArrayStorage
 		final Equalator<? super E> equalator
 	)
 	{
+		if(equalator instanceof HashEqualator)
+		{
+			return hasDistinctValues(data, size, (HashEqualator<? super E>)equalator);
+		}
+
 		for(int i = 0; i < size; i++)
 		{
 			final E element = data[i];
@@ -4693,6 +4698,26 @@ public abstract class AbstractArrayStorage
 		}
 		return true;
 	}
+
+	public static final <E> boolean hasDistinctValues(
+		final E[]                      data     ,
+		final int                      size     ,
+		final HashEqualator<? super E> equalator
+	)
+	{
+		final EqHashEnum<E> uniques = EqHashEnum.NewCustom(equalator, size);
+
+		for(int i = 0; i < size; i++)
+		{
+			if(!uniques.add(data[i]))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 
 	public static final <E> boolean rngHasUniqueValues(
 		final E[] data,

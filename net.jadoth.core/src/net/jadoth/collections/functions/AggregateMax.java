@@ -34,7 +34,7 @@ public final class AggregateMax<E> implements Aggregator<E, E>
 	@Override
 	public final void accept(final E element)
 	{
-		if(this.comparator.compare(this.currentMax, element) < 0)
+		if(this.comparator.compare(element, this.currentMax) >= 0)
 		{
 			this.currentMax = element;
 		}

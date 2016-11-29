@@ -362,17 +362,17 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 		return AbstractArrayStorage.isSorted(this.data, this.data.length, comparator);
 	}
 
-	@Override
-	public boolean hasDistinctValues()
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, this.equalator);
-	}
-
-	@Override
-	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-	{
-		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, equalator);
-	}
+//	@Override
+//	public boolean hasDistinctValues()
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, this.equalator);
+//	}
+//
+//	@Override
+//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
+//	{
+//		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, equalator);
+//	}
 
 	// boolean querying - applies //
 
