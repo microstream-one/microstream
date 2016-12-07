@@ -441,6 +441,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 *   with a single transaction entry at the end of the whole refactoring.
 			 *
 			 * (29.11.2016 TM)NOTE:
+			 *
+			 * Storage:
 			 * The refactoring type change should be noted as a string in a comment storage item (negative length)
 			 * to maintain the ability to throw in all storage files ever created and process them up to the current
 			 * state.
@@ -456,6 +458,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * OIDs of that type and then validate if the entites after the entry replace every last one of them to
 			 * guarantee that no entity of the old structure is accessible. This would not be necessary for mere
 			 * name changes, only for strutural changes (number and position of fields).
+			 * The same String must be contained in every channel and be taged with the same timestamp.
+			 * If one or more channels are missing some type change entries for timestamps or the entries differ,
+			 * then something is wrong. This must be tested during initialization.
 			 *
 			 * The need for such a intrinsic type information raises the question, if the type dictionary itself
 			 * should always be included in the storage data files. Currently, they only match "by chance", but
@@ -469,6 +474,27 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * - if a db is known to be consistent, transaction logs can be deleted (this is already the case)
 			 * - OID- and TID-files are optional, as the current highest IDs can be derived from the initialization
 			 * - type dictionary is optional, if an initial type entry and type change entries are used
+			 *
+			 * Hm. However, keeping the tpye information preserved means it cannot be just a storage item gap.
+			 * It has to be a proper entity in order to get carried over to new files.
+			 * But that would be a special kind of storage item that is no entity and is not reachable by the GC.
+			 * Not good :-/.
+			 *
+			 * Also:
+			 * Having a type entry of a previous version of the type being transferred to a position
+			 * after a type entry of a newer version of the type would mess up consistency. So every type entry
+			 * would have to be exactely only one type and it would have to be replaced by its newer version,
+			 * just like new versions of an entity replace the old ones and make them untransferrable gaps.
+			 *
+			 * Maybe the type change entries should indeed actually be Class entities with a special string as its
+			 * content. This would fit together perfectly. There's only the one slight complication, that every
+			 * stored Class entity would have to be stored in a Class list referenced by the root.
+			 *
+			 * Classes - and Number constants - should be persisted anyway for consistency reasons.
+			 * Currently, they are omitted, causing an intentional loss of information because it is
+			 * reconstructed and runtime inside the JVM. But analyzing the persisted form itself currently has
+			 * missing information, which is not good.
+			 *
 			 */
 
 			this.update(typeDictionary);

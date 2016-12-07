@@ -717,15 +717,49 @@ public final class BinaryPersistence extends Persistence
 		}
 	}
 
+
+	public static final void iterateListElementReferencesWithElementOffset(
+		final Binary         bytes        ,
+		final long           listOffset   ,
+		final long           elementOffset,
+		final long           elementLength,
+		final _longProcedure iterator
+	)
+	{
+		BinaryPersistence.iterateListElementReferencesAtAddressWithElementOffset(
+			BinaryPersistence.getListElementsAddress(bytes, listOffset),
+			BinaryPersistence.getListElementCount(bytes, listOffset),
+			elementOffset,
+			elementLength,
+			iterator
+		);
+	}
+
+	static final void iterateListElementReferencesAtAddressWithElementOffset(
+		final long           elementsStartAddress,
+		final long           count               ,
+		final long           elementOffset       ,
+		final long           elementLength       ,
+		final _longProcedure iterator
+	)
+	{
+		final long boundAddress = elementsStartAddress + count * elementLength;
+		for(long a = elementsStartAddress; a < boundAddress; a += elementLength)
+		{
+			iterator.accept(VM.getLong(a + elementOffset));
+		}
+	}
+
+
 	public static final void iterateListElementReferences(
 		final Binary         bytes   ,
-		final long           offset  ,
+		final long           listOffset  ,
 		final _longProcedure iterator
 	)
 	{
 		BinaryPersistence.iterateListElementReferencesAtAddress(
-			BinaryPersistence.getListElementsAddress(bytes, offset),
-			BinaryPersistence.getListElementCount(bytes, offset),
+			BinaryPersistence.getListElementsAddress(bytes, listOffset),
+			BinaryPersistence.getListElementCount(bytes, listOffset),
 			iterator
 		);
 	}

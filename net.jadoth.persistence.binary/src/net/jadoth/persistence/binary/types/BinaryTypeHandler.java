@@ -29,7 +29,7 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 	public boolean isVariableBinaryLengthType();
 
 	/**
-	 * Provides information if one particular instance can have variing binary length.<p>
+	 * Provides information if one particular instance can have variing binary length from one store to another.<p>
 	 * Examples for variable length instances:
 	 * <ul>
 	 * <li> variable size collection instances</li>

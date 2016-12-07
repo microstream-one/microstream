@@ -43,8 +43,8 @@ public class MainSearchBinaryStringInFiles
 
 		searchStringsInFiles(
 			DIRECT,
-			new File("D:/Bonus25/storage_2016-11-11_1000_all").listFiles(),
-			Memory.toByteArray(1000000000049005584L)
+			new File("D:/Bonus25/storage/channel_1").listFiles(),
+			Memory.toByteArray(1000000000050090709L)
 		);
 	}
 
@@ -56,19 +56,37 @@ public class MainSearchBinaryStringInFiles
 
 	static void searchStringsInFiles(
 		final BiProcedure<File, Consumer<? super File>> logic  ,
+		final File[]                                    files  ,
+		final byte[]...                                 strings
+	)
+	{
+		final long tStart = System.nanoTime();
+		innerSearchStringsInFiles(logic, files, strings);
+		System.gc();
+		final long tStop = System.nanoTime();
+		System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+	}
+
+	static void innerSearchStringsInFiles(
+		final BiProcedure<File, Consumer<? super File>> logic  ,
 		final File[]                                     files  ,
 		final byte[]...                                  strings
 	)
 	{
-		final long tStart = System.nanoTime();
 		for(final File f : files)
 		{
-			logic.accept(f, file -> searchStringsInFile(file, strings));
-			System.gc();
+			if(f.isDirectory())
+			{
+				innerSearchStringsInFiles(logic, f.listFiles(), strings);
+			}
+			else
+			{
+				logic.accept(f, file -> searchStringsInFile(file, strings));
+			}
+
 		}
-		final long tStop = System.nanoTime();
-		System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 	}
+
 
 	static void searchStringsInFile(final File f, final byte[]... strings)
 		throws RuntimeException
