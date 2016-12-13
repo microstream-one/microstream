@@ -2128,7 +2128,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void iterate(final IndexProcedure<? super E> procedure)
+	public final void iterateIndexed(final IndexProcedure<? super E> procedure)
 	{
 		try
 		{
@@ -2185,7 +2185,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final void rngIterate(final long offset, final long length, final IndexProcedure<? super E> procedure)
+	public final void rngIterateIndexed(final long offset, final long length, final IndexProcedure<? super E> procedure)
 	{
 		if(length >= 0)
 		{

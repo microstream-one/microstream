@@ -1641,9 +1641,9 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
-		HashTable.this.chain.iterate(procedure);
+		HashTable.this.chain.iterateIndexed(procedure);
 		return procedure;
 	}
 
@@ -2685,9 +2685,9 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
 		{
-			HashTable.this.chain.keyIterate(procedure);
+			HashTable.this.chain.keyIterateIndexed(procedure);
 			return procedure;
 		}
 
@@ -3203,9 +3203,9 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
 		{
-			HashTable.this.chain.valuesIterate(procedure);
+			HashTable.this.chain.valuesIterateIndexed(procedure);
 			return procedure;
 		}
 

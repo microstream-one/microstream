@@ -653,11 +653,11 @@ public final class LockedList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
 		synchronized(this.lock)
 		{
-			return this.subject.iterate(procedure);
+			return this.subject.iterateIndexed(procedure);
 		}
 	}
 

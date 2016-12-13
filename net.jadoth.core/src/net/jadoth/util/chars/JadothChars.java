@@ -2364,7 +2364,7 @@ public final class JadothChars
 	public static final char[][] toArrays(final XGettingSequence<String> strings)
 	{
 		final char[][] arrays = new char[Jadoth.checkArrayRange(strings.size())][];
-		strings.iterate((e, i) -> arrays[Jadoth.checkArrayRange(i)] = e.toCharArray());
+		strings.iterateIndexed((e, i) -> arrays[Jadoth.checkArrayRange(i)] = e.toCharArray());
 		return arrays;
 	}
 

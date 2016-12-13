@@ -269,9 +269,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void keyRngIterate(int offset, int length, Consumer<? super K> procedure);
 
-	public void keyIterate(IndexProcedure<? super K> procedure);
+	public void keyIterateIndexed(IndexProcedure<? super K> procedure);
 
-	public void keyRngIterate(int offset, int length, IndexProcedure<? super K> procedure);
+	public void keyRngIterateIndexed(int offset, int length, IndexProcedure<? super K> procedure);
 
 	public void keyIterate(Predicate<? super K> predicate, Consumer<? super K> procedure);
 
@@ -786,9 +786,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	// executing - indexed procedure //
 
-	public void valuesIterate(IndexProcedure<? super V> procedure);
+	public void valuesIterateIndexed(IndexProcedure<? super V> procedure);
 
-	public void valuesRngIterate(int offset, int length, IndexProcedure<? super V> procedure);
+	public void valuesRngIterateIndexed(int offset, int length, IndexProcedure<? super V> procedure);
 
 	public <A> void valuesJoin(BiProcedure<? super V, A> joiner, A aggregate);
 

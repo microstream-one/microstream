@@ -288,9 +288,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	// executing - indexed procedure //
 
-	public void iterate(IndexProcedure<? super E> procedure);
+	public void iterateIndexed(IndexProcedure<? super E> procedure);
 
-	public void rngIterate(long offset, long length, IndexProcedure<? super E> procedure);
+	public void rngIterateIndexed(long offset, long length, IndexProcedure<? super E> procedure);
 
 	// executing - conditional //
 

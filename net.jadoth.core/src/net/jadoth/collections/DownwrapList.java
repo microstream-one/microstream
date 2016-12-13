@@ -801,11 +801,11 @@ public final class DownwrapList<E> implements XList<E>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
 		if(this.subject instanceof XGettingSequence<?>)
 		{
-			((XGettingSequence<E>)this.subject).iterate(procedure);
+			((XGettingSequence<E>)this.subject).iterateIndexed(procedure);
 			return procedure;
 		}
 		throw new UnsupportedOperationException();

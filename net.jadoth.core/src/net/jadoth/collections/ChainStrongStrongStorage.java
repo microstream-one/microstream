@@ -1852,7 +1852,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void keyIterate(final IndexProcedure<? super K> procedure)
+	public final void keyIterateIndexed(final IndexProcedure<? super K> procedure)
 	{
 		try
 		{
@@ -1909,7 +1909,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final void keyRngIterate(final int offset, final int length, final IndexProcedure<? super K> procedure)
+	public final void keyRngIterateIndexed(final int offset, final int length, final IndexProcedure<? super K> procedure)
 	{
 		if(length >= 0)
 		{
@@ -6385,7 +6385,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void valuesIterate(final IndexProcedure<? super V> procedure)
+	public final void valuesIterateIndexed(final IndexProcedure<? super V> procedure)
 	{
 		try
 		{
@@ -6402,7 +6402,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final void valuesRngIterate(int offset, final int length, final IndexProcedure<? super V> procedure)
+	public final void valuesRngIterateIndexed(int offset, final int length, final IndexProcedure<? super V> procedure)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)

@@ -916,9 +916,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
-		ConstHashTable.this.chain.iterate(procedure);
+		ConstHashTable.this.chain.iterateIndexed(procedure);
 		return procedure;
 	}
 
@@ -1416,9 +1416,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
 		{
-			ConstHashTable.this.chain.keyIterate(procedure);
+			ConstHashTable.this.chain.keyIterateIndexed(procedure);
 			return procedure;
 		}
 
@@ -1606,9 +1606,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
 		{
-			ConstHashTable.this.chain.valuesIterate(procedure);
+			ConstHashTable.this.chain.valuesIterateIndexed(procedure);
 			return procedure;
 		}
 

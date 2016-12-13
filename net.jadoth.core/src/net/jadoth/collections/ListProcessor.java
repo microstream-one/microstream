@@ -228,9 +228,9 @@ public final class ListProcessor<E> implements XProcessingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterate(final P procedure)
+	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
-		return this.subject.iterate(procedure);
+		return this.subject.iterateIndexed(procedure);
 	}
 
 	@Override

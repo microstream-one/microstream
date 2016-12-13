@@ -715,7 +715,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	}
 
 	@Override
-	public final <IP extends IndexProcedure<? super E>> IP iterate(final IP procedure)
+	public final <IP extends IndexProcedure<? super E>> IP iterateIndexed(final IP procedure)
 	{
 		long index = 0;
 		for(Segment<E> segment = this.head; segment != null; segment = segment.next)

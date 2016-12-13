@@ -38,9 +38,9 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	}
 
 	@Override
-	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
-		return this.subject.iterate(procedure);
+		return this.subject.iterateIndexed(procedure);
 	}
 
 	@Override

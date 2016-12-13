@@ -462,9 +462,9 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	}
 
 	@Override
-	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterate(final P procedure)
+	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XIndexIterable<KeyValue<K, V>>#iterate()
+		return procedure;
 	}
 
 	final class Values implements XImmutableTable.Values<K, V>
@@ -536,9 +536,9 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
 		{
-			return X.<V>empty().iterate(procedure);
+			return X.<V>empty().iterateIndexed(procedure);
 		}
 
 		@Override
@@ -923,9 +923,9 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterate(final P procedure)
+		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
 		{
-			return X.<K>empty().iterate(procedure);
+			return X.<K>empty().iterateIndexed(procedure);
 		}
 
 		@Override

@@ -495,6 +495,26 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * reconstructed and runtime inside the JVM. But analyzing the persisted form itself currently has
 			 * missing information, which is not good.
 			 *
+			 * Maybe this is overhinking. Maybe the following is enough:
+			 * - Upon initialization, every entry is registered without prior validation.
+			 * - Later entities replace prior ones, as is.
+			 * - Once all entities are registered, all entities (in their latest version) are validated via the
+			 *   latest type dictionary.
+			 * (this is already the case, see StorageEntityCache. There is even a comment about refactoring)
+			 *
+			 * Maybe it makes sense for completeness and consistency to include the current type dictionary
+			 * as a comment at the start of every file. If every refactoring mandatorily creates a new file,
+			 * then the type consistency is always guaranteed by this header comment, even if it does not get
+			 * transferred as a pseudo-entity.
+			 * The current type dictionary could still be derived from the raw storage files.
+			 * The storage channels' type dictionaries could still be validated against each other.
+			 *
+			 * That header entry could also contain meta information that may or may not be used for validation during
+			 * initialization. Like: creation timestamp of the file, endianess, channel ID, file ID. All strictly with a
+			 * never-overwrite algorithm as with the rest of the file. All optional in a comment item (negative length).
+			 * Such an - optional - header would be the ultimate definition of the identity and the context of a
+			 * storage file and its content and make it perfectly validatable and even correctable in case file names
+			 * were messed with.
 			 */
 
 			this.update(typeDictionary);

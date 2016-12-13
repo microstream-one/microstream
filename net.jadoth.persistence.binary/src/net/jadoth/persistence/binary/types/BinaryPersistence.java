@@ -1596,7 +1596,7 @@ public final class BinaryPersistence extends Persistence
 	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
 	{
 		final int[] fieldOffsets = new int[Jadoth.to_int(fields.size())];
-		fields.iterate(new IndexProcedure<Field>()
+		fields.iterateIndexed(new IndexProcedure<Field>()
 		{
 			@Override
 			public void accept(final Field e, final long index)

@@ -1281,11 +1281,10 @@ public interface StorageFileManager
 //			);
 
 			/* validation is postponed to after registering all entities for the following reasons:
-			 * 1.) only the latest version of each entity is validates, not all previous ones (huge performance win)
+			 * 1.) only the latest version of each entity is validated, not all previous ones (huge performance win)
 			 * 2.) makes initialization refactoring-friendly: old versions are not checked against changed type
 			 */
 
-			// no special gray enqueuing required on initialization, hence false.
 			final StorageEntity.Implementation entity = this.entityCache.putEntity(address);
 			/*
 			 * note:
@@ -1665,7 +1664,7 @@ public interface StorageFileManager
 			final long currentTotalLength = this.headFile.totalLength();
 			      long loopFileLength     = currentTotalLength;
 
-			// (05.01.2015)TODO: batch copying must ensure that entity position limit of 2 GB os not exceeded
+			// (05.01.2015)TODO: batch copying must ensure that entity position limit of 2 GB is not exceeded
 			for(final StorageChannelImportBatch batch : this.importHelper.importBatches)
 			{
 				// register each entity in the batch (possibly just one)
