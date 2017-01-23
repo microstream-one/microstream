@@ -508,24 +508,6 @@ public final class LockedList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		synchronized(this.lock)
-		{
-			return this.subject.copyTo(target, offset);
-		}
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		synchronized(this.lock)
-		{
-			return this.subject.copyTo(target, targetOffset, offset, length);
-		}
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		synchronized(this.lock)

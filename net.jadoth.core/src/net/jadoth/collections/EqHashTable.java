@@ -1514,13 +1514,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		this.chain.copyToArray(0, EqHashTable.this.size, target, offset);
-		return target;
-	}
-
-	@Override
 	public final <C extends Consumer<? super KeyValue<K, V>>> C distinct(final C target)
 	{
 		return this.distinct(target, this.equality());
@@ -1747,13 +1740,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final <T extends Consumer<? super KeyValue<K, V>>> T copySelection(final T target, final long... indices)
 	{
 		EqHashTable.this.chain.copySelection(target, indices);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		EqHashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 		return target;
 	}
 
@@ -2514,13 +2500,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int offset)
-		{
-			EqHashTable.this.chain.keyCopyToArray(0, EqHashTable.this.size, target, offset);
-			return target;
-		}
-
-		@Override
 		public final <C extends Consumer<? super K>> C distinct(final C target)
 		{
 			return this.distinct(target, EqHashTable.this.hashEqualator);
@@ -2828,13 +2807,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final <T extends Consumer<? super K>> T copySelection(final T target, final long... indices)
 		{
 			EqHashTable.this.chain.keyCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			EqHashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 
@@ -3410,13 +3382,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset)
-		{
-			EqHashTable.this.chain.valuesCopyToArray(0, Jadoth.to_int(this.size()), target, targetOffset);
-			return target;
-		}
-
-		@Override
 		public final long count(final V value)
 		{
 			return EqHashTable.this.chain.valuesCount(value);
@@ -3656,13 +3621,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final <T extends Consumer<? super V>> T copySelection(final T target, final long... indices)
 		{
 			EqHashTable.this.chain.valuesCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			EqHashTable.this.chain.valuesCopyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 
@@ -3984,17 +3942,20 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			final long                          valuesLength
 		)
 		{
-			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
-			@SuppressWarnings("unchecked")
-			final V[] copy = (V[])values.copyTo(
-				new Object[Jadoth.checkArrayRange(valuesLength)],
-				0                                               ,
-				offset                                          ,
-				Jadoth.checkArrayRange(valuesLength)
-			);
+			// (23.01.2017 TM)NOTE: copyTo() removed. No time for a replacement, atm.
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME EqHashTable.Values#set()
 
-			EqHashTable.this.chain.valuesSet(valuesOffset, copy);
-			return this;
+//			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
+//			@SuppressWarnings("unchecked")
+//			final V[] copy = (V[])values.copyTo(
+//				new Object[Jadoth.checkArrayRange(valuesLength)],
+//				0                                               ,
+//				offset                                          ,
+//				Jadoth.checkArrayRange(valuesLength)
+//			);
+//			EqHashTable.this.chain.valuesSet(valuesOffset, copy);
+//
+//			return this;
 		}
 
 		@Override

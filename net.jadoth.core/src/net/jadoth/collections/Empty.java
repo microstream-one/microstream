@@ -130,12 +130,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return target;
-	}
-
-	@Override
 	public E get()
 	{
 		throw new IndexOutOfBoundsException();
@@ -298,22 +292,10 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		return target;
-	}
-
-	@Override
 	public long count(final E element)
 	{
 		return 0;
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return 0;
-//	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)

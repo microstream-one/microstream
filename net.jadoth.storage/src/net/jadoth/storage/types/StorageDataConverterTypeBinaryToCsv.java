@@ -316,26 +316,39 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private ValueWriter[] createValueWriters(final XGettingSequence<? extends PersistenceTypeDescriptionMember> members)
 		{
-			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(Jadoth.to_int(members.size()));
-			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(Jadoth.to_int(members.size()));
+//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(Jadoth.to_int(members.size()));
+//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(Jadoth.to_int(members.size()));
+
+			final int memberCount = Jadoth.to_int(members.size());
+
+			final ValueWriter[] simpleValueWriters = new ValueWriter[memberCount];
+			final ValueWriter[] otherValueWriters = new ValueWriter[memberCount];
+
+			int s = 0;
+			int o = 0;
 
 			// must reproduce the simple reference ordering logic
 			for(final PersistenceTypeDescriptionMember field : members)
 			{
 				if(field.isReference())
 				{
-					simpleValueWriters.add(this.valueWriterRef);
+//					simpleValueWriters.add(this.valueWriterRef);
+					simpleValueWriters[s++] = this.valueWriterRef;
 				}
 				else
 				{
-					otherValueWriters.add(this.deriveOtherValueWriter(field));
+//					otherValueWriters.add(this.deriveOtherValueWriter(field));
+					otherValueWriters[o++] = this.deriveOtherValueWriter(field);
 				}
 			}
 
 			// compile value writers in order (referencs are always arranged to come first for more memory-efficient GC)
-			final ValueWriter[] valueWriters = new ValueWriter[Jadoth.to_int(members.size())];
-			simpleValueWriters.copyTo(valueWriters, 0);
-			otherValueWriters.copyTo(valueWriters, Jadoth.to_int(simpleValueWriters.size()));
+			final ValueWriter[] valueWriters = new ValueWriter[memberCount];
+			System.arraycopy(simpleValueWriters, 0, valueWriters, 0, s);
+			System.arraycopy(otherValueWriters , 0, valueWriters, s, o);
+
+//			simpleValueWriters.copyTo(valueWriters, 0);
+//			otherValueWriters.copyTo(valueWriters, Jadoth.to_int(simpleValueWriters.size()));
 			return valueWriters;
 		}
 

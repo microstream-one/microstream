@@ -392,12 +392,6 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo()
-	}
-
-	@Override
 	public <T extends Consumer<? super E>> T union(
 		final XGettingCollection<? extends E> other    ,
 		final Equalator<? super E>            equalator,
@@ -624,12 +618,6 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	public <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#copySelection()
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#copyTo()
 	}
 
 	@Override

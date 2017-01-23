@@ -458,11 +458,6 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
 
 	@Override
 	public <T extends Consumer<? super E>> T union(

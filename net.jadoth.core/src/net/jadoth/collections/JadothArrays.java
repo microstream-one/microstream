@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.Equalator;
@@ -483,7 +484,9 @@ public final class JadothArrays
 			buffer.add(e); // element not yet contained in a1, add to buffer
 		}
 
-		return buffer.copyTo(JadothArrays.newArrayBySample(buffer.data, buffer.size), 0);
+		final T[] newArray = JadothArrays.newArrayBySample(buffer.data, buffer.size);
+		System.arraycopy(buffer.data, 0, newArray, 0, buffer.size);
+		return newArray;
 	}
 
 
@@ -899,6 +902,50 @@ public final class JadothArrays
 		final T[] newArray = newArrayBySample(array, array.length);
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		return newArray;
+	}
+
+	/**
+	 * At least for Java 1.8, the types seem to not be checked.
+	 * Passing a collection of Strings and a Number[] (meaning String extends Number) is not a compiler error.
+	 * Bug / generics loophole.
+	 */
+	public static final <T, E extends T> T[] copyTo(
+		final XGettingCollection<E> source,
+		final T[]                   target
+	)
+		throws IndexBoundsException
+	{
+		return copyTo(source, target, 0);
+	}
+
+	public static final <T, E extends T> T[] copyTo(
+		final XGettingCollection<E> source      ,
+		final T[]                   target      ,
+		final int                   targetOffset
+	)
+		throws IndexBoundsException
+	{
+		if(source.size() + targetOffset > target.length)
+		{
+			throw new IndexBoundsException(targetOffset, target.length, source.size() + targetOffset);
+		}
+
+		if(source instanceof AbstractSimpleArrayCollection)
+		{
+			final Object[] data = ((AbstractSimpleArrayCollection<?>)source).internalGetStorageArray();
+			final int      size = ((AbstractSimpleArrayCollection<?>)source).internalSize();
+			System.arraycopy(source, 0, data, targetOffset, size);
+		}
+		else
+		{
+			int t = targetOffset - 1;
+			for(final E e : source)
+			{
+				target[++t] = e;
+			}
+		}
+
+		return target;
 	}
 
 
@@ -1373,7 +1420,7 @@ public final class JadothArrays
 	{
 		return (T[])Array.newInstance(sample.getClass().getComponentType(), length);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static final <T> T[] newArrayBySample(final T[] sample)
 	{

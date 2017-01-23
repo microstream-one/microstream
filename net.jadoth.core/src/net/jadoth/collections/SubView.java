@@ -32,12 +32,6 @@ public class SubView<E> implements XGettingSequence<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-
-	@Override
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME SubView#iterate()
@@ -230,22 +224,10 @@ public class SubView<E> implements XGettingSequence<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-
-	@Override
 	public long count(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new net.jadoth.meta.NotImplementedYetError();
-//	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)

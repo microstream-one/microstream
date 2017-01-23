@@ -908,30 +908,6 @@ public final class XUtilsCollection
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
 	}
 
-	public static <E> E[] rngToArray(
-		final XGettingSequence<E> sequence,
-		final long                offset  ,
-		final long                length  ,
-		final Class<E>            type
-	)
-	{
-		return sequence.copyTo(
-			JadothArrays.newArray(type, Jadoth.to_int(length)), 0,
-			offset,
-			Jadoth.to_int(length)
-		);
-	}
-
-	public static <E> Object[] rngToArray(final XGettingSequence<E> sequence, final long offset, final long length)
-	{
-		return sequence.copyTo(
-			new Object[Jadoth.to_int(length)],
-			0,
-			offset,
-			Jadoth.to_int(length)
-		);
-	}
-
 	public static <E> boolean rngEqualsContent(
 		final XGettingSequence<E>           sequence ,
 		final long                          offset   ,
@@ -2200,7 +2176,10 @@ public final class XUtilsCollection
 
 	public static <E, S extends E> E[] toArray(final XGettingCollection<S> collection, final Class<E> arrayComponentType)
 	{
-		return collection.copyTo(JadothArrays.newArray(arrayComponentType, Jadoth.to_int(collection.size())), 0);
+		final E[] array = JadothArrays.newArray(arrayComponentType, Jadoth.to_int(collection.size()));
+		JadothArrays.copyTo(collection, array);
+
+		return array;
 	}
 
 

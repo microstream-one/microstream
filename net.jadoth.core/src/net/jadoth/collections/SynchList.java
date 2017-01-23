@@ -392,28 +392,10 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final synchronized <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
-	public final synchronized <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
-	@Override
 	public final synchronized <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public final synchronized int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.count(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized long count(final E element)

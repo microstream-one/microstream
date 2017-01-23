@@ -143,16 +143,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public LimitList(final XGettingCollection<? extends E> elements) throws NullPointerException
 	{
 		super();
-		if(elements.hasVolatileElements())
-		{
-			final E[] buffer = bendArray(elements.toArray()); // reduce to only actual elements
-			this.data = newArray(this.size = buffer.length);
-			System.arraycopy(buffer, 0, this.data, 0, this.size);
-		}
-		else
-		{
-			this.data = bendArray(elements.copyTo(new Object[this.size = Jadoth.to_int(elements.size())], 0));
-		}
+		this.data = newArray(this.size = elements.intSize());
+		JadothArrays.copyTo(elements, this.data);
 		this.limit = this.data.length;
 	}
 
@@ -815,19 +807,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
 		return AbstractArrayStorage.copyTo(this.data, this.size, target, predicate);
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		System.arraycopy(this.data, 0, target, offset, this.size);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return AbstractArrayStorage.rngCopyTo(this.data, this.size, Jadoth.checkArrayRange(offset), length, target, targetOffset);
 	}
 
 	@Override

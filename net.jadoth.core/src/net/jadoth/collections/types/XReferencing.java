@@ -69,9 +69,6 @@ public interface XReferencing<E> extends XGettingList<E>, XGettingEnum<E>, Refer
 	public <T extends Consumer<? super E>> T copySelection(T target, long... indices);
 
 	@Override
-	public <T> T[] copyTo(T[] target, int targetOffset, long offset, int length);
-
-	@Override
 	public Iterator<E> iterator();
 
 	@Override
@@ -145,9 +142,6 @@ public interface XReferencing<E> extends XGettingList<E>, XGettingEnum<E>, Refer
 
 	@Override
 	public <T extends Consumer<? super E>> T filterTo(T target, Predicate<? super E> predicate);
-
-	@Override
-	public <T> T[] copyTo(T[] target, int targetOffset);
 
 	@Override
 	public <T extends Consumer<? super E>> T union(XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);

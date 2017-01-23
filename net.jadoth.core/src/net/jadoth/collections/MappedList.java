@@ -207,34 +207,9 @@ public class MappedList<E, S> implements XGettingList<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		// (19.11.2011)NOTE: range validation for subject is done in ranged execution method
-		AbstractArrayStorage.validateRange0toUpperBound(target.length, targetOffset, length);
-
-		XUtilsCollection.rngIterate(this.subject, offset, length, new Consumer<S>()
-		{
-			int toff = targetOffset;
-			@SuppressWarnings("unchecked")
-			@Override
-			public void accept(final S e)
-			{
-				target[this.toff++] = (T)MappedList.this.mapper.apply(e);
-			}
-		});
-		return target;
-	}
-
-	@Override
 	public Iterator<E> iterator()
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#iterator
-	}
-
-	@Override
-	public Object[] toArray()
-	{
-		return this.copyTo(new Object[Jadoth.to_int(this.subject.size())], 0);
 	}
 
 	@Override
@@ -397,12 +372,6 @@ public class MappedList<E, S> implements XGettingList<E>
 
 	@Override
 	public <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo
 	}

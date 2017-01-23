@@ -875,13 +875,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		ConstHashTable.this.chain.copyToArray(0, ConstHashTable.this.size, target, offset);
-		return target;
-	}
-
-	@Override
 	public final <C extends Consumer<? super KeyValue<K, V>>> C distinct(final C target)
 	{
 		return this.distinct(target, this.equality());
@@ -905,13 +898,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public final <T extends Consumer<? super KeyValue<K, V>>> T copySelection(final T target, final long... indices)
 	{
 		ConstHashTable.this.chain.copySelection(target, indices);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		ConstHashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 		return target;
 	}
 
@@ -1341,13 +1327,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int offset)
-		{
-			ConstHashTable.this.chain.keyCopyToArray(0, ConstHashTable.this.size, target, offset);
-			return target;
-		}
-
-		@Override
 		public final <C extends Consumer<? super K>> C distinct(final C target)
 		{
 			return ConstHashTable.this.chain.keyDistinct(target);
@@ -1405,13 +1384,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		public final <T extends Consumer<? super K>> T copySelection(final T target, final long... indices)
 		{
 			ConstHashTable.this.chain.keyCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			ConstHashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 
@@ -1665,13 +1637,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset)
-		{
-			ConstHashTable.this.chain.valuesCopyToArray(0, Jadoth.to_int(this.size()), target, targetOffset);
-			return target;
-		}
-
-		@Override
 		public final long count(final V value)
 		{
 			return ConstHashTable.this.chain.valuesCount(value);
@@ -1909,13 +1874,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		public final <T extends Consumer<? super V>> T copySelection(final T target, final long... indices)
 		{
 			ConstHashTable.this.chain.valuesCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			ConstHashTable.this.chain.valuesCopyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 

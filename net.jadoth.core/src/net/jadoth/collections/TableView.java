@@ -158,12 +158,6 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 		return this.subject.copySelection(target, indices);
 	}
 
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
 	@Deprecated
 	@Override
 	public int hashCode()
@@ -313,12 +307,6 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	public <T extends Consumer<? super KeyValue<K, V>>> T filterTo(final T target, final Predicate<? super KeyValue<K, V>> predicate)
 	{
 		return this.subject.filterTo(target, predicate);
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		return this.subject.copyTo(target, targetOffset);
 	}
 
 	@Override

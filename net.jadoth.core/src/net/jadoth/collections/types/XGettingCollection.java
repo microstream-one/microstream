@@ -171,9 +171,6 @@ Copyable
 
 	public <T extends Consumer<? super E>> T filterTo(T target, Predicate<? super E> predicate);
 
-	// sadly, "T super E" is not possible. One of many Java generics typing loopholes. Type safety is the user's manual responsibility.
-	public <T> T[] copyTo(T[] target, int targetOffset);
-
 	public <T extends Consumer<? super E>> T union    (XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
 
 	public <T extends Consumer<? super E>> T intersect(XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);

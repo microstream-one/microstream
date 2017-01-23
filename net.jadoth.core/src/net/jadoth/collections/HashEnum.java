@@ -846,13 +846,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		this.chain.copyToArray(0, this.size, target, offset);
-		return target;
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C distinct(final C target)
 	{
 		return this.chain.distinct(target);
@@ -1036,13 +1029,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
 		this.chain.copySelection(target, indices);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		this.chain.copyToArray(offset, length, target, targetOffset);
 		return target;
 	}
 

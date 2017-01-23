@@ -960,15 +960,6 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		synchronized(this.lock)
-		{
-			return this.subject.copyTo(target, targetOffset);
-		}
-	}
-
-	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T union(
 		final XGettingCollection<? extends KeyValue<K, V>> other,
 		final Equalator<? super KeyValue<K, V>> equalator,

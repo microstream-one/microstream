@@ -146,10 +146,4 @@ public class BridgeXCollection<E> implements OldCollection<E>
 		return this.subject.toArray();
 	}
 
-	@Override
-	public <T> T[] toArray(final T[] a)
-	{
-		return this.subject.copyTo(a, 0);
-	}
-
 }

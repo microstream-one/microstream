@@ -188,12 +188,6 @@ public final class CompositeList<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#copyTo()
-	}
-
-	@Override
 	public final Iterator<E> iterator()
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#iterator()
@@ -443,12 +437,6 @@ public final class CompositeList<E> implements XGettingList<E>
 	public final <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#filterTo()
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo()
 	}
 
 	@Override

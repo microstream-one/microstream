@@ -146,28 +146,10 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return target;
 	}
-
-//	@Override
-//	public final int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.count(sample, equalator);
-//	}
 
 	@Override
 	public final long count(final E element)

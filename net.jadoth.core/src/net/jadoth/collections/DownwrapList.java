@@ -635,28 +635,6 @@ public final class DownwrapList<E> implements XList<E>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		if(this.subject instanceof XGettingSequence<?>)
-		{
-			return ((XGettingSequence<E>)this.subject).copyTo(target, offset);
-		}
-		throw new UnsupportedOperationException();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		if(this.subject instanceof XGettingSequence<?>)
-		{
-			return ((XGettingSequence<E>)this.subject).copyTo(target, targetOffset, offset, length);
-		}
-		throw new UnsupportedOperationException();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		if(this.subject instanceof XGettingCollection<?>)

@@ -447,18 +447,48 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			return false;
 		}
 
-		if(samples == this)
-		{
-			return true;
-		}
-
+		// this check inside
 		return this.equalsContent(samples, equalator);
 	}
 
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equalsContent()
+		if(samples == this)
+		{
+			return true;
+		}
+
+		// quick-check for equal size.
+		if(this.size() != samples.size())
+		{
+			return false;
+		}
+
+		final Iterator<? extends E> sampleIterator = samples.iterator();
+
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				if(!sampleIterator.hasNext())
+				{
+					// can't have equal content if one collection has elements and the other one not
+					return false;
+				}
+
+				if(!equalator.equal(elements[i], sampleIterator.next()))
+				{
+					// equalator found a mismatch
+					return false;
+				}
+			}
+		}
+
+		// can't have equal content if one collection has elements and the other one not
+		return !sampleIterator.hasNext();
 	}
 
 	@Override
@@ -640,32 +670,78 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final <T extends Consumer<? super E>> T distinct(final T target)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct()
+		final HashEnum<E> distincts = HashEnum.New();
+
+		// manual loop for passing elements on the fly, not in the end
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				if(distincts.add(elements[i]))
+				{
+					target.accept(elements[i]);
+				}
+			}
+		}
+
+		return target;
 	}
 
 	@Override
 	public final <T extends Consumer<? super E>> T distinct(final T target, final Equalator<? super E> equalator)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct()
+		// a set would have to fully iterate as well for a custom equalator
+		final Object[] distincts = new Object[this.intSize()];
+		int k = 0;
+
+		mainLoop:
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				final E element = elements[i];
+				for(int j = 0; j < k; j++)
+				{
+					if(equalator.equal((E)distincts[j], element))
+					{
+						continue mainLoop;
+					}
+				}
+				distincts[k++] = element;
+				target.accept(element);
+			}
+		}
+
+		return target;
 	}
 
 	@Override
 	public final <T extends Consumer<? super E>> T copyTo(final T target)
 	{
-		this.iterate(e -> target.accept(e));
-		return target;
+		return this.iterate(target);
 	}
 
 	@Override
 	public final <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#filterTo()
-	}
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			final int bound    = segment.size    ;
+			final E[] elements = segment.elements;
+			for(int i = 0; i < bound; i++)
+			{
+				if(predicate.test(elements[i]))
+				{
+					target.accept(elements[i]);
+				}
+			}
+		}
 
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#copyTo()
+		return target;
 	}
 
 	@Override
@@ -997,12 +1073,6 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#copySelection()
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#copyTo()
 	}
 
 	@Override

@@ -300,15 +300,6 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		synchronized(this.mutex)
-		{
-			return this.subject.copyTo(target, offset);
-		}
-	}
-
-	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		synchronized(this.mutex)

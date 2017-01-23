@@ -1396,13 +1396,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		HashTable.this.chain.copyToArray(0, HashTable.this.size, target, offset);
-		return target;
-	}
-
-	@Override
 	public final <C extends Consumer<? super KeyValue<K, V>>> C distinct(final C target)
 	{
 		return HashTable.this.chain.distinct(target);
@@ -1630,13 +1623,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	public final <T extends Consumer<? super KeyValue<K, V>>> T copySelection(final T target, final long... indices)
 	{
 		HashTable.this.chain.copySelection(target, indices);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		HashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 		return target;
 	}
 
@@ -2366,13 +2352,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int offset)
-		{
-			HashTable.this.chain.keyCopyToArray(0, HashTable.this.size, target, offset);
-			return target;
-		}
-
-		@Override
 		public final <C extends Consumer<? super K>> C distinct(final C target)
 		{
 			return HashTable.this.chain.keyDistinct(target);
@@ -2674,13 +2653,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		public final <T extends Consumer<? super K>> T copySelection(final T target, final long... indices)
 		{
 			HashTable.this.chain.keyCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			HashTable.this.chain.copyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 
@@ -3262,13 +3234,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset)
-		{
-			HashTable.this.chain.valuesCopyToArray(0, Jadoth.to_int(this.size()), target, targetOffset);
-			return target;
-		}
-
-		@Override
 		public final long count(final V value)
 		{
 			return HashTable.this.chain.valuesCount(value);
@@ -3507,13 +3472,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		public final <T extends Consumer<? super V>> T copySelection(final T target, final long... indices)
 		{
 			HashTable.this.chain.valuesCopySelection(target, indices);
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			HashTable.this.chain.valuesCopyToArray(offset, length, target, targetOffset);
 			return target;
 		}
 
@@ -3829,18 +3787,21 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final Values set(final long offset, final XGettingSequence<? extends V> values, final long valuesOffset, final long valuesLength)
 		{
-			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
-			@SuppressWarnings("unchecked")
-			final V[] copy = (V[])values.copyTo(
-				new Object[Jadoth.checkArrayRange(valuesLength)],
-				0                                               ,
-				offset                                          ,
-				Jadoth.checkArrayRange(valuesLength)
-			);
+			// (23.01.2017 TM)NOTE: copyTo() removed. No time for a replacement, atm.
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME HashTable.Values#set()
 
-			HashTable.this.chain.valuesSet(valuesOffset, copy);
-
-			return this;
+//			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
+//			@SuppressWarnings("unchecked")
+//			final V[] copy = (V[])values.copyTo(
+//				new Object[Jadoth.checkArrayRange(valuesLength)],
+//				0                                               ,
+//				offset                                          ,
+//				Jadoth.checkArrayRange(valuesLength)
+//			);
+//
+//			HashTable.this.chain.valuesSet(valuesOffset, copy);
+//
+//			return this;
 		}
 
 		@Override

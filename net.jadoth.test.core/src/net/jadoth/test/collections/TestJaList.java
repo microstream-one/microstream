@@ -100,7 +100,6 @@ public class TestJaList
 //		.testContains(arrayAddValues[0])
 		.testLastIndexOf(arrayAddValues[5])
 		.testToArray()
-		.testToArrayTyped()
 		.testProcess()
 		.testInsertAtStart()
 		.testInsertAtEnd()
@@ -372,13 +371,6 @@ public class TestJaList
 		final Object[] testeeArray = this.testee.toArray();
 		final Object[] matcherArray = this.matcher.toArray();
 		return this.check("testToArray", Arrays.equals(testeeArray, matcherArray));
-	}
-
-	public TestJaList testToArrayTyped()
-	{
-		final String[] testeeArray = this.testee.copyTo(new String[Jadoth.to_int(this.testee.size())], 0);
-		final String[] matcherArray = this.matcher.copyTo(new String[Jadoth.to_int(this.matcher.size())], 0);
-		return this.check("testToArrayTyped", Arrays.equals(testeeArray, matcherArray));
 	}
 
 	public TestJaList testGetConsecutive()

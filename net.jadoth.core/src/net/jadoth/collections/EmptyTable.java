@@ -324,12 +324,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#copyTo()
-	}
-
-	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T union(final XGettingCollection<? extends KeyValue<K, V>> other, final Equalator<? super KeyValue<K, V>> equalator, final T target)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#union()
@@ -453,12 +447,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	public <T extends Consumer<? super KeyValue<K, V>>> T copySelection(final T target, final long... indices)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#copySelection()
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#copyTo()
 	}
 
 	@Override
@@ -680,12 +668,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			return X.<V>empty().copyTo(target, targetOffset, offset, length);
-		}
-
-		@Override
 		public final boolean hasVolatileElements()
 		{
 			return X.<V>empty().hasVolatileElements();
@@ -827,12 +809,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		public final <T extends Consumer<? super V>> T filterTo(final T target, final Predicate<? super V> predicate)
 		{
 			return X.<V>empty().filterTo(target, predicate);
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset)
-		{
-			return X.<V>empty().copyTo(target, targetOffset);
 		}
 
 		@Override
@@ -1067,12 +1043,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-		{
-			return X.<K>empty().copyTo(target, targetOffset, offset, length);
-		}
-
-		@Override
 		public final boolean hasVolatileElements()
 		{
 			return X.<K>empty().hasVolatileElements();
@@ -1212,12 +1182,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 
 		@Override
 		public final <T extends Consumer<? super K>> T filterTo(final T target, final Predicate<? super K> predicate)
-		{
-			return target;
-		}
-
-		@Override
-		public final <T> T[] copyTo(final T[] target, final int targetOffset)
 		{
 			return target;
 		}

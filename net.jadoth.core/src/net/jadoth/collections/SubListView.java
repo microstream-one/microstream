@@ -463,7 +463,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public Object[] toArray()
 	{
-		return XUtilsCollection.rngToArray(this.list, this.startIndex, this.length);
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SubListView#toArray()
 	}
 
 	@Override
@@ -515,12 +515,6 @@ public class SubListView<E> implements XGettingList<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.list.copyTo(target, offset, this.startIndex, Jadoth.checkArrayRange(this.length));
-	}
-
-	@Override
 	public <C extends Consumer<? super E>> C distinct(final C target)
 	{
 		return XUtilsCollection.rngDistinct(this.list, this.startIndex, this.length, target);
@@ -553,7 +547,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		return XUtilsCollection.rngToArray(this.list, this.startIndex, this.length, type);
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SubListView#toArray()
 	}
 
 	@Override
@@ -613,25 +607,6 @@ public class SubListView<E> implements XGettingList<E>
 			return (SubListView<E>)super.parent();
 		}
 
-	}
-
-//	@Override
-//	public SubListView<E> iterate(final CtrlProcedure<? super E> procedure)
-//	{
-//		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//	}
-
-//	@Override
-//	public SubListView<E> iterate(final CtrlIndexProcedure<? super E> procedure)
-//	{
-////		XSequences.rngIterate(this.list, this.startIndex, this.length, procedure);
-//		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
 	}
 
 }

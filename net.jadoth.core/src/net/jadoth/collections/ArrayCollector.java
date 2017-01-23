@@ -749,26 +749,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return AbstractArrayStorage.copyTo(this.data, this.size, target, predicate);
 	}
 
-	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		System.arraycopy(this.data, 0, target, offset, this.size);
-		return target;
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return AbstractArrayStorage.rngCopyTo(
-			this.data                     ,
-			this.size                     ,
-			Jadoth.checkArrayRange(offset),
-			length                        ,
-			target                        ,
-			targetOffset
-		);
-	}
-
 	public <T> T[] rngCopyTo(final int startIndex, final int length, final T[] target, final int offset)
 	{
 		return AbstractArrayStorage.rngCopyTo(

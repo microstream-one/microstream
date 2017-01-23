@@ -166,22 +166,6 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		return target;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		if(offset != 0)
-		{
-			throw new IndexOutOfBoundsException();
-		}
-		if(length != 1)
-		{
-			throw new IndexOutOfBoundsException();
-		}
-		target[targetOffset] = (T)this.element;
-		return target;
-	}
-
 	@Override
 	public final E first()
 	{
@@ -358,14 +342,6 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		{
 			target.accept(this.element);
 		}
-		return target;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		target[targetOffset] = (T)this.element;
 		return target;
 	}
 

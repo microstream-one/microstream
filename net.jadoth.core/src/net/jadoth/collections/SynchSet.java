@@ -236,22 +236,10 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public synchronized <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
 	public synchronized <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public synchronized int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.count(sample, equalator);
-//	}
 
 	@Override
 	public synchronized long count(final E element)

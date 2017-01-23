@@ -145,28 +145,10 @@ public class ListAccessor<E> implements XSettingList<E>
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public final int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.count(sample, equalator);
-//	}
 
 	@Override
 	public final long count(final E element)

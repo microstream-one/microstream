@@ -206,22 +206,10 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 	}
 
 	@Override
-	public final synchronized <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
 	public final synchronized <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public final synchronized int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.count(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized long count(final E element)

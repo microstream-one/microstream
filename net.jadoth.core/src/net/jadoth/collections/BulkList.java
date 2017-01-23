@@ -974,26 +974,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		System.arraycopy(this.data, 0, target, offset, this.size);
-		return target;
-	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return AbstractArrayStorage.rngCopyTo(
-			this.data                     ,
-			this.size                     ,
-			Jadoth.checkArrayRange(offset),
-			length                        ,
-			target                        ,
-			targetOffset
-		);
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C distinct(final C target)
 	{
 		return AbstractArrayStorage.distinct(this.data, this.size, target);

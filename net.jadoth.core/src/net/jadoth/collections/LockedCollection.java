@@ -244,15 +244,6 @@ public final class LockedCollection<E> implements XCollection<E>, Synchronized
 	}
 
 	@Override
-	public final <T> T[] copyTo(final T[] target, final int offset)
-	{
-		synchronized(this.lock)
-		{
-			return this.subject.copyTo(target, offset);
-		}
-	}
-
-	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		synchronized(this.lock)

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.JadothArrays;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.VMUtils;
 import sun.misc.Unsafe;
@@ -334,7 +335,13 @@ public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.20
 				buffer.add(Jadoth.keyValue((K)e.key, (V)e.value));
 			}
 		}
-		return buffer.copyTo(new KeyValue[Jadoth.to_int(buffer.size())], 0);
+
+		@SuppressWarnings("rawtypes")
+		final KeyValue[] kv = new KeyValue[Jadoth.to_int(buffer.size())];
+
+		JadothArrays.copyTo(buffer, kv);
+
+		return kv;
 	}
 
 	@Override

@@ -37,12 +37,6 @@ public abstract class AbstractArrayCollection<E> extends AbstractExtendedCollect
 		return (E[])new Object[length];
 	}
 
-	@SuppressWarnings("unchecked")
-	protected static final <E> E[] bendArray(final Object[] array)
-	{
-		return (E[])array;
-	}
-
 	protected static final <E> E[] newArray(final int length, final E[] oldData, final int oldDataLength)
 	{
 		final E[] newArray = newArray(length);

@@ -131,12 +131,6 @@ public class SingletonView<E> implements XReferencing<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
-	@Override
 	public E first()
 	{
 		return this.subject.first();
@@ -286,12 +280,6 @@ public class SingletonView<E> implements XReferencing<E>
 	public <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
 	{
 		return this.subject.filterTo(target, predicate);
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		return this.subject.copyTo(target, targetOffset);
 	}
 
 	@Override

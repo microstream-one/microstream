@@ -153,22 +153,10 @@ public final class SetView<E> implements XGettingSet<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.set.count(sample, equalator);
-//	}
 
 	@Override
 	public long count(final E element)

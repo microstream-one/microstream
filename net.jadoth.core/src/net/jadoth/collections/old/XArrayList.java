@@ -468,22 +468,10 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-	}
-
-	@Override
 	public long count(final E element)
 	{
 		return AbstractArrayStorage.count(this.internalGetStorageArray(), this.subject.size(), element);
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.count(this.internalGetStorageArray(), this.subject.size(), sample, equalator);
-//	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
@@ -786,12 +774,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 	@Override
 	public <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}

@@ -117,8 +117,6 @@ public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequ
 
 	public <T extends Consumer<? super E>> T copySelection(T target, long... indices);
 
-	public <T> T[] copyTo(T[] target, int targetOffset, long offset, int length);
-
 	@Override
 	public XGettingSequence<E> view();
 

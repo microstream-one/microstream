@@ -774,24 +774,6 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 	}
 
-//	@Override
-//	public final SubList<E> iterate(final CtrlProcedure<? super E> procedure)
-//	{
-//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
-//	@Override
-//	public final SubList<E> iterate(final CtrlIndexProcedure<? super E> procedure)
-//	{
-//		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
-	@Override
-	public final <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-	}
-
 	@Override
 	public final SubList<E> reverse()
 	{

@@ -529,27 +529,6 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 		return AbstractArrayStorage.copyTo((E[])this.data, this.data.length, target, predicate);
 	}
 
-	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		System.arraycopy(this.data, 0, target, offset, this.data.length);
-		return target;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return AbstractArrayStorage.rngCopyTo(
-			(E[])this.data                ,
-			this.data.length              ,
-			Jadoth.checkArrayRange(offset),
-			length                        ,
-			target                        ,
-			targetOffset
-		);
-	}
-
 	@SuppressWarnings("unchecked")
 	public <T> T[] rngCopyTo(final int startIndex, final int length, final T[] target, final int offset)
 	{

@@ -121,12 +121,6 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	}
 
 	@Override
-	public <T> T[] toArray(final T[] a)
-	{
-		return this.subject.copyTo(a, 0);
-	}
-
-	@Override
 	public String toString()
 	{
 		return this.subject.toString();

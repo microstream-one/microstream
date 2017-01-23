@@ -345,12 +345,6 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset)
-	{
-		return this.subject.copyTo(target, targetOffset);
-	}
-
-	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T union(
 		final XGettingCollection<? extends KeyValue<K, V>> other    ,
 		final Equalator<? super KeyValue<K, V>>            equalator,

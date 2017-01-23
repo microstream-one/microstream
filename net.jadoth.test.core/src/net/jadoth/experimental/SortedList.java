@@ -192,28 +192,10 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	}
 
 	@Override
-	public <T> T[] copyTo(final T[] target, final int offset)
-	{
-		return this.subject.copyTo(target, offset);
-	}
-
-	@Override
-	public <T> T[] copyTo(final T[] target, final int targetOffset, final long offset, final int length)
-	{
-		return this.subject.copyTo(target, targetOffset, offset, length);
-	}
-
-	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
 		return this.subject.copyTo(target);
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.count(sample, equalator);
-//	}
 
 	@Override
 	public long count(final E element)
