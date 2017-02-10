@@ -238,6 +238,24 @@ public final class JadothCollections
 			return vs.add('[', ']');
 		}
 
+		/*
+		 * Intentionally no check for this collection, because it is the author's opinion that there is no sane
+		 * case where circular references in collections make sense.
+		 * 1.) Properly typed collections and algorithms don't even allow it on a compiler-level
+		 * 2.) Any complex special corner case structures, where this MIGHT be reasonable,
+		 *     should typewise be segmented into appropriate types, not overly crazy nested collections.
+		 *     The non-collection instances would serve as an assembly-block.
+		 * 3.) In 99.99% of all cases, such a check would mean a significant performance reduction. Such a cost
+		 *     just to cover a crazy case that should never happen is viable.
+		 * 4.) Any string chosen to represent that case (like JKD's "(this collection)" can create ambiguities
+		 *     for the calling application.
+		 *
+		 * In other words: A framework should not worsen/ruin its code just to try and compensate bad programming
+		 * in a dubious makeshift way. Bad user code creates errors/crashes. It happens all the time. It can't be
+		 * the responsibility of a framework to compensate some of them. The cleanest and best thing to do is to
+		 * indicate the error (in this case by an overflow error) instead of covering it up.
+		 */
+
 		vs.append('[');
 		collection.iterate(e ->
 			vs.add(e).add(',', ' ')

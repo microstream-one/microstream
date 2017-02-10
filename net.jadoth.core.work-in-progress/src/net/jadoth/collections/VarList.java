@@ -15,12 +15,12 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.branching.ThrowBreak;
 
 
 /**
@@ -37,7 +37,6 @@ import net.jadoth.util.Equalator;
  *
  * @param <E>
  */
-@SuppressWarnings("all")
 public final class VarList<E> implements Composition, XList<E>, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -61,6 +60,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	// static methods   //
 	/////////////////////
 
+	@SuppressWarnings("unchecked")
 	static final <E> E[] newArray(final int size)
 	{
 		return (E[])new Object[size];
@@ -101,11 +101,11 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 
 	static final class Segment<E>
 	{
-		      int     size      ;
-		      Segment prev, next;
-		final E[]     elements  ;
+		      int        size      ;
+		      Segment<E> prev, next;
+		final E[]        elements  ;
 
-		Segment(final int capacity, final Segment prev, final Segment next)
+		Segment(final int capacity, final Segment<E> prev, final Segment<E> next)
 		{
 			super();
 			this.size = 0;
@@ -232,6 +232,135 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	/////////////////////
 
 	@Override
+	public final E at(final long index)
+	{
+		return index < this.size() >>> 1
+			? this.atLow(index)
+			: this.atHigh(index)
+		;
+	}
+
+	public final E atLow(final long lowIndex)
+	{
+		this.internalValidateIndex(lowIndex);
+
+		long idx = lowIndex;
+		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		{
+			if(idx < segment.size)
+			{
+				return segment.elements[(int)idx];
+			}
+			idx -= segment.size;
+		}
+
+		// getting here means an error in the logic above
+		throw new Error();
+	}
+
+	public final E atHigh(final long highIndex)
+	{
+		this.internalValidateIndex(highIndex);
+
+		long idx = highIndex;
+		for(Segment<E> segment = this.tail; segment != null; segment = segment.prev)
+		{
+			if(idx < segment.size)
+			{
+				return segment.elements[(int)idx];
+			}
+			idx -= segment.size;
+		}
+
+		// getting here means an error in the logic above
+		throw new Error();
+	}
+
+
+	@Override
+	public final E first()
+	{
+		if(this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+		return this.headElements[0];
+	}
+
+	@Override
+	public final E last()
+	{
+		// simple case: the tail segment is not empty
+		if(this.tailSize > 0)
+		{
+			return this.tailElements[this.tailSize - 1];
+		}
+
+		// for the complex case, first check if the collection contains any elements at all
+		if(this.restSize == 0 && this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+
+		// complex (and rather rare) case. Moved to a separate method to help hotspot optimizing.
+		return this.complexLast();
+	}
+
+	private E complexLast()
+	{
+		// complex case: search for the applicable segment
+		Segment<E> s = this.tail;
+		while(s.size == 0)
+		{
+			// the check above guarantees that a NPE can never happen here. If it does, the list was inconsistent.
+			s = s.prev;
+		}
+
+		return s.elements[s.size - 1];
+	}
+
+	@Override
+	public final E poll()
+	{
+		return this.headSize == 0
+			? null
+			: this.headElements[0]
+		;
+	}
+
+	@Override
+	public final E peek()
+	{
+		// simple case: the tail segment is not empty
+		if(this.tailSize > 0)
+		{
+			return this.tailElements[this.tailSize - 1];
+		}
+
+		// for the complex case, first check if the collection contains any elements at all
+		if(this.restSize == 0 && this.headSize == 0)
+		{
+			return null;
+		}
+
+		// complex (and rather rare) case. Moved to a separate method to help hotspot optimizing.
+		return this.complexPeek();
+	}
+
+	private E complexPeek()
+	{
+		// complex case: search for the applicable segment
+		Segment<E> s = this.tail;
+		while(s.size == 0)
+		{
+			// the check above guarantees that a NPE can never happen here. If it does, the list was inconsistent.
+			s = s.prev;
+		}
+
+		return s.elements[s.size - 1];
+	}
+
+	@Override
 	public final void accept(final E element)
 	{
 		this.internalAdd(element);
@@ -249,6 +378,116 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	{
 		this.internalAdd(null);
 		return true;
+	}
+
+	@SafeVarargs
+	@Override
+	public final VarList<E> addAll(final E... elements)
+	{
+		for(final E e : elements)
+		{
+			this.internalAdd(e);
+		}
+
+		return this;
+	}
+
+	@Override
+	public final VarList<E> addAll(final E[] elements, final int offset, final int length)
+	{
+		final int bound = offset + length;
+		JadothArrays.checkBounds(elements, offset, bound);
+
+		for(int i = offset; i < bound; i++)
+		{
+			this.internalAdd(elements[i]);
+		}
+
+		return this;
+	}
+
+	@Override
+	public final VarList<E> addAll(final XGettingCollection<? extends E> elements)
+	{
+		elements.iterate(this);
+		return this;
+	}
+
+	@SafeVarargs
+	@Override
+	public final VarList<E> putAll(final E... elements)
+	{
+		this.addAll(elements);
+		return this;
+	}
+
+	@Override
+	public final VarList<E> putAll(final E[] elements, final int offset, final int length)
+	{
+		this.addAll(elements, offset, length);
+		return this;
+	}
+
+	@Override
+	public final VarList<E> putAll(final XGettingCollection<? extends E> elements)
+	{
+		elements.iterate(this);
+		return this;
+	}
+
+	@SafeVarargs
+	@Override
+	public final VarList<E> prependAll(final E... elements)
+	{
+		for(final E e : elements)
+		{
+			this.internalPrepend(e);
+		}
+
+		return this;
+	}
+
+	@Override
+	public final VarList<E> prependAll(final E[] elements, final int offset, final int length)
+	{
+		final int bound = offset + length;
+		JadothArrays.checkBounds(elements, offset, bound);
+
+		for(int i = offset; i < bound; i++)
+		{
+			this.internalPrepend(elements[i]);
+		}
+
+		return this;
+	}
+
+	@Override
+	public final VarList<E> prependAll(final XGettingCollection<? extends E> elements)
+	{
+		elements.iterate(this::internalPrepend);
+		return this;
+	}
+
+	@SafeVarargs
+	@Override
+	public final VarList<E> preputAll(final E... elements)
+	{
+		this.prependAll(elements);
+		return this;
+	}
+
+	@Override
+	public final VarList<E> preputAll(final E[] elements, final int offset, final int length)
+	{
+		this.prependAll(elements, offset, length);
+		return this;
+	}
+
+	@Override
+	public final VarList<E> preputAll(final XGettingCollection<? extends E> elements)
+	{
+		this.prependAll(elements);
+		return this;
 	}
 
 	@Override
@@ -693,7 +932,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final <T extends Consumer<? super E>> T distinct(final T target, final Equalator<? super E> equalator)
 	{
 		// a set would have to fully iterate as well for a custom equalator
-		final Object[] distincts = new Object[this.intSize()];
+		final E[] distincts = newArray(this.intSize());
 		int k = 0;
 
 		mainLoop:
@@ -706,7 +945,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 				final E element = elements[i];
 				for(int j = 0; j < k; j++)
 				{
-					if(equalator.equal((E)distincts[j], element))
+					if(equalator.equal(distincts[j], element))
 					{
 						continue mainLoop;
 					}
@@ -745,46 +984,23 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	}
 
 	@Override
-	public final <T extends Consumer<? super E>> T union(
-		final XGettingCollection<? extends E> other    ,
-		final Equalator<? super E>            equalator,
-		final T                               target
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#union()
-	}
-
-	@Override
-	public final <T extends Consumer<? super E>> T intersect(
-		final XGettingCollection<? extends E> other    ,
-		final Equalator<? super E>            equalator,
-		final T                               target
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#intersect()
-	}
-
-	@Override
-	public final <T extends Consumer<? super E>> T except(
-		final XGettingCollection<? extends E> other    ,
-		final Equalator<? super E>            equalator,
-		final T                               target
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#except()
-	}
-
-	@Override
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
-		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		try
 		{
-			final int bound    = segment.size    ;
-			final E[] elements = segment.elements;
-			for(int i = 0; i < bound; i++)
+			for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 			{
-				procedure.accept(elements[i]);
+				final int bound    = segment.size    ;
+				final E[] elements = segment.elements;
+				for(int i = 0; i < bound; i++)
+				{
+					procedure.accept(elements[i]);
+				}
 			}
+		}
+		catch(final ThrowBreak b)
+		{
+			// abort iteration
 		}
 
 		return procedure;
@@ -793,25 +1009,26 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final <IP extends IndexProcedure<? super E>> IP iterateIndexed(final IP procedure)
 	{
-		long index = 0;
-		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+		try
 		{
-			final int bound    = segment.size    ;
-			final E[] elements = segment.elements;
-			for(int i = 0; i < bound; i++)
+			long index = 0;
+			for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 			{
-				procedure.accept(elements[i], index + i);
+				final int bound    = segment.size    ;
+				final E[] elements = segment.elements;
+				for(int i = 0; i < bound; i++)
+				{
+					procedure.accept(elements[i], index + i);
+				}
+				index += bound;
 			}
-			index += bound;
+		}
+		catch(final ThrowBreak b)
+		{
+			// abort iteration
 		}
 
 		return procedure;
-	}
-
-	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XJoinable<E>#join()
 	}
 
 	@Override
@@ -841,7 +1058,54 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final long consolidate()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#consolidate()
+		return 0;
+	}
+
+	@Override
+	public final E fetch()
+	{
+		if(this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+
+		final E firstElement = this.headElements[0];
+		System.arraycopy(this.headElements, 1, this.headElements, 0, this.headSize - 1);
+		this.headSize--;
+
+		return firstElement;
+	}
+
+	@Override
+	public final E pinch()
+	{
+		// simple case: the tail segment is not empty
+		if(this.tailSize > 0)
+		{
+			return this.tailElements[--this.tailSize];
+		}
+
+		// for the complex case, first check if the collection contains any elements at all
+		if(this.restSize == 0 && this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+
+		// complex (and rather rare) case. Moved to a separate method to help hotspot optimizing.
+		return this.complexPinch();
+	}
+
+	private E complexPinch()
+	{
+		// complex case: search for the applicable segment
+		Segment<E> s = this.tail;
+		while(s.size == 0)
+		{
+			// the check above guarantees that a NPE can never happen here. If it does, the list was inconsistent.
+			s = s.prev;
+		}
+
+		return s.elements[--s.size];
 	}
 
 	@Override
@@ -862,9 +1126,27 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#remove()
 	}
 
+
 	@Override
 	public final long removeAll(final XGettingCollection<? extends E> elements)
 	{
+		if(elements.isEmpty())
+		{
+			return 0;
+		}
+
+		// use a random (the "first") element to be removed as the remove marker, may even be null
+		final E removeMarker = elements.get();
+
+		// for each segment
+		// from start to end
+		// while element fits increment copy source offset, increment shrinkcount
+		// while element not fits increment copy range
+		// execute copy
+		// if shrink count equals segment size (segment is empty), remove segment. Otherwise shink segment size
+
+		// what about previous segment with spare slots? Could be consolidated on the fly
+
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#removeAll()
 	}
 
@@ -878,18 +1160,6 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final long removeDuplicates()
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#removeDuplicates()
-	}
-
-	@Override
-	public final E fetch()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#fetch()
-	}
-
-	@Override
-	public final E pinch()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME VarList#pinch()
 	}
 
 	@Override
@@ -926,84 +1196,6 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final <P extends Consumer<? super E>> P process(final P processor)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Processable<E>#process()
-	}
-
-	@Override
-	public final E at(final long index)
-	{
-		return index < this.size() >>> 1
-			? this.atLow(index)
-			: this.atHigh(index)
-		;
-	}
-
-	public final E atLow(final long lowIndex)
-	{
-		this.internalValidateIndex(lowIndex);
-
-		long idx = lowIndex;
-		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
-		{
-			if(idx < segment.size)
-			{
-				return segment.elements[(int)idx];
-			}
-			idx -= segment.size;
-		}
-
-		// getting here means an error in the logic above
-		throw new Error();
-	}
-
-	public final E atHigh(final long highIndex)
-	{
-		this.internalValidateIndex(highIndex);
-
-		long idx = highIndex;
-		for(Segment<E> segment = this.tail; segment != null; segment = segment.prev)
-		{
-			if(idx < segment.size)
-			{
-				return segment.elements[(int)idx];
-			}
-			idx -= segment.size;
-		}
-
-		// getting here means an error in the logic above
-		throw new Error();
-	}
-
-
-	@Override
-	public final E first()
-	{
-		if(this.isEmpty())
-		{
-			throw new IndexBoundsException(0, 0);
-		}
-		return this.headElements[0];
-	}
-
-	@Override
-	public final E last()
-	{
-		if(this.isEmpty())
-		{
-			throw new IndexBoundsException(0, 0);
-		}
-		return this.tailElements[this.tailSize - 1];
-	}
-
-	@Override
-	public final E poll()
-	{
-		return this.isEmpty() ? null : this.headElements[0];
-	}
-
-	@Override
-	public final E peek()
-	{
-		return this.isEmpty() ? null : this.tailElements[this.tailSize - 1];
 	}
 
 	@Override
@@ -1159,6 +1351,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#nullInput()
 	}
 
+	@SafeVarargs
 	@Override
 	public final long inputAll(final long index, final E... elements)
 	{
@@ -1189,6 +1382,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XInsertingSequence<E>#nullInsert()
 	}
 
+	@SafeVarargs
 	@Override
 	public final long insertAll(final long index, final E... elements)
 	{
@@ -1292,87 +1486,46 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final void setFirst(final E element)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#setFirst()
+		if(this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+		this.headElements[0] = element;
 	}
 
 	@Override
 	public final void setLast(final E element)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#setLast()
+		// simple case: the tail segment is not empty
+		if(this.tailSize > 0)
+		{
+			this.tailElements[this.tailSize - 1] = element;
+			return;
+		}
+
+		// for the complex case, first check if the collection contains any elements at all
+		if(this.restSize == 0 && this.headSize == 0)
+		{
+			throw new IndexBoundsException(0);
+		}
+
+		// complex (and rather rare) case. Moved to a separate method to help hotspot optimizing.
+		this.complexSetLast(element);
 	}
 
-	@Override
-	public final VarList<E> addAll(final E... elements)
+	private void complexSetLast(final E element)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#addAll()
+		// complex case: search for the applicable segment
+		Segment<E> s = this.tail;
+		while(s.size == 0)
+		{
+			// the check above guarantees that a NPE can never happen here. If it does, the list was inconsistent.
+			s = s.prev;
+		}
+		s.elements[s.size - 1] = element;
 	}
 
-	@Override
-	public final VarList<E> addAll(final E[] elements, final int offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#addAll()
-	}
-
-	@Override
-	public final VarList<E> addAll(final XGettingCollection<? extends E> elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#addAll()
-	}
-
-	@Override
-	public final VarList<E> putAll(final E... elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#putAll()
-	}
-
-	@Override
-	public final VarList<E> putAll(final E[] elements, final int offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#putAll()
-	}
-
-	@Override
-	public final VarList<E> putAll(final XGettingCollection<? extends E> elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#putAll()
-	}
-
-	@Override
-	public final VarList<E> prependAll(final E... elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#prependAll()
-	}
-
-	@Override
-	public final VarList<E> prependAll(final E[] elements, final int offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#prependAll()
-	}
-
-	@Override
-	public final VarList<E> prependAll(final XGettingCollection<? extends E> elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#prependAll()
-	}
-
-	@Override
-	public final VarList<E> preputAll(final E... elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#preputAll()
-	}
-
-	@Override
-	public final VarList<E> preputAll(final E[] elements, final int offset, final int length)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#preputAll()
-	}
-
-	@Override
-	public final VarList<E> preputAll(final XGettingCollection<? extends E> elements)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#preputAll()
-	}
-
+	@SafeVarargs
 	@Override
 	public final VarList<E> setAll(final long index, final E... elements)
 	{
@@ -1412,7 +1565,11 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final VarList<E> copy()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#copy()
+		final VarList<E> copy = new VarList<E>(this.segmentLength)
+			.addAll(this)
+		;
+
+		return copy;
 	}
 
 	@Override
@@ -1448,42 +1605,57 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 			return this;
 		}
 
-		// sort every segment on its own
-		final E[] buffer = newArray(this.segmentLength);
-		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
-		{
-			JadothSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
-		}
 
-		// once every segment is sorted in itself, a complete already-sorted check becomes trivial, so it is done.
-		alreadySortedCheck:
-		{
-			final E last = this.headElements[0];
-			for(Segment<E> segment = this.head; segment != null; segment = segment.next)
-			{
-				if(segment.size >= 1 && comparator.compare(last, segment.elements[0]) > 0)
-				{
-					break alreadySortedCheck;
-				}
-			}
-
-			// reaching this point means the list is already sorted
-			return this;
-		}
-
-
-		/* (09.05.2016)FIXME: merge sorted segments properly.
-		 * This is not as simple as it might sound at first.
-		 * But given the amount of established structure in the data and the already existing buffer instance,
-		 * a good algorithm should exist. Maybe even O(n).
+		/* (25.01.2017 TM)TODO: optimize VarList sort
+		 * An efficient sorting algorithm is not a trivial thing to implement for this data structure.
+		 * For now, this rather inefficient and naive approach is used that required three times the instance's
+		 * memory (yes, three times: local buffer array, merge sort buffer array, newly created segments at the end).
 		 *
-		 * Must be stable sorting.
-		 *
-		 * Ideas:
-		 * - Maybe pre-sort segments by comparing highest of one with lowest of the other.
-		 *   But that should hardly have much effect on random data ...
+		 * See below for thoughts about a direct implementation without redundant copying.
 		 */
-		throw new net.jadoth.meta.NotImplementedYetError();
+		final E[] buffer2 = newArray(this.intSize());
+		JadothArrays.copyTo(this, buffer2);
+		JadothSort.sort(buffer2, comparator);
+		this.truncate();
+		this.addAll(buffer2);
+
+		return this;
+
+//		// sort every segment on its own
+//		final E[] buffer = newArray(this.segmentLength);
+//		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+//		{
+//			JadothSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
+//		}
+//
+//		// once every segment is sorted in itself, a complete already-sorted check becomes trivial, so it is done.
+//		alreadySortedCheck:
+//		{
+//			final E last = this.headElements[0];
+//			for(Segment<E> segment = this.head; segment != null; segment = segment.next)
+//			{
+//				if(segment.size >= 1 && comparator.compare(last, segment.elements[0]) > 0)
+//				{
+//					break alreadySortedCheck;
+//				}
+//			}
+//
+//			// reaching this point means the list is already sorted
+//			return this;
+//		}
+//
+//		/* (09.05.2016) merge sorted segments properly.
+//		 * This is not as simple as it might sound at first.
+//		 * But given the amount of established structure in the data and the already existing buffer instance,
+//		 * a good algorithm should exist. Maybe even O(n).
+//		 *
+//		 * Must be stable sorting.
+//		 *
+//		 * Ideas:
+//		 * - Maybe pre-sort segments by comparing highest of one with lowest of the other.
+//		 *   But that should hardly have much effect on random data ...
+//		 */
+//		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 	@Override
@@ -1508,6 +1680,36 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final VarList<E> shiftBy(final long sourceIndex, final long distance, final long length)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XList<E>#shiftBy()
+	}
+
+	@Override
+	public final <T extends Consumer<? super E>> T union(
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#union()
+	}
+
+	@Override
+	public final <T extends Consumer<? super E>> T intersect(
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#intersect()
+	}
+
+	@Override
+	public final <T extends Consumer<? super E>> T except(
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#except()
 	}
 
 	@Override

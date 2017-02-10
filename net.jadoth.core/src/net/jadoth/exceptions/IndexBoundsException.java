@@ -63,7 +63,7 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	public IndexBoundsException(final long indexBound, final String message)
 	{
 		// index may overflow here as it is not deemed relevant by choice of constructor
-		this(0, indexBound, indexBound + 1, message);
+		this(0, indexBound, indexBound, message);
 	}
 
 	public IndexBoundsException(final long indexBound, final long index)

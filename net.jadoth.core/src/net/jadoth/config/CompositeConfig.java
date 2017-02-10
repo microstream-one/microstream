@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.csv.CsvAssembler;
 import net.jadoth.csv.CsvConfiguration;
 import net.jadoth.csv.CsvParser;
@@ -57,7 +58,7 @@ public class CompositeConfig
 	ConfigEntryAggregator importConfigs(
 		final String                     tag       ,
 		final CsvParser<_charArrayRange> parser    ,
-		final ConfigEntryAggregator                          aggregator,
+		final ConfigEntryAggregator      aggregator,
 		final boolean                    mandatory
 	)
 	{
@@ -116,7 +117,11 @@ public class CompositeConfig
 	private final CsvConfiguration               csvConfig      ;
 	private final File                           configDirectory;
 	private final Substituter<String>            stringCache    ;
-	private final EqHashTable<String, SubConfig> subConfigs = EqHashTable.New();
+	private final EqHashTable<String, SubConfig> subConfigs      = EqHashTable.New();
+
+	private final XGettingMap<String, String>    customVariables    ;
+	private final Character                      variableStarter    ;
+	private final Character                      variableTerminator;
 
 	private RootConfig defaultConfig;
 
@@ -127,21 +132,40 @@ public class CompositeConfig
 	/////////////////
 
 	public CompositeConfig(
-		final String              rootIdentifier ,
-		final String              qualifier      ,
-		final String              filesuffix     ,
-		final CsvConfiguration    csvConfig      ,
-		final File                configDirectory,
-		final Substituter<String> stringCache
+		final String                      rootIdentifier    ,
+		final String                      qualifier         ,
+		final String                      filesuffix        ,
+		final CsvConfiguration            csvConfig         ,
+		final File                        configDirectory   ,
+		final Substituter<String>         stringCache       ,
+		final XGettingMap<String, String> customVariables   ,
+		final Character                   variableStarter   ,
+		final Character                   variableTerminator
 	)
 	{
 		super();
-		this.rootIdentifier  = notNull(rootIdentifier) ;
-		this.qualifier       = notNull(qualifier )     ;
-		this.filesuffix      = notNull(filesuffix)     ;
-		this.csvConfig       = notNull(csvConfig )     ;
-		this.configDirectory = notNull(configDirectory);
-		this.stringCache     = notNull(stringCache)    ;
+		this.rootIdentifier     = notNull(rootIdentifier) ;
+		this.qualifier          = notNull(qualifier )     ;
+		this.filesuffix         = notNull(filesuffix)     ;
+		this.csvConfig          = notNull(csvConfig )     ;
+		this.configDirectory    = notNull(configDirectory);
+		this.stringCache        = notNull(stringCache)    ;
+		this.customVariables    = customVariables         ;
+		this.variableStarter    = variableStarter         ;
+		this.variableTerminator = variableTerminator      ;
+	}
+
+	public CompositeConfig(
+		final String                      rootIdentifier    ,
+		final String                      qualifier         ,
+		final String                      filesuffix        ,
+		final CsvConfiguration            csvConfig         ,
+		final File                        configDirectory   ,
+		final Substituter<String>         stringCache       ,
+		final XGettingMap<String, String> customVariables
+	)
+	{
+		this(rootIdentifier, qualifier, filesuffix, csvConfig, configDirectory, stringCache, customVariables, null, null);
 	}
 
 
@@ -150,14 +174,24 @@ public class CompositeConfig
 	// declared methods //
 	/////////////////////
 
+	public File directory()
+	{
+		return this.configDirectory;
+	}
+
 	private RootConfig createRootConfig()
 	{
 		final CsvParser<_charArrayRange> parser = CsvParserCharArray.New();
 		final ConfigEntryAggregator aggregator = ConfigEntryAggregator.New(this.stringCache);
-		final RootConfig defaultConfig = new RootConfig(this.rootIdentifier)
-			.updateDefaults(
-				this.importConfigs(this.rootIdentifier, parser, aggregator, true).yield()
-			)
+		final RootConfig defaultConfig = new RootConfig(
+			this.rootIdentifier    ,
+			this.customVariables   ,
+			this.variableStarter   ,
+			this.variableTerminator
+		)
+		.updateDefaults(
+			this.importConfigs(this.rootIdentifier, parser, aggregator, true).yield()
+		)
 		;
 		return defaultConfig;
 	}
@@ -166,11 +200,16 @@ public class CompositeConfig
 	{
 		final CsvParser<_charArrayRange> parser = CsvParserCharArray.New();
 		final ConfigEntryAggregator aggregator = ConfigEntryAggregator.New(this.stringCache);
-		final SubConfig config = new SubConfig(this.defaultConfig(), identifier)
-			.updateOverrides(
-				this.importConfigs(identifier.toString(), parser, aggregator, false).yield()
-			)
-		;
+		final SubConfig config = new SubConfig(
+			this.defaultConfig(),
+			identifier,
+			this.customVariables,
+			this.variableStarter,
+			this.variableTerminator
+		)
+		.updateOverrides(
+			this.importConfigs(identifier.toString(), parser, aggregator, false).yield()
+		);
 		return config;
 	}
 

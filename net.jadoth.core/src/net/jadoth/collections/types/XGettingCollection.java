@@ -15,6 +15,7 @@ import net.jadoth.collections.XJoinable;
 import net.jadoth.collections.interfaces.CapacityCarrying;
 import net.jadoth.collections.interfaces.ExtendedCollection;
 import net.jadoth.collections.old.OldCollection;
+import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.ToArrayAggregator;
 import net.jadoth.util.Copyable;
 import net.jadoth.util.Equalator;
@@ -176,6 +177,17 @@ Copyable
 	public <T extends Consumer<? super E>> T intersect(XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
 
 	public <T extends Consumer<? super E>> T except   (XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
+
+
+	@Override
+	public default <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	{
+		this.iterate(e ->
+			joiner.accept(e, aggregate)
+		);
+		return aggregate;
+	}
+
 
 	// (10.06.2014 TM)FIXME: remove old equality from interface / move to "Old" interfaces
 	/**

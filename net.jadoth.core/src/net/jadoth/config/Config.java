@@ -6,7 +6,15 @@ public interface Config
 {
 	public XGettingTable<String, String> table();
 
-	public String get(String key);
+	public default String getValue(final String key)
+	{
+		return this.getRawValue(key);
+	}
+
+	public default String getRawValue(final String key)
+	{
+		return this.table().get(key);
+	}
 
 	public String identifier();
 

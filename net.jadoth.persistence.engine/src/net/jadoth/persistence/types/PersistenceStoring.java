@@ -20,7 +20,7 @@ public interface PersistenceStoring
 	 * Stores the passed instance and all referenced instances of persistable references recursively (fully deep).
 	 * This is useful for storing all instances of an isolated sub-graph automatically, even if some of them are
 	 * already known to the registry.
-	 * Note, however, that depending on the data model, this can cause the whole enity graph to be stored.
+	 * Note, however, that depending on the data model, this can cause the whole enity graph to be stored on every call.
 	 *
 	 * @param instance the root instance of the subgraph to be stored.
 	 * @return the object id representing the passed instances that was used to unswizzle it.
@@ -32,7 +32,7 @@ public interface PersistenceStoring
 	 * but stores referenced instances only if they are newly encountered (e.g. don't have an id associated with
 	 * them in the object registry, yet and are therefore required to be handled).
 	 * This is useful for the common case of just storing an updated instance and potentially newly created
-	 * instances along with it while skipping all existing (and unchanged) referenced instances.<p>
+	 * instances along with it while skipping all existing (and normally unchanged) referenced instances.<p>
 	 *
 	 * @param instance the root instance of the subgraph of required instances to be stored.
 	 * @return the object id representing the passed instances that was used to unswizzle it.
@@ -54,5 +54,28 @@ public interface PersistenceStoring
 	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
 	 */
 	public long[] storeAllRequired(Object... instances);
+
+
+	/**
+	 * The "natural" way of storing. By default, this method is just an alias for {@link #storeRequired(Object)}.
+	 *
+	 * @param instance the root instance of the subgraph of instances to be stored.
+	 * @return
+	 */
+	public default long store(final Object instance)
+	{
+		return this.storeRequired(instance);
+	}
+
+	/**
+	 * Convenience method to {@link #store(Object)} multiple instances.
+	 *
+	 * @param instances the root instances of the subgraphs of instances to be stored.
+	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
+	 */
+	public default long[] storeAll(final Object... instances)
+	{
+		return this.storeAllRequired(instances);
+	}
 
 }

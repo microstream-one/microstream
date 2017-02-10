@@ -1,9 +1,8 @@
 package net.jadoth.config;
 
-import java.util.function.Consumer;
-
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 
 
@@ -22,6 +21,21 @@ public class RootConfig extends AbstractConfig
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+
+	public RootConfig(
+		final String                      identifier        ,
+		final XGettingMap<String, String> customVariables   ,
+		final Character                   variableStarter   ,
+		final Character                   variableTerminator
+	)
+	{
+		super(identifier, customVariables, variableStarter, variableTerminator);
+	}
+
+	public RootConfig(final String identifier, final XGettingMap<String, String> customVariables)
+	{
+		super(identifier, customVariables);
+	}
 
 	public RootConfig(final String identifier)
 	{
@@ -45,14 +59,9 @@ public class RootConfig extends AbstractConfig
 		this.configTable = this.compileEntries();
 
 		// update all children (coalesce defaults with local overrides)
-		this.children.values().iterate(new Consumer<SubConfig>()
-		{
-			@Override
-			public void accept(final SubConfig e)
-			{
-				e.updateFromParent();
-			}
-		});
+		this.children.values().iterate(e ->
+			e.updateFromParent()
+		);
 		return this;
 	}
 
@@ -66,12 +75,6 @@ public class RootConfig extends AbstractConfig
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-	@Override
-	public final String get(final String key)
-	{
-		return this.table().get(key);
-	}
 
 	@Override
 	public final XGettingTable<String, String> table()

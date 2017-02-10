@@ -12,7 +12,6 @@ import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Equalator;
 
@@ -488,12 +487,6 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 
 	@Override
 	public <P extends Consumer<? super E>> P iterate(final P procedure)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}

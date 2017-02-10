@@ -1214,7 +1214,9 @@ public final class JadothChars
 			}
 			return new char[0];
 		}
-		final char[] substring; // sanity checks are completely done by JVM
+
+		// sanity checks are completely done by JVM
+		final char[] substring;
 		System.arraycopy(
 			string,
 			offset,

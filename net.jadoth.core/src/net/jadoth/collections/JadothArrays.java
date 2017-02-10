@@ -737,8 +737,8 @@ public final class JadothArrays
 		final E[] array,
 		final int start,
 		final int bound
-		)
-			throws ArrayIndexOutOfBoundsException
+	)
+		throws ArrayIndexOutOfBoundsException
 	{
 		if(elements.isEmpty())
 		{

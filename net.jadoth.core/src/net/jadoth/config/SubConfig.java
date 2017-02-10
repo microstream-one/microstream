@@ -1,7 +1,9 @@
 package net.jadoth.config;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
 
@@ -22,10 +24,28 @@ public final class SubConfig extends AbstractConfig
 	// constructors //
 	/////////////////
 
+	SubConfig(
+		final RootConfig                  parent            ,
+		final String                      identifier        ,
+		final XGettingMap<String, String> customVariables   ,
+		final Character                   variableStarter   ,
+		final Character                   variableTerminator
+	)
+	{
+		super(identifier, customVariables, variableStarter, variableTerminator);
+		this.parent = notNull(parent);
+	}
+
+	SubConfig(final RootConfig parent, final String identifier, final XGettingMap<String, String> customVariables)
+	{
+		super(identifier, customVariables);
+		this.parent = notNull(parent);
+	}
+
 	SubConfig(final RootConfig parent, final String identifier)
 	{
 		super(identifier);
-		this.parent     = notNull(parent);
+		this.parent = notNull(parent);
 	}
 
 
@@ -66,9 +86,9 @@ public final class SubConfig extends AbstractConfig
 	/////////////////////
 
 	@Override
-	public final String get(final String key)
+	public final String getValue(final String key)
 	{
-		return this.table().get(key);
+		return this.getRawValue(key);
 	}
 
 	@Override
