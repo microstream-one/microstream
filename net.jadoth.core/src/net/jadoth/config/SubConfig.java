@@ -86,12 +86,6 @@ public final class SubConfig extends AbstractConfig
 	/////////////////////
 
 	@Override
-	public final String getValue(final String key)
-	{
-		return this.getRawValue(key);
-	}
-
-	@Override
 	public final XGettingTable<String, String> table()
 	{
 		if(this.coalescedTable == null)

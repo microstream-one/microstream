@@ -247,7 +247,6 @@ public class CompositeConfig
 		exporter.accept(this.defaultConfig);
 		final XGettingEnum<File> writtenFiles = this.subConfigs.values().iterate(exporter).yield();
 
-
 		final String fileStart  = this.qualifier + '_';
 		final String dotSuffix = '.' + this.filesuffix;
 		final File[] filesToDelete = this.configDirectory.listFiles(file ->
