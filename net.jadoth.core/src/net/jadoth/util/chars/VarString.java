@@ -1187,7 +1187,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		return this;
 	}
 
-	public final VarString repeat(final int amount, final String s)
+	public final VarString repeat(final int amount, final String string)
+	{
+		this.repeat(amount, JadothChars.getChars(string));
+
+		return this;
+	}
+
+	public final VarString repeat(final int amount, final char[] chars)
 	{
 		// sanity check
 		if(amount <= 0)
@@ -1199,13 +1206,11 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this; // amount 0 special case
 		}
 
-		// capacity ensuring
-		final char[] stringData = JadothChars.getChars(s); // NPE provoked intentionally
-		this.ensureFreeCapacity(amount * stringData.length);
+		this.ensureFreeCapacity(amount * chars.length);
 
 		// actual work
-		JadothChars.uncheckedRepeat(this.data, this.size, amount, stringData);
-		this.size += amount * stringData.length;
+		JadothChars.uncheckedRepeat(this.data, this.size, amount, chars);
+		this.size += amount * chars.length;
 		return this;
 	}
 
