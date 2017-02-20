@@ -233,13 +233,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.data.length, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.data.length, new IsCustomEqual<>(this.equalator, element));
 	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.data.length, predicate);
 	}
 
 	// index querying //
@@ -247,13 +247,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public long indexOf(final E element)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.data.length, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.data.length, new IsCustomEqual<>(this.equalator, element));
 	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.data.length, predicate);
 	}
 
 	@Override
@@ -283,7 +283,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.scan(this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardScan(this.data, 0, this.data.length, predicate);
 	}
 
 	// element querying //
@@ -321,13 +321,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.data.length, new IsCustomEqual<>(this.equalator, sample), null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.data.length, new IsCustomEqual<>(this.equalator, sample), null);
 	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.data.length, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.data.length, predicate, null);
 	}
 
 	@Override
@@ -379,13 +379,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains(this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.data.length, predicate);
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies(this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardApplies(this.data, 0, this.data.length, predicate);
 	}
 
 	// boolean querying - contains //
@@ -393,19 +393,19 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public boolean nullContained()
 	{
-		return AbstractArrayStorage.nullContained(this.data, this.data.length);
+		return AbstractArrayStorage.forwardNullContained(this.data, 0, this.data.length);
 	}
 
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.data.length, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.data.length, element);
 	}
 
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.contains(this.data, this.data.length, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.data.length, new IsCustomEqual<>(this.equalator, element));
 	}
 
 	@Override
@@ -482,18 +482,18 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.data.length, target);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.data.length, target);
 	}
 
 	@Override
 	public <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.data.length, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.data.length, target, predicate);
 	}
 
 	public <T> T[] rngCopyTo(final int startIndex, final int length, final T[] target, final int offset)
 	{
-		return AbstractArrayStorage.rngCopyTo(
+		return AbstractArrayStorage.rangedCopyTo(
 			this.data, this.data.length, startIndex, length,  target, offset
 		);
 	}

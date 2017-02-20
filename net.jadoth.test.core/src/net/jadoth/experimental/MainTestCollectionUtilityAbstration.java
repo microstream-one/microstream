@@ -24,7 +24,7 @@ public class MainTestCollectionUtilityAbstration
 			for(int r2 = RUNS2; r2 --> 0;)
 			{
 //				index = AbstractArrayStorage.indexOfR(INTS, SIZE, INTS[SIZE - 1], 0, SIZE);
-				index = AbstractArrayStorage.indexOf1(INTS, SIZE, INTS[SIZE - 1]);
+				index = AbstractArrayStorage.forwardIndexOf(INTS, 0, SIZE, INTS[SIZE - 1]);
 			}
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));

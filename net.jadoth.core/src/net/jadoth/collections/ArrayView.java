@@ -256,19 +256,19 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.count(this.data, this.size, element);
+		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
 
 //	@Override
 //	public int count(final E sample, final Equalator<? super E> equalator)
 //	{
-//		return AbstractArrayStorage.count(this.data, this.size, sample, equalator);
+//		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, sample, equalator);
 //	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.size, predicate);
 	}
 
 	// index querying //
@@ -276,25 +276,25 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long indexOf(final E element)
 	{
-		return AbstractArrayStorage.indexOf(this.data, this.size, element);
+		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.size, element);
 	}
 
 //	@Override
 //	public int indexOf(final E sample, final Equalator<? super E> equalator)
 //	{
-//		return AbstractArrayStorage.indexOf(this.data, this.size, sample, equalator);
+//		return AbstractArrayStorage.forwardIndexOf(this.data, this.size, sample, equalator);
 //	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.size, predicate);
 	}
 
 	@Override
 	public long lastIndexOf(final E element)
 	{
-		return AbstractArrayStorage.rngIndexOF(this.data, this.size, this.size - 1, -this.size, element);
+		return AbstractArrayStorage.rangedIndexOF(this.data, this.size, this.size - 1, -this.size, element);
 	}
 
 	@Override
@@ -318,7 +318,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.scan(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardScan(this.data, 0, this.size, predicate);
 	}
 
 	// element querying //
@@ -362,13 +362,13 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, sample) ? sample : null;
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, sample) ? sample : null;
 	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.size, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.size, predicate, null);
 	}
 
 	@Override
@@ -420,13 +420,13 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.size, predicate);
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardApplies(this.data, 0, this.size, predicate);
 	}
 
 	// boolean querying - contains //
@@ -434,19 +434,19 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean nullContained()
 	{
-		return AbstractArrayStorage.nullContained(this.data, this.size);
+		return AbstractArrayStorage.forwardNullContained(this.data, 0, this.size);
 	}
 
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
 	@Override
@@ -530,18 +530,18 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target);
 	}
 
 	@Override
 	public <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target, predicate);
 	}
 
 	public <T> T[] rngCopyTo(final int startIndex, final int length, final T[] target, final int offset)
 	{
-		return AbstractArrayStorage.rngCopyTo(this.data, this.size, startIndex, length,  target, offset);
+		return AbstractArrayStorage.rangedCopyTo(this.data, this.size, startIndex, length,  target, offset);
 	}
 
 	@Override

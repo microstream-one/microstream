@@ -28,9 +28,11 @@ public final class XUtilsArrayCollection
 		final Consumer<? super E> procedure
 	)
 	{
-		AbstractArrayStorage.conditionalIterate(
+		AbstractArrayStorage.forwardConditionalIterate(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()),
-			predicate, procedure
+			0,
+			predicate,
+			procedure
 		);
 		return a;
 	}
@@ -44,7 +46,7 @@ public final class XUtilsArrayCollection
 		final Comparator<? super E> comparator
 	)
 	{
-		return AbstractArrayStorage.rngBinarySearch(
+		return AbstractArrayStorage.rangedBinarySearch(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element, comparator
 		);
 	}
@@ -52,7 +54,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngHasUniqueValues(final A a, final int offset, final int length)
 	{
-		return AbstractArrayStorage.rngHasUniqueValues(
+		return AbstractArrayStorage.rangedHasUniqueValues(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length
 		);
 	}
@@ -65,7 +67,7 @@ public final class XUtilsArrayCollection
 		final Equalator<? super E> equalator
 	)
 	{
-		return AbstractArrayStorage.rngHasUniqueValues(
+		return AbstractArrayStorage.rangedHasUniqueValues(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, equalator
 		);
 	}
@@ -79,7 +81,7 @@ public final class XUtilsArrayCollection
 //		final Equalator<? super E> equalator
 //	)
 //	{
-//		return AbstractArrayStorage.rngContainsAll(
+//		return AbstractArrayStorage.rangedContainsAll(
 //			a.internalGetStorageArray(), a.size(), offset, length, a, equalator
 //		);
 //	}
@@ -92,7 +94,7 @@ public final class XUtilsArrayCollection
 		final XGettingCollection<? extends E> elements
 	)
 	{
-		return AbstractArrayStorage.rngContainsAll(
+		return AbstractArrayStorage.rangedContainsAll(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, elements
 		);
 	}
@@ -100,7 +102,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	E rngMax(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.rngAggregate(
+		return AbstractArrayStorage.rangedAggregate(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new AggregateMax<>(comparator)
 		);
 	}
@@ -108,7 +110,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	E rngMin(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.rngAggregate(
+		return AbstractArrayStorage.rangedAggregate(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new AggregateMax<>(comparator)
 		);
 	}
@@ -116,7 +118,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngIndexOf(final A a, final int offset, final int length, final E sample, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.rngScan(
+		return AbstractArrayStorage.rangedScan(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsCustomEqual<>(equalator, sample)
 		);
 	}
@@ -124,7 +126,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngIndexOF(final A a, final int offset, final int length, final E element)
 	{
-		return AbstractArrayStorage.rngIndexOF(
+		return AbstractArrayStorage.rangedIndexOF(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element
 		);
 	}
@@ -132,7 +134,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngCount(final A a, final int offset, final int length, final E sample, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.rngConditionalCount(
+		return AbstractArrayStorage.rangedConditionalCount(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsCustomEqual<>(equalator, sample)
 		);
 	}
@@ -140,32 +142,32 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngCount(final A a, final int offset, final int length, final E element)
 	{
-		return AbstractArrayStorage.rngCount(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element);
+		return AbstractArrayStorage.rangedCount(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngIsSorted(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.rngIsSorted(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
+		return AbstractArrayStorage.rangedIsSorted(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>,
 	C extends Consumer<? super E>> C rngCopyTo(final A a, final int offset, final int length, final C target)
 	{
-		return AbstractArrayStorage.rngCopyTo(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, target);
+		return AbstractArrayStorage.rangedCopyTo(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, target);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	A rngIterate(final A a, final int offset, final int length, final Consumer<? super E> procedure)
 	{
-		AbstractArrayStorage.rngIterate(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, procedure);
+		AbstractArrayStorage.rangedIterate(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, procedure);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	A rngIterate(final A a, final int offset, final int length, final IndexProcedure<? super E> procedure)
 	{
-		AbstractArrayStorage.rngIterate(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, procedure);
+		AbstractArrayStorage.rangedIterate(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, procedure);
 		return a;
 	}
 
@@ -178,7 +180,7 @@ public final class XUtilsArrayCollection
 		final Consumer<? super E> procedure
 	)
 	{
-		AbstractArrayStorage.rngConditionalIterate(
+		AbstractArrayStorage.rangedConditionalIterate(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate, procedure
 		);
 		return a;
@@ -187,7 +189,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	E rngFind(final A a, final int offset, final int length, final E sample, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.rngQueryElement(
+		return AbstractArrayStorage.rangedQueryElement(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsCustomEqual<>(equalator, sample), null
 		);
 	}
@@ -195,7 +197,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContains(final A a, final int offset, final int length, final E element)
 	{
-		return AbstractArrayStorage.rngContainsSame(
+		return AbstractArrayStorage.rangedContainsSame(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element
 		);
 	}
@@ -203,7 +205,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContainsId(final A a, final int offset, final int length, final E element)
 	{
-		return AbstractArrayStorage.rngContainsSame(
+		return AbstractArrayStorage.rangedContainsSame(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, element
 		);
 	}
@@ -211,7 +213,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContains(final A a, final int offset, final int length, final E sample, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.rngContains(
+		return AbstractArrayStorage.rangedContains(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsCustomEqual<>(equalator, sample)
 		);
 	}
@@ -219,7 +221,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContains(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngContains(
+		return AbstractArrayStorage.rangedContains(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate
 		);
 	}
@@ -227,7 +229,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContainsNull(final A a, final int offset, final int length)
 	{
-		return AbstractArrayStorage.rngContainsNull(
+		return AbstractArrayStorage.rangedContainsNull(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length
 		);
 	}
@@ -235,13 +237,13 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngApplies(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngApplies(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate);
+		return AbstractArrayStorage.rangedApplies(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngCount(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngConditionalCount(
+		return AbstractArrayStorage.rangedConditionalCount(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate
 		);
 	}
@@ -249,7 +251,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngIndexOf(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngConditionalIndexOf(
+		return AbstractArrayStorage.rangedConditionalIndexOf(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate
 		);
 	}
@@ -257,7 +259,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngScan(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngScan(
+		return AbstractArrayStorage.rangedScan(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate
 		);
 	}
@@ -265,7 +267,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	E rngSearch(final A a, final int offset, final int length, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.rngQueryElement(
+		return AbstractArrayStorage.rangedQueryElement(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate, null
 		);
 	}
@@ -273,13 +275,13 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	E[] rngToArray(final A a, final int offset, final int length, final Class<E> type)
 	{
-		return AbstractArrayStorage.rngToArray(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, type);
+		return AbstractArrayStorage.rangedToArray(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, type);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	Object[] rngToArray(final A a, final int offset, final int length)
 	{
-		return AbstractArrayStorage.rngToArray(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
+		return AbstractArrayStorage.rangedToArray(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
@@ -291,13 +293,13 @@ public final class XUtilsArrayCollection
 		final Equalator<? super E> equalator
 	)
 	{
-		return AbstractArrayStorage.rngEqualsContent(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, list, equalator);
+		return AbstractArrayStorage.rangedEqualsContent(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, list, equalator);
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>, R>
 	R rngAggregate(final A a, final int offset, final int length, final Aggregator<? super E, R> aggregate)
 	{
-		AbstractArrayStorage.rngIterate(
+		AbstractArrayStorage.rangedIterate(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, aggregate
 		);
 		return aggregate.yield();
@@ -306,7 +308,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	VarString rngAppendTo(final A a, final int offset, final int length, final VarString vc)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc
 		);
 	}
@@ -314,7 +316,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	VarString rngAppendTo(final A a, final int offset, final int length, final VarString vc, final String separator)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc, separator
 		);
 	}
@@ -322,7 +324,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	VarString rngAppendTo(final A a, final int offset, final int length, final VarString vc, final char separator)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc, separator
 		);
 	}
@@ -336,7 +338,7 @@ public final class XUtilsArrayCollection
 		final BiProcedure<VarString, ? super E> appender
 	)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc, appender
 		);
 	}
@@ -351,7 +353,7 @@ public final class XUtilsArrayCollection
 		final char separator
 	)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc, appender, separator
 		);
 	}
@@ -366,7 +368,7 @@ public final class XUtilsArrayCollection
 		final String separator
 	)
 	{
-		return AbstractArrayStorage.rngAppendTo(
+		return AbstractArrayStorage.rangedAppendTo(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, vc, appender, separator
 		);
 	}
@@ -374,7 +376,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngMaxIndex(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.rngScan(
+		return AbstractArrayStorage.rangedScan(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsGreater<>(comparator)
 		);
 	}
@@ -382,7 +384,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	int rngMinIndex(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.rngScan(
+		return AbstractArrayStorage.rangedScan(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, new IsSmaller<>(comparator)
 		);
 	}
@@ -390,7 +392,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>, C extends Consumer<? super E>>
 	C rngDistinct(final A a, final int offset, final int length, final C target)
 	{
-		return AbstractArrayStorage.rngDistinct(
+		return AbstractArrayStorage.rangedDistinct(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, target
 		);
 	}
@@ -398,7 +400,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>, C extends Consumer<? super E>>
 	C rngDistinct(final A a, final int offset, final int length, final C target, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.rngDistinct(
+		return AbstractArrayStorage.rangedDistinct(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, target, equalator
 		);
 	}
@@ -413,7 +415,7 @@ public final class XUtilsArrayCollection
 		final C target
 	)
 	{
-		return AbstractArrayStorage.rngIntersect(
+		return AbstractArrayStorage.rangedIntersect(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, samples, equalator, target
 		);
 	}
@@ -428,7 +430,7 @@ public final class XUtilsArrayCollection
 		final C target
 	)
 	{
-		return AbstractArrayStorage.rngUnion(
+		return AbstractArrayStorage.rangedUnion(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, samples, equalator, target
 		);
 	}
@@ -443,7 +445,7 @@ public final class XUtilsArrayCollection
 		final C target
 	)
 	{
-		return AbstractArrayStorage.rngExcept(
+		return AbstractArrayStorage.rangedExcept(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, samples, equalator, target
 		);
 	}
@@ -458,7 +460,7 @@ public final class XUtilsArrayCollection
 		final Equalator<? super E> equalator
 	)
 	{
-		return AbstractArrayStorage.rngReplaceOne(
+		return AbstractArrayStorage.rangedReplaceOne(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, oldElement, newElement, equalator
 		);
 	}
@@ -466,7 +468,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
 	int rngReplaceOne(final A a, final int offset, final int length, final E oldElement, final E newElement)
 	{
-		return AbstractArrayStorage.rngReplaceOne(
+		return AbstractArrayStorage.rangedReplaceOne(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, oldElement, newElement
 		);
 	}
@@ -481,7 +483,7 @@ public final class XUtilsArrayCollection
 		final Equalator<? super E> equalator
 	)
 	{
-		return AbstractArrayStorage.rngReplace(
+		return AbstractArrayStorage.rangedReplace(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, oldElement, newElement, equalator
 		);
 	}
@@ -489,7 +491,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
 	int rngReplace(final A a, final int offset, final int length, final E oldElement, final E newElement)
 	{
-		return AbstractArrayStorage.rngReplace(
+		return AbstractArrayStorage.rangedReplace(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, oldElement, newElement
 		);
 	}
@@ -497,7 +499,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
 	int rngReplaceAll(final A a, final int offset, final int length, final XMap<E, E> replacementMapping)
 	{
-		return AbstractArrayStorage.rngReplaceAll(
+		return AbstractArrayStorage.rangedReplaceAll(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, replacementMapping
 		);
 	}
@@ -512,7 +514,7 @@ public final class XUtilsArrayCollection
 		final E newElement
 	)
 	{
-		return AbstractArrayStorage.rngReplaceAll(
+		return AbstractArrayStorage.rangedReplaceAll(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, (XGettingCollection<E>)oldElements, newElement
 		);
 	}
@@ -528,7 +530,7 @@ public final class XUtilsArrayCollection
 		final Equalator<? super E> equalator
 	)
 	{
-		return AbstractArrayStorage.rngReplaceAll(
+		return AbstractArrayStorage.rangedReplaceAll(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()),
 			offset, length, (XGettingCollection<E>)oldElements, newElement, equalator
 		);
@@ -537,7 +539,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
 	int rngReplaceOne(final A a, final int offset, final int length, final Predicate<? super E> predicate, final E newElement)
 	{
-		return AbstractArrayStorage.rngReplaceOne(
+		return AbstractArrayStorage.rangedReplaceOne(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate, newElement
 		);
 	}
@@ -545,7 +547,7 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
 	int rngReplace(final A a, final int offset, final int length, final Predicate<? super E> predicate, final E newElement)
 	{
-		return AbstractArrayStorage.rngReplace(
+		return AbstractArrayStorage.rangedReplace(
 			a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, predicate, newElement
 		);
 	}
@@ -553,42 +555,42 @@ public final class XUtilsArrayCollection
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngSortQuick(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		AbstractArrayStorage.rngSortQuick(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
+		AbstractArrayStorage.rangedSortQuick(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngShuffle(final A a, final int offset, final int length)
 	{
-		AbstractArrayStorage.rngShuffle(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
+		AbstractArrayStorage.rangedShuffle(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngSortMerge(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		AbstractArrayStorage.rngSortMerge(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
+		AbstractArrayStorage.rangedSortMerge(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngSort(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		AbstractArrayStorage.rngSort(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
+		AbstractArrayStorage.rangedSort(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngSortInsertion(final A a, final int offset, final int length, final Comparator<? super E> comparator)
 	{
-		AbstractArrayStorage.rngSortInsertion(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
+		AbstractArrayStorage.rangedSortInsertion(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length, comparator);
 		return a;
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>> XSettingList<E>
 	rngReverse(final A a, final int offset, final int length)
 	{
-		AbstractArrayStorage.rngReverse(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
+		AbstractArrayStorage.rangedReverse(a.internalGetStorageArray(), Jadoth.to_int(a.size()), offset, length);
 		return a;
 	}
 

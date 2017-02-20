@@ -618,13 +618,13 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.size, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.size, new IsCustomEqual<>(this.equalator, element));
 	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.size, predicate);
 	}
 
 	// index querying //
@@ -632,20 +632,20 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public long indexOf(final E element)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.size, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.size, new IsCustomEqual<>(this.equalator, element));
 	}
 
 //	@SuppressWarnings("unchecked")
 //	@Override
 //	public int indexOf(final E sample, final Equalator<? super E> equalator)
 //	{
-//		return AbstractArrayStorage.indexOf((E[])this.data, this.size, sample, equalator);
+//		return AbstractArrayStorage.forwardIndexOf((E[])this.data, this.size, sample, equalator);
 //	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.size, predicate);
 	}
 
 	@Override
@@ -675,7 +675,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.scan(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardScan(this.data, 0, this.size, predicate);
 	}
 
 	// element querying //
@@ -713,13 +713,13 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.size, new IsCustomEqual<>(this.equalator, sample), null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.size, new IsCustomEqual<>(this.equalator, sample), null);
 	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.size, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.size, predicate, null);
 	}
 
 	@Override
@@ -771,13 +771,13 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.size, predicate);
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardApplies(this.data, 0, this.size, predicate);
 	}
 
 	// boolean querying - contains //
@@ -785,19 +785,19 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public boolean nullContained()
 	{
-		return AbstractArrayStorage.nullContained(this.data, this.size);
+		return AbstractArrayStorage.forwardNullContained(this.data, 0, this.size);
 	}
 
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.contains(this.data, this.size, new IsCustomEqual<>(this.equalator, element));
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.size, new IsCustomEqual<>(this.equalator, element));
 	}
 
 	@Override
@@ -881,13 +881,13 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target);
 	}
 
 	@Override
 	public <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target, predicate);
 	}
 
 	@Override

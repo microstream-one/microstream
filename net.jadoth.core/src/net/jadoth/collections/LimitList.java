@@ -527,20 +527,20 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final long count(final E element)
 	{
-		return AbstractArrayStorage.count(this.data, this.size, element);
+		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
 
 //	@SuppressWarnings("unchecked")
 //	@Override
 //	public final int count(final E sample, final Equalator<? super E> equalator)
 //	{
-//		return AbstractArrayStorage.count((E[])this.data, this.size, sample, equalator);
+//		return AbstractArrayStorage.forwardCount((E[])this.data, 0, this.size, sample, equalator);
 //	}
 
 	@Override
 	public final long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.size, predicate);
 	}
 
 	// index querying //
@@ -548,26 +548,26 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final long indexOf(final E element)
 	{
-		return AbstractArrayStorage.indexOf(this.data, this.size, element);
+		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.size, element);
 	}
 
 //	@SuppressWarnings("unchecked")
 //	@Override
 //	public final int indexOf(final E sample, final Equalator<? super E> equalator)
 //	{
-//		return AbstractArrayStorage.indexOf((E[])this.data, this.size, sample, equalator);
+//		return AbstractArrayStorage.forwardIndexOf((E[])this.data, this.size, sample, equalator);
 //	}
 
 	@Override
 	public final long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalIndexOf(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.size, predicate);
 	}
 
 	@Override
 	public final long lastIndexOf(final E element)
 	{
-		return AbstractArrayStorage.rngIndexOF(this.data, this.size, this.size - 1, -this.size, element);
+		return AbstractArrayStorage.rangedIndexOF(this.data, this.size, this.size - 1, -this.size, element);
 	}
 
 	@Override
@@ -591,7 +591,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.scan(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardScan(this.data, 0, this.size, predicate);
 	}
 
 	// element querying //
@@ -636,13 +636,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final E seek(final E sample)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.limit, sample) ? sample : null;
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.limit, sample) ? sample : null;
 	}
 
 	@Override
 	public final E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement(this.data, this.size, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.size, predicate, null);
 	}
 
 	@Override
@@ -694,13 +694,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.size, predicate);
 	}
 
 	@Override
 	public final boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies(this.data, this.size, predicate);
+		return AbstractArrayStorage.forwardApplies(this.data, 0, this.size, predicate);
 	}
 
 	// boolean querying - contains //
@@ -708,19 +708,19 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean nullContained()
 	{
-		return AbstractArrayStorage.nullContained(this.data, this.size);
+		return AbstractArrayStorage.forwardNullContained(this.data, 0, this.size);
 	}
 
 	@Override
 	public final boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
 	@Override
 	public final boolean contains(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.data, this.size, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
 	@Override
@@ -800,13 +800,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target);
 	}
 
 	@Override
 	public final <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.copyTo(this.data, this.size, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.size, target, predicate);
 	}
 
 	@Override

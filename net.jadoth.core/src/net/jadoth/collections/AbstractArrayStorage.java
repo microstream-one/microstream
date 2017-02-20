@@ -88,16 +88,7 @@ public abstract class AbstractArrayStorage
 	// index scanning   //
 	/////////////////////
 
-	public static final <E> int indexOf(
-		final E[] data,
-		final int size,
-		final E   element
-	)
-	{
-		return forwardIndexOf(data, 0, size, element);
-	}
-
-	public static final <E> int rngIndexOF(
+	public static final <E> int rangedIndexOF(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -113,53 +104,44 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int forwardIndexOf(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound,
 		final E   element
 	)
 	{
-		return reverseIndexOf(data, lowOffset, highBound, new IsSame<>(element));
+		for(int i = lowOffset; i < highBound; i++)
+		{
+			if(data[i] == element)
+			{
+				return i;
+			}
+		}
+
+		return -1;
 	}
 
 	public static final <E> int reverseIndexOf(
-		final E[] data,
+		final E[] data      ,
 		final int highOffset,
-		final int lowEnd,
+		final int lowEnd    ,
 		final E   element
 	)
 	{
-		return forwardConditionalIndexOf(data, highOffset, lowEnd, new IsSame<>(element));
+		for(int i = highOffset; i >= lowEnd; i--)
+		{
+			if(data[i] == element)
+			{
+				return i;
+			}
+		}
+
+		return -1;
 	}
 
-	public static final <E> int indexOf0(
-		final E[] data,
-		final int size,
-		final E   element
-	)
-	{
-		return forwardConditionalIndexOf(data, 0, size, new IsSame<>(element));
-	}
+	// -- //
 
-	public static final <E> int indexOf1(
-		final E[] data,
-		final int size,
-		final E   element
-	)
-	{
-		return forwardConditionalIndexOf(data, 0, size, new IsSame<>(element));
-	}
-
-	public static final <E> int conditionalIndexOf(
-		final E[] data,
-		final int size,
-		final Predicate<? super E> predicate
-	)
-	{
-		return forwardConditionalIndexOf(data, 0, size, predicate);
-	}
-
-	public static final <E> int rngConditionalIndexOf(
+	public static final <E> int rangedConditionalIndexOf(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -224,12 +206,7 @@ public abstract class AbstractArrayStorage
 
 	// -- //
 
-	public static final <E> int scan(final E[] data, final int size, final Predicate<? super E> predicate)
-	{
-		return forwardScan(data, 0, size, predicate);
-	}
-
-	public static final <E> int rngScan(
+	public static final <E> int rangedScan(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -300,16 +277,7 @@ public abstract class AbstractArrayStorage
 	// condition applying //
 	///////////////////////
 
-	public static final <E> boolean contains(
-		final E[] data,
-		final int size,
-		final Predicate<? super E> predicate
-	)
-	{
-		return forwardContains(data, 0, size, predicate);
-	}
-
-	public static final <E> boolean rngContains(
+	public static final <E> boolean rangedContains(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -374,16 +342,7 @@ public abstract class AbstractArrayStorage
 
 	// -- //
 
-	public static final <E> boolean applies(
-		final E[] data,
-		final int size,
-		final Predicate<? super E> predicate
-	)
-	{
-		return forwardApplies(data, 0, size, predicate);
-	}
-
-	public static final <E> boolean rngApplies(
+	public static final <E> boolean rangedApplies(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -452,16 +411,7 @@ public abstract class AbstractArrayStorage
 	// conditional counting //
 	/////////////////////////
 
-	public static final <E> int conditionalCount(
-		final E[] data,
-		final int size,
-		final Predicate<? super E> predicate
-	)
-	{
-		return forwardConditionalCount(data, 0, size, predicate);
-	}
-
-	public static final <E> int rngConditionalCount(
+	public static final <E> int rangedConditionalCount(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -531,14 +481,19 @@ public abstract class AbstractArrayStorage
 	// element querying  //
 	//////////////////////
 
-	public static final <E> E searchElement(
+	public static final <E> E rangedSearchElement(
 		final E[] data,
 		final int size,
+		final int offset,
+		final int length,
 		final Predicate<? super E> predicate,
 		final E notFoundMarker
 	)
 	{
-		return forwardSearchElement(data, 0, size, predicate, notFoundMarker);
+		return length >= 0
+			? forwardSearchElement(data, offset, offset + length    , predicate, notFoundMarker)
+			: reverseSearchElement(data, offset, offset + length + 1, predicate, notFoundMarker)
+		;
 	}
 
 	public static final <E> E forwardSearchElement(
@@ -593,17 +548,7 @@ public abstract class AbstractArrayStorage
 
 	// -- //
 
-	public static final <E> E queryElement(
-		final E[]                  data          ,
-		final int                  size          ,
-		final Predicate<? super E> predicate     ,
-		final E                    notFoundMarker
-	)
-	{
-		return forwardQueryElement(data, 0, size, predicate, notFoundMarker);
-	}
-
-	public static final <E> E rngQueryElement(
+	public static final <E> E rangedQueryElement(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -716,7 +661,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngIterate(
+	public static final <E> void rangedIterate(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -735,7 +680,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E, A> void rngJoin(
+	public static final <E, A> void rangedJoin(
 		final E[]                          data  ,
 		final int                          size  ,
 		final int                          offset,
@@ -839,17 +784,7 @@ public abstract class AbstractArrayStorage
 
 	// -- //
 
-	public static final <E> void conditionalIterate(
-		final E[] data,
-		final int size,
-		final Predicate<? super E> predicate,
-		final Consumer<? super E> procedure
-	)
-	{
-		forwardConditionalIterate(data, 0, size, predicate, procedure);
-	}
-
-	public static final <E> void rngConditionalIterate(
+	public static final <E> void rangedConditionalIterate(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -897,16 +832,7 @@ public abstract class AbstractArrayStorage
 	// aggregation      //
 	/////////////////////
 
-	public static final <E, R> R aggregate(
-		final E[] data,
-		final int size,
-		final Aggregator<? super E, R> aggregator
-	)
-	{
-		return forwardAggregate(data, 0, size, aggregator);
-	}
-
-	public static final <E, R> R rngAggregate(
+	public static final <E, R> R rangedAggregate(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -945,14 +871,20 @@ public abstract class AbstractArrayStorage
 
 	// -- //
 
-	public static final <E, R> R conditionalAggregate(
+	public static final <E, R> R rangedConditionalAggregate(
 		final E[] data,
 		final int size,
+		final int offset,
+		final int length,
 		final Predicate<? super E> predicate,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
-		return forwardConditionalAggregate(data, 0, size, predicate, aggregator);
+		validateRange0toUpperBound(size, offset, length);
+		return length >= 0
+			? forwardConditionalAggregate(data, offset, offset + length    , predicate, aggregator)
+			: reverseConditionalAggregate(data, offset, offset + length + 1, predicate, aggregator)
+		;
 	}
 
 	public static final <E, R> R forwardConditionalAggregate(
@@ -1071,9 +1003,18 @@ public abstract class AbstractArrayStorage
 	// containing       //
 	/////////////////////
 
-	public static final <E> boolean nullContained(final E[] data, final int size)
+	public static final <E> boolean rangedContainsNull(
+		final E[] data,
+		final int size,
+		final int offset,
+		final int length
+	)
 	{
-		return forwardNullContained(data, 0, size);
+		validateRange0toUpperBound(size, offset, length);
+		return length >= 0
+			? forwardNullContained(data, offset, offset + length    )
+			: reverseNullContained(data, offset, offset + length + 1)
+		;
 	}
 
 	public static final <E> boolean forwardNullContained(
@@ -1094,28 +1035,9 @@ public abstract class AbstractArrayStorage
 		return reverseContains(data, highOffset, lowEnd, new IsNull<>()); // should get stack-allocated
 	}
 
-	public static final <E> boolean rngContainsNull(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length
-	)
-	{
-		validateRange0toUpperBound(size, offset, length);
-		return length >= 0
-			? forwardNullContained(data, offset, offset + length    )
-			: reverseNullContained(data, offset, offset + length + 1)
-		;
-	}
-
 	// -- //
 
-	public static final <E> boolean containsSame(final E[] data, final int size, final E element)
-	{
-		return forwardContainsSame(data, 0, size, element);
-	}
-
-	public static final <E> boolean rngContainsSame(
+	public static final <E> boolean rangedContainsSame(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1172,10 +1094,12 @@ public abstract class AbstractArrayStorage
 		}
 
 		// iterate by predicate function
-		return elements.applies(e -> containsSame(data, size, e));
+		return elements.applies(e ->
+			forwardContainsSame(data, 0, size, e)
+		);
 	}
 
-	public static final <E> boolean rngContainsAll(
+	public static final <E> boolean rangedContainsAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1233,9 +1157,8 @@ public abstract class AbstractArrayStorage
 
 		// collection is not array-backed (e.g. hashset), so iterate by predicate function
 		return elements.applies(e ->
-		{
-			return contains(data, size, new IsCustomEqual<>(equalator, e));
-		});
+			forwardContains(data, 0, size, new IsCustomEqual<>(equalator, e))
+		);
 	}
 
 
@@ -1244,16 +1167,7 @@ public abstract class AbstractArrayStorage
 	//     counting     //
 	/////////////////////
 
-	public static final <E> int count(
-		final E[] data,
-		final int size,
-		final E element
-	)
-	{
-		return forwardCount(data, 0, size, element);
-	}
-
-	public static final <E> int rngCount(
+	public static final <E> int rangedCount(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1287,6 +1201,8 @@ public abstract class AbstractArrayStorage
 	{
 		return reverseConditionalCount(data, highOffset, lowEnd, new IsSame<>(element)); // should get stack-allocated
 	}
+
+	// -- //
 
 	public static final <E> E max(
 		final E[] data,
@@ -1325,17 +1241,9 @@ public abstract class AbstractArrayStorage
 		return forwardScan(data, 0, size, new IsSmaller<>(comparator));
 	}
 
-	public static final <E, C extends Consumer<? super E>> C copyTo(
-		final E[] data,
-		final int size,
-		final C target
-	)
-	{
-		// note: even if target is an adding collection, the private storage array may not be passed to it directly
-		return forwardCopyTo(data, 0, size, target);
-	}
+	// -- //
 
-	public static final <E, C extends Consumer<? super E>> C rngCopyTo(
+	public static final <E, C extends Consumer<? super E>> C rangedCopyTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1373,17 +1281,9 @@ public abstract class AbstractArrayStorage
 		return target;
 	}
 
-	public static final <E, C extends Consumer<? super E>> C copyTo(
-		final E[] data,
-		final int size,
-		final C target,
-		final Predicate<? super E> predicate
-	)
-	{
-		return forwardCopyTo(data, 0, size, target, predicate);
-	}
+	// -- //
 
-	public static final <E, C extends Consumer<? super E>> C rngCopyTo(
+	public static final <E, C extends Consumer<? super E>> C rangedCopyTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1424,7 +1324,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <E, T> T[] rngCopyTo(
+	public static final <E, T> T[] rangedCopyTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1490,7 +1390,7 @@ public abstract class AbstractArrayStorage
 		return internalBinarySearch(data, 0, size - 1, element, comparator);
 	}
 
-	public static final <E> int rngBinarySearch(
+	public static final <E> int rangedBinarySearch(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1539,46 +1439,6 @@ public abstract class AbstractArrayStorage
 		}
 		return -(low + 1);  // key not found
 	}
-
-
-
-
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1688,7 +1548,7 @@ public abstract class AbstractArrayStorage
 		final C                               target
 	)
 	{
-		copyTo(data, size, target);
+		forwardCopyTo(data, 0, size, target);
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
@@ -1734,7 +1594,7 @@ public abstract class AbstractArrayStorage
 		return target;
 	}
 
-	public static final <E, C extends Consumer<? super E>> C rngIntersect(
+	public static final <E, C extends Consumer<? super E>> C rangedIntersect(
 		final E[]                             data     ,
 		final int                             size     ,
 		final int                             offset   ,
@@ -1789,7 +1649,7 @@ public abstract class AbstractArrayStorage
 		return target;
 	}
 
-	public static final <E, C extends Consumer<? super E>> C rngExcept(
+	public static final <E, C extends Consumer<? super E>> C rangedExcept(
 		final E[]                             data     ,
 		final int                             size     ,
 		final int                             offset   ,
@@ -1846,7 +1706,7 @@ public abstract class AbstractArrayStorage
 		return target;
 	}
 
-	public static final <E, C extends Consumer<? super E>> C rngUnion(
+	public static final <E, C extends Consumer<? super E>> C rangedUnion(
 		final E[]                             data     ,
 		final int                             size     ,
 		final int                             offset   ,
@@ -1863,7 +1723,7 @@ public abstract class AbstractArrayStorage
 		}
 		final int bound = offset + length;
 
-		rngCopyTo(data, size, offset, length, target);
+		rangedCopyTo(data, size, offset, length, target);
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
@@ -1926,7 +1786,7 @@ public abstract class AbstractArrayStorage
 		return target;
 	}
 
-	public static final <E, C extends Consumer<? super E>> C rngDistinct(
+	public static final <E, C extends Consumer<? super E>> C rangedDistinct(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -1985,7 +1845,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <E, C extends Consumer<? super E>> C rngDistinct(
+	public static final <E, C extends Consumer<? super E>> C rangedDistinct(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2045,7 +1905,7 @@ public abstract class AbstractArrayStorage
 
 	// (20.01.2013)FIXME: replace ALL " + = d" constructions with case distinction and constant iteration
 
-	public static final <E> void rngIterate(
+	public static final <E> void rangedIterate(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2080,7 +1940,7 @@ public abstract class AbstractArrayStorage
 	//    removing      //
 	/////////////////////
 
-	public static final <E> int rngRemove(
+	public static final <E> int rangedRemove(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2118,7 +1978,7 @@ public abstract class AbstractArrayStorage
 		return removeAllFromArray(data, start, bound, element);
 	}
 
-	public static final <E> int rngRemove(
+	public static final <E> int rangedRemove(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2157,7 +2017,7 @@ public abstract class AbstractArrayStorage
 		return removeAllFromArray(data, start, bound, sample, equalator);
 	}
 
-	public static final <E> int rngRemoveNull(
+	public static final <E> int rangedRemoveNull(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2231,7 +2091,7 @@ public abstract class AbstractArrayStorage
 		return removeCount;
 	}
 
-	public static final <E> int rngReduce(
+	public static final <E> int rangedReduce(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2318,7 +2178,7 @@ public abstract class AbstractArrayStorage
 		return removeCount;
 	}
 
-	public static final <E> int rngRetainAll(
+	public static final <E> int rangedRetainAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2418,7 +2278,7 @@ public abstract class AbstractArrayStorage
 		return removeCount;
 	}
 
-	public static final <E> int rngRetainAll(
+	public static final <E> int rangedRetainAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2499,7 +2359,7 @@ public abstract class AbstractArrayStorage
 		return removeCount;
 	}
 
-	public static final <E> int rngProcess(
+	public static final <E> int rangedProcess(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2582,7 +2442,7 @@ public abstract class AbstractArrayStorage
 		return removeCount;
 	}
 
-	public static final <E> int rngMoveTo(
+	public static final <E> int rangedMoveTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2693,7 +2553,7 @@ public abstract class AbstractArrayStorage
 
 	// removing - multiple all //
 
-	public static final <E> int rngRemoveAll(
+	public static final <E> int rangedRemoveAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2731,7 +2591,7 @@ public abstract class AbstractArrayStorage
 		return removeAllFromArray(elements, data, start, bound);
 	}
 
-	public static final <E> int rngRemoveAll(
+	public static final <E> int rangedRemoveAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2786,10 +2646,10 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		return rngRemoveDuplicates(data, size, 0, size, equalator, removeMarker);
+		return rangedRemoveDuplicates(data, size, 0, size, equalator, removeMarker);
 	}
 
-	public static final <E> int rngRemoveDuplicates(
+	public static final <E> int rangedRemoveDuplicates(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -2846,10 +2706,10 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		return rngRemoveDuplicates(data, size, 0, size, removeMarker);
+		return rangedRemoveDuplicates(data, size, 0, size, removeMarker);
 	}
 
-	public static final <E> int rngRemoveDuplicates(
+	public static final <E> int rangedRemoveDuplicates(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3138,7 +2998,7 @@ public abstract class AbstractArrayStorage
 		return false;
 	}
 
-	public static final <E> E rngRetrieve(
+	public static final <E> E rangedRetrieve(
 		final E[] data,
 		      int size,
 		final int offset,
@@ -3169,7 +3029,7 @@ public abstract class AbstractArrayStorage
 		return notFoundMarker;
 	}
 
-	public static final <E> E rngRetrieve(
+	public static final <E> E rangedRetrieve(
 		final E[] data,
 		      int size,
 		final int offset,
@@ -3202,7 +3062,7 @@ public abstract class AbstractArrayStorage
 		return notFoundMarker;
 	}
 
-	public static final <E> E rngRetrieve(
+	public static final <E> E rangedRetrieve(
 		final E[] data,
 		      int size,
 		final int offset,
@@ -3234,7 +3094,7 @@ public abstract class AbstractArrayStorage
 		return notFoundMarker;
 	}
 
-	public static final <E> boolean rngRemoveOne(
+	public static final <E> boolean rangedRemoveOne(
 		final E[] data,
 		      int size,
 		final int offset,
@@ -3264,7 +3124,7 @@ public abstract class AbstractArrayStorage
 		return false;
 	}
 
-	public static final <E> boolean rngRemoveOne(
+	public static final <E> boolean rangedRemoveOne(
 		final E[] data,
 		      int size,
 		final int offset,
@@ -3321,7 +3181,7 @@ public abstract class AbstractArrayStorage
 		return false;
 	}
 
-	public static final <E> int rngReplaceOne(
+	public static final <E> int rangedReplaceOne(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3368,7 +3228,7 @@ public abstract class AbstractArrayStorage
 		return false;
 	}
 
-	public static final <E> int rngReplaceOne(
+	public static final <E> int rangedReplaceOne(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3429,7 +3289,7 @@ public abstract class AbstractArrayStorage
 		return false;
 	}
 
-	public static final <E> int rngReplaceOne(
+	public static final <E> int rangedReplaceOne(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3483,7 +3343,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplace(
+	public static final <E> int rangedReplace(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3540,7 +3400,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplace(
+	public static final <E> int rangedReplace(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3595,7 +3455,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplace(
+	public static final <E> int rangedReplace(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3663,7 +3523,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplaceAll(
+	public static final <E> int rangedReplaceAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3724,7 +3584,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplaceAll(
+	public static final <E> int rangedReplaceAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3810,7 +3670,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngReplaceAll(
+	public static final <E> int rangedReplaceAll(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3838,7 +3698,7 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rngModify(
+	public static final <E> int rangedModify(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -3939,7 +3799,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngReverse(
+	public static final <E> void rangedReverse(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4229,7 +4089,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4250,7 +4110,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4273,7 +4133,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4308,7 +4168,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4331,7 +4191,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4357,7 +4217,7 @@ public abstract class AbstractArrayStorage
 		return vc;
 	}
 
-	public static final <E> VarString rngAppendTo(
+	public static final <E> VarString rangedAppendTo(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4423,7 +4283,7 @@ public abstract class AbstractArrayStorage
 		return true;
 	}
 
-	public static final <E> boolean rngIsSorted(
+	public static final <E> boolean rangedIsSorted(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4468,7 +4328,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngSortInsertion(
+	public static final <E> void rangedSortInsertion(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4505,7 +4365,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngSortQuick(
+	public static final <E> void rangedSortQuick(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4524,7 +4384,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngSortMerge(
+	public static final <E> void rangedSortMerge(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4555,7 +4415,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngSort(
+	public static final <E> void rangedSort(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4563,7 +4423,7 @@ public abstract class AbstractArrayStorage
 		final Comparator<? super E> comparator
 	)
 	{
-		// copy of #rngSortMerge()
+		// copy of #rangedSortMerge()
 		final int endIndex; // bi-directional index movement
 		if(length > 0)
 		{
@@ -4598,7 +4458,7 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
-	public static final <E> void rngShuffle(
+	public static final <E> void rangedShuffle(
 		final E[] data,
 		final int size,
 		final int offset, final int length
@@ -4646,7 +4506,7 @@ public abstract class AbstractArrayStorage
 		return true;
 	}
 
-	public static final <E> boolean rngHasUniqueValues(
+	public static final <E> boolean rangedHasUniqueValues(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4719,7 +4579,7 @@ public abstract class AbstractArrayStorage
 	}
 
 
-	public static final <E> boolean rngHasUniqueValues(
+	public static final <E> boolean rangedHasUniqueValues(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4820,7 +4680,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <E> boolean rngEqualsContent(
+	public static final <E> boolean rangedEqualsContent(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4866,7 +4726,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <E> boolean rngEqualsContent(
+	public static final <E> boolean rangedEqualsContent(
 		final E[] data,
 		final int size,
 		final int offset,
@@ -4921,7 +4781,7 @@ public abstract class AbstractArrayStorage
 		});
 	}
 
-	public static final Object[] rngToArray(
+	public static final Object[] rangedToArray(
 		final Object[] data,
 		final int size,
 		final int offset,
@@ -4959,7 +4819,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <T> T[] rngToArray(
+	public static final <T> T[] rangedToArray(
 		final Object[] data,
 		final int size,
 		final int offset,
@@ -5018,7 +4878,7 @@ public abstract class AbstractArrayStorage
 		return a;
 	}
 
-	public static <E> E[] rngToArray(
+	public static <E> E[] rangedToArray(
 		final E[] data,
 		final int size,
 		final int offset,

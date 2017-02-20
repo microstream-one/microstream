@@ -20,7 +20,7 @@ public class MainTestAASIteration
 		for(int r = 0; r < RUNS; r++)
 		{
 			final long tStart = System.nanoTime();
-			final boolean value = AbstractArrayStorage.rngContainsNull(VALUES, VALUES.length, 0, VALUES.length);
+			final boolean value = AbstractArrayStorage.rangedContainsNull(VALUES, VALUES.length, 0, VALUES.length);
 			final long tStop = System.nanoTime();
 			 // use value to guarantee that JVM doesn't remove the actually no-op code
 			print(r, value, tStop - tStart); // note: the performance required to print does not influence measuring

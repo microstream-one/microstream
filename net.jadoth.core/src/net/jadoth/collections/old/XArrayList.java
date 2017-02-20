@@ -428,19 +428,19 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains(this.internalGetStorageArray(), this.subject.size(), predicate);
+		return AbstractArrayStorage.forwardContains(this.internalGetStorageArray(), 0, this.subject.size(), predicate);
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies(this.internalGetStorageArray(), this.subject.size(), predicate);
+		return AbstractArrayStorage.forwardApplies(this.internalGetStorageArray(), 0, this.subject.size(), predicate);
 	}
 
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.internalGetStorageArray(), this.subject.size(), element);
+		return AbstractArrayStorage.forwardContainsSame(this.internalGetStorageArray(), 0, this.subject.size(), element);
 	}
 
 	@Override
@@ -452,7 +452,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame(this.internalGetStorageArray(), this.subject.size(), element);
+		return AbstractArrayStorage.forwardContainsSame(this.internalGetStorageArray(), 0, this.subject.size(), element);
 	}
 
 	@Override
@@ -470,13 +470,13 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.count(this.internalGetStorageArray(), this.subject.size(), element);
+		return AbstractArrayStorage.forwardCount(this.internalGetStorageArray(), 0, this.subject.size(), element);
 	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount(this.internalGetStorageArray(), this.subject.size(), predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.internalGetStorageArray(), 0, this.subject.size(), predicate);
 	}
 
 	@Override
@@ -604,13 +604,13 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement(this.internalGetStorageArray(), this.subject.size(), predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.internalGetStorageArray(), 0, this.subject.size(), predicate, null);
 	}
 
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.containsSame(this.internalGetStorageArray(), this.subject.size(), sample)
+		return AbstractArrayStorage.forwardContainsSame(this.internalGetStorageArray(), 0, this.subject.size(), sample)
 			? sample
 			: null
 		;

@@ -297,14 +297,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.count((E[])this.data, this.data.length, element);
+		return AbstractArrayStorage.forwardCount((E[])this.data, 0, this.data.length, element);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalCount((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalCount((E[])this.data, 0, this.data.length, predicate);
 	}
 
 	// index querying //
@@ -313,21 +313,21 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long indexOf(final E element)
 	{
-		return AbstractArrayStorage.indexOf((E[])this.data, this.data.length, element);
+		return AbstractArrayStorage.forwardIndexOf((E[])this.data, 0, this.data.length, element);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.conditionalIndexOf((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf((E[])this.data, 0, this.data.length, predicate);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public long lastIndexOf(final E element)
 	{
-		return AbstractArrayStorage.rngIndexOF((E[])this.data, this.data.length, this.data.length - 1, -this.data.length, element);
+		return AbstractArrayStorage.rangedIndexOF((E[])this.data, this.data.length, this.data.length - 1, -this.data.length, element);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -355,7 +355,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.scan((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardScan((E[])this.data, 0, this.data.length, predicate);
 	}
 
 	// element querying //
@@ -399,14 +399,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.containsSame((E[])this.data, this.data.length, sample) ? sample : null;
+		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, sample) ? sample : null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.queryElement((E[])this.data, this.data.length, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement((E[])this.data, 0, this.data.length, predicate, null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -464,14 +464,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.contains((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardContains((E[])this.data, 0, this.data.length, predicate);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.applies((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.forwardApplies((E[])this.data, 0, this.data.length, predicate);
 	}
 
 	// boolean querying - contains //
@@ -480,21 +480,21 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean nullContained()
 	{
-		return AbstractArrayStorage.nullContained((E[])this.data, this.data.length);
+		return AbstractArrayStorage.forwardNullContained((E[])this.data, 0, this.data.length);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.containsSame((E[])this.data, this.data.length, element);
+		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, element);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.containsSame((E[])this.data, this.data.length, element);
+		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, element);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -578,14 +578,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.copyTo((E[])this.data, this.data.length, target);
+		return AbstractArrayStorage.forwardCopyTo((E[])this.data, 0, this.data.length, target);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.copyTo((E[])this.data, this.data.length, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo((E[])this.data, 0, this.data.length, target, predicate);
 	}
 
 	@SuppressWarnings("unchecked")
