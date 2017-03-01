@@ -4,6 +4,7 @@ import static java.lang.Character.isDigit;
 import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toUpperCase;
+import static net.jadoth.Jadoth.notNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -2370,6 +2371,21 @@ public final class JadothChars
 		return arrays;
 	}
 
+
+
+	public static final boolean contains(final String[] strings, final String subject)
+	{
+		notNull(subject);
+		for(final String string : strings)
+		{
+			if(subject.equals(string))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public static final boolean contains(
 		final char[] subject      ,
