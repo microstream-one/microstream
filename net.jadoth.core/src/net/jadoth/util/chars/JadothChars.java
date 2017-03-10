@@ -206,7 +206,7 @@ public final class JadothChars
 	{
 		validateIndex(chars, offset);
 		if(length < 0)
-	{
+		{
 			throw new IllegalArgumentException();
 		}
 		validateIndex(chars, offset + length - 1);
@@ -1963,9 +1963,9 @@ public final class JadothChars
 	{
 		int lowerIndex = 0;
 		for(int i = 0; i < input.length; i++)
-	{
-			if(input[i] == separator)
 		{
+			if(input[i] == separator)
+			{
 				collector.accept(trimToString(input, lowerIndex, i - lowerIndex));
 				lowerIndex = i + 1;
 			}
@@ -1973,7 +1973,7 @@ public final class JadothChars
 
 		// trailing empty element special case
 		if(lowerIndex <= input.length)
-	{
+		{
 			collector.accept(trimToString(input, lowerIndex, input.length - lowerIndex));
 		}
 

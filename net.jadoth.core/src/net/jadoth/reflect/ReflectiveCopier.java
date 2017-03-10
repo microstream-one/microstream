@@ -109,7 +109,7 @@ public class ReflectiveCopier
 
 	@SuppressWarnings("unchecked")
 	public static final <O extends Object, S extends O, T extends O> T fieldCopy(
-			final S source, final T target, final Field f, final CopyHandler copyHandler
+		final S source, final T target, final Field f, final CopyHandler copyHandler
 	)
 	{
 		return (T)fieldUntypedCopy(source, target, f, copyHandler);
@@ -176,14 +176,14 @@ public class ReflectiveCopier
 	 * @throws IllegalAccessRuntimeException the illegal access runtime exception
 	 */
 	public static final Object untypedCopy(
-			final Object                                        source                  ,
-			final Object                                        target                  ,
-			final Class<?>                                      commonClass             ,
-			final Set<Field>                                    fieldsToExclude         ,
-			final Map<Field, CopyHandler>                       targetFieldCopyHandlers ,
-			final Map<Class<? extends Annotation>, CopyHandler> targetAnnotationHandlers,
-			final Map<Class<?>, CopyHandler>                    targetClassCopyHandlers ,
-			final CopyHandler                                   genericCopyHandler
+		final Object                                        source                  ,
+		final Object                                        target                  ,
+		final Class<?>                                      commonClass             ,
+		final Set<Field>                                    fieldsToExclude         ,
+		final Map<Field, CopyHandler>                       targetFieldCopyHandlers ,
+		final Map<Class<? extends Annotation>, CopyHandler> targetAnnotationHandlers,
+		final Map<Class<?>, CopyHandler>                    targetClassCopyHandlers ,
+		final CopyHandler                                   genericCopyHandler
 	)
 		throws IllegalAccessRuntimeException
 	{
@@ -537,11 +537,11 @@ public class ReflectiveCopier
 	 * @return
 	 */
 	public ReflectiveCopier addCopyHandler(
-			final CopyHandler handler,
-			final Class<?> locationClass,
-			final Class<?> copyTargetClass,
-			final Class<? extends Annotation> copyTargetAnnotation,
-			final Field copyTargetField
+		final CopyHandler handler,
+		final Class<?> locationClass,
+		final Class<?> copyTargetClass,
+		final Class<? extends Annotation> copyTargetAnnotation,
+		final Field copyTargetField
 	)
 	{
 		if(locationClass != null)

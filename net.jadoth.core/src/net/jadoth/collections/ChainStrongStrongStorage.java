@@ -9437,15 +9437,15 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		int replaceCount = 0;
 		try
 		{
-					for(EN e = this.head.next; e != null; e = e.next)
-					{
-			final V replacement;
-			if((replacement = mapper.apply(e.value())) != e.value())
+			for(EN e = this.head.next; e != null; e = e.next)
 			{
-				e.setValue(replacement);
-				replaceCount++;
+				final V replacement;
+				if((replacement = mapper.apply(e.value())) != e.value())
+				{
+					e.setValue(replacement);
+					replaceCount++;
+				}
 			}
-		}
 		}
 		catch(final ThrowBreak b)
 		{

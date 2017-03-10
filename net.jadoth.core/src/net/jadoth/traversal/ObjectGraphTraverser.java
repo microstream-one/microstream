@@ -96,13 +96,13 @@ public interface ObjectGraphTraverser
 	{
 		return selectFromGraph(root, filterType, instanceFilter, X.List());
 	}
-	
-	
+
+
 	public static void signalAbortTraversal() throws TraversalSignalAbort
 	{
 		TraversalSignalAbort.fire();
 	}
-	
+
 	public static void signalSkipInstance() throws TraversalSignalSkipInstance
 	{
 		TraversalSignalSkipInstance.fire();
@@ -146,7 +146,7 @@ public interface ObjectGraphTraverser
 		{
 			// empty
 		};
-		
+
 
 
 
@@ -212,8 +212,8 @@ public interface ObjectGraphTraverser
 		final class ReferenceHandler implements Consumer<Object>
 		{
 			private final TraversalHandlerProvider                 handlerProvider ;
-	        private final HashTable<Class<?>, TraversalHandler<?>> instanceHandlers;
-	        private final XSet<Object>                             alreadyHandled  ;
+			private final HashTable<Class<?>, TraversalHandler<?>> instanceHandlers;
+			private final XSet<Object>                             alreadyHandled  ;
 
 			Object[] iterationTail      = createIterationSegment();
 			Object[] iterationHead      = this.iterationTail;
@@ -311,7 +311,7 @@ public interface ObjectGraphTraverser
 					}
 					handler.traverseReferences(item, this);
 				}
-				catch(TraversalSignalSkipInstance s)
+				catch(final TraversalSignalSkipInstance s)
 				{
 					/*
 					 * some logic (the handler or an evaluating logic it deferred to)
@@ -386,8 +386,8 @@ public interface ObjectGraphTraverser
 				// some logic signaled to abort the traversal. So abort and fall through to returning.
 				return matchListener;
 			}
-			
-			
+
+
 		}
 
 	}

@@ -387,19 +387,19 @@ public interface ItemMatcher<E>
 		{
 			return this.similarityThreshold;
 		}
-		
+
 		@Override
 		public double getSingletonPrecedenceThreshold()
 		{
 			return this.singletonPrecedenceThreshold;
 		}
-		
+
 		@Override
 		public double getSingletonPrecedenceBonus()
 		{
 			return this.singletonPrecedenceBonus;
 		}
-		
+
 		@Override
 		public double getNoiseFactor()
 		{
@@ -410,19 +410,19 @@ public interface ItemMatcher<E>
 //		{
 //			return this.suspiciousMatchThreshold;
 //		}
-		
+
 		@Override
 		public Equalator<? super E> equalator()
 		{
 			return this.equalator;
 		}
-		
+
 		@Override
 		public Similator<? super E> similator()
 		{
 			return this.similator;
 		}
-		
+
 		@Override
 		public MatchCallback<? super E> matchCallback()
 		{
@@ -441,42 +441,42 @@ public interface ItemMatcher<E>
 			this.similarityThreshold = similarityThreshold;
 			return this;
 		}
-		
+
 		@Override
 		public ItemMatcher<E> setSingletonPrecedenceThreshold(final double singletonPrecedenceThreshold)
 		{
 			this.singletonPrecedenceThreshold = singletonPrecedenceThreshold;
 			return this;
 		}
-		
+
 		@Override
 		public ItemMatcher<E> setSingletonPrecedenceBonus(final double singletonPrecedenceBonus)
 		{
 			this.singletonPrecedenceBonus = singletonPrecedenceBonus;
 			return this;
 		}
-		
+
 		@Override
 		public ItemMatcher<E> setNoisefactor(final double noiseFactor)
 		{
 			this.noiseFactor = noiseFactor;
 			return this;
 		}
-				
+
 		@Override
 		public ItemMatcher<E> setSimilator(final Similator<? super E> similator)
 		{
 			this.similator = similator;
 			return this;
 		}
-		
+
 		@Override
 		public ItemMatcher<E> setEqualator(final Equalator<? super E> equalator)
 		{
 			this.equalator = equalator;
 			return this;
 		}
-		
+
 		@Override
 		public ItemMatcher<E> setMatchCallback(final MatchCallback<? super E> suspiciousMatchDecider)
 		{

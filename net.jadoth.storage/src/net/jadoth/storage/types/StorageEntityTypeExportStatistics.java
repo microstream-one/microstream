@@ -55,7 +55,7 @@ public interface StorageEntityTypeExportStatistics
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
-				
+		
 		final XGettingTable<Long, TypeStatistic.Implementation>       typeStatistics       ;
 		final XGettingTable<Long, TypeStatistic.Implementation>       viewTypeStatistics   ;
 		
@@ -72,7 +72,7 @@ public interface StorageEntityTypeExportStatistics
 		{
 			super();
 			final EqHashTable<Long, TypeStatistic.Implementation> typeStatistics = EqHashTable.New();
-						
+			
 			for(final KeyValue<Integer, ? extends ChannelStatistic> e1 : channelStatistics)
 			{
 				final ChannelStatistic cs = e1.value();
@@ -114,7 +114,7 @@ public interface StorageEntityTypeExportStatistics
 		{
 			return this.viewChannelStatistics;
 		}
-				
+		
 		final void assembleTableRecord(final VarString vs)
 		{
 			vs.add("Total");
