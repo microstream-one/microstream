@@ -27,9 +27,7 @@ public final class JadothThreads
 		return t;
 	}
 
-
-
-
+	
 
 	/**
 	 * Causes the current thread to sleep the specified amount of milliseconds.

@@ -1,6 +1,7 @@
 package net.jadoth.csv;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.functional._charProcedure;
 import net.jadoth.util.chars.CsvVarStringLiteralEscapingAssembler;
 import net.jadoth.util.chars.JadothChars;
@@ -27,6 +28,8 @@ public interface CsvAssembler
 	public void addRowValueSimple(double value);
 
 	public void addRowValueSimple(CharSequence value);
+	
+	public void addRowValueSimple(Boolean value);
 
 	public void addRowValueDelimited(CharSequence value);
 
@@ -187,6 +190,16 @@ public interface CsvAssembler
 		public final void addRowValueSimple(final double value)
 		{
 			this.vs.add(value);
+			this.separate();
+		}
+		
+		@Override
+		public final void addRowValueSimple(final Boolean value)
+		{
+			if(value != null)
+			{
+				this.vs.add(value);
+			}
 			this.separate();
 		}
 

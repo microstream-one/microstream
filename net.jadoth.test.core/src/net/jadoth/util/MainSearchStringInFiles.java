@@ -72,13 +72,8 @@ public class MainSearchStringInFiles
 
 		// 1000000000049275254 ist das erste KonzAbschlagAnspruchAhVlUSt von KonzAbschlagAnsprueche hashTable 1000000000049005596
 		searchStringsInFiles(DIRECT,
-			new File("D:/BonusExportTest_2016-11-14_09-48-25.833/csv").listFiles(),
-//			"1000000000049005596",
-//			"1000000000049005584"
-//			"1000000000046756228", // zombie referenz (auf BulkList)
-//			"1000000000046756227", // lazy ref auf 1000000000046756228. NIEMAND zeigt darauf.
-			"1000000000046756229" // erste Referenz aus 1000000000046756228 auf Roheinnahme
-
+			new File("D:/BonusExportTest_2017-03-06_13-56-13.733/csv").listFiles(),
+			"1000000000020811816"
 		);
 
 	}

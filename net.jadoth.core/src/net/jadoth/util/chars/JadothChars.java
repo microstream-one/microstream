@@ -293,11 +293,6 @@ public final class JadothChars
 		return s1.equalsIgnoreCase(s2);
 	}
 
-	public static final String toUpperCasefinal(final String input)
-	{
-		return input == null ? null : input.toUpperCase();
-	}
-
 	public static final char toHexadecimal(final int b) throws IllegalArgumentException
 	{
 		// CHECKSTYLE.OFF: MagicNumber: direct literals are better readable

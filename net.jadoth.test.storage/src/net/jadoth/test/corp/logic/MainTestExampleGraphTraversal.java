@@ -54,7 +54,7 @@ public class MainTestExampleGraphTraversal
 //		);
 
 		// TODO: (WIP) consolidate redundant value type instances in a persistent graph
-//		EntityGraphTraverser.traverseGraph(corp, ValueConsolidator.New(), STORAGE.createStorer()).commit();
+//		ObjectGraphTraverser.traverseGraph(corp, ValueConsolidator.New(), STORAGE.createStorer()).commit();
 
 //		roughly 20-200ns per instance, depending on entity types and graph size
 //		testPerformance(5_000);
@@ -159,15 +159,15 @@ public class MainTestExampleGraphTraversal
 	{
 		final ObjectGraphTraverser traverser = ObjectGraphTraverser.Factory()
 			.setHandlingLogic                 (null      ) // callback, der auf eine Instanz angewendet werden soll. Z.B. System.out::println oder was auch immer
-			.setHandlingLogicProvider         (null      ) // Indirektion anstatt dem oben, um je Typ eine andere Logik auszuwählen oder state zu resetten oder so.
+			.setHandlingLogicProvider         (null      ) // Indirektion anstatt dem oben, um je Typ eine andere Logik auszuwï¿½hlen oder state zu resetten oder so.
 
 			.leafTypes                        (null, null) // "Leaves" werden zwar von der Logik gehandelt, aber ihre Referenzen werden nicht mehr durchlaufen.
 			.nodeTypes                   (null, null) // Umgekehrter Fall: Zwar Referenzen weiterverfolgen, aber Instanzen an sich nicht handeln (reiner "Node")
-			.excludeTypes                     (null, null) // Kombination aus beidem: weder handeln noch Referenzen verfolgen, d.h. effektiv ausschließen
+			.excludeTypes                     (null, null) // Kombination aus beidem: weder handeln noch Referenzen verfolgen, d.h. effektiv ausschlieï¿½en
 
-			.setTraversalHandlerProvider      (null)       // Für custom Logik zum Rerenzen traversieren, ähnlich wie für Handling-Logik.
+			.setTraversalHandlerProvider      (null)       // Fï¿½r custom Logik zum Rerenzen traversieren, ï¿½hnlich wie fï¿½r Handling-Logik.
 
-			.setTraversableFieldSelector      (null)       // Zu traversierende Referenzen einfach nach Feld auswählen
+			.setTraversableFieldSelector      (null)       // Zu traversierende Referenzen einfach nach Feld auswï¿½hlen
 
 			.skipAll                          (null, null) // Konkrete Instanzen ignorieren
 

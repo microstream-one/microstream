@@ -1,6 +1,7 @@
 package net.jadoth.util.chars;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingList;
@@ -59,7 +60,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 		}
 		catch(final Exception e)
 		{
-			throw new RuntimeException("Row validation failed at row " + this.rows.size());
+			throw new RuntimeException("Row validation failed at row " + this.rows.size(), e);
 		}
 		final T entity;
 		try
