@@ -67,12 +67,12 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 
 		protected AbstractImplementation(final String... columnHeader)
 		{
-			this(new ConstList<>(columnHeader));
+			this(ConstList.New(columnHeader));
 		}
 
 		protected AbstractImplementation(final int rowCharCountEstimate, final String... columnHeader)
 		{
-			this(new ConstList<>(columnHeader), rowCharCountEstimate);
+			this(ConstList.New(columnHeader), rowCharCountEstimate);
 		}
 
 

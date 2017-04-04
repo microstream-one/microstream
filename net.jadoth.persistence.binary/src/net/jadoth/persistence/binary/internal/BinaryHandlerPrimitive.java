@@ -31,7 +31,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
 
-		this.typeDefinition = new PersistenceTypeDescription.Implementation<>(
+		this.typeDefinition = PersistenceTypeDescription.New(
 			typeId,
 			type.getName(),
 			X.Constant(

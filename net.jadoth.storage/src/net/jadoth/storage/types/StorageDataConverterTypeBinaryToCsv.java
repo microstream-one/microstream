@@ -478,7 +478,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			.add(this.oidColumnName).add(valueSeparator)
 			;
 
-			final XGettingSequence<PersistenceTypeDescriptionMember> members = this.typeDescription.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.typeDescription.members();
 			final LimitList<String> refColumnNames = new LimitList<>(Jadoth.to_int(members.size()));
 			final LimitList<String> prmColumnNames = new LimitList<>(Jadoth.to_int(members.size()));
 			final LimitList<String> refColumnTypes = new LimitList<>(Jadoth.to_int(members.size()));

@@ -413,7 +413,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public XImmutableList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 	@Override

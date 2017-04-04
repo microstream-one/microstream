@@ -238,7 +238,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public XImmutableList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 	@Override

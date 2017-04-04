@@ -424,17 +424,6 @@ public interface StorageTransactionsFileAnalysis
 
 	public final class EntryAssembler implements EntryIterator
 	{
-		private static final ConstList<String> HEADER = new ConstList<>(
-			"Type",
-			"Timestamp",
-			"Time Delta (ms)",
-			"Resulting Length",
-			"Length Change",
-			"Current Head File",
-			"Significant File",
-			"Special Offset"
-		);
-
 		private static String formateTimeStamp(final Date timestamp)
 		{
 			// JDK geniuses can't write a proper immutable util type
@@ -443,13 +432,22 @@ public interface StorageTransactionsFileAnalysis
 
 		public static XGettingSequence<String> header()
 		{
-			return HEADER;
+			return ConstList.New(
+				"Type"             ,
+				"Timestamp"        ,
+				"Time Delta (ms)"  ,
+				"Resulting Length" ,
+				"Length Change"    ,
+				"Current Head File",
+				"Significant File" ,
+				"Special Offset"
+			);
 		}
 
 		public static VarString assembleHeader(final VarString vs, final String separator)
 		{
 			notNull(separator);
-			for(final String s : HEADER)
+			for(final String s : header())
 			{
 				vs.add(s).add(separator);
 			}

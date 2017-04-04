@@ -52,7 +52,7 @@ public interface PersistenceTypeDictionaryParser
 
 		private static PersistenceTypeDescription buildTypeEntry(final TypeBuilder entryBuilder)
 		{
-			return new PersistenceTypeDescription.Implementation<>(
+			return PersistenceTypeDescription.New(
 				entryBuilder.tid,
 				entryBuilder.typeName,
 				entryBuilder.members.immure()

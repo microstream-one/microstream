@@ -1104,7 +1104,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void validateTypeNames(final XGettingList<String> dataColumntypes)
 		{
-			final XGettingSequence<PersistenceTypeDescriptionMember> members = this.currentType.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
 
 			if(members.size() != dataColumntypes.size())
 			{
@@ -1117,7 +1117,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 			final String referenceTypeName = this.configuration.referenceTypeName();
 
-			final Iterator<PersistenceTypeDescriptionMember> memberIterator = members.iterator();
+			final Iterator<? extends PersistenceTypeDescriptionMember> memberIterator = members.iterator();
 			for(final String columnTypeName : dataColumntypes)
 			{
 				final PersistenceTypeDescriptionMember member = memberIterator.next();
@@ -1147,7 +1147,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void deriveValueHandlers()
 		{
-			final XGettingSequence<PersistenceTypeDescriptionMember> members = this.currentType.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
 			final ValueHandler[] valueHandlers = new ValueHandler[Jadoth.checkArrayRange(members.size()) + 1];
 			valueHandlers[0] = this.objectIdValueHandler;
 			int i = 1;

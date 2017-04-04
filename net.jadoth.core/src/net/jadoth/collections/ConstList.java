@@ -49,9 +49,10 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 	private static final transient Object[] EMPTY_DATA = new Object[0];
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
+	// static methods   //
 	/////////////////////
 
 	public static <E> Aggregator<E, ConstList<E>> Builder()
@@ -78,7 +79,41 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 			}
 		};
 	}
+	
+	@SuppressWarnings("unchecked") // the cast is always safe as there can never be any references in the array.
+	public static <T> ConstList<T> New()
+	{
+		return new ConstList<>((T[])EMPTY_DATA);
+	}
 
+	public static <T> ConstList<T> New(final int initialCapacity)
+	{
+		return new ConstList<>(newArray(initialCapacity));
+	}
+
+	public static <T> ConstList<T> New(final ConstList<? extends T> original) throws NullPointerException
+	{
+		return new ConstList<>(original.data.clone());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> ConstList<T> New(final XGettingCollection<? extends T> elements) throws NullPointerException
+	{
+		return new ConstList<>((T[])elements.toArray());
+	}
+
+	@SafeVarargs
+	public static <T> ConstList<T> New(final T... elements) throws NullPointerException
+	{
+		return new ConstList<>(elements.clone());
+	}
+
+	public static <T> ConstList<T> New(final T[] src, final int srcStart, final int srcLength)
+	{
+		final T[] data;
+		System.arraycopy(src, srcStart, data = newArray(srcLength), 0, srcLength);
+		return new ConstList<>(data);
+	}
 
 
 
@@ -86,7 +121,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	// instance fields //
 	////////////////////
 
-	final Object[] data; // the storage array containing the elements
+	final E[] data; // the storage array containing the elements
 
 
 
@@ -94,45 +129,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	// constructors //
 	/////////////////
 
-	public ConstList() // required for "empty" list constant
-	{
-		super();
-		this.data = EMPTY_DATA;
-	}
-
-	public ConstList(final int initialCapacity)
-	{
-		super();
-		this.data = new Object[initialCapacity];
-	}
-
-	public ConstList(final ConstList<? extends E> original) throws NullPointerException
-	{
-		super();
-		this.data = original.data.clone();
-	}
-
-	public ConstList(final XGettingCollection<? extends E> elements) throws NullPointerException
-	{
-		super();
-		this.data = elements.toArray();
-	}
-
-	@SafeVarargs
-	public ConstList(final E... elements) throws NullPointerException
-	{
-		super();
-		this.data = elements.clone();
-	}
-
-	public ConstList(final E[] src, final int srcStart, final int srcLength)
-	{
-		super();
-		// automatically check arguments 8-)
-		System.arraycopy(src, srcStart, this.data = new Object[srcLength], 0, srcLength);
-	}
-
-	ConstList(final Object[] internalData, final int size)
+	ConstList(final E[] internalData)
 	{
 		super();
 		this.data = internalData;
@@ -144,11 +141,10 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	// override methods //
 	/////////////////////
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])this.data;
+		return this.data;
 	}
 
 	@Override
@@ -218,7 +214,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public ConstList<E> copy()
 	{
-		return new ConstList<>(this);
+		return new ConstList<>(this.data);
 	}
 
 	@Override
@@ -230,13 +226,13 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public ConstList<E> toReversed()
 	{
-		final Object[] data = this.data;
-		final Object[] rData = new Object[data.length];
+		final E[] data  = this.data;
+		final E[] rData = newArray(data.length);
 		for(int i = data.length, r = 0; i-- > 0;)
 		{
 			rData[r++] = data[i];
 		}
-		return new ConstList<>(rData, data.length);
+		return new ConstList<>(rData);
 	}
 
 	@Override
@@ -248,161 +244,139 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	}
 
 	// executing //
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
-		AbstractArrayStorage.iterate((E[])this.data, this.data.length, procedure);
+		AbstractArrayStorage.iterate(this.data, this.data.length, procedure);
 		return procedure;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
 	{
-		AbstractArrayStorage.join((E[])this.data, this.data.length, joiner, aggregate);
+		AbstractArrayStorage.join(this.data, this.data.length, joiner, aggregate);
 		return aggregate;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
 	{
-		AbstractArrayStorage.iterate((E[])this.data, this.data.length, procedure);
+		AbstractArrayStorage.iterate(this.data, this.data.length, procedure);
 		return procedure;
 	}
 
 	// count querying //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long count(final E element)
 	{
-		return AbstractArrayStorage.forwardCount((E[])this.data, 0, this.data.length, element);
+		return AbstractArrayStorage.forwardCount(this.data, 0, this.data.length, element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardConditionalCount((E[])this.data, 0, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalCount(this.data, 0, this.data.length, predicate);
 	}
 
 	// index querying //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long indexOf(final E element)
 	{
-		return AbstractArrayStorage.forwardIndexOf((E[])this.data, 0, this.data.length, element);
+		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.data.length, element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardConditionalIndexOf((E[])this.data, 0, this.data.length, predicate);
+		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.data.length, predicate);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long lastIndexOf(final E element)
 	{
-		return AbstractArrayStorage.rangedIndexOF((E[])this.data, this.data.length, this.data.length - 1, -this.data.length, element);
+		return AbstractArrayStorage.rangedIndexOF(this.data, this.data.length, this.data.length - 1, -this.data.length, element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long lastIndexBy(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.lastIndexOf((E[])this.data, this.data.length, predicate);
+		return AbstractArrayStorage.lastIndexOf(this.data, this.data.length, predicate);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long maxIndex(final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.maxIndex((E[])this.data, this.data.length, comparator);
+		return AbstractArrayStorage.maxIndex(this.data, this.data.length, comparator);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long minIndex(final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.minIndex((E[])this.data, this.data.length, comparator);
+		return AbstractArrayStorage.minIndex(this.data, this.data.length, comparator);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardScan((E[])this.data, 0, this.data.length, predicate);
+		return AbstractArrayStorage.forwardScan(this.data, 0, this.data.length, predicate);
 	}
 
 	// element querying //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E get()
 	{
-		return (E)this.data[0];
+		return this.data[0];
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E first()
 	{
-		return (E)this.data[0];
+		return this.data[0];
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E last()
 	{
-		return (E)this.data[this.data.length - 1];
+		return this.data[this.data.length - 1];
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E poll()
 	{
 		return this.data.length == 0 ? null : (E)this.data[0];
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E peek()
 	{
 		return this.data.length == 0 ? null : (E)this.data[this.data.length - 1];
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E seek(final E sample)
 	{
-		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, sample) ? sample : null;
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.data.length, sample) ? sample : null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardQueryElement((E[])this.data, 0, this.data.length, predicate, null);
+		return AbstractArrayStorage.forwardQueryElement(this.data, 0, this.data.length, predicate, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E max(final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.max((E[])this.data, this.data.length, comparator);
+		return AbstractArrayStorage.max(this.data, this.data.length, comparator);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E min(final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.min((E[])this.data, this.data.length, comparator);
+		return AbstractArrayStorage.min(this.data, this.data.length, comparator);
 	}
 
 	// boolean querying //
@@ -419,11 +393,10 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isSorted(final Comparator<? super E> comparator)
 	{
-		return AbstractArrayStorage.isSorted((E[])this.data, this.data.length, comparator);
+		return AbstractArrayStorage.isSorted(this.data, this.data.length, comparator);
 	}
 
 //	@SuppressWarnings("unchecked")
@@ -442,48 +415,42 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 	// boolean querying - applies //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardContains((E[])this.data, 0, this.data.length, predicate);
+		return AbstractArrayStorage.forwardContains(this.data, 0, this.data.length, predicate);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardApplies((E[])this.data, 0, this.data.length, predicate);
+		return AbstractArrayStorage.forwardApplies(this.data, 0, this.data.length, predicate);
 	}
 
 	// boolean querying - contains //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean nullContained()
 	{
-		return AbstractArrayStorage.forwardNullContained((E[])this.data, 0, this.data.length);
+		return AbstractArrayStorage.forwardNullContained(this.data, 0, this.data.length);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean containsId(final E element)
 	{
-		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.data.length, element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean contains(final E element)
 	{
-		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, element);
+		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.data.length, element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
-		return AbstractArrayStorage.containsAll((E[])this.data, this.data.length, elements);
+		return AbstractArrayStorage.containsAll(this.data, this.data.length, elements);
 	}
 
 //	@SuppressWarnings("unchecked")
@@ -495,7 +462,6 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 	// boolean querying - equality //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
@@ -509,10 +475,9 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((ConstList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return JadothArrays.equals(this.data, 0, ((ConstList<? extends E>)samples).data, 0, this.data.length, equalator);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
@@ -524,12 +489,11 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		{
 			return true;
 		}
-		return AbstractArrayStorage.equalsContent((E[])this.data, this.data.length, samples, equalator);
+		return AbstractArrayStorage.equalsContent(this.data, this.data.length, samples, equalator);
 	}
 
 	// data set procedures //
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C intersect(
 		final XGettingCollection<? extends E> samples,
@@ -537,10 +501,9 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		final C target
 	)
 	{
-		return AbstractArrayStorage.intersect((E[])this.data, this.data.length, samples, equalator, target);
+		return AbstractArrayStorage.intersect(this.data, this.data.length, samples, equalator, target);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C except(
 		final XGettingCollection<? extends E> samples,
@@ -548,10 +511,9 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		final C target
 	)
 	{
-		return AbstractArrayStorage.except((E[])this.data, this.data.length, samples, equalator, target);
+		return AbstractArrayStorage.except(this.data, this.data.length, samples, equalator, target);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C union(
 		final XGettingCollection<? extends E> samples,
@@ -559,51 +521,45 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		final C target
 	)
 	{
-		return AbstractArrayStorage.union((E[])this.data, this.data.length, samples, equalator, target);
+		return AbstractArrayStorage.union(this.data, this.data.length, samples, equalator, target);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C copyTo(final C target)
 	{
-		return AbstractArrayStorage.forwardCopyTo((E[])this.data, 0, this.data.length, target);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.data.length, target);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C filterTo(final C target, final Predicate<? super E> predicate)
 	{
-		return AbstractArrayStorage.forwardCopyTo((E[])this.data, 0, this.data.length, target, predicate);
+		return AbstractArrayStorage.forwardCopyTo(this.data, 0, this.data.length, target, predicate);
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T> T[] rngCopyTo(final int startIndex, final int length, final T[] target, final int offset)
 	{
 		return AbstractArrayStorage.rangedCopyTo(
-			(E[])this.data, this.data.length, startIndex, length,  target, offset
+			this.data, this.data.length, startIndex, length,  target, offset
 		);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C distinct(final C target)
 	{
-		return AbstractArrayStorage.distinct((E[])this.data, this.data.length, target);
+		return AbstractArrayStorage.distinct(this.data, this.data.length, target);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C distinct(final C target, final Equalator<? super E> equalator)
 	{
-		return AbstractArrayStorage.distinct((E[])this.data, this.data.length, target, equalator);
+		return AbstractArrayStorage.distinct(this.data, this.data.length, target, equalator);
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Consumer<? super E>> C copySelection(final C target, final long... indices)
 	{
-		return AbstractArrayStorage.copySelection((E[])this.data, this.data.length, indices, target);
+		return AbstractArrayStorage.copySelection(this.data, this.data.length, indices, target);
 	}
 
 
@@ -694,7 +650,6 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		return this.data.clone();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E at(final long index) throws ArrayIndexOutOfBoundsException
 	{
@@ -702,7 +657,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		{
 			throw new IndexBoundsException(this.data.length, index);
 		}
-		return (E)this.data[(int)index];
+		return this.data[(int)index];
 	}
 
 

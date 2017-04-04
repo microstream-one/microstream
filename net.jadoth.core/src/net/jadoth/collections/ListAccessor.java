@@ -646,7 +646,7 @@ public class ListAccessor<E> implements XSettingList<E>
 	@Override
 	public final XImmutableList<E> immure()
 	{
-		return new ConstList<>(this.subject);
+		return ConstList.New(this.subject);
 	}
 
 

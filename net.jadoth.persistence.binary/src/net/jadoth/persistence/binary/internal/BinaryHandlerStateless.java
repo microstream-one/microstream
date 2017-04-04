@@ -6,7 +6,6 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
@@ -27,10 +26,10 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	public BinaryHandlerStateless(final Class<T> type, final long typeId)
 	{
 		super(type, typeId);
-		this.typeDefinition = new PersistenceTypeDescription.Implementation<>(
+		this.typeDefinition = PersistenceTypeDescription.New(
 			typeId,
 			type.getName(),
-			X.<PersistenceTypeDescriptionMember>empty()
+			X.empty()
 		);
 	}
 

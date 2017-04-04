@@ -469,7 +469,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public XImmutableList<E> immure()
 	{
-		return new ConstList<>(this.toArray(), Jadoth.checkArrayRange(this.size));
+		return ConstList.New(this);
 	}
 
 	@Override

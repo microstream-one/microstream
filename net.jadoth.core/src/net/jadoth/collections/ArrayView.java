@@ -203,7 +203,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public XImmutableList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 	@Override

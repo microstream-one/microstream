@@ -656,7 +656,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final ConstList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 	@Override

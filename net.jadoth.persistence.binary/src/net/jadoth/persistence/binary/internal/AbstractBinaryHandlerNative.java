@@ -109,7 +109,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	)
 	{
 		super(type, typeId);
-		this.typeDescription = new PersistenceTypeDescription.Implementation<T>(
+		this.typeDescription = PersistenceTypeDescription.New(
 			typeId,
 			type.getName(),
 			pseudoFields.immure()

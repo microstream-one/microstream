@@ -171,8 +171,8 @@ public interface StringTable
 			this.name    = name                 ; // may be null
 			this.columns = EqConstHashEnum.New(columns);
 			validateColumnCount(Jadoth.to_int(this.columns.size()), rows);
-			this.types   = new ConstList<>(columnTypes);
-			this.rows    = new ConstList<>(rows);
+			this.types   = ConstList.New(columnTypes);
+			this.rows    = ConstList.New(rows);
 		}
 
 

@@ -83,7 +83,7 @@ public final class BinaryHandlerConstList extends AbstractBinaryHandlerNativeCus
 	@Override
 	public final ConstList<?> create(final Binary bytes)
 	{
-		return new ConstList<>(Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return ConstList.New(Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
 	}
 
 	@Override

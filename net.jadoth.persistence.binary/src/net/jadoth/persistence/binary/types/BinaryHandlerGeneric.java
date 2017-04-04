@@ -223,7 +223,7 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 		 * Value handlers are derived dynamically. As long as it results in the same persistent order,
 		 * everything is fine.
 		 */
-		this.typeDescription = new PersistenceTypeDescription.Implementation<>(tid, type.getName(), members);
+		this.typeDescription = PersistenceTypeDescription.New(tid, type.getName(), members);
 	}
 
 

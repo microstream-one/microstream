@@ -156,7 +156,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDescription
 		}
 
 		@Override
-		public final XGettingSequence<PersistenceTypeDescriptionMember> members()
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDescription.members();
 		}

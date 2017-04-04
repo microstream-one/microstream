@@ -1,9 +1,9 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.Jadoth.notNull;
+
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.hash.HashEqualator;
@@ -29,7 +29,7 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	 * Currently, this is just recognized as Lazy.
 	 */
 
-	public XGettingSequence<PersistenceTypeDescriptionMember> members();
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
 	public boolean hasReferences();
 
@@ -133,8 +133,8 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	)
 	{
 		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
-		final Iterator<PersistenceTypeDescriptionMember> it1 = td1.members().iterator();
-		final Iterator<PersistenceTypeDescriptionMember> it2 = td2.members().iterator();
+		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = td1.members().iterator();
+		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = td2.members().iterator();
 
 		// intentionally OR to give equalator a chance to handle size mismatches as well (indicated by null)
 		while(it1.hasNext() || it2.hasNext())
@@ -152,6 +152,16 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		return true;
 	}
 
+	
+	
+	public static <T> PersistenceTypeDescription New(
+		final long                                                         typeId  ,
+		final String                                                       typeName,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, members);
+	}
 
 
 
@@ -161,12 +171,12 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		// instance fields //
 		////////////////////
 
-		final long                                                 typeId        ;
-		final String                                               typeName      ;
-		final XImmutableSequence<PersistenceTypeDescriptionMember> members       ;
-		final boolean                                              hasReferences ;
-		final boolean                                              isPrimitive   ;
-		final boolean                                              variableLength;
+		final long                                                          typeId        ;
+		final String                                                        typeName      ;
+		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
+		final boolean                                                        hasReferences ;
+		final boolean                                                        isPrimitive   ;
+		final boolean                                                        variableLength;
 
 
 
@@ -174,22 +184,22 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		protected Implementation(
 			final long                                                         typeId  ,
 			final String                                                       typeName,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			super();
-			this.typeId         = typeId                          ;
-			this.typeName       = typeName                        ;
-			this.members        = new ConstList<>(members)        ;
-			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences(members);
-			this.isPrimitive    = determineIsPrimitive(members)   ;
-			this.variableLength = determineVariableLength(members);
+			this.typeId         = typeId           ;
+			this.typeName       = notNull(typeName);
+			this.members        = members.immure() ; // same instance if already immutable
+			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
+			this.isPrimitive    = PersistenceTypeDescription      .determineIsPrimitive   (members);
+			this.variableLength = PersistenceTypeDescription      .determineVariableLength(members);
 		}
 
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
@@ -208,7 +218,7 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		}
 		
 		@Override
-		public final XImmutableSequence<PersistenceTypeDescriptionMember> members()
+		public final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.members;
 		}
@@ -235,16 +245,18 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		public final String toString()
 		{
 			final VarString vc = VarString.New();
+			
 			vc.add(this.typeId).blank().add(this.typeName).blank().add('{');
 			if(!this.members.isEmpty())
 			{
 				vc.lf();
-				for(int i = 0; i < Jadoth.to_int(this.members.size()); i++)
+				for(final PersistenceTypeDescriptionMember member : this.members)
 				{
-					vc.tab().add(this.members.at(i)).add(';').lf();
+					vc.tab().add(member).add(';').lf();
 				}
 			}
 			vc.add('}');
+			
 			return vc.toString();
 		}
 

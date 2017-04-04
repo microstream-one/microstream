@@ -1560,7 +1560,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final XImmutableList<V> copy()
 		{
-			return new ConstList<>(this);
+			return ConstList.New(this);
 		}
 
 		@Override
@@ -1861,7 +1861,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final XImmutableList<V> immure()
 		{
-			return new ConstList<>(this);
+			return ConstList.New(this);
 		}
 
 		@Override
