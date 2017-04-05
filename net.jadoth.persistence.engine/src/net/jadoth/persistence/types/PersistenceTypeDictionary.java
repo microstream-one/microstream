@@ -10,17 +10,17 @@ import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingEnum<PersistenceTypeDescription> types();
+	public XGettingEnum<PersistenceTypeDescription<?>> types();
 
-	public boolean registerType(PersistenceTypeDescription typeDescription);
+	public boolean registerType(PersistenceTypeDescription<?> typeDescription);
 
-	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDescription> typeDescriptions);
-
-	@Override
-	public PersistenceTypeDescription lookupTypeByName(String typeName);
+	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions);
 
 	@Override
-	public PersistenceTypeDescription lookupTypeById(long typeId);
+	public PersistenceTypeDescription<?> lookupTypeByName(String typeName);
+
+	@Override
+	public PersistenceTypeDescription<?> lookupTypeById(long typeId);
 
 	public long determineHighestTypeId();
 
@@ -31,7 +31,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public static <D extends PersistenceTypeDictionary> D initializeRegisteredTypes(
 		final D                                                        typeDictionary  ,
-		final XGettingCollection<? extends PersistenceTypeDescription> typeDescriptions
+		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
 	)
 	{
 		typeDictionary.registerTypes(typeDescriptions);
@@ -44,7 +44,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	}
 
 	public static PersistenceTypeDictionary New(
-		final XGettingCollection<? extends PersistenceTypeDescription> typeDescriptions
+		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
 	)
 	{
 		return PersistenceTypeDictionary.initializeRegisteredTypes(
@@ -171,11 +171,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
-		private final EqHashEnum<PersistenceTypeDescription> types;
+		private final EqHashEnum<PersistenceTypeDescription<?>> types;
 
-		private final EqHashTable<Long  , PersistenceTypeDescription> typesPerTypeId   = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescription> typesPerTypeName = EqHashTable.New();
-		private       PersistenceTypeDescriptionRegistrationCallback  callback        ;
+		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDescription<?>> typesPerTypeName = EqHashTable.New();
+		private       PersistenceTypeDescriptionRegistrationCallback     callback        ;
 
 
 
@@ -195,7 +195,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// declared methods //
 		/////////////////////
 
-		final void internalRegisterType(final PersistenceTypeDescription typeDescription)
+		final void internalRegisterType(final PersistenceTypeDescription<?> typeDescription)
 		{
 			this.typesPerTypeId.put(typeDescription.typeId(), typeDescription);
 			this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
@@ -208,7 +208,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		// (06.12.2014)TODO: rename "2"
-		final boolean internalRegisterType2(final PersistenceTypeDescription typeDescription)
+		final boolean internalRegisterType2(final PersistenceTypeDescription<?> typeDescription)
 		{
 			if(!this.types.add(typeDescription))
 			{
@@ -242,13 +242,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public XGettingEnum<PersistenceTypeDescription> types()
+		public XGettingEnum<PersistenceTypeDescription<?>> types()
 		{
 			return this.types;
 		}
 
 		@Override
-		public final synchronized boolean registerType(final PersistenceTypeDescription typeDescription)
+		public final synchronized boolean registerType(final PersistenceTypeDescription<?> typeDescription)
 		{
 			if(this.internalRegisterType2(typeDescription))
 			{
@@ -260,12 +260,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		@Override
 		public synchronized boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDescription> typeDescriptions
+			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
 		)
 		{
 			final long oldSize = this.types.size();
 
-			for(final PersistenceTypeDescription td : typeDescriptions)
+			for(final PersistenceTypeDescription<?> td : typeDescriptions)
 			{
 				this.internalRegisterType2(td);
 			}
@@ -279,13 +279,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public PersistenceTypeDescription lookupTypeByName(final String typeName)
+		public PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
 		{
 			return this.typesPerTypeName.get(typeName);
 		}
 
 		@Override
-		public PersistenceTypeDescription lookupTypeById(final long typeId)
+		public PersistenceTypeDescription<?> lookupTypeById(final long typeId)
 		{
 			return this.typesPerTypeId.get(typeId);
 		}
@@ -295,7 +295,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			long maxTypeId = -1;
 
-			for(final PersistenceTypeDescription type : this.types)
+			for(final PersistenceTypeDescription<?> type : this.types)
 			{
 				if(type.typeId() >= maxTypeId)
 				{
@@ -311,7 +311,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			final VarString vc = VarString.New();
 
-			for(final PersistenceTypeDescription type : this.types)
+			for(final PersistenceTypeDescription<?> type : this.types)
 			{
 				vc.add(type).lf();
 			}

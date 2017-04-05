@@ -17,7 +17,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// instance fields  //
 	/////////////////////
 
-	private final PersistenceTypeDescription typeDefinition;
+	private final PersistenceTypeDescription<T> typeDefinition;
 
 
 
@@ -34,6 +34,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 		this.typeDefinition = PersistenceTypeDescription.New(
 			typeId,
 			type.getName(),
+			type,
 			X.Constant(
 				new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
 					type,
@@ -81,7 +82,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public PersistenceTypeDescription typeDescription()
+	public PersistenceTypeDescription<T> typeDescription()
 	{
 		return this.typeDefinition;
 	}

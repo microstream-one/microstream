@@ -61,7 +61,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 //	public void validateTypeDefinition(PersistenceTypeDescription typeDescription);
 
 	@Override
-	public PersistenceTypeDescription typeDescription();
+	public PersistenceTypeDescription<T> typeDescription();
 
 	public XGettingEnum<Field> getAllFields();
 
@@ -79,7 +79,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 
 
 
-	public static PersistenceTypeDescription getTypeDefinition(final PersistenceTypeHandler<?, ?> input)
+	public static <T> PersistenceTypeDescription<T> getTypeDefinition(final PersistenceTypeHandler<?, T> input)
 	{
 		return input.typeDescription();
 	}

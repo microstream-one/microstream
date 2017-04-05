@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public StorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
+	public StorageLockedFile provideExportFile(StorageEntityTypeHandler<?> entityType);
 
 
 
@@ -55,7 +55,7 @@ public interface StorageEntityTypeExportFileProvider
 		/////////////////////
 
 		@Override
-		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
+		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler<?> entityType)
 		{
 			/* don't bother with including a type id.
 			 * TypeId mapping is the type dictionary's concern, not that of an export file.

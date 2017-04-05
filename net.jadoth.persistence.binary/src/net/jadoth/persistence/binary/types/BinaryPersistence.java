@@ -519,7 +519,7 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-	private static <T> PersistenceTypeDescription primitiveTypeDescription(
+	private static <T> PersistenceTypeDescription<?> primitiveTypeDescription(
 		final Class<T>            type,
 		final SwizzleTypeIdLookup typeLookup
 	)

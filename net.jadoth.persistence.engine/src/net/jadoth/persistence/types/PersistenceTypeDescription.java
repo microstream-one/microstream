@@ -8,10 +8,11 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
+import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.chars.VarString;
 
-public interface PersistenceTypeDescription extends SwizzleTypeIdentity
+public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, SwizzleTypeLink<T>
 {
 	@Override
 	public long   typeId();
@@ -19,7 +20,7 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	@Override
 	public String typeName();
 
-	/* (30.06.2015 TM)TODO: PersistenceTypeDescription Generics
+	/* (30.06.2015 TM)TODO: PersistenceTypeDescription <?>Generics
 	 * Must consider Generics Type information as well, at least as a simple normalized String for
 	 * equality comparison.
 	 * Otherwise, changing type parameter won't be recognized by the type validation and
@@ -60,17 +61,17 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
 
-	public static final HashEqualator<PersistenceTypeDescription> EQUAL_TYPE =
-		new HashEqualator<PersistenceTypeDescription>()
+	public static final HashEqualator<PersistenceTypeDescription<?>> EQUAL_TYPE =
+		new HashEqualator<PersistenceTypeDescription<?>>()
 		{
 			@Override
-			public int hash(final PersistenceTypeDescription typeDescription)
+			public int hash(final PersistenceTypeDescription<?> typeDescription)
 			{
 				return PersistenceTypeDescription.hashCode(typeDescription);
 			}
 
 			@Override
-			public boolean equal(final PersistenceTypeDescription td1, final PersistenceTypeDescription td2)
+			public boolean equal(final PersistenceTypeDescription<?> td1, final PersistenceTypeDescription<?> td2)
 			{
 				return PersistenceTypeDescription.equalType(td1, td2);
 			}
@@ -79,14 +80,14 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 
 
 
-	public static int hashCode(final PersistenceTypeDescription typeDescription)
+	public static int hashCode(final PersistenceTypeDescription <?>typeDescription)
 	{
 		return Long.hashCode(typeDescription.typeId()) & typeDescription.typeName().hashCode();
 	}
 
 	public static boolean equalType(
-		final PersistenceTypeDescription td1,
-		final PersistenceTypeDescription td2
+		final PersistenceTypeDescription <?>td1,
+		final PersistenceTypeDescription <?>td2
 	)
 	{
 		if(td1 == td2)
@@ -105,8 +106,8 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	}
 
 	public static boolean equalDescription(
-		final PersistenceTypeDescription td1,
-		final PersistenceTypeDescription td2
+		final PersistenceTypeDescription <?>td1,
+		final PersistenceTypeDescription <?>td2
 	)
 	{
 		if(td1 == td2)
@@ -127,8 +128,8 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	}
 
 	public static boolean equalMembers(
-		final PersistenceTypeDescription                  td1      ,
-		final PersistenceTypeDescription                  td2      ,
+		final PersistenceTypeDescription <?>                 td1      ,
+		final PersistenceTypeDescription <?>                 td2      ,
 		final Equalator<PersistenceTypeDescriptionMember> equalator
 	)
 	{
@@ -154,25 +155,27 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 
 	
 	
-	public static <T> PersistenceTypeDescription New(
+	public static <T> PersistenceTypeDescription<T> New(
 		final long                                                         typeId  ,
 		final String                                                       typeName,
+		final Class<T>                                                     type    ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, members);
+		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, type, members);
 	}
 
 
 
-	public final class Implementation<T> implements PersistenceTypeDescription
+	public final class Implementation<T> implements PersistenceTypeDescription<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final long                                                          typeId        ;
-		final String                                                        typeName      ;
+		final long                                                           typeId        ;
+		final String                                                         typeName      ;
+		final Class<T>                                                       type          ;
 		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
 		final boolean                                                        hasReferences ;
 		final boolean                                                        isPrimitive   ;
@@ -184,15 +187,17 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		Implementation(
 			final long                                                         typeId  ,
 			final String                                                       typeName,
+			final Class<T>                                                     type    ,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			super();
-			this.typeId         = typeId           ;
+			this.typeId         =         typeId   ;
 			this.typeName       = notNull(typeName);
+			this.type           =         type     ; // may be null for obsolete type description or external process
 			this.members        = members.immure() ; // same instance if already immutable
 			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
 			this.isPrimitive    = PersistenceTypeDescription      .determineIsPrimitive   (members);
@@ -215,6 +220,12 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 		public final String typeName()
 		{
 			return this.typeName;
+		}
+		
+		@Override
+		public final Class<T> type()
+		{
+			return this.type;
 		}
 		
 		@Override

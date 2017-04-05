@@ -1136,7 +1136,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		}
 
 		// use a random (the "first") element to be removed as the remove marker, may even be null
-		final E removeMarker = elements.get();
+//		final E removeMarker = elements.get();
 
 		// for each segment
 		// from start to end
@@ -1306,7 +1306,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final ConstList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 	@Override

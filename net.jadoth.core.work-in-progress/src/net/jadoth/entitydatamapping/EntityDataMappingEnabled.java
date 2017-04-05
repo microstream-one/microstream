@@ -33,7 +33,7 @@ package net.jadoth.entitydatamapping;
  * @param <E> the element type
  * @author Thomas Muenz
  */
-public interface EntityDataMappingEnabled<E> 
+public interface EntityDataMappingEnabled<E>
 {
 	
 	/**
@@ -92,7 +92,7 @@ public interface EntityDataMappingEnabled<E>
 		protected final Class<E> entityClass;
 		
 		/** The entity. */
-		protected E entity = null;		
+		protected E entity = null;
 		
 
 		
@@ -104,7 +104,7 @@ public interface EntityDataMappingEnabled<E>
 		 * 
 		 * @param entityClass the entity class
 		 */
-		public AbstractImplementation(Class<E> entityClass) {
+		public AbstractImplementation(final Class<E> entityClass) {
 			super();
 			this.entityClass = entityClass;
 		}
@@ -115,7 +115,7 @@ public interface EntityDataMappingEnabled<E>
 		 * @param entity the entity
 		 */
 		@SuppressWarnings("unchecked")
-		public AbstractImplementation(E entity) {
+		public AbstractImplementation(final E entity) {
 			this((Class<E>)(entity==null?null:entity.getClass()));
 			this.entity = entity;
 		}
@@ -130,8 +130,9 @@ public interface EntityDataMappingEnabled<E>
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#getDataEntity()
 		 */
 		@Override
-		public E getDataEntity() {
-			return entity;			
+		public E getDataEntity()
+		{
+			return this.entity;
 		}
 		
 		/**
@@ -140,8 +141,9 @@ public interface EntityDataMappingEnabled<E>
 		 * @return the entityClass
 		 */
 		@Override
-		public Class<E> getDataEntityClass() {
-			return entityClass;
+		public Class<E> getDataEntityClass()
+		{
+			return this.entityClass;
 		}
 		
 		
@@ -155,8 +157,10 @@ public interface EntityDataMappingEnabled<E>
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#setDataEntity(java.lang.Object)
 		 */
 		@Override
-		public EntityDataMappingEnabled.AbstractImplementation<E> setDataEntity(E entity) {	
-			if(entity != null && !this.entityClass.isInstance(entity)){
+		public EntityDataMappingEnabled.AbstractImplementation<E> setDataEntity(final E entity)
+		{
+			if(entity != null && !this.entityClass.isInstance(entity))
+			{
 				throw new ClassCastException(entity.getClass().toString());
 			}
 			this.entity = entity;

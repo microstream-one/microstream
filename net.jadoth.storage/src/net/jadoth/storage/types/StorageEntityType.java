@@ -10,7 +10,7 @@ import net.jadoth.swizzling.types.Swizzle;
 
 public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 {
-	public StorageEntityTypeHandler typeHandler();
+	public StorageEntityTypeHandler<?> typeHandler();
 
 	public long entityCount();
 
@@ -51,16 +51,16 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		// instance fields  //
 		/////////////////////
 
-		        final int                      channelIndex            ;
-		        final long                     typeId                  ;
-		private final StorageEntityTypeHandler typeHandler             ;
-		private final boolean                  hasReferences           ;
-		private final long                     simpleReferenceDataCount;
+		        final int                         channelIndex            ;
+		        final long                        typeId                  ;
+		private final StorageEntityTypeHandler<?> typeHandler             ;
+		private final boolean                     hasReferences           ;
+		private final long                        simpleReferenceDataCount;
 
-		private       long                     entityCount             ;
-		StorageEntityType.Implementation       hashNext                ;
-		StorageEntityType.Implementation       next                    ;
-		        final TypeInFile               dummy                    = new TypeInFile(this, null, null);
+		private       long                        entityCount             ;
+		StorageEntityType.Implementation          hashNext                ;
+		StorageEntityType.Implementation          next                    ;
+		        final TypeInFile                  dummy                    = new TypeInFile(this, null, null);
 
 		StorageEntity.Implementation head = StorageEntity.Implementation.createDummy(this.dummy);
 		StorageEntity.Implementation tail = this.head;
@@ -84,7 +84,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 		Implementation(
 			final int                              channelIndex,
-			final StorageEntityTypeHandler         typeHandler ,
+			final StorageEntityTypeHandler<?>      typeHandler ,
 			final StorageEntityType.Implementation hashNext    ,
 			final StorageEntityType.Implementation next
 		)
@@ -190,7 +190,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 //		}
 
 		@Override
-		public final StorageEntityTypeHandler typeHandler()
+		public final StorageEntityTypeHandler<?> typeHandler()
 		{
 			return this.typeHandler;
 		}
@@ -222,9 +222,9 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		@Override
 		public final StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
 		{
-			final StorageEntityTypeHandler typeHandler = this.typeHandler;
+			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
 
-			final StorageEntityTypeHandler oldTypeHandler = oldTypes == null
+			final StorageEntityTypeHandler<?> oldTypeHandler = oldTypes == null
 				? null
 				: oldTypes.lookupTypeHandler(this.typeId)
 			;

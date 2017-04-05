@@ -40,7 +40,7 @@ public interface BufferingCollector<E>
 		final Consumer<? super E> collectingListener
 	)
 	{
-		return new BufferingCollector.Implementation<E>(notNull(finalizingLogic), collectingListener);
+		return new BufferingCollector.Implementation<>(notNull(finalizingLogic), collectingListener);
 	}
 
 	public final class Implementation<E> implements BufferingCollector<E>

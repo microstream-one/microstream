@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  * 
  * @author Thomas Muenz
  */
-public class EntityDataInvalidAccessorMethodException extends EntityMappingException 
+public class EntityDataInvalidAccessorMethodException extends EntityMappingException
 {
 	
 	/** The cause method. */
@@ -48,7 +48,7 @@ public class EntityDataInvalidAccessorMethodException extends EntityMappingExcep
 	 * @return the causeMethod
 	 */
 	public Method getCauseMethod() {
-		return causeMethod;
+		return this.causeMethod;
 	}
 
 	/** The Constant serialVersionUID. */
@@ -66,7 +66,7 @@ public class EntityDataInvalidAccessorMethodException extends EntityMappingExcep
 	 * 
 	 * @param message the message
 	 */
-	public EntityDataInvalidAccessorMethodException(String message) {
+	public EntityDataInvalidAccessorMethodException(final String message) {
 		super(message);
 	}
 	
@@ -75,7 +75,7 @@ public class EntityDataInvalidAccessorMethodException extends EntityMappingExcep
 	 * 
 	 * @param causeMethod the cause method
 	 */
-	public EntityDataInvalidAccessorMethodException(Method causeMethod) {
+	public EntityDataInvalidAccessorMethodException(final Method causeMethod) {
 		super();
 		this.causeMethod = causeMethod;
 	}
@@ -85,7 +85,7 @@ public class EntityDataInvalidAccessorMethodException extends EntityMappingExcep
 	 * 
 	 * @param cause the cause
 	 */
-	public EntityDataInvalidAccessorMethodException(Throwable cause) {
+	public EntityDataInvalidAccessorMethodException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -95,7 +95,7 @@ public class EntityDataInvalidAccessorMethodException extends EntityMappingExcep
 	 * @param message the message
 	 * @param cause the cause
 	 */
-	public EntityDataInvalidAccessorMethodException(String message, Throwable cause) {
+	public EntityDataInvalidAccessorMethodException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 

@@ -50,11 +50,12 @@ public interface PersistenceTypeDictionaryParser
 			return i;
 		}
 
-		private static PersistenceTypeDescription buildTypeEntry(final TypeBuilder entryBuilder)
+		private static PersistenceTypeDescription<?> buildTypeEntry(final TypeBuilder entryBuilder)
 		{
 			return PersistenceTypeDescription.New(
-				entryBuilder.tid,
-				entryBuilder.typeName,
+				entryBuilder.tid             ,
+				entryBuilder.typeName        ,
+				entryBuilder.type            ,
 				entryBuilder.members.immure()
 			);
 		}
@@ -94,11 +95,13 @@ public interface PersistenceTypeDictionaryParser
 		// parser methods //
 
 		private static void parseTypes(
-			final BulkList<PersistenceTypeDescription> types         ,
-			final char[]                               input         ,
-			final PersistenceFieldLengthResolver       lengthResolver
+			final BulkList<PersistenceTypeDescription<?>> types         ,
+			final char[]                                  input         ,
+			final PersistenceFieldLengthResolver          lengthResolver
 		)
 		{
+			// (04.04.2017 TM)TODO: OGS-3 Cache TypeBuilder instances, evaluate for obsolete types.
+			// (04.04.2017 TM)TODO: OGS-3 what about types not resolvable to runtime classes? Always desired here? Modularize?
 			for(int i = 0; (i = skipWhiteSpacesEoFSafe(input, i)) < input.length;)
 			{
 				final TypeBuilder typeBuilder = new TypeBuilder(lengthResolver);
@@ -405,7 +408,8 @@ public interface PersistenceTypeDictionaryParser
 		@Override
 		public PersistenceTypeDictionary parse(final String input) throws PersistenceExceptionParser
 		{
-			final BulkList<PersistenceTypeDescription> types = new BulkList<>();
+			final BulkList<PersistenceTypeDescription<?>> types = BulkList.New();
+			
 			try
 			{
 				parseTypes(types, input.toCharArray(), this.lengthResolver);
@@ -422,6 +426,7 @@ public interface PersistenceTypeDictionaryParser
 			{
 				throw new PersistenceExceptionParser(-1, e);
 			}
+			
 			return PersistenceTypeDictionary.New(types);
 		}
 
@@ -433,6 +438,7 @@ public interface PersistenceTypeDictionaryParser
 	{
 		      long                                       tid           ;
 		      String                                     typeName      ;
+		      Class<?>                                   type          ;
 		final BulkList<PersistenceTypeDescriptionMember> members        = new BulkList<>();
 		final PersistenceFieldLengthResolver             lengthResolver;
 

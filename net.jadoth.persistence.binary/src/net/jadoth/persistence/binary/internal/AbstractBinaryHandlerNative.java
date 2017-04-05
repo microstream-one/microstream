@@ -94,7 +94,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final PersistenceTypeDescription typeDescription;
+	private final PersistenceTypeDescription<T> typeDescription;
 
 
 
@@ -103,15 +103,16 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNative(
-		final long typeId,
-		final Class<T> type,
+		final long                                                                    typeId      ,
+		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
 		super(type, typeId);
 		this.typeDescription = PersistenceTypeDescription.New(
-			typeId,
-			type.getName(),
+			typeId               ,
+			type.getName()       ,
+			type                 ,
 			pseudoFields.immure()
 		);
 	}
@@ -122,7 +123,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	/////////////////////
 
 	@Override
-	public PersistenceTypeDescription typeDescription()
+	public PersistenceTypeDescription<T> typeDescription()
 	{
 		return this.typeDescription;
 	}

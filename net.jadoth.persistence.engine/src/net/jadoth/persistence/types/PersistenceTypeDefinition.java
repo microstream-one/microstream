@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
-import net.jadoth.reflect.JadothReflect;
+
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
@@ -16,33 +16,29 @@ public interface PersistenceTypeDefinition<T> extends SwizzleTypeIdentity, Swizz
 	@Override
 	public Class<T> type();
 
-	public PersistenceTypeDescription typeDescription();
+	public PersistenceTypeDescription<T> typeDescription();
 
 
-
-	public static PersistenceTypeDefinition<?> resolveType(final PersistenceTypeDescription typeDescription)
+	
+	public static <T> PersistenceTypeDefinition<T> New(
+		final Class<T>                      type           ,
+		final PersistenceTypeDescription<T> typeDescription
+	)
 	{
-		try
-		{
-			final Class<?> type = JadothReflect.classForName(typeDescription.typeName());
-			return new PersistenceTypeDefinition.Implementation<>(type, typeDescription);
-		}
-		catch(final ReflectiveOperationException e)
-		{
-			throw new RuntimeException(e); // (05.04.2013)EXCP: proper exception
-		}
+		return new PersistenceTypeDefinition.Implementation<>(
+			notNull(type)           ,
+			notNull(typeDescription)
+		);
 	}
-
-
-
+	
 	public final class Implementation<T> implements PersistenceTypeDefinition<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		private final Class<T>                   type           ;
-		private final PersistenceTypeDescription typeDescription;
+		private final Class<T>                      type           ;
+		private final PersistenceTypeDescription<T> typeDescription;
 
 
 
@@ -50,11 +46,11 @@ public interface PersistenceTypeDefinition<T> extends SwizzleTypeIdentity, Swizz
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final Class<T> type, final PersistenceTypeDescription typeDescription)
+		Implementation(final Class<T> type, final PersistenceTypeDescription<T> typeDescription)
 		{
 			super();
-			this.type            = notNull(type)           ;
-			this.typeDescription = notNull(typeDescription);
+			this.type            = type           ;
+			this.typeDescription = typeDescription;
 		}
 
 		@Override
@@ -76,7 +72,7 @@ public interface PersistenceTypeDefinition<T> extends SwizzleTypeIdentity, Swizz
 		}
 
 		@Override
-		public PersistenceTypeDescription typeDescription()
+		public PersistenceTypeDescription<T> typeDescription()
 		{
 			return this.typeDescription;
 		}

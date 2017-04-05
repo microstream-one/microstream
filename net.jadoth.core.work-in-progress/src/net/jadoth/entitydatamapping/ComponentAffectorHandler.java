@@ -41,7 +41,7 @@ import net.jadoth.entitydatamapping.interfaces.ComponentAffector;
  * 
  * @author Thomas Muenz
  */
-public interface ComponentAffectorHandler 
+public interface ComponentAffectorHandler
 {
 	
 	/**
@@ -79,10 +79,10 @@ public interface ComponentAffectorHandler
 	{
 		
 		/** The entries by annotation. */
-		private Map<Class<? extends Annotation>, List<Entry<?>>> entriesByAnnotation = new HashMap<Class<? extends Annotation>, List<Entry<?>>>();
+		private final Map<Class<? extends Annotation>, List<Entry<?>>> entriesByAnnotation = new HashMap<>();
 		
 		/** The entries by component. */
-		private Map<Component, List<Entry<?>>> entriesByComponent = new HashMap<Component, List<Entry<?>>>();
+		private final Map<Component, List<Entry<?>>> entriesByComponent = new HashMap<>();
 		
 
 
@@ -93,13 +93,13 @@ public interface ComponentAffectorHandler
 		 * @param entries the entries
 		 */
 		@SuppressWarnings("unchecked")
-		protected <C extends Component> void executeAll(List<Entry<?>> entries) {
-			if(entries == null) return;			
-			for(Entry<?> entry : entries) {
+		protected <C extends Component> void executeAll(final List<Entry<?>> entries) {
+			if(entries == null) return;
+			for(final Entry<?> entry : entries) {
 				final Entry<C> e = (Entry<C>)entry;
-				e.affector.affect(e.component);				
+				e.affector.affect(e.component);
 			}
-		}		
+		}
 		
 		/**
 		 * @param <C>
@@ -107,8 +107,8 @@ public interface ComponentAffectorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentAffectorHandler#executeAffector(java.awt.Component)
 		 */
 		@Override
-		public <C extends Component> void executeAffector(C component) {
-			executeAll(this.entriesByComponent.get(component));						
+		public <C extends Component> void executeAffector(final C component) {
+			executeAll(this.entriesByComponent.get(component));
 		}
 		
 		/**
@@ -117,8 +117,8 @@ public interface ComponentAffectorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentAffectorHandler#executeAffector(java.lang.Class)
 		 */
 		@Override
-		public <C extends Component> void executeAffector(Class<? extends Annotation> annotation) {
-			executeAll(this.entriesByAnnotation.get(annotation));				
+		public <C extends Component> void executeAffector(final Class<? extends Annotation> annotation) {
+			executeAll(this.entriesByAnnotation.get(annotation));
 		}
 		
 		/**
@@ -129,22 +129,22 @@ public interface ComponentAffectorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentAffectorHandler#register(java.lang.Class, java.awt.Component, net.jadoth.entitydatamapping.interfaces.ComponentAffector)
 		 */
 		@Override
-		public <C extends Component> void register(Class<? extends Annotation> annotation, C component, ComponentAffector<C> affector) {
-			final Entry<C> e = new Entry<C>(annotation, component, affector);
+		public <C extends Component> void register(final Class<? extends Annotation> annotation, final C component, final ComponentAffector<C> affector) {
+			final Entry<C> e = new Entry<>(annotation, component, affector);
 			
 			List<Entry<?>> byAnnotationList = this.entriesByAnnotation.get(annotation);
 			if(byAnnotationList == null){
-				byAnnotationList = new LinkedList<Entry<?>>();
+				byAnnotationList = new LinkedList<>();
 				this.entriesByAnnotation.put(annotation, byAnnotationList);
 			}
 			byAnnotationList.add(e);
 			
 			List<Entry<?>> byComponentList = this.entriesByComponent.get(component);
 			if(byComponentList == null){
-				byComponentList = new LinkedList<Entry<?>>();
+				byComponentList = new LinkedList<>();
 				this.entriesByComponent.put(component, byComponentList);
 			}
-			byComponentList.add(e);		
+			byComponentList.add(e);
 		}
 		
 		
@@ -159,13 +159,13 @@ public interface ComponentAffectorHandler
 			
 			/** The annotation. */
 			@SuppressWarnings("unused") //maybe later
-			private Class<? extends Annotation> annotation;		
+			private final Class<? extends Annotation> annotation;
 			
 			/** The component. */
-			private C component;
+			final C component;
 			
 			/** The affector. */
-			private ComponentAffector<C> affector;
+			ComponentAffector<C> affector;
 			
 			/**
 			 * Instantiates a new entry.
@@ -174,14 +174,14 @@ public interface ComponentAffectorHandler
 			 * @param component the component
 			 * @param affector the affector
 			 */
-			public Entry(Class<? extends Annotation> annotation, C component, ComponentAffector<C> affector) {
+			public Entry(final Class<? extends Annotation> annotation, final C component, final ComponentAffector<C> affector) {
 				super();
 				this.annotation = annotation;
 				this.component = component;
-				this.affector = affector;				
+				this.affector = affector;
 			}
 		}
 		
-	}	
+	}
 	
 }

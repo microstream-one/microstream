@@ -13,15 +13,15 @@ import net.jadoth.util.chars.VarString;
 public interface PersistenceTypeDefinitionResolver
 {
 	public void resolveTypeDefinitions(
-		XGettingSequence<PersistenceTypeDescription>               typeDescriptions                    ,
-		Consumer<? super PersistenceTypeDefinition<?>>            typeDefinitionCollector             ,
-		BiProcedure<? super PersistenceTypeDescription, Exception> unresolvableTypeDescriptionCollector
+		XGettingSequence<PersistenceTypeDescription<?>>               typeDescriptions                    ,
+		Consumer<? super PersistenceTypeDefinition<?>>                typeDefinitionCollector             ,
+		BiProcedure<? super PersistenceTypeDescription<?>, Exception> unresolvableTypeDescriptionCollector
 	);
 	
 	
 	public static VarString assembleResolveExceptions(
-		final XGettingSequence<KeyValue<PersistenceTypeDescription, Exception>> resolveProblems,
-		final VarString                                                         vs
+		final XGettingSequence<KeyValue<PersistenceTypeDescription<?>, Exception>> resolveProblems,
+		final VarString                                                            vs
 	)
 	{
 		if(resolveProblems.isEmpty())
@@ -30,7 +30,7 @@ public interface PersistenceTypeDefinitionResolver
 		}
 		
 		vs.add(resolveProblems.size() + " type resolving problems:").lf();
-		for(final KeyValue<? extends PersistenceTypeDescription, ? extends Exception> p : resolveProblems)
+		for(final KeyValue<? extends PersistenceTypeDescription<?>, ? extends Exception> p : resolveProblems)
 		{
 			vs.add(p.key().typeId() + " " + p.key().typeName() + ": " + p.value().toString()).lf();
 		}
@@ -47,47 +47,61 @@ public interface PersistenceTypeDefinitionResolver
 	
 	public final class Implementation implements PersistenceTypeDefinitionResolver
 	{
+		@SuppressWarnings("unchecked")
+		static <T> Class<T> resolve(final PersistenceTypeDescription<T> typeDescription) throws ReflectiveOperationException
+		{
+			final String   typeName = typeDescription.typeName();
+			final Class<?> type     = JadothReflect.classForName(typeName);
+			
+			return (Class<T>)type;
+		}
+		
+		static <T> void addResolved(
+			final PersistenceTypeDescription<T> typeDescription,
+			final LimitList<PersistenceTypeDefinition<?>>          tdBuffer,
+			final HashTable<PersistenceTypeDescription<?>, Exception> exBuffer
+		)
+		{
+			final Class<T> type;
+			try
+			{
+				// strictly only the resolving call inside the try, nothing else
+				type = resolve(typeDescription);
+			}
+			catch(final ReflectiveOperationException e)
+			{
+				exBuffer.add(typeDescription, e);
+				return;
+			}
+			
+			final PersistenceTypeDefinition<?> td = PersistenceTypeDefinition.New(type, typeDescription);
+			tdBuffer.add(td);
+		}
+		
 		@Override
 		public void resolveTypeDefinitions(
-			final XGettingSequence<PersistenceTypeDescription>               typeDescriptions                    ,
-			final Consumer<? super PersistenceTypeDefinition<?>>            typeDefinitionCollector             ,
-			final BiProcedure<? super PersistenceTypeDescription, Exception> unresolvableTypeDescriptionCollector
+			final XGettingSequence<PersistenceTypeDescription<?>>               typeDescriptions                    ,
+			final Consumer<? super PersistenceTypeDefinition<?>>                typeDefinitionCollector             ,
+			final BiProcedure<? super PersistenceTypeDescription<?>, Exception> unresolvableTypeDescriptionCollector
 		)
 		{
 			// results are buffered until all items have been processed without unhandled exception
 			final LimitList<PersistenceTypeDefinition<?>>          tdBuffer =
 				LimitList.New(typeDescriptions.size())
 			;
-			final HashTable<PersistenceTypeDescription, Exception> exBuffer =
+			final HashTable<PersistenceTypeDescription<?>, Exception> exBuffer =
 				HashTable.NewCustom(typeDescriptions.intSize())
 			;
 			
 			// type descriptions are iterated and either successfully resolved or associated with the exception
-			for(final PersistenceTypeDescription typeDescription : typeDescriptions)
+			for(final PersistenceTypeDescription<?> typeDescription : typeDescriptions)
 			{
-				final String typeName = typeDescription.typeName();
-				
-				final Class<?> type;
-				try
-				{
-					// strictly only the resolving call inside the try, nothing else
-					type = JadothReflect.classForName(typeName);
-				}
-				catch(final ReflectiveOperationException e)
-				{
-					exBuffer.add(typeDescription, e);
-					continue;
-				}
-				
-				final PersistenceTypeDefinition<?> td =
-					new PersistenceTypeDefinition.Implementation<>(type, typeDescription)
-				;
-				tdBuffer.add(td);
+				addResolved(typeDescription, tdBuffer, exBuffer);
 			}
 			
 			// results are copied into the target collectors
 			tdBuffer.iterate(typeDefinitionCollector);
-			for(final KeyValue<PersistenceTypeDescription, Exception> ex : exBuffer)
+			for(final KeyValue<PersistenceTypeDescription<?>, Exception> ex : exBuffer)
 			{
 				unresolvableTypeDescriptionCollector.accept(ex.key(), ex.value());
 			}

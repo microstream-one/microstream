@@ -9,7 +9,7 @@ import net.jadoth.reflect.Label;
  * @author Thomas Muenz
  *
  */
-public class TestEntity 
+public class TestEntity
 {
 	public static final String LABEL_EntityData = "EntityData";
 	public static final String LABEL_EntityDataField = LABEL_EntityData+"Field";
@@ -31,38 +31,38 @@ public class TestEntity
 	 * @return the intValue
 	 */
 	public int getIntValue() {
-		return intValue;
+		return this.intValue;
 	}
 	/**
 	 * @return the integerValue
 	 */
 	public Integer getIntegerValue() {
-		return integerValue;
+		return this.integerValue;
 	}
 	/**
 	 * @return the stringValue
 	 */
 	@Label({LABEL_EntityData, LABEL_EntityDataGetter})
 	public String getStringValue() {
-		return stringValue;
+		return this.stringValue;
 	}
 	/**
 	 * @param intValue the intValue to set
 	 */
-	public void setIntValue(int intValue) {
+	public void setIntValue(final int intValue) {
 		this.intValue = intValue;
 	}
 	/**
 	 * @param integerValue the integerValue to set
 	 */
-	public void setIntegerValue(Integer integerValue) {
+	public void setIntegerValue(final Integer integerValue) {
 		this.integerValue = integerValue;
 	}
 	/**
 	 * @param stringValue the stringValue to set
 	 */
 	@Label({LABEL_EntityData, LABEL_EntityDataSetter})
-	public void setStringValue(String stringValue) {
+	public void setStringValue(final String stringValue) {
 		this.stringValue = stringValue;
 	}
 	
@@ -76,11 +76,11 @@ public class TestEntity
 		
 		sb
 		.append(this.getClass().getSimpleName()).append(":")
-		.append(n).append(t).append("intValue").append(_is_).append(intValue)
-		.append(n).append(t).append("integerValue").append(_is_).append(integerValue)
-		.append(n).append(t).append("stringValue").append(_is_).append(stringValue)
-		;		
-		return sb.toString();		
+		.append(n).append(t).append("intValue").append(_is_).append(this.intValue)
+		.append(n).append(t).append("integerValue").append(_is_).append(this.integerValue)
+		.append(n).append(t).append("stringValue").append(_is_).append(this.stringValue)
+		;
+		return sb.toString();
 	}
 	
 	

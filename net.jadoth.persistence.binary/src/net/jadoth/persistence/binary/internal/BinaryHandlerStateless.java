@@ -15,7 +15,7 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	// instance fields //
 	////////////////////
 
-	private final PersistenceTypeDescription typeDefinition;
+	private final PersistenceTypeDescription<T> typeDefinition;
 
 
 
@@ -27,8 +27,9 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	{
 		super(type, typeId);
 		this.typeDefinition = PersistenceTypeDescription.New(
-			typeId,
+			typeId        ,
 			type.getName(),
+			type          ,
 			X.empty()
 		);
 	}
@@ -59,7 +60,7 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	}
 
 	@Override
-	public final PersistenceTypeDescription typeDescription()
+	public final PersistenceTypeDescription<T> typeDescription()
 	{
 		return this.typeDefinition;
 	}

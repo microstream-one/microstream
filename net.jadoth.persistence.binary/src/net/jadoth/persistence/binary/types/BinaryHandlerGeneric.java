@@ -137,21 +137,21 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>     allFields        ;
-	private final EqConstHashEnum<Field>     refFields        ;
-	private final EqConstHashEnum<Field>     prmFields        ;
-	private final long[]                     allMemOfs        ;
-	private final long[]                     refMemOfs        ;
-	private final long[]                     allBinOfs        ;
-	private final long                       refBinStartOffset;
-	private final long                       refBinBoundOffset;
-	private final long                       binaryLength     ;
-	private final BinaryValueStorer[]        binStorers       ;
-	private final BinaryValueSetter[]        memSetters       ;
-	private final BinaryValueEqualator[]     equalators       ;
-	private final ObjectValueCopier[]        copiers          ;
-	private final BinaryInstantiator<T>      instantiator     ;
-	private final PersistenceTypeDescription typeDescription  ;
+	private final EqConstHashEnum<Field>        allFields        ;
+	private final EqConstHashEnum<Field>        refFields        ;
+	private final EqConstHashEnum<Field>        prmFields        ;
+	private final long[]                        allMemOfs        ;
+	private final long[]                        refMemOfs        ;
+	private final long[]                        allBinOfs        ;
+	private final long                          refBinStartOffset;
+	private final long                          refBinBoundOffset;
+	private final long                          binaryLength     ;
+	private final BinaryValueStorer[]           binStorers       ;
+	private final BinaryValueSetter[]           memSetters       ;
+	private final BinaryValueEqualator[]        equalators       ;
+	private final ObjectValueCopier[]           copiers          ;
+	private final BinaryInstantiator<T>         instantiator     ;
+	private final PersistenceTypeDescription<T> typeDescription  ;
 
 
 
@@ -223,7 +223,7 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 		 * Value handlers are derived dynamically. As long as it results in the same persistent order,
 		 * everything is fine.
 		 */
-		this.typeDescription = PersistenceTypeDescription.New(tid, type.getName(), members);
+		this.typeDescription = PersistenceTypeDescription.New(tid, type.getName(), type, members);
 	}
 
 
@@ -303,7 +303,7 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	}
 
 	@Override
-	public PersistenceTypeDescription typeDescription()
+	public PersistenceTypeDescription<T> typeDescription()
 	{
 		return this.typeDescription;
 	}

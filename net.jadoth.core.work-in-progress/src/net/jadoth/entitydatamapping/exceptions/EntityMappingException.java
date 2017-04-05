@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
  * 
  * @author Thomas Muenz
  */
-public class EntityMappingException extends RuntimeException 
+public class EntityMappingException extends RuntimeException
 {
 	
 	/** The Constant serialVersionUID. */
@@ -69,7 +69,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param message the message
 	 */
-	public EntityMappingException(String message) {
+	public EntityMappingException(final String message) {
 		super(message);
 	}
 
@@ -78,7 +78,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param cause the cause
 	 */
-	public EntityMappingException(Throwable cause) {
+	public EntityMappingException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -88,7 +88,7 @@ public class EntityMappingException extends RuntimeException
 	 * @param message the message
 	 * @param cause the cause
 	 */
-	public EntityMappingException(String message, Throwable cause) {
+	public EntityMappingException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 	
@@ -104,7 +104,7 @@ public class EntityMappingException extends RuntimeException
 	 * @return the field
 	 */
 	public Field getField() {
-		return field;
+		return this.field;
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class EntityMappingException extends RuntimeException
 	 * @return the dataType
 	 */
 	public Class<?> getDataType() {
-		return dataType;
+		return this.dataType;
 	}
 	
 	/**
@@ -122,7 +122,7 @@ public class EntityMappingException extends RuntimeException
 	 * @return the setter
 	 */
 	public Method getSetter() {
-		return setter;
+		return this.setter;
 	}
 	
 	/**
@@ -131,7 +131,7 @@ public class EntityMappingException extends RuntimeException
 	 * @return the getter
 	 */
 	public Method getGetter() {
-		return getter;
+		return this.getter;
 	}
 
 	
@@ -144,7 +144,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param field the field to set
 	 */
-	public void setField(Field field) {
+	public void setField(final Field field) {
 		this.field = field;
 	}
 	
@@ -153,7 +153,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param dataType the dataType to set
 	 */
-	public void setDataType(Class<?> dataType) {
+	public void setDataType(final Class<?> dataType) {
 		this.dataType = dataType;
 	}
 	
@@ -162,7 +162,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param setter the setter to set
 	 */
-	public void setSetter(Method setter) {
+	public void setSetter(final Method setter) {
 		this.setter = setter;
 	}
 	
@@ -171,7 +171,7 @@ public class EntityMappingException extends RuntimeException
 	 * 
 	 * @param getter the getter to set
 	 */
-	public void setGetter(Method getter) {
+	public void setGetter(final Method getter) {
 		this.getter = getter;
 	}
 	
@@ -181,7 +181,7 @@ public class EntityMappingException extends RuntimeException
 	 * @see java.lang.Throwable#printStackTrace(java.io.PrintStream)
 	 */
 	@Override
-	public void printStackTrace(PrintStream s) {
+	public void printStackTrace(final PrintStream s) {
 //		System.out.println("EntityMappingException.printStackTrace(PrintStream)");
 		synchronized (s) {
 			super.printStackTrace(s);

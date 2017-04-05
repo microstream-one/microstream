@@ -209,7 +209,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private final ValueWriter                             valueWriterRef  = this.createValueWriterReference();
 
 		private       long                                    typeId          =   -1;
-		private       PersistenceTypeDescription              typeDescription;
+		private       PersistenceTypeDescription<?>           typeDescription;
 		private       ValueWriter[]                           valueWriters   ;
 		private       FileChannel                             fileChannel    ;
 

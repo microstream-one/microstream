@@ -27,12 +27,12 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// instance fields  //
 		/////////////////////
 
-		private final Predicate<? super StorageEntityTypeHandler>                                  predicateType       ;
-		private final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider;
-		private final StorageEntityTypeExportFileProvider                                          fileProvider        ;
-		private final ChannelStatistic[]                                                           channelResults      ;
-		private       BulkList<ExportItem>                                                         exportTypes         ;
-		private       StorageEntityTypeExportStatistics                                            result              ;
+		private final Predicate<? super StorageEntityTypeHandler<?>>                                  predicateType       ;
+		private final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider;
+		private final StorageEntityTypeExportFileProvider                                             fileProvider        ;
+		private final ChannelStatistic[]                                                              channelResults      ;
+		private       BulkList<ExportItem>                                                            exportTypes         ;
+		private       StorageEntityTypeExportStatistics                                               result              ;
 
 
 
@@ -41,11 +41,11 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		/////////////////////
 
 		Implementation(
-			final long                                                                         timestamp              ,
-			final int                                                                          channelCount           ,
-			final StorageEntityTypeExportFileProvider                                          fileProvider           ,
-			final Predicate<? super StorageEntityTypeHandler>                                  predicateType          ,
-			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider
+			final long                                                                            timestamp              ,
+			final int                                                                             channelCount           ,
+			final StorageEntityTypeExportFileProvider                                             fileProvider           ,
+			final Predicate<? super StorageEntityTypeHandler<?>>                                  predicateType          ,
+			final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider
 		)
 		{
 			super(timestamp, channelCount);
@@ -70,7 +70,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// declared methods //
 		/////////////////////
 
-		final void acceptExportType(final StorageEntityTypeHandler type)
+		final void acceptExportType(final StorageEntityTypeHandler<?> type)
 		{
 			if(!this.predicateType.test(type))
 			{
@@ -211,7 +211,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final int                              lastChannelIndex;
 		final StorageLockedFile                file            ;
-		final StorageEntityTypeHandler         type            ;
+		final StorageEntityTypeHandler<?>      type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
 		private volatile int currentChannel;
@@ -224,7 +224,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		ExportItem(
 			final int                              channelCount   ,
-			final StorageEntityTypeHandler         type           ,
+			final StorageEntityTypeHandler<?>      type           ,
 			final StorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)

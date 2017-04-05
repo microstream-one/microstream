@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
@@ -165,7 +166,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			final SwizzleTypeIdLookup typeLookup
 		)
 		{
-			final BulkList<PersistenceTypeDescription> typeDescs = this.mapping.iterate(
+			final BulkList<PersistenceTypeDescription<?>> typeDescs = this.mapping.iterate(
 				new TypeDescriptionBuilder<M>(typeLookup)
 			).yield();
 			typeDictionary.registerTypes(typeDescs);
@@ -176,15 +177,15 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		static final class TypeDescriptionBuilder<M>
 		implements Aggregator<
 			KeyValue<Class<?>, PersistenceTypeHandler.Creator<M, ?>>,
-			BulkList<PersistenceTypeDescription>
+			BulkList<PersistenceTypeDescription<?>>
 		>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields  //
 			/////////////////////
 
-			private final SwizzleTypeIdLookup                  typeLookup      ;
-			private final BulkList<PersistenceTypeDescription> typeDescriptions = new BulkList<>();
+			private final SwizzleTypeIdLookup                     typeLookup      ;
+			private final BulkList<PersistenceTypeDescription<?>> typeDescriptions = BulkList.New();
 
 
 
@@ -225,7 +226,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			}
 
 			@Override
-			public BulkList<PersistenceTypeDescription> yield()
+			public BulkList<PersistenceTypeDescription<?>> yield()
 			{
 				return SwizzleTypeIdOwner.sortByTypeIdAscending(this.typeDescriptions);
 			}

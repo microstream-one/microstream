@@ -28,7 +28,7 @@ public class MainTestConstListvsVarSetContains
 
 	public static void main(final String[] args)
 	{
-		final ConstList<String> STRING_LIST = new ConstList<>(STRING_ARRAY);
+		final ConstList<String> STRING_LIST = ConstList.New(STRING_ARRAY);
 		final EqHashEnum<String> STRING_SET = EqHashEnum.New(STRING_ARRAY);
 		final String searchString = STRING_ARRAY[SIZE/2];
 

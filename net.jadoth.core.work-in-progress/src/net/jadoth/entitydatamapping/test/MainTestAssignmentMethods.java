@@ -11,20 +11,19 @@ import net.jadoth.reflect.JadothReflect;
  * @author Thomas Muenz
  *
  */
-public class MainTestAssignmentMethods 
+public class MainTestAssignmentMethods
 {
 	private static final String stringValue = "stringValue";
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) 
+	public static void main(final String[] args)
 	{
-		TestEntity entity = new TestEntity();
+		final TestEntity entity = new TestEntity();
 		
-		TestComponent<TestEntity, String> mapper 
-		= new TestComponent<TestEntity, String>("stringValueMapper", String.class, TestEntity.class);		
-		mapper.setDataEntity(entity);	
+		final TestComponent<TestEntity, String> mapper = new TestComponent<>("stringValueMapper", String.class, TestEntity.class);
+		mapper.setDataEntity(entity);
 		
 		mapper.printClause("Init");
 		

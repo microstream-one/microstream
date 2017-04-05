@@ -10,11 +10,11 @@ public final class BatchRefactorer
 	// instance fields //
 	////////////////////
 	
-	private final LineBreakNormalizer     lineBreakNormalizer;
-	private final LineBreakStrategy       lineBreakStrategy  ;
-	private final Charset                 charset            ;
-	private final PatternNormalizer       patternNormalizer  ;
-	private final Predicate<? super File> fileFilter         ;
+	final LineBreakNormalizer     lineBreakNormalizer;
+	final LineBreakStrategy       lineBreakStrategy  ;
+	final Charset                 charset            ;
+	final PatternNormalizer       patternNormalizer  ;
+	final Predicate<? super File> fileFilter         ;
 	
 	
 	
@@ -41,7 +41,7 @@ public final class BatchRefactorer
 	
 	public void batchRefactorFiles(final File... directories)
 	{
-		
+		// (05.04.2017 TM)TODO: batchRefactorFiles
 	}
 	
 	

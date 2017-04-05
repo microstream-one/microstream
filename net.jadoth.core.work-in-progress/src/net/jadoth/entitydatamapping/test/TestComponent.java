@@ -14,25 +14,25 @@ public class TestComponent<E, D> extends EntityDataMapper.AbstractImplementation
 	private String name = null;
 	private D dataValue = null;
 
-	public TestComponent(String name, Class<D> dataType, Class<E> entityClass) {
+	public TestComponent(final String name, final Class<D> dataType, final Class<E> entityClass) {
 		super(entityClass, dataType);
 		this.name = name;
 	}
 
 	@Override
 	public D getEntityDataValue() {
-		return dataValue;
+		return this.dataValue;
 	}
 
 	@Override
-	public TestComponent<E, D> setEntityDataValue(D value) {
+	public TestComponent<E, D> setEntityDataValue(final D value) {
 		this.dataValue = value;
 		return this;
 	}
 
 	
 	public void render(){
-		System.out.println(this.name + ": "+dataValue);
+		System.out.println(this.name + ": " + this.dataValue);
 	}
 	
 	public void clearAssignments(){
@@ -42,12 +42,12 @@ public class TestComponent<E, D> extends EntityDataMapper.AbstractImplementation
 		this.dataAnnotation = null;
 	}
 	
-	public void printClause(String caption){
+	public void printClause(final String caption){
 		System.out.println("");
-		print(caption);		
+		this.print(caption);
 	}
 	
-	public void print(String caption){
+	public void print(final String caption){
 		System.out.println(caption);
 		System.out.println(this.toString());
 	}

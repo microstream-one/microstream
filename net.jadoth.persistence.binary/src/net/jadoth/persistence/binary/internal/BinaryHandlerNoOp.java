@@ -59,7 +59,7 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	}
 
 	@Override
-	public PersistenceTypeDescription typeDescription()
+	public PersistenceTypeDescription<T> typeDescription()
 	{
 		throw new UnsupportedOperationException();
 	}

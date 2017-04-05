@@ -3,6 +3,6 @@ package net.jadoth.persistence.types;
 @FunctionalInterface
 public interface PersistenceTypeDescriptionRegistrationCallback
 {
-	public void registerTypeDescription(PersistenceTypeDescription typeDescription);
+	public void registerTypeDescription(PersistenceTypeDescription<?> typeDescription);
 		
 }

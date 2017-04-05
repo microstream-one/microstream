@@ -100,7 +100,7 @@ extends EntityDataMappingEnabled<E>
 		// instance fields //
 		////////////////////
 		/** The mappers. */
-		protected Set<EntityDataMapper<E, ?, M>> mappers = new HashSet<EntityDataMapper<E, ?, M>>();
+		protected Set<EntityDataMapper<E, ?, M>> mappers = new HashSet<>();
 
 
 
@@ -133,8 +133,8 @@ extends EntityDataMappingEnabled<E>
 		 */
 		@Override
 		public boolean addMapper(final M mapper) {
-			mapper.setDataEntity(entity);
-			return mappers.add(mapper);
+			mapper.setDataEntity(this.entity);
+			return this.mappers.add(mapper);
 		}
 
 		/**
@@ -143,7 +143,7 @@ extends EntityDataMappingEnabled<E>
 		 */
 		@Override
 		public void clear() {
-			mappers.clear();
+			this.mappers.clear();
 		}
 
 		/**
@@ -153,7 +153,7 @@ extends EntityDataMappingEnabled<E>
 		 */
 		@Override
 		public boolean contains(final M mapper) {
-			return mappers.contains(mapper);
+			return this.mappers.contains(mapper);
 		}
 
 		/**
@@ -163,7 +163,7 @@ extends EntityDataMappingEnabled<E>
 		@SuppressWarnings("unchecked")
 		@Override
 		public Set<M> getMappers() {
-			return (Set<M>) mappers;
+			return (Set<M>)this.mappers;
 		}
 
 		/**
@@ -173,7 +173,7 @@ extends EntityDataMappingEnabled<E>
 		 */
 		@Override
 		public boolean removeMapper(final M mapper) {
-			return mappers.remove(mapper);
+			return this.mappers.remove(mapper);
 		}
 
 		/**
@@ -182,7 +182,8 @@ extends EntityDataMappingEnabled<E>
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		public void setMappers(final Set<M> mappers) {
+		public void setMappers(final Set<M> mappers)
+		{
 			final boolean relink = this.mappers != mappers;
 			this.mappers = (Set<EntityDataMapper<E, ?, M>>) mappers;
 			if(relink){
@@ -224,9 +225,15 @@ extends EntityDataMappingEnabled<E>
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#readFromEntity()
 		 */
 		@Override
-		public void readFromEntity() {
-			if(mappers == null) return;
-			for(final EntityDataMapper<E, ?, M> c : mappers) {
+		public void readFromEntity()
+		{
+			if(this.mappers == null)
+			{
+				return;
+			}
+			
+			for(final EntityDataMapper<E, ?, M> c : this.mappers)
+			{
 				c.readFromEntity();
 			}
 		}
@@ -236,12 +243,20 @@ extends EntityDataMappingEnabled<E>
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#saveToEntity()
 		 */
 		@Override
-		public boolean saveToEntity() {
-			if(this.isIncomplete()) return false;
+		public boolean saveToEntity()
+		{
+			if(this.isIncomplete())
+			{
+				return false;
+			}
 
-			if(!this.validateForSave()) return false;
+			if(!this.validateForSave())
+			{
+				return false;
+			}
 
-			for(final EntityDataMapper<E, ?, M> c : mappers) {
+			for(final EntityDataMapper<E, ?, M> c : this.mappers)
+			{
 				//already validated beforehand, so don't do it again.
 				c.saveToEntity(false);
 			}
@@ -253,8 +268,10 @@ extends EntityDataMappingEnabled<E>
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#validateForSave()
 		 */
 		@Override
-		public boolean validateForSave() {
-			for(final EntityDataMapper<E, ?, M> c : mappers) {
+		public boolean validateForSave()
+		{
+			for(final EntityDataMapper<E, ?, M> c : this.mappers)
+			{
 				if(!c.validateForSave()) return false;
 			}
 			return true;
@@ -273,18 +290,23 @@ extends EntityDataMappingEnabled<E>
 		 *
 		 * @return true, if is incomplete
 		 */
-		protected boolean isIncomplete(){
-			return entity == null || mappers == null;
+		protected boolean isIncomplete()
+		{
+			return this.entity == null || this.mappers == null;
 		}
 
 		/**
 		 * Link entity to all.
 		 */
-		protected void linkEntityToAll(){
-			if(this.isIncomplete()) return;
+		protected void linkEntityToAll()
+		{
+			if(this.isIncomplete())
+			{
+				return;
+			}
 
-			for(final EntityDataMapper<E, ?, M> c : mappers) {
-				c.setDataEntity(entity);
+			for(final EntityDataMapper<E, ?, M> c : this.mappers) {
+				c.setDataEntity(this.entity);
 			}
 		}
 

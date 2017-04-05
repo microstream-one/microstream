@@ -42,11 +42,11 @@ import net.jadoth.entitydatamapping.interfaces.ComponentValidator;
  * @author Thomas Muenz
  */
 /* (09.10.2009 TM)TODO:
- * This class is almost the same as ComponentAffectorHandler, 
+ * This class is almost the same as ComponentAffectorHandler,
  * except for the boolean logic and the executor type.<br>
- * Maybe it can be consolidated with ComponentAffectorHandler . 
+ * Maybe it can be consolidated with ComponentAffectorHandler .
  */
-public interface ComponentValidatorHandler 
+public interface ComponentValidatorHandler
 {
 	
 	/**
@@ -86,10 +86,10 @@ public interface ComponentValidatorHandler
 	{
 		
 		/** The entries by annotation. */
-		private Map<Class<? extends Annotation>, List<Entry<?>>> entriesByAnnotation = new HashMap<Class<? extends Annotation>, List<Entry<?>>>();
+		private final Map<Class<? extends Annotation>, List<Entry<?>>> entriesByAnnotation = new HashMap<>();
 		
 		/** The entries by component. */
-		private Map<Component, List<Entry<?>>> entriesByComponent = new HashMap<Component, List<Entry<?>>>();
+		private final Map<Component, List<Entry<?>>> entriesByComponent = new HashMap<>();
 		
 
 
@@ -101,16 +101,16 @@ public interface ComponentValidatorHandler
 		 * @return true, if successful
 		 */
 		@SuppressWarnings("unchecked")
-		protected <C extends Component> boolean executeAll(List<Entry<?>> entries) 
+		protected <C extends Component> boolean executeAll(final List<Entry<?>> entries)
 		{
 			if(entries == null) return true; //no validator, so return true
 			
-			for(Entry<?> entry : entries) {
+			for(final Entry<?> entry : entries) {
 				final Entry<C> e = (Entry<C>)entry;
-				if(!e.validator.validate(e.component)) return false;				
+				if(!e.validator.validate(e.component)) return false;
 			}
 			return true;
-		}		
+		}
 		
 		/**
 		 * @param <C>
@@ -119,8 +119,8 @@ public interface ComponentValidatorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentValidatorHandler#validate(java.awt.Component)
 		 */
 		@Override
-		public <C extends Component> boolean validate(C component) {
-			return executeAll(this.entriesByComponent.get(component));						
+		public <C extends Component> boolean validate(final C component) {
+			return executeAll(this.entriesByComponent.get(component));
 		}
 		
 		/**
@@ -130,8 +130,8 @@ public interface ComponentValidatorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentValidatorHandler#validate(java.lang.Class)
 		 */
 		@Override
-		public <C extends Component> boolean validate(Class<? extends Annotation> annotation) {
-			return executeAll(this.entriesByAnnotation.get(annotation));				
+		public <C extends Component> boolean validate(final Class<? extends Annotation> annotation) {
+			return executeAll(this.entriesByAnnotation.get(annotation));
 		}
 		
 		/**
@@ -142,22 +142,22 @@ public interface ComponentValidatorHandler
 		 * @see net.jadoth.entitydatamapping.ComponentValidatorHandler#register(java.lang.Class, java.awt.Component, net.jadoth.entitydatamapping.interfaces.ComponentValidator)
 		 */
 		@Override
-		public <C extends Component> void register(Class<? extends Annotation> annotation, C component, ComponentValidator<C> validator) {
-			final Entry<C> e = new Entry<C>(annotation, component, validator);
+		public <C extends Component> void register(final Class<? extends Annotation> annotation, final C component, final ComponentValidator<C> validator) {
+			final Entry<C> e = new Entry<>(annotation, component, validator);
 			
 			List<Entry<?>> byAnnotationList = this.entriesByAnnotation.get(annotation);
 			if(byAnnotationList == null){
-				byAnnotationList = new LinkedList<Entry<?>>();
+				byAnnotationList = new LinkedList<>();
 				this.entriesByAnnotation.put(annotation, byAnnotationList);
 			}
 			byAnnotationList.add(e);
 			
 			List<Entry<?>> byComponentList = this.entriesByComponent.get(component);
 			if(byComponentList == null){
-				byComponentList = new LinkedList<Entry<?>>();
+				byComponentList = new LinkedList<>();
 				this.entriesByComponent.put(component, byComponentList);
 			}
-			byComponentList.add(e);		
+			byComponentList.add(e);
 		}
 		
 				
@@ -171,13 +171,13 @@ public interface ComponentValidatorHandler
 			
 			/** The annotation. */
 			@SuppressWarnings("unused") //maybe later
-			private Class<? extends Annotation> annotation;		
+			private final Class<? extends Annotation> annotation;
 			
 			/** The component. */
-			private C component;
+			C component;
 			
 			/** The validator. */
-			private ComponentValidator<C> validator;
+			ComponentValidator<C> validator;
 			
 			/**
 			 * Instantiates a new entry.
@@ -186,14 +186,14 @@ public interface ComponentValidatorHandler
 			 * @param component the component
 			 * @param validator the validator
 			 */
-			public Entry(Class<? extends Annotation> annotation, C component, ComponentValidator<C> validator) {
+			public Entry(final Class<? extends Annotation> annotation, final C component, final ComponentValidator<C> validator) {
 				super();
 				this.annotation = annotation;
 				this.component = component;
-				this.validator = validator;				
+				this.validator = validator;
 			}
 		}
 		
-	}	
+	}
 	
 }

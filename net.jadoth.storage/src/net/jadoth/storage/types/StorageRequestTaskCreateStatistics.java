@@ -107,11 +107,11 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// instance fields  //
 		/////////////////////
 
-		        final    int                      channelCount  ;
-		        final    StorageEntityTypeHandler type          ;
-		        final    File                     file          ;
-		private volatile int                      currentChannel;
-		private volatile FileChannel              channel       ;
+		        final    int                         channelCount  ;
+		        final    StorageEntityTypeHandler<?> type          ;
+		        final    File                        file          ;
+		private volatile int                         currentChannel;
+		private volatile FileChannel                 channel       ;
 
 
 
@@ -119,7 +119,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// constructors     //
 		/////////////////////
 
-		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final File file)
+		ExportItem(final int channelCount, final StorageEntityTypeHandler<?> type, final File file)
 		{
 			super();
 			this.channelCount = channelCount;

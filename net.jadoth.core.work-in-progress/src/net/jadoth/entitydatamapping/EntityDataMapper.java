@@ -267,8 +267,9 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @see net.jadoth.entitydatamapping.EntityDataMapper#getDataType()
 		 */
 		@Override
-		public Class<D> getDataType(){
-			return dataType;
+		public Class<D> getDataType()
+		{
+			return this.dataType;
 		}
 
 
@@ -283,7 +284,8 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		public M setUseAccessorMethods(final boolean useAccessorMethods) {
+		public M setUseAccessorMethods(final boolean useAccessorMethods)
+		{
 			this.useAccessorMethods = useAccessorMethods;
 			return (M)this;
 		}
@@ -295,7 +297,8 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @param e the e
 		 * @return the entity get data exception
 		 */
-		protected EntityGetDataException fillEntityGetDataException(final EntityGetDataException e){
+		protected EntityGetDataException fillEntityGetDataException(final EntityGetDataException e)
+		{
 			e.setField(this.field);
 			e.setGetter(this.getter);
 			e.setDataType(this.dataType);
@@ -308,7 +311,8 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @param message the message
 		 * @return the entity get data exception
 		 */
-		protected EntityGetDataException createReadException(final String message){
+		protected EntityGetDataException createReadException(final String message)
+		{
 			return fillEntityGetDataException(new EntityGetDataException(message));
 
 		}
@@ -340,7 +344,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 				// (09.09.2009 TM)NOTE: safety of the assignment is insured by getter type validation!
 				D dataValue = null;
 
-				if(this.getter != null && useAccessorMethods){
+				if(this.getter != null && this.useAccessorMethods){
 					dataValue = (D)this.getter.invoke(this.getDataEntity());
 				}
 				else if(this.field != null){
@@ -386,7 +390,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			final D entityDataValue = this.getEntityDataValue();
 
 			// (09.09.2009 TM)NOTE: safety of the assignments is insured by setter type validation!
-			if(this.setter != null && useAccessorMethods){
+			if(this.setter != null && this.useAccessorMethods){
 				try{
 					this.setter.invoke(dataEntity, entityDataValue);
 				}
@@ -606,17 +610,17 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 				this.cachedFields = addAllFields(this.entityClass, 0, new HashSet<Field>(50));
 
 				//if newly cached fields do not contain current field then remove the field
-				if(this.field != null && !cachedFields.contains(this.field)){
+				if(this.field != null && !this.cachedFields.contains(this.field)){
 					this.field = null;
 					//search for field by annotation if one is present
 					this.searchForFieldByAnnotation();
 				}
 				//if newly cached methods do not contain current getter then remove the getter
-				if(this.getter != null && !cachedMethods.contains(this.getter)){
+				if(this.getter != null && !this.cachedMethods.contains(this.getter)){
 					this.getter = null;
 				}
 				//if newly cached methods do not contain current setter then remove the setter
-				if(this.setter != null && !cachedMethods.contains(this.setter)){
+				if(this.setter != null && !this.cachedMethods.contains(this.setter)){
 					this.setter = null;
 				}
 				this.searchForAccessMethodsByAnnotation(this.getter == null, this.setter == null);
@@ -630,9 +634,14 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @param f the f
 		 * @return true, if successful
 		 */
-		protected boolean lookupFieldInEntityClass(final Field f){
-			if(this.cachedFields == null) return false;
-			return cachedFields.contains(f);
+		protected boolean lookupFieldInEntityClass(final Field f)
+		{
+			if(this.cachedFields == null)
+			{
+				return false;
+			}
+			
+			return this.cachedFields.contains(f);
 		}
 
 		/**
@@ -641,9 +650,14 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @param m the m
 		 * @return true, if successful
 		 */
-		protected boolean lookupMethodInEntityClass(final Method m){
-			if(this.cachedMethods == null) return false;
-			return cachedMethods.contains(m);
+		protected boolean lookupMethodInEntityClass(final Method m)
+		{
+			if(this.cachedMethods == null)
+			{
+				return false;
+			}
+			
+			return this.cachedMethods.contains(m);
 		}
 
 		/**
@@ -652,9 +666,12 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		 * @param setter the setter
 		 * @return true, if successful
 		 */
-		protected boolean validateSetter(final Method setter){
-			return setter == null ?false
-					:JadothReflect.validateSetter(setter, this.dataType, false);
+		protected boolean validateSetter(final Method setter)
+		{
+			return setter == null
+				? false
+				: JadothReflect.validateSetter(setter, this.dataType, false)
+			;
 		}
 
 		/**
@@ -899,7 +916,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			if(this.field != null && this.field != currentField){
 				searchGetter &= oldGetter == this.getter;
 				searchSetter &= oldSetter == this.setter;
-				this.deriveAccessorMethodsFromField(field, searchGetter, searchSetter);
+				this.deriveAccessorMethodsFromField(this.field, searchGetter, searchSetter);
 			}
 		}
 

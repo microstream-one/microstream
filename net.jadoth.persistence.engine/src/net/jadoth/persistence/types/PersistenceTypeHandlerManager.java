@@ -156,7 +156,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			final PersistenceTypeDescription registeredTd =
+			final PersistenceTypeDescription<?> registeredTd =
 				this.typeDictionaryManager.provideDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
@@ -381,11 +381,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionary         typeDictionary
 		)
 		{
-			final XGettingEnum<PersistenceTypeDescription>         typeDescriptions = typeDictionary.types();
-			final HashEnum<PersistenceTypeDefinition<?>>           typeDefinitions  =
+			final XGettingEnum<PersistenceTypeDescription<?>> typeDescriptions = typeDictionary.types();
+			final HashEnum<PersistenceTypeDefinition<?>> typeDefinitions  =
 				HashEnum.NewCustom(typeDescriptions.size())
 			;
-			final HashTable<PersistenceTypeDescription, Exception> problems         =
+			final HashTable<PersistenceTypeDescription<?>, Exception> problems =
 				HashTable.NewCustom(typeDescriptions.intSize())
 			;
 

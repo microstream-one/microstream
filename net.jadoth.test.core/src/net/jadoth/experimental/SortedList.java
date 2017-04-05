@@ -98,7 +98,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	@Override
 	public XImmutableList<E> immure()
 	{
-		return new ConstList<>(this);
+		return ConstList.New(this);
 	}
 
 

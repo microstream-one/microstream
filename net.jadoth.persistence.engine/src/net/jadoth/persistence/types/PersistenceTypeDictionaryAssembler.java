@@ -7,7 +7,7 @@ public interface PersistenceTypeDictionaryAssembler
 {
 	public VarString appendTypeDictionary(VarString vc, PersistenceTypeDictionary typeDictionary);
 
-	public VarString appendTypeDescription(VarString vc, PersistenceTypeDescription typeDescription);
+	public VarString appendTypeDescription(VarString vc, PersistenceTypeDescription<?> typeDescription);
 
 
 
@@ -42,7 +42,7 @@ public interface PersistenceTypeDictionaryAssembler
 		@Override
 		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)
 		{
-			for(final PersistenceTypeDescription td : typeDictionary.types())
+			for(final PersistenceTypeDescription<?> td : typeDictionary.types())
 			{
 				this.appendTypeDescription(vc, td);
 			}
@@ -68,7 +68,7 @@ public interface PersistenceTypeDictionaryAssembler
 		}
 
 		@Override
-		public VarString appendTypeDescription(final VarString vc, final PersistenceTypeDescription typeDescription)
+		public VarString appendTypeDescription(final VarString vc, final PersistenceTypeDescription<?> typeDescription)
 		{
 			this.appendTypeDefinitionStart  (vc, typeDescription);
 			this.appendTypeDictionaryMembers(vc, typeDescription.members());
@@ -76,7 +76,7 @@ public interface PersistenceTypeDictionaryAssembler
 			return vc;
 		}
 
-		protected void appendTypeDefinitionStart(final VarString vc, final PersistenceTypeDescription typeDescription)
+		protected void appendTypeDefinitionStart(final VarString vc, final PersistenceTypeDescription<?> typeDescription)
 		{
 			this.appendPaddedId(vc, typeDescription.typeId())
 				.blank().add(typeDescription.typeName())
@@ -84,7 +84,7 @@ public interface PersistenceTypeDictionaryAssembler
 			;
 		}
 
-		protected void appendTypeDefinitionEnd(final VarString vc, final PersistenceTypeDescription typeDescription)
+		protected void appendTypeDefinitionEnd(final VarString vc, final PersistenceTypeDescription<?> typeDescription)
 		{
 			vc.append(TYPE_END).lf();
 		}

@@ -59,7 +59,7 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	}
 
 	@Override
-	public PersistenceTypeDescription typeDescription()
+	public PersistenceTypeDescription<T> typeDescription()
 	{
 		throw new UnsupportedOperationException();
 	}
