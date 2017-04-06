@@ -2,6 +2,7 @@ package net.jadoth.test.cql;
 
 import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.cql.CQL.not;
+
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
@@ -21,9 +22,8 @@ import net.jadoth.util.KeyValue;
 
 public class MainTestCql
 {
-
-
-
+	// (07.04.2017 TM)NOTE: Test-Commit privat per VPN
+	
 	static final XList<String> STRINGS = X.List("class", "result", "am", "", "test", "", "I", "the");
 
 	public static void main(final String[] args)
@@ -41,6 +41,7 @@ public class MainTestCql
 		final BulkList<String> r_qs2 = qs.executeInto(STRINGS, BulkList.<String>New());
 		print(r_qs2.sort(JadothSort::compareLength));
 
+		
 
 
 		final CqlProjection<String, Integer> qsp = CQL
