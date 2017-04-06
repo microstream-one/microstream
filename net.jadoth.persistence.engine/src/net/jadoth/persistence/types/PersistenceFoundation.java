@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
@@ -79,7 +80,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable();
 
-	public PersistenceTypeDefinitionResolver getTypeDefinitionResolver();
+	public PersistenceTypeResolver getTypeResolver();
+	
+	public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder();
 
 	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 
@@ -146,7 +149,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
 
-	public PersistenceFoundation<M> setTypeDefinitionResolver(PersistenceTypeDefinitionResolver typeDefinitionResolver);
+	public PersistenceFoundation<M> setTypeResolver(PersistenceTypeResolver typeResolver);
+	
+	public PersistenceFoundation<M> setTypeDescriptionBuilder(PersistenceTypeDescriptionBuilder typeDescriptionBuilder);
 
 	/* (29.10.2013 TM)TODO: rename to "TypeEvaluatorAnalyzable" & keep comment
 	 * rationale (keep as documentation afterwards)
@@ -232,7 +237,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
 		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
-		private PersistenceTypeDefinitionResolver       typeDefinitionResolver     ;
+		private PersistenceTypeResolver                 typeResolver               ;
+		private PersistenceTypeDescriptionBuilder       typeDescriptionBuilder     ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
 		private BufferSizeProvider                      bufferSizeProvider         ;
@@ -491,13 +497,23 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public PersistenceTypeDefinitionResolver getTypeDefinitionResolver()
+		public PersistenceTypeResolver getTypeResolver()
 		{
-			if(this.typeDefinitionResolver == null)
+			if(this.typeResolver == null)
 			{
-				this.typeDefinitionResolver = this.dispatch(this.createTypeDefinitionResolver());
+				this.typeResolver = this.dispatch(this.createTypeResolver());
 			}
-			return this.typeDefinitionResolver;
+			return this.typeResolver;
+		}
+		
+		@Override
+		public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder()
+		{
+			if(this.typeDescriptionBuilder == null)
+			{
+				this.typeDescriptionBuilder = this.dispatch(this.createTypeDescriptionBuilder());
+			}
+			return this.typeDescriptionBuilder;
 		}
 
 		@Override
@@ -697,11 +713,18 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
 		}
 
-		protected final void internalsetTypeDefinitionResolver(
-			final PersistenceTypeDefinitionResolver typeDefinitionResolver
+		protected final void internalsetTypeResolver(
+			final PersistenceTypeResolver typeResolver
 		)
 		{
-			this.typeDefinitionResolver = typeDefinitionResolver;
+			this.typeResolver = typeResolver;
+		}
+		
+		protected final void internalsetTypeDescriptionBuilder(
+			final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+		)
+		{
+			this.typeDescriptionBuilder = typeDescriptionBuilder;
 		}
 
 		protected final void internalSetTypeEvaluatorPersistable(
@@ -915,14 +938,23 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDefinitionResolver(
-			final PersistenceTypeDefinitionResolver typeDefinitionResolver
+		public PersistenceFoundation.AbstractImplementation<M> setTypeResolver(
+			final PersistenceTypeResolver typeResolver
 		)
 		{
-			this.internalsetTypeDefinitionResolver(typeDefinitionResolver);
+			this.internalsetTypeResolver(typeResolver);
 			return this;
 		}
-
+		
+		@Override
+		public PersistenceFoundation.AbstractImplementation<M> setTypeDescriptionBuilder(
+			final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+		)
+		{
+			this.internalsetTypeDescriptionBuilder(typeDescriptionBuilder);
+			return this;
+		}
+		
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setTypeEvaluatorPersistable(
 			final PersistenceTypeEvaluator typeEvaluatorPersistable
@@ -1001,8 +1033,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 					this.getTypeHandlerRegistry(),
 					this.getTypeHandlerProvider(),
 					this.getTypeDictionaryManager(),
-					this.getTypeEvaluatorTypeIdMappable(),
-					this.getTypeDefinitionResolver()
+					this.getTypeEvaluatorTypeIdMappable()
 				)
 			;
 			return newTypeHandlerManager;
@@ -1083,7 +1114,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				new PersistenceTypeDictionaryParser.Implementation(
-					this.getFieldFixedLengthResolver()
+					this.getFieldFixedLengthResolver(),
+					this.getTypeDescriptionBuilder()
 				)
 			;
 			return newTypeDictionaryParser;
@@ -1168,9 +1200,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultTypeEvaluatorTypeIdMappable();
 		}
 
-		protected PersistenceTypeDefinitionResolver createTypeDefinitionResolver()
+		protected PersistenceTypeResolver createTypeResolver()
 		{
-			return PersistenceTypeDefinitionResolver.New();
+			return PersistenceTypeResolver.Failing();
+		}
+		
+		protected PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
+		{
+			return PersistenceTypeDescriptionBuilder.New(
+				this.getTypeResolver()
+			);
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorPersistable()

@@ -3,7 +3,7 @@ package net.jadoth.collections;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.objectstate.ObjectState;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
-import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
+import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.swizzling.types.Swizzle;
@@ -16,7 +16,8 @@ import net.jadoth.swizzling.types.SwizzleStoreLinker;
  *
  * @author Thomas Muenz
  */
-public final class BinaryHandlerLimitList extends AbstractBinaryHandlerNativeCustom<LimitList<?>>
+public final class BinaryHandlerLimitList
+extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -61,8 +62,8 @@ public final class BinaryHandlerLimitList extends AbstractBinaryHandlerNativeCus
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(
@@ -124,24 +125,6 @@ public final class BinaryHandlerLimitList extends AbstractBinaryHandlerNativeCus
 		return source.size == target.size
 			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
 		;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean isVariableBinaryLengthType()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasVariableBinaryLengthInstances()
-	{
-		return true;
 	}
 
 //	@Override

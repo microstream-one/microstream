@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -88,21 +89,27 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	{
 		return source == target; // class instances are always singletons, hence reference comparison
 	}
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return false;
+	}
 
 	@Override
 	public final boolean hasInstanceReferences()
 	{
 		return false;
 	}
-
+	
 	@Override
-	public boolean isVariableBinaryLengthType()
+	public final boolean hasPersistedVariableLength()
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasVariableBinaryLengthInstances()
+	public boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}

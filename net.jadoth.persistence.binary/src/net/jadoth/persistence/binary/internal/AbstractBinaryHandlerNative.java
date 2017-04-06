@@ -13,7 +13,6 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationArrayType;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
@@ -94,7 +93,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final PersistenceTypeDescription<T> typeDescription;
+	private final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields;
 
 
 
@@ -109,30 +108,31 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	)
 	{
 		super(type, typeId);
-		this.typeDescription = PersistenceTypeDescription.New(
-			typeId               ,
-			type.getName()       ,
-			type                 ,
-			pseudoFields.immure()
-		);
+		this.pseudoFields = pseudoFields.immure();
 	}
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// methods //
+	////////////
 
+//	@Override
+//	public PersistenceTypeDescription<T> typeDescription()
+//	{
+//		return this.typeDescription;
+//	}
+	
 	@Override
-	public PersistenceTypeDescription<T> typeDescription()
+	public boolean isPrimitiveType()
 	{
-		return this.typeDescription;
+		return false;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	
+	@Override
+	public XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> members()
+	{
+		return this.pseudoFields;
+	}
 
 	@Override
 	public abstract void store(Binary bytes, T instance, long oid, SwizzleStoreLinker linker);
@@ -145,6 +145,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		{
 			return;
 		}
+		
 		throw new PersistenceExceptionTypeConsistencyDefinitionValidationArrayType(this.type());
 	}
 

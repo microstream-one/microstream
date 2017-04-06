@@ -14,7 +14,7 @@ import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>, ObjectStateHandler<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, ObjectStateHandler<T>
 {
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);
@@ -60,8 +60,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 
 //	public void validateTypeDefinition(PersistenceTypeDescription typeDescription);
 
-	@Override
-	public PersistenceTypeDescription<T> typeDescription();
+//	public PersistenceTypeDescription<T> typeDescription();
 
 	public XGettingEnum<Field> getAllFields();
 
@@ -79,10 +78,10 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 
 
 
-	public static <T> PersistenceTypeDescription<T> getTypeDefinition(final PersistenceTypeHandler<?, T> input)
-	{
-		return input.typeDescription();
-	}
+//	public static <T> PersistenceTypeDescription<T> getTypeDefinition(final PersistenceTypeHandler<?, T> input)
+//	{
+//		return input.typeDescription();
+//	}
 
 	public interface Creator<M, T>
 	{

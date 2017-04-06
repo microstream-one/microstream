@@ -39,15 +39,21 @@ extends AbstractBinaryHandlerNativeCustom<B>
 	{
 		return false;
 	}
-
+	
 	@Override
-	public final boolean isVariableBinaryLengthType()
+	public final boolean hasPersistedReferences()
+	{
+		return false;
+	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
 	{
 		return true;
 	}
 
 	@Override
-	public final boolean hasVariableBinaryLengthInstances()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}

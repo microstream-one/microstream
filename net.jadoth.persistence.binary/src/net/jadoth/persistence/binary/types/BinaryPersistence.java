@@ -65,9 +65,11 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
+import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
@@ -525,7 +527,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		// funny thing in this method: primitive generics typing :D
-		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type)).typeDescription();
+		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type));
 	}
 
 	public static final <D extends PersistenceTypeDictionary> D createDefaultTypeDictionary(
@@ -545,7 +547,7 @@ public final class BinaryPersistence extends Persistence
 			primitiveTypeDescription(double.class , typeLookup),
 
 			// implementation of class type handler doesn't matter here as it is only used to create the type desc.
-			new BinaryHandlerNativeClass(null, typeLookup.lookupTypeId(Class.class)).typeDescription()
+			new BinaryHandlerNativeClass(null, typeLookup.lookupTypeId(Class.class))
 		));
 		createDefaultCustomTypeHandlerRegistry().updateTypeDictionary(typeDictionary, typeLookup);
 		return typeDictionary;
@@ -1947,13 +1949,19 @@ public final class BinaryPersistence extends Persistence
 	{
 		return new BinaryFieldLengthResolver.Implementation();
 	}
+	
+	public static final PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
+	{
+		return PersistenceTypeDescriptionBuilder.New(PersistenceTypeResolver.Failing());
+	}
 
 	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
 	{
 		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
 			PersistenceTypeDictionaryProvider.NewFromFile(
-				dictionaryFile,
-				createFieldLengthResolver()
+				dictionaryFile                ,
+				createFieldLengthResolver()   ,
+				createTypeDescriptionBuilder()
 			)
 		;
 		return typeDictionaryProvider;
@@ -1961,13 +1969,8 @@ public final class BinaryPersistence extends Persistence
 
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
-			PersistenceTypeDictionaryProvider.NewFromFile(
-				dictionaryFile,
-				createFieldLengthResolver()
-			)
-		;
-		return typeDictionaryProvider.provideDictionary();
+		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
+		return dp.provideDictionary();
 	}
 
 }

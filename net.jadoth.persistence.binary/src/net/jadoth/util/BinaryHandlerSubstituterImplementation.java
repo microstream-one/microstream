@@ -117,15 +117,21 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	{
 		return true;
 	}
-
+	
 	@Override
-	public final boolean isVariableBinaryLengthType()
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
 	{
 		return true;
 	}
 
 	@Override
-	public final boolean hasVariableBinaryLengthInstances()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return true;
 	}

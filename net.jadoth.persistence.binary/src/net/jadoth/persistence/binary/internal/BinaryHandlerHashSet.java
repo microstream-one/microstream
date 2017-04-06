@@ -14,7 +14,7 @@ import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustom<HashSet<?>>
+public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -65,8 +65,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(
@@ -186,24 +186,6 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 //				stateHandlerLookup
 //			)
 //		;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean isVariableBinaryLengthType()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasVariableBinaryLengthInstances()
-	{
-		return true;
 	}
 
 }

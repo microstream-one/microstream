@@ -22,8 +22,8 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final byte[] array, final long oid, final SwizzleStoreLinker linker)

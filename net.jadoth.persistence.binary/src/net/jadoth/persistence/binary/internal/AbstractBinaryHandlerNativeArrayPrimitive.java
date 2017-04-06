@@ -30,13 +30,13 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	@Override
 	public final void iterateInstanceReferences(final A instance, final SwizzleFunction iterator)
 	{
-		// no references to iterate
+		// no references to iterate in arrays with primitive component type
 	}
 
 	@Override
 	public final void iteratePersistedReferences(final Binary offset, final _longProcedure iterator)
 	{
-		// no-op, no references
+		// no references to iterate in arrays with primitive component type
 	}
 
 	@Override
@@ -44,5 +44,11 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	{
 		return false;
 	}
-
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return false;
+	}
+	
 }

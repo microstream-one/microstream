@@ -221,7 +221,6 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 				}
 				this.typeDescriptions.add(
 					element.value().createTypeHandler(typeId)
-					.typeDescription()
 				);
 			}
 

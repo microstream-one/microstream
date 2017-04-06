@@ -5,7 +5,7 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.memory.objectstate.ObjectState;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
-import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
+import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -19,7 +19,8 @@ import net.jadoth.swizzling.types.SwizzleStoreLinker;
  *
  * @author Thomas Muenz
  */
-public final class BinaryHandlerFixedList extends AbstractBinaryHandlerNativeCustom<FixedList<?>>
+public final class BinaryHandlerFixedList
+extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -60,8 +61,8 @@ public final class BinaryHandlerFixedList extends AbstractBinaryHandlerNativeCus
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(
@@ -124,24 +125,6 @@ public final class BinaryHandlerFixedList extends AbstractBinaryHandlerNativeCus
 		return source.data.length == target.data.length
 			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
 		;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean isVariableBinaryLengthType()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasVariableBinaryLengthInstances()
-	{
-		return true;
 	}
 
 //	@Override

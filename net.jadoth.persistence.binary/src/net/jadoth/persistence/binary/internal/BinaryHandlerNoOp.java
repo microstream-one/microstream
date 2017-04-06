@@ -2,8 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
@@ -20,8 +18,8 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
@@ -30,16 +28,10 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	}
 
 	@Override
-	public final T create(final Binary bytes)
+	public final T create(final Binary bytes) throws UnsupportedOperationException
 	{
 		// no-op is only applicable to storing/updating. Creation must fail.
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public final void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
-	{
-		// no-op, don't modify anything
 	}
 
 	@Override
@@ -50,18 +42,6 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	)
 	{
 		return source == target;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
-	public PersistenceTypeDescription<T> typeDescription()
-	{
-		throw new UnsupportedOperationException();
 	}
 
 }

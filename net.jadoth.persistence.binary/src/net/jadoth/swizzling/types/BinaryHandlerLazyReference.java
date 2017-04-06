@@ -14,9 +14,13 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 
 	public BinaryHandlerLazyReference(final long typeId)
 	{
-		super(typeId, Lazy.genericType(), pseudoFields(
-			pseudoField(Object.class, "subject")
-		));
+		super(
+			typeId,
+			Lazy.genericType(),
+			pseudoFields(
+				pseudoField(Object.class, "subject")
+			)
+		);
 	}
 
 
@@ -24,12 +28,6 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return false;
-	}
 
 	@Override
 	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final SwizzleStoreLinker linker)
@@ -116,11 +114,24 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	{
 		return true;
 	}
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
 
 	@Override
-	public boolean hasVariableBinaryLengthInstances()
+	public boolean hasPersistedVariableLength()
 	{
 		return false;
 	}
+	
+	@Override
+	public boolean hasVaryingPersistedLengthInstances()
+	{
+		return false;
+	}
+	
 
 }

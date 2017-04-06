@@ -6,7 +6,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
-public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCustom<BigInteger>
+public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCustomValueVariableLength<BigInteger>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
@@ -22,8 +22,8 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final BigInteger instance, final long oid, final SwizzleStoreLinker linker)
@@ -36,23 +36,5 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 	{
 		return new BigInteger(BinaryPersistence.buildArray_byte(bytes));
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean hasVariableBinaryLengthInstances()
-	{
-		return false;
-	}
-
+	
 }

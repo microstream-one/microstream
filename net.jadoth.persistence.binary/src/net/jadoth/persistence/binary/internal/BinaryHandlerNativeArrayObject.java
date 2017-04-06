@@ -115,6 +115,12 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	{
 		return true;
 	}
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
 
 	@Override
 	public boolean isEqual(final A source, final A target, final ObjectStateHandlerLookup stateHandlerLookup)

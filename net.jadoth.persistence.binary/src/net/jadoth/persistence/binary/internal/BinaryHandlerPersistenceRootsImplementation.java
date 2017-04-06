@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.Jadoth;
 import net.jadoth.collections.X;
 import net.jadoth.functional._longProcedure;
@@ -110,8 +111,8 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(
@@ -274,13 +275,19 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	}
 
 	@Override
-	public final boolean isVariableBinaryLengthType()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return true;
 	}
 
 	@Override
-	public final boolean hasVariableBinaryLengthInstances()
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
+
+	@Override
+	public final boolean hasPersistedVariableLength()
 	{
 		return true;
 	}

@@ -46,23 +46,18 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-//	@Override
-//	public final long getFixedBinaryContentLength()
-//	{
-//		return 0L;
-//	}
-
+	
 	@Override
-	public boolean isVariableBinaryLengthType()
+	public final boolean hasPersistedVariableLength()
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasVariableBinaryLengthInstances()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
-		return false;
+		// note: java array might become truncatable in the future, so instance length might indeed change
+		return true;
 	}
 
 }

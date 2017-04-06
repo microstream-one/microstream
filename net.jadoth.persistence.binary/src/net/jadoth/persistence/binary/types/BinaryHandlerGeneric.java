@@ -12,8 +12,8 @@ import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.exceptions.TypeCastException;
-import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
@@ -23,7 +23,6 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.memory.objectstate.ObjectValueCopier;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.reflect.JadothReflect;
@@ -129,6 +128,25 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 
 		return binPrimOffset + primBinOffsets; // the offset at the end is equal to the total binary length
 	}
+	
+	private static final void createTypeDescriptionMembers(
+		final Field[]                                    persistentOrderFields,
+		final PersistenceFieldLengthResolver             lengthResolver       ,
+		final BulkList<PersistenceTypeDescriptionMember> members
+	)
+	{
+		for(final Field field : persistentOrderFields)
+		{
+			members.add(PersistenceTypeDescriptionMemberField.New(
+				field.getType().getName(),
+				field.getName(),
+				field.getDeclaringClass().getName(),
+				!field.getType().isPrimitive(),
+				lengthResolver.resolveMinimumLengthFromField(field),
+				lengthResolver.resolveMaximumLengthFromField(field)
+			));
+		}
+	}
 
 
 
@@ -137,21 +155,22 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>        allFields        ;
-	private final EqConstHashEnum<Field>        refFields        ;
-	private final EqConstHashEnum<Field>        prmFields        ;
-	private final long[]                        allMemOfs        ;
-	private final long[]                        refMemOfs        ;
-	private final long[]                        allBinOfs        ;
-	private final long                          refBinStartOffset;
-	private final long                          refBinBoundOffset;
-	private final long                          binaryLength     ;
-	private final BinaryValueStorer[]           binStorers       ;
-	private final BinaryValueSetter[]           memSetters       ;
-	private final BinaryValueEqualator[]        equalators       ;
-	private final ObjectValueCopier[]           copiers          ;
-	private final BinaryInstantiator<T>         instantiator     ;
-	private final PersistenceTypeDescription<T> typeDescription  ;
+	private final EqConstHashEnum<Field>                               allFields        ;
+	private final EqConstHashEnum<Field>                               refFields        ;
+	private final EqConstHashEnum<Field>                               prmFields        ;
+	private final long[]                                               allMemOfs        ;
+	private final long[]                                               refMemOfs        ;
+	private final long[]                                               allBinOfs        ;
+	private final long                                                 refBinStartOffset;
+	private final long                                                 refBinBoundOffset;
+	private final long                                                 binaryLength     ;
+	private final BinaryValueStorer[]                                  binStorers       ;
+	private final BinaryValueSetter[]                                  memSetters       ;
+	private final BinaryValueEqualator[]                               equalators       ;
+	private final ObjectValueCopier[]                                  copiers          ;
+	private final BinaryInstantiator<T>                                instantiator     ;
+	private final XImmutableSequence<PersistenceTypeDescriptionMember> members          ;
+	private final boolean                                              hasReferences    ;
 
 
 
@@ -182,8 +201,10 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 			allFieldsPersOrder = new Field[allFieldsDeclOrder.length],
 			refFieldsPersOrder = new Field[refFieldsDeclOrder.length]
 		;
+		
+		this.hasReferences = !this.refFields.isEmpty();
 
-		/* (15.12.2012)TODO: TypeHandler: Field stategy
+		/* (15.12.2012)TODO: TypeHandler: Field strategy
 		 * Must bring in the possibility for a ValueSkipSetter and ValueSkipStorer
 		 * And for a ValueShallowStorer
 		 * Probably via different Value handler lookup instances.
@@ -223,35 +244,15 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 		 * Value handlers are derived dynamically. As long as it results in the same persistent order,
 		 * everything is fine.
 		 */
-		this.typeDescription = PersistenceTypeDescription.New(tid, type.getName(), type, members);
+		this.members = members.immure();
 	}
 
-
-	private static final void createTypeDescriptionMembers(
-		final Field[]                                    persistentOrderFields,
-		final PersistenceFieldLengthResolver             lengthResolver       ,
-		final BulkList<PersistenceTypeDescriptionMember> members
-	)
-	{
-		for(final Field field : persistentOrderFields)
-		{
-			members.add(PersistenceTypeDescriptionMemberField.New(
-				field.getType().getName(),
-				field.getName(),
-				field.getDeclaringClass().getName(),
-				!field.getType().isPrimitive(),
-				lengthResolver.resolveMinimumLengthFromField(field),
-				lengthResolver.resolveMaximumLengthFromField(field)
-			));
-		}
-	}
-
-
-
+	
+	
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
-
+	// methods //
+	////////////
+	
 	@Override
 	public XGettingEnum<Field> getInstanceFields()
 	{
@@ -269,11 +270,11 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	{
 		return this.refFields;
 	}
-
+	
 	@Override
-	public boolean hasInstanceReferences()
+	public final boolean isPrimitiveType()
 	{
-		return this.refFields.isEmpty();
+		return false;
 	}
 
 	// (27.05.2013)TODO: all fields <-> instance all fields
@@ -281,38 +282,43 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	public XGettingEnum<Field> getAllFields()
 	{
 		return this.allFields;
-//		return this.allFields;
+	}
+	
+	@Override
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	{
+		return this.members;
 	}
 
 	@Override
-	public boolean isVariableBinaryLengthType()
+	public final boolean hasInstanceReferences()
+	{
+		return this.hasReferences;
+	}
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return this.hasReferences;
+	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
 	{
 		return false;
 	}
 
 	@Override
-	public boolean hasVariableBinaryLengthInstances()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}
 
 	@Override
-	public ObjectStateDescriptor<T> getStateDescriptor()
+	public final ObjectStateDescriptor<T> getStateDescriptor()
 	{
 		return this;
 	}
-
-	@Override
-	public PersistenceTypeDescription<T> typeDescription()
-	{
-		return this.typeDescription;
-	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
 
 	@Override
 	public void store(final Binary bytes, final T instance, final long objectId, final SwizzleStoreLinker linker)
@@ -397,14 +403,7 @@ public final class BinaryHandlerGeneric<T> extends BinaryTypeHandler.AbstractImp
 	public void validateFields(final XGettingSequence<Field> fieldDescriptions)
 		throws SwizzleExceptionConsistency
 	{
-		fieldDescriptions.iterateIndexed(new IndexProcedure<Field>()
-		{
-			@Override
-			public void accept(final Field e, final long index)
-			{
-				BinaryHandlerGeneric.this.validate(e, index);
-			}
-		});
+		fieldDescriptions.iterateIndexed(this::validate);
 	}
 
 	@Override

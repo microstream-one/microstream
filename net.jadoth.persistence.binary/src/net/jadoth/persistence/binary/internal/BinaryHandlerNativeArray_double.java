@@ -22,8 +22,8 @@ public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandler
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final double[] array, final long oid, final SwizzleStoreLinker linker)

@@ -7,7 +7,7 @@ import net.jadoth.hash.HashEqualator;
 import net.jadoth.memory.Memory;
 import net.jadoth.memory.objectstate.ObjectState;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
-import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
+import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -23,7 +23,8 @@ import net.jadoth.util.Equalator;
  *
  * @author Thomas Muenz
  */
-public final class BinaryHandlerEqBulkList extends AbstractBinaryHandlerNativeCustom<EqBulkList<?>>
+public final class BinaryHandlerEqBulkList
+extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -74,8 +75,8 @@ public final class BinaryHandlerEqBulkList extends AbstractBinaryHandlerNativeCu
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(
@@ -156,24 +157,6 @@ public final class BinaryHandlerEqBulkList extends AbstractBinaryHandlerNativeCu
 			&& source.size == target.size
 			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
 		;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean isVariableBinaryLengthType()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasVariableBinaryLengthInstances()
-	{
-		return true;
 	}
 
 //	@Override

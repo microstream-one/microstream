@@ -2,10 +2,7 @@ package net.jadoth.persistence.internal;
 
 import static net.jadoth.Jadoth.notNull;
 
-import java.lang.reflect.Field;
-
 import net.jadoth.collections.types.XGettingSequence;
-import java.util.function.Consumer;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
@@ -70,19 +67,15 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		 *
 		 * creating new type handlers in the process will eventually end up here again for the new types
 		 */
-		typeHandler.getInstanceReferenceFields().iterate(new Consumer<Field>()
+		typeHandler.getInstanceReferenceFields().iterate(e ->
 		{
-			@Override
-			public void accept(final Field e)
+			try
 			{
-				try
-				{
-					typeHandlerManager.ensureTypeHandler(e.getType());
-				}
-				catch(final Throwable t)
-				{
-					throw t; // debug hook
-				}
+				typeHandlerManager.ensureTypeHandler(e.getType());
+			}
+			catch(final Throwable t)
+			{
+				throw t; // debug hook
 			}
 		});
 

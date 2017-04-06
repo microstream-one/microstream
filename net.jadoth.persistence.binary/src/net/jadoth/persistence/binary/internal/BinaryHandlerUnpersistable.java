@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
@@ -50,18 +49,6 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	)
 	{
 		return source == target;
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
-	public PersistenceTypeDescription<T> typeDescription()
-	{
-		throw new UnsupportedOperationException();
 	}
 
 }

@@ -27,7 +27,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// instance fields  //
 		/////////////////////
 
-		private final Predicate<? super StorageEntityTypeHandler<?>>                                  predicateType       ;
+		private final Predicate<? super StorageEntityTypeHandler<?>>                                  isExportType       ;
 		private final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider;
 		private final StorageEntityTypeExportFileProvider                                             fileProvider        ;
 		private final ChannelStatistic[]                                                              channelResults      ;
@@ -44,13 +44,13 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			final long                                                                            timestamp              ,
 			final int                                                                             channelCount           ,
 			final StorageEntityTypeExportFileProvider                                             fileProvider           ,
-			final Predicate<? super StorageEntityTypeHandler<?>>                                  predicateType          ,
+			final Predicate<? super StorageEntityTypeHandler<?>>                                  isExportType          ,
 			final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider
 		)
 		{
 			super(timestamp, channelCount);
 			this.fileProvider            = notNull(fileProvider);
-			this.predicateType           = predicateType != null ? predicateType : e -> !e.isPrimitive();
+			this.isExportType           = isExportType != null ? isExportType : e -> !e.isPrimitiveType();
 			this.predicateEntityProvider = predicateEntityProvider != null ? predicateEntityProvider : t -> null;
 			this.channelResults          = new ChannelStatistic[channelCount];
 		}
@@ -72,7 +72,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final void acceptExportType(final StorageEntityTypeHandler<?> type)
 		{
-			if(!this.predicateType.test(type))
+			if(!this.isExportType.test(type))
 			{
 				return;
 			}

@@ -49,15 +49,21 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	{
 		return false;
 	}
-
+	
 	@Override
-	public final boolean isVariableBinaryLengthType()
+	public final boolean hasPersistedReferences()
+	{
+		return false;
+	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
 	{
 		return false;
 	}
 
 	@Override
-	public final boolean hasVariableBinaryLengthInstances()
+	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}

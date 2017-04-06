@@ -4,7 +4,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
-public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativeCustom<Boolean>
+public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativeCustomValueFixedLength<Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
@@ -31,24 +31,6 @@ public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativ
 	public Boolean create(final Binary bytes)
 	{
 		return BinaryPersistence.buildBoolean(bytes);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean hasVariableBinaryLengthInstances()
-	{
-		return false;
 	}
 
 }

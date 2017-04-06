@@ -5,9 +5,6 @@ import static net.jadoth.Jadoth.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.HashEnum;
-import net.jadoth.collections.HashTable;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -16,7 +13,6 @@ import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.chars.VarString;
 
 
 public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>
@@ -61,6 +57,23 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	@Override
 	public <T> Class<T> ensureType(long typeId);
 
+	
+	
+	public static <M> PersistenceTypeHandlerManager<M> New(
+		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
+		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
+		final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
+		final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable
+	)
+	{
+		return new PersistenceTypeHandlerManager.Implementation<>(
+			notNull(typeHandlerRegistry)        ,
+			notNull(typeHandlerProvider)        ,
+			notNull(typeDictionaryManager)      ,
+			notNull(typeEvaluatorTypeIdMappable)
+		);
+	}
+	
 
 
 	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
@@ -73,7 +86,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ;
 		private final PersistenceTypeDictionaryManager  typeDictionaryManager      ;
 		private final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable;
-		private final PersistenceTypeDefinitionResolver typeDefinitionResolver     ;
 		private       boolean                           initialized                ;
 
 
@@ -82,20 +94,18 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 			final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
 			final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
-			final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable,
-			final PersistenceTypeDefinitionResolver typeDefinitionResolver
+			final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable
 		)
 		{
 			super();
-			this.typeHandlerRegistry         = notNull(typeHandlerRegistry)        ;
-			this.typeHandlerProvider         = notNull(typeHandlerProvider)        ;
-			this.typeDictionaryManager       = notNull(typeDictionaryManager)      ;
-			this.typeEvaluatorTypeIdMappable = notNull(typeEvaluatorTypeIdMappable);
-			this.typeDefinitionResolver      = notNull(typeDefinitionResolver)     ;
+			this.typeHandlerRegistry         = typeHandlerRegistry        ;
+			this.typeHandlerProvider         = typeHandlerProvider        ;
+			this.typeDictionaryManager       = typeDictionaryManager      ;
+			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
 		}
 
 
@@ -163,7 +173,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				return; // type not yet registered, hence it can't be invalid
 			}
-			if(!SwizzleTypeIdentity.Static.equals(registeredTd, typeHandler.typeDescription()))
+			if(!SwizzleTypeIdentity.Static.equals(registeredTd, typeHandler))
 			{
 				// (07.04.2013)TODO proper exception
 				throw new RuntimeException("Swizzle inconsistency for " + typeHandler.typeName());
@@ -190,7 +200,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			};
 
 
-			if(!PersistenceTypeDescription.equalMembers(registeredTd, typeHandler.typeDescription(), memberValidator))
+			if(!PersistenceTypeDescription.equalMembers(registeredTd, typeHandler, memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013)TODO proper exception
@@ -284,7 +294,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.validateTypeHandler(typeHandler);
 			if(this.typeHandlerRegistry.register(typeHandler))
 			{
-				this.typeDictionaryManager.addTypeDescription(typeHandler.typeDescription());
+				this.typeDictionaryManager.addTypeDescription(typeHandler);
 				return true;
 			}
 			return false;
@@ -377,57 +387,57 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 
-		private XGettingSequence<PersistenceTypeDefinition<?>> resolveTypeDefinitions(
-			final PersistenceTypeDictionary         typeDictionary
-		)
-		{
-			final XGettingEnum<PersistenceTypeDescription<?>> typeDescriptions = typeDictionary.types();
-			final HashEnum<PersistenceTypeDefinition<?>> typeDefinitions  =
-				HashEnum.NewCustom(typeDescriptions.size())
-			;
-			final HashTable<PersistenceTypeDescription<?>, Exception> problems =
-				HashTable.NewCustom(typeDescriptions.intSize())
-			;
-
-			this.typeDefinitionResolver.resolveTypeDefinitions(
-				typeDescriptions,
-				td ->
-					typeDefinitions.add(td),
-				(td, ex) ->
-					problems.add(td, ex)
-			);
-
-			if(!problems.isEmpty())
-			{
-				final String message = PersistenceTypeDefinitionResolver.assembleResolveExceptions(
-					problems,
-					VarString.New()
-				)
-				.toString();
-				throw new RuntimeException(message);
-			}
-
-			return typeDefinitions;
-		}
+//		private XGettingSequence<PersistenceTypeDescription<?>> resolveTypeDefinitions(
+//			final PersistenceTypeDictionary         typeDictionary
+//		)
+//		{
+//			final XGettingEnum<PersistenceTypeDescription<?>> typeDescriptions = typeDictionary.types();
+//			final HashEnum<PersistenceTypeDescription<?>> typeDefinitions  =
+//				HashEnum.NewCustom(typeDescriptions.size())
+//			;
+//			final HashTable<PersistenceTypeDescription<?>, Exception> problems =
+//				HashTable.NewCustom(typeDescriptions.intSize())
+//			;
+//
+//			this.typeDefinitionResolver.resolveTypeDefinitions(
+//				typeDescriptions,
+//				td ->
+//					typeDefinitions.add(td),
+//				(td, ex) ->
+//					problems.add(td, ex)
+//			);
+//
+//			if(!problems.isEmpty())
+//			{
+//				final String message = PersistenceTypeDescriptionResolver.assembleResolveExceptions(
+//					problems,
+//					VarString.New()
+//				)
+//				.toString();
+//				throw new RuntimeException(message);
+//			}
+//
+//			return typeDefinitions;
+//		}
 
 		private void internalInitialize()
 		{
 //			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
 
-			final PersistenceTypeDictionary                      typeDictionary  =
+			final PersistenceTypeDictionary typeDictionary =
 				this.typeDictionaryManager.provideDictionary()
 			;
-			final XGettingSequence<PersistenceTypeDefinition<?>> typeDefinitions = this.resolveTypeDefinitions(
-				typeDictionary
-			);
+			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
+				typeDictionary.liveTypes().values()
+			;
 
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 
 			// validate all type mappings before registering anything
-			typeRegistry.validatePossibleTypeMappings(typeDefinitions);
+			typeRegistry.validatePossibleTypeMappings(liveTypeDescriptions);
 
 			// register type identities (typeId<->type) first to make all types available for type handler creation
-			typeDefinitions.iterate(e ->
+			liveTypeDescriptions.iterate(e ->
 				typeRegistry.registerType(e.typeId(), e.type())
 			);
 
@@ -439,7 +449,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.update(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
-			typeDefinitions.iterate(e ->
+			liveTypeDescriptions.iterate(e ->
 				this.ensureTypeHandler(e.type())
 			);
 

@@ -7,7 +7,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
-public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustom<Date>
+public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomValueFixedLength<Date>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -32,14 +32,8 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustom<D
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return false;
-	}
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final Date instance, final long oid, final SwizzleStoreLinker linker)
@@ -61,18 +55,6 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustom<D
 	public void update(final Binary bytes, final Date instance, final SwizzleBuildLinker builder)
 	{
 		instance.setTime(Memory.get_long(bytes.buildItemAddress()));
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean hasVariableBinaryLengthInstances()
-	{
-		return false;
 	}
 
 }

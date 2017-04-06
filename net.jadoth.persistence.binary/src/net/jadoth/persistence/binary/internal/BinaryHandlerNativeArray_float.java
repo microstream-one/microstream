@@ -22,8 +22,8 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final float[] array, final long oid, final SwizzleStoreLinker linker)

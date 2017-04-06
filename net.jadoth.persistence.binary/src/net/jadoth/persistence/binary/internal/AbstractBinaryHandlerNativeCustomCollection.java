@@ -4,14 +4,14 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 
 
-public abstract class AbstractBinaryHandlerNativeCustomValueVariableLength<T>
-extends AbstractBinaryHandlerNativeCustomValue<T>
+public abstract class AbstractBinaryHandlerNativeCustomCollection<T>
+extends AbstractBinaryHandlerNativeCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNativeCustomValueVariableLength(
+	public AbstractBinaryHandlerNativeCustomCollection(
 		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
@@ -25,6 +25,18 @@ extends AbstractBinaryHandlerNativeCustomValue<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+
+	@Override
+	public final boolean hasInstanceReferences()
+	{
+		return true;
+	}
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
 	
 	@Override
 	public final boolean hasPersistedVariableLength()
@@ -37,5 +49,5 @@ extends AbstractBinaryHandlerNativeCustomValue<T>
 	{
 		return true;
 	}
-	
+
 }

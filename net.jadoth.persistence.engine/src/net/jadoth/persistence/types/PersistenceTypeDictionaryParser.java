@@ -50,16 +50,6 @@ public interface PersistenceTypeDictionaryParser
 			return i;
 		}
 
-		private static PersistenceTypeDescription<?> buildTypeEntry(final TypeBuilder entryBuilder)
-		{
-			return PersistenceTypeDescription.New(
-				entryBuilder.tid             ,
-				entryBuilder.typeName        ,
-				entryBuilder.type            ,
-				entryBuilder.members.immure()
-			);
-		}
-
 		// keyword methods //
 
 		private static boolean equalsCharSequence(final char[] input, final int i, final char[] sample)
@@ -95,33 +85,48 @@ public interface PersistenceTypeDictionaryParser
 		// parser methods //
 
 		private static void parseTypes(
-			final BulkList<PersistenceTypeDescription<?>> types         ,
-			final char[]                                  input         ,
-			final PersistenceFieldLengthResolver          lengthResolver
+			final BulkList<PersistenceTypeDescription<?>> types                 ,
+			final char[]                                  input                 ,
+			final PersistenceFieldLengthResolver          lengthResolver        ,
+			final PersistenceTypeDescriptionBuilder      typeDescriptionBuilder
 		)
 		{
 			// (04.04.2017 TM)TODO: OGS-3 Cache TypeBuilder instances, evaluate for obsolete types.
 			// (04.04.2017 TM)TODO: OGS-3 what about types not resolvable to runtime classes? Always desired here? Modularize?
+
+			final TypeEntry typeEntry = new TypeEntry();
 			for(int i = 0; (i = skipWhiteSpacesEoFSafe(input, i)) < input.length;)
 			{
-				final TypeBuilder typeBuilder = new TypeBuilder(lengthResolver);
-				i = parseType(input, i, typeBuilder);
-				types.add(buildTypeEntry(typeBuilder));
+				typeEntry.reset();
+				i = parseType(input, i, typeEntry, lengthResolver);
+				
+				final PersistenceTypeDescription<?> typeDescription = typeDescriptionBuilder.build(
+					typeEntry.tid             ,
+					typeEntry.typeName        ,
+					null                      ,
+					typeEntry.members.immure()
+				);
+				types.add(typeDescription);
 			}
 		}
 
-		private static int parseType(final char[] input, final int i, final TypeBuilder typeBuilder)
+		private static int parseType(
+			final char[]                         input         ,
+			final int                            i             ,
+			final TypeEntry                      typeBuilder   ,
+			final PersistenceFieldLengthResolver lengthResolver
+		)
 		{
 			int p = i;
 			p = parseTypeId     (input, p, typeBuilder);
 			p = skipWhiteSpaces (input, p);
 			p = parseTypeName   (input, p, typeBuilder);
 			p = skipWhiteSpaces (input, p);
-			p = parseTypeMembers(input, p, typeBuilder);
+			p = parseTypeMembers(input, p, typeBuilder, lengthResolver);
 			return p;
 		}
 
-		private static int parseTypeId(final char[] input, final int i, final TypeBuilder typeBuilder)
+		private static int parseTypeId(final char[] input, final int i, final TypeEntry typeBuilder)
 		{
 			int p = i;
 			while(input[p] >= '0' && input[p] <= '9')
@@ -136,7 +141,7 @@ public interface PersistenceTypeDictionaryParser
 			return p;
 		}
 
-		private static int parseTypeName(final char[] input, final int i, final TypeBuilder typeBuilder)
+		private static int parseTypeName(final char[] input, final int i, final TypeEntry typeBuilder)
 		{
 			int p = i;
 			while(input[p] > ' ' && input[p] != TYPE_START)
@@ -155,9 +160,14 @@ public interface PersistenceTypeDictionaryParser
 			return p + 1;
 		}
 
-		private static int parseTypeMembers(final char[] input, int i, final TypeBuilder typeBuilder)
+		private static int parseTypeMembers(
+			final char[]                         input         ,
+			      int                            i             ,
+			final TypeEntry                      typeBuilder   ,
+			final PersistenceFieldLengthResolver lengthResolver
+		)
 		{
-			final TypeMemberBuilder member = new TypeMemberBuilder(typeBuilder.lengthResolver);
+			final TypeMemberBuilder member = new TypeMemberBuilder(lengthResolver);
 			while(input[i = skipWhiteSpaces(input, i)] != TYPE_END)
 			{
 				i = parseTypeMember(input, i, member.reset());
@@ -385,7 +395,8 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields  //
 		/////////////////////
 
-		final PersistenceFieldLengthResolver lengthResolver;
+		final PersistenceFieldLengthResolver     lengthResolver        ;
+		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder;
 
 
 
@@ -393,10 +404,14 @@ public interface PersistenceTypeDictionaryParser
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceFieldLengthResolver lengthResolver)
+		public Implementation(
+			final PersistenceFieldLengthResolver     lengthResolver        ,
+			final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+		)
 		{
 			super();
-			this.lengthResolver = lengthResolver;
+			this.lengthResolver         = lengthResolver        ;
+			this.typeDescriptionBuilder = typeDescriptionBuilder;
 		}
 
 
@@ -412,7 +427,7 @@ public interface PersistenceTypeDictionaryParser
 			
 			try
 			{
-				parseTypes(types, input.toCharArray(), this.lengthResolver);
+				parseTypes(types, input.toCharArray(), this.lengthResolver, this.typeDescriptionBuilder);
 			}
 			catch(final ArrayIndexOutOfBoundsException e)
 			{
@@ -434,22 +449,23 @@ public interface PersistenceTypeDictionaryParser
 	}
 
 
-	final class TypeBuilder
+	final class TypeEntry
 	{
-		      long                                       tid           ;
-		      String                                     typeName      ;
-		      Class<?>                                   type          ;
-		final BulkList<PersistenceTypeDescriptionMember> members        = new BulkList<>();
-		final PersistenceFieldLengthResolver             lengthResolver;
+		      long                                       tid     ;
+		      String                                     typeName;
+		final BulkList<PersistenceTypeDescriptionMember> members  = new BulkList<>();
 
-
-		TypeBuilder(final PersistenceFieldLengthResolver lengthResolver)
+		TypeEntry()
 		{
 			super();
-			this.lengthResolver = lengthResolver;
 		}
-
-
+		
+		void reset()
+		{
+			this.tid = 0;
+			this.typeName = null;
+			this.members.clear();
+		}
 
 		@Override
 		public String toString()

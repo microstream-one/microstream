@@ -13,23 +13,25 @@ public interface PersistenceTypeDictionaryProvider
 
 
 	public static PersistenceTypeDictionaryProvider NewFromFile(
-		final File file,
-		final PersistenceFieldLengthResolver lengthResolver
+		final File                              file                  ,
+		final PersistenceFieldLengthResolver    lengthResolver        ,
+		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
 	)
 	{
 		return new Implementation(
-			new PersistenceTypeDictionaryParser.Implementation(lengthResolver),
+			new PersistenceTypeDictionaryParser.Implementation(lengthResolver, typeDescriptionBuilder),
 			new FilePersistenceTypeDictionary(file)
 		);
 	}
 
 	public static PersistenceTypeDictionary provideDictionary(
-		final File                           file          ,
-		final PersistenceFieldLengthResolver lengthResolver
+		final File                              file                  ,
+		final PersistenceFieldLengthResolver    lengthResolver        ,
+		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
 	)
 	{
 		final PersistenceTypeDictionaryProvider typeDictProvider =
-			PersistenceTypeDictionaryProvider.NewFromFile(file, lengthResolver)
+			PersistenceTypeDictionaryProvider.NewFromFile(file, lengthResolver, typeDescriptionBuilder)
 		;
 		final PersistenceTypeDictionary ptd = typeDictProvider.provideDictionary();
 

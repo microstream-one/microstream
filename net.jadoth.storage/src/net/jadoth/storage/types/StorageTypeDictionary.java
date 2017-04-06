@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionRegistrationCallback;
@@ -167,6 +168,12 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		public final XGettingEnum<PersistenceTypeDescription<?>> types()
 		{
 			return this.dictionary.types();
+		}
+		
+		@Override
+		public final XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		{
+			return this.dictionary.liveTypes();
 		}
 
 		@Override

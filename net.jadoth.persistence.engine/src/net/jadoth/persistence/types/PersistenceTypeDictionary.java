@@ -4,6 +4,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 import net.jadoth.util.chars.VarString;
@@ -11,6 +12,8 @@ import net.jadoth.util.chars.VarString;
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
 	public XGettingEnum<PersistenceTypeDescription<?>> types();
+	
+	public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes();
 
 	public boolean registerType(PersistenceTypeDescription<?> typeDescription);
 
@@ -171,6 +174,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
+		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
+		
 		private final EqHashEnum<PersistenceTypeDescription<?>> types;
 
 		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
@@ -245,6 +250,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		public XGettingEnum<PersistenceTypeDescription<?>> types()
 		{
 			return this.types;
+		}
+		
+		@Override
+		public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		{
+			return this.typesPerTypeName;
 		}
 
 		@Override

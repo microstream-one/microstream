@@ -4,7 +4,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
-public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNativeCustom<Character>
+public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNativeCustomValueFixedLength<Character>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
@@ -18,26 +18,8 @@ public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNat
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-//	@Override
-//	public long getFixedBinaryContentLength()
-//	{
-//		return 2L;
-//	}
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean hasVariableBinaryLengthInstances()
-	{
-		return false;
-	}
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final Character instance, final long oid, final SwizzleStoreLinker linker)
@@ -49,12 +31,6 @@ public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNat
 	public Character create(final Binary bytes)
 	{
 		return BinaryPersistence.buildCharacter(bytes);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
 	}
 
 }

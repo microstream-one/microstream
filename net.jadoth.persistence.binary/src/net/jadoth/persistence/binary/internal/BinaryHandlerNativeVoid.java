@@ -19,20 +19,8 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCu
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-//	@Override
-//	public long getFixedBinaryContentLength()
-//	{
-//		return 8L;
-//	}
-
-	@Override
-	public boolean isVariableBinaryLengthType()
-	{
-		return false;
-	}
+	// methods //
+	////////////
 
 	@Override
 	public void store(final Binary bytes, final Void instance, final long oid, final SwizzleStoreLinker linker)
@@ -45,15 +33,27 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCu
 	{
 		throw new UnsupportedOperationException();
 	}
-
+	
+	@Override
+	public boolean hasPersistedReferences()
+	{
+		return false;
+	}
+	
 	@Override
 	public final boolean hasInstanceReferences()
 	{
 		return false;
 	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
+	{
+		return false;
+	}
 
 	@Override
-	public boolean hasVariableBinaryLengthInstances()
+	public boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}

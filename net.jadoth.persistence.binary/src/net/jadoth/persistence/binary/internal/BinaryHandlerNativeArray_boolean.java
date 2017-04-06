@@ -22,8 +22,8 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(final Binary bytes, final boolean[] array, final long oid, final SwizzleStoreLinker linker)

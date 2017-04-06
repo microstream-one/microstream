@@ -24,7 +24,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 	public long maximumLength();
 
 	@Override
-	public default boolean hasVariableLength()
+	public default boolean hasPersistedVariableLength()
 	{
 		return this.minimumLength() != this.maximumLength();
 	}
@@ -127,8 +127,8 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 			;
 
 			this.typeDescription      = typeDescription;
-			this.isPrimitive          = typeDescription.isPrimitive();
-			this.hasReferences        = typeDescription.hasReferences();
+			this.isPrimitive          = typeDescription.isPrimitiveType();
+			this.hasReferences        = typeDescription.hasPersistedReferences();
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
 			this.simpleReferenceRange = this.simpleReferenceCount * BinaryPersistence.oidLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
@@ -234,20 +234,26 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		}
 
 		@Override
-		public final boolean hasReferences()
+		public final boolean hasPersistedReferences()
 		{
 //			DEBUGStorage.debugln(this.hasReferences + "\t" + this.typeName());
 			return this.hasReferences;
 		}
 
 		@Override
-		public final boolean isPrimitive()
+		public final boolean isPrimitiveType()
 		{
 			return this.isPrimitive;
 		}
 
 		@Override
-		public final boolean hasVariableLength()
+		public final boolean hasPersistedVariableLength()
+		{
+			return this.hasVariableLength;
+		}
+		
+		@Override
+		public final boolean hasVaryingPersistedLengthInstances()
 		{
 			return this.hasVariableLength;
 		}

@@ -28,15 +28,57 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	 * Example:
 	 * Lazy<Person> changed to Lazy<Employee>.
 	 * Currently, this is just recognized as Lazy.
+	 * 
+	 * (05.04.2017 TM)NOTE: but does it really have to be stored here?
+	 * Wouldn't it be enough to store it in the member description?
+	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
 	 */
 
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
-	public boolean hasReferences();
+	public boolean hasPersistedReferences();
 
-	public boolean hasVariableLength();
+	/**
+	 * Provides information if two instances of the handled type can have different length in persisted form.<p>
+	 * Examples for variable length types:
+	 * <ul>
+	 * <li> arrays</li>
+	 * <li>{@code java.lang.String}</li>
+	 * <li>{@code java.util.ArrayList}</li>
+	 * <li>{@code java.math.BigDecimal}</li>
+	 * </ul><p>
+	 * Examples for fixed length types:
+	 * <ul>
+	 * <li>primitive value wrapper types</li>
+	 * <li>{@code java.lang.Object}</li>
+	 * <li>{@code java.util.Date}</li>
+	 * <li>typical entity types (without unshared inlined variable length component instances)</li>
+	 * </ul>
+	 *
+	 * @return
+	 */
+	public boolean hasPersistedVariableLength();
 
-	public boolean isPrimitive();
+	public boolean isPrimitiveType();
+	
+	/**
+	 * Provides information if one particular instance can have variing binary length from one store to another.<p>
+	 * Examples for variable length instances:
+	 * <ul>
+	 * <li> variable size collection instances</li>
+	 * <li> variable size pesudo collection instances like {@code java.util.StringBuilder}</li>
+	 * <li> instances of custom defined types similar to collections</li>
+	 * </ul><p>
+	 * Examples for fixed length instances:
+	 * <ul>
+	 * <li>arrays</li>
+	 * <li>all immutable type instances (like {@code java.lang.String} )</li>
+	 * <li>all fixed length types (see {@link #isVariableBinaryLengthType()}</li>
+	 * </ul>
+	 *
+	 * @return
+	 */
+	public boolean hasVaryingPersistedLengthInstances();
 
 
 
@@ -235,19 +277,25 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		}
 
 		@Override
-		public final boolean hasReferences()
+		public final boolean hasPersistedReferences()
 		{
 			return this.hasReferences;
 		}
 
 		@Override
-		public final boolean isPrimitive()
+		public final boolean isPrimitiveType()
 		{
 			return this.isPrimitive;
 		}
 
 		@Override
-		public final boolean hasVariableLength()
+		public final boolean hasPersistedVariableLength()
+		{
+			return this.variableLength;
+		}
+		
+		@Override
+		public final boolean hasVaryingPersistedLengthInstances()
 		{
 			return this.variableLength;
 		}
@@ -272,5 +320,5 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		}
 
 	}
-
+	
 }

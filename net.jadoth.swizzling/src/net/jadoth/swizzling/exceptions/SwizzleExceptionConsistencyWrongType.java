@@ -25,6 +25,16 @@ public class SwizzleExceptionConsistencyWrongType extends SwizzleExceptionConsis
 		this.actualType = actualType;
 		this.passedType = passedType;
 	}
+	
+	@Override
+	public String getMessage()
+	{
+//		return super.getMessage();
+		return "TypeId: " + this.tid
+			+ ", actual type: " + (this.actualType == null ? null : this.actualType.getCanonicalName())
+			+ ", passed type: " + (this.passedType == null ? null : this.passedType.getCanonicalName())
+		;
+	}
 
 
 
