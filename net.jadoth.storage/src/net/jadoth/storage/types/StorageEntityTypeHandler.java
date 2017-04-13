@@ -1,5 +1,7 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -29,6 +31,16 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		return this.minimumLength() != this.maximumLength();
 	}
 
+	
+	
+	public static <T> StorageEntityTypeHandler.Implementation<T> New(
+		final PersistenceTypeDescription<T> typeDescription
+	)
+	{
+		return new StorageEntityTypeHandler.Implementation<>(
+			notNull(typeDescription)
+		);
+	}
 
 
 	public final class Implementation<T> implements StorageEntityTypeHandler<T>
@@ -90,42 +102,13 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceTypeDescription<T> typeDescription)
+		Implementation(final PersistenceTypeDescription<T> typeDescription)
 		{
 			super();
-//			if(typeDescription.typeName().contains("Root"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("BulkList"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().endsWith("java.lang.String"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("HashTable"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("EmptyTable"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().endsWith("java.lang.Integer"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("Person"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
 
 			final BinaryReferenceTraverser[] referenceTraversers =
 				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDescription.members())
 			;
-
 			this.typeDescription      = typeDescription;
 			this.isPrimitive          = typeDescription.isPrimitiveType();
 			this.hasReferences        = typeDescription.hasPersistedReferences();
@@ -159,6 +142,12 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		public final Class<T> type()
 		{
 			return this.typeDescription.type();
+		}
+		
+		@Override
+		public final boolean isObsolete()
+		{
+			return this.typeDescription.isObsolete();
 		}
 
 		@Override

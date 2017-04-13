@@ -1,7 +1,11 @@
 package net.jadoth.persistence.types;
 
+import java.util.function.Function;
+
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.types.XList;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingComplexTypeDefinition;
@@ -10,6 +14,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionaryParser
@@ -91,29 +96,41 @@ public interface PersistenceTypeDictionaryParser
 			final PersistenceTypeDescriptionBuilder      typeDescriptionBuilder
 		)
 		{
-			// (04.04.2017 TM)TODO: OGS-3 Cache TypeBuilder instances, evaluate for obsolete types.
-			// (04.04.2017 TM)TODO: OGS-3 what about types not resolvable to runtime classes? Always desired here? Modularize?
-
-			final TypeEntry typeEntry = new TypeEntry();
+			final EqHashTable<String, XList<TypeDescriptionEntry>> typeEntries = EqHashTable.New();
+			final Function<String, XList<TypeDescriptionEntry>>    supplier    = typeName -> BulkList.New();
+			
 			for(int i = 0; (i = skipWhiteSpacesEoFSafe(input, i)) < input.length;)
 			{
-				typeEntry.reset();
+				final TypeDescriptionEntry typeEntry = new TypeDescriptionEntry();
 				i = parseType(input, i, typeEntry, lengthResolver);
+				typeEntries.ensure(typeEntry.typeName, supplier).add(typeEntry);
+			}
+			
+			for(final KeyValue<String, XList<TypeDescriptionEntry>> te : typeEntries)
+			{
+				// (13.04.2017 TM)TODO: OGS-3: evaluate typeBuilder instances for obsolete types.
+				
+				// (13.04.2017 TM)NOTE: reconstructed old logic: only consider one replace by TO-DO's logic
+				final TypeDescriptionEntry typeEntry = te.value().last();
+				
+				// (13.04.2017 TM)TODO: Create "TypeDescriptionFamily" meta type to keep old versions
 				
 				final PersistenceTypeDescription<?> typeDescription = typeDescriptionBuilder.build(
 					typeEntry.tid             ,
 					typeEntry.typeName        ,
 					null                      ,
+					typeEntry.isObsolete      ,
 					typeEntry.members.immure()
 				);
 				types.add(typeDescription);
 			}
+			
 		}
 
 		private static int parseType(
 			final char[]                         input         ,
 			final int                            i             ,
-			final TypeEntry                      typeBuilder   ,
+			final TypeDescriptionEntry                      typeBuilder   ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
@@ -126,7 +143,7 @@ public interface PersistenceTypeDictionaryParser
 			return p;
 		}
 
-		private static int parseTypeId(final char[] input, final int i, final TypeEntry typeBuilder)
+		private static int parseTypeId(final char[] input, final int i, final TypeDescriptionEntry typeBuilder)
 		{
 			int p = i;
 			while(input[p] >= '0' && input[p] <= '9')
@@ -141,7 +158,7 @@ public interface PersistenceTypeDictionaryParser
 			return p;
 		}
 
-		private static int parseTypeName(final char[] input, final int i, final TypeEntry typeBuilder)
+		private static int parseTypeName(final char[] input, final int i, final TypeDescriptionEntry typeBuilder)
 		{
 			int p = i;
 			while(input[p] > ' ' && input[p] != TYPE_START)
@@ -163,7 +180,7 @@ public interface PersistenceTypeDictionaryParser
 		private static int parseTypeMembers(
 			final char[]                         input         ,
 			      int                            i             ,
-			final TypeEntry                      typeBuilder   ,
+			final TypeDescriptionEntry                      typeBuilder   ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
@@ -449,21 +466,23 @@ public interface PersistenceTypeDictionaryParser
 	}
 
 
-	final class TypeEntry
+	final class TypeDescriptionEntry
 	{
-		      long                                       tid     ;
-		      String                                     typeName;
+		      long                                       tid       ;
+		      String                                     typeName  ;
+		      boolean                                    isObsolete;
 		final BulkList<PersistenceTypeDescriptionMember> members  = new BulkList<>();
 
-		TypeEntry()
+		TypeDescriptionEntry()
 		{
 			super();
 		}
 		
 		void reset()
 		{
-			this.tid = 0;
-			this.typeName = null;
+			this.tid        =     0;
+			this.typeName   =  null;
+			this.isObsolete = false;
 			this.members.clear();
 		}
 
@@ -476,6 +495,7 @@ public interface PersistenceTypeDictionaryParser
 			.blank()
 			.add(this.typeName)
 			.blank()
+			.add(this.isObsolete ? " (obsolete) " : "")
 			.add('{');
 			if(!this.members.isEmpty())
 			{

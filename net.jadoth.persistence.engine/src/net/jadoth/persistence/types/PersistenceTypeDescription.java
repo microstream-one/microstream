@@ -80,6 +80,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 
+	public boolean isObsolete();
 
 
 	public static boolean determineVariableLength(
@@ -195,8 +196,6 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		return true;
 	}
 
-	
-	
 	public static <T> PersistenceTypeDescription<T> New(
 		final long                                                         typeId  ,
 		final String                                                       typeName,
@@ -204,7 +203,18 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, type, members);
+		return New(typeId, typeName, type, false, members);
+	}
+	
+	public static <T> PersistenceTypeDescription<T> New(
+		final long                                                         typeId  ,
+		final String                                                       typeName,
+		final Class<T>                                                     type    ,
+		final boolean                                                      isObsolete,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, type, isObsolete, members);
 	}
 
 
@@ -222,6 +232,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		final boolean                                                        hasReferences ;
 		final boolean                                                        isPrimitive   ;
 		final boolean                                                        variableLength;
+		final boolean                                                        isObsolete    ;
 
 
 
@@ -230,17 +241,19 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		/////////////////
 
 		Implementation(
-			final long                                                         typeId  ,
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
+			final long                                                         typeId    ,
+			final String                                                       typeName  ,
+			final Class<T>                                                     type      ,
+			final boolean                                                      isObsolete,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			super();
-			this.typeId         =         typeId   ;
-			this.typeName       = notNull(typeName);
-			this.type           =         type     ; // may be null for obsolete type description or external process
-			this.members        = members.immure() ; // same instance if already immutable
+			this.typeId         =         typeId    ;
+			this.typeName       = notNull(typeName) ;
+			this.type           =         type      ; // may be null for obsolete type description or external process
+			this.isObsolete     =         isObsolete;
+			this.members        = members.immure()  ; // same instance if already immutable
 			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
 			this.isPrimitive    = PersistenceTypeDescription      .determineIsPrimitive   (members);
 			this.variableLength = PersistenceTypeDescription      .determineVariableLength(members);
@@ -268,6 +281,12 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		public final Class<T> type()
 		{
 			return this.type;
+		}
+		
+		@Override
+		public final boolean isObsolete()
+		{
+			return this.isObsolete;
 		}
 		
 		@Override

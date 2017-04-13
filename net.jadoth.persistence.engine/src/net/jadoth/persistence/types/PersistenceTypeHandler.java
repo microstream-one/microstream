@@ -159,6 +159,15 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		{
 			return this.type.getName();
 		}
+		
+		@Override
+		public final boolean isObsolete()
+		{
+			/* (13.04.2017 TM)NOTE:
+			 * explicitely defined type handlers at runtime can never be obsolete for the current runtime.
+			 */
+			return false;
+		}
 
 	}
 

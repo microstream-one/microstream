@@ -50,26 +50,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		
 
 
-		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
-		final void deriveHandler(final PersistenceTypeDescription<?> typeDescription)
-		{
-			synchronized(this.registry)
-			{
-				this.registry.put(
-					typeDescription.typeId(),
-					new StorageEntityTypeHandler.Implementation<>(typeDescription)
-				);
-			}
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		////////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(
@@ -233,7 +216,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 				}
 				for(final PersistenceTypeDescription<?> td : typeDictionary.types())
 				{
-					this.deriveHandler(td);
+					this.registerTypeDescription(td);
 				}
 				this.dictionary = typeDictionary;
 				
@@ -241,11 +224,27 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			}
 		}
 
-
 		@Override
-		public void registerTypeDescription(final PersistenceTypeDescription<?> typeDescription)
+		public final void registerTypeDescription(final PersistenceTypeDescription<?> typeDescription)
 		{
-			this.deriveHandler(typeDescription);
+			synchronized(this.registry)
+			{
+				final StorageEntityTypeHandler<?> typeHandler = StorageEntityTypeHandler.New(typeDescription);
+				final long                        typeId      = typeHandler.typeId();
+				
+				if(!this.registry.add(typeId, typeHandler))
+				{
+					throw new RuntimeException("TypeId is already associated with a typeHandler: " + typeId);
+				}
+				
+				// (13.04.2017 TM)TODO: why is the "ignorant" put() used instead of a validating add()?
+				
+				// (13.04.2017 TM)NOTE: old version
+//				this.registry.put(
+//					typeDescription.typeId(),
+//					StorageEntityTypeHandler.New(typeDescription)
+//				);
+			}
 		}
 
 	}

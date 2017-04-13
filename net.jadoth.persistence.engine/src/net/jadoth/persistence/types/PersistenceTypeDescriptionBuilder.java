@@ -9,9 +9,10 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefi
 public interface PersistenceTypeDescriptionBuilder
 {
 	public <T> PersistenceTypeDescription<T> build(
-		long                                                         typeId  ,
-		String                                                       typeName,
-		Class<T>                                                     type    ,
+		long                                                         typeId    ,
+		String                                                       typeName  ,
+		Class<T>                                                     type      ,
+		boolean                                                      isObsolete,
 		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	);
 	
@@ -55,6 +56,7 @@ public interface PersistenceTypeDescriptionBuilder
 			final long                                                         typeId  ,
 			final String                                                       typeName,
 			final Class<T>                                                     type    ,
+			final boolean                                                      isObsolete,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
@@ -67,7 +69,9 @@ public interface PersistenceTypeDescriptionBuilder
 				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
 			}
 			
-			return PersistenceTypeDescription.New(typeId, typeName, effectiveType, members.immure());
+			final boolean effectiveObsolete = isObsolete || type == null;
+			
+			return PersistenceTypeDescription.New(typeId, typeName, effectiveType, effectiveObsolete, members.immure());
 			
 		}
 		
