@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
@@ -143,17 +144,29 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		{
 			return this.typeDescription.type();
 		}
-		
-		@Override
-		public final boolean isObsolete()
-		{
-			return this.typeDescription.isObsolete();
-		}
 
 		@Override
 		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDescription.members();
+		}
+		
+		@Override
+		public final PersistenceTypeDescription<T> current()
+		{
+			return this.typeDescription.current();
+		}
+		
+		@Override
+		public final boolean isLatestPersisted()
+		{
+			return this.typeDescription.isLatestPersisted();
+		}
+		
+		@Override
+		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
+		{
+			return this.typeDescription.obsoletes();
 		}
 
 		@Override

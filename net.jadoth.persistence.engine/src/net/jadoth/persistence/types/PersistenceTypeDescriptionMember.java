@@ -1,6 +1,10 @@
 package net.jadoth.persistence.types;
 
+import java.util.Iterator;
 import java.util.function.Consumer;
+
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.util.Equalator;
 
 
 public interface PersistenceTypeDescriptionMember
@@ -78,6 +82,20 @@ public interface PersistenceTypeDescriptionMember
 	public void validatePersistentLength(long persistentLength);
 
 
+	
+	public static boolean determineVariableLength(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			if(member.isVariableLength())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static boolean determineHasReferences(final Iterable<? extends PersistenceTypeDescriptionMember> members)
 	{
@@ -89,6 +107,47 @@ public interface PersistenceTypeDescriptionMember
 			}
 		}
 		return false;
+	}
+	
+	public static boolean determineIsPrimitive(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		return members.size() == 1 && members.get().isPrimitiveDefinition();
+	}
+	
+	public static boolean equalMembers(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
+	)
+	{
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::isEqual);
+	}
+	
+	public static boolean equalMembers(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1 ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2 ,
+		final Equalator<PersistenceTypeDescriptionMember>                  equalator
+	)
+	{
+		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
+		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = members1.iterator();
+		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = members2.iterator();
+
+		// intentionally OR to give equalator a chance to handle size mismatches as well (indicated by null)
+		while(it1.hasNext() || it2.hasNext())
+		{
+			final PersistenceTypeDescriptionMember member1 = it1.hasNext() ? it1.next() : null;
+			final PersistenceTypeDescriptionMember member2 = it2.hasNext() ? it2.next() : null;
+
+			if(!equalator.equal(member1, member2))
+			{
+				return false;
+			}
+		}
+
+		// neither member-member mismatch nor size mismatch, so members must be in order and equal
+		return true;
 	}
 
 
@@ -135,7 +194,6 @@ public interface PersistenceTypeDescriptionMember
 			this.persistentMinimumLength = persistentMinimumLength;
 			this.persistentMaximumLength = persistentMaximumLength;
 		}
-
 
 
 
@@ -204,6 +262,7 @@ public interface PersistenceTypeDescriptionMember
 			{
 				return;
 			}
+			
 			// (02.05.2014)EXCP: proper exception
 			throw new RuntimeException(
 				"Invalid persistent length: " + persistentLength
@@ -229,15 +288,18 @@ public interface PersistenceTypeDescriptionMember
 
 
 
-	public static final DescriptionMemberEqualator DESCRIPTION_MEMBER_EQUALATOR =
-		new DescriptionMemberEqualator.Implementation()
-;
-
-
 	public static boolean isEqual(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
 	{
 		// must check for null, e.g. when checking size-mismatched member lists
-		return m1 != null && m2 != null && m1.equals(m2, DESCRIPTION_MEMBER_EQUALATOR);
+		return m1 == m2
+			|| m1 != null && m2 != null && m1.equals(m2, equalator())
+		;
+	}
+	
+	
+	public static DescriptionMemberEqualator equalator()
+	{
+		return DescriptionMemberEqualator.Implementation.SINGLETON;
 	}
 
 
@@ -260,6 +322,10 @@ public interface PersistenceTypeDescriptionMember
 
 		public final class Implementation implements DescriptionMemberEqualator
 		{
+			static final DescriptionMemberEqualator.Implementation SINGLETON =
+				new DescriptionMemberEqualator.Implementation()
+			;
+			
 			private static boolean equalTypeAndName(
 				final PersistenceTypeDescriptionMember m1,
 				final PersistenceTypeDescriptionMember m2

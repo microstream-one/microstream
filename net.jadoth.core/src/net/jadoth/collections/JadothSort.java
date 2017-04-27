@@ -3,6 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 
 import net.jadoth.collections.sorting.Sortable;
+import net.jadoth.collections.types.XList;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.ComparatorSequence;
 
@@ -793,6 +794,17 @@ public final class JadothSort
 			// array.clone() is equally fast as selectively copying only the range into a new Object[elements.length] array.
 			adaptiveMergesort0(elements.clone(), elements, start, bound, comparator, log2(bound - start));
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <V> void valueSort(final XList<V> values, final Comparator<? super V> comparator)
+	{
+		if(values instanceof AbstractSimpleArrayCollection)
+		{
+			valueSort(((AbstractSimpleArrayCollection<V>)values).internalGetStorageArray(), comparator);
+		}
+		
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JadothSort#valueSort()
 	}
 
 	/**

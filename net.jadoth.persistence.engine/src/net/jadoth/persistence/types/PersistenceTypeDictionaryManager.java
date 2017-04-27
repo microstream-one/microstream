@@ -92,7 +92,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			}
 			// (31.07.2014 TM)NOTE: existing descriptions may not be altered, consistency must be preserved
 			// (31.07.2014 TM)TODO: maybe modularize logic to make existing type descriptions alterable
-			if(currentByTid != null && !PersistenceTypeDescription.equalDescription(currentByTid, td))
+			if(currentByTid != null && !PersistenceTypeDescriptionMember.equalMembers(currentByTid.members(), td.members()))
 			{
 				// (31.07.2014 TM)EXCP: proper exception
 				throw new RuntimeException("Type Description mismatch: " + td);
@@ -142,7 +142,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.validateTypeDescriptions(typeDictionary.types());
+				this.validateTypeDescriptions(typeDictionary.types().values());
 			}
 			return this;
 		}
@@ -163,7 +163,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.addTypeDescriptions(typeDictionary.types());
+				this.addTypeDescriptions(typeDictionary.types().values());
 			}
 			return this;
 		}

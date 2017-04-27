@@ -62,14 +62,15 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeVoid;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
-import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
@@ -1950,18 +1951,13 @@ public final class BinaryPersistence extends Persistence
 		return new BinaryFieldLengthResolver.Implementation();
 	}
 	
-	public static final PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
-	{
-		return PersistenceTypeDescriptionBuilder.New(PersistenceTypeResolver.Failing());
-	}
-
 	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
 	{
 		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
-			PersistenceTypeDictionaryProvider.NewFromFile(
-				dictionaryFile                ,
-				createFieldLengthResolver()   ,
-				createTypeDescriptionBuilder()
+			PersistenceTypeDictionaryProvider.New(
+				PersistenceTypeDictionaryFileHandler.New(dictionaryFile),
+				PersistenceTypeDictionaryParser.New(createFieldLengthResolver()),
+				PersistenceTypeDictionaryBuilder.New()
 			)
 		;
 		return typeDictionaryProvider;

@@ -3,7 +3,7 @@ package net.jadoth.storage.util;
 import java.io.File;
 
 import net.jadoth.persistence.internal.AbstractIdProviderByFile;
-import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
@@ -58,7 +58,7 @@ public final class StorageBackupHelper
 		final File fileTDc = new File(targetDirectory, "MyPersistenceTypeDictionary.ptd");
 
 		// write current metadata's state to the specified files (= "metadata backup")
-		FilePersistenceTypeDictionary.writeTypeDictionary(fileTDc, typeDictString);
+		PersistenceTypeDictionaryFileHandler.writeTypeDictionary(fileTDc, typeDictString);
 		AbstractIdProviderByFile     .writeId            (fileTid, nextTypeId    );
 		AbstractIdProviderByFile     .writeId            (fileOid, nextObjectId  );
 	}
@@ -66,7 +66,7 @@ public final class StorageBackupHelper
 	static long highestTypeId(final PersistenceTypeDictionary typeDictionary)
 	{
 		long highestTypeId = 0;
-		for(final PersistenceTypeDescription<?> td : typeDictionary.types())
+		for(final PersistenceTypeDescription<?> td : typeDictionary.types().values())
 		{
 			if(td.typeId() >= highestTypeId)
 			{

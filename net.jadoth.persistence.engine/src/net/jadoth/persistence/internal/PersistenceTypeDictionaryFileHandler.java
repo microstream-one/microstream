@@ -12,7 +12,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.util.file.JadothFiles;
 
-public final class FilePersistenceTypeDictionary
+public final class PersistenceTypeDictionaryFileHandler
 implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,13 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 		}
 	}
 
+	
+	public static PersistenceTypeDictionaryFileHandler New(final File file)
+	{
+		return new PersistenceTypeDictionaryFileHandler(
+			notNull(file)
+		);
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -66,7 +73,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 	// constructors     //
 	/////////////////////
 
-	public FilePersistenceTypeDictionary(final File file)
+	PersistenceTypeDictionaryFileHandler(final File file)
 	{
 		super();
 		this.file = notNull(file);

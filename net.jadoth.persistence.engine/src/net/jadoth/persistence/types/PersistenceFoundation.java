@@ -1115,6 +1115,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				new PersistenceTypeDictionaryParser.Implementation(
 					this.getFieldFixedLengthResolver(),
+					this.getTypeResolver()            ,
 					this.getTypeDescriptionBuilder()
 				)
 			;
@@ -1207,9 +1208,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		protected PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
 		{
-			return PersistenceTypeDescriptionBuilder.New(
-				this.getTypeResolver()
-			);
+			return PersistenceTypeDescriptionBuilder.New();
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorPersistable()

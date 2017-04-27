@@ -48,12 +48,21 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
+	
 	public BinaryHandlerBulkList(final long typeId)
 	{
 		// binary layout definition
 		super(
 			typeId,
+			typeWorkaround(),
+			BinaryCollectionHandling.sizedArrayPseudoFields()
+		);
+	}
+	
+	public BinaryHandlerBulkList()
+	{
+		// binary layout definition
+		super(
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);
@@ -67,9 +76,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes   ,
-		final BulkList<?>     instance,
-		final long            oid     ,
+		final Binary             bytes   ,
+		final BulkList<?>        instance,
+		final long               oid     ,
 		final SwizzleStoreLinker linker
 	)
 	{

@@ -12,6 +12,11 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		// constructors //
 		/////////////////
 
+		protected AbstractImplementation(final Class<T> type)
+		{
+			super(type);
+		}
+		
 		protected AbstractImplementation(final Class<T> type, final long tid)
 		{
 			super(type, tid);

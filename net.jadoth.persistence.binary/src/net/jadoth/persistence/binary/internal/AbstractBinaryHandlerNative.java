@@ -110,6 +110,15 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		super(type, typeId);
 		this.pseudoFields = pseudoFields.immure();
 	}
+	
+	public AbstractBinaryHandlerNative(
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	)
+	{
+		super(type);
+		this.pseudoFields = pseudoFields.immure();
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////

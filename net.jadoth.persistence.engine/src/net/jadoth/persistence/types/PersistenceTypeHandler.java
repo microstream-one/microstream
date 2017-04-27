@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -87,10 +88,13 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 	{
 		public PersistenceTypeHandler<M, T> createTypeHandler(long typeId);
 	}
+	
+	
 
 
 
-	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
+	public abstract class AbstractImplementation<M, T>
+	implements PersistenceTypeHandler<M, T>, PersistenceTypeDescription.Initializer<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -98,19 +102,28 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 
 		// basic type swizzling //
 		private final Class<T> type;
-		private final long     tid ;
+		
+		// these fields are effectively final / immutable: they get only initialized once and are never mutated again.
+		
+		private long                                               typeId   ;
+		private XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
+		
+		protected AbstractImplementation(final Class<T> type)
+		{
+			super();
+			this.type = notNull(type);
+		}
 
 		protected AbstractImplementation(final Class<T> type, final long tid)
 		{
-			super();
-			this.tid  = positive(tid );
-			this.type =  notNull(type);
+			this(type);
+			this.typeId  = positive(tid );
 		}
 
 
@@ -151,7 +164,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		@Override
 		public final long typeId()
 		{
-			return this.tid;
+			return this.typeId;
 		}
 
 		@Override
@@ -161,14 +174,64 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		}
 		
 		@Override
-		public final boolean isObsolete()
+		public final boolean isLatestPersisted()
 		{
 			/* (13.04.2017 TM)NOTE:
-			 * explicitely defined type handlers at runtime can never be obsolete for the current runtime.
+			 * explicitely defined type handlers at runtime are / must be always the latest persisted.
+			 * Otherwise, the type handling infrastructure is inconsistent.
 			 */
-			return false;
+			return true;
 		}
-
+				
+		@Override
+		public final PersistenceTypeDescription<T> current()
+		{
+			return this;
+		}
+		
+		@Override
+		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
+		{
+			return this.obsoletes;
+		}
+		
+		@Override
+		public PersistenceTypeHandler<M, T> initialize(
+			final long                                               typeId   ,
+			final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes
+		)
+		{
+			if(this.typeId != 0)
+			{
+				if(this.typeId != typeId)
+				{
+					// (26.04.2017 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
+					);
+				}
+				// fall through
+			}
+			
+			if(this.obsoletes != null)
+			{
+				if(this.obsoletes != obsoletes)
+				{
+					// (26.04.2017 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Obsolete " + PersistenceTypeDescription.class.getSimpleName()
+						+ "s have already been initialized for type ID " + this.typeId
+					);
+				}
+				// fall through
+			}
+			
+			this.typeId    = typeId   ;
+			this.obsoletes = obsoletes;
+			
+			return this;
+		}
+	
 	}
 
 }

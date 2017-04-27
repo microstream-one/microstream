@@ -173,7 +173,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				return; // type not yet registered, hence it can't be invalid
 			}
-			if(!SwizzleTypeIdentity.Static.equals(registeredTd, typeHandler))
+			if(!SwizzleTypeIdentity.equals(registeredTd, typeHandler))
 			{
 				// (07.04.2013)TODO proper exception
 				throw new RuntimeException("Swizzle inconsistency for " + typeHandler.typeName());
@@ -188,7 +188,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 					throw new RuntimeException("Member count mismatch of type " + typeHandler.typeName());
 				}
 
-				if(m1.equals(m2, PersistenceTypeDescriptionMember.DESCRIPTION_MEMBER_EQUALATOR))
+				if(m1.equals(m2, PersistenceTypeDescriptionMember.equalator()))
 				{
 					return true;
 				}
@@ -200,7 +200,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			};
 
 
-			if(!PersistenceTypeDescription.equalMembers(registeredTd, typeHandler, memberValidator))
+			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.members(), typeHandler.members(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013)TODO proper exception

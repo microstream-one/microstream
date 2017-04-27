@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
@@ -100,9 +99,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.types())
+				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.types().values())
 				{
-					if(PersistenceTypeDescription.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
+					if(PersistenceTypeDescription.isEqualDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
 						continue;
 					}
@@ -148,7 +147,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingEnum<PersistenceTypeDescription<?>> types()
+		public final XGettingTable<Long, PersistenceTypeDescription<?>> types()
 		{
 			return this.dictionary.types();
 		}
@@ -214,7 +213,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDescription<?> td : typeDictionary.types())
+				for(final PersistenceTypeDescription<?> td : typeDictionary.types().values())
 				{
 					this.registerTypeDescription(td);
 				}

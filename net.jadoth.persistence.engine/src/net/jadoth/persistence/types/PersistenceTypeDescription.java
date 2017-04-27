@@ -2,17 +2,14 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
-import java.util.Iterator;
-
+import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.Equalator;
 import net.jadoth.util.chars.VarString;
 
-public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, SwizzleTypeLink<T>
+public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
 {
 	@Override
 	public long   typeId();
@@ -20,7 +17,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	@Override
 	public String typeName();
 
-	/* (30.06.2015 TM)TODO: PersistenceTypeDescription <?>Generics
+	/* (30.06.2015 TM)TODO: PersistenceTypeDescription<?> Generics
 	 * Must consider Generics Type information as well, at least as a simple normalized String for
 	 * equality comparison.
 	 * Otherwise, changing type parameter won't be recognized by the type validation and
@@ -34,6 +31,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
 	 */
 
+	@Override
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
 	public boolean hasPersistedReferences();
@@ -80,120 +78,33 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 
-	public boolean isObsolete();
-
-
-	public static boolean determineVariableLength(
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-	)
+	public boolean isLatestPersisted();
+	
+	public default boolean isCurrent()
 	{
-		for(final PersistenceTypeDescriptionMember member : members)
-		{
-			if(member.isVariableLength())
-			{
-				return true;
-			}
-		}
-		return false;
+		return this.current() == this;
 	}
-
-	public static boolean determineIsPrimitive(
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-	)
+	
+	public XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes();
+		
+	public PersistenceTypeDescription<T> current();
+	
+	
+	
+	
+	public static boolean isEqualDescription(final PersistenceTypeDescription<?> td1, final PersistenceTypeDescription<?> td2)
 	{
-		return members.size() == 1 && members.get().isPrimitiveDefinition();
-	}
-
-	public static final HashEqualator<PersistenceTypeDescription<?>> EQUAL_TYPE =
-		new HashEqualator<PersistenceTypeDescription<?>>()
-		{
-			@Override
-			public int hash(final PersistenceTypeDescription<?> typeDescription)
-			{
-				return PersistenceTypeDescription.hashCode(typeDescription);
-			}
-
-			@Override
-			public boolean equal(final PersistenceTypeDescription<?> td1, final PersistenceTypeDescription<?> td2)
-			{
-				return PersistenceTypeDescription.equalType(td1, td2);
-			}
-		}
-	;
-
-
-
-	public static int hashCode(final PersistenceTypeDescription <?>typeDescription)
-	{
-		return Long.hashCode(typeDescription.typeId()) & typeDescription.typeName().hashCode();
-	}
-
-	public static boolean equalType(
-		final PersistenceTypeDescription <?>td1,
-		final PersistenceTypeDescription <?>td2
-	)
-	{
-		if(td1 == td2)
-		{
-			return true;
-		}
-		if(td1 == null)
-		{
-			return td2 == null;
-		}
-		if(td2 == null)
-		{
-			return false;
-		}
-		return SwizzleTypeIdentity.Static.equals(td1, td2);
-	}
-
-	public static boolean equalDescription(
-		final PersistenceTypeDescription <?>td1,
-		final PersistenceTypeDescription <?>td2
-	)
-	{
-		if(td1 == td2)
-		{
-			return true;
-		}
-		if(td1 == null)
-		{
-			return td2 == null;
-		}
-		if(td2 == null)
-		{
-			return false;
-		}
-		return SwizzleTypeIdentity.Static.equals(td1, td2)
-			&& equalMembers(td1, td2, PersistenceTypeDescriptionMember::isEqual)
+		return td1 == td2 || td1 != null && td2 != null
+			&& td1.typeId() == td2.typeId()
+			&& td1.typeName().equals(td2.typeName())
+			&& PersistenceTypeDescriptionMember.equalMembers(td1.members(), td2.members())
 		;
 	}
+	
 
-	public static boolean equalMembers(
-		final PersistenceTypeDescription <?>                 td1      ,
-		final PersistenceTypeDescription <?>                 td2      ,
-		final Equalator<PersistenceTypeDescriptionMember> equalator
-	)
+	public static PersistenceTypeDescription.Builder Builder()
 	{
-		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
-		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = td1.members().iterator();
-		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = td2.members().iterator();
-
-		// intentionally OR to give equalator a chance to handle size mismatches as well (indicated by null)
-		while(it1.hasNext() || it2.hasNext())
-		{
-			final PersistenceTypeDescriptionMember member1 = it1.hasNext() ? it1.next() : null;
-			final PersistenceTypeDescriptionMember member2 = it2.hasNext() ? it2.next() : null;
-
-			if(!equalator.equal(member1, member2))
-			{
-				return false;
-			}
-		}
-
-		// neither member-member mismatch nor size mismatch, so members must be in order and equal
-		return true;
+		return new PersistenceTypeDescription.Builder.Implementation();
 	}
 
 	public static <T> PersistenceTypeDescription<T> New(
@@ -203,21 +114,44 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return New(typeId, typeName, type, false, members);
+		return New(typeId, typeName, type, members, null, true, true, X.emptyTable());
 	}
 	
 	public static <T> PersistenceTypeDescription<T> New(
-		final long                                                         typeId  ,
-		final String                                                       typeName,
-		final Class<T>                                                     type    ,
-		final boolean                                                      isObsolete,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		final long                                                         typeId           ,
+		final String                                                       typeName         ,
+		final Class<T>                                                     type             ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
+		final PersistenceTypeDescription<T>                                current          ,
+		final boolean                                                      isCurrent        ,
+		final boolean                                                      isLatestPersisted,
+		final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
 	)
 	{
-		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, type, isObsolete, members);
+		return new PersistenceTypeDescription.Implementation<>(
+			        typeId           ,
+			notNull(typeName)        ,
+			        type             , // may be null in case type is not resolvable
+			notNull(members)         ,
+			        current          , // may be null to indicate "this"
+			        isCurrent        ,
+			        isLatestPersisted,
+			notNull(obsoletes)
+		);
 	}
-
-
+	
+	
+	public interface Initializer<T> extends SwizzleTypeLink<T>
+	{
+		public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
+		
+		public PersistenceTypeDescription<T> initialize(long typeId, XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes);
+	}
+	
+	public interface InitializerLookup
+	{
+		public <T> PersistenceTypeDescription.Initializer<T> lookupInitializer(String typename);
+	}
 
 	public final class Implementation<T> implements PersistenceTypeDescription<T>
 	{
@@ -225,14 +159,16 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		// instance fields //
 		////////////////////
 
-		final long                                                           typeId        ;
-		final String                                                         typeName      ;
-		final Class<T>                                                       type          ;
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
-		final boolean                                                        hasReferences ;
-		final boolean                                                        isPrimitive   ;
-		final boolean                                                        variableLength;
-		final boolean                                                        isObsolete    ;
+		final long                                                           typeId           ;
+		final String                                                         typeName         ;
+		final Class<T>                                                       type             ;
+		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members          ;
+		final boolean                                                        hasReferences    ;
+		final boolean                                                        isPrimitive      ;
+		final boolean                                                        variableLength   ;
+		final boolean                                                        isLatestPersisted;
+		final PersistenceTypeDescription<T>                                  current          ;
+		final XGettingTable<Long, PersistenceTypeDescription<T>>             obsoletes        ;
 
 
 
@@ -241,22 +177,27 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		/////////////////
 
 		Implementation(
-			final long                                                         typeId    ,
-			final String                                                       typeName  ,
-			final Class<T>                                                     type      ,
-			final boolean                                                      isObsolete,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+			final long                                                         typeId           ,
+			final String                                                       typeName         ,
+			final Class<T>                                                     type             ,
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
+			final PersistenceTypeDescription<T>                                current          ,
+			final boolean                                                      isCurrent        ,
+			final boolean                                                      isLatestPersisted,
+			final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
 		)
 		{
 			super();
-			this.typeId         =         typeId    ;
-			this.typeName       = notNull(typeName) ;
-			this.type           =         type      ; // may be null for obsolete type description or external process
-			this.isObsolete     =         isObsolete;
-			this.members        = members.immure()  ; // same instance if already immutable
-			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
-			this.isPrimitive    = PersistenceTypeDescription      .determineIsPrimitive   (members);
-			this.variableLength = PersistenceTypeDescription      .determineVariableLength(members);
+			this.typeId            = typeId           ;
+			this.typeName          = typeName         ;
+			this.type              = type             ; // may be null for obsolete type description or external process
+			this.members           = members.immure() ; // same instance if already immutable
+			this.isLatestPersisted = isLatestPersisted;
+			this.hasReferences     = PersistenceTypeDescriptionMember.determineHasReferences (members);
+			this.isPrimitive       = PersistenceTypeDescriptionMember.determineIsPrimitive   (members);
+			this.variableLength    = PersistenceTypeDescriptionMember.determineVariableLength(members);
+			this.current           = current != null ? current : isCurrent ? this : null;
+			this.obsoletes         = obsoletes       ;
 		}
 
 		
@@ -284,9 +225,9 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		}
 		
 		@Override
-		public final boolean isObsolete()
+		public final boolean isLatestPersisted()
 		{
-			return this.isObsolete;
+			return this.isLatestPersisted;
 		}
 		
 		@Override
@@ -294,7 +235,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		{
 			return this.members;
 		}
-
+		
 		@Override
 		public final boolean hasPersistedReferences()
 		{
@@ -318,6 +259,18 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		{
 			return this.variableLength;
 		}
+		
+		@Override
+		public final PersistenceTypeDescription<T> current()
+		{
+			return this.current;
+		}
+		
+		@Override
+		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
+		{
+			return this.obsoletes;
+		}
 
 		@Override
 		public final String toString()
@@ -338,6 +291,58 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 			return vc.toString();
 		}
 
+	}
+	
+	@FunctionalInterface
+	public interface Builder
+	{
+		public <T> PersistenceTypeDescription<T> build(
+			long                                                         typeId           ,
+			String                                                       typeName         ,
+			Class<T>                                                     type             ,
+			XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
+			PersistenceTypeDescription<T>                                current          ,
+			boolean                                                      isCurrent        ,
+			boolean                                                      isLatestPersisted,
+			XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
+		);
+				
+		public final class Implementation implements Builder
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Implementation()
+			{
+				super();
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+
+			@Override
+			public <T> PersistenceTypeDescription<T> build(
+				final long                                                         typeId           ,
+				final String                                                       typeName         ,
+				final Class<T>                                                     type             ,
+				final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
+				final PersistenceTypeDescription<T>                                current          ,
+				final boolean                                                      isCurrent        ,
+				final boolean                                                      isLatestPersisted,
+				final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
+			)
+			{
+				return PersistenceTypeDescription.New(
+					typeId, typeName, type, members, current, isCurrent, isLatestPersisted, obsoletes
+				);
+			}
+			
+		}
+		
 	}
 	
 }

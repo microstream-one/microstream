@@ -1,9 +1,10 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.EqHashEnum;
+import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
@@ -11,7 +12,7 @@ import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingEnum<PersistenceTypeDescription<?>> types();
+	public XGettingTable<Long, PersistenceTypeDescription<?>> types();
 	
 	public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes();
 
@@ -32,28 +33,23 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback();
 
 
-	public static <D extends PersistenceTypeDictionary> D initializeRegisteredTypes(
-		final D                                                        typeDictionary  ,
-		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
-	)
-	{
-		typeDictionary.registerTypes(typeDescriptions);
-		return typeDictionary;
-	}
 
-	public static PersistenceTypeDictionary New()
+	public static PersistenceTypeDictionary.Implementation New()
 	{
 		return new PersistenceTypeDictionary.Implementation();
 	}
 
 	public static PersistenceTypeDictionary New(
-		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+		final XGettingSequence<? extends PersistenceTypeDescription<?>> typeDescriptions
 	)
 	{
-		return PersistenceTypeDictionary.initializeRegisteredTypes(
-			New(),
-			typeDescriptions
+		final PersistenceTypeDictionary.Implementation td = New();
+		
+		td.registerTypes(
+			notNull(typeDescriptions)
 		);
+		
+		return td;
 	}
 
 
@@ -175,8 +171,6 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		/////////////////////
 
 		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
-		
-		private final EqHashEnum<PersistenceTypeDescription<?>> types;
 
 		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDescription<?>> typesPerTypeName = EqHashTable.New();
@@ -188,10 +182,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// constructors     //
 		/////////////////////
 
-		public Implementation()
+		Implementation()
 		{
 			super();
-			this.types = EqHashEnum.New(PersistenceTypeDescription.EQUAL_TYPE);
 		}
 
 
@@ -200,32 +193,30 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// declared methods //
 		/////////////////////
 
-		final void internalRegisterType(final PersistenceTypeDescription<?> typeDescription)
+		final boolean internalRegisterType(final PersistenceTypeDescription<?> typeDescription)
 		{
-			this.typesPerTypeId.put(typeDescription.typeId(), typeDescription);
-			this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
+			if(!this.typesPerTypeId.add(typeDescription.typeId(), typeDescription))
+			{
+				return false;
+			}
+			
+			if(!typeDescription.isCurrent())
+			{
+				this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
+			}
 
 			// callback gets set externally, can be null as well, so it must be checked.
 			if(this.callback != null)
 			{
 				this.callback.registerTypeDescription(typeDescription);
 			}
-		}
-
-		// (06.12.2014)TODO: rename "2"
-		final boolean internalRegisterType2(final PersistenceTypeDescription<?> typeDescription)
-		{
-			if(!this.types.add(typeDescription))
-			{
-				return false;
-			}
-			this.internalRegisterType(typeDescription);
+			
 			return true;
 		}
 
 		private void internalSort()
 		{
-			SwizzleTypeIdOwner.sortByTypeIdAscending(this.types);
+			SwizzleTypeIdOwner.sortByTypeIdAscending(this.typesPerTypeId.values());
 		}
 
 
@@ -247,9 +238,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public XGettingEnum<PersistenceTypeDescription<?>> types()
+		public XGettingTable<Long, PersistenceTypeDescription<?>> types()
 		{
-			return this.types;
+			return this.typesPerTypeId;
 		}
 		
 		@Override
@@ -261,7 +252,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public final synchronized boolean registerType(final PersistenceTypeDescription<?> typeDescription)
 		{
-			if(this.internalRegisterType2(typeDescription))
+			if(this.internalRegisterType(typeDescription))
 			{
 				this.internalSort();
 				return true;
@@ -274,14 +265,14 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
 		)
 		{
-			final long oldSize = this.types.size();
+			final long oldSize = this.typesPerTypeId.size();
 
 			for(final PersistenceTypeDescription<?> td : typeDescriptions)
 			{
-				this.internalRegisterType2(td);
+				this.internalRegisterType(td);
 			}
 
-			if(this.types.size() != oldSize)
+			if(this.typesPerTypeId.size() != oldSize)
 			{
 				this.internalSort();
 				return true;
@@ -305,8 +296,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		public long determineHighestTypeId()
 		{
 			long maxTypeId = -1;
-
-			for(final PersistenceTypeDescription<?> type : this.types)
+			
+			for(final PersistenceTypeDescription<?> type : this.typesPerTypeId.values())
 			{
 				if(type.typeId() >= maxTypeId)
 				{
@@ -322,7 +313,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			final VarString vc = VarString.New();
 
-			for(final PersistenceTypeDescription<?> type : this.types)
+			for(final PersistenceTypeDescription<?> type : this.typesPerTypeId.values())
 			{
 				vc.add(type).lf();
 			}

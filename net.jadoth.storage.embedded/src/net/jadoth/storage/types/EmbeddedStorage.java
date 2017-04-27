@@ -3,9 +3,9 @@ package net.jadoth.storage.types;
 import java.io.File;
 
 import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.util.file.JadothFiles;
@@ -129,7 +129,7 @@ public final class EmbeddedStorage
 		 * shouldn't the providers below be somehow loosely coupled?
 		 * There also has to be an opportunity to configure things like id range increment
 		 */
-		final FilePersistenceTypeDictionary dictionaryStorage = new FilePersistenceTypeDictionary(
+		final PersistenceTypeDictionaryFileHandler dictionaryStorage = PersistenceTypeDictionaryFileHandler.New(
 			new File(directory, Persistence.defaultFilenameTypeDictionary())
 		);
 

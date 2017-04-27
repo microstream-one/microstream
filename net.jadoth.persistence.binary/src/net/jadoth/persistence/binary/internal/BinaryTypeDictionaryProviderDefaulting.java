@@ -43,6 +43,7 @@ public final class BinaryTypeDictionaryProviderDefaulting implements Persistence
 				Swizzle.createDefaultTypeLookup()
 			);
 		}
+		
 		return typeDictionary;
 	}
 

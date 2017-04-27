@@ -22,5 +22,13 @@ implements PersistenceTypeHandlerCustom<Binary, T>
 	{
 		super(typeId, type, pseudoFields);
 	}
+	
+	public AbstractBinaryHandlerNativeCustom(
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	)
+	{
+		super(type, pseudoFields);
+	}
 
 }
