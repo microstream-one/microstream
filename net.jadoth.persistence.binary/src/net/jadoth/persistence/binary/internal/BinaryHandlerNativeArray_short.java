@@ -14,9 +14,9 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_short(final long typeId)
+	public BinaryHandlerNativeArray_short()
 	{
-		super(typeId, short[].class, defineElementsType(short.class));
+		super(short[].class, defineElementsType(short.class));
 	}
 
 

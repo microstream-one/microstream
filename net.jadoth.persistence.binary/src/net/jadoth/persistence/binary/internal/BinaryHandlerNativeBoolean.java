@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativ
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeBoolean(final long tid)
+	public BinaryHandlerNativeBoolean()
 	{
-		super(tid, Boolean.class, defineValueType(boolean.class));
+		super(Boolean.class, defineValueType(boolean.class));
 	}
 
 

@@ -32,13 +32,21 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNativeArray(
-		final long typeId,
-		final Class<A> arrayType,
+	protected AbstractBinaryHandlerNativeArray(
+		final long                                                                      typeId      ,
+		final Class<A>                                                                  arrayType   ,
 		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
 		super(typeId, arrayType, pseudoFields);
+	}
+	
+	protected AbstractBinaryHandlerNativeArray(
+		final Class<A>                                                                  arrayType   ,
+		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	)
+	{
+		super(arrayType, pseudoFields);
 	}
 
 

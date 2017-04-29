@@ -74,7 +74,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary == null)
 			{
-				this.cachedTypeDictionary = this.typeDictionaryProvider.provideDictionary();
+				this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
 				this.markChanged();
 			}
 			return this.cachedTypeDictionary;
@@ -116,7 +116,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		/////////////////////
 
 		@Override
-		public final PersistenceTypeDictionary provideDictionary()
+		public final PersistenceTypeDictionary provideTypeDictionary()
 		{
 			return this.cachedTypeDictionary();
 		}

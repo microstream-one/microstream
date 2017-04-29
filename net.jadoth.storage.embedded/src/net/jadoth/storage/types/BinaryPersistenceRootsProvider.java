@@ -32,10 +32,10 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			final PersistenceRootResolver                      rootResolver
 		)
 		{
-			final BinaryHandlerPersistenceRootsImplementation.Creator handlerCreator =
-				new BinaryHandlerPersistenceRootsImplementation.Creator(rootResolver, objectRegistry)
+			final BinaryHandlerPersistenceRootsImplementation handler =
+				BinaryHandlerPersistenceRootsImplementation.New(rootResolver, objectRegistry)
 			;
-			typeHandlerRegistry.registerTypeHandlerCreator(handlerCreator);
+			typeHandlerRegistry.registerTypeHandler(handler);
 		}
 
 	}

@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNat
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeCharacter(final long tid)
+	public BinaryHandlerNativeCharacter()
 	{
-		super(tid, Character.class, defineValueType(char.class));
+		super(Character.class, defineValueType(char.class));
 	}
 
 

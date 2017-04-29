@@ -14,9 +14,9 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_float(final long typeId)
+	public BinaryHandlerNativeArray_float()
 	{
-		super(typeId, float[].class, defineElementsType(float.class));
+		super(float[].class, defineElementsType(float.class));
 	}
 
 

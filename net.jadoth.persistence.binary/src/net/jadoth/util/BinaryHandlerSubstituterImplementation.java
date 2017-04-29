@@ -33,11 +33,10 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerSubstituterImplementation(final long typeId)
+	public BinaryHandlerSubstituterImplementation()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryHandlerEqHashEnum.pseudoFields()
 		);
@@ -54,7 +53,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 		final Binary                        bytes    ,
 		final Substituter.Implementation<?> instance ,
 		final long                          oid      ,
-		final SwizzleStoreLinker               linker
+		final SwizzleStoreLinker            linker
 	)
 	{
 		synchronized(instance)
@@ -135,13 +134,5 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	{
 		return true;
 	}
-
-//	@Override
-//	public final void copy(final Substituter.Implementation<?> source, final Substituter.Implementation<?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

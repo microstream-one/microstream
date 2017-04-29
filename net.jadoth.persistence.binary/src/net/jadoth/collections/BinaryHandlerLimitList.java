@@ -49,11 +49,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerLimitList(final long typeId)
+	public BinaryHandlerLimitList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);
@@ -67,9 +66,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes   ,
-		final LimitList<?>    instance,
-		final long            oid     ,
+		final Binary             bytes   ,
+		final LimitList<?>       instance,
+		final long               oid     ,
 		final SwizzleStoreLinker linker
 	)
 	{
@@ -126,13 +125,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final LimitList<?> source, final LimitList<?> target)
-//	{
-//		target.ensureCapacity(source.size);
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.size);
-//		target.size = source.size;
-//	}
 
 }

@@ -5,22 +5,29 @@ import static net.jadoth.Jadoth.notNull;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.HashEnum;
+import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
-import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
-public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
+
+/**
+ * Called "ensurer", because depending on the case, if creates new type handler or it just initializes
+ * already existing, pre-registered ones. So "ensuring" is the most suited common denominator.
+ * 
+ * @author TM
+ */
+public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<Binary>
 {
 	@Override
-	public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
+	public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(
 		Class<T>           type       ,
 		long               typeId     ,
 		SwizzleTypeManager typeManager
@@ -28,7 +35,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 
 
-	public class Implementation implements BinaryTypeHandlerCreator
+	public class Implementation implements BinaryTypeHandlerEnsurer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -60,24 +67,25 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		/////////////////////
 
 		@Override
-		public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-			final Class<T>                      type              ,
-			final long                          typeId            ,
-			final SwizzleTypeManager            typeManager
+		public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(
+			final Class<T>           type       ,
+			final long               typeId     ,
+			final SwizzleTypeManager typeManager
 		)
 			throws PersistenceExceptionTypeNotPersistable
 		{
 			if(type.isPrimitive())
 			{
-				// primitive special cases
-				return new BinaryHandlerPrimitive<>(type, typeId);
+				// (29.04.2017 TM)EXCP: proper exception
+				throw new RuntimeException("Primitive type must be handled by defaults");
 			}
 			if(type.isArray())
 			{
 				// array special cases
 				if(type.getComponentType().isPrimitive())
 				{
-					throw new RuntimeException(); // (01.04.2013)EXCP: proper exception
+					// (01.04.2013)EXCP: proper exception
+					throw new RuntimeException("Primitive type must be handled by defaults");
 				}
 				return new BinaryHandlerNativeArrayObject<>(type, typeId);
 			}
@@ -91,15 +99,15 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			if(persistableFields.isEmpty())
 			{
 				// required for a) sparing unnecessary overhead and b) validation reasons
-				return new BinaryHandlerStateless<>(type, typeId);
+				return new BinaryHandlerStateless<>(type).initialize(typeId, X.emptyTable());
 			}
 
 			// default implementation simply always uses a blank memory instantiator
 			return new BinaryHandlerGeneric<>(
-				type,
-				typeId,
+				type                                           ,
+				typeId                                         ,
 				BinaryPersistence.blankMemoryInstantiator(type),
-				persistableFields,
+				persistableFields                              ,
 				this.lengthResolver
 			);
 		}

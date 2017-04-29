@@ -59,11 +59,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashEnum(final long typeId)
+	public BinaryHandlerHashEnum()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.elementsPseudoFields(
 				pseudoField(float.class, "hashDensity")

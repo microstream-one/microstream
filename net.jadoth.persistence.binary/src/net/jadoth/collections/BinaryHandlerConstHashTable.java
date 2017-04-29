@@ -75,11 +75,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 	// methods //
 	////////////
 
-	public BinaryHandlerConstHashTable(final long typeId)
+	public BinaryHandlerConstHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(ConstHashTable.Keys.class, "keys"),
@@ -105,7 +104,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 		final Binary               bytes    ,
 		final ConstHashTable<?, ?> instance ,
 		final long                 oid      ,
-		final SwizzleStoreLinker      linker
+		final SwizzleStoreLinker   linker
 	)
 	{
 		// store elements simply as array binary form
@@ -222,13 +221,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 			&& ObjectState.isEqual(e1.value(), e2.value(), stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final ConstHashTable<?, ?> source, final ConstHashTable<?, ?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

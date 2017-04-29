@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeInteger extends AbstractBinaryHandlerNativ
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeInteger(final long tid)
+	public BinaryHandlerNativeInteger()
 	{
-		super(tid, Integer.class, defineValueType(int.class));
+		super(Integer.class, defineValueType(int.class));
 	}
 
 

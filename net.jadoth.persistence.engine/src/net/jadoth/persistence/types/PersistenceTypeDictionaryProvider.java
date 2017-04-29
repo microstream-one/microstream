@@ -7,7 +7,7 @@ import net.jadoth.collections.types.XGettingSequence;
 
 public interface PersistenceTypeDictionaryProvider
 {
-	public PersistenceTypeDictionary provideDictionary();
+	public PersistenceTypeDictionary provideTypeDictionary();
 
 	
 	
@@ -59,7 +59,7 @@ public interface PersistenceTypeDictionaryProvider
 		/////////////////////
 
 		@Override
-		public PersistenceTypeDictionary provideDictionary()
+		public PersistenceTypeDictionary provideTypeDictionary()
 		{
 			final String typeDictionaryString =
 				this.loader.loadTypeDictionary()
@@ -115,13 +115,13 @@ public interface PersistenceTypeDictionaryProvider
 		////////////
 
 		@Override
-		public final PersistenceTypeDictionary provideDictionary()
+		public final PersistenceTypeDictionary provideTypeDictionary()
 		{
 			synchronized(this.delegate)
 			{
 				if(this.cachedDictionary == null)
 				{
-					this.cachedDictionary = this.delegate.provideDictionary();
+					this.cachedDictionary = this.delegate.provideTypeDictionary();
 				}
 				return this.cachedDictionary;
 			}

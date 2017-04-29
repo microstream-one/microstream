@@ -71,11 +71,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqConstHashEnum(final long typeId)
+	public BinaryHandlerEqConstHashEnum()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.elementsPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
@@ -95,7 +94,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 		final Binary             bytes    ,
 		final EqConstHashEnum<?> instance ,
 		final long               oid      ,
-		final SwizzleStoreLinker    linker
+		final SwizzleStoreLinker linker
 	)
 	{
 		// store elements simply as array binary form
@@ -202,13 +201,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 			e -> srcIterator.hasNext() && ObjectState.isEqual(e, srcIterator.next(), stateHandlerLookup)
 		);
 	}
-
-//	@Override
-//	public final void copy(final EqConstHashEnum<?> source, final EqConstHashEnum<?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

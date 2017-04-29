@@ -135,7 +135,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testReadStateDefs(final BinaryPersistenceFoundation factory)
 	{
-		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideDictionary();
+		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideTypeDictionary();
 		JadothConsole.debugln('\n'+typeDictionary.toString());
 	}
 
@@ -147,7 +147,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		;
 		registry.clear();
 		typeHandlerRegistry.clear();
-		Swizzle.registerJavaBasicTypes(registry);
+		Swizzle.registerDefaultTypeMappings(registry);
 		Swizzle.registerJavaConstants(registry);
 	}
 

@@ -167,7 +167,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			final PersistenceTypeDescription<?> registeredTd =
-				this.typeDictionaryManager.provideDictionary().lookupTypeByName(typeHandler.typeName())
+				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
 			{
@@ -280,6 +280,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		public final <T> Class<T> lookupType(final long typeId)
 		{
 			return this.typeHandlerRegistry.lookupType(typeId);
+		}
+		
+		@Override
+		public final long typeCount()
+		{
+			return this.typeHandlerRegistry.typeCount();
 		}
 
 		@Override
@@ -425,7 +431,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
 
 			final PersistenceTypeDictionary typeDictionary =
-				this.typeDictionaryManager.provideDictionary()
+				this.typeDictionaryManager.provideTypeDictionary()
 			;
 			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
 				typeDictionary.liveTypes().values()
@@ -441,6 +447,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				typeRegistry.registerType(e.typeId(), e.type())
 			);
 
+			// (29.04.2017 TM)FIXME: must register defined custom type handlers at the type dictionary here
 
 			/* (05.05.2015 TM)TODO: /!\ type refactoring:
 			 * siehe OGS-3

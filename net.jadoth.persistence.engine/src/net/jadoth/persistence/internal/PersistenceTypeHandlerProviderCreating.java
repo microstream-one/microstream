@@ -5,11 +5,10 @@ import static net.jadoth.Jadoth.notNull;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
@@ -21,7 +20,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	/////////////////////
 
 	private final SwizzleTypeManager                     typeManager             ;
-	private final PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup;
+	private final PersistenceTypeHandlerEnsurerLookup<M> typeHandlerEnsurerLookup;
 
 
 
@@ -31,12 +30,12 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 
 	public PersistenceTypeHandlerProviderCreating(
 		final SwizzleTypeManager                     typeManager             ,
-		final PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup
+		final PersistenceTypeHandlerEnsurerLookup<M> typeHandlerCreatorLookup
 	)
 	{
 		super();
 		this.typeManager              = notNull(typeManager)             ;
-		this.typeHandlerCreatorLookup = notNull(typeHandlerCreatorLookup);
+		this.typeHandlerEnsurerLookup = notNull(typeHandlerCreatorLookup);
 	}
 
 
@@ -52,10 +51,10 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandlerCreator<M> creator     = this.typeHandlerCreatorLookup.lookupCreator(type);
-		final PersistenceTypeHandler<M, T>     typeHandler = creator.createTypeHandler(
-			type,
-			typeId,
+		final PersistenceTypeHandlerEnsurer<M> ensurer     = this.typeHandlerEnsurerLookup.lookupEnsurer(type);
+		final PersistenceTypeHandler<M, T>     typeHandler = ensurer.ensureTypeHandler(
+			type            ,
+			typeId          ,
 			this.typeManager
 		);
 
@@ -87,12 +86,6 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-	@Override
-	public final PersistenceTypeSovereignty typeSovereignty()
-	{
-		return PersistenceTypeSovereignty.MASTER;
-	}
 
 	@Override
 	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
@@ -150,6 +143,12 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	public final <T> Class<T> lookupType(final long typeId)
 	{
 		return this.typeManager.lookupType(typeId);
+	}
+	
+	@Override
+	public final long typeCount()
+	{
+		return this.typeManager.typeCount();
 	}
 
 	@Override

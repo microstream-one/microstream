@@ -12,10 +12,9 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerLazyReference(final long typeId)
+	public BinaryHandlerLazyReference()
 	{
 		super(
-			typeId,
 			Lazy.genericType(),
 			pseudoFields(
 				pseudoField(Object.class, "subject")

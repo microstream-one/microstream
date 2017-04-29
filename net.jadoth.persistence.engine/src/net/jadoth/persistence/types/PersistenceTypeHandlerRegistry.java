@@ -59,6 +59,12 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		{
 			return this.typeRegistry.lookupType(typeId);
 		}
+		
+		@Override
+		public final long typeCount()
+		{
+			return this.typeRegistry.typeCount();
+		}
 
 		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
 		@Override

@@ -60,11 +60,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqBulkList(final long typeId)
+	public BinaryHandlerEqBulkList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator")
@@ -80,9 +79,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final EqBulkList<?>   instance ,
-		final long            oid      ,
+		final Binary             bytes    ,
+		final EqBulkList<?>      instance ,
+		final long               oid      ,
 		final SwizzleStoreLinker linker
 	)
 	{
@@ -158,17 +157,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final EqBulkList<?> source, final EqBulkList<?> target)
-//	{
-//		if(target.equalator != source.equalator)
-//		{
-//			throw new IllegalArgumentException(); // (24.10.2013 TM)EXCP: proper exception
-//		}
-//		target.ensureCapacity(source.size);
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.size);
-//		target.size = source.size;
-//	}
 
 }

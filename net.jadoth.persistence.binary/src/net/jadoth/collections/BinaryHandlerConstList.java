@@ -48,11 +48,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerConstList(final long typeId)
+	public BinaryHandlerConstList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
@@ -66,9 +65,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final ConstList<?>    instance ,
-		final long            oid      ,
+		final Binary             bytes    ,
+		final ConstList<?>       instance ,
+		final long               oid      ,
 		final SwizzleStoreLinker linker
 	)
 	{
@@ -126,15 +125,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final ConstList<?> source, final ConstList<?> target)
-//	{
-//		if(source.data.length > target.data.length)
-//		{
-//			throw new RuntimeException(); // (23.10.2013 TM)EXCP: proper exception
-//		}
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.data.length);
-//	}
 
 }

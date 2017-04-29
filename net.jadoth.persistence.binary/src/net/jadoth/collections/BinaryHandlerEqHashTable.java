@@ -78,11 +78,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqHashTable(final long typeId)
+	public BinaryHandlerEqHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
@@ -106,10 +105,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary            bytes    ,
-		final EqHashTable<?, ?> instance ,
-		final long              oid      ,
-		final SwizzleStoreLinker   linker
+		final Binary             bytes    ,
+		final EqHashTable<?, ?>  instance ,
+		final long               oid      ,
+		final SwizzleStoreLinker linker
 	)
 	{
 		// store elements simply as array binary form

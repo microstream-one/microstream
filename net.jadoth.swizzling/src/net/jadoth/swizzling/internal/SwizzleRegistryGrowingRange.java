@@ -134,6 +134,8 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	private float     hashDensity;
 	private int       capacity   ;
 	private int       modulo     ; // shortcut for "slots.length - 1" (yields around 3% performance in put tests)
+	
+	private long      typeCount; // can never decrease as runtime types never vanish.
 
 	private final Consumer<SwizzleTypeLink<?>> typeExistsValidator = new Consumer<SwizzleTypeLink<?>>()
 	{
@@ -210,7 +212,8 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 			return false;
 		}
 
-		/* at this point, the reference is definitely not contained in the registry.
+		/*
+		 * at this point, the reference is definitely not contained in the registry.
 		 * Either because it never has been or because there's an orphan weak entry with its oid.
 		 * Check for colliding id and orphan case
 		 */
@@ -221,11 +224,17 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 			return false;
 		}
 
-		/* at this point, neither the reference nor a fitting orphan entry is contained in the registry
-		 * and there is no colliding oid, either.
-		 * So create and put a new Entry for it
+		/*
+		 * at this point, neither the reference nor a fitting orphan entry is contained in the registry
+		 * and there is no colliding oid, either. So create and put a new Entry for it.
 		 */
 		this.synchPutNewEntry(new Entry(oid, tid, ref));
+		
+		if(tid == Swizzle.classTypeId())
+		{
+			this.typeCount++;
+		}
+		
 		return true;
 	}
 
@@ -718,6 +727,12 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	public long size()
 	{
 		return this.size;
+	}
+	
+	@Override
+	public long typeCount()
+	{
+		return this.typeCount;
 	}
 
 	@Override

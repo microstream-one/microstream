@@ -97,6 +97,12 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.lookupTypeHandler(typeId);
 		}
+		
+		@Override
+		public final long typeCount()
+		{
+			return this.handlerRegistry.typeCount();
+		}
 
 		@SuppressWarnings("unchecked")
 		@Override

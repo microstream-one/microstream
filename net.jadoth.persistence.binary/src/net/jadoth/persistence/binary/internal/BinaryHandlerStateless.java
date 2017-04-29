@@ -13,10 +13,16 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStateless(final Class<T> type, final long typeId)
+	public BinaryHandlerStateless(final Class<T> type)
 	{
-		super(type, typeId);
+		super(type);
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final void store(final Binary medium, final T instance, final long oid, final SwizzleStoreLinker linker)

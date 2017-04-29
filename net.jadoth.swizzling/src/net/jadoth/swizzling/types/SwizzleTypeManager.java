@@ -1,6 +1,7 @@
 package net.jadoth.swizzling.types;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownTid;
@@ -101,6 +102,12 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		public boolean registerType(final long tid, final Class<?> type)
 		{
 			return this.typeRegistry.registerType(tid, type);
+		}
+		
+		@Override
+		public long typeCount()
+		{
+			return this.typeRegistry.typeCount();
 		}
 
 		@Override

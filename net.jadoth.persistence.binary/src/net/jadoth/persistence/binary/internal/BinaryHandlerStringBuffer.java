@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import static net.jadoth.Jadoth.checkArrayRange;
+
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -13,9 +14,9 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerStringBuffer(final long typeId)
+	public BinaryHandlerStringBuffer()
 	{
-		super(typeId, StringBuffer.class);
+		super(StringBuffer.class);
 	}
 
 

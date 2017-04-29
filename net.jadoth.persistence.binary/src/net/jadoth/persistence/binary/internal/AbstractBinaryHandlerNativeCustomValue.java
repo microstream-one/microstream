@@ -11,13 +11,21 @@ extends AbstractBinaryHandlerNativeCustom<T>
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNativeCustomValue(
+	protected AbstractBinaryHandlerNativeCustomValue(
 		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
 		super(typeId, type, pseudoFields);
+	}
+	
+	protected AbstractBinaryHandlerNativeCustomValue(
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	)
+	{
+		super(type, pseudoFields);
 	}
 	
 	

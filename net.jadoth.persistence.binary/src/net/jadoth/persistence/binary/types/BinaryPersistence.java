@@ -22,8 +22,7 @@ import net.jadoth.collections.BinaryHandlerFixedList;
 import net.jadoth.collections.BinaryHandlerHashEnum;
 import net.jadoth.collections.BinaryHandlerHashTable;
 import net.jadoth.collections.BinaryHandlerLimitList;
-import net.jadoth.collections.BulkList;
-import net.jadoth.collections.X;
+import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.BiProcedure;
@@ -65,16 +64,15 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
+import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
-import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
+import net.jadoth.swizzling.types.SwizzleTypeLookup;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.VMUtils;
@@ -522,43 +520,45 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-	private static <T> PersistenceTypeDescription<?> primitiveTypeDescription(
-		final Class<T>            type,
-		final SwizzleTypeIdLookup typeLookup
+//	private static <T> PersistenceTypeDescription<?> primitiveTypeDescription(
+//		final Class<T>            type,
+//		final SwizzleTypeIdLookup typeLookup
+//	)
+//	{
+//		// funny thing in this method: primitive generics typing :D
+//		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type));
+//	}
+//
+//	public static final <D extends PersistenceTypeDictionary> D registerTypeDictionaryDefaults(
+//		final D                 typeDictionary,
+//		final SwizzleTypeLookup typeLookup
+//	)
+//	{
+//		typeDictionary.registerTypes(X.List(
+//			// type handlers for primitives have to be added seperately here as special cases
+//			primitiveTypeDescription(byte   .class, typeLookup),
+//			primitiveTypeDescription(boolean.class, typeLookup),
+//			primitiveTypeDescription(short  .class, typeLookup),
+//			primitiveTypeDescription(char   .class, typeLookup),
+//			primitiveTypeDescription(int    .class, typeLookup),
+//			primitiveTypeDescription(float  .class, typeLookup),
+//			primitiveTypeDescription(long   .class, typeLookup),
+//			primitiveTypeDescription(double .class, typeLookup),
+//
+//			new BinaryHandlerNativeClass().initialize(typeLookup.lookupTypeId(Class.class), X.emptyTable())
+//		));
+//		createDefaultCustomTypeHandlerRegistry(typeLookup).updateTypeDictionary(typeDictionary);
+//		return typeDictionary;
+//	}
+
+	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
+		final SwizzleTypeLookup typeLookup
 	)
 	{
-		// funny thing in this method: primitive generics typing :D
-		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type));
-	}
-
-	public static final <D extends PersistenceTypeDictionary> D createDefaultTypeDictionary(
-		final D                   typeDictionary,
-		final SwizzleTypeIdLookup typeLookup
-	)
-	{
-		typeDictionary.registerTypes(X.List(
-			// type handlers for primitives have to be added seperately here as special cases
-			primitiveTypeDescription(byte.class   , typeLookup),
-			primitiveTypeDescription(boolean.class, typeLookup),
-			primitiveTypeDescription(short.class  , typeLookup),
-			primitiveTypeDescription(char.class   , typeLookup),
-			primitiveTypeDescription(int.class    , typeLookup),
-			primitiveTypeDescription(float.class  , typeLookup),
-			primitiveTypeDescription(long.class   , typeLookup),
-			primitiveTypeDescription(double.class , typeLookup),
-
-			// implementation of class type handler doesn't matter here as it is only used to create the type desc.
-			new BinaryHandlerNativeClass(null, typeLookup.lookupTypeId(Class.class))
-		));
-		createDefaultCustomTypeHandlerRegistry().updateTypeDictionary(typeDictionary, typeLookup);
-		return typeDictionary;
-	}
-
-	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry()
-	{
+		// (29.04.2017 TM)FIXME: initializing a type dictionary must somehow be linked to this here
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
-			new PersistenceCustomTypeHandlerRegistry.Implementation<Binary>()
-			.registerTypeHandlerClasses(DEFAULT_HANDLERS)
+			new PersistenceCustomTypeHandlerRegistry.Implementation<Binary>(typeLookup)
+			.registerTypeHandlers(defaultHandlers())
 		;
 		return defaultCustomTypeHandlerRegistry;
 	}
@@ -570,72 +570,77 @@ public final class BinaryPersistence extends Persistence
 	 * - class loader
 	 * - any kind of io stream, channel, etc.
 	 */
-	private static final BulkList<Class<? extends PersistenceTypeHandlerCustom<Binary, ?>>> DEFAULT_HANDLERS =
-		BulkList.<Class<? extends PersistenceTypeHandlerCustom<Binary, ?>>> New(
-			BinaryHandlerNativeByte     .class,
-			BinaryHandlerNativeBoolean  .class,
-			BinaryHandlerNativeShort    .class,
-			BinaryHandlerNativeCharacter.class,
-			BinaryHandlerNativeInteger  .class,
-			BinaryHandlerNativeFloat    .class,
-			BinaryHandlerNativeLong     .class,
-			BinaryHandlerNativeDouble   .class,
-			BinaryHandlerNativeVoid     .class,
-			BinaryHandlerNativeObject   .class,
-			BinaryHandlerNativeString   .class,
-			BinaryHandlerStringBuffer   .class,
-			BinaryHandlerStringBuilder  .class,
+	public static final XGettingSequence<? extends PersistenceTypeHandler.Initializer<Binary, ?>> defaultHandlers()
+	{
+		return ConstList.New(
+			new BinaryHandlerPrimitive<>(byte   .class),
+			new BinaryHandlerPrimitive<>(boolean.class),
+			new BinaryHandlerPrimitive<>(short  .class),
+			new BinaryHandlerPrimitive<>(char   .class),
+			new BinaryHandlerPrimitive<>(int    .class),
+			new BinaryHandlerPrimitive<>(float  .class),
+			new BinaryHandlerPrimitive<>(long   .class),
+			new BinaryHandlerPrimitive<>(double .class),
 
-			BinaryHandlerLazyReference.class,
+			new BinaryHandlerNativeClass()    ,
+			new BinaryHandlerNativeByte()     ,
+			new BinaryHandlerNativeBoolean()  ,
+			new BinaryHandlerNativeShort()    ,
+			new BinaryHandlerNativeCharacter(),
+			new BinaryHandlerNativeInteger()  ,
+			new BinaryHandlerNativeFloat()    ,
+			new BinaryHandlerNativeLong()     ,
+			new BinaryHandlerNativeDouble()   ,
+			
+			new BinaryHandlerNativeVoid()     ,
+			
+			new BinaryHandlerNativeObject()   ,
+			
+			new BinaryHandlerNativeString()   ,
+			new BinaryHandlerStringBuffer()   ,
+			new BinaryHandlerStringBuilder()  ,
 
-			BinaryHandlerNativeArray_byte   .class,
-			BinaryHandlerNativeArray_boolean.class,
-			BinaryHandlerNativeArray_short  .class,
-			BinaryHandlerNativeArray_char   .class,
-			BinaryHandlerNativeArray_int    .class,
-			BinaryHandlerNativeArray_float  .class,
-			BinaryHandlerNativeArray_long   .class,
-			BinaryHandlerNativeArray_double .class,
+			new BinaryHandlerLazyReference()  ,
 
-			BinaryHandlerArrayList          .class,
-			BinaryHandlerBigInteger         .class,
-			BinaryHandlerBigDecimal         .class,
-			BinaryHandlerFile               .class,
-			BinaryHandlerDate               .class,
-			BinaryHandlerHashSet            .class,
+			new BinaryHandlerNativeArray_byte()   ,
+			new BinaryHandlerNativeArray_boolean(),
+			new BinaryHandlerNativeArray_short()  ,
+			new BinaryHandlerNativeArray_char()   ,
+			new BinaryHandlerNativeArray_int()    ,
+			new BinaryHandlerNativeArray_float()  ,
+			new BinaryHandlerNativeArray_long()   ,
+			new BinaryHandlerNativeArray_double() ,
+
+			new BinaryHandlerArrayList()          ,
+			new BinaryHandlerBigInteger()         ,
+			new BinaryHandlerBigDecimal()         ,
+			new BinaryHandlerFile()               ,
+			new BinaryHandlerDate()               ,
+			new BinaryHandlerHashSet()            ,
 			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
 
-			BinaryHandlerNativeArray_byte   .class,
-			BinaryHandlerNativeArray_boolean.class,
-			BinaryHandlerNativeArray_short  .class,
-			BinaryHandlerNativeArray_char   .class,
-			BinaryHandlerNativeArray_int    .class,
-			BinaryHandlerNativeArray_float  .class,
-			BinaryHandlerNativeArray_long   .class,
-			BinaryHandlerNativeArray_double .class,
+			new BinaryHandlerBulkList()           ,
+			new BinaryHandlerLimitList()          ,
+			new BinaryHandlerFixedList()          ,
+			new BinaryHandlerConstList()          ,
+			new BinaryHandlerEqBulkList()         ,
+			new BinaryHandlerHashEnum()           ,
+			new BinaryHandlerConstHashEnum()      ,
+			new BinaryHandlerEqHashEnum()         ,
+			new BinaryHandlerEqConstHashEnum()    ,
+			new BinaryHandlerHashTable()          ,
+			new BinaryHandlerConstHashTable()     ,
+			new BinaryHandlerEqHashTable()        ,
+			new BinaryHandlerEqConstHashTable()   ,
 
-			BinaryHandlerBulkList           .class,
-			BinaryHandlerLimitList          .class,
-			BinaryHandlerFixedList          .class,
-			BinaryHandlerConstList          .class,
-			BinaryHandlerEqBulkList         .class,
-			BinaryHandlerHashEnum           .class,
-			BinaryHandlerConstHashEnum      .class,
-			BinaryHandlerEqHashEnum         .class,
-			BinaryHandlerEqConstHashEnum    .class,
-			BinaryHandlerHashTable          .class,
-			BinaryHandlerConstHashTable     .class,
-			BinaryHandlerEqHashTable        .class,
-			BinaryHandlerEqConstHashTable   .class,
-
-			BinaryHandlerSubstituterImplementation.class
+			new BinaryHandlerSubstituterImplementation()
 			/* (29.10.2013 TM)TODO: more jadoth native handlers
 			 * - VarString
 			 * - VarByte
 			 * - _intList etc.
 			 */
-		)
-	;
+		);
+	}
 
 	public static final void storeFixedSize(
 		final Binary              bytes        ,
@@ -1966,7 +1971,7 @@ public final class BinaryPersistence extends Persistence
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
 		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
-		return dp.provideDictionary();
+		return dp.provideTypeDictionary();
 	}
 
 }

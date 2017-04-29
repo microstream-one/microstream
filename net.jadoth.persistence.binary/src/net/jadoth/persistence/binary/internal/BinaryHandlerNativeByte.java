@@ -10,11 +10,11 @@ public final class BinaryHandlerNativeByte extends AbstractBinaryHandlerNativeCu
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeByte(final long tid)
+	public BinaryHandlerNativeByte()
 	{
-		super(tid, Byte.class, defineValueType(byte.class));
+		super(Byte.class, defineValueType(byte.class));
 	}
-
+	
 
 
 	///////////////////////////////////////////////////////////////////////////

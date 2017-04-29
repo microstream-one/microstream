@@ -19,4 +19,5 @@ public interface SwizzleTypeLookup extends SwizzleTypeIdLookup
 	public void validatePossibleTypeMappings(XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency;
 
+	public long typeCount();
 }

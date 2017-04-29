@@ -6,7 +6,6 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
@@ -39,12 +38,6 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	)
 	{
 		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
-	}
-
-	@Override
-	public PersistenceTypeSovereignty typeSovereignty()
-	{
-		return PersistenceTypeSovereignty.INACTIVE;
 	}
 
 	@Override
@@ -89,7 +82,8 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public void validateTypeMapping(final long typeId, final Class<?> type)
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
@@ -99,7 +93,8 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
@@ -109,7 +104,8 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
@@ -118,7 +114,18 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public void updateCurrentHighestTypeId(final long highestTypeId)
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public long typeCount()
+	{
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();

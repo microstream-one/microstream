@@ -14,9 +14,9 @@ public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandler
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_double(final long typeId)
+	public BinaryHandlerNativeArray_double()
 	{
-		super(typeId, double[].class, defineElementsType(double.class));
+		super(double[].class, defineElementsType(double.class));
 	}
 
 

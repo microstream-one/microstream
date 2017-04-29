@@ -11,9 +11,9 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCu
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeVoid(final long tid)
+	public BinaryHandlerNativeVoid()
 	{
-		super(tid, Void.class, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
+		super(Void.class, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
 	}
 
 

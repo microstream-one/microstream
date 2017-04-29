@@ -12,9 +12,9 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerUnpersistable(final Class<T> type, final long typeId)
+	public BinaryHandlerUnpersistable(final Class<T> type)
 	{
-		super(type, typeId);
+		super(type);
 	}
 
 

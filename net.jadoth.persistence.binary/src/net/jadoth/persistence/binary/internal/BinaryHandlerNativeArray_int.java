@@ -14,9 +14,9 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_int(final long typeId)
+	public BinaryHandlerNativeArray_int()
 	{
-		super(typeId, int[].class, defineElementsType(int.class));
+		super(int[].class, defineElementsType(int.class));
 	}
 
 

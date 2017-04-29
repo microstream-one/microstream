@@ -1,12 +1,9 @@
 package net.jadoth.swizzling.types;
 
-import java.util.function.Consumer;
-
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.XIterable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidObjectId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidTypeId;
-import net.jadoth.util.KeyValue;
 
 public class Swizzle
 {
@@ -218,18 +215,18 @@ public class Swizzle
 		return OID_NULL;
 	}
 
-	public static final SwizzleTypeIdLookup createDefaultTypeLookup()
-	{
-		return new SwizzleTypeIdLookup()
-		{
-			@Override
-			public long lookupTypeId(final Class<?> type)
-			{
-				final Long nativeTypeId = NATIVE_TYPES.get(type);
-				return nativeTypeId == null ? Swizzle.nullId() : nativeTypeId.longValue();
-			}
-		};
-	}
+//	public static final SwizzleTypeIdLookup createDefaultTypeLookup()
+//	{
+//		return new SwizzleTypeIdLookup()
+//		{
+//			@Override
+//			public long lookupTypeId(final Class<?> type)
+//			{
+//				final Long nativeTypeId = mapping.get(type);
+//				return nativeTypeId == null ? Swizzle.nullId() : nativeTypeId.longValue();
+//			}
+//		};
+//	}
 
 
 	public static final long defaultStartTypeId()
@@ -252,54 +249,55 @@ public class Swizzle
 	 * here and in persistence
 	 */
 
-	static final HashTable<Class<?>, Long> NATIVE_TYPES = HashTable.New();
-	static
+	public static final HashTable<Class<?>, Long> defaultTypeMapping()
 	{
+		final HashTable<Class<?>, Long> mapping = HashTable.New();
+		
 		// note: correct order is important for recursive super type registration
-		NATIVE_TYPES.add(byte           .class, TID_PRIMITIVE_byte   );
-		NATIVE_TYPES.add(boolean        .class, TID_PRIMITIVE_boolean);
-		NATIVE_TYPES.add(short          .class, TID_PRIMITIVE_short  );
-		NATIVE_TYPES.add(char           .class, TID_PRIMITIVE_char   );
-		NATIVE_TYPES.add(int            .class, TID_PRIMITIVE_int    );
-		NATIVE_TYPES.add(float          .class, TID_PRIMITIVE_float  );
-		NATIVE_TYPES.add(long           .class, TID_PRIMITIVE_long   );
-		NATIVE_TYPES.add(double         .class, TID_PRIMITIVE_double );
-		NATIVE_TYPES.add(void           .class, TID_PRIMITIVE_void   );
-		NATIVE_TYPES.add(Object         .class, TID_Object           );
-		NATIVE_TYPES.add(Number         .class, TID_Number           );
-		NATIVE_TYPES.add(Byte           .class, TID_Byte             );
-		NATIVE_TYPES.add(Boolean        .class, TID_Boolean          );
-		NATIVE_TYPES.add(Short          .class, TID_Short            );
-		NATIVE_TYPES.add(Character      .class, TID_Character        );
-		NATIVE_TYPES.add(Integer        .class, TID_Integer          );
-		NATIVE_TYPES.add(Float          .class, TID_Float            );
-		NATIVE_TYPES.add(Long           .class, TID_Long             );
-		NATIVE_TYPES.add(Double         .class, TID_Double           );
-		NATIVE_TYPES.add(Void           .class, TID_Void             );
+		mapping.add(byte           .class, TID_PRIMITIVE_byte   );
+		mapping.add(boolean        .class, TID_PRIMITIVE_boolean);
+		mapping.add(short          .class, TID_PRIMITIVE_short  );
+		mapping.add(char           .class, TID_PRIMITIVE_char   );
+		mapping.add(int            .class, TID_PRIMITIVE_int    );
+		mapping.add(float          .class, TID_PRIMITIVE_float  );
+		mapping.add(long           .class, TID_PRIMITIVE_long   );
+		mapping.add(double         .class, TID_PRIMITIVE_double );
+		mapping.add(void           .class, TID_PRIMITIVE_void   );
+		mapping.add(Object         .class, TID_Object           );
+		mapping.add(Number         .class, TID_Number           );
+		mapping.add(Byte           .class, TID_Byte             );
+		mapping.add(Boolean        .class, TID_Boolean          );
+		mapping.add(Short          .class, TID_Short            );
+		mapping.add(Character      .class, TID_Character        );
+		mapping.add(Integer        .class, TID_Integer          );
+		mapping.add(Float          .class, TID_Float            );
+		mapping.add(Long           .class, TID_Long             );
+		mapping.add(Double         .class, TID_Double           );
+		mapping.add(Void           .class, TID_Void             );
 
-		NATIVE_TYPES.add(Class          .class, TID_Class            );
-		NATIVE_TYPES.add(Enum           .class, TID_Enum             );
+		mapping.add(Class          .class, TID_Class            );
+		mapping.add(Enum           .class, TID_Enum             );
 
-		NATIVE_TYPES.add(String         .class, TID_String           );
+		mapping.add(String         .class, TID_String           );
 		// stupid default visibility on such a common type. Idiots ^^.
-		NATIVE_TYPES.add(StringBuffer.class.getSuperclass(), TID_AbstractStringBuilder);
-		NATIVE_TYPES.add(StringBuffer   .class, TID_StringBuffer     );
-		NATIVE_TYPES.add(StringBuilder  .class, TID_StringBuilder    );
+		mapping.add(StringBuffer.class.getSuperclass(), TID_AbstractStringBuilder);
+		mapping.add(StringBuffer   .class, TID_StringBuffer     );
+		mapping.add(StringBuilder  .class, TID_StringBuilder    );
 
 
-		NATIVE_TYPES.add(java.io  .File      .class, TID_java_io_File        );
-		NATIVE_TYPES.add(java.util.Date      .class, TID_java_util_Date      );
+		mapping.add(java.io  .File      .class, TID_java_io_File        );
+		mapping.add(java.util.Date      .class, TID_java_util_Date      );
 
-		NATIVE_TYPES.add(Number              .class, TID_Number              );
-		NATIVE_TYPES.add(java.math.BigInteger.class, TID_java_math_BigInteger);
-		NATIVE_TYPES.add(java.math.BigDecimal.class, TID_java_math_BigDecimal);
+		mapping.add(Number              .class, TID_Number              );
+		mapping.add(java.math.BigInteger.class, TID_java_math_BigInteger);
+		mapping.add(java.math.BigDecimal.class, TID_java_math_BigDecimal);
 
 		// so stupid java.util collections, can't even tell x_x
-		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass().getSuperclass(), TID_java_util_AbstractCollection );
-		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass(), TID_java_util_AbstractList );
-		NATIVE_TYPES.add(java.util.HashSet  .class.getSuperclass(), TID_java_util_AbstractSet );
-		NATIVE_TYPES.add(java.util.ArrayList.class, TID_java_util_ArrayList );
-		NATIVE_TYPES.add(java.util.HashSet  .class, TID_java_util_HashSet   );
+		mapping.add(java.util.ArrayList.class.getSuperclass().getSuperclass(), TID_java_util_AbstractCollection );
+		mapping.add(java.util.ArrayList.class.getSuperclass(), TID_java_util_AbstractList );
+		mapping.add(java.util.HashSet  .class.getSuperclass(), TID_java_util_AbstractSet );
+		mapping.add(java.util.ArrayList.class, TID_java_util_ArrayList );
+		mapping.add(java.util.HashSet  .class, TID_java_util_HashSet   );
 		/* (27.03.2012)FIXME more native types
 		 *
 		 * And apropriate type handlers in persistence, of course
@@ -315,103 +313,88 @@ public class Swizzle
 		 */
 
 		// basic array types (arrays of java.lang. types)
-		NATIVE_TYPES.add(byte[]         .class, TID_ARRAY_byte   );
-		NATIVE_TYPES.add(boolean[]      .class, TID_ARRAY_boolean);
-		NATIVE_TYPES.add(short[]        .class, TID_ARRAY_short  );
-		NATIVE_TYPES.add(char[]         .class, TID_ARRAY_char   );
-		NATIVE_TYPES.add(int[]          .class, TID_ARRAY_int    );
-		NATIVE_TYPES.add(float[]        .class, TID_ARRAY_float  );
-		NATIVE_TYPES.add(long[]         .class, TID_ARRAY_long   );
-		NATIVE_TYPES.add(double[]       .class, TID_ARRAY_double );
+		mapping.add(byte[]         .class, TID_ARRAY_byte   );
+		mapping.add(boolean[]      .class, TID_ARRAY_boolean);
+		mapping.add(short[]        .class, TID_ARRAY_short  );
+		mapping.add(char[]         .class, TID_ARRAY_char   );
+		mapping.add(int[]          .class, TID_ARRAY_int    );
+		mapping.add(float[]        .class, TID_ARRAY_float  );
+		mapping.add(long[]         .class, TID_ARRAY_long   );
+		mapping.add(double[]       .class, TID_ARRAY_double );
 		// invalid: void[].class
-		NATIVE_TYPES.add(Class[]        .class, TID_ARRAY_Class        );
-		NATIVE_TYPES.add(Byte[]         .class, TID_ARRAY_Byte         );
-		NATIVE_TYPES.add(Boolean[]      .class, TID_ARRAY_Boolean      );
-		NATIVE_TYPES.add(Short[]        .class, TID_ARRAY_Short        );
-		NATIVE_TYPES.add(Character[]    .class, TID_ARRAY_Character    );
-		NATIVE_TYPES.add(Integer[]      .class, TID_ARRAY_Integer      );
-		NATIVE_TYPES.add(Float[]        .class, TID_ARRAY_Float        );
-		NATIVE_TYPES.add(Long[]         .class, TID_ARRAY_Long         );
-		NATIVE_TYPES.add(Double[]       .class, TID_ARRAY_Double       );
-		NATIVE_TYPES.add(Void[]         .class, TID_ARRAY_Void         );
-		NATIVE_TYPES.add(Object[]       .class, TID_ARRAY_Object       );
-		NATIVE_TYPES.add(String[]       .class, TID_ARRAY_String       );
-		NATIVE_TYPES.add(StringBuffer[] .class, TID_ARRAY_StringBuffer );
-		NATIVE_TYPES.add(StringBuilder[].class, TID_ARRAY_StringBuilder);
-		NATIVE_TYPES.add(Enum[]         .class, TID_ARRAY_Enum         );
+		mapping.add(Class[]        .class, TID_ARRAY_Class        );
+		mapping.add(Byte[]         .class, TID_ARRAY_Byte         );
+		mapping.add(Boolean[]      .class, TID_ARRAY_Boolean      );
+		mapping.add(Short[]        .class, TID_ARRAY_Short        );
+		mapping.add(Character[]    .class, TID_ARRAY_Character    );
+		mapping.add(Integer[]      .class, TID_ARRAY_Integer      );
+		mapping.add(Float[]        .class, TID_ARRAY_Float        );
+		mapping.add(Long[]         .class, TID_ARRAY_Long         );
+		mapping.add(Double[]       .class, TID_ARRAY_Double       );
+		mapping.add(Void[]         .class, TID_ARRAY_Void         );
+		mapping.add(Object[]       .class, TID_ARRAY_Object       );
+		mapping.add(String[]       .class, TID_ARRAY_String       );
+		mapping.add(StringBuffer[] .class, TID_ARRAY_StringBuffer );
+		mapping.add(StringBuilder[].class, TID_ARRAY_StringBuilder);
+		mapping.add(Enum[]         .class, TID_ARRAY_Enum         );
 
 		// jadoth types //
 
-		NATIVE_TYPES.add(net.jadoth.swizzling.types.Lazy.class, TID_net_jadoth_swizzling_types_Swizzling);
+		mapping.add(net.jadoth.swizzling.types.Lazy.class, TID_net_jadoth_swizzling_types_Swizzling);
 
-//		NATIVE_TYPES.add(net.jadoth.collections.VarList.class, TID_net_jadoth_collections_VarList);
+//		mapping.add(net.jadoth.collections.VarList.class, TID_net_jadoth_collections_VarList);
+		
+		return mapping;
 	}
-
-
+	
+	public static final <R extends SwizzleTypeRegistry> R registerDefaultTypeMappings(final R registry)
+	{
+		registry.registerTypeToIdMappings(defaultTypeMapping());
+		return registry;
+	}
 
 	public static final long classTypeId()
 	{
 		return TID_Class;
 	}
 
-
-
-	public static final boolean isNativeType(final Class<?> type)
+	public static final <R extends SwizzleRegistry> R registerDefaults(final R registry)
 	{
-		return NATIVE_TYPES.get(type) != null;
-	}
-
-	public static final Long getNativeTypeId(final Class<?> type)
-	{
-		return NATIVE_TYPES.get(type);
-	}
-
-	public static final <R extends SwizzleRegistry> R registerJavaNatives(final R registry)
-	{
-		registerJavaBasicTypes(registry);
+		registerDefaultTypeMappings(registry);
 		registerJavaConstants(registry);
-		return registry;
-	}
-
-	public static final <R extends SwizzleTypeRegistry> R registerJavaBasicTypes(final R registry)
-	{
-		NATIVE_TYPES.iterate(new Consumer<KeyValue<Class<?>, Long>>()
-		{
-			@Override
-			public void accept(final KeyValue<Class<?>, Long> e)
-			{
-				registry.registerType(e.value(), e.key());
-			}
-		});
 		return registry;
 	}
 
 	public static final <R extends SwizzleRegistry> R registerJavaConstants(final R registry)
 	{
-		long
-			oidByte      = START_CID_BYTE     ,
-			oidBoolean   = START_CID_BOOLEAN  ,
-			oidShort     = START_CID_SHORT    ,
-			oidCharacter = START_CID_CHARACTER,
-			oidInteger   = START_CID_INTEGER  ,
-			oidLong      = START_CID_LONG
-		;
-		/* Booleans */
+		synchronized(registry)
 		{
-			registry.registerObject(oidBoolean++, Boolean.FALSE);
-			registry.registerObject(oidBoolean++, Boolean.TRUE );
+			long
+				oidByte      = START_CID_BYTE     ,
+				oidBoolean   = START_CID_BOOLEAN  ,
+				oidShort     = START_CID_SHORT    ,
+				oidCharacter = START_CID_CHARACTER,
+				oidInteger   = START_CID_INTEGER  ,
+				oidLong      = START_CID_LONG
+			;
+			/* Booleans */
+			{
+				registry.registerObject(oidBoolean++, Boolean.FALSE);
+				registry.registerObject(oidBoolean++, Boolean.TRUE );
+			}
+			for(int i = JSL_CACHE_INTEGER_MIN; i < JSL_CACHE_INTEGER_MAX; i++)
+			{
+				registry.registerObject(oidByte++   , Byte.valueOf((byte)i)  );
+				registry.registerObject(oidShort++  , Short.valueOf((short)i));
+				registry.registerObject(oidInteger++, Integer.valueOf(i)     );
+				registry.registerObject(oidLong++   , Long.valueOf(i)        );
+			}
+			for(int i = 0; i < JSL_CACHE_CHARACTER_MAX; i++)
+			{
+				registry.registerObject(oidCharacter++, Character.valueOf((char)i));
+			}
 		}
-		for(int i = JSL_CACHE_INTEGER_MIN; i < JSL_CACHE_INTEGER_MAX; i++)
-		{
-			registry.registerObject(oidByte++   , Byte.valueOf((byte)i)  );
-			registry.registerObject(oidShort++  , Short.valueOf((short)i));
-			registry.registerObject(oidInteger++, Integer.valueOf(i)     );
-			registry.registerObject(oidLong++   , Long.valueOf(i)        );
-		}
-		for(int i = 0; i < JSL_CACHE_CHARACTER_MAX; i++)
-		{
-			registry.registerObject(oidCharacter++, Character.valueOf((char)i));
-		}
+		
 		return registry;
 	}
 

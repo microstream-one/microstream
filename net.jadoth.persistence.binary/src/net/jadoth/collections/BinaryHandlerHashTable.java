@@ -71,11 +71,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashTable(final long typeId)
+	public BinaryHandlerHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(HashTable.Keys.class, "keys"),
@@ -195,7 +194,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 		final ObjectStateHandlerLookup stateHandlerLookup
 	)
 	{
-//		// one must be iterated with a stateful iterator while the other one is iterated directly
+		// one must be iterated with a stateful iterator while the other one is iterated directly
 		final Iterator<KeyValue<Object, Object>> srcIterator = ((HashTable<Object, Object>)source).iterator();
 		return source.size == target.size && ((HashTable<Object, Object>)target).applies(
 			e -> srcIterator.hasNext() && isEqualEntry(e, srcIterator.next(), stateHandlerLookup)
@@ -203,8 +202,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	}
 
 	static final boolean isEqualEntry(
-		final KeyValue<Object, Object> e1,
-		final KeyValue<Object, Object> e2,
+		final KeyValue<Object, Object> e1                ,
+		final KeyValue<Object, Object> e2                ,
 		final ObjectStateHandlerLookup stateHandlerLookup
 	)
 	{
@@ -212,13 +211,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 			&& ObjectState.isEqual(e1.value(), e2.value(), stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final HashTable<?, ?> source, final HashTable<?, ?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

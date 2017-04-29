@@ -10,9 +10,9 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNoOp(final Class<T> type, final long typeId)
+	public BinaryHandlerNoOp(final Class<T> type)
 	{
-		super(type, typeId);
+		super(type);
 	}
 
 

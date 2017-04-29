@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.functional.Dispatcher;
-import net.jadoth.persistence.binary.internal.BinaryTypeDictionaryProviderDefaulting;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -20,8 +19,8 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -112,7 +111,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
 
 	@Override
-	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup);
+	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup);
 
 	@Override
 	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
@@ -258,7 +257,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup
+			final PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup
 		)
 		{
 			this.internalSetTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
@@ -428,24 +427,24 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		protected BinaryTypeHandlerCreatorLookup createTypeHandlerCreatorLookup()
+		protected BinaryTypeHandlerEnsurerLookup createTypeHandlerEnsurerLookup()
 		{
 			/* note:
 			 * registry is enough for native class type handler,
 			 * type manager would cause initializer loop.
 			 * Maybe the typing should be a little strengthened for this case
 			 */
-			return new BinaryTypeHandlerCreatorLookup.Implementation(
-				this.getTypeHandlerCreator(),
+			return new BinaryTypeHandlerEnsurerLookup.Implementation(
+				this.getTypeHandlerEnsurer()       ,
 				this.getCustomTypeHandlerRegistry(),
 				this.getTypeHandlerRegistry()
 			);
 		}
 
 		@Override
-		protected PersistenceTypeHandlerCreator<Binary> createTypeHandlerCreator()
+		protected PersistenceTypeHandlerEnsurer<Binary> createTypeHandlerEnsurer()
 		{
-			return new BinaryTypeHandlerCreator.Implementation(
+			return new BinaryTypeHandlerEnsurer.Implementation(
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver()
 			);
@@ -454,15 +453,15 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		@Override
 		protected PersistenceCustomTypeHandlerRegistry<Binary> createCustomTypeHandlerRegistry()
 		{
-			// (18.10.2013 TM)FIXME: PersistenceRootResolver plug in here somewhere
-			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry();
+			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
+				this.getSwizzleRegistry()
+			);
 		}
 
 		@Override
 		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
 		{
-			// pretty cool usage of factory architecture :D, hooking in a binary-level default mechanism
-			return new BinaryTypeDictionaryProviderDefaulting(super.createTypeDictionaryProvider());
+			return super.createTypeDictionaryProvider();
 		}
 
 		@Override
@@ -470,7 +469,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		{
 			return BinaryPersistence.createFieldLengthResolver();
 		}
-
+		
 	}
 
 }

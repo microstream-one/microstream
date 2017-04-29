@@ -17,10 +17,10 @@ extends AbstractBinaryHandlerNativeCustom<B>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
-	public AbstractBinaryHandlerAbstractStringBuilder(final long typeId, final Class<B> type)
+	
+	protected AbstractBinaryHandlerAbstractStringBuilder(final Class<B> type)
 	{
-		super(typeId, type, pseudoFields(
+		super(type, pseudoFields(
 			pseudoField(long.class, "capacity"),
 			chars("value")
 		));

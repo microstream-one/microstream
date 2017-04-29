@@ -48,11 +48,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerFixedList(final long typeId)
+	public BinaryHandlerFixedList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
@@ -126,15 +125,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final FixedList<?> source, final FixedList<?> target)
-//	{
-//		if(source.data.length > target.data.length)
-//		{
-//			throw new RuntimeException(); // (23.10.2013 TM)EXCP: proper exception
-//		}
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.data.length);
-//	}
 
 }

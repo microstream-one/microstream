@@ -101,7 +101,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNative(
+	protected AbstractBinaryHandlerNative(
 		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
@@ -111,7 +111,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		this.pseudoFields = pseudoFields.immure();
 	}
 	
-	public AbstractBinaryHandlerNative(
+	protected AbstractBinaryHandlerNative(
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)

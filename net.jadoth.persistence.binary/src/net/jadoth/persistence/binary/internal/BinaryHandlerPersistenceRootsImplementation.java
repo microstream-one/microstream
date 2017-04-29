@@ -11,7 +11,6 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
-import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleRegistry;
@@ -21,43 +20,6 @@ import net.jadoth.swizzling.types.SwizzleStoreLinker;
 public final class BinaryHandlerPersistenceRootsImplementation
 extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 {
-	public static final class Creator implements PersistenceTypeHandler.Creator<Binary, PersistenceRoots.Implementation>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		final PersistenceRootResolver resolver      ;
-		final SwizzleRegistry         globalRegistry;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		public Creator(final PersistenceRootResolver resolver, final SwizzleRegistry globalRegistry)
-		{
-			super();
-			this.resolver       = notNull(resolver)      ;
-			this.globalRegistry = notNull(globalRegistry);
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		public final BinaryHandlerPersistenceRootsImplementation createTypeHandler(final long typeId)
-		{
-			return new BinaryHandlerPersistenceRootsImplementation(typeId, this.resolver, this.globalRegistry);
-		}
-
-	}
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
@@ -65,6 +27,17 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	private static final long OFFSET_OID_LIST = 0;
 
 
+	
+	public static BinaryHandlerPersistenceRootsImplementation New(
+		final PersistenceRootResolver resolver      ,
+		final SwizzleRegistry         globalRegistry
+	)
+	{
+		return new BinaryHandlerPersistenceRootsImplementation(
+			notNull(resolver)      ,
+			notNull(globalRegistry)
+		);
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -87,13 +60,11 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	/////////////////////
 
 	BinaryHandlerPersistenceRootsImplementation(
-		final long                    typeId        ,
 		final PersistenceRootResolver resolver      ,
 		final SwizzleRegistry         globalRegistry
 	)
 	{
 		super(
-			typeId,
 			PersistenceRoots.Implementation.class,
 			pseudoFields( // instances first to easy ref-only loading in storage
 				complex("instances",
@@ -104,7 +75,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 				)
 			)
 		);
-		this.resolver = resolver;
+		this.resolver       = resolver      ;
 		this.globalRegistry = globalRegistry;
 	}
 

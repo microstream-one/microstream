@@ -78,11 +78,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqConstHashTable(final long typeId)
+	public BinaryHandlerEqConstHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
@@ -109,7 +108,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 		final Binary                 bytes    ,
 		final EqConstHashTable<?, ?> instance ,
 		final long                   oid      ,
-		final SwizzleStoreLinker        linker
+		final SwizzleStoreLinker     linker
 	)
 	{
 		// store elements simply as array binary form
@@ -248,13 +247,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 			&& ObjectState.isEqual(e1.value(), e2.value(), stateHandlerLookup)
 		;
 	}
-
-//	@Override
-//	public final void copy(final EqConstHashTable<?, ?> source, final EqConstHashTable<?, ?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

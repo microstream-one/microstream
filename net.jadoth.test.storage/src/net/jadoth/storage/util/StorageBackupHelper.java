@@ -46,7 +46,7 @@ public final class StorageBackupHelper
 	{
 		// Der erste Teil nervt mich noch. Darum: https://www.xdevissues.com/browse/OGS-21
 		final PersistenceTypeDictionaryAssembler  dictionaryAssembler = connectionFoundation.getTypeDictionaryAssembler();
-		final PersistenceTypeDictionary           typeDictionary      = connectionFoundation.getTypeDictionaryManager().provideDictionary();
+		final PersistenceTypeDictionary           typeDictionary      = connectionFoundation.getTypeDictionaryManager().provideTypeDictionary();
 
 		final long   nextObjectId   = connectionFoundation.getObjectIdProvider().currentObjectId() + 1;
 		final long   nextTypeId     = highestTypeId(typeDictionary) + 1;

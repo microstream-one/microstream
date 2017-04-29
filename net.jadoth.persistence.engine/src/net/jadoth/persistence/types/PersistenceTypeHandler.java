@@ -14,6 +14,8 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleTypeLink;
+import net.jadoth.swizzling.types.SwizzleTypeLookup;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, ObjectStateHandler<T>
 {
@@ -84,9 +86,10 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 //		return input.typeDescription();
 //	}
 
-	public interface Creator<M, T>
+	// (28.04.2017 TM)FIXME: OGS-3: This has to go. See PersistenceTypeDescription.Initializer
+	public interface Initializer<M, T> extends SwizzleTypeLink<T>
 	{
-		public PersistenceTypeHandler<M, T> createTypeHandler(long typeId);
+		public PersistenceTypeHandler<M, T> initializeTypeHandler(SwizzleTypeLookup typeLookup);
 	}
 	
 	
@@ -94,7 +97,10 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 
 
 	public abstract class AbstractImplementation<M, T>
-	implements PersistenceTypeHandler<M, T>, PersistenceTypeDescription.Initializer<T>
+	implements
+	PersistenceTypeHandler<M, T>,
+	PersistenceTypeDescription.Initializer<T>,
+	PersistenceTypeHandler.Initializer<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -193,6 +199,15 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
 		{
 			return this.obsoletes;
+		}
+		
+		@Override
+		public PersistenceTypeHandler<M, T> initializeTypeHandler(final SwizzleTypeLookup typeLookup)
+		{
+			final long typeId = typeLookup.lookupTypeId(this.type());
+			
+			// must be a no-op after the type description has already been initialized
+			return this.initialize(typeId, this.obsoletes());
 		}
 		
 		@Override
