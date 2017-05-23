@@ -555,7 +555,6 @@ public final class BinaryPersistence extends Persistence
 		final SwizzleTypeLookup typeLookup
 	)
 	{
-		// (29.04.2017 TM)FIXME: initializing a type dictionary must somehow be linked to this here
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
 			new PersistenceCustomTypeHandlerRegistry.Implementation<Binary>(typeLookup)
 			.registerTypeHandlers(defaultHandlers())

@@ -449,10 +449,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 			// (29.04.2017 TM)FIXME: must register defined custom type handlers at the type dictionary here
 
-			/* (05.05.2015 TM)TODO: /!\ type refactoring:
-			 * siehe OGS-3
-			 */
-
 			this.update(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)

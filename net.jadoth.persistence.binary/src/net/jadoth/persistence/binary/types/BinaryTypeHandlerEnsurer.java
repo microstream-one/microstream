@@ -87,7 +87,7 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 					// (01.04.2013)EXCP: proper exception
 					throw new RuntimeException("Primitive type must be handled by defaults");
 				}
-				return new BinaryHandlerNativeArrayObject<>(type, typeId);
+				return new BinaryHandlerNativeArrayObject<>(type).initialize(typeId, X.emptyTable());
 			}
 
 			final HashEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions = HashEnum.New();

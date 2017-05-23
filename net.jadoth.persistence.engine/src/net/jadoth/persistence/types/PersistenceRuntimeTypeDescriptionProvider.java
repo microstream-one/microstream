@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
@@ -12,6 +14,17 @@ public interface PersistenceRuntimeTypeDescriptionProvider
 		PersistenceTypeDescriptionMismatchCallback<T>      typeMismatchCallback
 	);
 	
+	
+	public static PersistenceRuntimeTypeDescriptionProvider.Implementation New(
+		final PersistenceTypeDescription.InitializerLookup typeDescriptionInitializerLookup,
+		final SwizzleTypeManager                           typeManager
+	)
+	{
+		return new Implementation(
+			notNull(typeDescriptionInitializerLookup),
+			notNull(typeManager)
+		);
+	}
 	
 	public final class Implementation implements PersistenceRuntimeTypeDescriptionProvider
 	{

@@ -170,8 +170,6 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
-		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
-
 		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDescription<?>> typesPerTypeName = EqHashTable.New();
 		private       PersistenceTypeDescriptionRegistrationCallback     callback        ;

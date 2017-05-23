@@ -40,9 +40,9 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArrayObject(final Class<A> arrayType, final long typeId)
+	public BinaryHandlerNativeArrayObject(final Class<A> arrayType)
 	{
-		super(typeId, validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
+		super(validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
 		this.arrayType     = arrayType;
 		this.componentType = validateNonPrimitiveType(arrayType.getComponentType());
 	}

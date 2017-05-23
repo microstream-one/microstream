@@ -6,7 +6,9 @@ import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
+import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
@@ -151,6 +153,67 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	public interface InitializerLookup
 	{
 		public <T> PersistenceTypeDescription.Initializer<T> lookupInitializer(String typename);
+		
+		
+		public final class Implementation implements PersistenceTypeDescription.InitializerLookup
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final PersistenceTypeHandlerEnsurerLookup<?> typeHandlerEnsurerLookup;
+			private final SwizzleTypeManager                     typeManager             ;
+
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Implementation(
+				final PersistenceTypeHandlerEnsurerLookup<?> typeHandlerEnsurerLookup,
+				final SwizzleTypeManager                     typeManager
+			)
+			{
+				super();
+				this.typeHandlerEnsurerLookup = typeHandlerEnsurerLookup;
+				this.typeManager              = typeManager             ;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+
+			@SuppressWarnings("unchecked")
+			private static <T> Class<T> resolveType(final String typename)
+			{
+				try
+				{
+					return (Class<T>)JadothReflect.classForName(typename);
+				}
+				catch (final ClassNotFoundException e)
+				{
+					throw new RuntimeException(e); // (30.04.2017 TM)EXCP: proper exception
+				}
+			}
+			
+			@Override
+			public <T> Initializer<T> lookupInitializer(final String typename)
+			{
+				final Class<T> type = resolveType(typename);
+				
+				final PersistenceTypeHandlerEnsurer<?> ensurer = this.typeHandlerEnsurerLookup.lookupEnsurer(type);
+				
+//				ensurer.ensureTypeHandler(type, 0, this.typeManager)
+				
+				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDescription.InitializerLookup#lookupInitializer()
+			}
+			
+			
+		}
+		
 	}
 
 	public final class Implementation<T> implements PersistenceTypeDescription<T>

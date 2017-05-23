@@ -92,6 +92,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 
+	public PersistenceRuntimeTypeDescriptionProvider getRuntimeTypeDescriptionProvider();
+	
+	public PersistenceTypeDescription.Builder getTypeDescriptionBuilder();
+	
+	public PersistenceTypeDescriptionMismatchListener getTypeMismatchListener();
+
+	public PersistenceTypeDescription.InitializerLookup getTypeDescriptionInitializerLookup();
 
 
 
@@ -222,27 +229,30 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceSource<M>                    source                     ;
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
-		private SwizzleTypeManager                      typeManager                ;
-		private PersistenceTypeHandlerEnsurerLookup<M>  typeHandlerCreatorLookup   ;
-		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
-		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
-		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
-		private PersistenceTypeDictionaryProvider       typeDictionaryProvider     ;
-		private PersistenceTypeDictionaryExporter       typeDictionaryExporter     ;
-		private PersistenceTypeDictionaryLoader         typeDictionaryLoader       ;
-		private PersistenceTypeDictionaryParser         typeDictionaryParser       ;
-		private PersistenceTypeDictionaryBuilder        typeDictionaryBuilder      ;
-		private PersistenceTypeDictionaryAssembler      typeDictionaryAssembler    ;
-		private PersistenceTypeDictionaryStorer         typeDictionaryStorer       ;
-		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
-		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
-		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
-		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
-		private PersistenceTypeResolver                 typeResolver               ;
-		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
-		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
-		private BufferSizeProvider                      bufferSizeProvider         ;
-		private PersistenceFieldEvaluator               fieldEvaluator             ;
+		private SwizzleTypeManager                         typeManager                   ;
+		private PersistenceTypeHandlerEnsurerLookup<M>     typeHandlerCreatorLookup      ;
+		private PersistenceTypeHandlerRegistry<M>          typeHandlerRegistry           ;
+		private PersistenceTypeHandlerProvider<M>          typeHandlerProvider           ;
+		private PersistenceTypeDictionaryManager           typeDictionaryManager         ;
+		private PersistenceTypeDictionaryProvider          typeDictionaryProvider        ;
+		private PersistenceTypeDictionaryExporter          typeDictionaryExporter        ;
+		private PersistenceTypeDictionaryLoader            typeDictionaryLoader          ;
+		private PersistenceTypeDictionaryParser            typeDictionaryParser          ;
+		private PersistenceTypeDictionaryBuilder           typeDictionaryBuilder         ;
+		private PersistenceTypeDictionaryAssembler         typeDictionaryAssembler       ;
+		private PersistenceTypeDictionaryStorer            typeDictionaryStorer          ;
+		private PersistenceTypeHandlerEnsurer<M>           typeHandlerEnsurer            ;
+		private PersistenceCustomTypeHandlerRegistry<M>    customTypeHandlerRegistry     ;
+		private PersistenceTypeAnalyzer                    typeAnalyzer                  ;
+		private PersistenceTypeEvaluator                   typeEvaluatorTypeIdMappable   ;
+		private PersistenceTypeResolver                    typeResolver                  ;
+		private PersistenceTypeEvaluator                   typeEvaluatorPersistable      ;
+		private PersistenceFieldLengthResolver             fieldFixedLengthResolver      ;
+		private BufferSizeProvider                         bufferSizeProvider            ;
+		private PersistenceFieldEvaluator                  fieldEvaluator                ;
+		private PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider;
+		private PersistenceTypeDescription.Builder         typeDescriptionBuilder        ;
+		private PersistenceTypeDescriptionMismatchListener typeMismatchListener          ;
 
 
 
@@ -555,6 +565,36 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.fieldEvaluator = this.dispatch(this.createFieldEvaluator());
 			}
 			return this.fieldEvaluator;
+		}
+		
+		@Override
+		public PersistenceRuntimeTypeDescriptionProvider getRuntimeTypeDescriptionProvider()
+		{
+			if(this.runtimeTypeDescriptionProvider == null)
+			{
+				this.runtimeTypeDescriptionProvider = this.dispatch(this.createRuntimeTypeDescriptionProvider());
+			}
+			return this.runtimeTypeDescriptionProvider;
+		}
+		
+		@Override
+		public PersistenceTypeDescription.Builder getTypeDescriptionBuilder()
+		{
+			if(this.typeDescriptionBuilder == null)
+			{
+				this.typeDescriptionBuilder = this.dispatch(this.createTypeDescriptionBuilder());
+			}
+			return this.typeDescriptionBuilder;
+		}
+		
+		@Override
+		public PersistenceTypeDescriptionMismatchListener getTypeMismatchListener()
+		{
+			if(this.typeMismatchListener == null)
+			{
+				this.typeMismatchListener = this.dispatch(this.createTypeMismatchListener());
+			}
+			return this.typeMismatchListener;
 		}
 
 
@@ -1204,10 +1244,14 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			return PersistenceTypeResolver.Failing();
 		}
-		
+				
 		protected PersistenceTypeDictionaryBuilder createTypeDictionaryBuilder()
 		{
-			return PersistenceTypeDictionaryBuilder.New();
+			return PersistenceTypeDictionaryBuilder.New(
+				this.getRuntimeTypeDescriptionProvider(),
+				this.getTypeDescriptionBuilder()        ,
+				this.getTypeMismatchListener()
+			);
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorPersistable()
@@ -1228,6 +1272,31 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceFieldEvaluator createFieldEvaluator()
 		{
 			return Persistence.defaultFieldEvaluator();
+		}
+		
+		protected PersistenceRuntimeTypeDescriptionProvider createRuntimeTypeDescriptionProvider()
+		{
+			
+		}
+		
+		protected PersistenceTypeDescription.Builder createTypeDescriptionBuilder()
+		{
+			
+		}
+		
+		protected PersistenceTypeDescriptionMismatchListener createTypeMismatchListener()
+		{
+			
+		}
+		
+		protected PersistenceTypeDescription.InitializerLookup typeDescriptionInitializerLookup()
+		{
+			
+		}
+	
+		protected SwizzleTypeManager                           typeManager()
+		{
+			
 		}
 
 
