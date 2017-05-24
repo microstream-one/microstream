@@ -372,19 +372,36 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(key, null));
+		
 		return null;
 	}
 
+	final K internalReplaceKey(final K key)
+	{
+		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
+		{
+			if(e.key() == key)
+			{
+				// no need to replace a reference to the same instance.
+				return key;
+			}
+		}
+
+		return null;
+	}
+	
 	final K internalSubstituteKey(final K key)
 	{
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
 		{
 			if(e.key() == key)
 			{
+				// no need to replace a reference to the same instance.
 				return key;
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(key, null));
+
 		return key;
 	}
 
@@ -914,20 +931,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final KeyValue<K, V> putGet(final K key, final V value)
-	{
-		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
-		{
-			if(e.key() == key)
-			{
-				return keyValue(e.setKey(key), e.setValue(value));
-			}
-		}
-		this.chain.appendEntry(this.createNewEntry(key, value));
-		return null;
-	}
-
-	@Override
 	public final KeyValue<K, V> addGet(final K key, final V value)
 	{
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
@@ -938,6 +941,50 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(key, value));
+		return null;
+	}
+
+	@Override
+	public final KeyValue<K, V> substitute(final K key, final V value)
+	{
+		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
+		{
+			if(e.key() == key)
+			{
+				return e;
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(key, value));
+		
+		return keyValue(key, value);
+	}
+
+	@Override
+	public final KeyValue<K, V> putGet(final K key, final V value)
+	{
+		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
+		{
+			if(e.key() == key)
+			{
+				return keyValue(e.setKey(key), e.setValue(value));
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(key, value));
+		
+		return null;
+	}
+	
+	@Override
+	public final KeyValue<K, V> replace(final K key, final V value)
+	{
+		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
+		{
+			if(e.key() == key)
+			{
+				return keyValue(e.setKey(key), e.setValue(value));
+			}
+		}
+
 		return null;
 	}
 
@@ -1281,7 +1328,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	public final boolean contains(final KeyValue<K, V> entry)
 	{
 		// search for element by hash
-		for(ChainMapEntryLinkedStrongStrong<K, V> e = HashTable.this.slots[System.identityHashCode(entry.key()) & HashTable.this.range]; e != null; e = e.link)
+		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(entry.key()) & this.range]; e != null; e = e.link)
 		{
 			if(e.key() == entry.key())
 			{
@@ -1290,7 +1337,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 		return false;
 	}
-
+	
 	@Override
 	public final KeyValue<K, V> seek(final KeyValue<K, V> sample)
 	{
@@ -1461,36 +1508,31 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean nullPut()
 	{
-		return HashTable.this.nullKeyPut();
+		return this.nullKeyPut();
 	}
 
 	@Override
 	public final void accept(final KeyValue<K, V> entry)
 	{
-		HashTable.this.put(entry.key(), entry.value());
+		this.put(entry.key(), entry.value());
 	}
 
 	@Override
 	public final boolean put(final KeyValue<K, V> entry)
 	{
-		return HashTable.this.put(entry.key(), entry.value());
-	}
-
-	@Override
-	public final KeyValue<K, V> putGet(final KeyValue<K, V> entry)
-	{
-		return HashTable.this.putGet(entry.key(), entry.value());
+		return this.put(entry.key(), entry.value());
 	}
 
 	@Override
 	public final KeyValue<K, V> addGet(final KeyValue<K, V> entry)
 	{
-		return HashTable.this.addGet(entry.key(), entry.value());
+		return this.addGet(entry.key(), entry.value());
 	}
 
 	@Override
-	public final KeyValue<K, V> replace(final KeyValue<K, V> entry)
+	public final KeyValue<K, V> substitute(final KeyValue<K, V> entry)
 	{
+		// can't delegate because the passed instance shall be returned, not a newly created one
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(entry.key()) & this.range]; e != null; e = e.link)
 		{
 			if(e.key() == entry.key())
@@ -1498,9 +1540,21 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 				return e;
 			}
 		}
-		final ChainMapEntryLinkedStrongStrong<K, V> newEntry;
-		this.chain.appendEntry(newEntry = this.createNewEntry(entry.key(), entry.value()));
-		return newEntry;
+		this.chain.appendEntry(this.createNewEntry(entry.key(), entry.value()));
+		
+		return entry;
+	}
+
+	@Override
+	public final KeyValue<K, V> putGet(final KeyValue<K, V> entry)
+	{
+		return this.putGet(entry.key(), entry.value());
+	}
+
+	@Override
+	public final KeyValue<K, V> replace(final KeyValue<K, V> entry)
+	{
+		return this.replace(entry.key(), entry.value());
 	}
 
 	@SafeVarargs
@@ -2480,21 +2534,27 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final K putGet(final K element)
-		{
-			return HashTable.this.internalPutGetKey(element);
-		}
-
-		@Override
 		public final K addGet(final K element)
 		{
 			return HashTable.this.internalAddGetKey(element);
 		}
 
 		@Override
-		public K replace(final K element)
+		public final K substitute(final K element)
 		{
 			return HashTable.this.internalSubstituteKey(element);
+		}
+
+		@Override
+		public final K putGet(final K element)
+		{
+			return HashTable.this.internalPutGetKey(element);
+		}
+
+		@Override
+		public K replace(final K element)
+		{
+			return HashTable.this.internalReplaceKey(element);
 		}
 
 		@SafeVarargs
@@ -3357,7 +3417,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final V seek(final V sample)
 		{
-			return HashTable.this.chain.valuesGet(sample);
+			return HashTable.this.chain.valuesSeek(sample);
 		}
 
 		@Override

@@ -568,7 +568,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public boolean valuesRngContains(int offset, int length, V value);
 
 	public boolean valuesRngContains(int offset, int length, V sample, Equalator<? super V> equalator);
-
+	
 	// containing - all array //
 
 	public boolean valuesContainsAll(V[] values, int elementsOffset, int elementsLength);
@@ -748,9 +748,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	// searching - sample //
 
-	public V valuesGet(V sample);
+	public V valuesSeek(V sample);
 
-	public V valuesRngGet(int offset, int length, V sample);
+	public V valuesRngSeek(int offset, int length, V sample);
 
 	public V valuesSearch(V sample, Equalator<? super V> equalator);
 

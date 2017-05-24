@@ -860,21 +860,27 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public E putGet(final E element)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XPutGetSet<E>#putGet()
-	}
-
-	@Override
 	public E addGet(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Single#addGet()
 	}
 
 	@Override
-	public E replace(final E element)
+	public E substitute(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Single#substitute()
+	}
+
+	@Override
+	public E putGet(final E element)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XPutGetSet<E>#putGet()
+	}
+
+	@Override
+	public E replace(final E element)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Single#replace()
 	}
 
 	@SafeVarargs

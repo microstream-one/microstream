@@ -7,11 +7,16 @@ import java.util.function.Predicate;
 import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqConstHashEnum;
+import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
+import net.jadoth.csv.CSV;
+import net.jadoth.csv.CsvConfiguration;
+import net.jadoth.csv.CsvContent;
+import net.jadoth.memory.Memory;
 import net.jadoth.util.branching.ThrowBreak;
 
 public interface StringTable
@@ -46,34 +51,129 @@ public interface StringTable
 
 	public final class Static
 	{
-		// float because float to int conversion is automatically capped at max int.
-		public static final float estimatedCharCountPerRow()
+		public static StringTable parse(final String rawData)
 		{
-			return 100.0f;
+			return parse(rawData, null);
+		}
+		
+		public static StringTable parse(final _charArrayRange rawData)
+		{
+			return parse(rawData, null);
+		}
+		
+		public static StringTable parse(final String rawData, final CsvConfiguration csvConfiguration)
+		{
+			/*
+			 * can't copy around data all the time just because the JDK guys don't know how to write proper APIs
+			 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
+			 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
+			 */
+			return parse(_charArrayRange.New(Memory.accessChars(rawData)), csvConfiguration);
+		}
+		
+		public static StringTable parse(final _charArrayRange rawData, final CsvConfiguration csvConfiguration)
+		{
+			final CsvContentBuilderCharArray parser = CsvContentBuilderCharArray.New(
+				ensureCsvConfiguration(csvConfiguration)
+			);
+			
+			final CsvContent  content = parser.build(null, rawData);
+			final StringTable data    = content.segments().first().value();
+
+			return data;
+		}
+		
+		// float because float to int conversion is automatically capped at max int.
+		public static final int estimatedCharCountPerRow()
+		{
+			return 100;
+		}
+		
+		public static final int calculateEstimatedCharCount(final long rowCount)
+		{
+			final long estimate = rowCount * estimatedCharCountPerRow();
+			
+			return estimate >= Integer.MAX_VALUE
+				? Integer.MAX_VALUE
+				: (int)estimate
+			;
 		}
 
 		public static final String assembleString(final StringTable st)
 		{
-			return assembleString(VarString.New((int)(st.rows().size() * estimatedCharCountPerRow())), st).toString();
+			return assembleString(VarString.New(calculateEstimatedCharCount(st.rows().size())), st).toString();
 		}
 
 		public static final VarString assembleString(final VarString vs, final StringTable st)
 		{
+			return assembleString(vs, st, null);
+		}
+		
+		private static void assemble(final VarString vs, final char separator, final String[] elements)
+		{
+			if(elements.length == 0)
+			{
+				return;
+			}
+			
+			for(final String s : elements)
+			{
+				vs.add(s).add(separator);
+			}
+			vs.deleteLast();
+		}
+		
+		private static void assemble(final VarString vs, final char separator, final XGettingCollection<String> elements)
+		{
+			if(elements.isEmpty())
+			{
+				return;
+			}
+			
+			for(final String s : elements)
+			{
+				vs.add(s).add(separator);
+			}
+			vs.deleteLast();
+		}
+		
+		// (08.05.2017 TM)NOTE: centralized method to guarantee parser and assembler behave consistently
+		private static CsvConfiguration ensureCsvConfiguration(final CsvConfiguration csvConfiguration)
+		{
+			return csvConfiguration == null
+				? CSV.configurationDefault()
+				: csvConfiguration
+			;
+		}
+		
+		public static final VarString assembleString(
+			final VarString        vs              ,
+			final StringTable      st              ,
+			final CsvConfiguration csvConfiguration
+		)
+		{
 			if(st.columnNames().isEmpty())
 			{
 				// column names are mandatory. So no columns means no data, even if there should be rows present.
-				return vs.add("[empty table]");
+				return vs;
+				
+				// (08.05.2017 TM)NOTE: can't just return a random string because it is not recognized by the parser.
+//				return vs.add("[empty table]");
 			}
+			
+			final CsvConfiguration effConfig       = ensureCsvConfiguration(csvConfiguration);
+			final char             valueSeparator  = effConfig.valueSeparator();
+			final char             recordSeparator = effConfig.recordSeparator();
 
 			// assemble column names
-			vs.list("\t", st.columnNames());
+			assemble(vs, valueSeparator, st.columnNames());
 
 			// assemble column types if present
 			if(!st.columnTypes().isEmpty())
 			{
-				vs.lf().add('(');
-				vs.list("\t", st.columnTypes());
-				vs.setLast(')');
+				vs.add(recordSeparator).add('(');
+				assemble(vs, valueSeparator, st.columnTypes());
+				vs.add(')');
 			}
 
 			// assemble data rows if present
@@ -81,7 +181,7 @@ public interface StringTable
 			{
 				for(final String[] row : st.rows())
 				{
-					vs.lf().list("\t", row);
+					assemble(vs.add(recordSeparator), valueSeparator, row);
 				}
 			}
 

@@ -118,15 +118,21 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public synchronized E putGet(final E e)
-	{
-		return this.subject.putGet(e);
-	}
-
-	@Override
 	public synchronized E addGet(final E e)
 	{
 		return this.subject.addGet(e);
+	}
+
+	@Override
+	public synchronized E substitute(final E e)
+	{
+		return this.subject.substitute(e);
+	}
+
+	@Override
+	public synchronized E putGet(final E e)
+	{
+		return this.subject.putGet(e);
 	}
 
 	@Override

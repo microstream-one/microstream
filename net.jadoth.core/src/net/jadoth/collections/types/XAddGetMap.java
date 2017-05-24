@@ -16,6 +16,8 @@ public interface XAddGetMap<K, V> extends XAddingMap<K, V>, XGettingMap<K, V>
 	
 	public KeyValue<K, V> addGet(K key, V value);
 	
+	public KeyValue<K, V> substitute(K key, V value);
+	
 	/**
 	 * Ensures that this map instance contains a non-null value for the passed key and returns that value.
 	 * <p>

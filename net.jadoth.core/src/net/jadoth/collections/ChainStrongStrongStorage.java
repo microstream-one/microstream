@@ -6109,7 +6109,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// searching - predicate //
 
 	@Override
-	public final V valuesGet(final V element)
+	public final V valuesSeek(final V element)
 	{
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -6122,7 +6122,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final V valuesRngGet(final int offset, int length, final V sample)
+	public final V valuesRngSeek(final int offset, int length, final V sample)
 	{
 		EN e = this.getRangeChainEntry(offset, length); // valuesIdate range and scroll to offset
 		if(length < 0)

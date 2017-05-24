@@ -160,11 +160,29 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 	}
 
 	@Override
+	public final KeyValue<K, V> substitute(final KeyValue<K, V> element)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.substitute(element);
+		}
+	}
+
+	@Override
 	public final KeyValue<K, V> putGet(final KeyValue<K, V> element)
 	{
 		synchronized(this.lock)
 		{
 			return this.subject.putGet(element);
+		}
+	}
+
+	@Override
+	public final KeyValue<K, V> replace(final KeyValue<K, V> element)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.replace(element);
 		}
 	}
 
@@ -176,6 +194,24 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 			return this.subject.addGet(key, value);
 		}
 	}
+	
+	@Override
+	public KeyValue<K, V> substitute(final K key, final V value)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.substitute(key, value);
+		}
+	}
+	
+	@Override
+	public KeyValue<K, V> replace(final K key, final V value)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.replace(key, value);
+		}
+	}
 
 	@Override
 	public final boolean hasVolatileElements()
@@ -183,15 +219,6 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 		synchronized(this.lock)
 		{
 			return this.subject.hasVolatileElements();
-		}
-	}
-
-	@Override
-	public final KeyValue<K, V> replace(final KeyValue<K, V> element)
-	{
-		synchronized(this.lock)
-		{
-			return this.subject.replace(element);
 		}
 	}
 

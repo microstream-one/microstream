@@ -489,20 +489,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final E putGet(final E element)
-	{
-		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
-		{
-			if(e.element == element)
-			{
-				return e.setElement(element);
-			}
-		}
-		this.chain.appendEntry(this.createNewEntry(element));
-		return null;
-	}
-
-	@Override
 	public final E addGet(final E element)
 	{
 		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
@@ -513,6 +499,38 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(element));
+		
+		return null;
+	}
+
+	@Override
+	public final E substitute(final E element)
+	{
+		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
+		{
+			if(e.element == element)
+			{
+				// no need to replace a reference to the same instance.
+				return element;
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(element));
+		
+		return element;
+	}
+
+	@Override
+	public final E putGet(final E element)
+	{
+		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
+		{
+			if(e.element == element)
+			{
+				return e.setElement(element);
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(element));
+		
 		return null;
 	}
 
@@ -523,11 +541,12 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		{
 			if(e.element == element)
 			{
+				// no need to replace a reference to the same instance.
 				return element;
 			}
 		}
-		this.chain.appendEntry(this.createNewEntry(element));
-		return element;
+
+		return null;
 	}
 
 	@Override

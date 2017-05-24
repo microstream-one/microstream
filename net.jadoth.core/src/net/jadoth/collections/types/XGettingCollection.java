@@ -158,6 +158,17 @@ Copyable
 
 	public E search(Predicate<? super E> predicate);
 
+	/**
+	 * Returns the first contained element matching the passed sample as defined by the collection's equality logic
+	 * or null, if no fitting element is contained.
+	 * (For collections using referential equality, this method is basically just a variation of
+	 * {@link #contains(Object)} with a different return type. For collections with data-dependant equality,
+	 * the returned element might be the same as the passed one or a data-wise equal one, depending on the content
+	 * of the collection)
+	 * 
+	 * @param element
+	 * @return
+	 */
 	public E seek(E sample);
 
 	public E max(Comparator<? super E> comparator);

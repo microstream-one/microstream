@@ -408,21 +408,37 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, null));
+		
 		return null;
 	}
 
-	final K internalSubsituteKey(final K key)
+	final K internalReplaceKey(final K key)
 	{
 		final int hash;
 		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return e.key();
+				return e.setKey(key);
+			}
+		}
+
+		return null;
+	}
+	
+	final K internalSubstituteKey(final K key)
+	{
+		final int hash;
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
+			{
+				return e.key = key;
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, null));
-		return key;
+		
+		return null;
 	}
 
 	final void internalAdd(final K key, final V value)
@@ -1014,21 +1030,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final KeyValue<K, V> putGet(final K key, final V value)
-	{
-		final int hash;
-		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
-		{
-			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
-			{
-				return keyValue(e.setKey(key), e.setValue(value));
-			}
-		}
-		this.chain.appendEntry(this.createNewEntry(hash, key, value));
-		return null;
-	}
-
-	@Override
 	public final KeyValue<K, V> addGet(final K key, final V value)
 	{
 		final int hash;
@@ -1040,7 +1041,78 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
+		
 		return null;
+	}
+	
+	@Override
+	public KeyValue<K, V> substitute(final K key, final V value)
+	{
+		final int hash;
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
+			{
+				return e;
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(hash, key, value));
+		
+		return keyValue(key, value);
+	}
+	
+	@Override
+	public KeyValue<K, V> substitute(final KeyValue<K, V> entry)
+	{
+		// can't delegate because the passed instance shall be returned, not a newly created one
+		final int hash;
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(entry.key())) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.key(), entry.key()))
+			{
+				return e;
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(hash, entry.key(), entry.value()));
+		
+		return entry;
+	}
+
+	@Override
+	public final KeyValue<K, V> putGet(final K key, final V value)
+	{
+		final int hash;
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
+			{
+				return keyValue(e.setKey(key), e.setValue(value));
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(hash, key, value));
+		
+		return null;
+	}
+	
+	@Override
+	public KeyValue<K, V> replace(final K key, final V value)
+	{
+		final int hash;
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
+			{
+				return keyValue(e.setKey(key), e.setValue(value));
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public final KeyValue<K, V> replace(final KeyValue<K, V> entry)
+	{
+		return this.replace(entry.key(), entry.value());
 	}
 
 	@Override
@@ -1409,7 +1481,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 		return false;
 	}
-
+	
 	@Override
 	public final KeyValue<K, V> seek(final KeyValue<K, V> sample)
 	{
@@ -1604,22 +1676,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final KeyValue<K, V> addGet(final KeyValue<K, V> entry)
 	{
 		return EqHashTable.this.addGet(entry.key(), entry.value());
-	}
-
-	@Override
-	public final KeyValue<K, V> replace(final KeyValue<K, V> entry)
-	{
-		final int hash;
-		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(entry.key())) & this.range]; e != null; e = e.link)
-		{
-			if(e.hash == hash && this.hashEqualator.equal(e.key(), entry.key()))
-			{
-				return e;
-			}
-		}
-		final ChainMapEntryLinkedHashedStrongStrong<K, V> newEntry;
-		this.chain.appendEntry(newEntry = this.createNewEntry(hash, entry.key(), entry.value()));
-		return newEntry;
 	}
 
 	@SafeVarargs
@@ -2415,7 +2471,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			}
 			return false;
 		}
-
+		
 		@Override
 		public final boolean containsAll(final XGettingCollection<? extends K> elements)
 		{
@@ -2634,21 +2690,27 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
+		public final K addGet(final K element)
+		{
+			return EqHashTable.this.internalAddGetKey(element);
+		}
+		
+		@Override
+		public K substitute(final K element)
+		{
+			return EqHashTable.this.internalPutGetKey(element);
+		}
+
+		@Override
 		public final K putGet(final K element)
 		{
 			return EqHashTable.this.internalPutGetKey(element);
 		}
 
 		@Override
-		public final K addGet(final K element)
-		{
-			return EqHashTable.this.internalAddGetKey(element);
-		}
-
-		@Override
 		public final K replace(final K element)
 		{
-			return EqHashTable.this.internalSubsituteKey(element);
+			return EqHashTable.this.internalReplaceKey(element);
 		}
 
 		@SafeVarargs
@@ -3354,7 +3416,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			return EqHashTable.this.chain.valuesContains(value);
 		}
-
+		
 		@Override
 		public final boolean containsAll(final XGettingCollection<? extends V> values)
 		{
@@ -3506,7 +3568,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final V seek(final V sample)
 		{
-			return EqHashTable.this.chain.valuesGet(sample);
+			return EqHashTable.this.chain.valuesSeek(sample);
 		}
 
 		@Override

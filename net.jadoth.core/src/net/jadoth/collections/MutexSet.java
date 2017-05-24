@@ -183,20 +183,29 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public E putGet(final E e)
-	{
-		synchronized(this.mutex)
-		{
-			return this.subject.putGet(e);
-		}
-	}
-
-	@Override
 	public E addGet(final E e)
 	{
 		synchronized(this.mutex)
 		{
 			return this.subject.addGet(e);
+		}
+	}
+
+	@Override
+	public E substitute(final E e)
+	{
+		synchronized(this.mutex)
+		{
+			return this.subject.substitute(e);
+		}
+	}
+
+	@Override
+	public E putGet(final E e)
+	{
+		synchronized(this.mutex)
+		{
+			return this.subject.putGet(e);
 		}
 	}
 

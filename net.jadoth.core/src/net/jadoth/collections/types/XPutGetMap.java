@@ -21,5 +21,7 @@ public interface XPutGetMap<K, V> extends XPuttingMap<K, V>, XAddGetMap<K, V>
 	 * @return
 	 */
 	public KeyValue<K, V> putGet(K key, V value);
+	
+	public KeyValue<K, V> replace(K key, V value);
 		
 }

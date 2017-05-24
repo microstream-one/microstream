@@ -578,21 +578,6 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	public final E putGet(final E element)
-	{
-		final int hash;
-		for(ChainEntryLinkedHashedStrong<E> e = this.slots[(hash = this.hashEqualator.hash(element)) & this.range]; e != null; e = e.link)
-		{
-			if(e.hash == hash && this.hashEqualator.equal(e.element, element))
-			{
-				return e.setElement(element);
-			}
-		}
-		this.chain.appendEntry(this.createNewEntry(hash, element));
-		return null;
-	}
-
-	@Override
 	public final E addGet(final E element)
 	{
 		final int hash;
@@ -604,6 +589,39 @@ implements XEnum<E>, HashCollection<E>, Composition
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, element));
+		
+		return null;
+	}
+
+	@Override
+	public final E substitute(final E element)
+	{
+		final int hash;
+		for(ChainEntryLinkedHashedStrong<E> e = this.slots[(hash = this.hashEqualator.hash(element)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.element, element))
+			{
+				return e.element;
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(hash, element));
+		
+		return element;
+	}
+
+	@Override
+	public final E putGet(final E element)
+	{
+		final int hash;
+		for(ChainEntryLinkedHashedStrong<E> e = this.slots[(hash = this.hashEqualator.hash(element)) & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == hash && this.hashEqualator.equal(e.element, element))
+			{
+				return e.setElement(element);
+			}
+		}
+		this.chain.appendEntry(this.createNewEntry(hash, element));
+		
 		return null;
 	}
 
@@ -615,11 +633,11 @@ implements XEnum<E>, HashCollection<E>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.element, element))
 			{
-				return e.element;
+				return e.setElement(element);
 			}
 		}
-		this.chain.appendEntry(this.createNewEntry(hash, element));
-		return element;
+
+		return null;
 	}
 
 	@Override
