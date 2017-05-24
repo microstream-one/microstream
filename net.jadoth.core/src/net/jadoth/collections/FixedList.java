@@ -496,7 +496,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	{
 		return AbstractArrayStorage.forwardContainsSame((E[])this.data, 0, this.data.length, element);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)

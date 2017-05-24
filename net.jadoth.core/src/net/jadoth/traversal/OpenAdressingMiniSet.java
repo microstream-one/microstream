@@ -654,13 +654,19 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	}
 
 	@Override
-	public E putGet(final E element)
+	public E addGet(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 	@Override
-	public E addGet(final E element)
+	public E substitute(final E element)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public E putGet(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}

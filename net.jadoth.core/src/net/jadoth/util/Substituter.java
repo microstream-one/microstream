@@ -18,7 +18,7 @@ public interface Substituter<T>
 		@Override
 		public void clear();
 
-		public T remove(T s);
+		public T remove(T instance);
 	}
 
 	public interface Iterable<T> extends Substituter<T>, XIterable<T>
@@ -28,7 +28,11 @@ public interface Substituter<T>
 
 	public interface Queryable<T> extends Substituter<T>
 	{
-		public boolean contains(T s);
+		public boolean contains(T instance);
+		
+		public T lookup(T instance);
+		
+		public long size();
 	}
 
 	public interface Managed<T> extends Removing<T>, Iterable<T>, Queryable<T>
@@ -90,7 +94,7 @@ public interface Substituter<T>
 			{
 				return null;
 			}
-			return this.elements.replace(item);
+			return this.elements.substitute(item);
 		}
 
 		@Override
@@ -111,11 +115,23 @@ public interface Substituter<T>
 		{
 			return this.elements.contains(item);
 		}
+		
+		@Override
+		public final synchronized T lookup(final T instance)
+		{
+			return this.elements.seek(instance);
+		}
 
 		@Override
 		public final synchronized T remove(final T item)
 		{
 			return this.elements.retrieve(item);
+		}
+		
+		@Override
+		public final synchronized long size()
+		{
+			return this.elements.size();
 		}
 
 		@Override

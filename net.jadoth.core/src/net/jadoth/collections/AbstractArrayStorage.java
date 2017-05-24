@@ -1061,7 +1061,7 @@ public abstract class AbstractArrayStorage
 	{
 		return forwardContains(data, lowOffset, highBound, new IsSame<>(element));
 	}
-
+	
 	public static final <E> boolean reverseContainsSame(
 		final E[] data,
 		final int lowOffset,

@@ -17,8 +17,8 @@ public interface XPutGetSet<E> extends XPuttingSet<E>, XAddGetSet<E>, XPutGetCol
 
 
 	public E putGet(E element);
-
-
+	
+	public E replace(E element);
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -1759,7 +1759,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final V seek(final V sample)
 		{
-			return ConstHashTable.this.chain.valuesGet(sample);
+			return ConstHashTable.this.chain.valuesSeek(sample);
 		}
 
 		@Override

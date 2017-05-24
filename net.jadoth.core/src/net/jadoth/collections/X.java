@@ -24,6 +24,7 @@ import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.KeyValue;
+import net.jadoth.util.branching.ThrowBreak;
 
 public final class X
 {
@@ -334,6 +335,41 @@ public final class X
 		return target;
 	}
 
+	
+	public static <E> Consumer<E> conditional(final Predicate<? super E> condition, final Consumer<? super E> consumer)
+	{
+		return e ->
+		{
+			if(condition.test(e))
+			{
+				consumer.accept(e);
+			}
+		};
+	}
+	
+	public static <E, C extends Consumer<? super E>> C iterateConditional(
+		final XIterable<? extends E> elements,
+		final Predicate<? super E> condition,
+		final C logic
+	)
+	{
+		try
+		{
+			elements.iterate(e ->
+			{
+				if(condition.test(e))
+				{
+					logic.accept(e);
+				}
+			});
+		}
+		catch(final ThrowBreak t)
+		{
+			return logic;
+		}
+		
+		return logic;
+	}
 
 
 	private X()

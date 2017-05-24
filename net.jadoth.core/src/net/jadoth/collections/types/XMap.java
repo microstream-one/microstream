@@ -78,6 +78,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 */
 	@Override
 	public KeyValue<K, V> putGet(K key, V value);
+	
 
 	/**
 	 * Sets the passed key and value to an appropriate entry if one can be found. Returns the old value.

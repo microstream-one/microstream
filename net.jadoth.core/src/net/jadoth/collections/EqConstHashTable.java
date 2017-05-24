@@ -1899,7 +1899,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final V seek(final V sample)
 		{
-			return EqConstHashTable.this.chain.valuesGet(sample);
+			return EqConstHashTable.this.chain.valuesSeek(sample);
 		}
 
 		@Override
