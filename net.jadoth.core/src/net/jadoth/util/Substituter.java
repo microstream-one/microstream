@@ -94,7 +94,7 @@ public interface Substituter<T>
 			{
 				return null;
 			}
-			return this.elements.addGet(item);
+			return this.elements.substitute(item);
 		}
 
 		@Override
