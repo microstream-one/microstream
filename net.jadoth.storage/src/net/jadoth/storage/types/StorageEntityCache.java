@@ -13,6 +13,7 @@ import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
 
 
@@ -312,6 +313,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				this.rebuildTidHashTable();
 			}
+			
+			final StorageEntityTypeHandler<?> typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
+			if(typeHandler == null)
+			{
+				// (09.06.2017 TM)EXCP: proper exception
+				throw new StorageException("TypeId not resolvable via type dictionary: " + typeId);
+			}
 
 			// explicit hash index for debug purposes. Creating types is not performance critical.
 			final int hashIndex = tidHashIndex(typeId, this.tidModulo);
@@ -319,7 +327,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// create and register
 			final StorageEntityType.Implementation type = new StorageEntityType.Implementation(
 				this.channelIndex,
-				this.typeDictionary.lookupTypeHandler(typeId),
+				typeHandler,
 				this.tidHashTable[hashIndex],
 				this.typeHead
 			);
@@ -580,10 +588,30 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 //			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
-			return this.createEntity(
-				BinaryPersistence.getEntityObjectId(entityAddress),
-				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
-			);
+	
+			/* the added try-catch showed no change in performance in a test.
+			 * loading ~25 million entities took from 32 to 75 seconds and depends overwhelmingly on
+			 * the state of the disc cache and other OS disturbances and hardly on the actual program code runtime.
+			 * 
+			 */
+			try
+			{
+				return this.createEntity(
+					BinaryPersistence.getEntityObjectId(entityAddress),
+					this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
+				);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(
+					"Exception while creating entity ["
+					+ BinaryPersistence.getEntityLength(entityAddress) + "]["
+					+ BinaryPersistence.getEntityTypeId(entityAddress) + "]["
+					+ BinaryPersistence.getEntityObjectId(entityAddress) + "]"
+					, e
+				);
+			}
+
 		}
 
 		private void resetExistingEntityForUpdate(final StorageEntity.Implementation entry)

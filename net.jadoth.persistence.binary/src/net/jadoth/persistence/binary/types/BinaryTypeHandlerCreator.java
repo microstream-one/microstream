@@ -93,6 +93,12 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				// required for a) sparing unnecessary overhead and b) validation reasons
 				return new BinaryHandlerStateless<>(type, typeId);
 			}
+			
+			if(type.isEnum())
+			{
+				// (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
+//				return this.createEnumHandler(type, typeId, persistableFields, this.lengthResolver);
+			}
 
 			// default implementation simply always uses a blank memory instantiator
 			return new BinaryHandlerGeneric<>(
@@ -100,6 +106,22 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				typeId,
 				BinaryPersistence.blankMemoryInstantiator(type),
 				persistableFields,
+				this.lengthResolver
+			);
+		}
+		
+		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
+		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
+			final Class<?>                       type          ,
+			final long                           tid           ,
+			final XGettingEnum<Field>            allFields     ,
+			final PersistenceFieldLengthResolver lengthResolver
+		)
+		{
+			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
+				(Class<E>)type     ,
+				tid                ,
+				allFields          ,
 				this.lengthResolver
 			);
 		}
