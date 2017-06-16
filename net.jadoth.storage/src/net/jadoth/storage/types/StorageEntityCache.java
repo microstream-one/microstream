@@ -1174,6 +1174,25 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			return this.internalLiveCheck(timeBudgetBound, this.entityCacheEvaluator);
 		}
+		
+		
+		private static StorageEntity.Implementation getFirstReachableEntity(
+			final StorageDataFile.Implementation startingFile
+		)
+		{
+			StorageDataFile.Implementation file = startingFile;
+			do
+			{
+				if(file.head.fileNext != startingFile.tail)
+				{
+					return file.head.fileNext;
+				}
+			}
+			while((file = file.next) != startingFile);
+			
+			// no file contains any reachable (proper) entity. So return null.
+			return null;
+		}
 
 		private boolean internalLiveCheck(final long timeBudgetBound, final StorageEntityCacheEvaluator evaluator)
 		{
@@ -1187,55 +1206,36 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final long evalTime = System.currentTimeMillis();
 
 			final StorageEntity.Implementation   cursor;
-			      StorageDataFile.Implementation file  ;
 			      StorageEntity.Implementation   tail  ;
 			      StorageEntity.Implementation   entity;
+			      StorageDataFile.Implementation file  ;
 
-			if(this.liveCursor == null || !this.liveCursor.isProper())
+			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{
-				file   = this.fileManager.currentStorageFile();
-				cursor = file.head.fileNext;
-			}
-			else if(this.liveCursor.isDeleted())
-			{
-				file   = this.liveCursor.typeInFile.file;
-
-				/* (28.11.2016 TM)FIXME: infinite loop cause?
-				 * what if that file's first entry is unreachable? (e.g. deleted as well)
-				 * this is not a problem for incremental calls of this method, but it is for one giant-budgeted call.
-				 * And that is exactely the behavior observed in productive use: incremental never hangs, only issued.
-				 * But:
-				 * A newly fetched entity cannot be deleted, as the deletion logic removes it from the file chain
-				 * before setting the deleted flag. A bug in that logic (e.g. in the chain disjoining) would be
-				 * required for that.
-				 *
-				 */
-				cursor = file.head.fileNext;
+				// cursor special cases: not set, yet or a head/tail instance or meanwhile deleted (= unreachable)
+				cursor = getFirstReachableEntity(this.fileManager.currentStorageFile().next);
+				
+				// special special case: all files are (effectively) empty. Nothing to check. Prevent inifinite loop.
+				if(cursor == null)
+				{
+					return true;
+				}
 			}
 			else
 			{
+				// normal case: cursor points to a (still) reachable, proper entity.
 				cursor = this.liveCursor;
-				file   = cursor.typeInFile.file;
 			}
+			file   = cursor.typeInFile.file;
 			tail   = file.tail;
 			entity = cursor;
 
-
 //			final long DEBUG_live = 0, DEBUG_unlive = 0;
-
-
-			/* (14.11.2016 TM)FIXME: can be caught in an infinite loop
-			 * notes:
-			 * - obviously only if the timebudget is (virtually) unlimited (issues cache check call)
-			 * - live cursor was a non-dummy entity and had a long list of different successing entities
-			 * - all of them had the SAME filePrev reference, which cannot be.
-			 * - apparently, none of them references the live cursor again
-			 */
 
 			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or
 			do
 			{
-				// for empty files, head.fileNext is the tail. check and skip.
+				// if the end of one file is reached, proceed to the next file.
 				if(entity == tail)
 				{
 					// proceed to next file
@@ -1244,7 +1244,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					entity = file.head.fileNext;
 					continue;
 				}
-
 
 				// debug stuff
 //				if(entity.isProper())
@@ -1260,7 +1259,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //				}
 
 				// check for clearing the current entity's cache
-				if(entity.isLive() && evaluator.clearEntityCache(this.usedCacheSize, evalTime, entity))
+				if(this.entityRequiresCacheClearing(entity, evaluator, evalTime))
 				{
 //					DEBUGStorage.println(this.channelIndex + " clearing entity " + entity);
 					// entity has cached data but was deemed as having to be cleared, so clear it
@@ -1274,7 +1273,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					}
 				}
 
-				// if the end of one file is reached, proceed to the next file
+				// made a full cycle. abort.
 				if((entity = entity.fileNext) == cursor)
 				{
 					break;
@@ -1284,7 +1283,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 			while(System.nanoTime() < timeBudgetBound);
 
-
+//			DEBUGStorage.println(this.channelIndex + " quits live check. Live = " + DEBUG_live + ", unlive = " + DEBUG_unlive + ", cache size = " + this.usedCacheSize + ", time left = " + (System.nanoTime() - timeBudgetBound));
+			return this.quitLiveCheck(entity);
+		}
+		
+		private boolean quitLiveCheck(final StorageEntity.Implementation entity)
+		{
 			if(this.usedCacheSize == 0)
 			{
 				this.resetLiveCursor();
@@ -1298,11 +1302,36 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// keep last checked entity as a cursor / base / starting point for the next cycle's check
 			this.liveCursor = entity;
 
-//			DEBUGStorage.println(this.channelIndex + " suspends live check. Live = " + DEBUG_live + ", unlive = " + DEBUG_unlive + ", cache size = " + this.usedCacheSize + ", time left = " + (System.nanoTime() - timeBudgetBound));
+//			DEBUGStorage.println(this.channelIndex + " suspends live check.");
 
 			// report live check ends incomplete
 			return false;
 		}
+		
+		
+		/* (16.06.2017 TM)NOTE:
+		 * the reason for this method is merely to prevent a bug in JVM JITting:
+		 * Without this method, the cache check would occasionally run indefinitely in certain data constellations.
+		 * With this method, resulting in IDENTICAL logic (but slightly different byte code), the
+		 * Infinite loop wasn't reproducible anymore.
+		 * Since no multithreading is involved here, this can mean only one thing:
+		 * The Jitting changed/ruined the logic described by the source code.
+		 * Not cool :-[.
+		 */
+		private boolean entityRequiresCacheClearing(
+			final StorageEntity.Implementation entity   ,
+			final StorageEntityCacheEvaluator  evaluator,
+			final long                         evalTime
+		)
+		{
+			if(!entity.isLive())
+			{
+				return false;
+			}
+			
+			return evaluator.clearEntityCache(this.usedCacheSize, evalTime, entity);
+		}
+		
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
 		static final StorageEntity.Implementation getNextLiveEntity(StorageEntity.Implementation entity)

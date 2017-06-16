@@ -34,6 +34,8 @@ public interface StorageEntityTypeExportStatistics
 			"Byte Count"  ,
 			"Start Time"  ,
 			"Finish Time" ,
+			"Total Time"  ,
+			"Longest Time",
 			"Type Id"     ,
 			"Type Name"   ,
 			"Type File"
@@ -149,7 +151,7 @@ public interface StorageEntityTypeExportStatistics
 	
 	abstract class AbstractStatistic
 	{
-		long entityCount, bytesWritten, tEnd, tStart = Long.MAX_VALUE;
+		long entityCount, bytesWritten, tLongest, tTotal, tEnd, tStart = Long.MAX_VALUE;
 		
 		final void update(final long entityCount, final long bytesWritten, final long tStart, final long tEnd)
 		{
@@ -157,6 +159,8 @@ public interface StorageEntityTypeExportStatistics
 			this.bytesWritten += bytesWritten;
 			this.tStart       = Math.min(this.tStart, tStart);
 			this.tEnd         = Math.max(this.tEnd, tEnd)    ;
+			this.tLongest     = Math.max(this.tLongest, tEnd - tStart);
+			this.tTotal       += tEnd - tStart;
 		}
 
 		public final long entityCount()
@@ -179,6 +183,16 @@ public interface StorageEntityTypeExportStatistics
 			return this.tEnd;
 		}
 		
+		public final long longestDuration()
+		{
+			return this.tLongest;
+		}
+		
+		public final long totalDuration()
+		{
+			return this.tTotal;
+		}
+		
 		void assembleTableRecord(final VarString vs, final String channel)
 		{
 			vs
@@ -187,6 +201,8 @@ public interface StorageEntityTypeExportStatistics
 			.tab().add(this.bytesWritten)
 			.tab().add(this.tStart)
 			.tab().add(this.tEnd)
+			.tab().add(this.tTotal)
+			.tab().add(this.tLongest)
 			;
 		}
 	}
