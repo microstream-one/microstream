@@ -189,12 +189,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public final XGettingEnum<Field> getAllFields()
-	{
-		return X.empty();
-	}
-
-	@Override
 	public abstract T create(Binary bytes);
 
 	@Override

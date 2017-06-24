@@ -1029,15 +1029,22 @@ public interface StorageFileManager
 
 			for(final StorageInventoryFile file : files)
 			{
-				this.registerHeadFile(file);
-				if(file != lastFile)
+				try
 				{
-					iterator.iterateStoredItems(file.fileChannel(), 0, file.file().length());
+					this.registerHeadFile(file);
+					if(file != lastFile)
+					{
+						iterator.iterateStoredItems(file.fileChannel(), 0, file.file().length());
+					}
+					else
+					{
+						// iterate BEFORE truncation to avoid modifying the file in case of errors in items
+						iterator.iterateStoredItems(lastFile.fileChannel(), 0, lastFileLength);
+					}
 				}
-				else
+				catch(final Exception e)
 				{
-					// iterate BEFORE truncation to avoid modifying the file in case of errors in items
-					iterator.iterateStoredItems(lastFile.fileChannel(), 0, lastFileLength);
+					throw new StorageException("Exception while initializing storage file " + file.file(), e);
 				}
 			}
 		}

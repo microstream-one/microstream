@@ -34,7 +34,7 @@ public class MainTestStorageExample
 //			ROOT.set(Test.generateHashSet(3));
 
 			Test.print("STORAGE: storing ...");
-			STORAGE.storeFull(ROOT);
+			STORAGE.storeRequired(ROOT);
 			Test.print("STORAGE: storing completed.");
 		}
 		else

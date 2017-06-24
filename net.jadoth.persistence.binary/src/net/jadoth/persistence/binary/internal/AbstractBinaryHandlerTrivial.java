@@ -92,12 +92,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	{
 		return X.empty();
 	}
-
-	@Override
-	public final XGettingEnum<Field> getAllFields()
-	{
-		return X.empty();
-	}
 	
 	@Override
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()

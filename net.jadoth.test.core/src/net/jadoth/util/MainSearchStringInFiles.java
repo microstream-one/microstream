@@ -21,59 +21,10 @@ public class MainSearchStringInFiles
 
 	public static void main(final String[] args) throws Exception
 	{
-		// Fall 1
-//		searchStringsInFiles(LOGGING, new File("D:/BonusExportTest/csv").listFiles(), "1000000000024612480");
-//		searchStringsInFiles(LOGGING, new File("D:/BonusExportTest/csv").listFiles(), "1000000000024612290");
-
-		// Fall 2
-//		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest/csv").listFiles(), "26920708");
-//		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest_2015-10-16_10-13-11.301/csv").listFiles(), "1000000000000000008");
-
-//		searchStringsInFiles(DIRECT, new File("D:/BonusExportTest_2016-07-20_12-53-40.706/csv").listFiles(), "1000000000044806574");
-
-
-//		searchStringsInFiles(LOGGING,
-//			new File("D:/BonusExportTest_2016-11-11_16-01-29.518/csv").listFiles(),
-//			completeIds(loadIds(new File("P:/Integration/2016/Zombie References 2016-11-11/Zombie OIDs 2016-11-11 Search.txt"), "\\n"), "10000000000")
-//		);
-
-		// 1000000000046756227 ist Lazy mit Referenz auf Zombie 1000000000046756228
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-01-29.518/csv").listFiles(),
-//			"1000000000046756227"
-//		);
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-35-09.436/csv").listFiles(),
-//			"1000000000046756227"
-//		);
-
-		// 1000000000049005596 ist EqHashTable mit Referenz auf zombie
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-01-29.518/csv").listFiles(),
-//			"1000000000049005596"
-//		);
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-35-09.436/csv").listFiles(),
-//			"1000000000049005596"
-//		);
-
-		// konzabansprüche 1000000000049005586 referenziert 1000000000049005596
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-35-09.436/csv").listFiles(),
-//			"1000000000049005586"
-//		);
-
-		// lazy 1000000000049005584 ref 1000000000049005586
-//		searchStringsInFiles(DIRECT,
-//			new File("D:/BonusExportTest_2016-11-11_16-35-09.436/csv").listFiles(),
-//			"1000000000049005584"
-//		);
-
-
 		// 1000000000049275254 ist das erste KonzAbschlagAnspruchAhVlUSt von KonzAbschlagAnsprueche hashTable 1000000000049005596
 		searchStringsInFiles(DIRECT,
-			new File("D:/BonusExportTest_2017-03-06_13-56-13.733/csv").listFiles(),
-			"1000000000020811816"
+			new File("D:/BonusExportTest_2017-06-09_15-03-44.925/csv").listFiles(),
+			"1000000000024649203"
 		);
 
 	}

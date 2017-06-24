@@ -5,7 +5,6 @@ import static net.jadoth.math.JadothMath.positive;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
@@ -65,7 +64,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 
 //	public PersistenceTypeDescription<T> typeDescription();
 
-	public XGettingEnum<Field> getAllFields();
+//	public XGettingEnum<Field> getAllFields();
 
 //	public XGettingEnum<Field> getStaticFinalFields();
 //	public XGettingEnum<Field> getStaticFinalReferenceFields();

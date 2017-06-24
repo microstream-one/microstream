@@ -76,7 +76,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	@Override
 	public final ArrayList<?> create(final Binary bytes)
 	{
-		return new ArrayList<>(BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET));
+		return new ArrayList<>(
+			BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET)
+		);
 	}
 
 	@Override
