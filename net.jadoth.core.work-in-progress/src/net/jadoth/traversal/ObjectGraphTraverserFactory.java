@@ -32,6 +32,8 @@ import net.jadoth.traversal.handlers.TraversalHandlerIterable;
 import net.jadoth.traversal.handlers.TraversalHandlerMap;
 import net.jadoth.traversal.handlers.TraversalHandlerXGettingMap;
 import net.jadoth.traversal.handlers.TraversalHandlerXIterable;
+import net.jadoth.traversal2.OpenAdressingMiniSet;
+import net.jadoth.traversal.TraversalHandlerProvider;
 import net.jadoth.util.KeyValue;
 
 public interface ObjectGraphTraverserFactory

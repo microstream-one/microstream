@@ -13,6 +13,11 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.traversal.TraversalHandler;
+import net.jadoth.traversal.TraversalHandlerProvider;
+import net.jadoth.traversal2.OpenAdressingMiniSet;
+import net.jadoth.traversal2.TraversalSignalAbort;
+import net.jadoth.traversal2.TraversalSignalSkipInstance;
 
 
 @FunctionalInterface

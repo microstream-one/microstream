@@ -1,4 +1,4 @@
-package net.jadoth.traversal;
+package net.jadoth.traversal2;
 
 /**
  * This type should actually extend {@link Throwable}, not {@link Runtime}. But sadly, the prior is checked,

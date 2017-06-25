@@ -1,21 +1,19 @@
-package net.jadoth.test.corp.logic;
+package net.jadoth.traversal;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional.JadothAggregates;
 import net.jadoth.functional.JadothPredicates;
-import net.jadoth.test.corp.model.ClientCorporation;
-import net.jadoth.test.corp.model.Person;
-import net.jadoth.traversal.ObjectGraphTraverser;
-import net.jadoth.traversal.OpenAdressingMiniSet;
+import net.jadoth.traversal2.OpenAdressingMiniSet;
 
 public class MainTestExampleGraphTraversal
 {
 	public static void main(final String[] args) throws Throwable
 	{
 		// example graph of n entities (~ 3*n instances including value types)
-		final ClientCorporation corp = Test.generateModelData(5_000);
+//		final ClientCorporation corp = Test.generateModelData(5_000);
+		final Object corp = null;
 
 
 
@@ -36,12 +34,12 @@ public class MainTestExampleGraphTraversal
 		System.out.println(allInstances.size()+" instances");
 
 		// 5.) select entities by type and a custom condition
-		final XList<Person> persons = ObjectGraphTraverser.selectFromGraph(
-			corp,
-			Person.class,
-			p -> p.lastname().length() < 10
-		);
-		System.out.println(persons.size()+" matching persons.");
+//		final XList<Person> persons = ObjectGraphTraverser.selectFromGraph(
+//			corp,
+//			Person.class,
+//			p -> p.lastname().length() < 10
+//		);
+//		System.out.println(persons.size()+" matching persons.");
 
 
 
@@ -108,9 +106,10 @@ public class MainTestExampleGraphTraversal
 
 	static void testPerformance(final int amount)
 	{
-		final Object root = Test.generateModelData(amount);
+//		final Object root = Test.generateModelData(amount);
 //		final Object root = generateSimpleModel(amount);
 //		final Object root = generateStringArray(amount);
+		final Object root = null;
 
 
 		// always at least 2 warmup runs

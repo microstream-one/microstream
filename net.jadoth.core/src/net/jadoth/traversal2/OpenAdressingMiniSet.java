@@ -1,4 +1,4 @@
-package net.jadoth.traversal;
+package net.jadoth.traversal2;
 
 import java.util.Comparator;
 import java.util.Iterator;

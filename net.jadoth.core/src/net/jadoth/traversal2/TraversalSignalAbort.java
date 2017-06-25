@@ -1,4 +1,4 @@
-package net.jadoth.traversal;
+package net.jadoth.traversal2;
 
 
 public final class TraversalSignalAbort extends AbstractTraversalSignal
@@ -34,5 +34,5 @@ public final class TraversalSignalAbort extends AbstractTraversalSignal
 	{
 		super();
 	}
-	
+		
 }

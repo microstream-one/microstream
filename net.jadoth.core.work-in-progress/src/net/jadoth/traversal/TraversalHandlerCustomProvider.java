@@ -3,6 +3,7 @@ package net.jadoth.traversal;
 import java.util.function.Predicate;
 
 import net.jadoth.traversal.handlers.TraversalHandlerLeaf;
+import net.jadoth.traversal.TraversalHandler;
 
 @FunctionalInterface
 public interface TraversalHandlerCustomProvider<T>

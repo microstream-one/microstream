@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.traversal.TraversalHandler;
 
 @FunctionalInterface
 public interface TraversalHandler<T>

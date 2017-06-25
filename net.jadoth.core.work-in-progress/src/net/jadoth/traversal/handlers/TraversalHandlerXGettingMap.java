@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.traversal.TraversalHandler;
 import net.jadoth.traversal.TraversalHandlerCustomProvider;
 import net.jadoth.traversal.TraversalHandlingLogicProvider;
+import net.jadoth.traversal.TraversalHandler;
 import net.jadoth.util.KeyValue;
 
 

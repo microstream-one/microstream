@@ -12,6 +12,8 @@ import net.jadoth.reflect.JadothReflect;
 import net.jadoth.traversal.handlers.TraversalHandlerArray;
 import net.jadoth.traversal.handlers.TraversalHandlerLeaf;
 import net.jadoth.traversal.handlers.TraversalHandlerReflective;
+import net.jadoth.traversal.TraversalHandler;
+import net.jadoth.traversal.TraversalHandlerProvider;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.branching.ThrowBreak;
 

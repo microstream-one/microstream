@@ -1,6 +1,7 @@
-package net.jadoth.traversal;
+package net.jadoth.traversal2;
 
 
+@Deprecated // (25.06.2017 TM)NOTE: should be obsolete with new concept
 public final class TraversalSignalSkipInstance extends AbstractTraversalSignal
 {
 	///////////////////////////////////////////////////////////////////////////
