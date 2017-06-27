@@ -124,9 +124,9 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public synchronized E substitute(final E e)
+	public synchronized E deduplicate(final E e)
 	{
-		return this.subject.substitute(e);
+		return this.subject.deduplicate(e);
 	}
 
 	@Override

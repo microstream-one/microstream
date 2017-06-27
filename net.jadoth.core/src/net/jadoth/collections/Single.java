@@ -866,7 +866,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public E substitute(final E element)
+	public E deduplicate(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Single#substitute()
 	}

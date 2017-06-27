@@ -94,7 +94,7 @@ public interface Substituter<T>
 			{
 				return null;
 			}
-			return this.elements.substitute(item);
+			return this.elements.deduplicate(item);
 		}
 
 		@Override

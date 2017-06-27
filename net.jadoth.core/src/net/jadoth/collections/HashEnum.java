@@ -504,7 +504,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final E substitute(final E element)
+	public final E deduplicate(final E element)
 	{
 		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
 		{

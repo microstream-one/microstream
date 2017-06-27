@@ -594,7 +594,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	public final E substitute(final E element)
+	public final E deduplicate(final E element)
 	{
 		final int hash;
 		for(ChainEntryLinkedHashedStrong<E> e = this.slots[(hash = this.hashEqualator.hash(element)) & this.range]; e != null; e = e.link)

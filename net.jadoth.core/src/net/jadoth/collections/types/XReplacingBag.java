@@ -20,9 +20,9 @@ public interface XReplacingBag<E> extends XGettingCollection<E>, ReleasingCollec
 
 	public long replaceAll(XGettingCollection<? extends E> elements, E replacement);
 
-	public boolean replaceOne(Predicate<? super E> predicate, E substitute);
+	public boolean replaceOne(Predicate<? super E> predicate, E replacement);
 	
-	public long replace(Predicate<? super E> predicate, E substitute);
+	public long replace(Predicate<? super E> predicate, E replacement);
 		
 	public long substitute(Function<E, E> mapper);
 

@@ -160,11 +160,11 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 	}
 
 	@Override
-	public final KeyValue<K, V> substitute(final KeyValue<K, V> element)
+	public final KeyValue<K, V> deduplicate(final KeyValue<K, V> element)
 	{
 		synchronized(this.lock)
 		{
-			return this.subject.substitute(element);
+			return this.subject.deduplicate(element);
 		}
 	}
 

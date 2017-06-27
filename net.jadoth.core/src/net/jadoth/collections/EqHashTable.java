@@ -1062,7 +1062,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 	
 	@Override
-	public KeyValue<K, V> substitute(final KeyValue<K, V> entry)
+	public KeyValue<K, V> deduplicate(final KeyValue<K, V> entry)
 	{
 		// can't delegate because the passed instance shall be returned, not a newly created one
 		final int hash;
@@ -2696,9 +2696,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 		
 		@Override
-		public K substitute(final K element)
+		public K deduplicate(final K element)
 		{
-			return EqHashTable.this.internalPutGetKey(element);
+			return EqHashTable.this.internalAddGetKey(element);
 		}
 
 		@Override

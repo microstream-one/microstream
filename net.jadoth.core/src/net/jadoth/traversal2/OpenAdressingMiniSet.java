@@ -660,7 +660,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	}
 
 	@Override
-	public E substitute(final E element)
+	public E deduplicate(final E element)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError();
 	}

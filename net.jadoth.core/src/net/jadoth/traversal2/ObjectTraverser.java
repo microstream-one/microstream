@@ -198,8 +198,7 @@ public interface ObjectTraverser
 				this.iterationHead[this.iterationHeadIndex++] = instance;
 			}
 						
-			@SuppressWarnings("unchecked") // "T" is an arbitrary (the current) type
-			private <T> T dequeue()
+			private Object dequeue()
 			{
 				// (25.06.2017 TM)TODO: test performance of outsourced private methods
 				if(this.tailIsHead)
@@ -211,7 +210,7 @@ public interface ObjectTraverser
 					this.advanceSegment();
 				}
 				
-				return (T)this.iterationTail[this.iterationTailIndex++];
+				return this.iterationTail[this.iterationTailIndex++];
 			}
 			
 			private void checkForCompletion()
@@ -229,11 +228,11 @@ public interface ObjectTraverser
 				this.tailIsHead         = this.iterationTail == this.iterationHead;
 			}
 						
-			final <T> void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
+			final void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
 			{
-				final T                   instance = this.dequeue();
-				final TraversalHandler<T> handler  = this.handlerProvider.provideTraversalHandler(instance);
-				handler.handleReferences(instance, acceptor, this.alreadyHandled.add(instance) ? this : null);
+				final Object           instance = this.dequeue();
+				final TraversalHandler handler  = this.handlerProvider.provideTraversalHandler(instance);
+				handler.traverseReferences(instance, acceptor, this.alreadyHandled.add(instance) ? this : null);
 			}
 			
 		}

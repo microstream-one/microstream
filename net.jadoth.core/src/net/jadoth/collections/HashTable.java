@@ -1530,7 +1530,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final KeyValue<K, V> substitute(final KeyValue<K, V> entry)
+	public final KeyValue<K, V> deduplicate(final KeyValue<K, V> entry)
 	{
 		// can't delegate because the passed instance shall be returned, not a newly created one
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(entry.key()) & this.range]; e != null; e = e.link)
@@ -2540,7 +2540,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final K substitute(final K element)
+		public final K deduplicate(final K element)
 		{
 			return HashTable.this.internalSubstituteKey(element);
 		}
