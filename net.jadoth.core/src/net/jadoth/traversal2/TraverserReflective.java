@@ -4,14 +4,13 @@ import java.lang.reflect.Field;
 
 import net.jadoth.reflect.JadothReflect;
 
-public final class TraverserByFields implements ReferenceAccessor, TraversalHandler
+public final class TraverserReflective implements TraversalHandler
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
 	private final Field[] fields;
-	private       Field   currentField;
 	
 	
 	
@@ -19,7 +18,7 @@ public final class TraverserByFields implements ReferenceAccessor, TraversalHand
 	// constructors //
 	/////////////////
 
-	TraverserByFields(final Field[] fields)
+	TraverserReflective(final Field[] fields)
 	{
 		super();
 		this.fields = fields;
@@ -32,18 +31,6 @@ public final class TraverserByFields implements ReferenceAccessor, TraversalHand
 	////////////
 
 	@Override
-	public Object get(final Object parent)
-	{
-		return JadothReflect.getFieldValue(this.currentField, parent);
-	}
-
-	@Override
-	public void set(final Object parent, final Object newValue)
-	{
-		JadothReflect.setFieldValue(this.currentField, parent, newValue);
-	}
-
-	@Override
 	public void traverseReferences(final Object parent, final TraversalAcceptor acceptor, final TraversalEnqueuer enqueuer)
 	{
 		final Field[] fields = this.fields;
@@ -51,9 +38,12 @@ public final class TraverserByFields implements ReferenceAccessor, TraversalHand
 		
 		for(int i = 0; i < length; i++)
 		{
-			acceptor.acceptInstance(JadothReflect.getFieldValue(this.currentField = fields[i], parent), parent, this, enqueuer);
+			final Object current, v;
+			if((v = acceptor.acceptInstance(current = JadothReflect.getFieldValue(fields[i], parent), parent, enqueuer)) != current)
+			{
+				JadothReflect.setFieldValue(fields[i], parent, v);
+			}
 		}
-		this.currentField = null;
 	}
 
 }

@@ -1,41 +1,25 @@
 package net.jadoth.traversal2;
 
-import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.collections.HashTable;
+import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.util.KeyValue;
 
 public interface TraversalHandlerProvider
 {
 	public TraversalHandler provideTraversalHandler(Object instance);
 		
-	// every instance must be thread-local / thread-exclusive
-	/* (27.06.2017 TM)FIXME: but that contradicts/complicates all the handler registration
-	 * There must be a decoupling of (registerable) traversal handler logic and traversing state
-	 * There has to be a TraversalHandlerProviderProvider that provides a thread-exclusive TraversalHandlerProvider
-	 * on every call / thread.
-	 * The callback to analyse a new type and create a suitable handler for it can be routed back to the TraversalHandlerProviderProvider
-	 * which in turn registers a suitable TraversalHandlerTypeProvider.
-	 * 
-	 * ...
-	 * On the other hand ...
-	 * Forseeing / securing multithreading for a task like graph traversal is pretty tricky.
-	 * E.g. alreadyHandled management, race conditions in case of handlers registering skip instances, etc.
-	 * 
-	 * Maybe the implementation should strictly only support single threaded usage.
-	 * At least initially or in the default implementation
-	 * 
-	 * 
-	 */
+
+	
 	public final class Implementation implements TraversalHandlerProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final XGettingMap<Object, TraversalHandler>   handlersPerInstance      ;
-		private final XGettingMap<Class<?>, TraversalHandler> handlersPerConcreteType  ;
-		
-		// must contain Object[] and XReplacingBag[]
-		// (27.06.2017 TM)FIXME: but wouldn't that suffice to be done once upon analysis of an unhandled type?
-		private final XGettingMap<Class<?>, TraversalHandler> handlersPerPolymorphTypes;
+		private final HashTable<Object, TraversalHandler>       handlersPerInstance     ;
+		private final HashTable<Class<?>, TraversalHandler>     handlersPerConcreteType ;
+		private final XGettingTable<Class<?>, TraversalHandler> handlersPerPolymorphType;
+		private final TraversalHandlerCreator                   traversalHandlerCreator ;
 		
 		
 		
@@ -44,22 +28,39 @@ public interface TraversalHandlerProvider
 		/////////////////
 		
 		Implementation(
-			final XGettingMap<Object, TraversalHandler>   handlersPerInstance      ,
-			final XGettingMap<Class<?>, TraversalHandler> handlersPerConcreteType  ,
-			final XGettingMap<Class<?>, TraversalHandler> handlersPerPolymorphTypes,
-			final TraverserXCollection                    traverserXCollection     ,
-			final TraverserArray                          traverserArray
+			final HashTable<Object, TraversalHandler>       handlersPerInstance     ,
+			final HashTable<Class<?>, TraversalHandler>     handlersPerConcreteType ,
+			final XGettingTable<Class<?>, TraversalHandler> handlersPerPolymorphType,
+			final TraversalHandlerCreator                   traversalHandlerCreator
 		)
 		{
 			super();
-			this.handlersPerInstance       = handlersPerInstance      ;
-			this.handlersPerConcreteType   = handlersPerConcreteType  ;
-			this.handlersPerPolymorphTypes = handlersPerPolymorphTypes;
+			this.handlersPerInstance      = handlersPerInstance     ;
+			this.handlersPerConcreteType  = handlersPerConcreteType ;
+			this.handlersPerPolymorphType = handlersPerPolymorphType;
+			this.traversalHandlerCreator  = traversalHandlerCreator ;
 		}
 		
 		private TraversalHandler handleNewType(final Class<?> type)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME TraversalHandlerProvider.Implementation#handleNewType()
+			for(final KeyValue<Class<?>, TraversalHandler> entry : this.handlersPerPolymorphType)
+			{
+				if(entry.key().isAssignableFrom(type))
+				{
+					return this.registerForConcreteType(entry.value(), type);
+				}
+			}
+			
+			return this.registerForConcreteType(
+				this.traversalHandlerCreator.createTraversalHandler(type),
+				type
+			);
+		}
+		
+		private TraversalHandler registerForConcreteType(final TraversalHandler traversalHandler, final Class<?> type)
+		{
+			this.handlersPerConcreteType.add(type, traversalHandler);
+			return traversalHandler;
 		}
 
 		@Override
