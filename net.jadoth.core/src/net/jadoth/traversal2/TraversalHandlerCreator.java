@@ -54,7 +54,7 @@ public interface TraversalHandlerCreator
 			final Field[] collectedFields = collectFields(type);
 			
 			return collectedFields.length != 0
-				? new TraverserReflective(collectedFields)
+				? new TraverserReflective(type, collectedFields)
 				: null
 			;
 		}

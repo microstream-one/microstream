@@ -1,6 +1,7 @@
 package net.jadoth.traversal2;
 
 import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
@@ -17,6 +18,24 @@ public interface TraversalHandlerProvider
 		return this.provideTraversalHandler(instance) == null;
 	}
 
+	
+	
+	public static TraversalHandlerProvider New(
+		final XGettingMap<Object, TraversalHandler>     handlersPerInstance     ,
+		final XGettingMap<Class<?>, TraversalHandler>   handlersPerConcreteType ,
+		final XGettingTable<Class<?>, TraversalHandler> handlersPerPolymorphType,
+		final XGettingCollection<Class<?>>              leafTypes               ,
+		final TraversalHandlerCreator                   traversalHandlerCreator
+	)
+	{
+		return new TraversalHandlerProvider.Implementation(
+			handlersPerInstance != null && handlersPerInstance.isEmpty() ? null : handlersPerInstance,
+			notNull(handlersPerConcreteType) ,
+			notNull(handlersPerPolymorphType),
+			notNull(leafTypes)               ,
+			notNull(traversalHandlerCreator)
+		);
+	}
 	
 	public final class Implementation implements TraversalHandlerProvider
 	{

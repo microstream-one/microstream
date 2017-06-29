@@ -10,7 +10,8 @@ public final class TraverserReflective implements TraversalHandler
 	// instance fields //
 	////////////////////
 	
-	private final Field[] fields;
+	private final Class<?> type  ;
+	private final Field[]  fields;
 	
 	
 	
@@ -18,9 +19,10 @@ public final class TraverserReflective implements TraversalHandler
 	// constructors //
 	/////////////////
 
-	TraverserReflective(final Field[] fields)
+	TraverserReflective(final Class<?> type, final Field[] fields)
 	{
 		super();
+		this.type   = type  ;
 		this.fields = fields;
 	}
 	
@@ -29,6 +31,11 @@ public final class TraverserReflective implements TraversalHandler
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	public final Class<?> type()
+	{
+		return this.type;
+	}
 
 	@Override
 	public final void traverseReferences(
