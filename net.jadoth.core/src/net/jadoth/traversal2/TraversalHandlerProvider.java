@@ -1,22 +1,41 @@
 package net.jadoth.traversal2;
 
+import static net.jadoth.Jadoth.coalesce;
+
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.util.KeyValue;
 
 public interface TraversalHandlerProvider
 {
 	public TraversalHandler provideTraversalHandler(Object instance);
-		
+	
+	public default boolean isUnhandled(final Object instance)
+	{
+		return this.provideTraversalHandler(instance) == null;
+	}
 
 	
 	public final class Implementation implements TraversalHandlerProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// constants        //
+		/////////////////////
+		
+		static final TraversalHandler UNHANDLED = (a, b, c) ->
+		{
+			// empty
+		};
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final HashTable<Object, TraversalHandler>       handlersPerInstance     ;
+		private final XGettingMap<Object, TraversalHandler>     handlersPerInstance     ;
 		private final HashTable<Class<?>, TraversalHandler>     handlersPerConcreteType ;
 		private final XGettingTable<Class<?>, TraversalHandler> handlersPerPolymorphType;
 		private final TraversalHandlerCreator                   traversalHandlerCreator ;
@@ -28,17 +47,28 @@ public interface TraversalHandlerProvider
 		/////////////////
 		
 		Implementation(
-			final HashTable<Object, TraversalHandler>       handlersPerInstance     ,
-			final HashTable<Class<?>, TraversalHandler>     handlersPerConcreteType ,
+			final XGettingMap<Object, TraversalHandler>     handlersPerInstance     ,
+			final XGettingMap<Class<?>, TraversalHandler>   handlersPerConcreteType ,
 			final XGettingTable<Class<?>, TraversalHandler> handlersPerPolymorphType,
+			final XGettingCollection<Class<?>>              leafTypes               ,
 			final TraversalHandlerCreator                   traversalHandlerCreator
 		)
 		{
 			super();
 			this.handlersPerInstance      = handlersPerInstance     ;
-			this.handlersPerConcreteType  = handlersPerConcreteType ;
 			this.handlersPerPolymorphType = handlersPerPolymorphType;
 			this.traversalHandlerCreator  = traversalHandlerCreator ;
+			this.handlersPerConcreteType  = initializeHandlersPerConcreteType(handlersPerConcreteType, leafTypes);
+		}
+		
+		private HashTable<Class<?>, TraversalHandler> initializeHandlersPerConcreteType(
+			final XGettingMap<Class<?>, TraversalHandler> handlersPerConcreteType ,
+			final XGettingCollection<Class<?>>            leafTypes
+		)
+		{
+			final HashTable<Class<?>, TraversalHandler> localMap = HashTable.New(handlersPerConcreteType);
+			leafTypes.iterate(t -> localMap.add(t, UNHANDLED));
+			return localMap;
 		}
 		
 		private TraversalHandler handleNewType(final Class<?> type)
@@ -52,7 +82,7 @@ public interface TraversalHandlerProvider
 			}
 			
 			return this.registerForConcreteType(
-				this.traversalHandlerCreator.createTraversalHandler(type),
+				coalesce(this.traversalHandlerCreator.createTraversalHandler(type), UNHANDLED),
 				type
 			);
 		}
@@ -83,7 +113,7 @@ public interface TraversalHandlerProvider
 			final TraversalHandler perTypeHandler;
 			if((perTypeHandler = this.handlersPerConcreteType.get(instance.getClass())) != null)
 			{
-				return perTypeHandler;
+				return perTypeHandler == UNHANDLED ? null : perTypeHandler;
 			}
 			
 			return this.handleNewType(instance.getClass());

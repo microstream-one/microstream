@@ -1,12 +1,16 @@
 package net.jadoth.traversal2;
 
+import static net.jadoth.Jadoth.coalesce;
+
 import java.util.function.Function;
 
 import net.jadoth.Jadoth;
+import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
 
-public interface ObjectTraverser
+
+public interface ObjectGraphTraverser2
 {
 	public default void traverse(final Object instance)
 	{
@@ -32,21 +36,38 @@ public interface ObjectTraverser
 		TraversalSignalAbort.fire();
 	}
 
-	public static void signalSkipInstance() throws TraversalSignalSkipInstance
+	
+	public static ObjectGraphTraverser2Factory Factory()
 	{
-		TraversalSignalSkipInstance.fire();
+		return new ObjectGraphTraverser2Factory.Implementation();
 	}
 	
+	public static ObjectGraphTraverser2 New(
+		final TraversalHandlerProvider                           handlerProvider       ,
+		final XGettingCollection<Object>                         skipped               ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+		final TraversalAcceptor                                  acceptor
+	)
+	{
+		return new ObjectGraphTraverser2.Implementation(
+			handlerProvider,
+			coalesce(skipped, X.empty()).immure(),
+			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
+			acceptor
+			
+		);
+	}
 	
-	public final class Implementation implements ObjectTraverser
+	public final class Implementation implements ObjectGraphTraverser2
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
+
 		private final TraversalHandlerProvider                           handlerProvider       ;
 		private final XGettingCollection<Object>                         skipped               ;
+		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
+		private final TraversalAcceptor                                  acceptor              ;
 		
 		
 		
@@ -55,15 +76,17 @@ public interface ObjectTraverser
 		/////////////////
 		
 		Implementation(
-			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
 			final TraversalHandlerProvider                           handlerProvider       ,
-			final XGettingCollection<Object>                         skipped
+			final XGettingCollection<Object>                         skipped               ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+			final TraversalAcceptor                                  acceptor
 		)
 		{
 			super();
-			this.alreadyHandledProvider = alreadyHandledProvider;
 			this.handlerProvider        = handlerProvider       ;
 			this.skipped                = skipped               ;
+			this.alreadyHandledProvider = alreadyHandledProvider;
+			this.acceptor               = acceptor              ;
 		}
 		
 		
@@ -74,7 +97,7 @@ public interface ObjectTraverser
 
 		@Override
 		public final synchronized <A extends TraversalAcceptor> A traverseAll(
-			final Object[] instances    ,
+			final Object[] instances,
 			final A        acceptor
 		)
 		{
@@ -131,8 +154,8 @@ public interface ObjectTraverser
 			// instance fields //
 			////////////////////
 			
-			private final TraversalHandlerProvider handlerProvider ;
-			private final XSet<Object>             alreadyHandled  ;
+			private final TraversalHandlerProvider handlerProvider;
+			private final XSet<Object>             alreadyHandled ;
 
 			Object[] iterationTail      = createIterationSegment();
 			Object[] iterationHead      = this.iterationTail;
@@ -158,10 +181,6 @@ public interface ObjectTraverser
 
 				for(final Object instance : instances)
 				{
-					if(instance == null)
-					{
-						continue;
-					}
 					this.enqueue(instance);
 				}
 			}
@@ -187,15 +206,41 @@ public interface ObjectTraverser
 					return;
 				}
 				
+				if(!this.alreadyHandled.add(instance))
+				{
+					return;
+				}
+				
+				/* this check causes a redundant lookup in the handler registry: one here, one later to
+				 * actually get the handler.
+				 * Nevertheless, this is considered the favorable strategy, as the alternatives would be:
+				 * - no check at all, meaning to potentially enqueuing millions of leaf type instances,
+				 *   bloating the queue, maybe even causing out of memory problems
+				 * - co-enqueuing the handler, but at the price of doubled queue size, complicated dequeueing logic and
+				 *   compromised type safety (every second item is actually a handler instance hacked into the queue)
+				 * So in the end, it seems best to accept a slight performance overhead but keep the queue as
+				 * small as possible.
+				 * Other implementations can take different approaches to optimize runtime behavior to suit their needs.
+				 */
+				if(this.handlerProvider.isUnhandled(instance))
+				{
+					return;
+				}
+								
 				if(this.iterationHeadIndex >= SEGMENT_SIZE)
 				{
-					final Object[] nextIterationSegment = createIterationSegment();
-					this.iterationHead[SEGMENT_SIZE] = nextIterationSegment;
-					this.iterationHead = nextIterationSegment;
-					this.iterationHeadIndex = 0;
-					this.tailIsHead = false;
+					this.increaseIterationQueue();
 				}
 				this.iterationHead[this.iterationHeadIndex++] = instance;
+			}
+			
+			private void increaseIterationQueue()
+			{
+				final Object[] nextIterationSegment = createIterationSegment();
+				this.iterationHead[SEGMENT_SIZE]    = nextIterationSegment    ;
+				this.iterationHead                  = nextIterationSegment    ;
+				this.iterationHeadIndex             = 0                       ;
+				this.tailIsHead                     = false                   ;
 			}
 						
 			private Object dequeue()
@@ -217,7 +262,7 @@ public interface ObjectTraverser
 			{
 				if(this.iterationTailIndex >= this.iterationHeadIndex)
 				{
-					ObjectTraverser.signalAbortTraversal();
+					ObjectGraphTraverser2.signalAbortTraversal();
 				}
 			}
 			

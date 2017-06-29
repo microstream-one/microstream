@@ -31,18 +31,34 @@ public final class TraverserReflective implements TraversalHandler
 	////////////
 
 	@Override
-	public void traverseReferences(final Object parent, final TraversalAcceptor acceptor, final TraversalEnqueuer enqueuer)
+	public final void traverseReferences(
+		final Object            instance,
+		final TraversalAcceptor acceptor,
+		final TraversalEnqueuer enqueuer
+	)
 	{
-		final Field[] fields = this.fields;
+		final Field[] fields = this.fields  ;
 		final int     length = fields.length;
 		
-		for(int i = 0; i < length; i++)
+		try
 		{
-			final Object current, v;
-			if((v = acceptor.acceptInstance(current = JadothReflect.getFieldValue(fields[i], parent), parent, enqueuer)) != current)
+			for(int i = 0; i < length; i++)
 			{
-				JadothReflect.setFieldValue(fields[i], parent, v);
+				final Object current, returned;
+				if((returned = acceptor.acceptInstance(
+					current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer)
+				) != current)
+				{
+					JadothReflect.setFieldValue(fields[i], instance, returned);
+				}
+				
+				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
+				enqueuer.enqueue(returned);
 			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
 	}
 

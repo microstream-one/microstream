@@ -7,11 +7,29 @@ public final class TraverserXCollection implements TraversalHandler
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public void traverseReferences(final Object instance, final TraversalAcceptor acceptor, final TraversalEnqueuer enqueuer)
+	public final void traverseReferences(
+		final Object            instance,
+		final TraversalAcceptor acceptor,
+		final TraversalEnqueuer enqueuer
+	)
 	{
-		((XReplacingBag<Object>)instance).substitute(current ->
+		try
 		{
-			return acceptor.acceptInstance(current, instance, enqueuer);
-		});
+			((XReplacingBag<Object>)instance).substitute(current ->
+			{
+				final Object returned = acceptor.acceptInstance(current, instance, enqueuer);
+				
+				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
+				enqueuer.enqueue(returned);
+				
+				return returned;
+			});
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+		
 	}
+	
 }

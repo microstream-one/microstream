@@ -3,6 +3,9 @@ package net.jadoth.traversal2;
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
 
+import net.jadoth.collections.HashEnum;
+import net.jadoth.reflect.JadothReflect;
+
 public interface TraversalHandlerCreator
 {
 	public TraversalHandler createTraversalHandler(Class<?> type);
@@ -37,14 +40,23 @@ public interface TraversalHandlerCreator
 		
 		private final Field[] collectFields(final Class<?> type)
 		{
-			// FIXME TraversalHandlerCreator.Reflective#createTraversalHandler()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			final HashEnum<Field> selectedFields = HashEnum.New();
+			JadothReflect.collectTypedFields(selectedFields, type, field ->
+				JadothReflect.isInstanceField(field)
+				&& this.fieldSelector.test(field))
+			;
+			return selectedFields.toArray(Field.class);
 		}
 
 		@Override
-		public TraversalHandler createTraversalHandler(final Class<?> type)
+		public final TraversalHandler createTraversalHandler(final Class<?> type)
 		{
-			return new TraverserReflective(this.collectFields(type));
+			final Field[] collectedFields = collectFields(type);
+			
+			return collectedFields.length != 0
+				? new TraverserReflective(collectedFields)
+				: null
+			;
 		}
 		
 	}
