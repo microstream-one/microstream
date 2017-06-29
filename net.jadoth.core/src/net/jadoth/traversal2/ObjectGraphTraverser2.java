@@ -1,6 +1,7 @@
 package net.jadoth.traversal2;
 
 import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Function;
 
@@ -23,10 +24,7 @@ public interface ObjectGraphTraverser2
 		return acceptor;
 	}
 
-	public default void traverseAll(final Object[] instances)
-	{
-		this.traverseAll(instances, null);
-	}
+	public void traverseAll(final Object[] instances);
 
 	public <A extends TraversalAcceptor> A traverseAll(Object[] instances, A acceptor);
 	
@@ -94,13 +92,14 @@ public interface ObjectGraphTraverser2
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public final synchronized <A extends TraversalAcceptor> A traverseAll(
-			final Object[] instances,
-			final A        acceptor
+		
+		private synchronized void internalTraverseAll(
+			final Object[]          instances,
+			final TraversalAcceptor acceptor
 		)
 		{
+			notNull(acceptor);
+			
 			final ReferenceHandler referenceHandler = new ReferenceHandler(
 				this.handlerProvider,
 				this.alreadyHandledProvider.apply(this.skipped),
@@ -117,8 +116,21 @@ public interface ObjectGraphTraverser2
 			catch(final TraversalSignalAbort s)
 			{
 				// some logic signaled to abort the traversal. So abort and fall through to returning.
-				return acceptor;
+				return;
 			}
+		}
+				
+		@Override
+		public final void traverseAll(final Object[] instances)
+		{
+			this.internalTraverseAll(instances, this.acceptor);
+		}
+
+		@Override
+		public final <A extends TraversalAcceptor> A traverseAll(final Object[] instances, final A acceptor)
+		{
+			this.internalTraverseAll(instances, acceptor);
+			return acceptor;
 		}
 		
 		/**
