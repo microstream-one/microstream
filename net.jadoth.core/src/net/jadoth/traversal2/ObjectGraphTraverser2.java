@@ -289,6 +289,7 @@ public interface ObjectGraphTraverser2
 			{
 				final Object           instance = this.dequeue();
 				final TraversalHandler handler  = this.handlerProvider.provideTraversalHandler(instance);
+				// (30.06.2017 TM)FIXME: null enqueuer concept still viable?
 				handler.traverseReferences(instance, acceptor, this.alreadyHandled.add(instance) ? this : null);
 			}
 			

@@ -1,5 +1,7 @@
 package net.jadoth.traversal2;
 
+import static net.jadoth.Jadoth.notNull;
+
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
 
@@ -11,6 +13,13 @@ public interface TraversalHandlerCreator
 	public TraversalHandler createTraversalHandler(Class<?> type);
 	
 	
+	
+	public static TraversalHandlerCreator New(final Predicate<? super Field> fieldSelector)
+	{
+		return new TraversalHandlerCreator.Reflective(
+			notNull(fieldSelector)
+		);
+	}
 	
 	public final class Reflective implements TraversalHandlerCreator
 	{

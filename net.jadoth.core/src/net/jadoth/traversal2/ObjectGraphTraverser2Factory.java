@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,17 +25,97 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReplacingBag;
 import net.jadoth.collections.types.XSet;
+import net.jadoth.collections.types.XTable;
+import net.jadoth.reflect.JadothReflect;
 
 public interface ObjectGraphTraverser2Factory
 {
-	/* (29.06.2017 TM)TODO: ObjectTraverserFactory
-	 * - see old implementation (leaf types, util methods, etc.)
-	 * -
-	 */
-
 	public ObjectGraphTraverser2 buildObjectGraphTraverser();
+	
+	public default boolean skip(final Object instance)
+	{
+		synchronized(this)
+		{
+			return this.skipped().add(instance);
+		}
+	}
+
+	public default ObjectGraphTraverser2Factory skipAll(final Object... instances)
+	{
+		synchronized(this)
+		{
+			this.skipped().addAll(instances);
+		}
+		return this;
+	}
+	
+	public default ObjectGraphTraverser2Factory skipAll(final Iterable<?> instances)
+	{
+		final XSet<Object> skipped = this.skipped();
+		synchronized(this)
+		{
+			for(final Object instance : instances)
+			{
+				skipped.add(instance);
+			}
+		}
+		
+		return this;
+	}
+
+
+	public default boolean leafType(final Class<?> leafType)
+	{
+		synchronized(this)
+		{
+			return this.leafTypes().add(leafType);
+		}
+	}
+
+	public default ObjectGraphTraverser2Factory leafTypes(final Class<?>... leafTypes)
+	{
+		synchronized(this)
+		{
+			this.leafTypes().addAll(leafTypes);
+		}
+		return this;
+	}
+	
+
+	public default ObjectGraphTraverser2Factory leafTypes(final Iterable<Class<?>> types)
+	{
+		final XSet<Class<?>> leafTypes = this.leafTypes();
+		synchronized(this)
+		{
+			for(final Class<?> type : leafTypes)
+			{
+				leafTypes.add(type);
+			}
+		}
+		
+		return this;
+	}
+	
+	public ObjectGraphTraverser2Factory setTraversableFieldSelector(
+		Predicate<? super Field> traversableFieldSelector
+	);
+	
+	public ObjectGraphTraverser2Factory setTraversalAcceptor(TraversalAcceptor acceptor);
+	
+	public XSet<Object> skipped();
+	
+	public XMap<Object, TraversalHandler> handlersPerInstance();
+	
+	public XSet<Class<?>> leafTypes();
+	
+	public XMap<Class<?>, TraversalHandler> handlersPerConcreteType();
+	
+	public XTable<Class<?>, TraversalHandler> handlersPerPolymorphType();
+	
+	
 	
 	public static XGettingSet<Class<?>> defaultLeafTypes()
 	{
@@ -82,13 +163,13 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
-	
-	
 	public static XGettingTable<Class<?>, TraversalHandler> defaultPolymorphTypeTraversalHandlers()
 	{
 		return ConstHashTable.<Class<?>, TraversalHandler>New(
-			keyValue(XReplacingBag.class, new TraverserXCollection()),
-			keyValue(Object[].class     , new TraverserArray()      )
+			keyValue(XReplacingBag     .class, new TraverserXCollectionMutable()),
+			keyValue(XGettingCollection.class, new TraverserXCollectionMutable()),
+			keyValue(Collection        .class, new TraverserCollectionOld()     ),
+			keyValue(Object[]          .class, new TraverserArray()             )
 		);
 	}
 	
@@ -99,17 +180,24 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
+	
+	
+	public static ObjectGraphTraverser2Factory New()
+	{
+		return new ObjectGraphTraverser2Factory.Implementation();
+	}
+		
 	public final class Implementation implements ObjectGraphTraverser2Factory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final HashEnum<Object>                      skipped                  = HashEnum.New() ;
-		private final HashEnum<Class<?>>                    leafTypes                = HashEnum.New() ;
-		private final HashTable<Object, TraversalHandler>   handlersPerInstance      = HashTable.New();
-		private final HashTable<Class<?>, TraversalHandler> handlersPerConcreteType  = HashTable.New();
-		private final HashTable<Class<?>, TraversalHandler> handlersPerPolymorphType = HashTable.New();
+		private final HashEnum<Object>                      skipped                 ;
+		private final HashEnum<Class<?>>                    leafTypes               ;
+		private final HashTable<Object, TraversalHandler>   handlersPerInstance     ;
+		private final HashTable<Class<?>, TraversalHandler> handlersPerConcreteType ;
+		private final HashTable<Class<?>, TraversalHandler> handlersPerPolymorphType;
 		
 		private Predicate<? super Field>                           traversableFieldSelector;
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
@@ -125,6 +213,18 @@ public interface ObjectGraphTraverser2Factory
 		Implementation()
 		{
 			super();
+			this.skipped                  = HashEnum.New() ;
+			this.handlersPerInstance      = HashTable.New();
+			
+			this.leafTypes                = HashEnum.New(
+				ObjectGraphTraverser2Factory.defaultLeafTypes())
+			;
+			this.handlersPerPolymorphType = HashTable.New(
+				ObjectGraphTraverser2Factory.defaultPolymorphTypeTraversalHandlers())
+			;
+			this.handlersPerConcreteType  = HashTable.New(
+				ObjectGraphTraverser2Factory.defaultConcreteTypeTraversalHandlers()
+			);
 		}
 		
 		
@@ -132,15 +232,52 @@ public interface ObjectGraphTraverser2Factory
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+
+		@Override
+		public synchronized ObjectGraphTraverser2Factory setTraversableFieldSelector(final Predicate<? super Field> traversableFieldSelector)
+		{
+			this.traversableFieldSelector = traversableFieldSelector;
+			return this;
+		}
+
+		@Override
+		public XSet<Object> skipped()
+		{
+			return this.skipped;
+		}
+
+		@Override
+		public XMap<Object, TraversalHandler> handlersPerInstance()
+		{
+			return this.handlersPerInstance;
+		}
+
+		@Override
+		public XSet<Class<?>> leafTypes()
+		{
+			return this.leafTypes;
+		}
+
+		@Override
+		public XMap<Class<?>, TraversalHandler> handlersPerConcreteType()
+		{
+			return this.handlersPerConcreteType;
+		}
+
+		@Override
+		public XTable<Class<?>, TraversalHandler> handlersPerPolymorphType()
+		{
+			return this.handlersPerPolymorphType;
+		}
 		
 		protected synchronized TraversalHandlerProvider provideTraversalHandlerProvider()
 		{
 			return TraversalHandlerProvider.New(
-				handlersPerInstance,
-				null,
-				null,
-				leafTypes,
-				traversalHandlerCreator
+				this.handlersPerInstance()           ,
+				this.handlersPerConcreteType()       ,
+				this.handlersPerPolymorphType()      ,
+				this.leafTypes()                     ,
+				this.provideTraversalHandlerCreator()
 			);
 		}
 		
@@ -159,9 +296,38 @@ public interface ObjectGraphTraverser2Factory
 			return OpenAdressingMiniSet::New;
 		}
 		
+		@Override
+		public synchronized ObjectGraphTraverser2Factory setTraversalAcceptor(final TraversalAcceptor acceptor)
+		{
+			this.acceptor = acceptor;
+			return this;
+		}
+		
 		protected synchronized TraversalAcceptor provideAcceptor()
 		{
 			return this.acceptor;
+		}
+		
+		protected synchronized Predicate<? super Field> provideTraversableFieldSelector()
+		{
+			if(this.traversableFieldSelector == null)
+			{
+				this.traversableFieldSelector = JadothReflect::isTransient;
+			}
+			
+			return this.traversableFieldSelector;
+		}
+		
+		protected synchronized TraversalHandlerCreator provideTraversalHandlerCreator()
+		{
+			if(this.traversalHandlerCreator == null)
+			{
+				this.traversalHandlerCreator = TraversalHandlerCreator.New(
+					this.provideTraversableFieldSelector()
+				);
+			}
+			
+			return this.traversalHandlerCreator;
 		}
 		
 		@Override
@@ -174,6 +340,7 @@ public interface ObjectGraphTraverser2Factory
 				this.provideAcceptor()
 			);
 		}
+		
 	}
 	
 }

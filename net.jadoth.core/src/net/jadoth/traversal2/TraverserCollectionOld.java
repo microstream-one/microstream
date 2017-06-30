@@ -1,9 +1,9 @@
 package net.jadoth.traversal2;
 
-import net.jadoth.collections.types.XReplacingBag;
+import java.util.Collection;
 
 
-public final class TraverserXCollection implements TraversalHandler
+public final class TraverserCollectionOld implements TraversalHandler
 {
 	@SuppressWarnings("unchecked")
 	@Override
@@ -15,14 +15,16 @@ public final class TraverserXCollection implements TraversalHandler
 	{
 		try
 		{
-			((XReplacingBag<Object>)instance).substitute(current ->
+			((Collection<Object>)instance).forEach(current ->
 			{
-				final Object returned = acceptor.acceptInstance(current, instance, enqueuer);
+				final Object returned;
+				if((returned = acceptor.acceptInstance(current, instance, enqueuer)) != current)
+				{
+					throw new UnsupportedOperationException();
+				}
 				
 				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
 				enqueuer.enqueue(returned);
-				
-				return returned;
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
