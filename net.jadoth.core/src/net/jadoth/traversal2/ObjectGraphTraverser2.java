@@ -13,9 +13,9 @@ import net.jadoth.collections.types.XSet;
 
 public interface ObjectGraphTraverser2
 {
-	public default void traverse(final Object instance)
+	public default TraversalAcceptor traverse(final Object instance)
 	{
-		this.traverseAll(Jadoth.array(instance), null);
+		return this.traverseAll(Jadoth.array(instance));
 	}
 
 	public default <A extends TraversalAcceptor> A traverse(final Object instance, final A acceptor)
@@ -24,7 +24,7 @@ public interface ObjectGraphTraverser2
 		return acceptor;
 	}
 
-	public void traverseAll(final Object[] instances);
+	public TraversalAcceptor traverseAll(final Object[] instances);
 
 	public <A extends TraversalAcceptor> A traverseAll(Object[] instances, A acceptor);
 	
@@ -121,9 +121,10 @@ public interface ObjectGraphTraverser2
 		}
 				
 		@Override
-		public final void traverseAll(final Object[] instances)
+		public final TraversalAcceptor traverseAll(final Object[] instances)
 		{
 			this.internalTraverseAll(instances, this.acceptor);
+			return this.acceptor;
 		}
 
 		@Override
@@ -289,8 +290,9 @@ public interface ObjectGraphTraverser2
 			{
 				final Object           instance = this.dequeue();
 				final TraversalHandler handler  = this.handlerProvider.provideTraversalHandler(instance);
-				// (30.06.2017 TM)FIXME: null enqueuer concept still viable?
-				handler.traverseReferences(instance, acceptor, this.alreadyHandled.add(instance) ? this : null);
+				
+//				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
+				handler.traverseReferences(instance, acceptor, this);
 			}
 			
 		}

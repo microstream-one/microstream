@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -104,6 +105,26 @@ public interface ObjectGraphTraverser2Factory
 	);
 	
 	public ObjectGraphTraverser2Factory setTraversalAcceptor(TraversalAcceptor acceptor);
+	
+	public default ObjectGraphTraverser2Factory apply(final Consumer<Object> logic)
+	{
+		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(logic));
+	}
+	
+	public default ObjectGraphTraverser2Factory replaceBy(final Function<Object, Object> logic)
+	{
+		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(logic));
+	}
+	
+	public default ObjectGraphTraverser2Factory apply(final Predicate<Object> condition, final Consumer<Object> logic)
+	{
+		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(condition, logic));
+	}
+	
+	public default ObjectGraphTraverser2Factory replaceBy(final Predicate<Object> condition, final Function<Object, Object> logic)
+	{
+		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(condition, logic));
+	}
 	
 	public XSet<Object> skipped();
 	
@@ -312,7 +333,7 @@ public interface ObjectGraphTraverser2Factory
 		{
 			if(this.traversableFieldSelector == null)
 			{
-				this.traversableFieldSelector = JadothReflect::isTransient;
+				this.traversableFieldSelector = JadothReflect::isReference;
 			}
 			
 			return this.traversableFieldSelector;

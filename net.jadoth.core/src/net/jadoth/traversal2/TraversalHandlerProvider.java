@@ -128,7 +128,7 @@ public interface TraversalHandlerProvider
 					return perInstanceHandler;
 				}
 			}
-			
+						
 			final TraversalHandler perTypeHandler;
 			if((perTypeHandler = this.handlersPerConcreteType.get(instance.getClass())) != null)
 			{

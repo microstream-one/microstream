@@ -23,12 +23,16 @@ public class MainSearchStringInFiles
 	public static void main(final String[] args) throws Exception
 	{
 		searchStringsInFiles(DIRECT,
-			new File("C:/BonusExportTest_2017-06-27_15-36-07.196/csv").listFiles(),
+			new File("C:/BonusExportTest_2017-06-28_16-13-47.581/csv").listFiles(),
 			MainSearchStringInFiles::printOid,
+			
+//			"1000000000056176168" // KeyAhVlUSt$Implementation
+			"1000000000054447655" // EqHashEnum
+			
 //			"1000000000025679576" // 0 ZahlungAusschuettungbetrag$Implementation
 //			"1000000000025680038" // 1 = 0 referenzierende ZahlungAuszahlung$Implementation
 //			"1000000000025679571" // 2 = 0 referenzierende HashTable
-			"1000000000025679567" // 4 = 2 referenzierende Lazy
+//			"1000000000025679567" // 4 = 2 referenzierende Lazy
 			
 			// KonzAusAnspruchAhg
 //			"1000000000039543476" // 0 KonzAusAnspruchAhg$Implementation

@@ -54,6 +54,9 @@ public interface TraversalHandlerCreator
 				JadothReflect.isInstanceField(field)
 				&& this.fieldSelector.test(field))
 			;
+			
+			selectedFields.iterate(f -> f.setAccessible(true));
+			
 			return selectedFields.toArray(Field.class);
 		}
 
