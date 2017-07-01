@@ -3,19 +3,18 @@ package net.jadoth.traversal2;
 import net.jadoth.collections.types.XReplacingBag;
 
 
-public final class TraverserXCollectionMutable implements TraversalHandler
+public final class TraverserXCollectionMutable implements TraversalHandler<XReplacingBag<Object>>
 {
-	@SuppressWarnings("unchecked")
 	@Override
 	public final void traverseReferences(
-		final Object            instance,
-		final TraversalAcceptor acceptor,
-		final TraversalEnqueuer enqueuer
+		final XReplacingBag<Object> instance,
+		final TraversalAcceptor     acceptor,
+		final TraversalEnqueuer     enqueuer
 	)
 	{
 		try
 		{
-			((XReplacingBag<Object>)instance).substitute(current ->
+			instance.substitute(current ->
 			{
 				final Object returned = acceptor.acceptInstance(current, instance, enqueuer);
 				

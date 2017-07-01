@@ -4,13 +4,13 @@ import java.lang.reflect.Field;
 
 import net.jadoth.reflect.JadothReflect;
 
-public final class TraverserReflective implements TraversalHandler
+public final class TraverserReflective<T> implements TraversalHandler<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
-	private final Class<?> type  ;
+	private final Class<T> type  ;
 	private final Field[]  fields;
 	
 	
@@ -19,7 +19,7 @@ public final class TraverserReflective implements TraversalHandler
 	// constructors //
 	/////////////////
 
-	TraverserReflective(final Class<?> type, final Field[] fields)
+	TraverserReflective(final Class<T> type, final Field[] fields)
 	{
 		super();
 		this.type   = type  ;
@@ -32,14 +32,14 @@ public final class TraverserReflective implements TraversalHandler
 	// methods //
 	////////////
 	
-	public final Class<?> type()
+	public final Class<T> type()
 	{
 		return this.type;
 	}
 
 	@Override
 	public final void traverseReferences(
-		final Object            instance,
+		final T                 instance,
 		final TraversalAcceptor acceptor,
 		final TraversalEnqueuer enqueuer
 	)

@@ -3,19 +3,18 @@ package net.jadoth.traversal2;
 import net.jadoth.collections.types.XGettingCollection;
 
 
-public final class TraverserXCollectionImmutable implements TraversalHandler
+public final class TraverserXCollectionImmutable implements TraversalHandler<XGettingCollection<?>>
 {
-	@SuppressWarnings("unchecked")
 	@Override
 	public final void traverseReferences(
-		final Object            instance,
-		final TraversalAcceptor acceptor,
-		final TraversalEnqueuer enqueuer
+		final XGettingCollection<?> instance,
+		final TraversalAcceptor     acceptor,
+		final TraversalEnqueuer     enqueuer
 	)
 	{
 		try
 		{
-			((XGettingCollection<Object>)instance).iterate(current ->
+			instance.iterate(current ->
 			{
 				final Object returned;
 				if((returned = acceptor.acceptInstance(current, instance, enqueuer)) != current)

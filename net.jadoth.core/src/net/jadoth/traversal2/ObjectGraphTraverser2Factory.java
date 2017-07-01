@@ -128,13 +128,13 @@ public interface ObjectGraphTraverser2Factory
 	
 	public XSet<Object> skipped();
 	
-	public XMap<Object, TraversalHandler> handlersPerInstance();
+	public XMap<Object, TraversalHandler<?>> handlersPerInstance();
 	
 	public XSet<Class<?>> leafTypes();
 	
-	public XMap<Class<?>, TraversalHandler> handlersPerConcreteType();
+	public XMap<Class<?>, TraversalHandler<?>> handlersPerConcreteType();
 	
-	public XTable<Class<?>, TraversalHandler> handlersPerPolymorphType();
+	public XTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType();
 	
 	
 	
@@ -184,9 +184,9 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
-	public static XGettingTable<Class<?>, TraversalHandler> defaultPolymorphTypeTraversalHandlers()
+	public static XGettingTable<Class<?>, TraversalHandler<?>> defaultPolymorphTypeTraversalHandlers()
 	{
-		return ConstHashTable.<Class<?>, TraversalHandler>New(
+		return ConstHashTable.<Class<?>, TraversalHandler<?>>New(
 			keyValue(XReplacingBag     .class, new TraverserXCollectionMutable()),
 			keyValue(XGettingCollection.class, new TraverserXCollectionMutable()),
 			keyValue(Collection        .class, new TraverserCollectionOld()     ),
@@ -194,9 +194,9 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
-	public static XGettingTable<Class<?>, TraversalHandler> defaultConcreteTypeTraversalHandlers()
+	public static XGettingTable<Class<?>, TraversalHandler<?>> defaultConcreteTypeTraversalHandlers()
 	{
-		return ConstHashTable.<Class<?>, TraversalHandler>New(
+		return ConstHashTable.<Class<?>, TraversalHandler<?>>New(
 			/* empty so far */
 		);
 	}
@@ -214,11 +214,11 @@ public interface ObjectGraphTraverser2Factory
 		// instance fields //
 		////////////////////
 
-		private final HashEnum<Object>                      skipped                 ;
-		private final HashEnum<Class<?>>                    leafTypes               ;
-		private final HashTable<Object, TraversalHandler>   handlersPerInstance     ;
-		private final HashTable<Class<?>, TraversalHandler> handlersPerConcreteType ;
-		private final HashTable<Class<?>, TraversalHandler> handlersPerPolymorphType;
+		private final HashEnum<Object>                         skipped                 ;
+		private final HashEnum<Class<?>>                       leafTypes               ;
+		private final HashTable<Object, TraversalHandler<?>>   handlersPerInstance     ;
+		private final HashTable<Class<?>, TraversalHandler<?>> handlersPerConcreteType ;
+		private final HashTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType;
 		
 		private Predicate<? super Field>                           traversableFieldSelector;
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
@@ -268,7 +268,7 @@ public interface ObjectGraphTraverser2Factory
 		}
 
 		@Override
-		public XMap<Object, TraversalHandler> handlersPerInstance()
+		public XMap<Object, TraversalHandler<?>> handlersPerInstance()
 		{
 			return this.handlersPerInstance;
 		}
@@ -280,13 +280,13 @@ public interface ObjectGraphTraverser2Factory
 		}
 
 		@Override
-		public XMap<Class<?>, TraversalHandler> handlersPerConcreteType()
+		public XMap<Class<?>, TraversalHandler<?>> handlersPerConcreteType()
 		{
 			return this.handlersPerConcreteType;
 		}
 
 		@Override
-		public XTable<Class<?>, TraversalHandler> handlersPerPolymorphType()
+		public XTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType()
 		{
 			return this.handlersPerPolymorphType;
 		}

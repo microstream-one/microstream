@@ -10,7 +10,7 @@ import net.jadoth.reflect.JadothReflect;
 
 public interface TraversalHandlerCreator
 {
-	public TraversalHandler createTraversalHandler(Class<?> type);
+	public <T> TraversalHandler<T> createTraversalHandler(Class<T> type);
 	
 	
 	
@@ -61,12 +61,12 @@ public interface TraversalHandlerCreator
 		}
 
 		@Override
-		public final TraversalHandler createTraversalHandler(final Class<?> type)
+		public final <T> TraversalHandler<T> createTraversalHandler(final Class<T> type)
 		{
 			final Field[] collectedFields = collectFields(type);
 			
 			return collectedFields.length != 0
-				? new TraverserReflective(type, collectedFields)
+				? new TraverserReflective<>(type, collectedFields)
 				: null
 			;
 		}

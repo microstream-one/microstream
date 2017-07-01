@@ -1,7 +1,7 @@
 package net.jadoth.traversal2;
 
-public interface TraversalHandler
+public interface TraversalHandler<T>
 {
-	public void traverseReferences(Object instance, TraversalAcceptor acceptor, TraversalEnqueuer enqueuer);
+	public void traverseReferences(T instance, TraversalAcceptor acceptor, TraversalEnqueuer enqueuer);
 	
 }

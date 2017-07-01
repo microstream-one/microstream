@@ -256,7 +256,8 @@ public interface ObjectGraphTraverser2
 				this.tailIsHead                     = false                   ;
 			}
 						
-			private Object dequeue()
+			@SuppressWarnings("unchecked")
+			private <T> T dequeue()
 			{
 				// (25.06.2017 TM)TODO: test performance of outsourced private methods
 				if(this.tailIsHead)
@@ -268,7 +269,7 @@ public interface ObjectGraphTraverser2
 					this.advanceSegment();
 				}
 				
-				return this.iterationTail[this.iterationTailIndex++];
+				return (T)this.iterationTail[this.iterationTailIndex++];
 			}
 			
 			private void checkForCompletion()
@@ -286,10 +287,10 @@ public interface ObjectGraphTraverser2
 				this.tailIsHead         = this.iterationTail == this.iterationHead;
 			}
 						
-			final void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
+			final <T> void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
 			{
-				final Object           instance = this.dequeue();
-				final TraversalHandler handler  = this.handlerProvider.provideTraversalHandler(instance);
+				final T                   instance = this.dequeue();
+				final TraversalHandler<T> handler  = this.handlerProvider.provideTraversalHandler(instance);
 				
 //				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
 				handler.traverseReferences(instance, acceptor, this);

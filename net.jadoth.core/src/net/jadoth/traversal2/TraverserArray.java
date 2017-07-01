@@ -1,24 +1,23 @@
 package net.jadoth.traversal2;
 
-public final class TraverserArray implements TraversalHandler
+public final class TraverserArray implements TraversalHandler<Object[]>
 {
 	@Override
 	public final void traverseReferences(
-		final Object            instance,
+		final Object[]          instance,
 		final TraversalAcceptor acceptor,
 		final TraversalEnqueuer enqueuer
 	)
 	{
-		final Object[] array = (Object[])instance;
-		final int length = array.length;
+		final int length = instance.length;
 		try
 		{
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				if((returned = acceptor.acceptInstance(current = array[i], array, enqueuer)) != current)
+				if((returned = acceptor.acceptInstance(current = instance[i], instance, enqueuer)) != current)
 				{
-					array[i] = returned;
+					instance[i] = returned;
 				}
 				
 				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally

@@ -3,19 +3,18 @@ package net.jadoth.traversal2;
 import java.util.Collection;
 
 
-public final class TraverserCollectionOld implements TraversalHandler
+public final class TraverserCollectionOld implements TraversalHandler<Collection<?>>
 {
-	@SuppressWarnings("unchecked")
 	@Override
 	public final void traverseReferences(
-		final Object            instance,
+		final Collection<?>     instance,
 		final TraversalAcceptor acceptor,
 		final TraversalEnqueuer enqueuer
 	)
 	{
 		try
 		{
-			((Collection<Object>)instance).forEach(current ->
+			instance.forEach(current ->
 			{
 				final Object returned;
 				if((returned = acceptor.acceptInstance(current, instance, enqueuer)) != current)
