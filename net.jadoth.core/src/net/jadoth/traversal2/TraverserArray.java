@@ -1,6 +1,6 @@
 package net.jadoth.traversal2;
 
-public final class TraverserArray implements TraversalHandler<Object[]>
+public final class TraverserArray implements TraverserAccepting<Object[]>
 {
 	@Override
 	public final void traverseReferences(

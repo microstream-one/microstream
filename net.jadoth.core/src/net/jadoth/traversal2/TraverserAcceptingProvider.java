@@ -9,9 +9,9 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.util.KeyValue;
 
-public interface TraversalHandlerProvider
+public interface TraverserAcceptingProvider
 {
-	public <T> TraversalHandler<T> provideTraversalHandler(T instance);
+	public <T> TraverserAccepting<T> provideTraversalHandler(T instance);
 	
 	public default boolean isUnhandled(final Object instance)
 	{
@@ -20,15 +20,15 @@ public interface TraversalHandlerProvider
 
 	
 	
-	public static TraversalHandlerProvider New(
-		final XGettingMap<Object, TraversalHandler<?>>     handlersPerInstance     ,
-		final XGettingMap<Class<?>, TraversalHandler<?>>   handlersPerConcreteType ,
-		final XGettingTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType,
-		final XGettingCollection<Class<?>>                 leafTypes               ,
-		final TraversalHandlerCreator                      traversalHandlerCreator
+	public static TraverserAcceptingProvider New(
+		final XGettingMap<Object, TraverserAccepting<?>>     handlersPerInstance     ,
+		final XGettingMap<Class<?>, TraverserAccepting<?>>   handlersPerConcreteType ,
+		final XGettingTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType,
+		final XGettingCollection<Class<?>>                   leafTypes               ,
+		final TraverserAccepting.Creator                     traversalHandlerCreator
 	)
 	{
-		return new TraversalHandlerProvider.Implementation(
+		return new TraverserAcceptingProvider.Implementation(
 			handlersPerInstance != null && handlersPerInstance.isEmpty() ? null : handlersPerInstance,
 			notNull(handlersPerConcreteType) ,
 			notNull(handlersPerPolymorphType),
@@ -37,13 +37,13 @@ public interface TraversalHandlerProvider
 		);
 	}
 	
-	public final class Implementation implements TraversalHandlerProvider
+	public final class Implementation implements TraverserAcceptingProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
 		/////////////////////
 		
-		static final TraversalHandler<?> UNHANDLED = (a, b, c) ->
+		static final TraverserAccepting<?> UNHANDLED = (a, b, c) ->
 		{
 			// empty
 		};
@@ -54,10 +54,10 @@ public interface TraversalHandlerProvider
 		// instance fields //
 		////////////////////
 		
-		private final XGettingMap<Object, TraversalHandler<?>>     handlersPerInstance     ;
-		private final HashTable<Class<?>, TraversalHandler<?>>     handlersPerConcreteType ;
-		private final XGettingTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType;
-		private final TraversalHandlerCreator                      traversalHandlerCreator ;
+		private final XGettingMap<Object, TraverserAccepting<?>>     handlersPerInstance     ;
+		private final HashTable<Class<?>, TraverserAccepting<?>>     handlersPerConcreteType ;
+		private final XGettingTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType;
+		private final TraverserAccepting.Creator                      traversalHandlerCreator ;
 		
 		
 		
@@ -66,11 +66,11 @@ public interface TraversalHandlerProvider
 		/////////////////
 		
 		Implementation(
-			final XGettingMap<Object, TraversalHandler<?>>     handlersPerInstance     ,
-			final XGettingMap<Class<?>, TraversalHandler<?>>   handlersPerConcreteType ,
-			final XGettingTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType,
+			final XGettingMap<Object, TraverserAccepting<?>>     handlersPerInstance     ,
+			final XGettingMap<Class<?>, TraverserAccepting<?>>   handlersPerConcreteType ,
+			final XGettingTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType,
 			final XGettingCollection<Class<?>>                 leafTypes               ,
-			final TraversalHandlerCreator                      traversalHandlerCreator
+			final TraverserAccepting.Creator                      traversalHandlerCreator
 		)
 		{
 			super();
@@ -80,19 +80,19 @@ public interface TraversalHandlerProvider
 			this.handlersPerConcreteType  = initializeHandlersPerConcreteType(handlersPerConcreteType, leafTypes);
 		}
 		
-		private HashTable<Class<?>, TraversalHandler<?>> initializeHandlersPerConcreteType(
-			final XGettingMap<Class<?>, TraversalHandler<?>> handlersPerConcreteType ,
+		private HashTable<Class<?>, TraverserAccepting<?>> initializeHandlersPerConcreteType(
+			final XGettingMap<Class<?>, TraverserAccepting<?>> handlersPerConcreteType ,
 			final XGettingCollection<Class<?>>               leafTypes
 		)
 		{
-			final HashTable<Class<?>, TraversalHandler<?>> localMap = HashTable.New(handlersPerConcreteType);
+			final HashTable<Class<?>, TraverserAccepting<?>> localMap = HashTable.New(handlersPerConcreteType);
 			leafTypes.iterate(t -> localMap.add(t, UNHANDLED));
 			return localMap;
 		}
 		
-		private <T> TraversalHandler<T> handleNewType(final Class<T> type)
+		private <T> TraverserAccepting<T> handleNewType(final Class<T> type)
 		{
-			for(final KeyValue<Class<?>, TraversalHandler<?>> entry : this.handlersPerPolymorphType)
+			for(final KeyValue<Class<?>, TraverserAccepting<?>> entry : this.handlersPerPolymorphType)
 			{
 				if(entry.key().isAssignableFrom(type))
 				{
@@ -101,19 +101,19 @@ public interface TraversalHandlerProvider
 			}
 			
 			return this.registerForConcreteType(
-				coalesce(this.traversalHandlerCreator.createTraversalHandler(type), UNHANDLED),
+				coalesce(this.traversalHandlerCreator.createTraverserAccepting(type), UNHANDLED),
 				type
 			);
 		}
 		
 		@SuppressWarnings("unchecked")
-		private <T> TraversalHandler<T> registerForConcreteType(final TraversalHandler<?> traversalHandler, final Class<T> type)
+		private <T> TraverserAccepting<T> registerForConcreteType(final TraverserAccepting<?> traversalHandler, final Class<T> type)
 		{
 			this.handlersPerConcreteType.add(type, traversalHandler);
-			return (TraversalHandler<T>)traversalHandler;
+			return (TraverserAccepting<T>)traversalHandler;
 		}
 		
-		private TraversalHandler<?> internalProvideTraversalHandler(final Object instance)
+		private TraverserAccepting<?> internalProvideTraversalHandler(final Object instance)
 		{
 			if(instance == null)
 			{
@@ -122,14 +122,14 @@ public interface TraversalHandlerProvider
 			
 			if(this.handlersPerInstance != null)
 			{
-				final TraversalHandler<?> perInstanceHandler;
+				final TraverserAccepting<?> perInstanceHandler;
 				if((perInstanceHandler = this.handlersPerInstance.get(instance)) != null)
 				{
 					return perInstanceHandler;
 				}
 			}
 						
-			final TraversalHandler<?> perTypeHandler;
+			final TraverserAccepting<?> perTypeHandler;
 			if((perTypeHandler = this.handlersPerConcreteType.get(instance.getClass())) != null)
 			{
 				return perTypeHandler == UNHANDLED ? null : perTypeHandler;
@@ -140,9 +140,9 @@ public interface TraversalHandlerProvider
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> TraversalHandler<T> provideTraversalHandler(final T instance)
+		public <T> TraverserAccepting<T> provideTraversalHandler(final T instance)
 		{
-			return (TraversalHandler<T>)this.internalProvideTraversalHandler(instance);
+			return (TraverserAccepting<T>)this.internalProvideTraversalHandler(instance);
 		}
 		
 		

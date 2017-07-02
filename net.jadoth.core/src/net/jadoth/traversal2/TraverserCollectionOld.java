@@ -3,7 +3,7 @@ package net.jadoth.traversal2;
 import java.util.Collection;
 
 
-public final class TraverserCollectionOld implements TraversalHandler<Collection<?>>
+public final class TraverserCollectionOld implements TraverserAccepting<Collection<?>>
 {
 	@Override
 	public final void traverseReferences(

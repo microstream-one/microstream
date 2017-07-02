@@ -106,35 +106,30 @@ public interface ObjectGraphTraverser2Factory
 	
 	public ObjectGraphTraverser2Factory setTraversalAcceptor(TraversalAcceptor acceptor);
 	
-	public default ObjectGraphTraverser2Factory apply(final Consumer<Object> logic)
+	public ObjectGraphTraverser2Factory setTraversalMutator(TraversalMutator mutator);
+	
+	public default ObjectGraphTraverser2Factory traverse(final Object root)
 	{
-		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(logic));
+		return this.traverseAll(root);
 	}
 	
-	public default ObjectGraphTraverser2Factory replaceBy(final Function<Object, Object> logic)
-	{
-		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(logic));
-	}
+	public ObjectGraphTraverser2Factory traverseAll(Object... root);
 	
-	public default ObjectGraphTraverser2Factory apply(final Predicate<Object> condition, final Consumer<Object> logic)
-	{
-		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(condition, logic));
-	}
+	public ObjectGraphTraverser2Factory where(Predicate<Object> predicate);
 	
-	public default ObjectGraphTraverser2Factory replaceBy(final Predicate<Object> condition, final Function<Object, Object> logic)
-	{
-		return this.setTraversalAcceptor(TraversalAcceptor.Wrap(condition, logic));
-	}
+	public ObjectGraphTraverser2Factory apply(Consumer<Object> logic);
+	
+	public ObjectGraphTraverser2Factory mutateBy(Function<Object, Object> logic);
 	
 	public XSet<Object> skipped();
 	
-	public XMap<Object, TraversalHandler<?>> handlersPerInstance();
+	public XMap<Object, TraverserAccepting<?>> handlersPerInstance();
 	
 	public XSet<Class<?>> leafTypes();
 	
-	public XMap<Class<?>, TraversalHandler<?>> handlersPerConcreteType();
+	public XMap<Class<?>, TraverserAccepting<?>> handlersPerConcreteType();
 	
-	public XTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType();
+	public XTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType();
 	
 	
 	
@@ -184,9 +179,9 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
-	public static XGettingTable<Class<?>, TraversalHandler<?>> defaultPolymorphTypeTraversalHandlers()
+	public static XGettingTable<Class<?>, TraverserAccepting<?>> defaultPolymorphTypeTraversalHandlers()
 	{
-		return ConstHashTable.<Class<?>, TraversalHandler<?>>New(
+		return ConstHashTable.<Class<?>, TraverserAccepting<?>>New(
 			keyValue(XReplacingBag     .class, new TraverserXCollectionMutable()),
 			keyValue(XGettingCollection.class, new TraverserXCollectionMutable()),
 			keyValue(Collection        .class, new TraverserCollectionOld()     ),
@@ -194,9 +189,9 @@ public interface ObjectGraphTraverser2Factory
 		);
 	}
 	
-	public static XGettingTable<Class<?>, TraversalHandler<?>> defaultConcreteTypeTraversalHandlers()
+	public static XGettingTable<Class<?>, TraverserAccepting<?>> defaultConcreteTypeTraversalHandlers()
 	{
-		return ConstHashTable.<Class<?>, TraversalHandler<?>>New(
+		return ConstHashTable.<Class<?>, TraverserAccepting<?>>New(
 			/* empty so far */
 		);
 	}
@@ -216,15 +211,20 @@ public interface ObjectGraphTraverser2Factory
 
 		private final HashEnum<Object>                         skipped                 ;
 		private final HashEnum<Class<?>>                       leafTypes               ;
-		private final HashTable<Object, TraversalHandler<?>>   handlersPerInstance     ;
-		private final HashTable<Class<?>, TraversalHandler<?>> handlersPerConcreteType ;
-		private final HashTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType;
+		private final HashTable<Object, TraverserAccepting<?>>   handlersPerInstance     ;
+		private final HashTable<Class<?>, TraverserAccepting<?>> handlersPerConcreteType ;
+		private final HashTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType;
 		
 		private Predicate<? super Field>                           traversableFieldSelector;
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
-		private TraversalAcceptor                                  acceptor                ;
-		private TraversalHandlerCreator                            traversalHandlerCreator ;
+		private TraverserAcceptingCreator                            traversalHandlerCreator ;
 		
+		private TraversalAcceptor        acceptor     ;
+		private TraversalMutator         mutator      ;
+		private Object[]                 root         ;
+		private Predicate<Object>        predicate    ;
+		private Consumer<Object>         acceptorLogic;
+		private Function<Object, Object> mutatorLogic ;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ public interface ObjectGraphTraverser2Factory
 		}
 
 		@Override
-		public XMap<Object, TraversalHandler<?>> handlersPerInstance()
+		public XMap<Object, TraverserAccepting<?>> handlersPerInstance()
 		{
 			return this.handlersPerInstance;
 		}
@@ -280,20 +280,20 @@ public interface ObjectGraphTraverser2Factory
 		}
 
 		@Override
-		public XMap<Class<?>, TraversalHandler<?>> handlersPerConcreteType()
+		public XMap<Class<?>, TraverserAccepting<?>> handlersPerConcreteType()
 		{
 			return this.handlersPerConcreteType;
 		}
 
 		@Override
-		public XTable<Class<?>, TraversalHandler<?>> handlersPerPolymorphType()
+		public XTable<Class<?>, TraverserAccepting<?>> handlersPerPolymorphType()
 		{
 			return this.handlersPerPolymorphType;
 		}
 		
-		protected synchronized TraversalHandlerProvider provideTraversalHandlerProvider()
+		protected synchronized TraverserAcceptingProvider provideTraversalHandlerProvider()
 		{
-			return TraversalHandlerProvider.New(
+			return TraverserAcceptingProvider.New(
 				this.handlersPerInstance()           ,
 				this.handlersPerConcreteType()       ,
 				this.handlersPerPolymorphType()      ,
@@ -339,11 +339,11 @@ public interface ObjectGraphTraverser2Factory
 			return this.traversableFieldSelector;
 		}
 		
-		protected synchronized TraversalHandlerCreator provideTraversalHandlerCreator()
+		protected synchronized TraverserAcceptingCreator provideTraversalHandlerCreator()
 		{
 			if(this.traversalHandlerCreator == null)
 			{
-				this.traversalHandlerCreator = TraversalHandlerCreator.New(
+				this.traversalHandlerCreator = TraverserAcceptingCreator.New(
 					this.provideTraversableFieldSelector()
 				);
 			}
@@ -360,6 +360,41 @@ public interface ObjectGraphTraverser2Factory
 				this.provideAlreadyHandledProvider()  ,
 				this.provideAcceptor()
 			);
+		}
+
+		@Override
+		public ObjectGraphTraverser2Factory setTraversalMutator(final TraversalMutator mutator)
+		{
+			this.mutator = mutator;
+			return this;
+		}
+
+		@Override
+		public ObjectGraphTraverser2Factory traverseAll(final Object... root)
+		{
+			this.root = root;
+			return this;
+		}
+
+		@Override
+		public ObjectGraphTraverser2Factory where(final Predicate<Object> predicate)
+		{
+			this.predicate = predicate;
+			return this;
+		}
+
+		@Override
+		public ObjectGraphTraverser2Factory apply(final Consumer<Object> logic)
+		{
+			this.acceptorLogic = logic;
+			return this;
+		}
+
+		@Override
+		public ObjectGraphTraverser2Factory mutateBy(final Function<Object, Object> logic)
+		{
+			this.mutatorLogic = logic;
+			return this;
 		}
 		
 	}

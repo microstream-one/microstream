@@ -3,7 +3,7 @@ package net.jadoth.traversal2;
 import net.jadoth.collections.types.XReplacingBag;
 
 
-public final class TraverserXCollectionMutable implements TraversalHandler<XReplacingBag<Object>>
+public final class TraverserXCollectionMutable implements TraverserAccepting<XReplacingBag<Object>>
 {
 	@Override
 	public final void traverseReferences(

@@ -3,9 +3,9 @@ package net.jadoth.swizzling.types;
 import net.jadoth.traversal2.AbstractTraversalSkipSignal;
 import net.jadoth.traversal2.TraversalAcceptor;
 import net.jadoth.traversal2.TraversalEnqueuer;
-import net.jadoth.traversal2.TraversalHandler;
+import net.jadoth.traversal2.TraverserAccepting;
 
-public final class TraverserLazy implements TraversalHandler
+public final class TraverserLazy implements TraverserAccepting
 {
 	@Override
 	public final void traverseReferences(

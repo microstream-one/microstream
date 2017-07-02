@@ -3,7 +3,7 @@ package net.jadoth.traversal2;
 import net.jadoth.collections.types.XGettingCollection;
 
 
-public final class TraverserXCollectionImmutable implements TraversalHandler<XGettingCollection<?>>
+public final class TraverserXCollectionImmutable implements TraverserAccepting<XGettingCollection<?>>
 {
 	@Override
 	public final void traverseReferences(

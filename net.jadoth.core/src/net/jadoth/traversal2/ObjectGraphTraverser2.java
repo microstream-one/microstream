@@ -41,10 +41,11 @@ public interface ObjectGraphTraverser2
 	}
 	
 	public static ObjectGraphTraverser2 New(
-		final TraversalHandlerProvider                           handlerProvider       ,
+		final TraverserAcceptingProvider                           handlerProvider       ,
 		final XGettingCollection<Object>                         skipped               ,
 		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-		final TraversalAcceptor                                  acceptor
+		final TraversalAcceptor                                  acceptor,
+		final TraversalMutator                                   mutator
 	)
 	{
 		return new ObjectGraphTraverser2.Implementation(
@@ -62,7 +63,7 @@ public interface ObjectGraphTraverser2
 		// instance fields //
 		////////////////////
 
-		private final TraversalHandlerProvider                           handlerProvider       ;
+		private final TraverserAcceptingProvider                           handlerProvider       ;
 		private final XGettingCollection<Object>                         skipped               ;
 		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
 		private final TraversalAcceptor                                  acceptor              ;
@@ -74,7 +75,7 @@ public interface ObjectGraphTraverser2
 		/////////////////
 		
 		Implementation(
-			final TraversalHandlerProvider                           handlerProvider       ,
+			final TraverserAcceptingProvider                           handlerProvider       ,
 			final XGettingCollection<Object>                         skipped               ,
 			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
 			final TraversalAcceptor                                  acceptor
@@ -167,7 +168,7 @@ public interface ObjectGraphTraverser2
 			// instance fields //
 			////////////////////
 			
-			private final TraversalHandlerProvider handlerProvider;
+			private final TraverserAcceptingProvider handlerProvider;
 			private final XSet<Object>             alreadyHandled ;
 
 			Object[] iterationTail      = createIterationSegment();
@@ -183,7 +184,7 @@ public interface ObjectGraphTraverser2
 			/////////////////
 			
 			ReferenceHandler(
-				final TraversalHandlerProvider handlerProvider,
+				final TraverserAcceptingProvider handlerProvider,
 				final XSet<Object>             alreadyHandled ,
 				final Object[]                 instances
 			)
@@ -290,7 +291,7 @@ public interface ObjectGraphTraverser2
 			final <T> void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
 			{
 				final T                   instance = this.dequeue();
-				final TraversalHandler<T> handler  = this.handlerProvider.provideTraversalHandler(instance);
+				final TraverserAccepting<T> handler  = this.handlerProvider.provideTraversalHandler(instance);
 				
 //				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
 				handler.traverseReferences(instance, acceptor, this);
