@@ -13,20 +13,38 @@ import net.jadoth.collections.types.XSet;
 
 public interface ObjectGraphTraverser
 {
-	public default TraversalAcceptor traverse(final Object instance)
+	public void traverse();
+	
+	public default void traverse(final Object instance)
 	{
-		return this.traverseAll(Jadoth.array(instance));
+		this.traverseAll(Jadoth.array(instance));
 	}
+	
+	public default void traverseAll(final Object[] instances)
+	{
+		throw new RuntimeException("No traversal logic specified"); // (17.07.2017 TM)EXCP: proper exception
+	}
+	
+	public <A extends TraversalAcceptor> A traverse(A acceptor);
+	
+	public <M extends TraversalMutator> M traverse(M acceptor);
 
 	public default <A extends TraversalAcceptor> A traverse(final Object instance, final A acceptor)
 	{
 		this.traverseAll(Jadoth.array(instance), acceptor);
 		return acceptor;
 	}
+	
+	public default <M extends TraversalMutator> M traverse(final Object instance, final M acceptor)
+	{
+		this.traverseAll(Jadoth.array(instance), acceptor);
+		return acceptor;
+	}
 
-	public TraversalAcceptor traverseAll(final Object[] instances);
 
 	public <A extends TraversalAcceptor> A traverseAll(Object[] instances, A acceptor);
+	
+	public <M extends TraversalMutator> M traverseAll(Object[] instances, M mutator);
 	
 	
 	public static void signalAbortTraversal() throws TraversalSignalAbort
@@ -35,37 +53,70 @@ public interface ObjectGraphTraverser
 	}
 
 	
-	public static ObjectGraphTraverserFactory Factory()
+	public static ObjectGraphTraverserBuilder Builder()
 	{
-		return new ObjectGraphTraverserFactory.Implementation();
+		return new ObjectGraphTraverserBuilder.Implementation();
 	}
 	
 	public static ObjectGraphTraverser New(
-		final TraverserAcceptingProvider                         handlerProvider       ,
+		final Object[]                                           roots                 ,
 		final XGettingCollection<Object>                         skipped               ,
 		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-		final TraversalAcceptor                                  acceptor
+		final TypeTraverserProvider                              traverserProvider
 	)
 	{
 		return new ObjectGraphTraverser.Implementation(
-			handlerProvider,
-			coalesce(skipped, X.empty()).immure(),
+			roots                                                             ,
+			coalesce(skipped, X.empty()).immure()                             ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
-			acceptor
-			
+			notNull(traverserProvider)
 		);
 	}
 	
-	public final class Implementation implements ObjectGraphTraverser
+	public static ObjectGraphTraverser New(
+		final Object[]                                           roots                 ,
+		final XGettingCollection<Object>                         skipped               ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+		final TypeTraverserProvider                              traverserProvider     ,
+		final TraversalAcceptor                                  acceptor
+	)
+	{
+		return new ImplementationAccepting(
+			roots                                                             ,
+			coalesce(skipped, X.empty()).immure()                             ,
+			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
+			notNull(traverserProvider)                                        ,
+			acceptor
+		);
+	}
+	
+	public static ObjectGraphTraverser New(
+		final Object[]                                           roots                 ,
+		final XGettingCollection<Object>                         skipped               ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+		final TypeTraverserProvider                              traverserProvider     ,
+		final TraversalMutator                                   mutator
+	)
+	{
+		return new ImplementationMutating(
+			roots                                                             ,
+			coalesce(skipped, X.empty()).immure()                             ,
+			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
+			notNull(traverserProvider)                                        ,
+			mutator
+		);
+	}
+	
+	public class Implementation implements ObjectGraphTraverser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final TraverserAcceptingProvider                           handlerProvider       ;
+		private final Object[]                                           roots                 ;
 		private final XGettingCollection<Object>                         skipped               ;
 		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
-		private final TraversalAcceptor                                  acceptor              ;
+		private final TypeTraverserProvider                              traverserProvider     ;
 		
 		
 		
@@ -74,17 +125,17 @@ public interface ObjectGraphTraverser
 		/////////////////
 		
 		Implementation(
-			final TraverserAcceptingProvider                           handlerProvider       ,
+			final Object[]                                           roots                 ,
 			final XGettingCollection<Object>                         skipped               ,
 			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-			final TraversalAcceptor                                  acceptor
+			final TypeTraverserProvider                              traverserProvider
 		)
 		{
 			super();
-			this.handlerProvider        = handlerProvider       ;
+			this.roots                  = roots                 ;
 			this.skipped                = skipped               ;
 			this.alreadyHandledProvider = alreadyHandledProvider;
-			this.acceptor               = acceptor              ;
+			this.traverserProvider      = traverserProvider     ;
 		}
 		
 		
@@ -93,15 +144,15 @@ public interface ObjectGraphTraverser
 		// methods //
 		////////////
 		
-		private synchronized void internalTraverseAll(
+		protected final synchronized void internalTraverseAllAccepting(
 			final Object[]          instances,
 			final TraversalAcceptor acceptor
 		)
 		{
 			notNull(acceptor);
 			
-			final ReferenceHandler referenceHandler = new ReferenceHandler(
-				this.handlerProvider,
+			final ReferenceHandlerAccepting referenceHandler = new ReferenceHandlerAccepting(
+				this.traverserProvider,
 				this.alreadyHandledProvider.apply(this.skipped),
 				instances
 			);
@@ -119,19 +170,66 @@ public interface ObjectGraphTraverser
 				return;
 			}
 		}
-				
-		@Override
-		public final TraversalAcceptor traverseAll(final Object[] instances)
+		
+		protected final synchronized void internalTraverseAllMutating(
+			final Object[]         instances,
+			final TraversalMutator mutator
+		)
 		{
-			this.internalTraverseAll(instances, this.acceptor);
-			return this.acceptor;
-		}
+			notNull(mutator);
+			
+			final ReferenceHandlerMutating referenceHandler = new ReferenceHandlerMutating(
+				this.traverserProvider,
+				this.alreadyHandledProvider.apply(this.skipped),
+				instances
+			);
 
+			try
+			{
+				while(true)
+				{
+					referenceHandler.handleNext(mutator);
+				}
+			}
+			catch(final TraversalSignalAbort s)
+			{
+				// some logic signaled to abort the traversal. So abort and fall through to returning.
+				return;
+			}
+		}
+		
 		@Override
-		public final <A extends TraversalAcceptor> A traverseAll(final Object[] instances, final A acceptor)
+		public void traverse()
 		{
-			this.internalTraverseAll(instances, acceptor);
+			this.traverseAll(this.roots);
+		}
+		
+		@Override
+		public <A extends TraversalAcceptor> A traverse(final A acceptor)
+		{
+			this.internalTraverseAllAccepting(this.roots, acceptor);
 			return acceptor;
+		}
+		
+		@Override
+		public <M extends TraversalMutator> M traverse(final M mutator)
+		{
+			this.internalTraverseAllMutating(this.roots, mutator);
+			return mutator;
+		}
+		
+		@Override
+		public <A extends TraversalAcceptor> A traverseAll(final Object[] instances, final A acceptor)
+		{
+			this.internalTraverseAllAccepting(instances, acceptor);
+			return acceptor;
+		}
+		
+		@Override
+		public <M extends TraversalMutator> M traverseAll(final Object[] instances, final M mutator)
+		{
+			this.internalTraverseAllMutating(instances, mutator);
+			return mutator;
 		}
 		
 		/**
@@ -161,36 +259,37 @@ public interface ObjectGraphTraverser
 			return new Object[SEGMENT_SIZE + 1];
 		}
 		
-		final class ReferenceHandler implements TraversalEnqueuer
+		
+		static abstract class AbstractReferenceHandler implements TraversalEnqueuer
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final TraverserAcceptingProvider handlerProvider;
-			private final XSet<Object>             alreadyHandled ;
+			final TypeTraverserProvider traverserProvider;
+			final XSet<Object>          alreadyHandled   ;
 
 			Object[] iterationTail      = createIterationSegment();
 			Object[] iterationHead      = this.iterationTail;
 			boolean  tailIsHead         = true;
 			int      iterationTailIndex;
 			int      iterationHeadIndex;
-
+			
 			
 			
 			///////////////////////////////////////////////////////////////////////////
 			// constructors //
 			/////////////////
 			
-			ReferenceHandler(
-				final TraverserAcceptingProvider handlerProvider,
-				final XSet<Object>             alreadyHandled ,
-				final Object[]                 instances
+			AbstractReferenceHandler(
+				final TypeTraverserProvider traverserProvider,
+				final XSet<Object>          alreadyHandled   ,
+				final Object[]              instances
 			)
 			{
 				super();
-				this.handlerProvider = handlerProvider;
-				this.alreadyHandled  = alreadyHandled ;
+				this.traverserProvider = traverserProvider;
+				this.alreadyHandled    = alreadyHandled  ;
 
 				for(final Object instance : instances)
 				{
@@ -203,13 +302,22 @@ public interface ObjectGraphTraverser
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-
+			
 			@Override
 			public final boolean skip(final Object instance)
 			{
 				return this.alreadyHandled.add(instance);
 			}
-
+			
+			final void increaseIterationQueue()
+			{
+				final Object[] nextIterationSegment = createIterationSegment();
+				this.iterationHead[SEGMENT_SIZE]    = nextIterationSegment    ;
+				this.iterationHead                  = nextIterationSegment    ;
+				this.iterationHeadIndex             = 0                       ;
+				this.tailIsHead                     = false                   ;
+			}
+			
 			@Override
 			public final void enqueue(final Object instance)
 			{
@@ -235,7 +343,7 @@ public interface ObjectGraphTraverser
 				 * small as possible.
 				 * Other implementations can take different approaches to optimize runtime behavior to suit their needs.
 				 */
-				if(this.handlerProvider.isUnhandled(instance))
+				if(this.traverserProvider.isUnhandled(instance))
 				{
 					return;
 				}
@@ -246,18 +354,9 @@ public interface ObjectGraphTraverser
 				}
 				this.iterationHead[this.iterationHeadIndex++] = instance;
 			}
-			
-			private void increaseIterationQueue()
-			{
-				final Object[] nextIterationSegment = createIterationSegment();
-				this.iterationHead[SEGMENT_SIZE]    = nextIterationSegment    ;
-				this.iterationHead                  = nextIterationSegment    ;
-				this.iterationHeadIndex             = 0                       ;
-				this.tailIsHead                     = false                   ;
-			}
 						
 			@SuppressWarnings("unchecked")
-			private <T> T dequeue()
+			final <T> T dequeue()
 			{
 				// (25.06.2017 TM)TODO: test performance of outsourced private methods
 				if(this.tailIsHead)
@@ -272,7 +371,7 @@ public interface ObjectGraphTraverser
 				return (T)this.iterationTail[this.iterationTailIndex++];
 			}
 			
-			private void checkForCompletion()
+			final void checkForCompletion()
 			{
 				if(this.iterationTailIndex >= this.iterationHeadIndex)
 				{
@@ -280,24 +379,161 @@ public interface ObjectGraphTraverser
 				}
 			}
 			
-			private void advanceSegment()
+			final void advanceSegment()
 			{
 				this.iterationTail      = (Object[])this.iterationTail[SEGMENT_SIZE];
 				this.iterationTailIndex = 0;
 				this.tailIsHead         = this.iterationTail == this.iterationHead;
 			}
-						
+		}
+		
+		static final class ReferenceHandlerAccepting extends AbstractReferenceHandler
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			ReferenceHandlerAccepting(
+				final TypeTraverserProvider traverserProvider,
+				final XSet<Object>          alreadyHandled ,
+				final Object[]              instances
+			)
+			{
+				super(traverserProvider, alreadyHandled, instances);
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+												
 			final <T> void handleNext(final TraversalAcceptor acceptor) throws TraversalSignalAbort
 			{
-				final T                   instance = this.dequeue();
-				final TraverserAccepting<T> handler  = this.handlerProvider.provideTraversalHandler(instance);
+				final T                instance  = this.dequeue();
+				final TypeTraverser<T> traverser = this.traverserProvider.provide(instance);
 				
 //				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
-				handler.traverseReferences(instance, acceptor, this);
+				traverser.traverseReferences(instance, acceptor, this);
+			}
+			
+		}
+		
+		static final class ReferenceHandlerMutating extends AbstractReferenceHandler
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			ReferenceHandlerMutating(
+				final TypeTraverserProvider traverserProvider,
+				final XSet<Object>          alreadyHandled ,
+				final Object[]              instances
+			)
+			{
+				super(traverserProvider, alreadyHandled, instances);
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+												
+			final <T> void handleNext(final TraversalMutator mutator) throws TraversalSignalAbort
+			{
+				final T                instance  = this.dequeue();
+				final TypeTraverser<T> traverser = this.traverserProvider.provide(instance);
+				
+//				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
+				traverser.traverseReferences(instance, mutator, this);
 			}
 			
 		}
 				
+	}
+	
+	
+	public final class ImplementationAccepting extends ObjectGraphTraverser.Implementation
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final TraversalAcceptor acceptor;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		ImplementationAccepting(
+			final Object[]                                           roots                 ,
+			final XGettingCollection<Object>                         skipped               ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+			final TypeTraverserProvider                              traverserProvider     ,
+			final TraversalAcceptor                                  acceptor
+		)
+		{
+			super(roots, skipped, alreadyHandledProvider, traverserProvider);
+			this.acceptor = acceptor;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public void traverseAll(final Object[] instances)
+		{
+			this.internalTraverseAllAccepting(instances, this.acceptor);
+		}
+		
+	}
+	
+	
+	
+	public final class ImplementationMutating extends ObjectGraphTraverser.Implementation
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final TraversalMutator mutator;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		ImplementationMutating(
+			final Object[]                                           roots                 ,
+			final XGettingCollection<Object>                         skipped               ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
+			final TypeTraverserProvider                              traverserProvider     ,
+			final TraversalMutator                                   mutator
+		)
+		{
+			super(roots, skipped, alreadyHandledProvider, traverserProvider);
+			this.mutator = mutator;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public void traverseAll(final Object[] instances)
+		{
+			this.internalTraverseAllMutating(instances, this.mutator);
+		}
+		
 	}
 	
 }

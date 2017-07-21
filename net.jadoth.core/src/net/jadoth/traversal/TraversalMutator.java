@@ -3,17 +3,17 @@ package net.jadoth.traversal;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface TraversalMutator
+public interface TraversalMutator extends TraversalHandler
 {
-	public Object mutateInstance(Object instance, Object parent, TraversalEnqueuer enqueuer);
+	public Object mutateReference(Object instance, Object parent, TraversalEnqueuer enqueuer);
 	
 		
-	public static TraversalMutator Wrap(final Function<Object, Object> logic)
+	public static TraversalMutator New(final Function<Object, Object> logic)
 	{
 		return new TraversalMutator.Implementation(logic);
 	}
 		
-	public static TraversalMutator Wrap(final Predicate<Object> condition, final Function<Object, Object> logic)
+	public static TraversalMutator New(final Predicate<Object> condition, final Function<Object, Object> logic)
 	{
 		return new TraversalMutator.ImplementationConditional(condition, logic);
 	}
@@ -29,7 +29,7 @@ public interface TraversalMutator
 		}
 
 		@Override
-		public final Object mutateInstance(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final Object mutateReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
 		{
 			return this.logic.apply(instance);
 		}
@@ -49,7 +49,7 @@ public interface TraversalMutator
 		}
 
 		@Override
-		public final Object mutateInstance(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final Object mutateReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
 		{
 			if(this.condition.test(instance))
 			{

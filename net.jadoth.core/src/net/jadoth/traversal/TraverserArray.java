@@ -1,9 +1,9 @@
 package net.jadoth.traversal;
 
-public final class TraverserArray implements TraverserAccepting<Object[]>
+public final class TraverserArray implements TypeTraverser<Object[]>
 {
 	@Override
-	public final void traverseReferences(
+	public void traverseReferences(
 		final Object[]          instance,
 		final TraversalAcceptor acceptor,
 		final TraversalEnqueuer enqueuer
@@ -14,8 +14,30 @@ public final class TraverserArray implements TraverserAccepting<Object[]>
 		{
 			for(int i = 0; i < length; i++)
 			{
+				acceptor.acceptReference(instance[i], instance, enqueuer);
+				enqueuer.enqueue(instance[i]);
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final Object[]          instance,
+		final TraversalMutator  mutator ,
+		final TraversalEnqueuer enqueuer
+	)
+	{
+		final int length = instance.length;
+		try
+		{
+			for(int i = 0; i < length; i++)
+			{
 				final Object current, returned;
-				if((returned = acceptor.acceptInstance(current = instance[i], instance, enqueuer)) != current)
+				if((returned = mutator.mutateReference(current = instance[i], instance, enqueuer)) != current)
 				{
 					instance[i] = returned;
 				}

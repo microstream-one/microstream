@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.reflect.JadothReflect;
 
-public final class TraverserReflective<T> implements TraverserAccepting<T>, TraverserMutating<T>
+public final class TraverserReflective<T> implements TypeTraverser<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -56,7 +56,7 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 			for(int i = 0; i < length; i++)
 			{
 				final Object current;
-				acceptor.acceptInstance(current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer);
+				acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer);
 				
 				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
 				enqueuer.enqueue(current);
@@ -69,7 +69,11 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 	}
 	
 	@Override
-	public void traverseReferences(final T instance, final TraversalMutator mutator, final TraversalEnqueuer enqueuer)
+	public final void traverseReferences(
+		final T                 instance,
+		final TraversalMutator  mutator ,
+		final TraversalEnqueuer enqueuer
+	)
 	{
 		final Field[] fields = this.fields  ;
 		final int     length = fields.length;
@@ -79,7 +83,7 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				if((returned = mutator.mutateInstance(
+				if((returned = mutator.mutateReference(
 					current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer)
 				) != current)
 				{
@@ -96,15 +100,16 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 		}
 	}
 	
-	public static TraverserAccepting.Creator Creator(final Predicate<? super Field> fieldSelector)
+	public static TypeTraverser.Creator Creator(final Predicate<? super Field> fieldSelector)
 	{
 		return new Creator(
 			notNull(fieldSelector)
 		);
 	}
 	
-	public static final class Creator implements TraverserAccepting.Creator, TraverserMutating.Creator
+	public static final class Creator implements TypeTraverser.Creator
 	{
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -142,7 +147,7 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 			return selectedFields.toArray(Field.class);
 		}
 		
-		private <T> TraverserReflective<T> createTraverser(final Class<T> type)
+		protected final <T> TraverserReflective<T> internalCreateTraverser(final Class<T> type)
 		{
 			final Field[] collectedFields = this.collectFields(type);
 			
@@ -151,19 +156,16 @@ public final class TraverserReflective<T> implements TraverserAccepting<T>, Trav
 				: null
 			;
 		}
-
-		@Override
-		public final <T> TraverserReflective<T> createTraverserAccepting(final Class<T> type)
-		{
-			return this.createTraverser(type);
-		}
 		
 		@Override
-		public final <T> TraverserReflective<T> createTraverserMutating(final Class<T> type)
+		public final <T> TraverserReflective<T> createTraverser(final Class<T> type)
 		{
-			return this.createTraverser(type);
+			return this.internalCreateTraverser(type);
 		}
 		
 	}
-
+		
+	
+	
+	
 }

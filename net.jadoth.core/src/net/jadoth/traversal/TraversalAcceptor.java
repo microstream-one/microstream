@@ -3,18 +3,18 @@ package net.jadoth.traversal;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public interface TraversalAcceptor
+public interface TraversalAcceptor extends TraversalHandler
 {
 	
-	public Object acceptInstance(Object instance, Object parent, TraversalEnqueuer enqueuer);
+	public void acceptReference(Object instance, Object parent, TraversalEnqueuer enqueuer);
 	
 	
-	public static TraversalAcceptor Wrap(final Consumer<Object> logic)
+	public static TraversalAcceptor New(final Consumer<Object> logic)
 	{
 		return new TraversalAcceptor.Implementation(logic);
 	}
 	
-	public static TraversalAcceptor Wrap(final Predicate<Object> condition, final Consumer<Object> logic)
+	public static TraversalAcceptor New(final Predicate<Object> condition, final Consumer<Object> logic)
 	{
 		return new TraversalAcceptor.ImplementationConditional(condition, logic);
 	}
@@ -30,10 +30,9 @@ public interface TraversalAcceptor
 		}
 
 		@Override
-		public final Object acceptInstance(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final void acceptReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
 		{
 			this.logic.accept(instance);
-			return instance;
 		}
 		
 	}
@@ -51,13 +50,13 @@ public interface TraversalAcceptor
 		}
 
 		@Override
-		public final Object acceptInstance(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final void acceptReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
 		{
-			if(this.condition.test(instance))
+			if(!this.condition.test(instance))
 			{
-				this.logic.accept(instance);
+				return;
 			}
-			return instance;
+			this.logic.accept(instance);
 		}
 		
 	}

@@ -1,18 +1,22 @@
 package net.jadoth.traversal;
 
+import java.util.function.Function;
+
+import net.jadoth.Jadoth;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.util.KeyValue;
 
-public final class TraversalDeduplicator implements TraversalAcceptor
+
+public final class DeduplicatorMultiType implements Function<Object, Object>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static TraversalDeduplicator New(final Class<?>... types)
+	public static DeduplicatorMultiType New(final Class<?>... types)
 	{
 		final HashTable<Class<?>, EqHashEnum<Object>> registry = HashTable.New();
 		for(final Class<?> type : types)
@@ -20,10 +24,10 @@ public final class TraversalDeduplicator implements TraversalAcceptor
 			registry.add(type, EqHashEnum.New());
 		}
 		
-		return new TraversalDeduplicator(registry);
+		return new DeduplicatorMultiType(registry);
 	}
 	
-	public static TraversalDeduplicator New(final XGettingMap<Class<?>, HashEqualator<Object>> types)
+	public static DeduplicatorMultiType New(final XGettingMap<Class<?>, HashEqualator<Object>> types)
 	{
 		final HashTable<Class<?>, EqHashEnum<Object>> registry = HashTable.New();
 		for(final KeyValue<Class<?>, HashEqualator<Object>> e : types)
@@ -31,7 +35,7 @@ public final class TraversalDeduplicator implements TraversalAcceptor
 			registry.add(e.key(), EqHashEnum.New(e.value()));
 		}
 		
-		return new TraversalDeduplicator(registry);
+		return new DeduplicatorMultiType(registry);
 	}
 	
 	
@@ -42,21 +46,29 @@ public final class TraversalDeduplicator implements TraversalAcceptor
 	
 	private final HashTable<Class<?>, EqHashEnum<Object>> registry;
 	
+		
 	
-	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
-	TraversalDeduplicator(final HashTable<Class<?>, EqHashEnum<Object>> registry)
+	DeduplicatorMultiType(final HashTable<Class<?>, EqHashEnum<Object>> registry)
 	{
 		super();
 		this.registry = registry;
 	}
 
 
-
-
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
 	@Override
-	public Object acceptInstance(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+	public final Object apply(final Object instance)
 	{
+		System.out.println(Jadoth.systemString(instance));
+		
 		final EqHashEnum<Object> typeRegistry = this.registry.get(instance.getClass());
 		if(typeRegistry == null)
 		{
