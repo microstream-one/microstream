@@ -4,7 +4,7 @@ public interface TypeTraverser<T>
 {
 	public void traverseReferences(T instance, TraversalAcceptor acceptor, TraversalEnqueuer enqueuer);
 	
-	public void traverseReferences(T instance, TraversalMutator mutator, TraversalEnqueuer enqueuer);
+	public void traverseReferences(T instance, TraversalMutator mutator, TraversalEnqueuer enqueuer, MutationListener mutationListener);
 	
 	
 	public interface Creator

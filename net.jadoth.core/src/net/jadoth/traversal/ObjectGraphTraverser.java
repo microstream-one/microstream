@@ -59,25 +59,28 @@ public interface ObjectGraphTraverser
 	}
 	
 	public static ObjectGraphTraverser New(
-		final Object[]                                           roots                 ,
-		final XGettingCollection<Object>                         skipped               ,
-		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-		final TypeTraverserProvider                              traverserProvider
+		final Object[]                                           roots                   ,
+		final XGettingCollection<Object>                         skipped                 ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+		final TypeTraverserProvider                              traverserProvider       ,
+		final MutationListener.Provider                          mutationListenerProvider
 	)
 	{
 		return new ObjectGraphTraverser.Implementation(
 			roots                                                             ,
 			coalesce(skipped, X.empty()).immure()                             ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
-			notNull(traverserProvider)
+			notNull(traverserProvider)                                        ,
+			mutationListenerProvider
 		);
 	}
 	
 	public static ObjectGraphTraverser New(
-		final Object[]                                           roots                 ,
-		final XGettingCollection<Object>                         skipped               ,
-		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-		final TypeTraverserProvider                              traverserProvider     ,
+		final Object[]                                           roots                   ,
+		final XGettingCollection<Object>                         skipped                 ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+		final TypeTraverserProvider                              traverserProvider       ,
+		final MutationListener.Provider                          mutationListenerProvider,
 		final TraversalAcceptor                                  acceptor
 	)
 	{
@@ -86,15 +89,17 @@ public interface ObjectGraphTraverser
 			coalesce(skipped, X.empty()).immure()                             ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
 			notNull(traverserProvider)                                        ,
+			mutationListenerProvider                                          , // may be null
 			acceptor
 		);
 	}
 	
 	public static ObjectGraphTraverser New(
-		final Object[]                                           roots                 ,
-		final XGettingCollection<Object>                         skipped               ,
-		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-		final TypeTraverserProvider                              traverserProvider     ,
+		final Object[]                                           roots                   ,
+		final XGettingCollection<Object>                         skipped                 ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+		final TypeTraverserProvider                              traverserProvider       ,
+		final MutationListener.Provider                          mutationListenerProvider,
 		final TraversalMutator                                   mutator
 	)
 	{
@@ -103,6 +108,7 @@ public interface ObjectGraphTraverser
 			coalesce(skipped, X.empty()).immure()                             ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
 			notNull(traverserProvider)                                        ,
+			mutationListenerProvider                                          , // may be null
 			mutator
 		);
 	}
@@ -113,10 +119,11 @@ public interface ObjectGraphTraverser
 		// instance fields //
 		////////////////////
 
-		private final Object[]                                           roots                 ;
-		private final XGettingCollection<Object>                         skipped               ;
-		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
-		private final TypeTraverserProvider                              traverserProvider     ;
+		private final Object[]                                           roots                   ;
+		private final XGettingCollection<Object>                         skipped                 ;
+		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
+		private final TypeTraverserProvider                              traverserProvider       ;
+		private final MutationListener.Provider                          mutationListenerProvider;
 		
 		
 		
@@ -125,17 +132,19 @@ public interface ObjectGraphTraverser
 		/////////////////
 		
 		Implementation(
-			final Object[]                                           roots                 ,
-			final XGettingCollection<Object>                         skipped               ,
-			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-			final TypeTraverserProvider                              traverserProvider
+			final Object[]                                           roots                   ,
+			final XGettingCollection<Object>                         skipped                 ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+			final TypeTraverserProvider                              traverserProvider       ,
+			final MutationListener.Provider                          mutationListenerProvider
 		)
 		{
 			super();
-			this.roots                  = roots                 ;
-			this.skipped                = skipped               ;
-			this.alreadyHandledProvider = alreadyHandledProvider;
-			this.traverserProvider      = traverserProvider     ;
+			this.roots                    = roots                   ;
+			this.skipped                  = skipped                 ;
+			this.alreadyHandledProvider   = alreadyHandledProvider  ;
+			this.traverserProvider        = traverserProvider       ;
+			this.mutationListenerProvider = mutationListenerProvider;
 		}
 		
 		
@@ -153,6 +162,7 @@ public interface ObjectGraphTraverser
 			
 			final ReferenceHandlerAccepting referenceHandler = new ReferenceHandlerAccepting(
 				this.traverserProvider,
+				this.mutationListenerProvider,
 				this.alreadyHandledProvider.apply(this.skipped),
 				instances
 			);
@@ -180,6 +190,7 @@ public interface ObjectGraphTraverser
 			
 			final ReferenceHandlerMutating referenceHandler = new ReferenceHandlerMutating(
 				this.traverserProvider,
+				this.mutationListenerProvider,
 				this.alreadyHandledProvider.apply(this.skipped),
 				instances
 			);
@@ -266,8 +277,9 @@ public interface ObjectGraphTraverser
 			// instance fields //
 			////////////////////
 			
-			final TypeTraverserProvider traverserProvider;
-			final XSet<Object>          alreadyHandled   ;
+			final TypeTraverserProvider     traverserProvider;
+			final MutationListener          mutationListener ;
+			final XSet<Object>              alreadyHandled   ;
 
 			Object[] iterationTail      = createIterationSegment();
 			Object[] iterationHead      = this.iterationTail;
@@ -282,14 +294,19 @@ public interface ObjectGraphTraverser
 			/////////////////
 			
 			AbstractReferenceHandler(
-				final TypeTraverserProvider traverserProvider,
-				final XSet<Object>          alreadyHandled   ,
-				final Object[]              instances
+				final TypeTraverserProvider     traverserProvider       ,
+				final MutationListener.Provider mutationListenerProvider,
+				final XSet<Object>              alreadyHandled          ,
+				final Object[]                  instances
 			)
 			{
 				super();
 				this.traverserProvider = traverserProvider;
-				this.alreadyHandled    = alreadyHandled  ;
+				this.alreadyHandled    = alreadyHandled   ;
+				this.mutationListener  = mutationListenerProvider != null
+					? mutationListenerProvider.provideMutationListener(this)
+					: null
+				;
 
 				for(final Object instance : instances)
 				{
@@ -394,12 +411,13 @@ public interface ObjectGraphTraverser
 			/////////////////
 			
 			ReferenceHandlerAccepting(
-				final TypeTraverserProvider traverserProvider,
-				final XSet<Object>          alreadyHandled ,
-				final Object[]              instances
+				final TypeTraverserProvider     traverserProvider       ,
+				final MutationListener.Provider mutationListenerProvider,
+				final XSet<Object>              alreadyHandled          ,
+				final Object[]                  instances
 			)
 			{
-				super(traverserProvider, alreadyHandled, instances);
+				super(traverserProvider, mutationListenerProvider, alreadyHandled, instances);
 			}
 			
 			
@@ -426,12 +444,13 @@ public interface ObjectGraphTraverser
 			/////////////////
 			
 			ReferenceHandlerMutating(
-				final TypeTraverserProvider traverserProvider,
-				final XSet<Object>          alreadyHandled ,
-				final Object[]              instances
+				final TypeTraverserProvider     traverserProvider       ,
+				final MutationListener.Provider mutationListenerProvider,
+				final XSet<Object>              alreadyHandled          ,
+				final Object[]                  instances
 			)
 			{
-				super(traverserProvider, alreadyHandled, instances);
+				super(traverserProvider, mutationListenerProvider, alreadyHandled, instances);
 			}
 			
 			
@@ -446,7 +465,7 @@ public interface ObjectGraphTraverser
 				final TypeTraverser<T> traverser = this.traverserProvider.provide(instance);
 				
 //				JadothConsole.debugln("Traversing " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(handler));
-				traverser.traverseReferences(instance, mutator, this);
+				traverser.traverseReferences(instance, mutator, this, this.mutationListener);
 			}
 			
 		}
@@ -469,14 +488,15 @@ public interface ObjectGraphTraverser
 		/////////////////
 
 		ImplementationAccepting(
-			final Object[]                                           roots                 ,
-			final XGettingCollection<Object>                         skipped               ,
-			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-			final TypeTraverserProvider                              traverserProvider     ,
+			final Object[]                                           roots                   ,
+			final XGettingCollection<Object>                         skipped                 ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+			final TypeTraverserProvider                              traverserProvider       ,
+			final MutationListener.Provider                          mutationListenerProvider,
 			final TraversalAcceptor                                  acceptor
 		)
 		{
-			super(roots, skipped, alreadyHandledProvider, traverserProvider);
+			super(roots, skipped, alreadyHandledProvider, traverserProvider, mutationListenerProvider);
 			this.acceptor = acceptor;
 		}
 		
@@ -511,14 +531,15 @@ public interface ObjectGraphTraverser
 		/////////////////
 
 		ImplementationMutating(
-			final Object[]                                           roots                 ,
-			final XGettingCollection<Object>                         skipped               ,
-			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider,
-			final TypeTraverserProvider                              traverserProvider     ,
+			final Object[]                                           roots                   ,
+			final XGettingCollection<Object>                         skipped                 ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+			final TypeTraverserProvider                              traverserProvider       ,
+			final MutationListener.Provider                          mutationListenerProvider,
 			final TraversalMutator                                   mutator
 		)
 		{
-			super(roots, skipped, alreadyHandledProvider, traverserProvider);
+			super(roots, skipped, alreadyHandledProvider, traverserProvider, mutationListenerProvider);
 			this.mutator = mutator;
 		}
 		

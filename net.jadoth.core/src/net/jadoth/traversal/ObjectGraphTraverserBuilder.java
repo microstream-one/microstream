@@ -233,12 +233,15 @@ public interface ObjectGraphTraverserBuilder
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
 		private TypeTraverser.Creator                              traversalHandlerCreator ;
 		
-		private TraversalAcceptor        acceptor     ;
-		private TraversalMutator         mutator      ;
-		private Object[]                 roots        ;
-		private Predicate<Object>        predicate    ;
-		private Consumer<Object>         acceptorLogic;
-		private Function<Object, Object> mutatorLogic ;
+		private TraversalAcceptor         acceptor                ;
+		private TraversalMutator          mutator                 ;
+		private Object[]                  roots                   ;
+		private Predicate<Object>         predicate               ;
+		private Consumer<Object>          acceptorLogic           ;
+		private Function<Object, Object>  mutatorLogic            ;
+		private MutationListener.Provider mutationListenerProvider;
+		private MutationListener          mutationListener        ;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -351,6 +354,36 @@ public interface ObjectGraphTraverserBuilder
 			return this.skipped;
 		}
 		
+		protected synchronized MutationListener.Provider provideMutationListenerProvider()
+		{
+			if(this.mutationListenerProvider != null)
+			{
+				return this.mutationListenerProvider;
+			}
+			
+			if(this.mutationListener != null)
+			{
+				return MutationListener.Provider(this.mutationListener);
+			}
+			return null;
+		}
+		
+		public synchronized ObjectGraphTraverserBuilder setMutationListener(
+			final MutationListener mutationListener
+		)
+		{
+			this.mutationListener = mutationListener;
+			return this;
+		}
+		
+		public synchronized ObjectGraphTraverserBuilder setMutationListenerProvider(
+			final MutationListener.Provider mutationListenerProvider
+		)
+		{
+			this.mutationListenerProvider = mutationListenerProvider;
+			return this;
+		}
+		
 		protected synchronized Function<XGettingCollection<Object>, XSet<Object>>  provideAlreadyHandledProvider()
 		{
 			if(this.alreadyHandledProvider != null)
@@ -431,10 +464,11 @@ public interface ObjectGraphTraverserBuilder
 			}
 			
 			return ObjectGraphTraverser.New(
-				this.internalGetRoots()               ,
-				this.provideSkipped()                 ,
-				this.provideAlreadyHandledProvider()  ,
-				this.provideTraverserAcceptingProvider()
+				this.internalGetRoots()                 ,
+				this.provideSkipped()                   ,
+				this.provideAlreadyHandledProvider()    ,
+				this.provideTraverserAcceptingProvider(),
+				this.provideMutationListenerProvider()
 			);
 		}
 		
@@ -448,6 +482,7 @@ public interface ObjectGraphTraverserBuilder
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
 					this.provideTraverserAcceptingProvider(),
+					this.provideMutationListenerProvider()  ,
 					mutator
 				);
 			}
@@ -460,6 +495,7 @@ public interface ObjectGraphTraverserBuilder
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
 					this.provideTraverserAcceptingProvider(),
+					this.provideMutationListenerProvider()  ,
 					acceptor
 				);
 			}
@@ -478,6 +514,7 @@ public interface ObjectGraphTraverserBuilder
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
 					this.provideTraverserAcceptingProvider(),
+					this.provideMutationListenerProvider()  ,
 					predicate == null
 						? TraversalMutator.New(mutatorLogic)
 						: TraversalMutator.New(predicate, mutatorLogic)
@@ -493,6 +530,7 @@ public interface ObjectGraphTraverserBuilder
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
 					this.provideTraverserAcceptingProvider(),
+					this.provideMutationListenerProvider()  ,
 					predicate == null
 					? TraversalAcceptor.New(acceptorLogic)
 					: TraversalAcceptor.New(predicate, acceptorLogic)

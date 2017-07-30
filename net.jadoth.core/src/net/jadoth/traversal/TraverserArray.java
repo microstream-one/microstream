@@ -26,9 +26,10 @@ public final class TraverserArray implements TypeTraverser<Object[]>
 	
 	@Override
 	public final void traverseReferences(
-		final Object[]          instance,
-		final TraversalMutator  mutator ,
-		final TraversalEnqueuer enqueuer
+		final Object[]          instance        ,
+		final TraversalMutator  mutator         ,
+		final TraversalEnqueuer enqueuer        ,
+		final MutationListener  mutationListener
 	)
 	{
 		final int length = instance.length;
@@ -39,6 +40,10 @@ public final class TraverserArray implements TypeTraverser<Object[]>
 				final Object current, returned;
 				if((returned = mutator.mutateReference(current = instance[i], instance, enqueuer)) != current)
 				{
+					if(mutationListener != null)
+					{
+						mutationListener.registerChange(instance, current, returned);
+					}
 					instance[i] = returned;
 				}
 				

@@ -1,6 +1,7 @@
 package net.jadoth.swizzling.types;
 
 import net.jadoth.traversal.AbstractTraversalSkipSignal;
+import net.jadoth.traversal.MutationListener;
 import net.jadoth.traversal.TraversalAcceptor;
 import net.jadoth.traversal.TraversalEnqueuer;
 import net.jadoth.traversal.TraversalMutator;
@@ -40,7 +41,12 @@ public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 	}
 	
 	@Override
-	public void traverseReferences(final Lazy<?> instance, final TraversalMutator mutator, final TraversalEnqueuer enqueuer)
+	public void traverseReferences(
+		final Lazy<?>           instance        ,
+		final TraversalMutator  mutator         ,
+		final TraversalEnqueuer enqueuer        ,
+		final MutationListener  mutationListener
+	)
 	{
 		final Lazy<?> lazy = instance;
 		final boolean wasNull = lazy.peek() == null;

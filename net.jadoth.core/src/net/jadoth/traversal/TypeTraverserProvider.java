@@ -52,7 +52,12 @@ public interface TypeTraverserProvider
 			}
 
 			@Override
-			public void traverseReferences(final Object instance, final TraversalMutator mutator, final TraversalEnqueuer enqueuer)
+			public void traverseReferences(
+				final Object            instance        ,
+				final TraversalMutator  mutator         ,
+				final TraversalEnqueuer enqueuer        ,
+				final MutationListener  mutationListener
+			)
 			{
 			//  dummy only
 			}

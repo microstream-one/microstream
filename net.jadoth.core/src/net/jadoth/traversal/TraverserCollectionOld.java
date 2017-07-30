@@ -7,9 +7,10 @@ public final class TraverserCollectionOld implements TypeTraverser<Collection<?>
 {
 	@Override
 	public final void traverseReferences(
-		final Collection<?>     instance,
-		final TraversalMutator  mutator ,
-		final TraversalEnqueuer enqueuer
+		final Collection<?>     instance        ,
+		final TraversalMutator  mutator         ,
+		final TraversalEnqueuer enqueuer        ,
+		final MutationListener  mutationListener
 	)
 	{
 		try

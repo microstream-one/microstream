@@ -7,16 +7,22 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 {
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance,
-		final TraversalMutator      acceptor,
-		final TraversalEnqueuer     enqueuer
+		final XReplacingBag<Object> instance        ,
+		final TraversalMutator      mutator         ,
+		final TraversalEnqueuer     enqueuer        ,
+		final MutationListener      mutationListener
 	)
 	{
 		try
 		{
 			instance.substitute(current ->
 			{
-				final Object returned = acceptor.mutateReference(current, instance, enqueuer);
+				final Object returned = mutator.mutateReference(current, instance, enqueuer);
+
+				if(mutationListener != null)
+				{
+					mutationListener.registerChange(instance, current, returned);
+				}
 				
 				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
 				enqueuer.enqueue(returned);

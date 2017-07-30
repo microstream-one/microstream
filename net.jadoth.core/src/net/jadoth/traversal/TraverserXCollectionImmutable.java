@@ -7,9 +7,10 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 {
 	@Override
 	public final void traverseReferences(
-		final XGettingCollection<?> instance,
-		final TraversalMutator      mutator ,
-		final TraversalEnqueuer     enqueuer
+		final XGettingCollection<?> instance        ,
+		final TraversalMutator      mutator         ,
+		final TraversalEnqueuer     enqueuer        ,
+		final MutationListener      mutationListener
 	)
 	{
 		try

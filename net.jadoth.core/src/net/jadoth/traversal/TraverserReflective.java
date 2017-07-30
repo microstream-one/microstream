@@ -70,9 +70,10 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	
 	@Override
 	public final void traverseReferences(
-		final T                 instance,
-		final TraversalMutator  mutator ,
-		final TraversalEnqueuer enqueuer
+		final T                 instance        ,
+		final TraversalMutator  mutator         ,
+		final TraversalEnqueuer enqueuer        ,
+		final MutationListener  mutationListener
 	)
 	{
 		final Field[] fields = this.fields  ;
@@ -87,6 +88,10 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 					current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer)
 				) != current)
 				{
+					if(mutationListener != null)
+					{
+						mutationListener.registerChange(instance, current, returned);
+					}
 					JadothReflect.setFieldValue(fields[i], instance, returned);
 				}
 				
