@@ -20,14 +20,14 @@ public class MainTestObjectGraphTraverser
 			.apply(s ->
 				System.out.println(Jadoth.systemString(s) + ": " + s)
 			)
-			.build()
+			.buildObjectGraphTraverser()
 		;
 
 		final ObjectGraphTraverser stringMutator = ObjectGraphTraverser.Builder()
 			.from(root)
 			.select(String.class::isInstance)
 			.mutateBy(Deduplicator.New())
-			.build()
+			.buildObjectGraphTraverser()
 		;
 		
 		stringIdPrinter.traverse();
