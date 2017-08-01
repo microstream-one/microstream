@@ -34,10 +34,21 @@ import net.jadoth.reflect.JadothReflect;
 
 public interface ObjectGraphTraverserBuilder
 {
-	// (21.07.2017 TM)TODO: what about a traversal predicate?
+	/* (21.07.2017 TM)TODO: what about a traversal predicate and exclude types?
+	 * see:
+//			.setTraversableFieldSelector((c, f) ->
+//				!JadothReflect.isTransient(f)
+//			)
+//			.excludeTypes(
+//				Unpersistable.class,
+//				BinaryLeafType.class
+//			)
+	 */
+	
+	// (01.08.2017 TM)FIXME: if there'a an "alreadyhandled" set, there must be a correspondind "handler" mechanism.
 	
 	
-	public ObjectGraphTraverser build();
+	public ObjectGraphTraverser buildObjectGraphTraverser();
 	
 	public default boolean skip(final Object instance)
 	{
@@ -137,13 +148,15 @@ public interface ObjectGraphTraverserBuilder
 	
 	public XSet<Object> skipped();
 	
-	public XMap<Object, TypeTraverser<?>> handlersPerInstance();
+	public XMap<Object, TypeTraverser<?>> traversersPerInstance();
 	
 	public XSet<Class<?>> leafTypes();
 	
-	public XMap<Class<?>, TypeTraverser<?>> handlersPerConcreteType();
+	public XMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType();
 	
-	public XTable<Class<?>, TypeTraverser<?>> handlersPerPolymorphType();
+	public XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType();
+	
+	public <T> ObjectGraphTraverserBuilder registerTraverserForType(Class<? extends T> type, TypeTraverser<T> traverser);
 	
 	
 	
@@ -315,7 +328,7 @@ public interface ObjectGraphTraverserBuilder
 		}
 
 		@Override
-		public synchronized XMap<Object, TypeTraverser<?>> handlersPerInstance()
+		public synchronized XMap<Object, TypeTraverser<?>> traversersPerInstance()
 		{
 			return this.traversersPerInstance;
 		}
@@ -327,24 +340,24 @@ public interface ObjectGraphTraverserBuilder
 		}
 
 		@Override
-		public synchronized XMap<Class<?>, TypeTraverser<?>> handlersPerConcreteType()
+		public synchronized XMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType()
 		{
 			return this.traversersPerConcreteType;
 		}
 
 		@Override
-		public synchronized XTable<Class<?>, TypeTraverser<?>> handlersPerPolymorphType()
+		public synchronized XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType()
 		{
 			return this.traversersPerPolymorphType;
 		}
 		
-		protected synchronized TypeTraverserProvider provideTraverserAcceptingProvider()
+		protected synchronized TypeTraverserProvider provideTypeTraverserProvider()
 		{
 			return TypeTraverserProvider.New(
 				this.provideTraverserAcceptingCreator(),
-				this.handlersPerInstance()             ,
-				this.handlersPerConcreteType()         ,
-				this.handlersPerPolymorphType()        ,
+				this.traversersPerInstance()             ,
+				this.traversersPerConcreteType()         ,
+				this.traversersPerPolymorphType()        ,
 				this.leafTypes()
 			);
 		}
@@ -447,7 +460,7 @@ public interface ObjectGraphTraverserBuilder
 		}
 		
 		@Override
-		public synchronized ObjectGraphTraverser build()
+		public synchronized ObjectGraphTraverser buildObjectGraphTraverser()
 		{
 			ObjectGraphTraverser ogt;
 			
@@ -467,7 +480,7 @@ public interface ObjectGraphTraverserBuilder
 				this.internalGetRoots()                 ,
 				this.provideSkipped()                   ,
 				this.provideAlreadyHandledProvider()    ,
-				this.provideTraverserAcceptingProvider(),
+				this.provideTypeTraverserProvider(),
 				this.provideMutationListenerProvider()
 			);
 		}
@@ -481,7 +494,7 @@ public interface ObjectGraphTraverserBuilder
 					this.internalGetRoots()                 ,
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
-					this.provideTraverserAcceptingProvider(),
+					this.provideTypeTraverserProvider(),
 					this.provideMutationListenerProvider()  ,
 					mutator
 				);
@@ -494,7 +507,7 @@ public interface ObjectGraphTraverserBuilder
 					this.internalGetRoots()                 ,
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
-					this.provideTraverserAcceptingProvider(),
+					this.provideTypeTraverserProvider(),
 					this.provideMutationListenerProvider()  ,
 					acceptor
 				);
@@ -513,7 +526,7 @@ public interface ObjectGraphTraverserBuilder
 					this.internalGetRoots()                 ,
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
-					this.provideTraverserAcceptingProvider(),
+					this.provideTypeTraverserProvider(),
 					this.provideMutationListenerProvider()  ,
 					predicate == null
 						? TraversalMutator.New(mutatorLogic)
@@ -529,7 +542,7 @@ public interface ObjectGraphTraverserBuilder
 					this.internalGetRoots()                 ,
 					this.provideSkipped()                   ,
 					this.provideAlreadyHandledProvider()    ,
-					this.provideTraverserAcceptingProvider(),
+					this.provideTypeTraverserProvider(),
 					this.provideMutationListenerProvider()  ,
 					predicate == null
 					? TraversalAcceptor.New(acceptorLogic)
@@ -572,6 +585,16 @@ public interface ObjectGraphTraverserBuilder
 		public ObjectGraphTraverserBuilder mutateBy(final Function<Object, Object> logic)
 		{
 			this.mutatorLogic = logic;
+			return this;
+		}
+		
+		@Override
+		public synchronized <T> ObjectGraphTraverserBuilder registerTraverserForType(
+			final Class<? extends T> type     ,
+			final TypeTraverser<T>   traverser
+		)
+		{
+			this.traversersPerConcreteType.add(type, traverser);
 			return this;
 		}
 		

@@ -9,6 +9,13 @@ import net.jadoth.traversal.TypeTraverser;
 
 public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 {
+	@SuppressWarnings({"unchecked",  "rawtypes"})
+	public static Class<Lazy<?>> typeWorkaround()
+	{
+		// no idea how to get ".class" to work otherwise
+		return (Class)Lazy.class;
+	}
+	
 	@Override
 	public final void traverseReferences(
 		final Lazy<?>           instance,

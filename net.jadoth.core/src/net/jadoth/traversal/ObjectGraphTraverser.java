@@ -3,6 +3,7 @@ package net.jadoth.traversal;
 import static net.jadoth.Jadoth.coalesce;
 import static net.jadoth.Jadoth.notNull;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.jadoth.Jadoth;
@@ -35,10 +36,22 @@ public interface ObjectGraphTraverser
 		return acceptor;
 	}
 	
+	public default <C extends Consumer<Object>> C traverse(final Object instance, final C logic)
+	{
+		this.traverse(instance, TraversalAcceptor.New(logic));
+		return logic;
+	}
+	
 	public default <M extends TraversalMutator> M traverse(final Object instance, final M acceptor)
 	{
 		this.traverseAll(Jadoth.array(instance), acceptor);
 		return acceptor;
+	}
+	
+	public default <F extends Function<Object, Object>> F traverse(final Object instance, final F logic)
+	{
+		this.traverse(instance, TraversalMutator.New(logic));
+		return logic;
 	}
 
 
