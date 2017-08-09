@@ -1,4 +1,4 @@
-package net.jadoth.meta;
+package net.jadoth.meta.code;
 
 import static net.jadoth.Jadoth.notNull;
 
@@ -73,7 +73,7 @@ public abstract class AbstractCodeGenerator<F extends Field>
 		this.vs.lf(3);
 		if(this.sectionHeaders)
 		{
-			Code.sectionHeader(this.vs, 2, "override methods");
+			Code.sectionHeader(this.vs, 2, "methods");
 		}
 		this.generateImplementationMemberGetters();
 		this.vs.lf(2);

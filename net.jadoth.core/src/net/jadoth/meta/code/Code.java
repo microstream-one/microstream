@@ -1,8 +1,9 @@
-package net.jadoth.meta;
+package net.jadoth.meta.code;
 
+import net.jadoth.meta.code.Field.FinalField;
 import net.jadoth.util.chars.VarString;
 
-public final class Code
+public abstract class Code
 {
 	// CHECKSTYLE.OFF: ConstantName: keyword names are intentionally unchanged
 
@@ -80,13 +81,40 @@ public final class Code
 			return vs.add(VISIBILITY_public).blank();
 		}
 	};
-
-
-	private Code()
+	
+	public static final FinalField Final(final String typeName, final String fieldName)
 	{
-		// static only
-		throw new UnsupportedOperationException();
+		return new Field.FinalField(typeName, fieldName, Code.DEFAULT, null);
 	}
+	
+	public static final Field Field(final String typeName, final String fieldName)
+	{
+		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, FieldType.MUTABLE_WITH_SETTER, null);
+	}
+	
+	public static final Field Field(final String typeName, final String fieldName, final FieldType type)
+	{
+		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, type, null);
+	}
+	
+	public static final Field Field(final String typeName, final String fieldName, final FieldType type, final String initializer)
+	{
+		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, type, initializer);
+	}
+	
+	
+	public static String generateEntity(final String typeName, final Field... members)
+	{
+		return generateEntity(typeName, null, members);
+	}
+	
+	public static String generateEntity(final String typeName, final String superclass, final Field... members)
+	{
+		final CodeGeneratorEntity generator = new CodeGeneratorEntity(typeName, members);
+		return generator.generateCode();
+	}
+	
+
 
 	// CHECKSTYLE.ON: ConstantName
 }

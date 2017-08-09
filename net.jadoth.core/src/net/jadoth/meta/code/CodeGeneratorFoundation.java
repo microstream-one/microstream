@@ -1,4 +1,4 @@
-package net.jadoth.meta;
+package net.jadoth.meta.code;
 
 import net.jadoth.util.chars.VarString;
 
@@ -123,7 +123,7 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 		;
 	}
 
-	static final class Member extends Field.AbstractImplementation
+	static final class Member extends Field.Implementation
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -139,56 +139,23 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 
 		Member(final String typeName, final String fieldName)
 		{
-			super(typeName, fieldName);
+			super(typeName, fieldName, Code.private$, FieldType.MUTABLE_WITH_SETTER_CHAINING, null);
 			this.upperFieldName = Code.toUpperCaseFirstLetter(fieldName);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
 		@Override
-		public void assembleInterfaceGetter(final VarString vs, final Type type)
+		protected VarString assembleGetterName(final VarString vs)
 		{
-			vs.lf()
-			.tab().add("public ").add(this.typeName()).blank().add("get")
-			.add(Code.toUpperCaseFirstLetter(this.fieldName())).add("()").add(';').lf()
+			return vs
+			.add("get")
+			.add(this.upperFieldName)
 			;
-		}
-
-		@Override
-		public void assembleInterfaceSetter(final VarString vs, final Type type)
-		{
-			final String upperName = Code.toUpperCaseFirstLetter(this.fieldName());
-			vs.lf()
-			.tab().add("public ");
-			type.assembleTypeName(vs).blank()
-			.add("set").add(upperName).add("(").add(this.typeName()).blank().add(this.fieldName()).add(")").add(';').lf()
-			;
-		}
-
-		@Override
-		public void assembleClassField(final VarString vs, final Type type, final int typeLength, final int nameLength)
-		{
-			vs.lf().tab().tab().add("private ")
-			.padRight(this.typeName(), typeLength, ' ').blank()
-			.padRight(this.fieldName(), nameLength, ' ')
-			.add(";")
-			;
-		}
-
-		@Override
-		public void assembleConstructorParameter(final VarString vs, final int typeLength, final int nameLength)
-		{
-			// no-op for foundation member field
-		}
-
-		@Override
-		public void assembleConstructorInitialization(final VarString vs, final Type type, final int nameLength)
-		{
-			// no-op for foundation member field
 		}
 
 		@Override

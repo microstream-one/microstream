@@ -1,4 +1,4 @@
-package net.jadoth.meta;
+package net.jadoth.meta.code;
 
 import net.jadoth.util.chars.VarString;
 
