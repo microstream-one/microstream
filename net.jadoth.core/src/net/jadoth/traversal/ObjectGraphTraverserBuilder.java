@@ -45,7 +45,18 @@ public interface ObjectGraphTraverserBuilder
 //			)
 	 */
 	
-	// (01.08.2017 TM)FIXME: if there'a an "alreadyhandled" set, there must be a correspondind "handler" mechanism.
+	/* (01.08.2017 TM)FIXME: if there'a an "alreadyhandled" set, there must be a correspondind "handler" mechanism.
+	 * Teminilogy definition:
+	 * "handle"  : to encounter an instance for the first time, apply the external logic and potentially traverse it
+	 * "traverse": to iterate all references of an instance for handling the referenced instances.
+	 * 
+	 * An instance can only be handled once.
+	 * An instance that has already been handled gets stored in a set called "alreadyHandled".
+	 * Instanced contained in the "alreadyHandled" set won't get handled (again).
+	 * To "skip" an instance means to put it in the alreadyHandled set regardless of it having actually been
+	 * already handled.
+	 * 
+	 */
 	
 	
 	public ObjectGraphTraverser buildObjectGraphTraverser();
