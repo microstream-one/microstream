@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 public interface TraversalAcceptor extends TraversalHandler
 {
 	
-	public void acceptReference(Object instance, Object parent, TraversalEnqueuer enqueuer);
+	public boolean acceptReference(Object instance, Object parent);
 	
 	
 	public static TraversalAcceptor New(final Consumer<Object> logic)
@@ -30,9 +30,10 @@ public interface TraversalAcceptor extends TraversalHandler
 		}
 
 		@Override
-		public final void acceptReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final boolean acceptReference(final Object instance, final Object parent)
 		{
 			this.logic.accept(instance);
+			return true;
 		}
 		
 	}
@@ -50,13 +51,13 @@ public interface TraversalAcceptor extends TraversalHandler
 		}
 
 		@Override
-		public final void acceptReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final boolean acceptReference(final Object instance, final Object parent)
 		{
-			if(!this.condition.test(instance))
+			if(this.condition.test(instance))
 			{
-				return;
+				this.logic.accept(instance);
 			}
-			this.logic.accept(instance);
+			return true;
 		}
 		
 	}

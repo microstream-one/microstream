@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 public interface TraversalMutator extends TraversalHandler
 {
-	public Object mutateReference(Object instance, Object parent, TraversalEnqueuer enqueuer);
+	public Object mutateReference(Object instance, Object parent);
 	
 		
 	public static TraversalMutator New(final Function<Object, Object> logic)
@@ -29,7 +29,7 @@ public interface TraversalMutator extends TraversalHandler
 		}
 
 		@Override
-		public final Object mutateReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final Object mutateReference(final Object instance, final Object parent)
 		{
 			return this.logic.apply(instance);
 		}
@@ -49,7 +49,7 @@ public interface TraversalMutator extends TraversalHandler
 		}
 
 		@Override
-		public final Object mutateReference(final Object instance, final Object parent, final TraversalEnqueuer enqueuer)
+		public final Object mutateReference(final Object instance, final Object parent)
 		{
 			if(this.condition.test(instance))
 			{

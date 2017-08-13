@@ -45,23 +45,7 @@ public interface TypeTraverserProvider
 		
 		static final TypeTraverser<?> UNHANDLED = new TypeTraverser<Object>()
 		{
-			@Override
-			public void traverseReferences(final Object instance, final TraversalAcceptor acceptor, final TraversalEnqueuer enqueuer)
-			{
-				//  dummy only
-			}
-
-			@Override
-			public void traverseReferences(
-				final Object            instance        ,
-				final TraversalMutator  mutator         ,
-				final TraversalEnqueuer enqueuer        ,
-				final MutationListener  mutationListener
-			)
-			{
-			//  dummy only
-			}
-		
+			/* dummy */
 		};
 		
 		

@@ -572,10 +572,7 @@ public interface ObjectGraphTraverser
 	
 }
 
-
-
-/* (11.08.2017 TM)NOTE:
-
+/*
 1.) Instanzen sollen standardmäßig gehandelt und traversiert werden
 2.) Manche Instanzen sollen nur gehandelt, aber nicht traversiert werden ("leaf instances" und "leaf types")
 3.) Eine Instanz, die traversiert wird, soll immer auch gehandelt werden. Ausnahme: unshared Instanzen, gesteuert durch explizite Traverser.
