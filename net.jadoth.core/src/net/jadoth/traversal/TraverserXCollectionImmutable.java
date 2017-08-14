@@ -7,9 +7,32 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 {
 	@Override
 	public final void traverseReferences(
+		final XGettingCollection<?> instance,
+		final TraversalEnqueuer     enqueuer,
+		final TraversalAcceptor     acceptor
+	)
+	{
+		try
+		{
+			instance.iterate(current ->
+			{
+				if(acceptor.acceptReference(current, instance))
+				{
+					enqueuer.enqueue(current);
+				}
+			});
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
 		final XGettingCollection<?> instance        ,
-		final TraversalMutator      mutator         ,
 		final TraversalEnqueuer     enqueuer        ,
+		final TraversalMutator      mutator         ,
 		final MutationListener      mutationListener
 	)
 	{
@@ -18,12 +41,10 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 			instance.iterate(current ->
 			{
 				final Object returned;
-				if((returned = mutator.mutateReference(current, instance, enqueuer)) != current)
+				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
 					throw new UnsupportedOperationException();
 				}
-				
-				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
 				enqueuer.enqueue(returned);
 			});
 		}
@@ -31,22 +52,29 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 		{
 			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
-		
 	}
-
+	
 	@Override
-	public void traverseReferences(
-		final XGettingCollection<?> instance,
-		final TraversalAcceptor     acceptor,
-		final TraversalEnqueuer     enqueuer
+	public final void traverseReferences(
+		final XGettingCollection<?> instance        ,
+		final TraversalEnqueuer     enqueuer        ,
+		final TraversalAcceptor     acceptor        ,
+		final TraversalMutator      mutator         ,
+		final MutationListener      mutationListener
 	)
 	{
 		try
 		{
-			instance.iterate(current ->
+			instance.forEach(current ->
 			{
-				acceptor.acceptReference(current, instance, enqueuer);
-				enqueuer.enqueue(current);
+				if(acceptor.acceptReference(current, instance))
+				{
+					enqueuer.enqueue(current);
+				}
+				if(mutator.mutateReference(current, instance) != current)
+				{
+					throw new UnsupportedOperationException();
+				}
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)

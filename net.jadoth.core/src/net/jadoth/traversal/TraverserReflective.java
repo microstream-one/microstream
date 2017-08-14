@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
+import net.jadoth.functional.JadothPredicates;
 import net.jadoth.reflect.JadothReflect;
 
 public final class TraverserReflective<T> implements TypeTraverser<T>
@@ -40,12 +41,12 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	{
 		return this.type;
 	}
-
+	
 	@Override
 	public final void traverseReferences(
-		final T                 instance,
-		final TraversalAcceptor acceptor,
-		final TraversalEnqueuer enqueuer
+		final T          instance,
+		final TraversalEnqueuer enqueuer,
+		final TraversalAcceptor acceptor
 	)
 	{
 		final Field[] fields = this.fields  ;
@@ -56,10 +57,10 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current;
-				acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer);
-				
-				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
-				enqueuer.enqueue(current);
+				if(acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance))
+				{
+					enqueuer.enqueue(current);
+				}
 			}
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -71,8 +72,50 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	@Override
 	public final void traverseReferences(
 		final T                 instance        ,
-		final TraversalMutator  mutator         ,
 		final TraversalEnqueuer enqueuer        ,
+		final TraversalMutator  mutator         ,
+		final MutationListener  mutationListener
+	)
+	{
+		final Field[] fields = this.fields  ;
+		final int     length = fields.length;
+		
+		try
+		{
+			for(int i = 0; i < length; i++)
+			{
+				final Object current = JadothReflect.getFieldValue(fields[i], instance);
+				final Object returned;
+				if((returned = mutator.mutateReference(current, instance)) != current)
+				{
+					JadothReflect.setFieldValue(fields[i], instance, returned); // must be BEFORE registerChange
+					if(mutationListener != null)
+					{
+						try
+						{
+							mutationListener.registerChange(instance, current, returned);
+						}
+						catch(final TraversalSignalSkipEnqueueReference s)
+						{
+							continue; // skip enqueue call (clever! 8-))
+						}
+					}
+				}
+				enqueuer.enqueue(returned);
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final T                 instance        ,
+		final TraversalEnqueuer enqueuer        ,
+		final TraversalAcceptor acceptor        ,
+		final TraversalMutator  mutator         ,
 		final MutationListener  mutationListener
 	)
 	{
@@ -84,18 +127,26 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				if((returned = mutator.mutateReference(
-					current = JadothReflect.getFieldValue(fields[i], instance), instance, enqueuer)
-				) != current)
+				if(acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance))
 				{
-					if(mutationListener != null)
-					{
-						mutationListener.registerChange(instance, current, returned);
-					}
-					JadothReflect.setFieldValue(fields[i], instance, returned);
+					enqueuer.enqueue(current);
 				}
 				
-				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
+				if((returned = mutator.mutateReference(current, instance)) != current)
+				{
+					JadothReflect.setFieldValue(fields[i], instance, returned); // must be BEFORE registerChange
+					if(mutationListener != null)
+					{
+						try
+						{
+							mutationListener.registerChange(instance, current, returned);
+						}
+						catch(final TraversalSignalSkipEnqueueReference s)
+						{
+							continue; // skip enqueue call (clever! 8-))
+						}
+					}
+				}
 				enqueuer.enqueue(returned);
 			}
 		}
@@ -104,10 +155,19 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
 	}
+
 	
-	public static TypeTraverser.Creator Creator(final Predicate<? super Field> fieldSelector)
+	
+	public static TraverserReflective.Creator Creator()
 	{
-		return new Creator(
+		return new TraverserReflective.Creator(
+			JadothPredicates.all()
+		);
+	}
+	
+	public static TraverserReflective.Creator Creator(final Predicate<? super Field> fieldSelector)
+	{
+		return new TraverserReflective.Creator(
 			notNull(fieldSelector)
 		);
 	}
@@ -169,8 +229,5 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		}
 		
 	}
-		
-	
-	
 	
 }

@@ -1,14 +1,14 @@
 package net.jadoth.traversal;
 
 
-public final class TraversalSignalSkipHandlingReferences extends AbstractTraversalSkipSignal
+public final class TraversalSignalSkipEnqueueReference extends AbstractTraversalSkipSignal
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 	
 	// can be thrown any number of times, so a singleton instead of constant instantiation is the better approach
-	static final TraversalSignalSkipHandlingReferences SINGLETON = new TraversalSignalSkipHandlingReferences();
+	static final TraversalSignalSkipEnqueueReference SINGLETON = new TraversalSignalSkipEnqueueReference();
 	
 	
 	
@@ -19,7 +19,7 @@ public final class TraversalSignalSkipHandlingReferences extends AbstractTravers
 	/**
 	 * Should actually be called "throw", but that is a keyword.
 	 */
-	public static void fire() throws TraversalSignalSkipHandlingReferences
+	public static void fire() throws TraversalSignalSkipEnqueueReference
 	{
 		throw SINGLETON;
 	}
@@ -30,7 +30,7 @@ public final class TraversalSignalSkipHandlingReferences extends AbstractTravers
 	// constructors //
 	/////////////////
 
-	private TraversalSignalSkipHandlingReferences()
+	private TraversalSignalSkipEnqueueReference()
 	{
 		super();
 	}
