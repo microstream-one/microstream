@@ -2,6 +2,8 @@ package net.jadoth.traversal;
 
 import java.util.function.Predicate;
 
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerAcceptingTesting extends AbstractReferenceHandler
@@ -20,13 +22,15 @@ public final class ReferenceHandlerAcceptingTesting extends AbstractReferenceHan
 	/////////////////
 	
 	ReferenceHandlerAcceptingTesting(
-		final XSet<Object>          alreadyHandled   ,
-		final TypeTraverserProvider traverserProvider,
-		final Predicate<Object>     handlingPredicate,
-		final TraversalAcceptor     traversalAcceptor
+		final TypeTraverserProvider      traverserProvider      ,
+		final XSet<Object>               alreadyHandled         ,
+		final XGettingSet<Class<?>>      skippedTypes           ,
+		final XGettingSequence<Class<?>> skippedTypesPolymorphic,
+		final Predicate<Object>          handlingPredicate      ,
+		final TraversalAcceptor          traversalAcceptor
 	)
 	{
-		super(traverserProvider, alreadyHandled);
+		super(traverserProvider, alreadyHandled, skippedTypes, skippedTypesPolymorphic);
 		this.handlingPredicate = handlingPredicate;
 		this.traversalAcceptor = traversalAcceptor;
 	}

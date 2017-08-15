@@ -12,16 +12,15 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 		final TraversalAcceptor     acceptor
 	)
 	{
-		final int length = instance.length;
 		try
 		{
-			for(int i = 0; i < length; i++)
+			instance.iterate(current ->
 			{
-				if(acceptor.acceptReference(instance[i], instance))
+				if(acceptor.acceptReference(current, instance))
 				{
-					enqueuer.enqueue(instance[i]);
+					enqueuer.enqueue(current);
 				}
-			}
+			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
 		{
@@ -37,23 +36,26 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 		final MutationListener      mutationListener
 	)
 	{
-		final int length = instance.length;
 		try
 		{
-			for(int i = 0; i < length; i++)
+			instance.substitute(current ->
 			{
-				final Object current, returned;
-				if((returned = mutator.mutateReference(current = instance[i], instance)) != current)
+				final Object returned = mutator.mutateReference(current, instance);
+				if(mutationListener != null)
 				{
-					instance[i] = returned; // must be BEFORE registerChange
-					if(mutationListener != null)
+					try
 					{
 						mutationListener.registerChange(instance, current, returned);
 					}
+					catch(final TraversalSignalSkipEnqueueReference s)
+					{
+						return returned; // skip enqueue call (clever! 8-))
+					}
 				}
-				
 				enqueuer.enqueue(returned);
-			}
+				
+				return returned;
+			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
 		{
@@ -70,91 +72,30 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 		final MutationListener      mutationListener
 	)
 	{
-		final int length = instance.length;
-		try
-		{
-			for(int i = 0; i < length; i++)
-			{
-				final Object current, returned;
-				if(acceptor.acceptReference(current = instance[i], instance))
-				{
-					enqueuer.enqueue(current);
-				}
-					
-				if((returned = mutator.mutateReference(current, instance)) != current)
-				{
-					instance[i] = returned; // must be BEFORE registerChange in case it throws a SkipEnqueue
-					if(mutationListener != null)
-					{
-						try
-						{
-							mutationListener.registerChange(instance, current, returned);
-						}
-						catch(final TraversalSignalSkipEnqueueReference s)
-						{
-							continue; // skip enqueue call (clever! 8-))
-						}
-					}
-					enqueuer.enqueue(returned);
-				}
-			}
-		}
-		catch(final AbstractTraversalSkipSignal s)
-		{
-			// any skip signal reaching this point means abort the whole instance, in one way or another
-		}
-	}
-	
-	
-	
-	
-	
-	
-	@Override
-	public final void traverseReferences(
-		final XReplacingBag<Object> instance        ,
-		final TraversalMutator      mutator         ,
-		final TraversalEnqueuer     enqueuer        ,
-		final MutationListener      mutationListener
-	)
-	{
 		try
 		{
 			instance.substitute(current ->
 			{
-				final Object returned = mutator.mutateReference(current, instance, enqueuer);
-
-				if(mutationListener != null)
+				if(acceptor.acceptReference(current, instance))
 				{
-					mutationListener.registerChange(instance, current, returned);
+					enqueuer.enqueue(current);
 				}
 				
-				// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
+				final Object returned = mutator.mutateReference(current, instance);
+				if(mutationListener != null)
+				{
+					try
+					{
+						mutationListener.registerChange(instance, current, returned);
+					}
+					catch(final TraversalSignalSkipEnqueueReference s)
+					{
+						return returned; // skip enqueue call (clever! 8-))
+					}
+				}
 				enqueuer.enqueue(returned);
 				
 				return returned;
-			});
-		}
-		catch(final AbstractTraversalSkipSignal s)
-		{
-			// any skip signal reaching this point means abort the whole instance, in one way or another
-		}
-		
-	}
-
-	@Override
-	public final void traverseReferences(
-		final XReplacingBag<Object> instance,
-		final TraversalAcceptor     acceptor,
-		final TraversalEnqueuer     enqueuer
-	)
-	{
-		try
-		{
-			instance.iterate(current ->
-			{
-				acceptor.acceptReference(current, instance, enqueuer);
-				enqueuer.enqueue(current);
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)

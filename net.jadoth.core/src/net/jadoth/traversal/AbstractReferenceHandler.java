@@ -1,5 +1,7 @@
 package net.jadoth.traversal;
 
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XSet;
 
 public abstract class AbstractReferenceHandler implements TraversalEnqueuer
@@ -8,8 +10,10 @@ public abstract class AbstractReferenceHandler implements TraversalEnqueuer
 	// instance fields //
 	////////////////////
 	
-	final TypeTraverserProvider traverserProvider;
-	final XSet<Object>          alreadyHandled   ;
+	final TypeTraverserProvider      traverserProvider      ;
+	final XSet<Object>               alreadyHandled         ;
+	final XGettingSet<Class<?>>      skippedTypes           ;
+	final XGettingSequence<Class<?>> skippedTypesPolymorphic;
 
 	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
 	Object[] iterationHead      = this.iterationTail;
@@ -24,14 +28,17 @@ public abstract class AbstractReferenceHandler implements TraversalEnqueuer
 	/////////////////
 	
 	AbstractReferenceHandler(
-		final TypeTraverserProvider traverserProvider,
-		final XSet<Object>          alreadyHandled
+		final TypeTraverserProvider      traverserProvider      ,
+		final XSet<Object>               alreadyHandled         ,
+		final XGettingSet<Class<?>>      skippedTypes           ,
+		final XGettingSequence<Class<?>> skippedTypesPolymorphic
 	)
 	{
 		super();
-		this.traverserProvider = traverserProvider;
-		this.alreadyHandled    = alreadyHandled   ;
-
+		this.traverserProvider       = traverserProvider      ;
+		this.alreadyHandled          = alreadyHandled         ;
+		this.skippedTypes            = skippedTypes           ;
+		this.skippedTypesPolymorphic = skippedTypesPolymorphic;
 	}
 	
 	
@@ -69,6 +76,20 @@ public abstract class AbstractReferenceHandler implements TraversalEnqueuer
 			return;
 		}
 		
+		if(this.skippedTypes != null && this.skippedTypes.contains(instance.getClass()))
+		{
+			return;
+		}
+		
+		if(this.skippedTypesPolymorphic != null)
+		{
+			final Class<?> type = instance.getClass();
+			if(this.skippedTypesPolymorphic.containsSearched(t -> t.isAssignableFrom(type)))
+			{
+				return;
+			}
+		}
+		
 		/* this check causes a redundant lookup in the handler registry: one here, one later to
 		 * actually get the handler.
 		 * Nevertheless, this is considered the favorable strategy, as the alternatives would be:
@@ -92,8 +113,7 @@ public abstract class AbstractReferenceHandler implements TraversalEnqueuer
 		this.iterationHead[this.iterationHeadIndex++] = instance;
 	}
 				
-	@SuppressWarnings("unchecked")
-	final <T> T dequeue()
+	private Object dequeue()
 	{
 		// (25.06.2017 TM)TODO: test performance of outsourced private methods
 		if(this.tailIsHead)
@@ -105,7 +125,7 @@ public abstract class AbstractReferenceHandler implements TraversalEnqueuer
 			this.advanceSegment();
 		}
 		
-		return (T)this.iterationTail[this.iterationTailIndex++];
+		return this.iterationTail[this.iterationTailIndex++];
 	}
 		
 	final void checkForCompletion()

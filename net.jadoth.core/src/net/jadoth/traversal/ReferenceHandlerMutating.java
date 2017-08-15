@@ -1,5 +1,7 @@
 package net.jadoth.traversal;
 
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerMutating extends AbstractReferenceHandler
@@ -19,14 +21,16 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 	/////////////////
 	
 	ReferenceHandlerMutating(
-		final XSet<Object>          alreadyHandled   ,
-		final TypeTraverserProvider traverserProvider,
-		final TraversalMutator      traversalMutator ,
-		final MutationListener      mutationListener
+		final TypeTraverserProvider      traverserProvider      ,
+		final XSet<Object>               alreadyHandled         ,
+		final XGettingSet<Class<?>>      skippedTypes           ,
+		final XGettingSequence<Class<?>> skippedTypesPolymorphic,
+		final TraversalMutator           traversalMutator       ,
+		final MutationListener           mutationListener
 		
 	)
 	{
-		super(traverserProvider, alreadyHandled);
+		super(traverserProvider, alreadyHandled, skippedTypes, skippedTypesPolymorphic);
 		this.traversalMutator  = traversalMutator ;
 		this.mutationListener  = mutationListener ;
 	}
