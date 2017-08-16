@@ -8,6 +8,18 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	@Override
 	public final void traverseReferences(
 		final XReplacingBag<Object> instance,
+		final TraversalEnqueuer     enqueuer
+	)
+	{
+		instance.iterate(current ->
+		{
+			enqueuer.enqueue(current);
+		});
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final XReplacingBag<Object> instance,
 		final TraversalEnqueuer     enqueuer,
 		final TraversalAcceptor     acceptor
 	)
@@ -40,20 +52,18 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 		{
 			instance.substitute(current ->
 			{
-				final Object returned = mutator.mutateReference(current, instance);
-				if(mutationListener != null)
+				final Object returned;
+				enqueuer.enqueue(current);
+				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					try
+					if(mutationListener != null)
 					{
-						mutationListener.registerChange(instance, current, returned);
-					}
-					catch(final TraversalSignalSkipEnqueueReference s)
-					{
-						return returned; // skip enqueue call (clever! 8-))
+						if(mutationListener.registerChange(instance, current, returned))
+						{
+							enqueuer.enqueue(returned);
+						}
 					}
 				}
-				enqueuer.enqueue(returned);
-				
 				return returned;
 			});
 		}
@@ -76,25 +86,21 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 		{
 			instance.substitute(current ->
 			{
+				final Object returned;
 				if(acceptor.acceptReference(current, instance))
 				{
 					enqueuer.enqueue(current);
 				}
-				
-				final Object returned = mutator.mutateReference(current, instance);
-				if(mutationListener != null)
+				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					try
+					if(mutationListener != null)
 					{
-						mutationListener.registerChange(instance, current, returned);
-					}
-					catch(final TraversalSignalSkipEnqueueReference s)
-					{
-						return returned; // skip enqueue call (clever! 8-))
+						if(mutationListener.registerChange(instance, current, returned))
+						{
+							enqueuer.enqueue(returned);
+						}
 					}
 				}
-				enqueuer.enqueue(returned);
-				
 				return returned;
 			});
 		}

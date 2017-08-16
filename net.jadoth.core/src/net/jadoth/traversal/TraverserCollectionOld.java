@@ -8,6 +8,18 @@ public final class TraverserCollectionOld implements TypeTraverser<Collection<?>
 	@Override
 	public final void traverseReferences(
 		final Collection<?>     instance,
+		final TraversalEnqueuer enqueuer
+	)
+	{
+		instance.forEach(current ->
+		{
+			enqueuer.enqueue(current);
+		});
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final Collection<?>     instance,
 		final TraversalEnqueuer enqueuer,
 		final TraversalAcceptor acceptor
 	)
@@ -26,7 +38,6 @@ public final class TraverserCollectionOld implements TypeTraverser<Collection<?>
 		{
 			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
-		
 	}
 	
 	@Override
@@ -41,12 +52,11 @@ public final class TraverserCollectionOld implements TypeTraverser<Collection<?>
 		{
 			instance.forEach(current ->
 			{
-				final Object returned;
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				enqueuer.enqueue(current);
+				if(mutator.mutateReference(current, instance) != current)
 				{
 					throw new UnsupportedOperationException();
 				}
-				enqueuer.enqueue(returned);
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)

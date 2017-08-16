@@ -5,6 +5,19 @@ public final class TraverserArray implements TypeTraverser<Object[]>
 	@Override
 	public final void traverseReferences(
 		final Object[]          instance,
+		final TraversalEnqueuer enqueuer
+	)
+	{
+		final int length = instance.length;
+		for(int i = 0; i < length; i++)
+		{
+			enqueuer.enqueue(instance[i]);
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final Object[]          instance,
 		final TraversalEnqueuer enqueuer,
 		final TraversalAcceptor acceptor
 	)
@@ -40,19 +53,19 @@ public final class TraverserArray implements TypeTraverser<Object[]>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				if((returned = mutator.mutateReference(current = instance[i], instance)) != current)
+				enqueuer.enqueue(current = instance[i]);
+				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					instance[i] = returned; // must be BEFORE registerChange
-					try
+					if(mutationListener != null)
 					{
-						mutationListener.registerChange(instance, current, returned);
+						if(mutationListener.registerChange(instance, current, returned))
+						{
+							enqueuer.enqueue(returned);
+						}
 					}
-					catch(final TraversalSignalSkipEnqueueReference s)
-					{
-						continue; // skip enqueue call (clever! 8-))
-					}
+					// actual setting must occur at the end for consistency with collection handling
+					instance[i] = returned;
 				}
-				enqueuer.enqueue(returned);
 			}
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -80,22 +93,17 @@ public final class TraverserArray implements TypeTraverser<Object[]>
 				{
 					enqueuer.enqueue(current);
 				}
-					
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					instance[i] = returned; // must be BEFORE registerChange in case it throws a SkipEnqueue
 					if(mutationListener != null)
 					{
-						try
+						if(mutationListener.registerChange(instance, current, returned))
 						{
-							mutationListener.registerChange(instance, current, returned);
-						}
-						catch(final TraversalSignalSkipEnqueueReference s)
-						{
-							continue; // skip enqueue call (clever! 8-))
+							enqueuer.enqueue(returned);
 						}
 					}
-					enqueuer.enqueue(returned);
+					// actual setting must occur at the end for consistency with collection handling
+					instance[i] = returned;
 				}
 			}
 		}

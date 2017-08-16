@@ -1,40 +1,73 @@
 package net.jadoth.traversal;
 
-import net.jadoth.meta.NotImplementedYetError;
-
 public interface TypeTraverser<T>
 {
-	public default void traverseReferences(
-		final T                 instance,
-		final TraversalEnqueuer enqueuer,
-		final TraversalAcceptor acceptor
-	)
-	{
-		this.traverseReferences(instance, enqueuer, acceptor, null, null);
-	}
+	public void traverseReferences(
+		T                 instance,
+		TraversalEnqueuer enqueuer
+	);
 	
-	public default void traverseReferences(
-		final T                 instance        ,
-		final TraversalEnqueuer enqueuer        ,
-		final TraversalMutator  mutator         ,
-		final MutationListener  mutationListener
-	)
-	{
-		this.traverseReferences(instance, enqueuer, null, mutator, mutationListener);
-	}
+	public void traverseReferences(
+		T                 instance,
+		TraversalEnqueuer enqueuer,
+		TraversalAcceptor acceptor
+	);
+	
+	public void traverseReferences(
+		T                 instance        ,
+		TraversalEnqueuer enqueuer        ,
+		TraversalMutator  mutator         ,
+		MutationListener  mutationListener
+	);
 
-	public default void traverseReferences(
-		final T                 instance        ,
-		final TraversalEnqueuer enqueuer        ,
-		final TraversalAcceptor acceptor        ,
-		final TraversalMutator  mutator         ,
-		final MutationListener  mutationListener
-	)
+	public void traverseReferences(
+		T                 instance        ,
+		TraversalEnqueuer enqueuer        ,
+		TraversalAcceptor acceptor        ,
+		TraversalMutator  mutator         ,
+		MutationListener  mutationListener
+	);
+	
+	
+	
+	public final class Dummy<T> implements TypeTraverser<T>
 	{
-		throw new NotImplementedYetError();
+
+		@Override
+		public void traverseReferences(final T instance, final TraversalEnqueuer enqueuer)
+		{
+			// no-op in Dummy implementation
+		}
+
+		@Override
+		public void traverseReferences(final T instance, final TraversalEnqueuer enqueuer, final TraversalAcceptor acceptor)
+		{
+			// no-op in Dummy implementation
+		}
+
+		@Override
+		public void traverseReferences(
+			final T                 instance        ,
+			final TraversalEnqueuer enqueuer        ,
+			final TraversalMutator  mutator         ,
+			final MutationListener  mutationListener
+		)
+		{
+			// no-op in Dummy implementation
+		}
+
+		@Override
+		public void traverseReferences(
+			final T                 instance        ,
+			final TraversalEnqueuer enqueuer        ,
+			final TraversalAcceptor acceptor        ,
+			final TraversalMutator  mutator         ,
+			final MutationListener  mutationListener)
+		{
+			// no-op in Dummy implementation
+		}
+		
 	}
-	
-	
 	
 	public interface Creator
 	{

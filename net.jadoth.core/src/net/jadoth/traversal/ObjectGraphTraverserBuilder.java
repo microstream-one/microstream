@@ -184,6 +184,28 @@ public interface ObjectGraphTraverserBuilder
 	
 	public ObjectGraphTraverserBuilder setTraversalMutator(TraversalMutator mutator);
 	
+	public ObjectGraphTraverserBuilder setTraversalMode(TraversalMode traversalMode);
+	
+	public default ObjectGraphTraverserBuilder setModeNode()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.setTraversalMode(new TraversalMode.Node());
+	}
+	
+	public default ObjectGraphTraverserBuilder setModeFull()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.setTraversalMode(new TraversalMode.Full());
+	}
+	
+	public default ObjectGraphTraverserBuilder setModeLeaf()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.setTraversalMode(new TraversalMode.Leaf());
+	}
+	
+	public TraversalMode traversalMode();
+		
 	
 	public TraversalAcceptor acceptor();
 	
@@ -335,8 +357,8 @@ public interface ObjectGraphTraverserBuilder
 		private Predicate<Object>                 logicPredicate          ;
 		private Consumer<Object>                  acceptorLogic           ;
 		private Function<Object, Object>          mutatorLogic            ;
-		private MutationListener.Provider         mutationListenerProvider;
 		private MutationListener                  mutationListener        ;
+		private TraversalMode                     traversalMode           ;
 		
 		
 		
@@ -480,18 +502,9 @@ public interface ObjectGraphTraverserBuilder
 			return this.skippedTypesPolymorphic();
 		}
 		
-		protected synchronized MutationListener.Provider provideMutationListenerProvider()
+		protected synchronized MutationListener provideMutationListener()
 		{
-			if(this.mutationListenerProvider != null)
-			{
-				return this.mutationListenerProvider;
-			}
-			
-			if(this.mutationListener != null)
-			{
-				return MutationListener.Provider(this.mutationListener);
-			}
-			return null;
+			return this.mutationListener;
 		}
 		
 		public synchronized ObjectGraphTraverserBuilder setMutationListener(
@@ -501,15 +514,7 @@ public interface ObjectGraphTraverserBuilder
 			this.mutationListener = mutationListener;
 			return this;
 		}
-		
-		public synchronized ObjectGraphTraverserBuilder setMutationListenerProvider(
-			final MutationListener.Provider mutationListenerProvider
-		)
-		{
-			this.mutationListenerProvider = mutationListenerProvider;
-			return this;
-		}
-		
+			
 		protected synchronized Function<XGettingCollection<Object>, XSet<Object>>  provideAlreadyHandledProvider()
 		{
 			if(this.alreadyHandledProvider != null)
@@ -598,21 +603,85 @@ public interface ObjectGraphTraverserBuilder
 			return this.referenceHandlerProvider;
 		}
 		
+		protected synchronized Predicate<Object> provideHandlingPredicate()
+		{
+			return this.provideHandlingPredicate(
+				this.provideSkippedTypes()           ,
+				this.provideSkippedTypesPolymorphic(),
+				this.handlingPredicate()
+			);
+		}
+		
+		protected synchronized Predicate<Object> provideHandlingPredicate(
+			final XGettingSet<Class<?>>      skippedTypes           ,
+			final XGettingSequence<Class<?>> skippedTypesPolymorphic,
+			final Predicate<Object>          customPredicate
+		)
+		{
+			if(skippedTypes != null)
+			{
+				if(skippedTypesPolymorphic != null)
+				{
+					return customPredicate != null
+						? new HandlingPredicateAll(skippedTypes, skippedTypesPolymorphic, customPredicate)
+						: new HandlingPredicateSkippedTypesBoth(skippedTypes, skippedTypesPolymorphic)
+					;
+				}
+				return customPredicate != null
+					? new HandlingPredicateSkippedTypesCustom(skippedTypes, customPredicate)
+					: new HandlingPredicateSkippedTypes(skippedTypes)
+				;
+			}
+			if(skippedTypesPolymorphic != null)
+			{
+				return customPredicate != null
+					? new HandlingPredicateSkippedTypesPolymorphicCustom(skippedTypesPolymorphic, customPredicate)
+					: new HandlingPredicateSkippedTypesPolymorphic(skippedTypesPolymorphic)
+				;
+			}
+			return customPredicate;
+		}
+		
+		protected synchronized Predicate<Object> providePredicateIsFull()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsFull()
+		}
+		
+		protected synchronized Predicate<Object> providePredicateIsNode()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsNode()
+		}
+		
+		protected synchronized Predicate<Object> providePredicateIsLeaf()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsLeaf()
+		}
+		
+		protected synchronized TraversalMode provideTraversalMode()
+		{
+			return this.traversalMode != null
+				? this.traversalMode
+				: new TraversalMode.Full()
+			;
+		}
+		
 		@Override
 		public synchronized ObjectGraphTraverser buildObjectGraphTraverser()
 		{
 			return ObjectGraphTraverser.New(
 				this.internalGetRoots()               ,
 				this.provideSkipped()                 ,
-				this.provideSkippedTypes()            ,
-				this.provideSkippedTypesPolymorphic() ,
 				this.provideAlreadyHandledProvider()  ,
 				this.provideReferenceHandlerProvider(),
 				this.provideTypeTraverserProvider()   ,
-				this.handlingPredicate()              ,
+				this.provideHandlingPredicate()       ,
+				this.providePredicateIsFull()         ,
+				this.providePredicateIsNode()         ,
+				this.providePredicateIsLeaf()         ,
 				this.provideAcceptor()                ,
 				this.provideMutator()                 ,
-				this.provideMutationListenerProvider()
+				this.provideMutationListener()        ,
+				this.provideTraversalMode()
 			);
 		}
 		
@@ -661,6 +730,19 @@ public interface ObjectGraphTraverserBuilder
 			return this;
 		}
 		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder setTraversalMode(final TraversalMode traversalMode)
+		{
+			this.traversalMode = traversalMode;
+			return this;
+		}
+		
+		@Override
+		public synchronized TraversalMode traversalMode()
+		{
+			return this.traversalMode;
+		}
+				
 	}
 	
 }

@@ -44,7 +44,22 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	
 	@Override
 	public final void traverseReferences(
-		final T          instance,
+		final T                 instance,
+		final TraversalEnqueuer enqueuer
+	)
+	{
+		final Field[] fields = this.fields  ;
+		final int     length = fields.length;
+		
+		for(int i = 0; i < length; i++)
+		{
+			enqueuer.enqueue(JadothReflect.getFieldValue(fields[i], instance));
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final T                 instance,
 		final TraversalEnqueuer enqueuer,
 		final TraversalAcceptor acceptor
 	)
@@ -84,24 +99,20 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		{
 			for(int i = 0; i < length; i++)
 			{
-				final Object current = JadothReflect.getFieldValue(fields[i], instance);
-				final Object returned;
+				final Object current, returned;
+				enqueuer.enqueue(current = JadothReflect.getFieldValue(fields[i], instance));
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					JadothReflect.setFieldValue(fields[i], instance, returned); // must be BEFORE registerChange
 					if(mutationListener != null)
 					{
-						try
+						if(mutationListener.registerChange(instance, current, returned))
 						{
-							mutationListener.registerChange(instance, current, returned);
-						}
-						catch(final TraversalSignalSkipEnqueueReference s)
-						{
-							continue; // skip enqueue call (clever! 8-))
+							enqueuer.enqueue(returned);
 						}
 					}
+					// actual setting must occur at the end for consistency with collection handling
+					JadothReflect.setFieldValue(fields[i], instance, returned);
 				}
-				enqueuer.enqueue(returned);
 			}
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -131,23 +142,18 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 				{
 					enqueuer.enqueue(current);
 				}
-				
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
-					JadothReflect.setFieldValue(fields[i], instance, returned); // must be BEFORE registerChange
 					if(mutationListener != null)
 					{
-						try
+						if(mutationListener.registerChange(instance, current, returned))
 						{
-							mutationListener.registerChange(instance, current, returned);
-						}
-						catch(final TraversalSignalSkipEnqueueReference s)
-						{
-							continue; // skip enqueue call (clever! 8-))
+							enqueuer.enqueue(returned);
 						}
 					}
+					// actual setting must occur at the end for consistency with collection handling
+					JadothReflect.setFieldValue(fields[i], instance, returned);
 				}
-				enqueuer.enqueue(returned);
 			}
 		}
 		catch(final AbstractTraversalSkipSignal s)

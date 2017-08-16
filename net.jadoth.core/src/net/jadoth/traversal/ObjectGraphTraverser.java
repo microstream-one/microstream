@@ -10,8 +10,6 @@ import java.util.function.Predicate;
 import net.jadoth.Jadoth;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XSet;
 
 
@@ -77,29 +75,33 @@ public interface ObjectGraphTraverser
 	public static ObjectGraphTraverser New(
 		final Object[]                                           roots                   ,
 		final XGettingCollection<Object>                         skipped                 ,
-		final XGettingSet<Class<?>>                              skippedTypes            ,
-		final XGettingSequence<Class<?>>                         skippedTypesPolymorphic ,
 		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
 		final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
 		final TypeTraverserProvider                              traverserProvider       ,
 		final Predicate<Object>                                  handlingPredicate       ,
+		final Predicate<Object>                                  handleAsFull            ,
+		final Predicate<Object>                                  handleAsNode            ,
+		final Predicate<Object>                                  handleAsLeaf            ,
 		final TraversalAcceptor                                  traversalAcceptor       ,
 		final TraversalMutator                                   traversalMutator        ,
-		final MutationListener.Provider                          mutationListenerProvider
+		final MutationListener                                   mutationListener        ,
+		final TraversalMode                                      traversalMode
 	)
 	{
 		return new ObjectGraphTraverser.Implementation(
 			roots                                                             ,
 			coalesce(skipped, X.empty()).immure()                             ,
-			skippedTypes                                                      ,
-			skippedTypesPolymorphic                                           ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
 			referenceHandlerProvider                                          ,
 			notNull(traverserProvider)                                        ,
 			handlingPredicate                                                 ,
+			handleAsFull                                                      ,
+			handleAsNode                                                      ,
+			handleAsLeaf                                                      ,
 			traversalAcceptor                                                 ,
 			traversalMutator                                                  ,
-			mutationListenerProvider
+			mutationListener                                                  ,
+			traversalMode
 		);
 	}
 	
@@ -111,15 +113,17 @@ public interface ObjectGraphTraverser
 
 		private final Object[]                                           roots                   ;
 		private final XGettingCollection<Object>                         skipped                 ;
-		private final XGettingSet<Class<?>>                              skippedTypes            ;
-		private final XGettingCollection<Class<?>>                       skippedTypesPolymorphic ;
 		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
 		private final Predicate<Object>                                  handlingPredicate       ;
+		private final Predicate<Object>                                  handleAsFull            ;
+		private final Predicate<Object>                                  handleAsNode            ;
+		private final Predicate<Object>                                  handleAsLeaf            ;
 		private final TraversalAcceptor                                  traversalAcceptor       ;
 		private final TraversalMutator                                   traversalMutator        ;
 		private final TraversalReferenceHandlerProvider                  referenceHandlerProvider;
 		private final TypeTraverserProvider                              traverserProvider       ;
-		private final MutationListener.Provider                          mutationListenerProvider;
+		private final MutationListener                                   mutationListener        ;
+		private final TraversalMode                                      traversalMode           ;
 		
 		
 		
@@ -130,29 +134,33 @@ public interface ObjectGraphTraverser
 		Implementation(
 			final Object[]                                           roots                   ,
 			final XGettingCollection<Object>                         skipped                 ,
-			final XGettingSet<Class<?>>                              skippedTypes            ,
-			final XGettingSequence<Class<?>>                         skippedTypesPolymorphic ,
 			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
 			final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
 			final TypeTraverserProvider                              traverserProvider       ,
 			final Predicate<Object>                                  handlingPredicate       ,
+			final Predicate<Object>                                  handleAsFull            ,
+			final Predicate<Object>                                  handleAsNode            ,
+			final Predicate<Object>                                  handleAsLeaf            ,
 			final TraversalAcceptor                                  traversalAcceptor       ,
 			final TraversalMutator                                   traversalMutator        ,
-			final MutationListener.Provider                          mutationListenerProvider
+			final MutationListener                                   mutationListener        ,
+			final TraversalMode                                      traversalMode
 		)
 		{
 			super();
 			this.roots                    = roots                   ;
 			this.skipped                  = skipped                 ;
-			this.skippedTypes             = skippedTypes            ;
-			this.skippedTypesPolymorphic  = skippedTypesPolymorphic ;
 			this.alreadyHandledProvider   = alreadyHandledProvider  ;
 			this.handlingPredicate        = handlingPredicate       ;
+			this.handleAsFull             = handleAsFull            ;
+			this.handleAsNode             = handleAsNode            ;
+			this.handleAsLeaf             = handleAsLeaf            ;
 			this.traversalAcceptor        = traversalAcceptor       ;
 			this.traversalMutator         = traversalMutator        ;
 			this.referenceHandlerProvider = referenceHandlerProvider;
 			this.traverserProvider        = traverserProvider       ;
-			this.mutationListenerProvider = mutationListenerProvider;
+			this.mutationListener         = mutationListener        ;
+			this.traversalMode            = traversalMode           ;
 		}
 		
 		
@@ -162,24 +170,24 @@ public interface ObjectGraphTraverser
 		////////////
 		
 		protected final synchronized void internalTraverseAll(
-			final Object[]                  instances               ,
-			final Predicate<Object>         handlingPredicate       ,
-			final TraversalAcceptor         traversalAcceptor       ,
-			final TraversalMutator          traversalMutator        ,
-			final MutationListener.Provider mutationListenerProvider
+			final Object[]          instances               ,
+			final TraversalAcceptor traversalAcceptor       ,
+			final TraversalMutator  traversalMutator        ,
+			final MutationListener  mutationListener
 		)
 		{
 			final AbstractReferenceHandler referenceHandler = this.referenceHandlerProvider.provideReferenceHandler(
 				this.alreadyHandledProvider.apply(this.skipped),
-				this.skippedTypes                              ,
-				this.skippedTypesPolymorphic                   ,
 				this.traverserProvider                         ,
-				handlingPredicate                              ,
+				this.handlingPredicate                         ,
+				this.handleAsFull                              ,
+				this.handleAsNode                              ,
+				this.handleAsLeaf                              ,
 				traversalAcceptor                              ,
 				traversalMutator                               ,
-				mutationListenerProvider
+				mutationListener
 			);
-			referenceHandler.handleAll(instances);
+			this.traversalMode.handle(instances, referenceHandler);
 		}
 		
 		
@@ -187,39 +195,38 @@ public interface ObjectGraphTraverser
 		public void traverse()
 		{
 			this.internalTraverseAll(
-				this.roots                   ,
-				this.handlingPredicate       ,
-				this.traversalAcceptor       ,
-				this.traversalMutator        ,
-				this.mutationListenerProvider
+				this.roots            ,
+				this.traversalAcceptor,
+				this.traversalMutator ,
+				this.mutationListener
 			);
 		}
 		
 		@Override
 		public <A extends TraversalAcceptor> A traverse(final A acceptor)
 		{
-			this.internalTraverseAll(this.roots, null, acceptor, null, null);
+			this.internalTraverseAll(this.roots,  acceptor, null, null);
 			return acceptor;
 		}
 		
 		@Override
 		public <M extends TraversalMutator> M traverse(final M mutator)
 		{
-			this.internalTraverseAll(this.roots, null, null, mutator, null);
+			this.internalTraverseAll(this.roots, null, mutator, null);
 			return mutator;
 		}
 		
 		@Override
 		public <A extends TraversalAcceptor> A traverseAll(final Object[] instances, final A acceptor)
 		{
-			this.internalTraverseAll(instances, null, acceptor, null, null);
+			this.internalTraverseAll(instances, acceptor, null, null);
 			return acceptor;
 		}
 		
 		@Override
 		public <M extends TraversalMutator> M traverseAll(final Object[] instances, final M mutator)
 		{
-			this.internalTraverseAll(instances, null, null, mutator, null);
+			this.internalTraverseAll(instances, null, mutator, null);
 			return mutator;
 		}
 		
@@ -348,7 +355,7 @@ Nötige Registriermethoden:
 
 - TraversableFieldSelector: welche fields bei der generischen reflection analyse berücksichtigt werden sollen.
 
-- handle(Predicate): ob überhaupt handeln oder nicht
+- handle(Predicate): ob überhaupt handeln oder nicht, also sowohl referenzen an Logik übergeben, als auch referenzen enqueuen/traversieren
 
 - select(Predicate): Komponente für synthetischen Acceptor oder Mutator: ob externe Logik die Instanz bekommen soll
 
@@ -365,10 +372,125 @@ Wird in enqueue geprüft, falls vorhanden:
 - skipType(Class<?>): alle Instanzen nicht handeln von genau diesem Typ
 - skipPolymorphic(Class<?>): alle Instanzen nicht handeln, deren typ ein Subtyp des übergebenen Typs ist
 
-Wird, falls vorhanden, in handling predicate geprüft und erst danach an externes predicate weiterdelegiert
-- leaf(Object): Instanz handeln, aber nicht traversieren
-- leafType(Class<?>): alle Instanzen von genau diesem Typ handeln, aber nicht traversieren
-- leafPolymorphic(Class<?>): alle Instanzen, deren Typ ein Subtyp des übergebenen Typs ist, handeln, aber nicht traversieren
+/!\
+"skip" und "leaf" ist logisch dasselbe, denn beim Referenzen durchlaufen wird eine Instanz sowieso einmal an die custom Logik (Acceptor und/oder Mutator) übergeben.
+Ausfiltern danach, also im enqueue, macht eh schon das "skip"
+
+Aber wäre nicht noch folgendes nötig?:
+- Alle Referenzen einer Instanz (/ von einem Typ / von einem Typ polymorph) an die Logik geben, aber nicht enqueuen (= leaf)
+- Alle Referenzen einer Instanz (/ von einem Typ / von einem Typ polymorph) nicht an die Logik geben, aber enqueuen (= node)
+
+Evtl. auch noch Grundmodus setzen:
+- Eager: alles wird als Full mit logik + enqueue angesehen, sofern nicht per leaf/node anders gesteuert.
+- Lazy: alles wird als Node mit nur enqueue angesehen, sondern nicht per leaf/full anders gesteuert.
+Modus is simpler boolean und lookups (node vs. full) unterscheiden sich je nach Wert dieses booleans.
+
+Grundmodus ist wichtig, weil:
+- Wenn man nur bestimmte Instanzen verarbeiten will, ist es ungeschickt, den ganzen Graph full durchzuarbeiten (-> lazy)
+- Wenn man alle Instanzen im Graph als potenzielle Entities ansieht (z.B. für String Deduplizierung), dann ist es ungeschickt, sie defaultmäßig nur als nodes zu behanedln (-> eager)
+
+
+Prüfung auf node:
+- in handleAll():
+- eager ist true und es gibt ein nodePredicate, dann prüfen. Falls zutreffend: TypeTraverser suchen und traverseReferences() mit nur enqueuer aufrufen
+
+Prüfung auf leaf:
+- in handle(Acceptor/Mutator/beide)
+- TypeTraverser suchen
+- eager ist egal(!) und es gibt in leafPredicate, dann prüfen. Falls zutreffend: traverseReferences ohne enqueuer aufrufen, ansonsten mit
+
+Prüfung auf entity:
+- in handleAll():
+- eager ist false und es gibt ein fullPredicate, dann prüfen. Falls zutreffend: spezifisches handle(T) aufrufen, ansonsten nur die Variante mit dem Enqueuer
+ 
+
+ 
+ 
+Genauer gesagt so:
+- skip: gar nicht handeln (weder enqueue noch logic, vorher schon abbrechen)
+- node: Referenzen handeln nur mit enqueue, nicht mit logic
+- leaf: Referenzen handeln nur mit logic, nicht mit enqueue
+- full: Referenzen handeln mit enqueue und logic
+
+Macht es Sinn, im TraverserProvider auch nochmal ausschlußlogik drin zu haben?
+-> Nein, denn für eine volle Unterscheidung müsste es je expliziter Traverserimplementierung mehrere geben und nur für skip allein braucht man den aufwand nicht treiben
+
+Vereinfachen zu:
+- traverseReferences: enqueuen
+- handleReferences: logic
+- skip: gar nicht handeln (weder enqueue noch logic, vorher schon abbrechen). Oder sollte das über den TraverserProvider gemacht werden, weil der lookup da eh drin ist?
+
+eager mode:
+- Standardmäßig enqueuen und logic
+- isHandleable sagt nein, dann nur enqueuen
+- isTraversable sagt nein, dann nur logic
+
+lazy mode:
+- Standardmäßig nur enqueuen
+- isHandleable sagt ja, dann auch logic
+- isTraversable sagt nein, dann nur logic
+
+Was ist denn genau der Unterschied?
+Kann es sein, dass der Unterschied nur ist, was das composite Predicate als default zurückgibt?
+Es muss ja letztendlich immer eins geben.
+
+Und kompletter skip über TraverserProvider durch Dummy?
+
+
+
+||||||||||||||||||||||||||||||||||||||||||||||||
+eager mode:
+- prüft node und leaf
+- ignoriert full, weil Defaultverhalten
+
+lazy mode:
+- prüft full und leaf
+- ignoriert node, weil Defaultverhalten
+
+
+ODER
+
+nur ein mode:
+- prüft traverseReferences
+- prüft handleReferences
+- je nach ergebnis skip, node, leaf oder full
+
+
+Zweite Variante ist besser, denn:
+- Macht auch immer nur zwei lookups
+- in der ersten Variante widersprechen sich node und leaf. In der zweiten ist das nicht der Fall
+
+Zweite Variante hat aber auch Nachteile:
+- Muss mode als Default in das composite predicate stecken, anstatt einmalige Unterscheidung zu machen
+- braucht für simple Instanz- und Typangaben positiv- und negativlogik: eager + NICHT traversen und lazy + SCHON traversen
+- Nogo: damit müsste man sich "leaf" Logik selbst bauen: Positiveintrag in handleReferences und Negativeintrag in traverseReferences
+
+
+Oh Mann!!!
+
+Also doch erste Variante?
+Widerspruch könnte in builder gelöst werden: Registrierung für leaf wirft aus node und full raus, usw.
+
+Problem mit skip handling über TraverserProvider ist: Es soll auch ein custom isHandleable Predicate geben, das müsste trotzdem erhalten bleiben.
+Außerdem: Exception bei fehlendem Traverser vermeidet unbeabsichtigte Fehler: Wenn was geskippt werden soll, muss das explizit als skipped registriert werden
+
+||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+
+
+Braucht man vielleicht drei modes?
+Full: prüft node und leaf
+Node: prüft full und leaf
+Leaf: prüft full und node
+
+Skip ist kein eigener Mode, denn sonst müsste das enqueuing drei predicates abprüfen.
+Außerdem wär es etwas dämlich, einen Traverser zu haben, der als Defaultverhalten gar nichts macht.
+
+Genauer gesagt Mode wird ein interface und die Implementierung davon entscheidet, welche ReferenceHandler Methode aufgerufen werden soll (handleFull/Node/Leaf)
+
+ 
+ 
 
 Wird im TraversalHandlerProvider verwendet:
 - registerHandler(Object, TraversalHandler)

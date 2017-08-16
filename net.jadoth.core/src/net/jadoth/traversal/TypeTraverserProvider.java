@@ -43,10 +43,9 @@ public interface TypeTraverserProvider
 		// constants        //
 		/////////////////////
 		
-		static final TypeTraverser<?> UNHANDLED = new TypeTraverser<Object>()
-		{
-			/* dummy */
-		};
+		// (16.08.2017 TM)XXX: UNHANDLED still required? or even more elegant than explizit skipping?
+		static final TypeTraverser<?> UNHANDLED = new TypeTraverser.Dummy<>();
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 package net.jadoth.traversal;
 
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingSet;
+import java.util.function.Predicate;
+
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerMutating extends AbstractReferenceHandler
@@ -21,16 +21,17 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 	/////////////////
 	
 	ReferenceHandlerMutating(
-		final TypeTraverserProvider      traverserProvider      ,
-		final XSet<Object>               alreadyHandled         ,
-		final XGettingSet<Class<?>>      skippedTypes           ,
-		final XGettingSequence<Class<?>> skippedTypesPolymorphic,
-		final TraversalMutator           traversalMutator       ,
-		final MutationListener           mutationListener
+		final TypeTraverserProvider traverserProvider,
+		final XSet<Object>          alreadyHandled   ,
+		final Predicate<Object>     isHandleable     ,
+		final Predicate<Object>     isNode           ,
+		final Predicate<Object>     isFull           ,
+		final TraversalMutator      traversalMutator ,
+		final MutationListener      mutationListener
 		
 	)
 	{
-		super(traverserProvider, alreadyHandled, skippedTypes, skippedTypesPolymorphic);
+		super(traverserProvider, alreadyHandled, isHandleable, isNode, isFull);
 		this.traversalMutator  = traversalMutator ;
 		this.mutationListener  = mutationListener ;
 	}
@@ -42,9 +43,9 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 	////////////
 	
 	@Override
-	final <T> void handle(final T instance)
+	final <T> void handle(final T instance, final TypeTraverser<T> traverser)
 	{
-		this.handle(instance, this.traversalMutator, this.mutationListener);
+		traverser.traverseReferences(instance, this, this.traversalMutator, this.mutationListener);
 	}
 	
 }

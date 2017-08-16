@@ -8,6 +8,18 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 	@Override
 	public final void traverseReferences(
 		final XGettingCollection<?> instance,
+		final TraversalEnqueuer     enqueuer
+	)
+	{
+		instance.iterate(current ->
+		{
+			enqueuer.enqueue(current);
+		});
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final XGettingCollection<?> instance,
 		final TraversalEnqueuer     enqueuer,
 		final TraversalAcceptor     acceptor
 	)
@@ -40,12 +52,11 @@ public final class TraverserXCollectionImmutable implements TypeTraverser<XGetti
 		{
 			instance.iterate(current ->
 			{
-				final Object returned;
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				enqueuer.enqueue(current);
+				if(mutator.mutateReference(current, instance) != current)
 				{
 					throw new UnsupportedOperationException();
 				}
-				enqueuer.enqueue(returned);
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)

@@ -19,20 +19,19 @@ public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 	@Override
 	public final void traverseReferences(
 		final Lazy<?>           instance,
-		final TraversalAcceptor acceptor,
-		final TraversalEnqueuer enqueuer
+		final TraversalEnqueuer enqueuer,
+		final TraversalAcceptor acceptor
 	)
 	{
-		final Lazy<?> lazy = instance;
-		final boolean wasNull = lazy.peek() == null;
+		final boolean wasClear = instance.peek() == null;
 		
 		try
 		{
 			final Object current;
-			 acceptor.acceptReference(current = lazy.get(), lazy, enqueuer);
-				
-			// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
-			enqueuer.enqueue(current);
+			if(acceptor.acceptReference(current = instance.get(), instance))
+			{
+				enqueuer.enqueue(current);
+			}
 		}
 		catch(final AbstractTraversalSkipSignal s)
 		{
@@ -40,35 +39,67 @@ public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 		}
 		finally
 		{
-			if(wasNull)
+			if(wasClear)
 			{
-				lazy.clear();
+				instance.clear();
+			}
+		}
+	}
+		
+	@Override
+	public final void traverseReferences(
+		final Lazy<?>           instance        ,
+		final TraversalEnqueuer enqueuer        ,
+		final TraversalMutator  mutator         ,
+		final MutationListener  mutationListener
+	)
+	{
+		final boolean wasClear = instance.peek() == null;
+		
+		try
+		{
+			final Object current;
+			enqueuer.enqueue(current = instance.get());
+			if(mutator.mutateReference(current, instance) != current)
+			{
+				throw new UnsupportedOperationException();
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+		finally
+		{
+			if(wasClear)
+			{
+				instance.clear();
 			}
 		}
 	}
 	
 	@Override
-	public void traverseReferences(
+	public final void traverseReferences(
 		final Lazy<?>           instance        ,
-		final TraversalMutator  mutator         ,
 		final TraversalEnqueuer enqueuer        ,
+		final TraversalAcceptor acceptor        ,
+		final TraversalMutator  mutator         ,
 		final MutationListener  mutationListener
 	)
 	{
-		final Lazy<?> lazy = instance;
-		final boolean wasNull = lazy.peek() == null;
+		final boolean wasClear = instance.peek() == null;
 		
 		try
 		{
-			final Object current, returned;
-			if((returned = mutator.mutateReference(current = lazy.get(), lazy, enqueuer)) != current)
+			final Object current;
+			if(acceptor.acceptReference(current = instance.get(), instance))
 			{
-				// (30.06.2017 TM)FIXME: problem: Lazy references are effectively final
+				enqueuer.enqueue(current);
+			}
+			if(mutator.mutateReference(current, instance) != current)
+			{
 				throw new UnsupportedOperationException();
 			}
-				
-			// note: if the current (now prior) value has to be enqueued, the acceptor can do that internally
-			enqueuer.enqueue(returned);
 		}
 		catch(final AbstractTraversalSkipSignal s)
 		{
@@ -76,9 +107,9 @@ public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 		}
 		finally
 		{
-			if(wasNull)
+			if(wasClear)
 			{
-				lazy.clear();
+				instance.clear();
 			}
 		}
 	}
