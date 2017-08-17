@@ -161,6 +161,95 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
 	}
+	
+
+	@Override
+	public final void traverseReferences(
+		final T                 instance,
+		final TraversalAcceptor acceptor
+	)
+	{
+		final Field[] fields = this.fields  ;
+		final int     length = fields.length;
+		
+		try
+		{
+			for(int i = 0; i < length; i++)
+			{
+				acceptor.acceptReference(JadothReflect.getFieldValue(fields[i], instance), instance);
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final T                 instance        ,
+		final TraversalMutator  mutator         ,
+		final MutationListener  mutationListener
+	)
+	{
+		final Field[] fields = this.fields  ;
+		final int     length = fields.length;
+		
+		try
+		{
+			for(int i = 0; i < length; i++)
+			{
+				final Object current = JadothReflect.getFieldValue(fields[i], instance), returned;
+				if((returned = mutator.mutateReference(current, instance)) != current)
+				{
+					if(mutationListener != null)
+					{
+						mutationListener.registerChange(instance, current, returned);
+					}
+					// actual setting must occur at the end for consistency with collection handling
+					JadothReflect.setFieldValue(fields[i], instance, returned);
+				}
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
+	
+	@Override
+	public final void traverseReferences(
+		final T                 instance        ,
+		final TraversalAcceptor acceptor        ,
+		final TraversalMutator  mutator         ,
+		final MutationListener  mutationListener
+	)
+	{
+		final Field[] fields = this.fields  ;
+		final int     length = fields.length;
+		
+		try
+		{
+			for(int i = 0; i < length; i++)
+			{
+				final Object current, returned;
+				acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance);
+				if((returned = mutator.mutateReference(current, instance)) != current)
+				{
+					if(mutationListener != null)
+					{
+						mutationListener.registerChange(instance, current, returned);
+					}
+					// actual setting must occur at the end for consistency with collection handling
+					JadothReflect.setFieldValue(fields[i], instance, returned);
+				}
+			}
+		}
+		catch(final AbstractTraversalSkipSignal s)
+		{
+			// any skip signal reaching this point means abort the whole instance, in one way or another
+		}
+	}
 
 	
 	

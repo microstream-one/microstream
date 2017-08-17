@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -24,6 +23,7 @@ import net.jadoth.collections.ConstHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XGettingTable;
@@ -257,15 +257,15 @@ public interface ObjectGraphTraverserBuilder
 	
 	
 	
-	public static XGettingSet<Class<?>> defaultLeafTypes()
+	public static XGettingSet<Class<?>> defaultSkipTypesConcrete()
 	{
 		/*
-		 * Types that are actually value types with unshared references as a storage (usually an array).
+		 * Types that are actually value types with no or unshared references as a storage (usually an array).
 		 *
-		 * System types that are hardly ever desired to be iterated further. If they should be, a custom handler
-		 * can be registered to override the default.
+		 * System types that are hardly ever desired to be iterated further. If they have to be, they can be
+		 * counter-registered as a full, node or leaf type.
 		 *
-		 * This list is provisional and definitely not complete. Missing types can be added explicitely via leafType().
+		 * This list is provisional and definitely not complete. Missing types can be added explicitely in the builder.
 		 */
 		return ConstHashEnum.New(
 			Byte.class         ,
@@ -277,25 +277,11 @@ public interface ObjectGraphTraverserBuilder
 			Long.class         ,
 			Double.class       ,
 
-			BigInteger.class   ,
-			BigDecimal.class   ,
-
-			Date.class         ,
-			File.class         ,
-
 			Instant.class      ,
-			Path.class         ,
 
 			String.class       ,
 			StringBuilder.class,
 			StringBuffer.class ,
-
-			Thread.class       ,
-			OutputStream.class ,
-			InputStream.class  ,
-			FileChannel.class  ,
-			ByteBuffer.class   ,
-			Throwable.class    ,
 
 			Class.class        ,
 			Field.class        ,
@@ -303,13 +289,39 @@ public interface ObjectGraphTraverserBuilder
 		);
 	}
 	
+	public static XGettingEnum<Class<?>> defaultSkipTypesPolymorphic()
+	{
+		/*
+		 * Types that are actually value types with no or unshared references as a storage (usually an array).
+		 *
+		 * System types that are hardly ever desired to be iterated further. If they have to be, they can be
+		 * counter-registered as a full, node or leaf type.
+		 *
+		 * This list is provisional and definitely not complete. Missing types can be added explicitely in the builder.
+		 */
+		return ConstHashEnum.New(
+			BigInteger.class   ,
+			BigDecimal.class   ,
+
+			Date.class         ,
+			File.class         ,
+
+			Thread.class       ,
+			OutputStream.class ,
+			InputStream.class  ,
+			FileChannel.class  ,
+			ByteBuffer.class   ,
+			Throwable.class
+		);
+	}
+	
 	public static XGettingTable<Class<?>, TypeTraverser<?>> defaultPolymorphTypeTraversers()
 	{
 		return ConstHashTable.<Class<?>, TypeTraverser<?>>New(
-			keyValue(XReplacingBag     .class, new TraverserXCollectionMutable()),
-			keyValue(XGettingCollection.class, new TraverserXCollectionMutable()),
-			keyValue(Collection        .class, new TraverserCollectionOld()     ),
-			keyValue(Object[]          .class, new TraverserArray()             )
+			keyValue(XReplacingBag     .class, new TraverserXCollectionMutable()  ),
+			keyValue(XGettingCollection.class, new TraverserXCollectionImmutable()),
+			keyValue(Collection        .class, new TraverserCollectionOld()       ),
+			keyValue(Object[]          .class, new TraverserArray()               )
 		);
 	}
 	
@@ -336,29 +348,49 @@ public interface ObjectGraphTraverserBuilder
 		////////////////////
 
 		private final HashEnum<Object>                             skipped                   ;
+		private       TraversalPredicateSkip                       skipPredicate             ;
+		private       Predicate<Object>                            skipCustomPredicate       ;
 		private final HashEnum<Class<?>>                           skippedTypes              ;
 		private final HashEnum<Class<?>>                           skippedTypesPolymorphic   ;
-		
-		
+
+		private       TraversalPredicateLeaf                       leafPredicate             ;
+		private final HashEnum<Object>                             leafInstances             ;
+		private       Predicate<Object>                            leafCustomPredicate       ;
 		private final HashEnum<Class<?>>                           leafTypes                 ;
+		private final HashEnum<Class<?>>                           leafTypesPolymorphic      ;
+
+		private       TraversalPredicateNode                       nodePredicate             ;
+		private final HashEnum<Object>                             nodeInstances             ;
+		private       Predicate<Object>                            nodeCustomPredicate       ;
+		private final HashEnum<Class<?>>                           nodeTypes                 ;
+		private final HashEnum<Class<?>>                           nodeTypesPolymorphic      ;
+
+		private       TraversalPredicateFull                       fullPredicate             ;
+		private final HashEnum<Object>                             fullInstances             ;
+		private       Predicate<Object>                            fullCustomPredicate       ;
+		private final HashEnum<Class<?>>                           fullTypes                 ;
+		private final HashEnum<Class<?>>                           fullTypesPolymorphic      ;
+		
 		private final HashTable<Object, TypeTraverser<?>>          traversersPerInstance     ;
 		private final HashTable<Class<?>, TypeTraverser<?>>        traversersPerConcreteType ;
 		private final HashTable<Class<?>, TypeTraverser<?>>        traversersPerPolymorphType;
 		
-		private Predicate<? super Field>                           traversableFieldSelector;
-		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
-		private TypeTraverser.Creator                              typeTraverserCreator    ;
-		
-		private TraversalAcceptor                 acceptor                ;
-		private TraversalMutator                  mutator                 ;
-		private Object[]                          roots                   ;
-		private TraversalReferenceHandlerProvider referenceHandlerProvider;
-		private Predicate<Object>                 handlingPredicate       ;
-		private Predicate<Object>                 logicPredicate          ;
-		private Consumer<Object>                  acceptorLogic           ;
-		private Function<Object, Object>          mutatorLogic            ;
-		private MutationListener                  mutationListener        ;
-		private TraversalMode                     traversalMode           ;
+		private Predicate<? super Field>                           traversableFieldSelector  ;
+		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider    ;
+		private TypeTraverser.Creator                              typeTraverserCreator      ;
+                                                                                             
+		private TraversalAcceptor                                  acceptor                  ;
+		private Predicate<Object>                                  acceptorPredicate         ;
+		private Consumer<Object>                                   acceptorLogic             ;
+                                                                                             
+		private TraversalMutator                                   mutator                   ;
+		private Predicate<Object>                                  mutatorPredicate          ;
+		private Function<Object, Object>                           mutatorLogic              ;
+		                                                                                     
+		private MutationListener                                   mutationListener          ;
+		private TraversalMode                                      traversalMode             ;
+		private TraversalReferenceHandlerProvider                  referenceHandlerProvider  ;
+		private Object[]                                           roots                     ;
 		
 		
 		
@@ -369,20 +401,26 @@ public interface ObjectGraphTraverserBuilder
 		Implementation()
 		{
 			super();
-			this.skipped                  = HashEnum.New() ;
-			this.skippedTypes             = HashEnum.New() ;
-			this.skippedTypesPolymorphic  = HashEnum.New() ;
-			this.traversersPerInstance    = HashTable.New();
+			this.skipped                  = HashEnum.New();
+			this.skippedTypes             = HashEnum.New(ObjectGraphTraverserBuilder.defaultSkipTypesConcrete());
+			this.skippedTypesPolymorphic  = HashEnum.New(ObjectGraphTraverserBuilder.defaultSkipTypesPolymorphic());
+			this.leafInstances            = HashEnum.New();
+			this.leafTypes                = HashEnum.New();
+			this.leafTypesPolymorphic     = HashEnum.New();
+			this.nodeInstances            = HashEnum.New();
+			this.nodeTypes                = HashEnum.New();
+			this.nodeTypesPolymorphic     = HashEnum.New();
+			this.fullInstances            = HashEnum.New();
+			this.fullTypes                = HashEnum.New();
+			this.fullTypesPolymorphic     = HashEnum.New();
 			
-			this.leafTypes                = HashEnum.New(
-				ObjectGraphTraverserBuilder.defaultLeafTypes())
-			;
-			this.traversersPerPolymorphType = HashTable.New(
-				ObjectGraphTraverserBuilder.defaultPolymorphTypeTraversers())
-			;
+			this.traversersPerInstance      = HashTable.New();
 			this.traversersPerConcreteType  = HashTable.New(
 				ObjectGraphTraverserBuilder.defaultConcreteTypeTraversers()
 			);
+			this.traversersPerPolymorphType = HashTable.New(
+				ObjectGraphTraverserBuilder.defaultPolymorphTypeTraversers())
+			;
 		}
 		
 		
@@ -603,56 +641,22 @@ public interface ObjectGraphTraverserBuilder
 			return this.referenceHandlerProvider;
 		}
 		
-		protected synchronized Predicate<Object> provideHandlingPredicate()
+		protected synchronized TraversalPredicateSkip providePredicateSkip()
 		{
-			return this.provideHandlingPredicate(
-				this.provideSkippedTypes()           ,
-				this.provideSkippedTypesPolymorphic(),
-				this.handlingPredicate()
-			);
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateSkip()
 		}
-		
-		protected synchronized Predicate<Object> provideHandlingPredicate(
-			final XGettingSet<Class<?>>      skippedTypes           ,
-			final XGettingSequence<Class<?>> skippedTypesPolymorphic,
-			final Predicate<Object>          customPredicate
-		)
-		{
-			if(skippedTypes != null)
-			{
-				if(skippedTypesPolymorphic != null)
-				{
-					return customPredicate != null
-						? new HandlingPredicateAll(skippedTypes, skippedTypesPolymorphic, customPredicate)
-						: new HandlingPredicateSkippedTypesBoth(skippedTypes, skippedTypesPolymorphic)
-					;
-				}
-				return customPredicate != null
-					? new HandlingPredicateSkippedTypesCustom(skippedTypes, customPredicate)
-					: new HandlingPredicateSkippedTypes(skippedTypes)
-				;
-			}
-			if(skippedTypesPolymorphic != null)
-			{
-				return customPredicate != null
-					? new HandlingPredicateSkippedTypesPolymorphicCustom(skippedTypesPolymorphic, customPredicate)
-					: new HandlingPredicateSkippedTypesPolymorphic(skippedTypesPolymorphic)
-				;
-			}
-			return customPredicate;
-		}
-		
-		protected synchronized Predicate<Object> providePredicateIsFull()
+				
+		protected synchronized TraversalPredicateFull providePredicateFull()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsFull()
 		}
 		
-		protected synchronized Predicate<Object> providePredicateIsNode()
+		protected synchronized TraversalPredicateNode providePredicateNode()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsNode()
 		}
 		
-		protected synchronized Predicate<Object> providePredicateIsLeaf()
+		protected synchronized TraversalPredicateLeaf providePredicateLeaf()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsLeaf()
 		}
@@ -674,10 +678,10 @@ public interface ObjectGraphTraverserBuilder
 				this.provideAlreadyHandledProvider()  ,
 				this.provideReferenceHandlerProvider(),
 				this.provideTypeTraverserProvider()   ,
-				this.provideHandlingPredicate()       ,
-				this.providePredicateIsFull()         ,
-				this.providePredicateIsNode()         ,
-				this.providePredicateIsLeaf()         ,
+				this.providePredicateSkip()           ,
+				this.providePredicateNode()           ,
+				this.providePredicateLeaf()           ,
+				this.providePredicateFull()           ,
 				this.provideAcceptor()                ,
 				this.provideMutator()                 ,
 				this.provideMutationListener()        ,

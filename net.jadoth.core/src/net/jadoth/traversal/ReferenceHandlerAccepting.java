@@ -1,7 +1,5 @@
 package net.jadoth.traversal;
 
-import java.util.function.Predicate;
-
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerAccepting extends AbstractReferenceHandler
@@ -19,15 +17,16 @@ public final class ReferenceHandlerAccepting extends AbstractReferenceHandler
 	/////////////////
 	
 	ReferenceHandlerAccepting(
-		final TypeTraverserProvider traverserProvider,
-		final XSet<Object>          alreadyHandled   ,
-		final Predicate<Object>     isHandleable     ,
-		final Predicate<Object>     isNode           ,
-		final Predicate<Object>     isFull           ,
-		final TraversalAcceptor     traversalAcceptor
+		final TypeTraverserProvider  traverserProvider,
+		final XSet<Object>           alreadyHandled   ,
+		final TraversalPredicateSkip predicateSkip    ,
+		final TraversalPredicateNode predicateNode    ,
+		final TraversalPredicateLeaf predicateLeaf    ,
+		final TraversalPredicateFull predicateFull    ,
+		final TraversalAcceptor      traversalAcceptor
 	)
 	{
-		super(traverserProvider, alreadyHandled, isHandleable, isNode, isFull);
+		super(traverserProvider, alreadyHandled, predicateSkip, predicateNode, predicateLeaf, predicateFull);
 		this.traversalAcceptor = traversalAcceptor;
 	}
 	
@@ -38,8 +37,15 @@ public final class ReferenceHandlerAccepting extends AbstractReferenceHandler
 	////////////
 											
 	@Override
-	final <T> void handle(final T instance, final TypeTraverser<T> traverser)
+	final <T> void handleFull(final T instance, final TypeTraverser<T> traverser)
 	{
 		traverser.traverseReferences(instance, this, this.traversalAcceptor);
 	}
+	
+	@Override
+	final <T> void handleLeaf(final T instance, final TypeTraverser<T> traverser)
+	{
+		traverser.traverseReferences(instance, this.traversalAcceptor);
+	}
+	
 }

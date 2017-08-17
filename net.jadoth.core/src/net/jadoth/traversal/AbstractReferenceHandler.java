@@ -1,7 +1,5 @@
 package net.jadoth.traversal;
 
-import java.util.function.Predicate;
-
 import net.jadoth.collections.types.XSet;
 
 public abstract class AbstractReferenceHandler implements TraversalReferenceHandler
@@ -10,11 +8,12 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	// instance fields //
 	////////////////////
 	
-	final TypeTraverserProvider      traverserProvider;
-	final XSet<Object>               alreadyHandled   ;
-	final Predicate<Object>          isHandleable     ;
-	final Predicate<Object>          isNode           ;
-	final Predicate<Object>          isFull           ;
+	final TypeTraverserProvider  traverserProvider;
+	final XSet<Object>           alreadyHandled   ;
+	final TraversalPredicateSkip predicateSkip    ;
+	final TraversalPredicateNode predicateNode    ;
+	final TraversalPredicateLeaf predicateLeaf    ;
+	final TraversalPredicateFull predicateFull    ;
 
 	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
 	Object[] iterationHead      = this.iterationTail;
@@ -29,19 +28,21 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	/////////////////
 	
 	AbstractReferenceHandler(
-		final TypeTraverserProvider traverserProvider,
-		final XSet<Object>          alreadyHandled   ,
-		final Predicate<Object>     isHandleable     ,
-		final Predicate<Object>     isNode           ,
-		final Predicate<Object>     isFull
+		final TypeTraverserProvider  traverserProvider,
+		final XSet<Object>           alreadyHandled   ,
+		final TraversalPredicateSkip predicateSkip    ,
+		final TraversalPredicateNode predicateNode    ,
+		final TraversalPredicateLeaf predicateLeaf    ,
+		final TraversalPredicateFull predicateFull
 	)
 	{
 		super();
 		this.traverserProvider = traverserProvider;
 		this.alreadyHandled    = alreadyHandled   ;
-		this.isHandleable      = isHandleable     ;
-		this.isNode            = isNode           ;
-		this.isFull            = isFull           ;
+		this.predicateSkip     = predicateSkip    ;
+		this.predicateNode     = predicateNode    ;
+		this.predicateLeaf     = predicateLeaf    ;
+		this.predicateFull     = predicateFull    ;
 	}
 	
 	
@@ -60,9 +61,9 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	{
 		final Object[] nextIterationSegment = ObjectGraphTraverser.Implementation.createIterationSegment();
 		this.iterationHead[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]    = nextIterationSegment    ;
-		this.iterationHead                  = nextIterationSegment    ;
-		this.iterationHeadIndex             = 0                       ;
-		this.tailIsHead                     = false                   ;
+		this.iterationHead      = nextIterationSegment;
+		this.iterationHeadIndex = 0                   ;
+		this.tailIsHead         = false               ;
 	}
 	
 	@Override
@@ -77,7 +78,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			return;
 		}
-		if(this.isHandleable != null && !this.isHandleable.test(instance))
+		if(this.predicateSkip != null && this.predicateSkip.skip(instance))
 		{
 			return;
 		}
@@ -119,152 +120,123 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		this.tailIsHead         = this.iterationTail == this.iterationHead;
 	}
 
-	
-	final void handleAll(final Object[] instances, final boolean eager)
+	private void enqueueAll(final Object[] instances)
 	{
 		for(final Object instance : instances)
 		{
 			this.enqueue(instance);
 		}
-		
-		if(eager)
-		{
-			if(this.isNode == null)
-			{
-				this.handleAllEager(instances);
-			}
-			else
-			{
-				this.handleAllEagerTesting(instances);
-			}
-		}
-		else
-		{
-			if(this.isFull == null)
-			{
-				this.handleAllLazy(instances);
-			}
-			else
-			{
-				this.handleAllLazyTesting(instances);
-			}
-		}
 	}
 	
-	private void handleAllEager(final Object[] instances)
-	{
-		try
-		{
-			while(true)
-			{
-				final Object instance = this.dequeue();
-				this.handle(instance, this.traverserProvider.provide(instance));
-			}
-		}
-		catch(final TraversalSignalAbort s)
-		{
-			// some logic signaled to abort the traversal. So abort and return;
-			return;
-		}
-	}
-	
-	private void handleAllEagerTesting(final Object[] instances)
-	{
-		try
-		{
-			final Predicate<Object> isNode = this.isNode;
-			
-			while(true)
-			{
-				final Object instance;
-				if(isNode.test(instance = this.dequeue()))
-				{
-					this.handleNode(instance);
-				}
-				else
-				{
-					this.handle(instance, this.traverserProvider.provide(instance));
-				}
-				
-			}
-		}
-		catch(final TraversalSignalAbort s)
-		{
-			// some logic signaled to abort the traversal. So abort and return;
-			return;
-		}
-	}
-	
-	private void handleAllLazy(final Object[] instances)
-	{
-		try
-		{
-			while(true)
-			{
-				this.handleNode(this.dequeue());
-			}
-		}
-		catch(final TraversalSignalAbort s)
-		{
-			// some logic signaled to abort the traversal. So abort and return;
-			return;
-		}
-	}
-	
-	private void handleAllLazyTesting(final Object[] instances)
-	{
-		try
-		{
-			final Predicate<Object> isFull = this.isFull;
-			
-			while(true)
-			{
-				final Object instance;
-				if(isFull.test(instance = this.dequeue()))
-				{
-					this.handle(instance, this.traverserProvider.provide(instance));
-				}
-				else
-				{
-					this.handleNode(instance);
-				}
-				
-			}
-		}
-		catch(final TraversalSignalAbort s)
-		{
-			// some logic signaled to abort the traversal. So abort and return;
-			return;
-		}
-	}
-
-	abstract <T> void handle(T instance, final TypeTraverser<T> traverser);
-	
-	final <T> void handleNode(final T instance)
-	{
-		final TypeTraverser<T> traverser = this.traverserProvider.provide(instance);
-		
-//		JadothConsole.debugln("Traversing NODE " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(traverser));
-		traverser.traverseReferences(instance, this);
-	}
-	
-			
 	@Override
 	public final void handleAsFull(final Object[] instances)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractReferenceHandler#handleAsFull()
+		this.enqueueAll(instances);
+
+		try
+		{
+			while(true)
+			{
+				final Object                instance  = this.dequeue();
+				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
+				
+				if(this.predicateLeaf != null && this.predicateLeaf.isLeaf(instance))
+				{
+					this.handleLeaf(instance, traverser);
+				}
+				else if(this.predicateNode != null && this.predicateNode.isNode(instance))
+				{
+					this.handleNode(instance, traverser);
+				}
+				else
+				{
+					this.handleFull(instance, traverser);
+				}
+			}
+		}
+		catch(final TraversalSignalAbort s)
+		{
+			// some logic signaled to abort the traversal. So abort and return. (This is a signal, NOT a problem!)
+			return;
+		}
 	}
 	
 	@Override
 	public final void handleAsNode(final Object[] instances)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractReferenceHandler#handleAsNode()
+		this.enqueueAll(instances);
+
+		try
+		{
+			while(true)
+			{
+				final Object                instance  = this.dequeue();
+				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
+				
+				if(this.predicateFull != null && this.predicateFull.isFull(instance))
+				{
+					this.handleFull(instance, traverser);
+				}
+				else if(this.predicateLeaf != null && this.predicateLeaf.isLeaf(instance))
+				{
+					this.handleLeaf(instance, traverser);
+				}
+				else
+				{
+					this.handleNode(instance, traverser);
+				}
+			}
+		}
+		catch(final TraversalSignalAbort s)
+		{
+			// some logic signaled to abort the traversal. So abort and return. (This is a signal, NOT a problem!)
+			return;
+		}
 	}
 	
 	@Override
 	public final void handleAsLeaf(final Object[] instances)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractReferenceHandler#handleAsLeaf()
+		this.enqueueAll(instances);
+
+		try
+		{
+			while(true)
+			{
+				final Object                instance  = this.dequeue();
+				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
+				
+				if(this.predicateFull != null && this.predicateFull.isFull(instance))
+				{
+					this.handleFull(instance, traverser);
+				}
+				else if(this.predicateNode != null && this.predicateNode.isNode(instance))
+				{
+					this.handleNode(instance, traverser);
+				}
+				else
+				{
+					this.handleLeaf(instance, traverser);
+				}
+			}
+		}
+		catch(final TraversalSignalAbort s)
+		{
+			// some logic signaled to abort the traversal. So abort and return. (This is a signal, NOT a problem!)
+			return;
+		}
+	}
+	
+	
+
+	abstract <T> void handleFull(T instance, final TypeTraverser<T> traverser);
+	
+	abstract <T> void handleLeaf(T instance, final TypeTraverser<T> traverser);
+	
+	final <T> void handleNode(final T instance, final TypeTraverser<T> traverser)
+	{
+//		JadothConsole.debugln("Traversing NODE " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(traverser));
+		traverser.traverseReferences(instance, this);
 	}
 	
 }

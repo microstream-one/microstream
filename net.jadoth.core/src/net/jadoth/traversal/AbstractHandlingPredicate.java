@@ -2,6 +2,7 @@ package net.jadoth.traversal;
 
 import java.util.function.Predicate;
 
+import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingSet;
 
@@ -10,10 +11,11 @@ public abstract class AbstractHandlingPredicate implements Predicate<Object>
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
-	
-	private final XGettingSet<Class<?>>      skippedTypes           ;
-	private final XGettingSequence<Class<?>> skippedTypesPolymorphic;
-	private final Predicate<Object>          handlingPredicate      ;
+
+	private final Predicate<Object>          customPredicate ;
+	private final HashEnum<Class<?>>         positiveTypes   ;
+	private final HashEnum<Class<?>>         negativeTypes   ;
+	private final XGettingSequence<Class<?>> typesPolymorphic;
 	
 	
 	
@@ -22,30 +24,51 @@ public abstract class AbstractHandlingPredicate implements Predicate<Object>
 	/////////////////
 	
 	protected AbstractHandlingPredicate(
-		final XGettingSet<Class<?>>      skippedTypes           ,
-		final XGettingSequence<Class<?>> skippedTypesPolymorphic,
-		final Predicate<Object>          handlingPredicate
+		final Predicate<Object>          customPredicate ,
+		final XGettingSet<Class<?>>      positiveTypes   ,
+		final XGettingSequence<Class<?>> typesPolymorphic
 	)
 	{
 		super();
-		this.skippedTypes            = skippedTypes           ;
-		this.skippedTypesPolymorphic = skippedTypesPolymorphic;
-		this.handlingPredicate       = handlingPredicate      ;
+		this.customPredicate  = customPredicate ;
+		this.positiveTypes    = HashEnum.New(positiveTypes);
+		this.negativeTypes    = HashEnum.New()  ;
+		this.typesPolymorphic = typesPolymorphic;
 	}
 	
-	final boolean isSkippedType(final Class<?> type)
-	{
-		return this.skippedTypes.contains(type);
-	}
 	
-	final boolean isSkippedTypePolymorphic(final Class<?> type)
-	{
-		return this.skippedTypesPolymorphic.containsSearched(t -> t.isAssignableFrom(type));
-	}
 	
-	final boolean isHandledCustom(final Object instance)
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+
+	@Override
+	public final boolean test(final Object instance)
 	{
-		return this.handlingPredicate.test(instance);
+		if(this.customPredicate != null && this.customPredicate.test(instance))
+		{
+			return true;
+		}
+		
+		final Class<?> type = instance.getClass();
+		if(this.positiveTypes.contains(type))
+		{
+			return true;
+		}
+		if(this.negativeTypes.contains(type))
+		{
+			return false;
+		}
+		for(final Class<?> tp : this.typesPolymorphic)
+		{
+			if(tp.isAssignableFrom(type))
+			{
+				this.positiveTypes.add(type);
+				return true;
+			}
+		}
+		this.negativeTypes.add(type);
+		return false;
 	}
 	
 }

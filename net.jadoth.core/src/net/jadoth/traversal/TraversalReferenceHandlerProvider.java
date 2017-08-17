@@ -1,21 +1,19 @@
 package net.jadoth.traversal;
 
-import java.util.function.Predicate;
-
 import net.jadoth.collections.types.XSet;
 
 public interface TraversalReferenceHandlerProvider
 {
 	public AbstractReferenceHandler provideReferenceHandler(
-		final XSet<Object>          alreadyHandled   ,
-		final TypeTraverserProvider traverserProvider,
-		final Predicate<Object>     isHandleable     ,
-		final Predicate<Object>     isFull           ,
-		final Predicate<Object>     isNode           ,
-		final Predicate<Object>     isLeaf           ,
-		final TraversalAcceptor     traversalAcceptor,
-		final TraversalMutator      traversalMutator ,
-		final MutationListener      mutationListener
+		final XSet<Object>           alreadyHandled   ,
+		final TypeTraverserProvider  traverserProvider,
+		final TraversalPredicateSkip predicateSkip    ,
+		final TraversalPredicateNode predicateNode    ,
+		final TraversalPredicateLeaf predicateLeaf    ,
+		final TraversalPredicateFull predicateFull    ,
+		final TraversalAcceptor      traversalAcceptor,
+		final TraversalMutator       traversalMutator ,
+		final MutationListener       mutationListener
 	);
 	
 	
@@ -29,27 +27,27 @@ public interface TraversalReferenceHandlerProvider
 	{
 		@Override
 		public AbstractReferenceHandler provideReferenceHandler(
-			final XSet<Object>          alreadyHandled   ,
-			final TypeTraverserProvider traverserProvider,
-			final Predicate<Object>     isHandleable     ,
-			final Predicate<Object>     isFull           ,
-			final Predicate<Object>     isNode           ,
-			final Predicate<Object>     isLeaf           ,
-			final TraversalAcceptor     traversalAcceptor,
-			final TraversalMutator      traversalMutator ,
-			final MutationListener      mutationListener
+			final XSet<Object>           alreadyHandled   ,
+			final TypeTraverserProvider  traverserProvider,
+			final TraversalPredicateSkip predicateSkip    ,
+			final TraversalPredicateNode predicateNode    ,
+			final TraversalPredicateLeaf predicateLeaf    ,
+			final TraversalPredicateFull predicateFull    ,
+			final TraversalAcceptor      traversalAcceptor,
+			final TraversalMutator       traversalMutator ,
+			final MutationListener       mutationListener
 		)
 		{
-			// (16.08.2017 TM)FIXME: fix leaf
 			if(traversalMutator != null)
 			{
 				return traversalAcceptor != null
 					? new ReferenceHandlerAcceptingMutating(
 						traverserProvider,
 						alreadyHandled   ,
-						isHandleable     ,
-						isNode           ,
-						isFull           ,
+						predicateSkip    ,
+						predicateNode    ,
+						predicateLeaf    ,
+						predicateFull    ,
 						traversalAcceptor,
 						traversalMutator ,
 						mutationListener
@@ -57,9 +55,10 @@ public interface TraversalReferenceHandlerProvider
 					: new ReferenceHandlerMutating(
 						traverserProvider,
 						alreadyHandled   ,
-						isHandleable     ,
-						isNode           ,
-						isFull           ,
+						predicateSkip    ,
+						predicateNode    ,
+						predicateLeaf    ,
+						predicateFull    ,
 						traversalMutator ,
 						mutationListener
 					)
@@ -75,9 +74,10 @@ public interface TraversalReferenceHandlerProvider
 			return new ReferenceHandlerAccepting(
 				traverserProvider,
 				alreadyHandled   ,
-				isHandleable     ,
-				isNode           ,
-				isFull           ,
+				predicateSkip    ,
+				predicateNode    ,
+				predicateLeaf    ,
+				predicateFull    ,
 				effectiveAcceptor
 			);
 		}

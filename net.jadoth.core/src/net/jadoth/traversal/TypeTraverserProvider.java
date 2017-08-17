@@ -3,7 +3,6 @@ package net.jadoth.traversal;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.util.KeyValue;
@@ -23,46 +22,19 @@ public interface TypeTraverserProvider
 		final TypeTraverser.Creator                     traverserCreator          ,
 		final XGettingMap<Object, TypeTraverser<?>>     traversersPerInstance     ,
 		final XGettingMap<Class<?>, TypeTraverser<?>>   traversersPerConcreteType ,
-		final XGettingTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType,
-		final XGettingCollection<Class<?>>              leafTypes
+		final XGettingTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType
 	)
 	{
 		return new TypeTraverserProvider.Implementation(
 			notNull(traverserCreator)          ,
-			notNull(traversersPerInstance)     ,
+			        traversersPerInstance      ,
 			notNull(traversersPerConcreteType) ,
-			notNull(traversersPerPolymorphType),
-			notNull(leafTypes)
+			notNull(traversersPerPolymorphType)
 		);
 	}
 	
-	
 	public final class Implementation implements TypeTraverserProvider
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-		
-		// (16.08.2017 TM)XXX: UNHANDLED still required? or even more elegant than explizit skipping?
-		static final TypeTraverser<?> UNHANDLED = new TypeTraverser.Dummy<>();
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-		
-		private static TypeTraverser<?> registerUnhandled(
-			final HashTable<Class<?>, TypeTraverser<?>> table,
-			final Class<?>                              type
-		)
-		{
-			table.add(type, UNHANDLED);
-			return UNHANDLED;
-		}
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -82,26 +54,21 @@ public interface TypeTraverserProvider
 			final TypeTraverser.Creator                       traverserCreator          ,
 			final XGettingMap<Object, TypeTraverser<?>>       traversersPerInstance     ,
 			final XGettingMap<Class<?>, TypeTraverser<?>>     traversersPerConcreteType ,
-			final XGettingTable<Class<?>, TypeTraverser<?>>   traversersPerPolymorphType,
-			final XGettingCollection<Class<?>>                leafTypes
+			final XGettingTable<Class<?>, TypeTraverser<?>>   traversersPerPolymorphType
 		)
 		{
 			super();
 			this.traverserCreator           = traverserCreator ;
 			this.traversersPerInstance      = traversersPerInstance     ;
 			this.traversersPerPolymorphType = traversersPerPolymorphType;
-			this.traversersPerConcreteType  = initializeHandlersPerConcreteType(traversersPerConcreteType, leafTypes);
+			this.traversersPerConcreteType  = initializeHandlersPerConcreteType(traversersPerConcreteType);
 		}
 		
 		private static HashTable<Class<?>, TypeTraverser<?>> initializeHandlersPerConcreteType(
-			final XGettingMap<Class<?>, TypeTraverser<?>>     traversersPerConcreteType ,
-			final XGettingCollection<Class<?>> leafTypes
+			final XGettingMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType
 		)
 		{
 			final HashTable<Class<?>, TypeTraverser<?>> localMap = HashTable.New(traversersPerConcreteType);
-			leafTypes.iterate(t ->
-				registerUnhandled(localMap, t)
-			);
 			return localMap;
 		}
 		
@@ -123,7 +90,8 @@ public interface TypeTraverserProvider
 				return created;
 			}
 
-			return registerUnhandled(this.traversersPerConcreteType, type);
+			// (17.08.2017 TM)EXCP: proper exception
+			throw new RuntimeException("Untraversable type: " + type.getName());
 		}
 				
 		protected final TypeTraverser<?> internalProvideTraversalHandler(final Object instance)
@@ -145,16 +113,8 @@ public interface TypeTraverserProvider
 			final TypeTraverser<?> perTypeHandler;
 			if((perTypeHandler = this.traversersPerConcreteType.get(instance.getClass())) != null)
 			{
-				return perTypeHandler == UNHANDLED
-					? null
-					: perTypeHandler
-				;
+				return perTypeHandler;
 			}
-			
-			/* (17.07.2017 TM)FIXME: what about thread safety here?
-			 * This is a central registry instance that makes sense to be reused and/or used by
-			 * multiple threads.
-			 */
 			
 			return this.handleNewType(instance.getClass());
 		}

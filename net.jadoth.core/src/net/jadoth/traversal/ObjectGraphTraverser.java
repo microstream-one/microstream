@@ -5,7 +5,6 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.X;
@@ -78,10 +77,10 @@ public interface ObjectGraphTraverser
 		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
 		final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
 		final TypeTraverserProvider                              traverserProvider       ,
-		final Predicate<Object>                                  handlingPredicate       ,
-		final Predicate<Object>                                  handleAsFull            ,
-		final Predicate<Object>                                  handleAsNode            ,
-		final Predicate<Object>                                  handleAsLeaf            ,
+		final TraversalPredicateSkip                             predicateSkip           ,
+		final TraversalPredicateNode                             predicateNode           ,
+		final TraversalPredicateLeaf                             predicateLeaf           ,
+		final TraversalPredicateFull                             predicateFull           ,
 		final TraversalAcceptor                                  traversalAcceptor       ,
 		final TraversalMutator                                   traversalMutator        ,
 		final MutationListener                                   mutationListener        ,
@@ -94,10 +93,10 @@ public interface ObjectGraphTraverser
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
 			referenceHandlerProvider                                          ,
 			notNull(traverserProvider)                                        ,
-			handlingPredicate                                                 ,
-			handleAsFull                                                      ,
-			handleAsNode                                                      ,
-			handleAsLeaf                                                      ,
+			predicateSkip                                                     ,
+			predicateNode                                                     ,
+			predicateLeaf                                                     ,
+			predicateFull                                                     ,
 			traversalAcceptor                                                 ,
 			traversalMutator                                                  ,
 			mutationListener                                                  ,
@@ -114,10 +113,10 @@ public interface ObjectGraphTraverser
 		private final Object[]                                           roots                   ;
 		private final XGettingCollection<Object>                         skipped                 ;
 		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
-		private final Predicate<Object>                                  handlingPredicate       ;
-		private final Predicate<Object>                                  handleAsFull            ;
-		private final Predicate<Object>                                  handleAsNode            ;
-		private final Predicate<Object>                                  handleAsLeaf            ;
+		private final TraversalPredicateSkip                             predicateSkip           ;
+		private final TraversalPredicateNode                             predicateNode           ;
+		private final TraversalPredicateLeaf                             predicateLeaf           ;
+		private final TraversalPredicateFull                             predicateFull           ;
 		private final TraversalAcceptor                                  traversalAcceptor       ;
 		private final TraversalMutator                                   traversalMutator        ;
 		private final TraversalReferenceHandlerProvider                  referenceHandlerProvider;
@@ -137,10 +136,10 @@ public interface ObjectGraphTraverser
 			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
 			final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
 			final TypeTraverserProvider                              traverserProvider       ,
-			final Predicate<Object>                                  handlingPredicate       ,
-			final Predicate<Object>                                  handleAsFull            ,
-			final Predicate<Object>                                  handleAsNode            ,
-			final Predicate<Object>                                  handleAsLeaf            ,
+			final TraversalPredicateSkip                             predicateSkip           ,
+			final TraversalPredicateNode                             predicateNode           ,
+			final TraversalPredicateLeaf                             predicateLeaf           ,
+			final TraversalPredicateFull                             predicateFull           ,
 			final TraversalAcceptor                                  traversalAcceptor       ,
 			final TraversalMutator                                   traversalMutator        ,
 			final MutationListener                                   mutationListener        ,
@@ -151,10 +150,10 @@ public interface ObjectGraphTraverser
 			this.roots                    = roots                   ;
 			this.skipped                  = skipped                 ;
 			this.alreadyHandledProvider   = alreadyHandledProvider  ;
-			this.handlingPredicate        = handlingPredicate       ;
-			this.handleAsFull             = handleAsFull            ;
-			this.handleAsNode             = handleAsNode            ;
-			this.handleAsLeaf             = handleAsLeaf            ;
+			this.predicateSkip            = predicateSkip           ;
+			this.predicateNode            = predicateNode           ;
+			this.predicateLeaf            = predicateLeaf           ;
+			this.predicateFull            = predicateFull           ;
 			this.traversalAcceptor        = traversalAcceptor       ;
 			this.traversalMutator         = traversalMutator        ;
 			this.referenceHandlerProvider = referenceHandlerProvider;
@@ -179,10 +178,10 @@ public interface ObjectGraphTraverser
 			final AbstractReferenceHandler referenceHandler = this.referenceHandlerProvider.provideReferenceHandler(
 				this.alreadyHandledProvider.apply(this.skipped),
 				this.traverserProvider                         ,
-				this.handlingPredicate                         ,
-				this.handleAsFull                              ,
-				this.handleAsNode                              ,
-				this.handleAsLeaf                              ,
+				this.predicateSkip                             ,
+				this.predicateNode                             ,
+				this.predicateLeaf                             ,
+				this.predicateFull                             ,
 				traversalAcceptor                              ,
 				traversalMutator                               ,
 				mutationListener

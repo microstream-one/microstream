@@ -1,7 +1,5 @@
 package net.jadoth.traversal;
 
-import java.util.function.Predicate;
-
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerMutating extends AbstractReferenceHandler
@@ -21,19 +19,20 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 	/////////////////
 	
 	ReferenceHandlerMutating(
-		final TypeTraverserProvider traverserProvider,
-		final XSet<Object>          alreadyHandled   ,
-		final Predicate<Object>     isHandleable     ,
-		final Predicate<Object>     isNode           ,
-		final Predicate<Object>     isFull           ,
-		final TraversalMutator      traversalMutator ,
-		final MutationListener      mutationListener
+		final TypeTraverserProvider  traverserProvider,
+		final XSet<Object>           alreadyHandled   ,
+		final TraversalPredicateSkip predicateSkip    ,
+		final TraversalPredicateNode predicateNode    ,
+		final TraversalPredicateLeaf predicateLeaf    ,
+		final TraversalPredicateFull predicateFull    ,
+		final TraversalMutator       traversalMutator ,
+		final MutationListener       mutationListener
 		
 	)
 	{
-		super(traverserProvider, alreadyHandled, isHandleable, isNode, isFull);
-		this.traversalMutator  = traversalMutator ;
-		this.mutationListener  = mutationListener ;
+		super(traverserProvider, alreadyHandled, predicateSkip, predicateNode, predicateLeaf, predicateFull);
+		this.traversalMutator = traversalMutator;
+		this.mutationListener = mutationListener;
 	}
 	
 	
@@ -43,9 +42,15 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 	////////////
 	
 	@Override
-	final <T> void handle(final T instance, final TypeTraverser<T> traverser)
+	final <T> void handleFull(final T instance, final TypeTraverser<T> traverser)
 	{
 		traverser.traverseReferences(instance, this, this.traversalMutator, this.mutationListener);
+	}
+	
+	@Override
+	final <T> void handleLeaf(final T instance, final TypeTraverser<T> traverser)
+	{
+		traverser.traverseReferences(instance, this.traversalMutator, this.mutationListener);
 	}
 	
 }
