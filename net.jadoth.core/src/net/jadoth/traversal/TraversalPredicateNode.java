@@ -6,7 +6,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingSet;
 
 @FunctionalInterface
-public interface TraversalPredicateNode
+public interface TraversalPredicateNode extends TraversalPredicate
 {
 	public boolean isNode(Object instance);
 

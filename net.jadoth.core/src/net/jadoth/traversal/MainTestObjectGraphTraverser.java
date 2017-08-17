@@ -15,18 +15,16 @@ public class MainTestObjectGraphTraverser
 		);
 		
 		final ObjectGraphTraverser stringIdPrinter = ObjectGraphTraverser.Builder()
-			.from(root)
-			.select(String.class::isInstance)
-			.apply(s ->
+			.root(root)
+			.apply(String.class, s ->
 				System.out.println(Jadoth.systemString(s) + ": " + s)
 			)
 			.buildObjectGraphTraverser()
 		;
 
 		final ObjectGraphTraverser stringMutator = ObjectGraphTraverser.Builder()
-			.from(root)
-			.select(String.class::isInstance)
-			.mutateBy(Deduplicator.New())
+			.root(root)
+			.mutate(String.class, Deduplicator.New())
 			.buildObjectGraphTraverser()
 		;
 		

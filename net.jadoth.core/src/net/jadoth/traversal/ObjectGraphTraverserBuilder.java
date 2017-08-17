@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.ConstHashEnum;
 import net.jadoth.collections.ConstHashTable;
-import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
@@ -29,7 +28,6 @@ import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReplacingBag;
-import net.jadoth.collections.types.XSequence;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.reflect.JadothReflect;
@@ -50,132 +48,17 @@ public interface ObjectGraphTraverserBuilder
 	
 	public ObjectGraphTraverser buildObjectGraphTraverser();
 	
-	public default boolean skip(final Object instance)
-	{
-		synchronized(this)
-		{
-			return this.skipped().add(instance);
-		}
-	}
-
-	public default ObjectGraphTraverserBuilder skipAll(final Object... instances)
-	{
-		synchronized(this)
-		{
-			this.skipped().addAll(instances);
-		}
-		return this;
-	}
+	public TraversalFilter<TraversalPredicateSkip> skip();
 	
-	public default ObjectGraphTraverserBuilder skipAll(final Iterable<?> instances)
-	{
-		synchronized(this)
-		{
-			final XSet<Object> skipped = this.skipped();
-			for(final Object instance : instances)
-			{
-				skipped.add(instance);
-			}
-		}
+	public TraversalFilter<TraversalPredicateNode> node();
+	
+	public TraversalFilter<TraversalPredicateLeaf> leaf();
+	
+	public TraversalFilter<TraversalPredicateFull> full();
+
+
+
 		
-		return this;
-	}
-	
-	public default boolean skipType(final Class<?> type)
-	{
-		synchronized(this)
-		{
-			return this.skippedTypes().add(type);
-		}
-	}
-
-	public default ObjectGraphTraverserBuilder skipTypes(final Class<?>... types)
-	{
-		synchronized(this)
-		{
-			this.skippedTypes().addAll(types);
-		}
-		return this;
-	}
-	
-	public default ObjectGraphTraverserBuilder skipTypes(final Iterable<Class<?>> types)
-	{
-		synchronized(this)
-		{
-			final XSet<Class<?>> skippedTypes = this.skippedTypes();
-			for(final Class<?> type : types)
-			{
-				skippedTypes.add(type);
-			}
-		}
-		
-		return this;
-	}
-	
-	public default boolean skipTypePolymorphic(final Class<?> type)
-	{
-		synchronized(this)
-		{
-			return this.skippedTypesPolymorphic().add(type);
-		}
-	}
-
-	public default ObjectGraphTraverserBuilder skipTypesPolymorphic(final Class<?>... types)
-	{
-		synchronized(this)
-		{
-			this.skippedTypesPolymorphic().addAll(types);
-		}
-		return this;
-	}
-	
-	public default ObjectGraphTraverserBuilder skipTypesPolymorphic(final Iterable<Class<?>> types)
-	{
-		synchronized(this)
-		{
-			final XSequence<Class<?>> skippedTypesPolymorphic = this.skippedTypesPolymorphic();
-			for(final Class<?> type : types)
-			{
-				skippedTypesPolymorphic.add(type);
-			}
-		}
-		
-		return this;
-	}
-
-
-	public default boolean leafType(final Class<?> leafType)
-	{
-		synchronized(this)
-		{
-			return this.leafTypes().add(leafType);
-		}
-	}
-
-	public default ObjectGraphTraverserBuilder leafTypes(final Class<?>... leafTypes)
-	{
-		synchronized(this)
-		{
-			this.leafTypes().addAll(leafTypes);
-		}
-		return this;
-	}
-	
-
-	public default ObjectGraphTraverserBuilder leafTypes(final Iterable<Class<?>> types)
-	{
-		final XSet<Class<?>> leafTypes = this.leafTypes();
-		synchronized(this)
-		{
-			for(final Class<?> type : leafTypes)
-			{
-				leafTypes.add(type);
-			}
-		}
-		
-		return this;
-	}
-	
 	public ObjectGraphTraverserBuilder setTraversableFieldSelector(
 		Predicate<? super Field> traversableFieldSelector
 	);
@@ -204,49 +87,77 @@ public interface ObjectGraphTraverserBuilder
 		return this.setTraversalMode(new TraversalMode.Leaf());
 	}
 	
-	public TraversalMode traversalMode();
-		
+	
+	
+	
+	
+
+	public ObjectGraphTraverserBuilder acceptor(TraversalAcceptor acceptor);
+	
+	public default ObjectGraphTraverserBuilder apply(final Consumer<Object> logic)
+	{
+		return this.apply((Predicate<Object>)null, logic);
+	}
+	
+	public ObjectGraphTraverserBuilder apply(Predicate<Object> predicate, Consumer<Object> logic);
+	
+	public <T> ObjectGraphTraverserBuilder apply(Class<T> predicate, Consumer<? super T> logic);
+	
+	
+	
+	public ObjectGraphTraverserBuilder mutator(TraversalMutator mutator);
+	
+	public default ObjectGraphTraverserBuilder mutate(final Function<Object, Object> logic)
+	{
+		return this.mutate((Predicate<Object>)null, logic);
+	}
+	
+	public ObjectGraphTraverserBuilder mutate(Predicate<Object> predicate, Function<Object, ?> logic);
+	
+	public <T> ObjectGraphTraverserBuilder mutate(Class<T> predicate, Function<? super T, ?> logic);
+	
+	
+	
 	
 	public TraversalAcceptor acceptor();
 	
-	public TraversalMutator mutator();
-	
-	public Predicate<Object> handlingPredicate();
-	
 	public Consumer<Object> acceptorLogic();
 	
-	public Function<Object, Object> mutatorLogic();
+	public Predicate<Object> acceptorPredicate();
 	
-	public Predicate<Object> logicPredicate();
+
+	public TraversalMutator mutator();
 	
-	public default ObjectGraphTraverserBuilder from(final Object root)
+	public Function<Object, ?> mutatorLogic();
+	
+	public Predicate<Object> mutatorPredicate();
+	
+	
+	
+	public default ObjectGraphTraverserBuilder root(final Object root)
 	{
 		return this.roots(root);
 	}
 	
 	public ObjectGraphTraverserBuilder roots(Object... root);
 	
-	public ObjectGraphTraverserBuilder select(Predicate<Object> predicate);
+
+	public TraversalMode traversalMode();
 	
-	public ObjectGraphTraverserBuilder apply(Consumer<Object> logic);
+		
 	
-	public ObjectGraphTraverserBuilder mutateBy(Function<Object, Object> logic);
+
 	
-	public XSet<Object> skipped();
-	
-	public XSet<Class<?>> skippedTypes();
-	
-	public XSequence<Class<?>> skippedTypesPolymorphic();
 	
 	public XMap<Object, TypeTraverser<?>> traversersPerInstance();
-	
-	public XSet<Class<?>> leafTypes();
-	
+		
 	public XMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType();
 	
 	public XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType();
 	
 	public <T> ObjectGraphTraverserBuilder registerTraverserForType(Class<? extends T> type, TypeTraverser<T> traverser);
+	
+	public <T> ObjectGraphTraverserBuilder registerTraverserForTypePolymorphic(Class<? extends T> type, TypeTraverser<T> traverser);
 	
 	public TraversalReferenceHandlerProvider provideReferenceHandlerProvider();
 	
@@ -346,30 +257,11 @@ public interface ObjectGraphTraverserBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final HashEnum<Object>                             skipped                   ;
-		private       TraversalPredicateSkip                       skipPredicate             ;
-		private       Predicate<Object>                            skipCustomPredicate       ;
-		private final HashEnum<Class<?>>                           skippedTypes              ;
-		private final HashEnum<Class<?>>                           skippedTypesPolymorphic   ;
-
-		private       TraversalPredicateLeaf                       leafPredicate             ;
-		private final HashEnum<Object>                             leafInstances             ;
-		private       Predicate<Object>                            leafCustomPredicate       ;
-		private final HashEnum<Class<?>>                           leafTypes                 ;
-		private final HashEnum<Class<?>>                           leafTypesPolymorphic      ;
-
-		private       TraversalPredicateNode                       nodePredicate             ;
-		private final HashEnum<Object>                             nodeInstances             ;
-		private       Predicate<Object>                            nodeCustomPredicate       ;
-		private final HashEnum<Class<?>>                           nodeTypes                 ;
-		private final HashEnum<Class<?>>                           nodeTypesPolymorphic      ;
-
-		private       TraversalPredicateFull                       fullPredicate             ;
-		private final HashEnum<Object>                             fullInstances             ;
-		private       Predicate<Object>                            fullCustomPredicate       ;
-		private final HashEnum<Class<?>>                           fullTypes                 ;
-		private final HashEnum<Class<?>>                           fullTypesPolymorphic      ;
+		
+		private final TraversalFilter<TraversalPredicateSkip> skip = TraversalFilter.New(this);
+		private final TraversalFilter<TraversalPredicateNode> node = TraversalFilter.New(this);
+		private final TraversalFilter<TraversalPredicateLeaf> leaf = TraversalFilter.New(this);
+		private final TraversalFilter<TraversalPredicateFull> full = TraversalFilter.New(this);
 		
 		private final HashTable<Object, TypeTraverser<?>>          traversersPerInstance     ;
 		private final HashTable<Class<?>, TypeTraverser<?>>        traversersPerConcreteType ;
@@ -401,19 +293,10 @@ public interface ObjectGraphTraverserBuilder
 		Implementation()
 		{
 			super();
-			this.skipped                  = HashEnum.New();
-			this.skippedTypes             = HashEnum.New(ObjectGraphTraverserBuilder.defaultSkipTypesConcrete());
-			this.skippedTypesPolymorphic  = HashEnum.New(ObjectGraphTraverserBuilder.defaultSkipTypesPolymorphic());
-			this.leafInstances            = HashEnum.New();
-			this.leafTypes                = HashEnum.New();
-			this.leafTypesPolymorphic     = HashEnum.New();
-			this.nodeInstances            = HashEnum.New();
-			this.nodeTypes                = HashEnum.New();
-			this.nodeTypesPolymorphic     = HashEnum.New();
-			this.fullInstances            = HashEnum.New();
-			this.fullTypes                = HashEnum.New();
-			this.fullTypesPolymorphic     = HashEnum.New();
 			
+			this.skip().types(ObjectGraphTraverserBuilder.defaultSkipTypesConcrete());
+			this.skip().typesPolymorphic(ObjectGraphTraverserBuilder.defaultSkipTypesPolymorphic());
+						
 			this.traversersPerInstance      = HashTable.New();
 			this.traversersPerConcreteType  = HashTable.New(
 				ObjectGraphTraverserBuilder.defaultConcreteTypeTraversers()
@@ -428,6 +311,30 @@ public interface ObjectGraphTraverserBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public TraversalFilter<TraversalPredicateSkip> skip()
+		{
+			return this.skip;
+		}
+		
+		@Override
+		public TraversalFilter<TraversalPredicateNode> node()
+		{
+			return this.node;
+		}
+		
+		@Override
+		public TraversalFilter<TraversalPredicateLeaf> leaf()
+		{
+			return this.leaf;
+		}
+		
+		@Override
+		public TraversalFilter<TraversalPredicateFull> full()
+		{
+			return this.full;
+		}
 
 		@Override
 		public synchronized ObjectGraphTraverserBuilder setTraversableFieldSelector(final Predicate<? super Field> traversableFieldSelector)
@@ -473,33 +380,9 @@ public interface ObjectGraphTraverserBuilder
 		}
 
 		@Override
-		public synchronized XSet<Object> skipped()
-		{
-			return this.skipped;
-		}
-		
-		@Override
-		public synchronized XSet<Class<?>> skippedTypes()
-		{
-			return this.skippedTypes;
-		}
-		
-		@Override
-		public synchronized XSequence<Class<?>> skippedTypesPolymorphic()
-		{
-			return this.skippedTypesPolymorphic;
-		}
-
-		@Override
 		public synchronized XMap<Object, TypeTraverser<?>> traversersPerInstance()
 		{
 			return this.traversersPerInstance;
-		}
-
-		@Override
-		public synchronized XSet<Class<?>> leafTypes()
-		{
-			return this.leafTypes;
 		}
 
 		@Override

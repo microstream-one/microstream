@@ -6,7 +6,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingSet;
 
 @FunctionalInterface
-public interface TraversalPredicateSkip
+public interface TraversalPredicateSkip extends TraversalPredicate
 {
 	public boolean skip(Object instance);
 	
