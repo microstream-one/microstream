@@ -1,12 +1,8 @@
 package net.jadoth.traversal;
 
-import static net.jadoth.Jadoth.notNull;
-
 import java.lang.reflect.Field;
-import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
-import net.jadoth.functional.JadothPredicates;
 import net.jadoth.reflect.JadothReflect;
 
 public final class TraverserReflective<T> implements TypeTraverser<T>
@@ -255,15 +251,16 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	
 	public static TraverserReflective.Creator Creator()
 	{
-		return new TraverserReflective.Creator(
-			JadothPredicates.all()
-		);
+		return Creator(null); // force default
 	}
 	
-	public static TraverserReflective.Creator Creator(final Predicate<? super Field> fieldSelector)
+	public static TraverserReflective.Creator Creator(final TraversalFieldSelector fieldSelector)
 	{
+		// by default, only references are handled
 		return new TraverserReflective.Creator(
-			notNull(fieldSelector)
+			fieldSelector != null
+			? fieldSelector
+			: TraversalFieldSelector.New(JadothReflect::isReference)
 		);
 	}
 	
@@ -274,7 +271,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		// instance fields //
 		////////////////////
 		
-		private final Predicate<? super Field> fieldSelector;
+		private final TraversalFieldSelector fieldSelector;
 		
 		
 		
@@ -282,7 +279,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		// constructors //
 		/////////////////
 
-		Creator(final Predicate<? super Field> fieldSelector)
+		Creator(final TraversalFieldSelector fieldSelector)
 		{
 			super();
 			this.fieldSelector = fieldSelector;
@@ -299,7 +296,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			final HashEnum<Field> selectedFields = HashEnum.New();
 			JadothReflect.collectTypedFields(selectedFields, type, field ->
 				JadothReflect.isInstanceField(field)
-				&& this.fieldSelector.test(field))
+				&& this.fieldSelector.test(type, field))
 			;
 			
 			selectedFields.iterate(f -> f.setAccessible(true));

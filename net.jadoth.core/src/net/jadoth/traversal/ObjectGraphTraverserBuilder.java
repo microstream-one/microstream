@@ -23,29 +23,14 @@ import net.jadoth.collections.ConstHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReplacingBag;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.collections.types.XTable;
-import net.jadoth.reflect.JadothReflect;
 
 public interface ObjectGraphTraverserBuilder
 {
-	/* (21.07.2017 TM)TODO: what about a traversal predicate and exclude types?
-	 * see:
-//			.setTraversableFieldSelector((c, f) ->
-//				!JadothReflect.isTransient(f)
-//			)
-//			.excludeTypes(
-//				Unpersistable.class,
-//				BinaryLeafType.class
-//			)
-	 */
-	
-	
 	public ObjectGraphTraverser buildObjectGraphTraverser();
 	
 	public TraversalFilter<TraversalPredicateSkip> skip();
@@ -55,44 +40,90 @@ public interface ObjectGraphTraverserBuilder
 	public TraversalFilter<TraversalPredicateLeaf> leaf();
 	
 	public TraversalFilter<TraversalPredicateFull> full();
+	
+	public XTable<Object, TypeTraverser<?>> traversersPerInstance();
+
+	public XTable<Class<?>, TypeTraverser<?>> traversersPerConcreteType();
+
+	public XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType();
+	
+	public TraversalFieldSelector fieldSelector();
+	
+	public Predicate<? super Field> fieldPredicate();
+
+	public Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider();
+
+	public TypeTraverser.Creator typeTraverserCreator();
+
+	public TraversalAcceptor acceptor();
+
+	public Predicate<Object> acceptorPredicate();
+
+	public Consumer<Object> acceptorLogic();
+
+	public TraversalMutator mutator();
+
+	public Predicate<Object> mutatorPredicate();
+
+	public Function<Object, ?> mutatorLogic();
+
+	public MutationListener mutationListener();
+
+	public TraversalMode traversalMode();
+
+	public TraversalReferenceHandlerProvider referenceHandlerProvider();
+
+	public Object[] roots();
 
 
+	public ObjectGraphTraverserBuilder fieldSelector(TraversalFieldSelector fieldSelector);
+	
+	public ObjectGraphTraverserBuilder fieldPredicate(Predicate<? super Field> predicate);
 
-		
-	public ObjectGraphTraverserBuilder setTraversableFieldSelector(
-		Predicate<? super Field> traversableFieldSelector
-	);
-	
-	public ObjectGraphTraverserBuilder setTraversalAcceptor(TraversalAcceptor acceptor);
-	
-	public ObjectGraphTraverserBuilder setTraversalMutator(TraversalMutator mutator);
-	
-	public ObjectGraphTraverserBuilder setTraversalMode(TraversalMode traversalMode);
-	
-	public default ObjectGraphTraverserBuilder setModeNode()
-	{
-		// tiny instantiation instead of permanent memory consumption by a constant.
-		return this.setTraversalMode(new TraversalMode.Node());
-	}
-	
-	public default ObjectGraphTraverserBuilder setModeFull()
-	{
-		// tiny instantiation instead of permanent memory consumption by a constant.
-		return this.setTraversalMode(new TraversalMode.Full());
-	}
-	
-	public default ObjectGraphTraverserBuilder setModeLeaf()
-	{
-		// tiny instantiation instead of permanent memory consumption by a constant.
-		return this.setTraversalMode(new TraversalMode.Leaf());
-	}
-	
-	
-	
-	
-	
+	public ObjectGraphTraverserBuilder alreadyHandledProvider(Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider);
+
+	public ObjectGraphTraverserBuilder typeTraverserCreator(TypeTraverser.Creator typeTraverserCreator);
 
 	public ObjectGraphTraverserBuilder acceptor(TraversalAcceptor acceptor);
+
+	public ObjectGraphTraverserBuilder acceptorPredicate(Predicate<Object> acceptorPredicate);
+
+	public ObjectGraphTraverserBuilder acceptorLogic(Consumer<Object> acceptorLogic);
+
+	public ObjectGraphTraverserBuilder mutator(TraversalMutator mutator);
+
+	public ObjectGraphTraverserBuilder mutatorPredicate(Predicate<Object> mutatorPredicate);
+
+	public ObjectGraphTraverserBuilder mutatorLogic(Function<Object, Object> mutatorLogic);
+
+	public ObjectGraphTraverserBuilder mutationListener(MutationListener mutationListener);
+
+	public ObjectGraphTraverserBuilder traversalMode(TraversalMode traversalMode);
+
+	public ObjectGraphTraverserBuilder referenceHandlerProvider(TraversalReferenceHandlerProvider referenceHandlerProvider);
+
+	public ObjectGraphTraverserBuilder roots(Object... roots);
+	
+	
+	
+		
+	public default ObjectGraphTraverserBuilder modeNode()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.traversalMode(new TraversalMode.Node());
+	}
+	
+	public default ObjectGraphTraverserBuilder modeFull()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.traversalMode(new TraversalMode.Full());
+	}
+	
+	public default ObjectGraphTraverserBuilder modeLeaf()
+	{
+		// tiny instantiation instead of permanent memory consumption by a constant.
+		return this.traversalMode(new TraversalMode.Leaf());
+	}
 	
 	public default ObjectGraphTraverserBuilder apply(final Consumer<Object> logic)
 	{
@@ -101,11 +132,7 @@ public interface ObjectGraphTraverserBuilder
 	
 	public ObjectGraphTraverserBuilder apply(Predicate<Object> predicate, Consumer<Object> logic);
 	
-	public <T> ObjectGraphTraverserBuilder apply(Class<T> predicate, Consumer<? super T> logic);
-	
-	
-	
-	public ObjectGraphTraverserBuilder mutator(TraversalMutator mutator);
+	public <T> ObjectGraphTraverserBuilder apply(Class<T> type, Consumer<? super T> logic);
 	
 	public default ObjectGraphTraverserBuilder mutate(final Function<Object, Object> logic)
 	{
@@ -114,56 +141,50 @@ public interface ObjectGraphTraverserBuilder
 	
 	public ObjectGraphTraverserBuilder mutate(Predicate<Object> predicate, Function<Object, ?> logic);
 	
-	public <T> ObjectGraphTraverserBuilder mutate(Class<T> predicate, Function<? super T, ?> logic);
+	public <T> ObjectGraphTraverserBuilder mutate(Class<T> type, Function<? super T, ?> logic);
 	
-	
-	
-	
-	public TraversalAcceptor acceptor();
-	
-	public Consumer<Object> acceptorLogic();
-	
-	public Predicate<Object> acceptorPredicate();
 	
 
-	public TraversalMutator mutator();
-	
-	public Function<Object, ?> mutatorLogic();
-	
-	public Predicate<Object> mutatorPredicate();
-	
-	
 	
 	public default ObjectGraphTraverserBuilder root(final Object root)
 	{
 		return this.roots(root);
 	}
 	
-	public ObjectGraphTraverserBuilder roots(Object... root);
+	public default <T> ObjectGraphTraverserBuilder registerTraverser(final Object instance, final TypeTraverser<T> traverser)
+	{
+		synchronized(this)
+		{
+			this.traversersPerInstance().add(instance, traverser);
+		}
+		return this;
+	}
 	
-
-	public TraversalMode traversalMode();
+	public default <T> ObjectGraphTraverserBuilder registerTraverserForType(final Class<? extends T> type, final TypeTraverser<T> traverser)
+	{
+		synchronized(this)
+		{
+			this.traversersPerConcreteType().add(type, traverser);
+		}
+		return this;
+	}
 	
-		
-	
-
-	
-	
-	public XMap<Object, TypeTraverser<?>> traversersPerInstance();
-		
-	public XMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType();
-	
-	public XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType();
-	
-	public <T> ObjectGraphTraverserBuilder registerTraverserForType(Class<? extends T> type, TypeTraverser<T> traverser);
-	
-	public <T> ObjectGraphTraverserBuilder registerTraverserForTypePolymorphic(Class<? extends T> type, TypeTraverser<T> traverser);
+	public default <T> ObjectGraphTraverserBuilder registerTraverserForTypePolymorphic(final Class<? extends T> type, final TypeTraverser<T> traverser)
+	{
+		synchronized(this)
+		{
+			this.traversersPerPolymorphType().add(type, traverser);
+		}
+		return this;
+	}
 	
 	public TraversalReferenceHandlerProvider provideReferenceHandlerProvider();
 	
 	public TraversalAcceptor provideAcceptor();
 	
 	public TraversalMutator provideMutator();
+	
+	public XGettingSet<Object> provideSkippedInstances();
 	
 	
 	
@@ -252,7 +273,7 @@ public interface ObjectGraphTraverserBuilder
 		return new ObjectGraphTraverserBuilder.Implementation();
 	}
 		
-	public final class Implementation implements ObjectGraphTraverserBuilder
+	public class Implementation implements ObjectGraphTraverserBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -267,7 +288,8 @@ public interface ObjectGraphTraverserBuilder
 		private final HashTable<Class<?>, TypeTraverser<?>>        traversersPerConcreteType ;
 		private final HashTable<Class<?>, TypeTraverser<?>>        traversersPerPolymorphType;
 		
-		private Predicate<? super Field>                           traversableFieldSelector  ;
+		private TraversalFieldSelector                             fieldSelector             ;
+		private Predicate<? super Field>                           fieldPredicate            ;
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider    ;
 		private TypeTraverser.Creator                              typeTraverserCreator      ;
                                                                                              
@@ -277,7 +299,7 @@ public interface ObjectGraphTraverserBuilder
                                                                                              
 		private TraversalMutator                                   mutator                   ;
 		private Predicate<Object>                                  mutatorPredicate          ;
-		private Function<Object, Object>                           mutatorLogic              ;
+		private Function<Object, ?>                                mutatorLogic              ;
 		                                                                                     
 		private MutationListener                                   mutationListener          ;
 		private TraversalMode                                      traversalMode             ;
@@ -313,116 +335,291 @@ public interface ObjectGraphTraverserBuilder
 		////////////
 		
 		@Override
-		public TraversalFilter<TraversalPredicateSkip> skip()
+		public synchronized TraversalFilter<TraversalPredicateSkip> skip()
 		{
 			return this.skip;
 		}
 		
 		@Override
-		public TraversalFilter<TraversalPredicateNode> node()
+		public synchronized TraversalFilter<TraversalPredicateNode> node()
 		{
 			return this.node;
 		}
 		
 		@Override
-		public TraversalFilter<TraversalPredicateLeaf> leaf()
+		public synchronized TraversalFilter<TraversalPredicateLeaf> leaf()
 		{
 			return this.leaf;
 		}
 		
 		@Override
-		public TraversalFilter<TraversalPredicateFull> full()
+		public synchronized TraversalFilter<TraversalPredicateFull> full()
 		{
 			return this.full;
 		}
-
-		@Override
-		public synchronized ObjectGraphTraverserBuilder setTraversableFieldSelector(final Predicate<? super Field> traversableFieldSelector)
-		{
-			this.traversableFieldSelector = traversableFieldSelector;
-			return this;
-		}
 		
 		@Override
-		public synchronized TraversalAcceptor acceptor()
-		{
-			return this.acceptor;
-		}
-		
-		@Override
-		public synchronized TraversalMutator mutator()
-		{
-			return this.mutator;
-		}
-		
-		@Override
-		public synchronized Consumer<Object> acceptorLogic()
-		{
-			return this.acceptorLogic;
-		}
-		
-		@Override
-		public synchronized Function<Object, Object> mutatorLogic()
-		{
-			return this.mutatorLogic;
-		}
-		
-		@Override
-		public synchronized Predicate<Object> handlingPredicate()
-		{
-			return this.handlingPredicate;
-		}
-		
-		@Override
-		public synchronized Predicate<Object> logicPredicate()
-		{
-			return this.logicPredicate;
-		}
-
-		@Override
-		public synchronized XMap<Object, TypeTraverser<?>> traversersPerInstance()
+		public synchronized HashTable<Object, TypeTraverser<?>> traversersPerInstance()
 		{
 			return this.traversersPerInstance;
 		}
 
 		@Override
-		public synchronized XMap<Class<?>, TypeTraverser<?>> traversersPerConcreteType()
+		public synchronized HashTable<Class<?>, TypeTraverser<?>> traversersPerConcreteType()
 		{
 			return this.traversersPerConcreteType;
 		}
 
 		@Override
-		public synchronized XTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType()
+		public synchronized HashTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType()
 		{
 			return this.traversersPerPolymorphType;
 		}
+		
+		@Override
+		public synchronized TraversalFieldSelector fieldSelector()
+		{
+			return this.fieldSelector;
+		}
+
+		@Override
+		public synchronized Predicate<? super Field> fieldPredicate()
+		{
+			return this.fieldPredicate;
+		}
+
+		@Override
+		public synchronized Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider()
+		{
+			return this.alreadyHandledProvider;
+		}
+
+		@Override
+		public synchronized TypeTraverser.Creator typeTraverserCreator()
+		{
+			return this.typeTraverserCreator;
+		}
+
+		@Override
+		public synchronized TraversalAcceptor acceptor()
+		{
+			return this.acceptor;
+		}
+
+		@Override
+		public synchronized Predicate<Object> acceptorPredicate()
+		{
+			return this.acceptorPredicate;
+		}
+
+		@Override
+		public synchronized Consumer<Object> acceptorLogic()
+		{
+			return this.acceptorLogic;
+		}
+
+		@Override
+		public synchronized TraversalMutator mutator()
+		{
+			return this.mutator;
+		}
+
+		@Override
+		public synchronized Predicate<Object> mutatorPredicate()
+		{
+			return this.mutatorPredicate;
+		}
+
+		@Override
+		public synchronized Function<Object, ?> mutatorLogic()
+		{
+			return this.mutatorLogic;
+		}
+
+		@Override
+		public synchronized MutationListener mutationListener()
+		{
+			return this.mutationListener;
+		}
+
+		@Override
+		public synchronized TraversalMode traversalMode()
+		{
+			return this.traversalMode;
+		}
+
+		@Override
+		public synchronized TraversalReferenceHandlerProvider referenceHandlerProvider()
+		{
+			return this.referenceHandlerProvider;
+		}
+
+		@Override
+		public synchronized Object[] roots()
+		{
+			return this.roots;
+		}
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder fieldSelector(
+			final TraversalFieldSelector fieldSelector
+		)
+		{
+			this.fieldSelector = fieldSelector;
+			return this;
+		}
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder fieldPredicate(
+			final Predicate<? super Field> traversableFieldSelector
+		)
+		{
+			this.fieldPredicate = traversableFieldSelector;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder alreadyHandledProvider(
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider
+		)
+		{
+			this.alreadyHandledProvider = alreadyHandledProvider;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder typeTraverserCreator(
+			final TypeTraverser.Creator typeTraverserCreator
+		)
+		{
+			this.typeTraverserCreator = typeTraverserCreator;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder acceptor(final TraversalAcceptor acceptor)
+		{
+			this.acceptor = acceptor;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder acceptorPredicate(final Predicate<Object> acceptorPredicate)
+		{
+			this.acceptorPredicate = acceptorPredicate;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder acceptorLogic(final Consumer<Object> acceptorLogic)
+		{
+			this.acceptorLogic = acceptorLogic;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder mutator(final TraversalMutator mutator)
+		{
+			this.mutator = mutator;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder mutatorPredicate(final Predicate<Object> mutatorPredicate)
+		{
+			this.mutatorPredicate = mutatorPredicate;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder mutatorLogic(final Function<Object, Object> mutatorLogic)
+		{
+			this.mutatorLogic = mutatorLogic;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder mutationListener(final MutationListener mutationListener)
+		{
+			this.mutationListener = mutationListener;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder traversalMode(final TraversalMode traversalMode)
+		{
+			this.traversalMode = traversalMode;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder referenceHandlerProvider(final TraversalReferenceHandlerProvider referenceHandlerProvider)
+		{
+			this.referenceHandlerProvider = referenceHandlerProvider;
+			return this;
+		}
+
+		@Override
+		public synchronized ObjectGraphTraverserBuilder roots(final Object... roots)
+		{
+			this.roots = roots;
+			return this;
+		}
+				
+		@Override
+		public synchronized ObjectGraphTraverserBuilder mutate(final Predicate<Object> predicate, final Function<Object, ?> logic)
+		{
+			this.mutatorPredicate = predicate;
+			this.mutatorLogic     = logic    ;
+			return this;
+		}
+		
+		@Override
+		public synchronized <T> ObjectGraphTraverserBuilder mutate(final Class<T> type, final Function<? super T, ?> logic)
+		{
+			return this.mutate(
+				type::isInstance,
+				instance ->
+					logic.apply(type.cast(instance)
+				)
+			);
+		}
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder apply(final Predicate<Object> predicate, final Consumer<Object> logic)
+		{
+			this.acceptorPredicate = predicate;
+			this.acceptorLogic     = logic    ;
+			return this;
+		}
+		
+		@Override
+		public synchronized <T> ObjectGraphTraverserBuilder apply(final Class<T> type, final Consumer<? super T> logic)
+		{
+			return this.apply(
+				type::isInstance,
+				instance ->
+					logic.accept(type.cast(instance)
+				)
+			);
+		}
+				
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// provider methods //
+		/////////////////////
 		
 		protected synchronized TypeTraverserProvider provideTypeTraverserProvider()
 		{
 			return TypeTraverserProvider.New(
 				this.provideTypeTraverserCreator(),
-				this.traversersPerInstance()             ,
-				this.traversersPerConcreteType()         ,
-				this.traversersPerPolymorphType()        ,
-				this.leafTypes()
+				this.traversersPerInstance()      ,
+				this.traversersPerConcreteType()  ,
+				this.traversersPerPolymorphType()
 			);
 		}
-		
-		protected synchronized XGettingCollection<Object> provideSkipped()
-		{
-			return this.skipped();
-		}
-		
-		protected synchronized XGettingSet<Class<?>> provideSkippedTypes()
-		{
-			return this.skippedTypes();
-		}
-		
-		protected synchronized XGettingSequence<Class<?>> provideSkippedTypesPolymorphic()
-		{
-			return this.skippedTypesPolymorphic();
-		}
-		
+				
 		protected synchronized MutationListener provideMutationListener()
 		{
 			return this.mutationListener;
@@ -445,14 +642,7 @@ public interface ObjectGraphTraverserBuilder
 
 			return OpenAdressingMiniSet::New;
 		}
-		
-		@Override
-		public synchronized ObjectGraphTraverserBuilder setTraversalAcceptor(final TraversalAcceptor acceptor)
-		{
-			this.acceptor = acceptor;
-			return this;
-		}
-		
+				
 		@Override
 		public synchronized TraversalAcceptor provideAcceptor()
 		{
@@ -463,8 +653,8 @@ public interface ObjectGraphTraverserBuilder
 			
 			if(this.acceptorLogic != null)
 			{
-				return this.logicPredicate != null
-					? TraversalAcceptor.New(this.logicPredicate, this.acceptorLogic)
+				return this.acceptorPredicate != null
+					? TraversalAcceptor.New(this.acceptorPredicate, this.acceptorLogic)
 					: TraversalAcceptor.New(this.acceptorLogic)
 				;
 			}
@@ -482,28 +672,28 @@ public interface ObjectGraphTraverserBuilder
 			
 			if(this.mutatorLogic != null)
 			{
-				return this.logicPredicate != null
-					? TraversalMutator.New(this.logicPredicate, this.mutatorLogic)
+				return this.mutatorPredicate != null
+					? TraversalMutator.New(this.mutatorPredicate, this.mutatorLogic)
 					: TraversalMutator.New(this.mutatorLogic)
 				;
 			}
 			
 			return null;
 		}
-		
-		protected synchronized Object[] internalGetRoots()
+				
+		protected synchronized TraversalFieldSelector provideTraversableFieldSelector()
 		{
-			return this.roots;
-		}
-		
-		protected synchronized Predicate<? super Field> provideTraversableFieldSelector()
-		{
-			if(this.traversableFieldSelector == null)
+			if(this.fieldSelector != null)
 			{
-				this.traversableFieldSelector = JadothReflect::isReference;
+				return this.fieldSelector;
 			}
 			
-			return this.traversableFieldSelector;
+			if(this.fieldPredicate != null)
+			{
+				return TraversalFieldSelector.New(this.fieldPredicate);
+			}
+			
+			return null; // let specific logic decide on its default behavior.
 		}
 		
 		protected synchronized TypeTraverser.Creator provideTypeTraverserCreator()
@@ -521,27 +711,92 @@ public interface ObjectGraphTraverserBuilder
 		@Override
 		public synchronized TraversalReferenceHandlerProvider provideReferenceHandlerProvider()
 		{
-			return this.referenceHandlerProvider;
+			if(this.referenceHandlerProvider != null)
+			{
+				return this.referenceHandlerProvider;
+			}
+			return TraversalReferenceHandlerProvider.New();
+		}
+		
+		@Override
+		public synchronized XGettingSet<Object> provideSkippedInstances()
+		{
+			return this.skip().instances();
 		}
 		
 		protected synchronized TraversalPredicateSkip providePredicateSkip()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateSkip()
+			final TraversalPredicateSkip explicitPredicate = this.skip.predicate();
+			if(explicitPredicate != null)
+			{
+				return explicitPredicate;
+			}
+			
+			return this.skip.isEmpty()
+				? null /* important for performance optimization */
+				: TraversalPredicateSkip.New(
+					this.skip.customPredicate()          ,
+					this.skip.types().immure()           ,
+					this.skip.typesPolymorphic().immure()
+				)
+			;
 		}
 				
 		protected synchronized TraversalPredicateFull providePredicateFull()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsFull()
+			final TraversalPredicateFull explicitPredicate = this.full.predicate();
+			if(explicitPredicate != null)
+			{
+				return explicitPredicate;
+			}
+			
+			return this.full.isEmpty()
+				? null /* important for performance optimization */
+				: TraversalPredicateFull.New(
+					this.full.instances().immure()       ,
+					this.full.customPredicate()          ,
+					this.full.types().immure()           ,
+					this.full.typesPolymorphic().immure()
+				)
+			;
 		}
 		
 		protected synchronized TraversalPredicateNode providePredicateNode()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsNode()
+			final TraversalPredicateNode explicitPredicate = this.node.predicate();
+			if(explicitPredicate != null)
+			{
+				return explicitPredicate;
+			}
+			
+			return this.node.isEmpty()
+				? null /* important for performance optimization */
+				: TraversalPredicateNode.New(
+					this.node.instances().immure()       ,
+					this.node.customPredicate()          ,
+					this.node.types().immure()           ,
+					this.node.typesPolymorphic().immure()
+				)
+			;
 		}
 		
 		protected synchronized TraversalPredicateLeaf providePredicateLeaf()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ObjectGraphTraverserBuilder.Implementation#providePredicateIsLeaf()
+			final TraversalPredicateLeaf explicitPredicate = this.leaf.predicate();
+			if(explicitPredicate != null)
+			{
+				return explicitPredicate;
+			}
+			
+			return this.leaf.isEmpty()
+				? null /* important for performance optimization */
+				: TraversalPredicateLeaf.New(
+					this.leaf.instances().immure()       ,
+					this.leaf.customPredicate()          ,
+					this.leaf.types().immure()           ,
+					this.leaf.typesPolymorphic().immure()
+				)
+			;
 		}
 		
 		protected synchronized TraversalMode provideTraversalMode()
@@ -556,8 +811,8 @@ public interface ObjectGraphTraverserBuilder
 		public synchronized ObjectGraphTraverser buildObjectGraphTraverser()
 		{
 			return ObjectGraphTraverser.New(
-				this.internalGetRoots()               ,
-				this.provideSkipped()                 ,
+				this.roots()                          ,
+				this.provideSkippedInstances()        ,
 				this.provideAlreadyHandledProvider()  ,
 				this.provideReferenceHandlerProvider(),
 				this.provideTypeTraverserProvider()   ,
@@ -571,65 +826,7 @@ public interface ObjectGraphTraverserBuilder
 				this.provideTraversalMode()
 			);
 		}
-		
-		@Override
-		public ObjectGraphTraverserBuilder setTraversalMutator(final TraversalMutator mutator)
-		{
-			this.mutator = mutator;
-			return this;
-		}
-
-		@Override
-		public ObjectGraphTraverserBuilder roots(final Object... roots)
-		{
-			this.roots = roots;
-			return this;
-		}
-
-		@Override
-		public ObjectGraphTraverserBuilder select(final Predicate<Object> predicate)
-		{
-			this.logicPredicate = predicate;
-			return this;
-		}
-
-		@Override
-		public ObjectGraphTraverserBuilder apply(final Consumer<Object> logic)
-		{
-			this.acceptorLogic = logic;
-			return this;
-		}
-
-		@Override
-		public ObjectGraphTraverserBuilder mutateBy(final Function<Object, Object> logic)
-		{
-			this.mutatorLogic = logic;
-			return this;
-		}
-		
-		@Override
-		public synchronized <T> ObjectGraphTraverserBuilder registerTraverserForType(
-			final Class<? extends T> type     ,
-			final TypeTraverser<T>   traverser
-		)
-		{
-			this.traversersPerConcreteType.add(type, traverser);
-			return this;
-		}
-		
-		@Override
-		public synchronized ObjectGraphTraverserBuilder setTraversalMode(final TraversalMode traversalMode)
-		{
-			this.traversalMode = traversalMode;
-			return this;
-		}
-		
-		@Override
-		public synchronized TraversalMode traversalMode()
-		{
-			return this.traversalMode;
-		}
-				
+							
 	}
 	
 }

@@ -114,6 +114,19 @@ public abstract class Code
 		return generator.generateCode();
 	}
 	
+	public static String generateEntity(
+		final String   typeName           ,
+		final String   superclass         ,
+		final String   getterPrefixBoolean,
+		final String   getterPrefixNormal ,
+		final String   setterPrefix       ,
+		final Field... members
+	)
+	{
+		final CodeGeneratorEntity generator = new CodeGeneratorEntity(typeName, superclass, getterPrefixBoolean, getterPrefixNormal, setterPrefix, members);
+		return generator.generateCode();
+	}
+	
 
 
 	// CHECKSTYLE.ON: ConstantName

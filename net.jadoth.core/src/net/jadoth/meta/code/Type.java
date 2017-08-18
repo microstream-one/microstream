@@ -9,8 +9,8 @@ public interface Type
 	public VarString assembleImplementationFullName(VarString vs);
 
 	public VarString assembleImplementationClassName(VarString vs);
-
-
+	
+	
 
 	public final class Implementation implements Type
 	{
@@ -60,7 +60,7 @@ public interface Type
 		{
 			return vs.add(this.fullName);
 		}
-
+		
 	}
 
 }

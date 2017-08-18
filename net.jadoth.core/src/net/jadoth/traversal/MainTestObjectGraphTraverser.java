@@ -7,10 +7,10 @@ public class MainTestObjectGraphTraverser
 {
 	public static void main(final String[] args)
 	{
-		final Person p1 = new Person("John", 30);
-		final Object root = X.List("a0", "b0", "c0",
-			X.List(new String("a0"), new String("b0"), new String("c0"),
-				X.List(new String("a0"), new String("b0"), new String("c0"), p1)
+		final Person p1 = new Person("Alice", 30);
+		final Object root = X.List("Alice", "Bob", "Charly",
+			X.List(new String("Alice"), new String("Bob"), new String("Charly"),
+				X.List(new String("Alice"), new String("Bob"), new String("Charly"), p1)
 			)
 		);
 		
@@ -25,13 +25,25 @@ public class MainTestObjectGraphTraverser
 		final ObjectGraphTraverser stringMutator = ObjectGraphTraverser.Builder()
 			.root(root)
 			.mutate(String.class, Deduplicator.New())
+			.mutationListener((p, o, n) ->
+			{
+				System.out.println(Jadoth.systemString(p) + "\treplacing "+o+"\t" + Jadoth.systemString(o) + "\t-> " + Jadoth.systemString(n));
+				return false;
+			})
 			.buildObjectGraphTraverser()
 		;
 		
+		System.out.println("Starting state:");
 		stringIdPrinter.traverse();
-		System.out.println("----");
+		System.out.println();
+		
+		System.out.println("Consolidating ...");
 		stringMutator.traverse();
+		System.out.println();
+		
+		System.out.println("Resulting state:");
 		stringIdPrinter.traverse();
+		System.out.println();
 	}
 }
 

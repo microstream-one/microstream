@@ -22,6 +22,8 @@ public interface TraversalFilter<P extends TraversalPredicate>
 	
 	public Predicate<Object> customPredicate();
 	
+	public boolean isEmpty();
+	
 	
 	
 	public ObjectGraphTraverserBuilder setPredicate(final P predicate);
@@ -166,14 +168,23 @@ public interface TraversalFilter<P extends TraversalPredicate>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public boolean isEmpty()
+		{
+			synchronized(this.builder())
+			{
+				return this.instances.isEmpty() && this.types.isEmpty() && this.typesPolymorphic.isEmpty()
+					&& this.customPredicate == null
+//					&& this.predicate == null // not this, because it replaces the others
+				;
+			}
+		}
 
 		@Override
 		public ObjectGraphTraverserBuilder builder()
 		{
-			synchronized(this.builder())
-			{
-				return this.builder;
-			}
+			return this.builder;
 		}
 
 		@Override

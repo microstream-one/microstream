@@ -1224,9 +1224,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final long replace(final Predicate<? super E> predicate, final E substitute)
+	public final long replace(final Predicate<? super E> predicate, final E replacement)
 	{
-		return AbstractArrayStorage.substitute(this.data, this.size, predicate, substitute);
+		return AbstractArrayStorage.substitute(this.data, this.size, predicate, replacement);
 	}
 
 	// replacing - multiple all //

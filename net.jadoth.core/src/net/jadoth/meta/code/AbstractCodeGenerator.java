@@ -25,8 +25,11 @@ public abstract class AbstractCodeGenerator<F extends Field>
 	final String        superclass; // (15.07.2013 TM)TODO: incorporate superclass into type?
 	final BulkList<F>   members   ;
 	final VarString     vs             = VarString.New();
-	final XEnum<String> staticImports  = EqHashEnum.New()    ;
+	final XEnum<String> staticImports  = EqHashEnum.New();
 	boolean             sectionHeaders = true;
+	final String        getterPrefixBoolean;
+	final String        getterPrefixNormal ;
+	final String        setterPrefix       ;
 
 
 
@@ -35,12 +38,22 @@ public abstract class AbstractCodeGenerator<F extends Field>
 	/////////////////////
 
 	@SafeVarargs
-	public AbstractCodeGenerator(final String typeName, final String superclass, final F... members)
+	public AbstractCodeGenerator(
+		final String typeName           ,
+		final String superclass         ,
+		final String getterPrefixBoolean,
+		final String getterPrefixNormal ,
+		final String setterPrefix       ,
+		final F...   members
+	)
 	{
 		super();
-		this.superclass = superclass;
-		this.type = new Type.Implementation(notNull(typeName), "Implementation");
-		this.members  = BulkList.New(members);
+		this.superclass          = superclass           ;
+		this.type                = new Type.Implementation(notNull(typeName), "Implementation");
+		this.members             = BulkList.New(members);
+		this.getterPrefixBoolean = getterPrefixBoolean  ;
+		this.getterPrefixNormal  = getterPrefixNormal   ;
+		this.setterPrefix        = setterPrefix         ;
 	}
 
 
@@ -58,13 +71,13 @@ public abstract class AbstractCodeGenerator<F extends Field>
 	void generateInterfaceMethods()
 	{
 		this.members.iterate(e ->
-			e.assembleInterfaceGetter(this.vs, AbstractCodeGenerator.this.type)
+			e.assembleInterfaceGetter(this.vs, AbstractCodeGenerator.this.type, this.getterPrefixBoolean, this.getterPrefixNormal)
 		);
 
 		this.vs.lf().lf().lf();
 
 		this.members.iterate(e ->
-			e.assembleInterfaceSetter(this.vs, AbstractCodeGenerator.this.type)
+			e.assembleInterfaceSetter(this.vs, AbstractCodeGenerator.this.type, this.setterPrefix)
 		);
 	}
 
@@ -195,12 +208,12 @@ public abstract class AbstractCodeGenerator<F extends Field>
 
 	void generateImplementationMemberGetter(final F field)
 	{
-		field.assembleClassGetter(this.vs, this.type);
+		field.assembleClassGetter(this.vs, this.type, this.getterPrefixBoolean, this.getterPrefixNormal);
 	}
 
 	void generateImplementationMemberSetter(final F field)
 	{
-		field.assembleClassSetter(this.vs, this.type);
+		field.assembleClassSetter(this.vs, this.type, this.setterPrefix);
 	}
 
 	void generateImplementationMemberFields()

@@ -32,12 +32,24 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 
 	public CodeGeneratorFoundation(final String typeName, final String superclass, final Member... members)
 	{
-		super(typeName, superclass, members);
+		super(typeName, superclass, null, null, null, members);
 	}
 
 	public CodeGeneratorFoundation(final String typeName, final Member... members)
 	{
 		this(typeName, "InstanceDispatcher", members);
+	}
+	
+	public CodeGeneratorFoundation(
+		final String    typeName           ,
+		final String    superclass         ,
+		final String    getterPrefixBoolean,
+		final String    getterPrefixNormal ,
+		final String    setterPrefix       ,
+		final Member... members
+	)
+	{
+		super(typeName, superclass, getterPrefixBoolean, getterPrefixNormal, setterPrefix, members);
 	}
 
 
@@ -57,14 +69,14 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 	void generateInterfaceMemberGetters()
 	{
 		this.members.iterate(e ->
-			e.assembleInterfaceGetter(this.vs, this.type)
+			e.assembleInterfaceGetter(this.vs, this.type, this.getterPrefixBoolean, this.getterPrefixNormal)
 		);
 	}
 
 	void generateInterfaceMemberSetters()
 	{
 		this.members.iterate(e ->
-				e.assembleInterfaceSetter(this.vs, this.type)
+				e.assembleInterfaceSetter(this.vs, this.type, this.setterPrefix)
 		);
 	}
 
@@ -150,20 +162,12 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 		////////////
 		
 		@Override
-		protected VarString assembleGetterName(final VarString vs)
-		{
-			return vs
-			.add("get")
-			.add(this.upperFieldName)
-			;
-		}
-
-		@Override
-		public void assembleClassGetter(final VarString vs, final Type type)
+		public void assembleClassGetter(final VarString vs, final Type type, final String getterPrefixBoolean, final String getterPrefixNormal)
 		{
 			vs.lf(); // empty line
 			Code.appendOverride(vs, 2)
-			.lf().tab(2).add("public ").add(this.typeName()).blank().add("get").add(this.upperFieldName).add("()")
+			.lf().tab(2).add("public ").add(this.typeName()).blank();
+			this.assembleGetterName(vs, this.hasBooleanType() ? getterPrefixBoolean : getterPrefixNormal).add("()")
 			.lf().tab(2).add('{')
 			.lf().tab(3).add("if(this.").add(this.fieldName()).add(" == null)")
 			.lf().tab(3).add("{")
@@ -175,13 +179,13 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 		}
 
 		@Override
-		public void assembleClassSetter(final VarString vs, final Type type)
+		public void assembleClassSetter(final VarString vs, final Type type, final String setterPrefix)
 		{
 			vs.lf(); // empty line
 			Code.appendOverride(vs, 2)
 			.lf().tab(2).add("public ");
-				type.assembleImplementationFullName(vs).blank()
-				.add("set").add(this.upperFieldName).add('(').add(this.typeName()).blank().add(this.fieldName()).add(')')
+			type.assembleImplementationFullName(vs).blank();
+			this.assembleSetterName(vs, type, setterPrefix).add('(').add(this.typeName()).blank().add(this.fieldName()).add(')')
 			.lf().tab(2).add('{')
 			.lf().tab(3).add("this.internalSet").add(this.upperFieldName).add('(').add(this.fieldName()).add(')').add(';')
 			.lf().tab(3).add("return this;")

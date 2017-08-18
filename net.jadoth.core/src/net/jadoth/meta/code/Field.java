@@ -10,9 +10,9 @@ public interface Field
 
 	public String fieldName();
 
-	public void assembleInterfaceGetter(VarString vs, Type type);
+	public void assembleInterfaceGetter(VarString vs, Type type, String getterPrefixBoolean, String getterPrefixNormal);
 
-	public void assembleInterfaceSetter(VarString vs, Type type);
+	public void assembleInterfaceSetter(VarString vs, Type type, String setterPrefix);
 
 	public void assembleConstructorParameter(VarString vs, int typeLength, int nameLength);
 
@@ -20,9 +20,9 @@ public interface Field
 
 	public void assembleConstructorInitialization(VarString vs, Type type, int nameLength);
 
-	public void assembleClassGetter(VarString vs, Type type);
+	public void assembleClassGetter(VarString vs, Type type, String getterPrefixBoolean, String getterPrefixNormal);
 
-	public void assembleClassSetter(VarString vs, Type type);
+	public void assembleClassSetter(VarString vs, Type type, String setterPrefix);
 
 
 
@@ -38,7 +38,8 @@ public interface Field
 		private final FieldType  type                   ;
 		private final String     directInitializer      ;
 		
-		private transient String upperFieldName;
+		private transient String  upperFieldName;
+		private transient boolean hasBooleanType;
 		
 		
 		
@@ -64,6 +65,14 @@ public interface Field
 				: Code.toLowerCaseFirstLetter(typeName)
 			;
 			this.upperFieldName = Code.toUpperCaseFirstLetter(this.fieldName);
+			this.hasBooleanType = typeName.equals(boolean.class.getSimpleName())
+				|| typeName.equals(Boolean.class.getSimpleName())
+			;
+		}
+		
+		public boolean hasBooleanType()
+		{
+			return this.hasBooleanType;
 		}
 
 		@Override
@@ -129,30 +138,46 @@ public interface Field
 		}
 		
 		@Override
-		public void assembleInterfaceGetter(final VarString vs, final Type type)
+		public void assembleInterfaceGetter(
+			final VarString vs                 ,
+			final Type      type               ,
+			final String    getterPrefixBoolean,
+			final String    getterPrefixNormal
+		)
 		{
 			vs.lf()
 			.tab().add("public ").add(this.typeName()).blank();
-			this.assembleGetterName(vs).add("()")
+			this.assembleGetterName(vs, this.hasBooleanType ? getterPrefixBoolean : getterPrefixNormal).add("()")
 			.add(';').lf()
 			;
 		}
 		
-		protected VarString assembleGetterName(final VarString vs)
+		protected VarString assembleGetterName(final VarString vs, final String getterPrefix)
 		{
-			// no get per default.
-			vs.add(this.fieldName());
-			
+			if(getterPrefix != null)
+			{
+				vs.add(getterPrefix).add(this.upperFieldName);
+			}
+			else
+			{
+				vs.add(this.fieldName());
+			}
 			return vs;
 		}
 		
 		@Override
-		public void assembleClassGetter(final VarString vs, final Type type)
+		public void assembleClassGetter(
+			final VarString vs                 ,
+			final Type      type               ,
+			final String    getterPrefixBoolean,
+			final String    getterPrefixNormal
+		)
 		{
 			vs.lf();
 			Code.appendOverride(vs, 2)
 			.lf().tab(2)
-			.add("public final ").add(this.typeName()).blank().add(this.fieldName()).add("()")
+			.add("public final ").add(this.typeName()).blank();
+			this.assembleGetterName(vs, this.hasBooleanType ? getterPrefixBoolean : getterPrefixNormal).add("()")
 			.lf().tab(2).add('{')
 			.lf().tab(3).add("return this.").add(this.fieldName()).add(';')
 			.lf().tab(2).add('}')
@@ -172,36 +197,45 @@ public interface Field
 			return vs;
 		}
 		
-		protected VarString assembleSetterName(final VarString vs, final Type type)
+		protected VarString assembleSetterName(final VarString vs, final Type type, final String setterPrefix)
 		{
-			return vs.add("set").add(this.upperFieldName);
+			if(setterPrefix != null)
+			{
+				vs.add(setterPrefix).add(this.upperFieldName);
+			}
+			else
+			{
+				vs.add(this.fieldName());
+			}
+			
+			return vs;
 		}
 		
-		protected VarString assembleSetterCommonPart(final VarString vs, final Type type)
+		protected VarString assembleSetterCommonPart(final VarString vs, final Type type, final String setterPrefix)
 		{
 			this.assembleSetterReturnType(vs, type).blank();
-			this.assembleSetterName(vs, type).add("(").add(this.typeName()).blank().add(this.fieldName()).add(")");
+			this.assembleSetterName(vs, type, setterPrefix).add("(").add(this.typeName()).blank().add(this.fieldName()).add(")");
 			return vs;
 		}
 		
 		@Override
-		public void assembleInterfaceSetter(final VarString vs, final Type type)
+		public void assembleInterfaceSetter(final VarString vs, final Type type, final String setterPrefix)
 		{
 			vs.lf()
 			.tab().add("public ");
-			this.assembleSetterCommonPart(vs, type)
+			this.assembleSetterCommonPart(vs, type, setterPrefix)
 			.add(';').lf()
 			;
 		}
 
 		@Override
-		public void assembleClassSetter(final VarString vs, final Type type)
+		public void assembleClassSetter(final VarString vs, final Type type, final String setterPrefix)
 		{
 			vs.lf();
 			Code.appendOverride(vs, 2)
 			.lf().tab(2)
 			.add("public final ");
-			this.assembleSetterCommonPart(vs, type)
+			this.assembleSetterCommonPart(vs, type, setterPrefix)
 			.lf().tab(2).add('{')
 			.lf().tab(3).add("this.").add(this.fieldName()).add(" = ").add(this.fieldName()).add(';');
 			if(this.type.hasChainingSetter())
@@ -245,13 +279,13 @@ public interface Field
 		}
 
 		@Override
-		public void assembleInterfaceSetter(final VarString vs, final Type type)
+		public void assembleInterfaceSetter(final VarString vs, final Type type, final String setterPrefix)
 		{
 			// no-op for final property
 		}
 
 		@Override
-		public final void assembleClassSetter(final VarString vs, final Type type)
+		public final void assembleClassSetter(final VarString vs, final Type type, final String setterPrefix)
 		{
 			// no-op for final field
 		}
