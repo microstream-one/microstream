@@ -304,18 +304,18 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			return selectedFields.toArray(Field.class);
 		}
 		
-		protected final <T> TraverserReflective<T> internalCreateTraverser(final Class<T> type)
+		protected final <T> TypeTraverser<T> internalCreateTraverser(final Class<T> type)
 		{
 			final Field[] collectedFields = this.collectFields(type);
 			
 			return collectedFields.length != 0
 				? new TraverserReflective<>(type, collectedFields)
-				: null
+				: TraverserNoOp.New(type)
 			;
 		}
 		
 		@Override
-		public final <T> TraverserReflective<T> createTraverser(final Class<T> type)
+		public final <T> TypeTraverser<T> createTraverser(final Class<T> type)
 		{
 			return this.internalCreateTraverser(type);
 		}

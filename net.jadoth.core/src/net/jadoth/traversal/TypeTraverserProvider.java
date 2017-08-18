@@ -82,7 +82,7 @@ public interface TypeTraverserProvider
 					return entry.value();
 				}
 			}
-			
+						
 			final TypeTraverser<?> created = this.traverserCreator.createTraverser(type);
 			if(created != null)
 			{

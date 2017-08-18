@@ -92,7 +92,6 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 				
 	private Object dequeue()
 	{
-		// (25.06.2017 TM)TODO: test performance of outsourced private methods
 		if(this.tailIsHead)
 		{
 			this.checkForCompletion();
