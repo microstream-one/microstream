@@ -1,5 +1,8 @@
 package net.jadoth.collections;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import net.jadoth.collections.interfaces.ChainStorage;
 
 
@@ -13,4 +16,8 @@ implements ChainStorage<E, K, V, EN>
 	protected abstract boolean moveToStart(EN entry);
 
 	protected abstract boolean moveToEnd(EN entry);
+	
+	protected abstract void replace(EN doomedEntry, EN keptEntry);
+	
+	protected abstract long substitute(Function<? super E, ? extends E> mapper, BiConsumer<EN, E> callback);
 }

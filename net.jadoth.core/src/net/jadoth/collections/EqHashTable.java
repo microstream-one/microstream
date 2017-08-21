@@ -202,6 +202,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			notNull(hashEqualator)
 		);
 	}
+	
 	public static final <K, V> EqHashTable<K, V> New(
 		final HashEqualator<? super K> hashEqualator,
 		final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries
@@ -268,7 +269,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 
 	// hashing
 	final HashEqualator<? super K> hashEqualator;
-	      float            hashDensity  ;
+	      float                    hashDensity  ;
 
 	// cached values
 	int capacity, range, size;
@@ -562,6 +563,35 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	final void internalCollectUnhashed(final K key, final V value)
 	{
 		this.chain.appendEntry(new ChainMapEntryLinkedHashedStrongStrong<>(0, key, value, null));
+	}
+	
+	final void replace(final ChainMapEntryLinkedHashedStrongStrong<K, V> oldEntry, final K newElement)
+	{
+		final int newHash = this.hashEqualator.hash(newElement);
+		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[newHash & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == newHash && this.hashEqualator.equal(e.key, newElement))
+			{
+				if(e == oldEntry)
+				{
+					// simple case: the old entry's element gets replaced by a hash-equivalent new one.
+					e.setKey0(newElement);
+					return;
+				}
+			}
+		}
+		
+		/* complex case:
+		 * Either a hash-conflicting entry's element has to be replaced with the new element
+		 * or a new entry has to be created for the new element.
+		 * In either case, the oldEntry has to be removed and the replacing entry has to move to
+		 * the old entry's position in the sequence chain.
+		 * Also, link chains have to be updated accordingly and the first case even reduces the collection's
+		 * size by 1, while the second case keeps it constant.
+		 * Quite the complication.
+		 */
+		
+		throw new UnsupportedOperationException("Hash-changing replacement not supported, yet.");
 	}
 
 
@@ -1314,7 +1344,6 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		};
 	}
 
-
 	public final Predicate<KeyValue<K, V>> predicateContainsEntry()
 	{
 		return entry ->
@@ -1337,6 +1366,12 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		return this;
 	}
 
+	@Override
+	public long substitute(final Function<? super KeyValue<K, V>, ? extends KeyValue<K, V>> mapper)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME EqHashTable#substitute()
+	}
+		
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -3352,6 +3387,12 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Keys#set()
 		}
 
+		@Override
+		public long substitute(final Function<? super K, ? extends K> mapper)
+		{
+			return EqHashTable.this.chain.keySubstitute(mapper, EqHashTable.this::replace);
+		}
+		
 	}
 
 
@@ -3945,15 +3986,15 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final long substitute(final Function<V, V> mapper)
+		public final long substitute(final Function<? super V, ? extends V> mapper)
 		{
-			return EqHashTable.this.chain.valuesModify(mapper);
+			return EqHashTable.this.chain.valuesSubstitute(mapper);
 		}
 
 		@Override
 		public final long substitute(final Predicate<? super V> predicate, final Function<V, V> mapper)
 		{
-			return EqHashTable.this.chain.valuesModify(predicate, mapper);
+			return EqHashTable.this.chain.valuesSubstitute(predicate, mapper);
 		}
 
 		@Override

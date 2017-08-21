@@ -818,7 +818,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 //	}
 
 	@Override
-	public long substitute(final Function<E, E> mapper)
+	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#modify()
 	}

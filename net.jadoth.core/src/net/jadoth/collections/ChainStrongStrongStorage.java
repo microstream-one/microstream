@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -4066,23 +4067,31 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// replacing - mapped //
 
 	@Override
-	public final int keyModify(final Function<K, K> mapper)
+	public final long keySubstitute(final Function<? super K, ? extends K> mapper, final BiConsumer<EN, K> callback)
 	{
-		int replaceCount = 0;
-		for(EN e = this.head.next; e != null; e = e.next)
+		long count = 0;
+		try
 		{
-			final K replacement;
-			if((replacement = mapper.apply(e.key())) != e.key())
+			for(EN entry = this.head; (entry = entry.next) != null;)
 			{
-				e.setKey(replacement);
-				replaceCount++;
+				final K newElement = mapper.apply(entry.key());
+				if(newElement != entry.key())
+				{
+					callback.accept(entry, newElement);
+					count++;
+				}
 			}
 		}
-		return replaceCount;
+		catch(final ThrowBreak b)
+		{
+			// abort iteration
+		}
+		
+		return count;
 	}
 
 	@Override
-	public final int keyModify(final Predicate<? super K> predicate, final Function<K, K> mapper)
+	public final int keySubstitute(final Predicate<? super K> predicate, final Function<? super K, ? extends K> mapper)
 	{
 		int replaceCount = 0;
 		try
@@ -4104,7 +4113,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final int keyRngModify(final int offset, int length, final Function<K, K> mapper)
+	public final int keyRngSubstitute(final int offset, int length, final Function<? super K, ? extends K> mapper)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)
@@ -4147,7 +4156,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final int keyRngModify(final int offset, int length, final Predicate<? super K> predicate, final Function<K, K> mapper)
+	public final int keyRngSubstitute(final int offset, int length, final Predicate<? super K> predicate, final Function<K, K> mapper)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)
@@ -9432,7 +9441,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// replacing - mapped //
 
 	@Override
-	public final int valuesModify(final Function<V, V> mapper)
+	public final int valuesSubstitute(final Function<? super V, ? extends V> mapper)
 	{
 		int replaceCount = 0;
 		try
@@ -9455,7 +9464,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final int valuesModify(final Predicate<? super V> predicate, final Function<V, V> mapper)
+	public final int valuesSubstitute(final Predicate<? super V> predicate, final Function<V, V> mapper)
 	{
 		int replaceCount = 0;
 		try
@@ -9477,7 +9486,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final int valuesRngModify(final int offset, int length, final Function<V, V> mapper)
+	public final int valuesRngSubstitute(final int offset, int length, final Function<V, V> mapper)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)
@@ -9513,7 +9522,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final int valuesRngModify(final int offset, int length, final Predicate<? super V> predicate, final Function<V, V> mapper)
+	public final int valuesRngSubstitute(final int offset, int length, final Predicate<? super V> predicate, final Function<V, V> mapper)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)

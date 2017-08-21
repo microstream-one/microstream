@@ -568,7 +568,7 @@ public class Singleton<E> implements XReference<E>
 //	}
 
 	@Override
-	public final long substitute(final Function<E, E> mapper)
+	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		if(this.element != (this.element = mapper.apply(this.element)))
 		{

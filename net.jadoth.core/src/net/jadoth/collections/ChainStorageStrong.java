@@ -9,6 +9,7 @@ import static net.jadoth.collections.AbstractChainEntry.HOP_PREV;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -338,7 +339,40 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	protected void disjoinEntry(final EN entry)
 	{
-		((entry.next == null  ? this.head : entry.next).prev = entry.prev).next = entry.next;
+		((entry.next == null ? this.head : entry.next).prev = entry.prev).next = entry.next;
+	}
+	
+	@Override
+	protected void replace(final EN doomedEntry, final EN keptEntry)
+	{
+		(doomedEntry.next == null ? this.head : doomedEntry.next).prev = keptEntry;
+		doomedEntry.prev.next = keptEntry;
+		keptEntry.prev = doomedEntry.prev;
+		keptEntry.next = doomedEntry.next;
+	}
+	
+	@Override
+	protected long substitute(final Function<? super E, ? extends E> mapper, final BiConsumer<EN, E> callback)
+	{
+		long count = 0;
+		try
+		{
+			for(EN entry = this.head; (entry = entry.next) != null;)
+			{
+				final E newElement = mapper.apply(entry.element());
+				if(newElement != entry.element())
+				{
+					callback.accept(entry, newElement);
+					count++;
+				}
+			}
+		}
+		catch(final ThrowBreak b)
+		{
+			// abort iteration
+		}
+		
+		return count;
 	}
 
 	@Override

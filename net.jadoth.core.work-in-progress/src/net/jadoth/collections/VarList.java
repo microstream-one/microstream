@@ -1460,7 +1460,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	}
 
 	@Override
-	public final long substitute(final Function<E, E> mapper)
+	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XReplacingBag<E>#modify()
 	}

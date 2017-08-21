@@ -3,10 +3,8 @@ package net.jadoth.collections.types;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.interfaces.ReleasingCollection;
 
-
-public interface XReplacingBag<E> extends XGettingCollection<E>, ReleasingCollection<E>
+public interface XReplacingBag<E> extends XGettingCollection<E>, XReplacingCollection<E>
 {
 	public interface Factory<E> extends XGettingCollection.Creator<E>
 	{
@@ -24,8 +22,6 @@ public interface XReplacingBag<E> extends XGettingCollection<E>, ReleasingCollec
 	
 	public long replace(Predicate<? super E> predicate, E replacement);
 		
-	public long substitute(Function<E, E> mapper);
-
 	public long substitute(Predicate<? super E> predicate, Function<E, E> mapper);
 
 	@Override

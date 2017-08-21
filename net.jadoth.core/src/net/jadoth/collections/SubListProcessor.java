@@ -365,7 +365,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	}
 
 	@Override
-	public final long substitute(final Function<E, E> mapper)
+	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}

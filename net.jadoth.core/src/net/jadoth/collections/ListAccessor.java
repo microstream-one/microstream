@@ -406,7 +406,7 @@ public class ListAccessor<E> implements XSettingList<E>
 //	}
 
 	@Override
-	public final long substitute(final Function<E, E> mapper)
+	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		return this.subject.substitute(mapper);
 	}

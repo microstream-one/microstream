@@ -1382,7 +1382,7 @@ public final class DownwrapList<E> implements XList<E>
 //	}
 
 	@Override
-	public long substitute(final Function<E, E> mapper)
+	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		if(this.subject instanceof XSettingList<?>)
 		{

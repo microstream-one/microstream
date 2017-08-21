@@ -764,16 +764,16 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public long substitute(final Function<E, E> mapper)
+	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
-		return AbstractArrayStorage.modify((E[])this.data, this.data.length, mapper);
+		return AbstractArrayStorage.substitute((E[])this.data, this.data.length, mapper);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		return AbstractArrayStorage.modify((E[])this.data, this.data.length, predicate, mapper);
+		return AbstractArrayStorage.substitute((E[])this.data, this.data.length, predicate, mapper);
 	}
 
 

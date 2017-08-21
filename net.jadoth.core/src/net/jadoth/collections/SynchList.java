@@ -793,7 +793,7 @@ public final class SynchList<E> implements XList<E>, Synchronized
 //	}
 
 	@Override
-	public final synchronized long substitute(final Function<E, E> mapper)
+	public final synchronized long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		return this.subject.substitute(mapper);
 	}
