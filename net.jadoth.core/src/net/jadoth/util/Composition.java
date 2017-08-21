@@ -10,6 +10,8 @@ package net.jadoth.util;
  * This is done via an interface instead of an annotations because the design aspect to be represented is a typical
  * "is-a" relation and because annotation should actually not alter programm behaviour.
  *
+ * @see ComponentType
+ *
  * @author Thomas Muenz
  */
 public interface Composition

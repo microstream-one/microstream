@@ -172,14 +172,14 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 		public XMap<K, V> parent();
 	}
 
-	public interface Values<K, V> extends XProcessingMap.Values<K, V>, Satellite<K, V>
+	public interface Values<K, V> extends XProcessingMap.Values<K, V>, Satellite<K, V>, XReplacingCollection<V>
 	{
 		@Override
 		public XBag<V> copy(); // values in an unordered map is a practical example for a bag
 
 	}
 
-	public interface Keys<K, V> extends XProcessingMap.Keys<K, V>, XSet<K>, Satellite<K, V>
+	public interface Keys<K, V> extends XProcessingMap.Keys<K, V>, XSet<K>, Satellite<K, V>, XReplacingCollection<K>
 	{
 		// emoty so far
 	}

@@ -1,13 +1,13 @@
 package net.jadoth.traversal;
 
-import net.jadoth.collections.types.XReplacingBag;
+import net.jadoth.collections.types.XGettingCollection;
 
 
-public final class TraverserXCollectionMutable implements TypeTraverser<XReplacingBag<Object>>
+public final class TraverserXCollectionNonReplacing implements TypeTraverser<XGettingCollection<?>>
 {
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance,
+		final XGettingCollection<?> instance,
 		final TraversalEnqueuer     enqueuer
 	)
 	{
@@ -19,7 +19,7 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance,
+		final XGettingCollection<?> instance,
 		final TraversalEnqueuer     enqueuer,
 		final TraversalAcceptor     acceptor
 	)
@@ -42,7 +42,7 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance        ,
+		final XGettingCollection<?> instance        ,
 		final TraversalEnqueuer     enqueuer        ,
 		final TraversalMutator      mutator         ,
 		final MutationListener      mutationListener
@@ -50,21 +50,13 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	{
 		try
 		{
-			instance.substitute(current ->
+			instance.iterate(current ->
 			{
-				final Object returned;
 				enqueuer.enqueue(current);
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				if(mutator.mutateReference(current, instance) != current)
 				{
-					if(mutationListener != null)
-					{
-						if(mutationListener.registerChange(instance, current, returned))
-						{
-							enqueuer.enqueue(returned);
-						}
-					}
+					throw new UnsupportedOperationException();
 				}
-				return returned;
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -75,7 +67,7 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance        ,
+		final XGettingCollection<?> instance        ,
 		final TraversalEnqueuer     enqueuer        ,
 		final TraversalAcceptor     acceptor        ,
 		final TraversalMutator      mutator         ,
@@ -84,24 +76,16 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	{
 		try
 		{
-			instance.substitute(current ->
+			instance.forEach(current ->
 			{
-				final Object returned;
 				if(acceptor.acceptReference(current, instance))
 				{
 					enqueuer.enqueue(current);
 				}
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				if(mutator.mutateReference(current, instance) != current)
 				{
-					if(mutationListener != null)
-					{
-						if(mutationListener.registerChange(instance, current, returned))
-						{
-							enqueuer.enqueue(returned);
-						}
-					}
+					throw new UnsupportedOperationException();
 				}
-				return returned;
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -109,11 +93,10 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 			// any skip signal reaching this point means abort the whole instance, in one way or another
 		}
 	}
-
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance,
+		final XGettingCollection<?> instance,
 		final TraversalAcceptor     acceptor
 	)
 	{
@@ -132,24 +115,19 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance        ,
+		final XGettingCollection<?> instance        ,
 		final TraversalMutator      mutator         ,
 		final MutationListener      mutationListener
 	)
 	{
 		try
 		{
-			instance.substitute(current ->
+			instance.iterate(current ->
 			{
-				final Object returned;
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				if(mutator.mutateReference(current, instance) != current)
 				{
-					if(mutationListener != null)
-					{
-						mutationListener.registerChange(instance, current, returned);
-					}
+					throw new UnsupportedOperationException();
 				}
-				return returned;
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -160,7 +138,7 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	
 	@Override
 	public final void traverseReferences(
-		final XReplacingBag<Object> instance        ,
+		final XGettingCollection<?> instance        ,
 		final TraversalAcceptor     acceptor        ,
 		final TraversalMutator      mutator         ,
 		final MutationListener      mutationListener
@@ -168,18 +146,13 @@ public final class TraverserXCollectionMutable implements TypeTraverser<XReplaci
 	{
 		try
 		{
-			instance.substitute(current ->
+			instance.forEach(current ->
 			{
-				final Object returned;
 				acceptor.acceptReference(current, instance);
-				if((returned = mutator.mutateReference(current, instance)) != current)
+				if(mutator.mutateReference(current, instance) != current)
 				{
-					if(mutationListener != null)
-					{
-						mutationListener.registerChange(instance, current, returned);
-					}
+					throw new UnsupportedOperationException();
 				}
-				return returned;
 			});
 		}
 		catch(final AbstractTraversalSkipSignal s)
