@@ -277,7 +277,9 @@ public interface ObjectGraphTraverser
 		 * However, a slight performance gain is still better than none. Plus there is much less memory used
 		 * for object header and chain-reference overhead.
 		 */
-		static final int SEGMENT_SIZE = 500;
+		static final int SEGMENT_SIZE       = 500;
+		static final int SEGMENT_LAST_INDEX = SEGMENT_SIZE - 1;
+		static final int SEGMENT_LENGTH     = SEGMENT_SIZE + 1;
 
 
 
@@ -288,7 +290,7 @@ public interface ObjectGraphTraverser
 		static final Object[] createIterationSegment()
 		{
 			// one trailing slot as a pointer to the next segment array. Both hacky and elegant.
-			return new Object[SEGMENT_SIZE + 1];
+			return new Object[SEGMENT_LENGTH];
 		}
 				
 	}
