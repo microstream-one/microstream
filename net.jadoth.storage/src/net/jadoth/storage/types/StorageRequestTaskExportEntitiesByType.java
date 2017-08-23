@@ -50,9 +50,19 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		{
 			super(timestamp, channelCount);
 			this.fileProvider            = notNull(fileProvider);
-			this.isExportType           = isExportType != null ? isExportType : e -> !e.isPrimitiveType();
+			this.isExportType            = isExportType != null ? isExportType : e -> !e.isPrimitiveType();
 			this.predicateEntityProvider = predicateEntityProvider != null ? predicateEntityProvider : t -> null;
 			this.channelResults          = new ChannelStatistic[channelCount];
+		}
+		
+		Implementation(
+			final long                                           timestamp   ,
+			final int                                            channelCount,
+			final StorageEntityTypeExportFileProvider            fileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		)
+		{
+			this(timestamp, channelCount, fileProvider, isExportType, null);
 		}
 
 		Implementation(

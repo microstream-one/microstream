@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XTable;
@@ -348,10 +349,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		@Override
 		public StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider exportFileProvider
+			final StorageEntityTypeExportFileProvider            exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
 		)
 		{
-			return this.singletonConnection().exportTypes(exportFileProvider);
+			return this.singletonConnection().exportTypes(exportFileProvider, isExportType);
 		}
 
 		@Override

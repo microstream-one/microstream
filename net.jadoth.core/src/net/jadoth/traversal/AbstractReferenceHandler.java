@@ -1,5 +1,7 @@
 package net.jadoth.traversal;
 
+import java.util.function.Predicate;
+
 import net.jadoth.collections.types.XSet;
 
 public abstract class AbstractReferenceHandler implements TraversalReferenceHandler
@@ -14,6 +16,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	final TraversalPredicateNode predicateNode    ;
 	final TraversalPredicateLeaf predicateLeaf    ;
 	final TraversalPredicateFull predicateFull    ;
+	final Predicate<Object>      predicateHandle  ; // more used for logging stuff than for filtering, see skipping.
 
 	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
 	Object[] iterationHead      = this.iterationTail;
@@ -33,7 +36,8 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		final TraversalPredicateSkip predicateSkip    ,
 		final TraversalPredicateNode predicateNode    ,
 		final TraversalPredicateLeaf predicateLeaf    ,
-		final TraversalPredicateFull predicateFull
+		final TraversalPredicateFull predicateFull    ,
+		final Predicate<Object>      predicateHandle
 	)
 	{
 		super();
@@ -43,6 +47,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		this.predicateNode     = predicateNode    ;
 		this.predicateLeaf     = predicateLeaf    ;
 		this.predicateFull     = predicateFull    ;
+		this.predicateHandle   = predicateHandle  ;
 	}
 	
 	
@@ -82,7 +87,8 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			return;
 		}
-						
+		
+		// (23.08.2017 TM)FIXME: must implement a stack instead of a queue or bigger graphs will always flood the memory
 		if(this.iterationHeadIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
 		{
 			this.increaseIterationQueue();
@@ -136,7 +142,12 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			while(true)
 			{
-				final Object                instance  = this.dequeue();
+				final Object instance = this.dequeue();
+				if(this.predicateHandle != null && !this.predicateHandle.test(instance))
+				{
+					continue;
+				}
+				
 				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
 				
 				if(this.predicateLeaf != null && this.predicateLeaf.isLeaf(instance))
@@ -169,7 +180,12 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			while(true)
 			{
-				final Object                instance  = this.dequeue();
+				final Object instance = this.dequeue();
+				if(this.predicateHandle != null && !this.predicateHandle.test(instance))
+				{
+					continue;
+				}
+				
 				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
 				
 				if(this.predicateFull != null && this.predicateFull.isFull(instance))
@@ -202,7 +218,12 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			while(true)
 			{
-				final Object                instance  = this.dequeue();
+				final Object instance = this.dequeue();
+				if(this.predicateHandle != null && !this.predicateHandle.test(instance))
+				{
+					continue;
+				}
+				
 				final TypeTraverser<Object> traverser = this.traverserProvider.provide(instance);
 				
 				if(this.predicateFull != null && this.predicateFull.isFull(instance))

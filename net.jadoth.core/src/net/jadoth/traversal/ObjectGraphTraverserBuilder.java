@@ -146,6 +146,15 @@ public interface ObjectGraphTraverserBuilder
 	public <T> ObjectGraphTraverserBuilder mutate(Class<T> type, Function<? super T, ?> logic);
 	
 	
+	public ObjectGraphTraverserBuilder initializerLogic(Runnable logic);
+	
+	public Runnable initializerLogic();
+	
+	
+	public ObjectGraphTraverserBuilder finalizerLogic(Runnable logic);
+	
+	public Runnable finalizerLogic();
+	
 
 	
 	public default ObjectGraphTraverserBuilder root(final Object root)
@@ -187,6 +196,10 @@ public interface ObjectGraphTraverserBuilder
 	public TraversalMutator provideMutator();
 	
 	public XGettingSet<Object> provideSkippedInstances();
+	
+	public Predicate<Object> predicateHandle();
+	
+	public ObjectGraphTraverserBuilder predicateHandle(Predicate<Object> predicate);
 	
 	
 	
@@ -309,6 +322,10 @@ public interface ObjectGraphTraverserBuilder
 		private TraversalMode                                      traversalMode             ;
 		private TraversalReferenceHandlerProvider                  referenceHandlerProvider  ;
 		private Object[]                                           roots                     ;
+		private Predicate<Object>                                  predicateHandle           ;
+		
+		private Runnable                                           initializerLogic          ;
+		private Runnable                                           finalizerLogic            ;
 		
 		
 		
@@ -337,6 +354,46 @@ public interface ObjectGraphTraverserBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder initializerLogic(final Runnable logic)
+		{
+			this.initializerLogic = logic;
+			return this;
+		}
+		
+		@Override
+		public synchronized Runnable initializerLogic()
+		{
+			return this.initializerLogic;
+		}
+		
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder finalizerLogic(final Runnable logic)
+		{
+			this.finalizerLogic = logic;
+			return this;
+		}
+		
+		@Override
+		public synchronized Runnable finalizerLogic()
+		{
+			return this.finalizerLogic;
+		}
+		
+		@Override
+		public synchronized Predicate<Object> predicateHandle()
+		{
+			return this.predicateHandle;
+		}
+		
+		@Override
+		public synchronized ObjectGraphTraverserBuilder predicateHandle(final Predicate<Object> predicate)
+		{
+			this.predicateHandle = predicate;
+			return this;
+		}
 		
 		@Override
 		public synchronized TraversalFilter<TraversalPredicateSkip> skip()
@@ -824,10 +881,13 @@ public interface ObjectGraphTraverserBuilder
 				this.providePredicateNode()           ,
 				this.providePredicateLeaf()           ,
 				this.providePredicateFull()           ,
+				this.predicateHandle()                ,
 				this.provideAcceptor()                ,
 				this.provideMutator()                 ,
 				this.provideMutationListener()        ,
-				this.provideTraversalMode()
+				this.provideTraversalMode()           ,
+				this.initializerLogic()               ,
+				this.finalizerLogic()
 			);
 		}
 							

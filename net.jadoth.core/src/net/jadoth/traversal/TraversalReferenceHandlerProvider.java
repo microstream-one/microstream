@@ -1,5 +1,7 @@
 package net.jadoth.traversal;
 
+import java.util.function.Predicate;
+
 import net.jadoth.collections.types.XSet;
 
 public interface TraversalReferenceHandlerProvider
@@ -11,6 +13,7 @@ public interface TraversalReferenceHandlerProvider
 		final TraversalPredicateNode predicateNode    ,
 		final TraversalPredicateLeaf predicateLeaf    ,
 		final TraversalPredicateFull predicateFull    ,
+		final Predicate<Object>      predicateHandle  ,
 		final TraversalAcceptor      traversalAcceptor,
 		final TraversalMutator       traversalMutator ,
 		final MutationListener       mutationListener
@@ -33,6 +36,7 @@ public interface TraversalReferenceHandlerProvider
 			final TraversalPredicateNode predicateNode    ,
 			final TraversalPredicateLeaf predicateLeaf    ,
 			final TraversalPredicateFull predicateFull    ,
+			final Predicate<Object>      predicateHandle  ,
 			final TraversalAcceptor      traversalAcceptor,
 			final TraversalMutator       traversalMutator ,
 			final MutationListener       mutationListener
@@ -48,6 +52,7 @@ public interface TraversalReferenceHandlerProvider
 						predicateNode    ,
 						predicateLeaf    ,
 						predicateFull    ,
+						predicateHandle  ,
 						traversalAcceptor,
 						traversalMutator ,
 						mutationListener
@@ -59,6 +64,7 @@ public interface TraversalReferenceHandlerProvider
 						predicateNode    ,
 						predicateLeaf    ,
 						predicateFull    ,
+						predicateHandle  ,
 						traversalMutator ,
 						mutationListener
 					)
@@ -78,6 +84,7 @@ public interface TraversalReferenceHandlerProvider
 				predicateNode    ,
 				predicateLeaf    ,
 				predicateFull    ,
+				predicateHandle  ,
 				effectiveAcceptor
 			);
 		}

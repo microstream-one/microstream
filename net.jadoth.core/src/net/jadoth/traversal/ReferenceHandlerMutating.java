@@ -1,5 +1,7 @@
 package net.jadoth.traversal;
 
+import java.util.function.Predicate;
+
 import net.jadoth.collections.types.XSet;
 
 public final class ReferenceHandlerMutating extends AbstractReferenceHandler
@@ -25,12 +27,13 @@ public final class ReferenceHandlerMutating extends AbstractReferenceHandler
 		final TraversalPredicateNode predicateNode    ,
 		final TraversalPredicateLeaf predicateLeaf    ,
 		final TraversalPredicateFull predicateFull    ,
+		final Predicate<Object>      predicateHandle  ,
 		final TraversalMutator       traversalMutator ,
 		final MutationListener       mutationListener
 		
 	)
 	{
-		super(traverserProvider, alreadyHandled, predicateSkip, predicateNode, predicateLeaf, predicateFull);
+		super(traverserProvider, alreadyHandled, predicateSkip, predicateNode, predicateLeaf, predicateFull, predicateHandle);
 		this.traversalMutator = traversalMutator;
 		this.mutationListener = mutationListener;
 	}

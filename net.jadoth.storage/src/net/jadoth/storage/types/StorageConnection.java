@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
@@ -92,7 +93,18 @@ public interface StorageConnection extends PersistenceStoring
 		this.exportChannels(fileHandler, true);
 	}
 
-	public StorageEntityTypeExportStatistics exportTypes(StorageEntityTypeExportFileProvider exportFileProvider);
+	public default StorageEntityTypeExportStatistics exportTypes(
+		final StorageEntityTypeExportFileProvider exportFileProvider
+	)
+	{
+		return this.exportTypes(exportFileProvider, null);
+	}
+	
+	public StorageEntityTypeExportStatistics exportTypes(
+		StorageEntityTypeExportFileProvider            exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+	);
+	
 
 	public void importFiles(XGettingEnum<File> importFiles);
 
@@ -382,11 +394,14 @@ public interface StorageConnection extends PersistenceStoring
 		}
 
 		@Override
-		public StorageEntityTypeExportStatistics exportTypes(final StorageEntityTypeExportFileProvider exportFileProvider)
+		public StorageEntityTypeExportStatistics exportTypes(
+			final StorageEntityTypeExportFileProvider            exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			)
 		{
 			try
 			{
-				return this.connectionRequestAcceptor.exportTypes(exportFileProvider);
+				return this.connectionRequestAcceptor.exportTypes(exportFileProvider, isExportType);
 			}
 			catch(final InterruptedException e)
 			{

@@ -5,6 +5,7 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.X;
@@ -21,10 +22,7 @@ public interface ObjectGraphTraverser
 		this.traverseAll(Jadoth.array(instance));
 	}
 	
-	public default void traverseAll(final Object[] instances)
-	{
-		throw new RuntimeException("No traversal logic specified"); // (17.07.2017 TM)EXCP: proper exception
-	}
+	public void traverseAll(final Object[] instances);
 	
 	public <A extends TraversalAcceptor> A traverse(A acceptor);
 	
@@ -81,10 +79,13 @@ public interface ObjectGraphTraverser
 		final TraversalPredicateNode                             predicateNode           ,
 		final TraversalPredicateLeaf                             predicateLeaf           ,
 		final TraversalPredicateFull                             predicateFull           ,
+		final Predicate<Object>                                  predicateHandle         ,
 		final TraversalAcceptor                                  traversalAcceptor       ,
 		final TraversalMutator                                   traversalMutator        ,
 		final MutationListener                                   mutationListener        ,
-		final TraversalMode                                      traversalMode
+		final TraversalMode                                      traversalMode           ,
+		final Runnable                                           initializerLogic        ,
+		final Runnable                                           finalizerLogic
 	)
 	{
 		return new ObjectGraphTraverser.Implementation(
@@ -97,10 +98,13 @@ public interface ObjectGraphTraverser
 			predicateNode                                                     ,
 			predicateLeaf                                                     ,
 			predicateFull                                                     ,
+			predicateHandle                                                   ,
 			traversalAcceptor                                                 ,
 			traversalMutator                                                  ,
 			mutationListener                                                  ,
-			traversalMode
+			traversalMode                                                     ,
+			initializerLogic                                                  ,
+			finalizerLogic
 		);
 	}
 	
@@ -117,12 +121,15 @@ public interface ObjectGraphTraverser
 		private final TraversalPredicateNode                             predicateNode           ;
 		private final TraversalPredicateLeaf                             predicateLeaf           ;
 		private final TraversalPredicateFull                             predicateFull           ;
+		private final Predicate<Object>                                  predicateHandle         ;
 		private final TraversalAcceptor                                  traversalAcceptor       ;
 		private final TraversalMutator                                   traversalMutator        ;
 		private final TraversalReferenceHandlerProvider                  referenceHandlerProvider;
 		private final TypeTraverserProvider                              traverserProvider       ;
 		private final MutationListener                                   mutationListener        ;
 		private final TraversalMode                                      traversalMode           ;
+		private final Runnable                                           initializerLogic        ;
+		private final Runnable                                           finalizerLogic          ;
 		
 		
 		
@@ -140,10 +147,13 @@ public interface ObjectGraphTraverser
 			final TraversalPredicateNode                             predicateNode           ,
 			final TraversalPredicateLeaf                             predicateLeaf           ,
 			final TraversalPredicateFull                             predicateFull           ,
+			final Predicate<Object>                                  predicateHandle         ,
 			final TraversalAcceptor                                  traversalAcceptor       ,
 			final TraversalMutator                                   traversalMutator        ,
 			final MutationListener                                   mutationListener        ,
-			final TraversalMode                                      traversalMode
+			final TraversalMode                                      traversalMode           ,
+			final Runnable                                           initializerLogic        ,
+			final Runnable                                           finalizerLogic
 		)
 		{
 			super();
@@ -154,12 +164,15 @@ public interface ObjectGraphTraverser
 			this.predicateNode            = predicateNode           ;
 			this.predicateLeaf            = predicateLeaf           ;
 			this.predicateFull            = predicateFull           ;
+			this.predicateHandle          = predicateHandle         ;
 			this.traversalAcceptor        = traversalAcceptor       ;
 			this.traversalMutator         = traversalMutator        ;
 			this.referenceHandlerProvider = referenceHandlerProvider;
 			this.traverserProvider        = traverserProvider       ;
 			this.mutationListener         = mutationListener        ;
 			this.traversalMode            = traversalMode           ;
+			this.initializerLogic         = initializerLogic        ;
+			this.finalizerLogic           = finalizerLogic          ;
 		}
 		
 		
@@ -175,6 +188,11 @@ public interface ObjectGraphTraverser
 			final MutationListener  mutationListener
 		)
 		{
+			if(this.initializerLogic != null)
+			{
+				this.initializerLogic.run();
+			}
+			
 			final AbstractReferenceHandler referenceHandler = this.referenceHandlerProvider.provideReferenceHandler(
 				this.alreadyHandledProvider.apply(this.skipped),
 				this.traverserProvider                         ,
@@ -182,11 +200,17 @@ public interface ObjectGraphTraverser
 				this.predicateNode                             ,
 				this.predicateLeaf                             ,
 				this.predicateFull                             ,
+				this.predicateHandle                           ,
 				traversalAcceptor                              ,
 				traversalMutator                               ,
 				mutationListener
 			);
 			this.traversalMode.handle(instances, referenceHandler);
+			
+			if(this.finalizerLogic != null)
+			{
+				this.finalizerLogic.run();
+			}
 		}
 		
 		
@@ -195,6 +219,17 @@ public interface ObjectGraphTraverser
 		{
 			this.internalTraverseAll(
 				this.roots            ,
+				this.traversalAcceptor,
+				this.traversalMutator ,
+				this.mutationListener
+			);
+		}
+		
+		@Override
+		public void traverseAll(final Object[] instances)
+		{
+			this.internalTraverseAll(
+				instances             ,
 				this.traversalAcceptor,
 				this.traversalMutator ,
 				this.mutationListener
