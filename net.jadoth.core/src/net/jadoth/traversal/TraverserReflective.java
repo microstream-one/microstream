@@ -38,6 +38,12 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		return this.type;
 	}
 	
+	// central debugging method, should be inlined by JIT.
+	private static void storeToField(final Field field, final Object instance, final Object value)
+	{
+		JadothReflect.setFieldValue(field, instance, value);
+	}
+	
 	@Override
 	public final void traverseReferences(
 		final T                 instance,
@@ -107,7 +113,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 						}
 					}
 					// actual setting must occur at the end for consistency with collection handling
-					JadothReflect.setFieldValue(fields[i], instance, returned);
+					storeToField(fields[i], instance, returned);
 				}
 			}
 		}
@@ -148,7 +154,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 						}
 					}
 					// actual setting must occur at the end for consistency with collection handling
-					JadothReflect.setFieldValue(fields[i], instance, returned);
+					storeToField(fields[i], instance, returned);
 				}
 			}
 		}
@@ -203,7 +209,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 						mutationListener.registerChange(instance, current, returned);
 					}
 					// actual setting must occur at the end for consistency with collection handling
-					JadothReflect.setFieldValue(fields[i], instance, returned);
+					storeToField(fields[i], instance, returned);
 				}
 			}
 		}
@@ -237,7 +243,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 						mutationListener.registerChange(instance, current, returned);
 					}
 					// actual setting must occur at the end for consistency with collection handling
-					JadothReflect.setFieldValue(fields[i], instance, returned);
+					storeToField(fields[i], instance, returned);
 				}
 			}
 		}

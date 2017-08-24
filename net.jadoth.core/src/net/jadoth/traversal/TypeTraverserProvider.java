@@ -96,11 +96,6 @@ public interface TypeTraverserProvider
 				
 		protected final TypeTraverser<?> internalProvideTraversalHandler(final Object instance)
 		{
-			if(instance == null)
-			{
-				return null;
-			}
-			
 			if(this.traversersPerInstance != null)
 			{
 				final TypeTraverser<?> perInstanceHandler;

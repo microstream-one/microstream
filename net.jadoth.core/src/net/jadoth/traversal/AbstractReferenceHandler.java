@@ -7,6 +7,26 @@ import net.jadoth.collections.types.XSet;
 public abstract class AbstractReferenceHandler implements TraversalReferenceHandler
 {
 	///////////////////////////////////////////////////////////////////////////
+	// constants        //
+	/////////////////////
+	
+	static final int SEGMENT_SIZE = 50;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	static final Object[] createIterationSegment()
+	{
+		// one trailing slot as a pointer to the next segment array. Both hacky and elegant.
+		return new Object[SEGMENT_SIZE + 1];
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
@@ -18,11 +38,11 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	final TraversalPredicateFull predicateFull    ;
 	final Predicate<Object>      predicateHandle  ; // more used for logging stuff than for filtering, see skipping.
 
-	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
-	Object[] iterationHead      = this.iterationTail;
-	boolean  tailIsHead         = true;
-	int      iterationTailIndex;
-	int      iterationHeadIndex;
+	Object[] head          ;
+	Object[] lastHead      ;
+	Object[] enqueueSegment;
+	int      enqueueIndex  ;
+	int      dequeueIndex  ;
 	
 	
 	
@@ -48,6 +68,15 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		this.predicateLeaf     = predicateLeaf    ;
 		this.predicateFull     = predicateFull    ;
 		this.predicateHandle   = predicateHandle  ;
+		
+		
+		this.enqueueSegment = this.head = createIterationSegment();
+		this.lastHead = createIterationSegment();
+		setNextSegment(this.enqueueSegment, this.lastHead);
+//		JadothConsole.debugln("terminating segment is " + Jadoth.systemString(this.lastHead));
+//		JadothConsole.debugln("first enqueue segment is " + Jadoth.systemString(this.enqueueSegment));
+		this.enqueueIndex = -1;
+		this.dequeueIndex = SEGMENT_SIZE;
 	}
 	
 	
@@ -62,13 +91,14 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		return this.alreadyHandled.add(instance);
 	}
 	
-	final void increaseIterationQueue()
+	private static void setNextSegment(final Object[] previousSegment, final Object[] nextSegment)
 	{
-		final Object[] nextIterationSegment = ObjectGraphTraverser.Implementation.createIterationSegment();
-		this.iterationHead[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]    = nextIterationSegment    ;
-		this.iterationHead      = nextIterationSegment;
-		this.iterationHeadIndex = 0                   ;
-		this.tailIsHead         = false               ;
+		previousSegment[SEGMENT_SIZE] = nextSegment;
+	}
+	
+	private static Object[] getNextSegment(final Object[] previousSegment)
+	{
+		return (Object[])previousSegment[SEGMENT_SIZE];
 	}
 	
 	@Override
@@ -88,41 +118,130 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 			return;
 		}
 		
-		// (23.08.2017 TM)FIXME: must implement a stack instead of a queue or bigger graphs will always flood the memory
-		if(this.iterationHeadIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
+		if(++this.enqueueIndex >= SEGMENT_SIZE)
 		{
-			this.increaseIterationQueue();
+			this.addEnqueuingSegment();
 		}
-		this.iterationHead[this.iterationHeadIndex++] = instance;
+//		JadothConsole.debugln("enqueuing to " + Jadoth.systemString(this.enqueueSegment) + "[" + this.enqueueIndex + "] = " + instance);
+		this.enqueueSegment[this.enqueueIndex] = instance;
 	}
-				
+	
+	final void addEnqueuingSegment()
+	{
+		final Object[] newSegment = createIterationSegment();
+		if(this.lastHead == null)
+		{
+			// switch to enqueuing mode and set the hint for the dequeuing logic
+			this.lastHead     = this.head   ;
+			this.head         = newSegment  ;
+			this.dequeueIndex = SEGMENT_SIZE; // must be SIZE because of the pre-check preincrement!
+//			JadothConsole.debugln("switch to enqueue mode. enqueueIndex = " + 0);
+		}
+		else
+		{
+			setNextSegment(this.enqueueSegment, newSegment);
+		}
+		setNextSegment(newSegment, this.lastHead);
+//		JadothConsole.debugln(
+//			"(" + Integer.toHexString(System.identityHashCode(this.enqueueSegment)) + ") - " +
+//			"(" + Integer.toHexString(System.identityHashCode(newSegment)) + ") - " +
+//			"(" + Integer.toHexString(System.identityHashCode(this.lastHead)) + ")"
+//		);
+		this.enqueueSegment = newSegment;
+		this.enqueueIndex   = 0;
+	}
+	
+	private void scrollToNextDequeueItem()
+	{
+		final Object[] seg = this.head;
+		int i = this.dequeueIndex;
+		while(++i < SEGMENT_SIZE)
+		{
+			if(seg[i] != null)
+			{
+				this.dequeueIndex = i;
+				return;
+			}
+		}
+		this.advanceHeadSegment(getNextSegment(this.head));
+	}
+					
 	private Object dequeue()
 	{
-		if(this.tailIsHead)
+		// this indicates either a completely processed segment or a segment change via enqueue
+		if(++this.dequeueIndex >= SEGMENT_SIZE)
 		{
-			this.checkForCompletion();
+			this.updateDequeueSegment();
 		}
-		if(this.iterationTailIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
+		if(this.head[this.dequeueIndex] == null)
 		{
-			this.advanceSegment();
+			this.scrollToNextDequeueItem();
 		}
 		
-		return this.iterationTail[this.iterationTailIndex++];
+		final Object next = this.head[this.dequeueIndex];
+		this.head[this.dequeueIndex] = null;
+		
+//		JadothConsole.debugln(
+//			"dequeuing from " + Jadoth.systemString(this.head) + "[" + this.dequeueIndex + "] = " + Jadoth.systemString(next)
+//		);
+		return next;
 	}
-		
-	final void checkForCompletion()
+	
+	private void updateDequeueSegment()
 	{
-		if(this.iterationTailIndex >= this.iterationHeadIndex)
+		if(this.lastHead != null)
 		{
-			ObjectGraphTraverser.signalAbortTraversal();
+			// switch to dequeue mode
+			this.dequeueIndex   =            0; // reset dequeueIndex for iterating the current head segment
+			this.lastHead       =         null; // reset mode helper reference (effectively dequeue mode)
+			this.enqueueIndex   = SEGMENT_SIZE; // hint to enqueuing logic. SIZE because of the pre-check preincrement!
+			this.enqueueSegment =         null;
+//			JadothConsole.debugln("switch to dequeue mode. dequeueIndex = " + this.dequeueIndex);
+		}
+		else
+		{
+			// already in dequeuing mode, hence simply advance to the next linked segment
+			this.advanceHeadSegment(getNextSegment(this.head));
+//			JadothConsole.debugln("next dequeue segment. dequeueIndex = " + this.dequeueIndex);
 		}
 	}
 	
-	final void advanceSegment()
+	final void advanceHeadSegment(final Object[] passed)
 	{
-		this.iterationTail      = (Object[])this.iterationTail[ObjectGraphTraverser.Implementation.SEGMENT_SIZE];
-		this.iterationTailIndex = 0;
-		this.tailIsHead         = this.iterationTail == this.iterationHead;
+		Object[] seg = passed;
+		
+		outer:
+		while(true)
+		{
+			// if there is no more segment, the traversal is complete
+			if(seg == null)
+			{
+				ObjectGraphTraverser.signalAbortTraversal();
+				return; // effectively unreachable return, just to satisfy the compiler
+			}
+			else if(seg[0] != null)
+			{
+				// quick-check for the common case
+				this.dequeueIndex = 0;
+				break outer;
+			}
+
+			// scan current segument for next item
+			int i = 0;
+			while(++i < SEGMENT_SIZE)
+			{
+				if(seg[i] != null)
+				{
+					this.dequeueIndex = i;
+					break outer;
+				}
+			}
+
+			// current segment was completely empty, so move to the next
+			seg = getNextSegment(seg);
+		}
+
+		this.head = seg;
 	}
 
 	private void enqueueAll(final Object[] instances)

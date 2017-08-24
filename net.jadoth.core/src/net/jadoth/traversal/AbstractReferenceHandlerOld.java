@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XSet;
 
-public abstract class AbstractReferenceHandler2 implements TraversalReferenceHandler
+public abstract class AbstractReferenceHandlerOld implements TraversalReferenceHandler
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -18,11 +18,11 @@ public abstract class AbstractReferenceHandler2 implements TraversalReferenceHan
 	final TraversalPredicateFull predicateFull    ;
 	final Predicate<Object>      predicateHandle  ; // more used for logging stuff than for filtering, see skipping.
 
-	Object[] head   ;
-	Object[] enqueue = this.head = ObjectGraphTraverser.Implementation.createIterationSegment();
-	Object[] dequeue = null;
-	int      enqueueIndex;
-	int      dequeueIndex;
+	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
+	Object[] iterationHead      = this.iterationTail;
+	boolean  tailIsHead         = true;
+	int      iterationTailIndex;
+	int      iterationHeadIndex;
 	
 	
 	
@@ -30,7 +30,7 @@ public abstract class AbstractReferenceHandler2 implements TraversalReferenceHan
 	// constructors //
 	/////////////////
 	
-	AbstractReferenceHandler2(
+	AbstractReferenceHandlerOld(
 		final TypeTraverserProvider  traverserProvider,
 		final XSet<Object>           alreadyHandled   ,
 		final TraversalPredicateSkip predicateSkip    ,
@@ -64,7 +64,11 @@ public abstract class AbstractReferenceHandler2 implements TraversalReferenceHan
 	
 	final void increaseIterationQueue()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractReferenceHandler2#increaseIterationQueue()
+		final Object[] nextIterationSegment = ObjectGraphTraverser.Implementation.createIterationSegment();
+		this.iterationHead[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]    = nextIterationSegment    ;
+		this.iterationHead      = nextIterationSegment;
+		this.iterationHeadIndex = 0                   ;
+		this.tailIsHead         = false               ;
 	}
 	
 	@Override
@@ -84,62 +88,41 @@ public abstract class AbstractReferenceHandler2 implements TraversalReferenceHan
 			return;
 		}
 		
-		if(this.enqueueIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
+		// (23.08.2017 TM)FIXME: must implement a stack instead of a queue or bigger graphs will always flood the memory
+		if(this.iterationHeadIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
 		{
 			this.increaseIterationQueue();
 		}
-		this.enqueue[this.enqueueIndex++] = instance;
+		this.iterationHead[this.iterationHeadIndex++] = instance;
 	}
-					
+				
 	private Object dequeue()
 	{
-		// this indicates either a completely processed segment or a segment change via enqueue
-		if(this.dequeueIndex >= ObjectGraphTraverser.Implementation.SEGMENT_LAST_INDEX)
+		if(this.tailIsHead)
 		{
-			this.advanceSegment((Object[])this.dequeue[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]);
+			this.checkForCompletion();
 		}
-		return this.dequeue[++this.dequeueIndex];
-	}
-	
-	final void updateDequeueSegment()
-	{
-		if(this.dequeue != this.head)
+		if(this.iterationTailIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
 		{
-			this.advanceSegment(this.head);
-		}
-		else
-		{
-			this.advanceSegment((Object[])this.dequeue[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]);
-		}
-	}
-	
-	final void advanceSegment(final Object[] passed)
-	{
-		for(Object[] seg = passed; seg != null; seg = (Object[])seg[ObjectGraphTraverser.Implementation.SEGMENT_SIZE])
-		{
-			// quick-check for the common case
-			if(seg[0] != null)
-			{
-				this.dequeue = this.head = seg;
-				this.dequeueIndex = -1;
-				return;
-			}
-			
-			// scan current segument for next item
-			int i = 0;
-			while(++i < ObjectGraphTraverser.Implementation.SEGMENT_LAST_INDEX)
-			{
-				if(seg[i] != null)
-				{
-					this.dequeue = this.head = seg;
-					this.dequeueIndex = i - 1;
-					return;
-				}
-			}
+			this.advanceSegment();
 		}
 		
-		// if there is no more segment, the traversal is complete
-		ObjectGraphTraverser.signalAbortTraversal();
+		return this.iterationTail[this.iterationTailIndex++];
+	}
+		
+	final void checkForCompletion()
+	{
+		if(this.iterationTailIndex >= this.iterationHeadIndex)
+		{
+			ObjectGraphTraverser.signalAbortTraversal();
+		}
+	}
+	
+	final void advanceSegment()
+	{
+		this.iterationTail      = (Object[])this.iterationTail[ObjectGraphTraverser.Implementation.SEGMENT_SIZE];
+		this.iterationTailIndex = 0;
+		this.tailIsHead         = this.iterationTail == this.iterationHead;
 	}
 
 	private void enqueueAll(final Object[] instances)
