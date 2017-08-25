@@ -10,13 +10,18 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.objectstate.ObjectStateDescriptor;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.BinaryFieldLengthResolver;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationArrayType;
+import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
+import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
@@ -33,6 +38,40 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	defineValueType(final Class<?> valueType)
 	{
 		return X.Constant(pseudoField(valueType, "value"));
+	}
+	
+	
+	
+	public static final PersistenceTypeDescriptionMemberField declaredField(final Class<?> clazz, final String fieldName)
+	{
+		final Field field = JadothReflect.getDeclaredField(clazz, fieldName);
+		return declaredField(field, new BinaryFieldLengthResolver.Implementation());
+	}
+	
+	public static final PersistenceTypeDescriptionMemberField declaredField(final Field field)
+	{
+		return declaredField(field, new BinaryFieldLengthResolver.Implementation());
+	}
+	
+	public static final PersistenceTypeDescriptionMemberField declaredField(
+		final Field                          field         ,
+		final PersistenceFieldLengthResolver lengthResolver
+	)
+	{
+		return PersistenceTypeDescriptionMemberField.New(
+			field.getType().getName(),
+			field.getName(),
+			field.getDeclaringClass().getName(),
+			!field.getType().isPrimitive(),
+			lengthResolver.resolveMinimumLengthFromField(field),
+			lengthResolver.resolveMaximumLengthFromField(field)
+		);
+	}
+	
+	public static final XImmutableSequence<PersistenceTypeDescriptionMemberField>
+	declaredFields(final PersistenceTypeDescriptionMemberField... declaredFields)
+	{
+		return X.ConstList(declaredFields);
 	}
 
 	public static final PersistenceTypeDescriptionMemberPseudoField pseudoField(
@@ -93,7 +132,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields;
+	private final XImmutableSequence<? extends PersistenceTypeDescriptionMember> pseudoFields;
 
 
 
@@ -104,7 +143,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	public AbstractBinaryHandlerNative(
 		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> pseudoFields
 	)
 	{
 		super(type, typeId);
@@ -129,7 +168,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 	
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> members()
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
 	{
 		return this.pseudoFields;
 	}
