@@ -15,12 +15,12 @@ implements PersistenceTypeHandlerCustom<Binary, T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeCustom(
-		final long                                                         typeId      ,
-		final Class<T>                                                     type        ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> pseudoFields
+		final long                                                         typeId,
+		final Class<T>                                                     type  ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
-		super(typeId, type, pseudoFields);
+		super(typeId, type, fields);
 	}
 
 }

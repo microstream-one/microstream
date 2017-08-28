@@ -132,7 +132,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final XImmutableSequence<? extends PersistenceTypeDescriptionMember> pseudoFields;
+	private final XImmutableSequence<? extends PersistenceTypeDescriptionMember> fields;
 
 
 
@@ -141,13 +141,13 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNative(
-		final long                                                                    typeId      ,
-		final Class<T>                                                                type        ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> pseudoFields
+		final long                                                         typeId,
+		final Class<T>                                                     type  ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
 		super(type, typeId);
-		this.pseudoFields = pseudoFields.immure();
+		this.fields = fields.immure();
 	}
 
 
@@ -170,7 +170,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	@Override
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
 	{
-		return this.pseudoFields;
+		return this.fields;
 	}
 
 	@Override
