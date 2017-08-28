@@ -20,7 +20,7 @@ extends AbstractBinaryHandlerNativeCustomValue<T>
 		super(typeId, type, fields);
 	}
 	
-	
+	// damn git
 	
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
