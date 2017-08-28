@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.memory.Chunks;
@@ -25,9 +26,18 @@ public interface StorageRequestTaskCreator
 	
 	public StorageRequestTaskLoadByTids createLoadTaskByTids(SwizzleIdSet loadTids, int channelCount);
 
+	public default StorageRequestTaskExportEntitiesByType createExportTypesTask(
+		final int                                 channelCount      ,
+		final StorageEntityTypeExportFileProvider exportFileProvider
+	)
+	{
+		return this.createExportTypesTask(channelCount, exportFileProvider, null);
+	}
+	
 	public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-		int                                 channelCount      ,
-		StorageEntityTypeExportFileProvider exportFileProvider
+		int                                            channelCount      ,
+		StorageEntityTypeExportFileProvider            exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler<?>> isExportType
 	);
 
 	public StorageRequestTaskExportChannels createTaskExportChannels(
@@ -176,20 +186,22 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-			final int                                 channelCount      ,
-			final StorageEntityTypeExportFileProvider exportFileProvider
+			final int                                            channelCount      ,
+			final StorageEntityTypeExportFileProvider            exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
 		)
 		{
 			return new StorageRequestTaskExportEntitiesByType.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
-				exportFileProvider
+				exportFileProvider                           ,
+				isExportType
 			);
 		}
 
 		@Override
 		public StorageRequestTaskExportChannels createTaskExportChannels(
-			final int                channelCount,
+			final int              channelCount,
 			final StorageIoHandler fileHandler
 		)
 		{

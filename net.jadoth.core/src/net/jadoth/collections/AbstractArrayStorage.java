@@ -3400,13 +3400,13 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int rangedReplace(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final E sample,
-		final E newElement,
+	public static final <E> long rangedReplace(
+		final E[]                  data      ,
+		final int                  size      ,
+		final int                  offset    ,
+		final int                  length    ,
+		final E                    sample    ,
+		final E                    newElement,
 		final Equalator<? super E> equalator
 	)
 	{
@@ -3417,7 +3417,7 @@ public abstract class AbstractArrayStorage
 		}
 		final int endIndex = offset + length - d;
 
-		int replaceCount = 0;
+		long replaceCount = 0;
 		for(int i = offset - d; i != endIndex;)
 		{
 			if(equalator.equal(data[i += d], sample))
@@ -3429,14 +3429,14 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int substitute(
+	public static final <E> long substitute(
 		final E[] data,
 		final int size,
 		final Predicate<? super E> predicate,
 		final E newElement
 	)
 	{
-		int replaceCount = 0;
+		long replaceCount = 0;
 		try
 		{
 			for(int i = 0; i < size; i++)
@@ -3630,9 +3630,13 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int modify(final E[] data, final int size, final Function<E, E> mapper)
+	public static final <E> long substitute(
+		final E[]                              data  ,
+		final int                              size  ,
+		final Function<? super E, ? extends E> mapper
+	)
 	{
-		int replaceCount = 0;
+		long replaceCount = 0;
 		for(int i = 0; i < size; i++)
 		{
 			if(data[i] != (data[i] = mapper.apply(data[i])))
@@ -3644,14 +3648,14 @@ public abstract class AbstractArrayStorage
 		return replaceCount;
 	}
 
-	public static final <E> int modify(
-		final E[] data,
-		final int size,
+	public static final <E> long substitute(
+		final E[]                  data     ,
+		final int                  size     ,
 		final Predicate<? super E> predicate,
-		final Function<E, E> mapper
+		final Function<E, E>       mapper
 	)
 	{
-		int replaceCount = 0;
+		long replaceCount = 0;
 		try
 		{
 			for(int i = 0; i < size; i++)

@@ -1049,15 +1049,15 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 //	}
 
 	@Override
-	public long substitute(final Function<E, E> mapper)
+	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
-		return AbstractArrayStorage.modify(this.data, this.size, mapper);
+		return AbstractArrayStorage.substitute(this.data, this.size, mapper);
 	}
 
 	@Override
 	public long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		return AbstractArrayStorage.modify(this.data, this.size, predicate, mapper);
+		return AbstractArrayStorage.substitute(this.data, this.size, predicate, mapper);
 	}
 
 //	@Override

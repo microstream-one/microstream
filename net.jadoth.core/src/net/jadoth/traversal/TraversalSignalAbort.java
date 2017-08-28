@@ -34,5 +34,5 @@ public final class TraversalSignalAbort extends AbstractTraversalSignal
 	{
 		super();
 	}
-	
+		
 }

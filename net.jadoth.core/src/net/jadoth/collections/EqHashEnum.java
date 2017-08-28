@@ -6,6 +6,7 @@ import static net.jadoth.Jadoth.notNull;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -304,40 +305,13 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	protected void internalRemoveEntry(final ChainEntryLinkedHashedStrong<E> element)
+	protected void internalRemoveEntry(final ChainEntryLinkedHashedStrong<E> entry)
 	{
-		// set only creates SetEntries internally, so this cast is safe.
-		final ChainEntryLinkedHashedStrong<E> setEntry = element;
-		ChainEntryLinkedHashedStrong<E> last, e = this.slots[setEntry.hash & this.range];
-
-		// remove element from hashing chain
-		if(e == setEntry)
-		{
-			// head element special case
-			this.slots[setEntry.hash & this.range] = setEntry.link;
-		}
-		else
-		{
-			while((e = (last = e).link) != null)
-			{
-				if(e == setEntry)
-				{
-					last.link = setEntry.link;
-					break;
-				}
-			}
-			// consistency check (passed element e may not be contained in the hash chain at all)
-			if(e == null)
-			{
-				throw new IllegalArgumentException("Set element inconsistency detected");
-			}
-		}
-
-		// remove element e (unlink and disjoin)
+		this.internalUnhashByEntry(entry);
 		this.size--;
-		this.chain.disjoinEntry(setEntry);
+		this.chain.disjoinEntry(entry);
 	}
-
+	
 	@Override
 	protected int internalClear()
 	{
@@ -594,7 +568,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	public final E substitute(final E element)
+	public final E deduplicate(final E element)
 	{
 		final int hash;
 		for(ChainEntryLinkedHashedStrong<E> e = this.slots[(hash = this.hashEqualator.hash(element)) & this.range]; e != null; e = e.link)
@@ -1070,13 +1044,111 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final long remove(final E element)
 	{
-		return this.chain.remove(element, this.hashEqualator);
+		final ChainEntryLinkedHashedStrong<E> e = this.internalUnhashByElement(element);
+		if(e == null)
+		{
+			// element not contained in this collection instance.
+			return 0;
+		}
+
+		// disjoinEntry entry from chain
+		this.size--;
+		this.chain.disjoinEntry(e);
+		return 1;
+	}
+		
+	@Override
+	public long substitute(final Function<? super E, ? extends E> mapper)
+	{
+		return this.chain.substitute(mapper, this::replace);
+	}
+		
+	final void replace(final ChainEntryLinkedHashedStrong<E> oldEntry, final E newElement)
+	{
+		final int newHash = this.hashEqualator.hash(newElement);
+		for(ChainEntryLinkedHashedStrong<E> e = this.slots[newHash & this.range]; e != null; e = e.link)
+		{
+			if(e.hash == newHash && this.hashEqualator.equal(e.element, newElement))
+			{
+				if(e == oldEntry)
+				{
+					// simple case: the old entry's element gets replaced by a hash-equivalent new one.
+					e.element = newElement;
+					return;
+				}
+			}
+		}
+		
+		/* complex case:
+		 * Either a hash-conflicting entry's element has to be replaced with the new element
+		 * or a new entry has to be created for the new element.
+		 * In either case, the oldEntry has to be removed and the replacing entry has to move to
+		 * the old entry's position in the sequence chain.
+		 * Also, link chains have to be updated accordingly and the first case even reduces the collection's
+		 * size by 1, while the second case keeps it constant.
+		 * Quite the complication.
+		 */
+		
+		throw new UnsupportedOperationException("Hash-changing replacement not supported, yet.");
+	}
+		
+	// (21.08.2017 TM)NOTE: improved element removal
+	private ChainEntryLinkedHashedStrong<E> internalUnhashByElement(final E element)
+	{
+		ChainEntryLinkedHashedStrong<E> last, e = this.slots[this.hashEqualator.hash(element) & this.range];
+
+		// remove element from hashing chain
+		if(e.element == element)
+		{
+			// head element special case
+			this.slots[this.hashEqualator.hash(element) & this.range] = e.link;
+			return e;
+		}
+
+		// sift through hash chain
+		while((e = (last = e).link) != null)
+		{
+			if(e.element == element)
+			{
+				// element found in the hash chain
+				last.link = e.link;
+				return e;
+			}
+		}
+
+		// element not contained in the this collection instance.
+		return null;
+	}
+	
+	private void internalUnhashByEntry(final ChainEntryLinkedHashedStrong<E> entry)
+	{
+		// set only creates SetEntries internally, so this cast is safe.
+		ChainEntryLinkedHashedStrong<E> last, e = this.slots[entry.hash & this.range];
+
+		// remove element from hashing chain
+		if(e == entry)
+		{
+			// head element special case
+			this.slots[entry.hash & this.range] = entry.link;
+			return;
+		}
+		
+		while((e = (last = e).link) != null)
+		{
+			if(e == entry)
+			{
+				last.link = entry.link;
+				return;
+			}
+		}
+		
+		throw new IllegalArgumentException("Set element inconsistency detected");
 	}
 
 	@Override
 	public final long nullRemove()
 	{
-		return 0; // cannot remove a null element because it can never be contained (only null key or null values)
+		return this.remove(null);
 	}
 
 	// reducing //

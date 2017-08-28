@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
 
 public abstract class AbstractBinaryHandlerNativeCustomValueFixedLength<T>
@@ -11,21 +11,21 @@ extends AbstractBinaryHandlerNativeCustomValue<T>
 	// constructors     //
 	/////////////////////
 
-	protected AbstractBinaryHandlerNativeCustomValueFixedLength(
-		final long                                                                    typeId      ,
-		final Class<T>                                                                type        ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+	public AbstractBinaryHandlerNativeCustomValueFixedLength(
+		final long                                                         typeId,
+		final Class<T>                                                     type  ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
-		super(typeId, type, pseudoFields);
+		super(typeId, type, fields);
 	}
 	
 	protected AbstractBinaryHandlerNativeCustomValueFixedLength(
-		final Class<T>                                                                type        ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+		final Class<T>                                                     type  ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
-		super(type, pseudoFields);
+		super(type, fields);
 	}
 	
 	

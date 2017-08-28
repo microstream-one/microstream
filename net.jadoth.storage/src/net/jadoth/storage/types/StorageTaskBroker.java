@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.memory.Chunks;
@@ -24,8 +25,21 @@ public interface StorageTaskBroker
 	public StorageRequestTaskLoadByTids enqueueLoadTaskByTids(SwizzleIdSet loadTids)
 		throws InterruptedException;
 
-	public StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(StorageEntityTypeExportFileProvider exportFileProvider)
+	public default StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
+		final StorageEntityTypeExportFileProvider exportFileProvider
+	)
+		throws InterruptedException
+	{
+		return this.enqueueExportTypesTask(exportFileProvider, null);
+	}
+	
+	public StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
+		StorageEntityTypeExportFileProvider            exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+	)
 		throws InterruptedException;
+	
+	
 
 	public StorageRequestTask enqueueExportChannelsTask(StorageIoHandler fileHandler, boolean performGarbageCollection)
 		throws InterruptedException;
@@ -330,13 +344,15 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
-			final StorageEntityTypeExportFileProvider exportFileProvider
+			final StorageEntityTypeExportFileProvider            exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskExportEntitiesByType task = this.taskCreator.createExportTypesTask(
-				this.channelCount,
-				exportFileProvider
+				this.channelCount ,
+				exportFileProvider,
+				isExportType
 			);
 
 			// must let GC complete to get viable results

@@ -142,7 +142,10 @@ public interface PersistenceRootResolver extends Function<String, Object>
 		public final Object apply(final String input)
 		{
 			final Object overrideInstance = this.identifierOverrides.get(input);
-			return overrideInstance != null ? overrideInstance : DEFAULT_RESOLVER.apply(input);
+			return overrideInstance != null
+				? overrideInstance
+				: DEFAULT_RESOLVER.apply(input)
+			;
 		}
 
 		@Override

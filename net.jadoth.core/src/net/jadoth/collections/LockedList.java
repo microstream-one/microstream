@@ -1057,7 +1057,7 @@ public final class LockedList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final long substitute(final Function<E, E> mapper)
+	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		synchronized(this.lock)
 		{

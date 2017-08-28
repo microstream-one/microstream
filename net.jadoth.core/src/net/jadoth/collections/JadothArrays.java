@@ -1623,11 +1623,16 @@ public final class JadothArrays
 
 	public static final int indexOf(final byte[] data, final byte[] subject)
 	{
+		return indexOf(data, subject, 0);
+	}
+	
+	public static final int indexOf(final byte[] data, final byte[] subject, final int startIndex)
+	{
 		final int  bound     = data.length - subject.length + 1;
 		final byte firstByte = subject[0];
 
 		outer:
-		for(int i = 0; i < bound; i++)
+		for(int i = startIndex; i < bound; i++)
 		{
 			// quick check for fitting first byte
 			if(data[i] != firstByte)

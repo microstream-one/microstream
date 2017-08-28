@@ -474,7 +474,7 @@ public final class XUtilsArrayCollection
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XSettingList<E>>
-	int rngReplace(
+	long rngReplace(
 		final A a,
 		final int offset,
 		final int length,

@@ -1,12 +1,13 @@
 package net.jadoth.collections.types;
 
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.interfaces.ExtendedMap;
 import net.jadoth.collections.old.OldCollection;
-import java.util.function.Consumer;
+import net.jadoth.util.ComponentType;
 import net.jadoth.util.KeyValue;
 
 
@@ -68,7 +69,7 @@ public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyVal
 	// satellite types  //
 	/////////////////////
 
-	public interface Satellite<K, V>
+	public interface Satellite<K, V> extends ComponentType
 	{
 		public XGettingMap<K, V> parent();
 

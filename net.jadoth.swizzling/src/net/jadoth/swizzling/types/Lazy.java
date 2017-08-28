@@ -1,14 +1,7 @@
 package net.jadoth.swizzling.types;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
 import net.jadoth.Jadoth;
 import net.jadoth.reference.LazyReferencing;
-import net.jadoth.traversal.ObjectGraphTraverserFactory;
-import net.jadoth.traversal.TraversalHandler;
-import net.jadoth.traversal.TraversalHandlerCustomProvider;
-import net.jadoth.traversal.TraversalHandlingLogicProvider;
 
 
 /**
@@ -340,79 +333,79 @@ public final class Lazy<T> implements LazyReferencing<T>
 	}
 
 
-	public static <F extends ObjectGraphTraverserFactory> F registerWith(final F objectGraphTraverserFactory)
-	{
-		objectGraphTraverserFactory.registerTraversalHandlerProviderByType(
-			Lazy.genericType(),
-			new TraversalHandlerLazy.Provider()
-		);
-
-		return objectGraphTraverserFactory;
-	}
-
-
-
-	public static final TraversalHandlerCustomProvider<Lazy<?>> TraversalHandlerCustomProvider()
-	{
-		return new TraversalHandlerLazy.Provider();
-	}
-
-
-	// not sure if it's particularly clean or particularly unclean to nest that here instead of in its own file.
-	public static final class TraversalHandlerLazy extends TraversalHandler.AbstractImplementation<Lazy<?>>
-	{
-		protected TraversalHandlerLazy(final Predicate<? super Lazy<?>> logic)
-		{
-			super(logic);
-		}
-
-		@Override
-		public final Class<Lazy<?>> handledType()
-		{
-			return Lazy.genericType();
-		}
-
-		@Override
-		public void traverseReferences(final Lazy<?> instance, final Consumer<Object> referenceHandler)
-		{
-//			if(instance.peek() == null)
+//	public static <F extends ObjectGraphTraverserFactory> F registerWith(final F objectGraphTraverserFactory)
+//	{
+//		objectGraphTraverserFactory.registerTraversalHandlerProviderByType(
+//			Lazy.genericType(),
+//			new TraversalHandlerLazy.Provider()
+//		);
+//
+//		return objectGraphTraverserFactory;
+//	}
+//
+//
+//
+//	public static final TraversalHandlerCustomProvider<Lazy<?>> TraversalHandlerCustomProvider()
+//	{
+//		return new TraversalHandlerLazy.Provider();
+//	}
+//
+//
+//	// not sure if it's particularly clean or particularly unclean to nest that here instead of in its own file.
+//	public static final class TraversalHandlerLazy extends TraversalHandler.AbstractImplementation<Lazy<?>>
+//	{
+//		protected TraversalHandlerLazy(final Predicate<? super Lazy<?>> logic)
+//		{
+//			super(logic);
+//		}
+//
+//		@Override
+//		public final Class<Lazy<?>> handledType()
+//		{
+//			return Lazy.genericType();
+//		}
+//
+//		@Override
+//		public void traverseReferences(final Lazy<?> instance, final Consumer<Object> referenceHandler)
+//		{
+////			if(instance.peek() == null)
+////			{
+////				debugln("loading " + instance.objectId);
+////			}
+//
+//			// the loader reference is a meta helper that is no actual entity, so it is ignored.
+//			referenceHandler.accept(instance.get());
+//		}
+//
+//		public static final class Provider implements TraversalHandlerCustomProvider<Lazy<?>>
+//		{
+//			@Override
+//			public final Class<Lazy<?>> handledType()
 //			{
-//				debugln("loading " + instance.objectId);
+//				return Lazy.genericType();
 //			}
-
-			// the loader reference is a meta helper that is no actual entity, so it is ignored.
-			referenceHandler.accept(instance.get());
-		}
-
-		public static final class Provider implements TraversalHandlerCustomProvider<Lazy<?>>
-		{
-			@Override
-			public final Class<Lazy<?>> handledType()
-			{
-				return Lazy.genericType();
-			}
-
-			@Override
-			public TraversalHandler<Lazy<?>> provideTraversalHandler(
-				final Class<? extends Lazy<?>>       type         ,
-				final TraversalHandlingLogicProvider logicProvider
-			)
-			{
-				/*
-				 * this is guaranteed by the using logic, but just in case.
-				 * Performance doesn't matter in one-time analyzing logic.
-				 */
-				// (06.07.2016 TM)NOTE: javac reports an error here. Probably one of several bugs encountered when trying to use it.
-				if(type != Lazy.class)
-				{
-					throw new IllegalArgumentException();
-				}
-
-				return new TraversalHandlerLazy(logicProvider.provideHandlingLogic(type));
-			}
-
-		}
-
-	}
+//
+//			@Override
+//			public TraversalHandler<Lazy<?>> provideTraversalHandler(
+//				final Class<? extends Lazy<?>>       type         ,
+//				final TraversalHandlingLogicProvider logicProvider
+//			)
+//			{
+//				/*
+//				 * this is guaranteed by the using logic, but just in case.
+//				 * Performance doesn't matter in one-time analyzing logic.
+//				 */
+//				// (06.07.2016 TM)NOTE: javac reports an error here. Probably one of several bugs encountered when trying to use it.
+//				if(type != Lazy.class)
+//				{
+//					throw new IllegalArgumentException();
+//				}
+//
+//				return new TraversalHandlerLazy(logicProvider.provideHandlingLogic(type));
+//			}
+//
+//		}
+//
+//	}
 
 }

@@ -18,7 +18,7 @@ public interface XAddGetSet<E> extends XAddingSet<E>, XGettingSet<E>, XAddGetCol
 
 	public E addGet(E element);
 	
-	public E substitute(E element);
+	public E deduplicate(E element);
 
 	@SuppressWarnings("unchecked")
 	@Override

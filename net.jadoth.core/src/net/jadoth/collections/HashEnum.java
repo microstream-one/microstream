@@ -504,7 +504,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final E substitute(final E element)
+	public final E deduplicate(final E element)
 	{
 		for(ChainEntryLinkedStrong<E> e = this.slots[System.identityHashCode(element) & this.range]; e != null; e = e.link)
 		{
@@ -973,6 +973,41 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final long remove(final E entry)
 	{
 		return this.chain.remove(entry);
+	}
+	
+	@Override
+	public long substitute(final Function<? super E, ? extends E> mapper)
+	{
+		return this.chain.substitute(mapper, this::replace);
+	}
+		
+	final void replace(final ChainEntryLinkedStrong<E> oldEntry, final E newElement)
+	{
+		final int newHash = System.identityHashCode(newElement);
+		for(ChainEntryLinkedStrong<E> e = this.slots[newHash & this.range]; e != null; e = e.link)
+		{
+			if(e.element == newElement)
+			{
+				if(e == oldEntry)
+				{
+					// simple case: the old entry's element gets replaced by a hash-equivalent new one.
+					e.element = newElement;
+					return;
+				}
+			}
+		}
+		
+		/* complex case:
+		 * Either a hash-conflicting entry's element has to be replaced with the new element
+		 * or a new entry has to be created for the new element.
+		 * In either case, the oldEntry has to be removed and the replacing entry has to move to
+		 * the old entry's position in the sequence chain.
+		 * Also, link chains have to be updated accordingly and the first case even reduces the collection's
+		 * size by 1, while the second case keeps it constant.
+		 * Quite the complication.
+		 */
+		
+		throw new UnsupportedOperationException("Hash-changing replacement not supported, yet.");
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 	}
 
 	@Override
-	public  long substitute(final Function<E, E> mapper)
+	public  long substitute(final Function<? super E, ? extends E> mapper)
 	{
 //		return ((XSettingList<E>)this.list).rngReplaceAll(this.startIndex, this.length, replacementMapping);
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet

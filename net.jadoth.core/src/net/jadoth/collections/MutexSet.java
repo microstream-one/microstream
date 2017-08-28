@@ -192,11 +192,11 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public E substitute(final E e)
+	public E deduplicate(final E e)
 	{
 		synchronized(this.mutex)
 		{
-			return this.subject.substitute(e);
+			return this.subject.deduplicate(e);
 		}
 	}
 

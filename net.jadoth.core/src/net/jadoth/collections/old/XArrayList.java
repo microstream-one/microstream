@@ -996,7 +996,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 //	}
 
 	@Override
-	public long substitute(final Function<E, E> mapper)
+	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}

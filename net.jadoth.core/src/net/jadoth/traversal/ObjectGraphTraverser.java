@@ -1,187 +1,269 @@
 package net.jadoth.traversal;
 
 import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.HashTable;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.functional.JadothPredicates;
 
 
-@FunctionalInterface
 public interface ObjectGraphTraverser
 {
+	public void traverse();
+	
 	public default void traverse(final Object instance)
 	{
-		this.traverseAll(Jadoth.array(instance), null);
+		this.traverseAll(Jadoth.array(instance));
 	}
+	
+	public void traverseAll(final Object[] instances);
+	
+	public <A extends TraversalAcceptor> A traverse(A acceptor);
+	
+	public <M extends TraversalMutator> M traverse(M acceptor);
 
-	public default <C extends Consumer<Object>> C traverse(final Object instance, final C matchListener)
+	public default <A extends TraversalAcceptor> A traverse(final Object instance, final A acceptor)
 	{
-		this.traverseAll(Jadoth.array(instance), matchListener);
-		return matchListener;
+		this.traverseAll(Jadoth.array(instance), acceptor);
+		return acceptor;
 	}
-
-	public default void traverseAll(final Object[] instances)
+	
+	public default <C extends Consumer<Object>> C traverse(final Object instance, final C logic)
 	{
-		this.traverseAll(instances, null);
+		this.traverse(instance, TraversalAcceptor.New(logic));
+		return logic;
 	}
-
-	public <C extends Consumer<Object>> C traverseAll(Object[] instances, C matchListener);
-
-	public static <C extends Consumer<Object>> C traverseGraph(final Object root, final C matchListener)
+	
+	public default <M extends TraversalMutator> M traverse(final Object instance, final M acceptor)
 	{
-		return traverseGraph(root, JadothPredicates.all(), matchListener);
+		this.traverseAll(Jadoth.array(instance), acceptor);
+		return acceptor;
 	}
-
-	public static <C extends Consumer<Object>> C traverseGraph(
-		final Object            root         ,
-		final Predicate<Object> filter       ,
-		final C                 matchListener
-	)
+	
+	public default <F extends Function<Object, Object>> F traverse(final Object instance, final F logic)
 	{
-		final ObjectGraphTraverser traverser = ObjectGraphTraverser.Factory()
-			.setHandlingLogic(filter)
-			.buildObjectGraphTraverser()
-		;
-		traverser.traverse(root, matchListener);
-
-		return matchListener;
-	}
-
-	public static <T, C extends Consumer<? super T>> C traverseGraph(
-		final Object              root         ,
-		final Predicate<Object>   filter       ,
-		final Function<Object, T> projector    ,
-		final C                   matchListener
-	)
-	{
-		final ObjectGraphTraverser traverser = ObjectGraphTraverser.Factory()
-			.setHandlingLogic(filter)
-			.buildObjectGraphTraverser()
-		;
-		traverser.traverse(root, e -> matchListener.accept(projector.apply(e)));
-
-		return matchListener;
-	}
-
-	public static <T, C extends Consumer<? super T>> C selectFromGraph(
-		final Object               root         ,
-		final Class<T>             filterType   ,
-		final Predicate<? super T> instanceFilter ,
-		final C                    matchListener
-	)
-	{
-		final ObjectGraphTraverser traverser = ObjectGraphTraverser.Factory()
-			.setHandlingLogic(e -> filterType.isInstance(e) && instanceFilter.test(filterType.cast(e)))
-			.buildObjectGraphTraverser()
-		;
-		traverser.traverse(root, e -> matchListener.accept(filterType.cast(e)));
-
-		return matchListener;
-	}
-
-	public static <T> XList<T> selectFromGraph(
-		final Object               root         ,
-		final Class<T>             filterType   ,
-		final Predicate<? super T> instanceFilter
-	)
-	{
-		return selectFromGraph(root, filterType, instanceFilter, X.List());
+		this.traverse(instance, TraversalMutator.New(logic));
+		return logic;
 	}
 
 
+	public <A extends TraversalAcceptor> A traverseAll(Object[] instances, A acceptor);
+	
+	public <M extends TraversalMutator> M traverseAll(Object[] instances, M mutator);
+	
+	
 	public static void signalAbortTraversal() throws TraversalSignalAbort
 	{
 		TraversalSignalAbort.fire();
 	}
 
-	public static void signalSkipInstance() throws TraversalSignalSkipInstance
+	
+	public static ObjectGraphTraverserBuilder Builder()
 	{
-		TraversalSignalSkipInstance.fire();
+		return new ObjectGraphTraverserBuilder.Implementation();
 	}
-
-
-
-
-	public static ObjectGraphTraverserFactory Factory()
-	{
-		return new ObjectGraphTraverserFactory.Implementation();
-	}
-
+	
 	public static ObjectGraphTraverser New(
-		final TraversalHandlerProvider                           handlerProvider       ,
-		final XGettingCollection<Object>                         skipped               ,
-		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider
+		final Object[]                                           roots                   ,
+		final XGettingCollection<Object>                         skipped                 ,
+		final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+		final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
+		final TypeTraverserProvider                              traverserProvider       ,
+		final TraversalPredicateSkip                             predicateSkip           ,
+		final TraversalPredicateNode                             predicateNode           ,
+		final TraversalPredicateLeaf                             predicateLeaf           ,
+		final TraversalPredicateFull                             predicateFull           ,
+		final Predicate<Object>                                  predicateHandle         ,
+		final TraversalAcceptor                                  traversalAcceptor       ,
+		final TraversalMutator                                   traversalMutator        ,
+		final MutationListener                                   mutationListener        ,
+		final TraversalMode                                      traversalMode           ,
+		final Runnable                                           initializerLogic        ,
+		final Runnable                                           finalizerLogic
 	)
 	{
-		return new Implementation(
-			handlerProvider,
-			coalesce(skipped.immure(), X.empty()),
-			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s))
+		return new ObjectGraphTraverser.Implementation(
+			roots                                                             ,
+			coalesce(skipped, X.empty()).immure()                             ,
+			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
+			referenceHandlerProvider                                          ,
+			notNull(traverserProvider)                                        ,
+			predicateSkip                                                     ,
+			predicateNode                                                     ,
+			predicateLeaf                                                     ,
+			predicateFull                                                     ,
+			predicateHandle                                                   ,
+			traversalAcceptor                                                 ,
+			traversalMutator                                                  ,
+			mutationListener                                                  ,
+			traversalMode                                                     ,
+			initializerLogic                                                  ,
+			finalizerLogic
 		);
 	}
-
+	
 	public final class Implementation implements ObjectGraphTraverser
 	{
-		/* Possible performance optimizations:
-		 * x use direct field offsets via Unsafe instead of Reflection (see TraversalHandlerReflective comment).
-		 * - minimalistic (e.g. non-ordered) Set implementation for alreadyHandled, maybe even flat-hashing-array
-		 * - array-segment list instead of iteration head
-		 * - provide completed handler lookup table instead of generating handlers on the fly, but should be negligible
-		 */
-
-		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-
-		static final TraversalHandler<?> UNHANDLED = (e, h) ->
-		{
-			// empty
-		};
-
-
-
-
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider;
-		private final TraversalHandlerProvider                           handlerProvider       ;
-		private final XGettingCollection<Object>                         skipped               ;
-
-
-
+		private final Object[]                                           roots                   ;
+		private final XGettingCollection<Object>                         skipped                 ;
+		private final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ;
+		private final TraversalPredicateSkip                             predicateSkip           ;
+		private final TraversalPredicateNode                             predicateNode           ;
+		private final TraversalPredicateLeaf                             predicateLeaf           ;
+		private final TraversalPredicateFull                             predicateFull           ;
+		private final Predicate<Object>                                  predicateHandle         ;
+		private final TraversalAcceptor                                  traversalAcceptor       ;
+		private final TraversalMutator                                   traversalMutator        ;
+		private final TraversalReferenceHandlerProvider                  referenceHandlerProvider;
+		private final TypeTraverserProvider                              traverserProvider       ;
+		private final MutationListener                                   mutationListener        ;
+		private final TraversalMode                                      traversalMode           ;
+		private final Runnable                                           initializerLogic        ;
+		private final Runnable                                           finalizerLogic          ;
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-
+		
 		Implementation(
-			final TraversalHandlerProvider                           handlerProvider       ,
-			final XGettingCollection<Object>                         skipped               ,
-			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider
+			final Object[]                                           roots                   ,
+			final XGettingCollection<Object>                         skipped                 ,
+			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,
+			final TraversalReferenceHandlerProvider                  referenceHandlerProvider,
+			final TypeTraverserProvider                              traverserProvider       ,
+			final TraversalPredicateSkip                             predicateSkip           ,
+			final TraversalPredicateNode                             predicateNode           ,
+			final TraversalPredicateLeaf                             predicateLeaf           ,
+			final TraversalPredicateFull                             predicateFull           ,
+			final Predicate<Object>                                  predicateHandle         ,
+			final TraversalAcceptor                                  traversalAcceptor       ,
+			final TraversalMutator                                   traversalMutator        ,
+			final MutationListener                                   mutationListener        ,
+			final TraversalMode                                      traversalMode           ,
+			final Runnable                                           initializerLogic        ,
+			final Runnable                                           finalizerLogic
 		)
 		{
 			super();
-			this.handlerProvider        = handlerProvider       ;
-			this.skipped                = skipped               ;
-			this.alreadyHandledProvider = alreadyHandledProvider;
+			this.roots                    = roots                   ;
+			this.skipped                  = skipped                 ;
+			this.alreadyHandledProvider   = alreadyHandledProvider  ;
+			this.predicateSkip            = predicateSkip           ;
+			this.predicateNode            = predicateNode           ;
+			this.predicateLeaf            = predicateLeaf           ;
+			this.predicateFull            = predicateFull           ;
+			this.predicateHandle          = predicateHandle         ;
+			this.traversalAcceptor        = traversalAcceptor       ;
+			this.traversalMutator         = traversalMutator        ;
+			this.referenceHandlerProvider = referenceHandlerProvider;
+			this.traverserProvider        = traverserProvider       ;
+			this.mutationListener         = mutationListener        ;
+			this.traversalMode            = traversalMode           ;
+			this.initializerLogic         = initializerLogic        ;
+			this.finalizerLogic           = finalizerLogic          ;
 		}
-
-
-
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-
+		// methods //
+		////////////
+		
+		protected final synchronized void internalTraverseAll(
+			final Object[]          instances               ,
+			final TraversalAcceptor traversalAcceptor       ,
+			final TraversalMutator  traversalMutator        ,
+			final MutationListener  mutationListener
+		)
+		{
+			if(this.initializerLogic != null)
+			{
+				this.initializerLogic.run();
+			}
+			
+			final AbstractReferenceHandler referenceHandler = this.referenceHandlerProvider.provideReferenceHandler(
+				this.alreadyHandledProvider.apply(this.skipped),
+				this.traverserProvider                         ,
+				this.predicateSkip                             ,
+				this.predicateNode                             ,
+				this.predicateLeaf                             ,
+				this.predicateFull                             ,
+				this.predicateHandle                           ,
+				traversalAcceptor                              ,
+				traversalMutator                               ,
+				mutationListener
+			);
+			this.traversalMode.handle(instances, referenceHandler);
+			
+			if(this.finalizerLogic != null)
+			{
+				this.finalizerLogic.run();
+			}
+		}
+		
+		
+		@Override
+		public void traverse()
+		{
+			this.internalTraverseAll(
+				this.roots            ,
+				this.traversalAcceptor,
+				this.traversalMutator ,
+				this.mutationListener
+			);
+		}
+		
+		@Override
+		public void traverseAll(final Object[] instances)
+		{
+			this.internalTraverseAll(
+				instances             ,
+				this.traversalAcceptor,
+				this.traversalMutator ,
+				this.mutationListener
+			);
+		}
+		
+		@Override
+		public <A extends TraversalAcceptor> A traverse(final A acceptor)
+		{
+			this.internalTraverseAll(this.roots,  acceptor, null, null);
+			return acceptor;
+		}
+		
+		@Override
+		public <M extends TraversalMutator> M traverse(final M mutator)
+		{
+			this.internalTraverseAll(this.roots, null, mutator, null);
+			return mutator;
+		}
+		
+		@Override
+		public <A extends TraversalAcceptor> A traverseAll(final Object[] instances, final A acceptor)
+		{
+			this.internalTraverseAll(instances, acceptor, null, null);
+			return acceptor;
+		}
+		
+		@Override
+		public <M extends TraversalMutator> M traverseAll(final Object[] instances, final M mutator)
+		{
+			this.internalTraverseAll(instances, null, mutator, null);
+			return mutator;
+		}
+		
 		/**
 		 * Must be a multiple of 2.
 		 *
@@ -195,7 +277,9 @@ public interface ObjectGraphTraverser
 		 * However, a slight performance gain is still better than none. Plus there is much less memory used
 		 * for object header and chain-reference overhead.
 		 */
-		private static final int SEGMENT_SIZE = 500;
+		static final int SEGMENT_SIZE       = 500;
+		static final int SEGMENT_LAST_INDEX = SEGMENT_SIZE - 1;
+		static final int SEGMENT_LENGTH     = SEGMENT_SIZE + 1;
 
 
 
@@ -206,190 +290,251 @@ public interface ObjectGraphTraverser
 		static final Object[] createIterationSegment()
 		{
 			// one trailing slot as a pointer to the next segment array. Both hacky and elegant.
-			return new Object[SEGMENT_SIZE + 1];
+			return new Object[SEGMENT_LENGTH];
 		}
-
-		final class ReferenceHandler implements Consumer<Object>
-		{
-			private final TraversalHandlerProvider                 handlerProvider ;
-			private final HashTable<Class<?>, TraversalHandler<?>> instanceHandlers;
-			private final XSet<Object>                             alreadyHandled  ;
-
-			Object[] iterationTail      = createIterationSegment();
-			Object[] iterationHead      = this.iterationTail;
-			boolean  tailIsHead         = true;
-			int      iterationTailIndex;
-			int      iterationHeadIndex;
-
-			ReferenceHandler(
-				final TraversalHandlerProvider handlerProvider,
-				final XSet<Object>             alreadyHandled ,
-				final Object[]                 instances
-			)
-			{
-				super();
-				this.handlerProvider  = handlerProvider;
-				this.alreadyHandled   = alreadyHandled ;
-				this.instanceHandlers = HashTable.New();
-
-				for(final Object instance : instances)
-				{
-					if(instance == null)
-					{
-						continue;
-					}
-					this.accept(instance);
-				}
-			}
-
-			final <T> TraversalHandler<T> ensureTraversalHandler(final Class<T> type)
-			{
-				TraversalHandler<?> handler = this.instanceHandlers.get(type);
-				if(handler == null)
-				{
-					handler = this.handlerProvider.provideTraversalHandler(type);
-
-					// the provider can decide that this type should not be handled (meaning not providing a handler)
-					if(handler == null)
-					{
-						// if so, an "unhandled" dummy handler is used to avoid repeated provider calls
-						handler = UNHANDLED;
-					}
-
-					this.instanceHandlers.add(type, handler);
-				}
-
-				@SuppressWarnings("unchecked") // cast safety guaranteed by registering and "dummy" logic
-				final TraversalHandler<T> castedHandler = (TraversalHandler<T>)handler;
-
-				return castedHandler;
-			}
-
-			private final <T> void addIterationItem(final T subject, final TraversalHandler<T> handler)
-			{
-				if(this.iterationHeadIndex >= SEGMENT_SIZE)
-				{
-					final Object[] nextIterationSegment = createIterationSegment();
-					this.iterationHead[SEGMENT_SIZE] = nextIterationSegment;
-					this.iterationHead = nextIterationSegment;
-					this.iterationHeadIndex = 0;
-					this.tailIsHead = false;
-				}
-				this.iterationHead[this.iterationHeadIndex  ] = subject;
-				this.iterationHead[this.iterationHeadIndex + 1] = handler;
-				this.iterationHeadIndex += 2;
-			}
-
-			final void handleNext(final Consumer<Object> matchListener) throws TraversalSignalAbort
-			{
-				if(this.tailIsHead)
-				{
-					if(this.iterationTailIndex >= this.iterationHeadIndex)
-					{
-						ObjectGraphTraverser.signalAbortTraversal();
-					}
-				}
-				if(this.iterationTailIndex >= SEGMENT_SIZE)
-				{
-					this.iterationTail = (Object[])this.iterationTail[SEGMENT_SIZE];
-					this.iterationTailIndex = 0;
-					this.tailIsHead = this.iterationTail == this.iterationHead;
-				}
-
-				final Object                   item    = this.iterationTail[this.iterationTailIndex];
-				@SuppressWarnings("unchecked")
-				final TraversalHandler<Object> handler =
-					(TraversalHandler<Object>)this.iterationTail[this.iterationTailIndex + 1]
-				;
-				this.iterationTailIndex += 2;
-
-				try
-				{
-					if(handler.handleObject(item, this) && matchListener != null)
-					{
-						matchListener.accept(item);
-					}
-					handler.traverseReferences(item, this);
-				}
-				catch(final TraversalSignalSkipInstance s)
-				{
-					/*
-					 * some logic (the handler or an evaluating logic it deferred to)
-					 * signaled to skip the current instance
-					 */
-				}
-			}
-
-			@Override
-			public final void accept(final Object instance)
-			{
-				// must check for null as there is no control over what custom handler implementations might pass
-				if(instance == null)
-				{
-					return;
-				}
-
-				if(!this.alreadyHandled.add(instance))
-				{
-					return;
-				}
-
-				TraversalHandler<?> handler = this.instanceHandlers.get(instance.getClass());
-				if(handler == null)
-				{
-					handler = this.handlerProvider.provideTraversalHandler(instance.getClass());
-
-					// the provider can decide that this type should not be handled (meaning not providing a handler)
-					if(handler == null)
-					{
-						// if so, an "unhandled" dummy handler is used to avoid repeated provider calls
-						handler = UNHANDLED;
-					}
-
-					this.instanceHandlers.add(instance.getClass(), handler);
-				}
-
-				if(handler != UNHANDLED)
-				{
-					@SuppressWarnings("unchecked") // type erasure loophole annoying stuff
-					final TraversalHandler<Object> castedHandler = (TraversalHandler<Object>)handler;
-					this.addIterationItem(instance, castedHandler);
-				}
-			}
-
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		public synchronized <C extends Consumer<Object>> C traverseAll(final Object[] instances, final C matchListener)
-		{
-			final ReferenceHandler referenceHandler = new ReferenceHandler(
-				this.handlerProvider,
-				this.alreadyHandledProvider.apply(this.skipped),
-				instances
-			);
-
-			try
-			{
-				while(true)
-				{
-					referenceHandler.handleNext(matchListener);
-				}
-			}
-			catch(final TraversalSignalAbort s)
-			{
-				// some logic signaled to abort the traversal. So abort and fall through to returning.
-				return matchListener;
-			}
-
-
-		}
-
+				
 	}
-
+			
 }
+
+/*
+1.) Instanzen sollen standardmäßig gehandelt und traversiert werden
+2.) Manche Instanzen sollen nur gehandelt, aber nicht traversiert werden ("leaf instances" und "leaf types")
+3.) Eine Instanz, die traversiert wird, soll immer auch gehandelt werden. Ausnahme: unshared Instanzen, gesteuert durch explizite Traverser.
+4.) Manche Instanzen sollen weder gehandelt noch traversiert werden.
+    Aus unterschiedlichen Gründen:
+	- alreadyHandled
+	- per Filterbedingung (komplexe externe Logik, ggf. abhängig von bisheriger Traversierung)
+	- aufgrund eines skips (instance, type, polymorphic)
+
+Es muss zwei Arten von Filterbedingung geben:
+1.) Überhaupt nicht handeln und damit auch nicht traversen ("handle()")
+2.) Zwar nicht an die Acceptor Logik übergeben, aber trotzdem traversen. ("select()")
+
+
+aktuell:
+- dequeue instance
+- traverser lookup für instance
+- traverseReferences der instance
+  - reference accepten
+  - reference enqueuen
+    - alreadyHandled check
+	- isUnhandled check (traverser blind-lookup)
+	
+
+	
+Geplant:
+
+enqueue macht die internen handling checks machen (alreadyHandled und skip type lookups)
+
+Zu Beginn des Traversierens werden alle root instanzen ganz normal enqueue()t.
+
+Dann in Schleife:
+
+- dequeue()
+- optionales custom handle() predicate. Falls man eine custom vorab-logik ausführen lassen will (z.B. logging), kann man die in ein predicate stecken und true zurückgeben
+
+Wegen diesem predicate ist es sinnvoll, instanzen zu enqueuen, auch wenn es keinen handler dafür gibt. Der handling check findet im enqueue ja statt.
+
+- handler lookup
+- falls kein handler gefunden, abrechen und mit nächstem dequeue() weitermachen
+- falls handler gefunden, verschiedene möglichkeiten:
+  1.) nur traversieren (iterieren und referenzen enqueuen)
+  2.) iterieren und dabei acceptor logik auf referenz anwenden und dann enqueuen
+  3.) iterieren und dabei mutator logik auf referenz anwenden und dann enqueuen
+  4.) iterieren und nur acceptor logik auf referenz anwenden
+  5.) iterieren und nur mutator logik auf referenz anwenden
+
+Sind ein bisschen viele varianten.
+Vielleicht so besser:
+- Predicate gibt an, ob enqueuet werden soll
+- Falls acceptor vorhanden, dann acceptor anwenden
+- Falls mutator vorhanden, dann mutator anwenden
+
+Falls eine instanz gar nicht gehandelt werden soll, kann das predicate ein AbortInstance Signal werfen.
+
+Das heißt aber trotzdem, dass jeder Handler 7 verschiedene Methoden implementieren müsste
+1.) enq
+2.) eng + acc
+3.) enq + mut
+4.) enq + acc + mut
+5.) acc
+6.) mut
+7.) acc + mut
+
+Jede Variante mit mut hat auch einen MutationListener.
+
+Der Acceptor und Mutator müssen niemals enqueuen, weil das aufgrund ihrer rückgabewerte entschieden wird
+
+Aufrufreihenfolge:
+- if(acc) enqueue
+- mut -> enqueue rückgabewert
+
+
+Acc gibt einen boolean zurück, ob die aktuelle referenz enqueuet werden soll. Dadurch kann das als mechanik zum enqueuen des vorherigen werts verwendet werden.
+Außerdem könnte so ein acc noch feiner steuern, welche referenzen überhaupt enqueuet werden sollen.
+Das einzige Steuerproblem wäre dann noch, zu verhindern, dass ein vom Mut zurückgegebener Wert enqueuet wird, falls man das möchte.
+
+Das könnte gelöst werden mit:
+Zurückgegebene Referenz wird trotzdem enqueuet, aber der Mut steckt die in ein Set rein und das handling predicate checkt dieses Set und wirft bei bedarf ein skipInstance Signal.
+Ist ein bisschen workaroundig, aber ist akzeptabel dafür, dass der normalfall dafür einfach und performant bleibt.
+
+
+
+Wenn predicate null ist, dann per default traversieren.
+Auch dann, wenn acc und mut null sind, denn vielleicht ist ja ein custom handler registriert, der wichtige Logik ausführen soll.
+
+Es gibt also nur eine top-level traverse() Methode (Methodenfamilie) und es kommt darauf an, ob handling predicate, acc und mut gesetzt sind, um zu bestimmen, was der Traverser tatsächlich ausführt.
+
+
+Nötige Registriermethoden:
+
+- TraversableFieldSelector: welche fields bei der generischen reflection analyse berücksichtigt werden sollen.
+
+- handle(Predicate): ob überhaupt handeln oder nicht, also sowohl referenzen an Logik übergeben, als auch referenzen enqueuen/traversieren
+
+- select(Predicate): Komponente für synthetischen Acceptor oder Mutator: ob externe Logik die Instanz bekommen soll
+
+- apply(Consumer): Komponente für synthetischen Acceptor: externe Logik, mit der eine Instanz gehandelt werden soll
+- apply(Predicate, Consumer): beiden Komponente für synthetischen Acceptor spezifisch
+- apply(TraversalAcceptor): Acceptor spezifisch
+
+- mutateBy(Function): Komponente für synthetischen Mutator: externe Logik, die eine Referenz durch eine andere ersetzt
+- mutateBy(Predicate, Function): beiden Komponente für synthetischen Mutator spezifisch
+- mutateBy(TraversalMutator): Mutator spezifisch
+
+Wird in enqueue geprüft, falls vorhanden:
+- skip(Object): Instanz nicht handeln
+- skipType(Class<?>): alle Instanzen nicht handeln von genau diesem Typ
+- skipPolymorphic(Class<?>): alle Instanzen nicht handeln, deren typ ein Subtyp des übergebenen Typs ist
+
+/!\
+"skip" und "leaf" ist logisch dasselbe, denn beim Referenzen durchlaufen wird eine Instanz sowieso einmal an die custom Logik (Acceptor und/oder Mutator) übergeben.
+Ausfiltern danach, also im enqueue, macht eh schon das "skip"
+
+Aber wäre nicht noch folgendes nötig?:
+- Alle Referenzen einer Instanz (/ von einem Typ / von einem Typ polymorph) an die Logik geben, aber nicht enqueuen (= leaf)
+- Alle Referenzen einer Instanz (/ von einem Typ / von einem Typ polymorph) nicht an die Logik geben, aber enqueuen (= node)
+
+Evtl. auch noch Grundmodus setzen:
+- Eager: alles wird als Full mit logik + enqueue angesehen, sofern nicht per leaf/node anders gesteuert.
+- Lazy: alles wird als Node mit nur enqueue angesehen, sondern nicht per leaf/full anders gesteuert.
+Modus is simpler boolean und lookups (node vs. full) unterscheiden sich je nach Wert dieses booleans.
+
+Grundmodus ist wichtig, weil:
+- Wenn man nur bestimmte Instanzen verarbeiten will, ist es ungeschickt, den ganzen Graph full durchzuarbeiten (-> lazy)
+- Wenn man alle Instanzen im Graph als potenzielle Entities ansieht (z.B. für String Deduplizierung), dann ist es ungeschickt, sie defaultmäßig nur als nodes zu behanedln (-> eager)
+
+
+Prüfung auf node:
+- in handleAll():
+- eager ist true und es gibt ein nodePredicate, dann prüfen. Falls zutreffend: TypeTraverser suchen und traverseReferences() mit nur enqueuer aufrufen
+
+Prüfung auf leaf:
+- in handle(Acceptor/Mutator/beide)
+- TypeTraverser suchen
+- eager ist egal(!) und es gibt in leafPredicate, dann prüfen. Falls zutreffend: traverseReferences ohne enqueuer aufrufen, ansonsten mit
+
+Prüfung auf entity:
+- in handleAll():
+- eager ist false und es gibt ein fullPredicate, dann prüfen. Falls zutreffend: spezifisches handle(T) aufrufen, ansonsten nur die Variante mit dem Enqueuer
+ 
+
+ 
+ 
+Genauer gesagt so:
+- skip: gar nicht handeln (weder enqueue noch logic, vorher schon abbrechen)
+- node: Referenzen handeln nur mit enqueue, nicht mit logic
+- leaf: Referenzen handeln nur mit logic, nicht mit enqueue
+- full: Referenzen handeln mit enqueue und logic
+
+Macht es Sinn, im TraverserProvider auch nochmal ausschlußlogik drin zu haben?
+-> Nein, denn für eine volle Unterscheidung müsste es je expliziter Traverserimplementierung mehrere geben und nur für skip allein braucht man den aufwand nicht treiben
+
+Vereinfachen zu:
+- traverseReferences: enqueuen
+- handleReferences: logic
+- skip: gar nicht handeln (weder enqueue noch logic, vorher schon abbrechen). Oder sollte das über den TraverserProvider gemacht werden, weil der lookup da eh drin ist?
+
+eager mode:
+- Standardmäßig enqueuen und logic
+- isHandleable sagt nein, dann nur enqueuen
+- isTraversable sagt nein, dann nur logic
+
+lazy mode:
+- Standardmäßig nur enqueuen
+- isHandleable sagt ja, dann auch logic
+- isTraversable sagt nein, dann nur logic
+
+Was ist denn genau der Unterschied?
+Kann es sein, dass der Unterschied nur ist, was das composite Predicate als default zurückgibt?
+Es muss ja letztendlich immer eins geben.
+
+Und kompletter skip über TraverserProvider durch Dummy?
+
+
+
+||||||||||||||||||||||||||||||||||||||||||||||||
+eager mode:
+- prüft node und leaf
+- ignoriert full, weil Defaultverhalten
+
+lazy mode:
+- prüft full und leaf
+- ignoriert node, weil Defaultverhalten
+
+
+ODER
+
+nur ein mode:
+- prüft traverseReferences
+- prüft handleReferences
+- je nach ergebnis skip, node, leaf oder full
+
+
+Zweite Variante ist besser, denn:
+- Macht auch immer nur zwei lookups
+- in der ersten Variante widersprechen sich node und leaf. In der zweiten ist das nicht der Fall
+
+Zweite Variante hat aber auch Nachteile:
+- Muss mode als Default in das composite predicate stecken, anstatt einmalige Unterscheidung zu machen
+- braucht für simple Instanz- und Typangaben positiv- und negativlogik: eager + NICHT traversen und lazy + SCHON traversen
+- Nogo: damit müsste man sich "leaf" Logik selbst bauen: Positiveintrag in handleReferences und Negativeintrag in traverseReferences
+
+
+Oh Mann!!!
+
+Also doch erste Variante?
+Widerspruch könnte in builder gelöst werden: Registrierung für leaf wirft aus node und full raus, usw.
+
+Problem mit skip handling über TraverserProvider ist: Es soll auch ein custom isHandleable Predicate geben, das müsste trotzdem erhalten bleiben.
+Außerdem: Exception bei fehlendem Traverser vermeidet unbeabsichtigte Fehler: Wenn was geskippt werden soll, muss das explizit als skipped registriert werden
+
+||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+
+
+Braucht man vielleicht drei modes?
+Full: prüft node und leaf
+Node: prüft full und leaf
+Leaf: prüft full und node
+
+Skip ist kein eigener Mode, denn sonst müsste das enqueuing drei predicates abprüfen.
+Außerdem wär es etwas dämlich, einen Traverser zu haben, der als Defaultverhalten gar nichts macht.
+
+Genauer gesagt Mode wird ein interface und die Implementierung davon entscheidet, welche ReferenceHandler Methode aufgerufen werden soll (handleFull/Node/Leaf)
+
+ 
+ 
+
+Wird im TraversalHandlerProvider verwendet:
+- registerHandler(Object, TraversalHandler)
+- registerHandlerForType(Class<?>, TraversalHandler)
+- registerHandlerPolymorphic(Class<?>, TraversalHandler)
+
+
+Nötige Signals:
+- TraversalSignalSkipInstance
+- TraversalSignalAbort
+*/

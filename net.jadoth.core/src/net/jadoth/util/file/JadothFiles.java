@@ -28,9 +28,17 @@ public final class JadothFiles
 			{
 				return directory;
 			}
-			if(!directory.mkdirs())
+			
+			synchronized(directory)
 			{
-				throw new DirectoryException(directory, "Directory could not have been created.");
+				if(!directory.mkdirs())
+				{
+					// check again in case it has been created in the meantime (race condition)
+					if(!directory.exists())
+					{
+						throw new DirectoryException(directory, "Directory could not have been created.");
+					}
+				}
 			}
 		}
 		catch(final SecurityException e)

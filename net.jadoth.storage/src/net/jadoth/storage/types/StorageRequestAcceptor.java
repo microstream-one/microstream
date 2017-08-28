@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.memory.Chunks;
@@ -60,8 +61,20 @@ public interface StorageRequestAcceptor
 
 	// exporting //
 
-	public StorageEntityTypeExportStatistics exportTypes(StorageEntityTypeExportFileProvider exportFileProvider)
-		throws InterruptedException;
+	public default StorageEntityTypeExportStatistics exportTypes(final StorageEntityTypeExportFileProvider exportFileProvider)
+		throws InterruptedException
+	{
+		return this.exportTypes(exportFileProvider, null);
+	}
+	
+	public StorageEntityTypeExportStatistics exportTypes(
+		StorageEntityTypeExportFileProvider            exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		
+	)
+		throws InterruptedException
+	;
+	
 
 	public void exportChannels(StorageIoHandler fileHandler, boolean performGarbageCollection)
 		throws InterruptedException;
@@ -201,11 +214,12 @@ public interface StorageRequestAcceptor
 
 		@Override
 		public final StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider exportFileProvider
+			final StorageEntityTypeExportFileProvider            exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
 		)
 			throws InterruptedException
 		{
-			return waitOnTask(this.taskBroker.enqueueExportTypesTask(exportFileProvider)).result();
+			return waitOnTask(this.taskBroker.enqueueExportTypesTask(exportFileProvider, isExportType)).result();
 		}
 
 		@Override

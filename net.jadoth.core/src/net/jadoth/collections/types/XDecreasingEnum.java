@@ -1,6 +1,7 @@
 package net.jadoth.collections.types;
 
 import java.util.Comparator;
+import java.util.function.Function;
 
 /**
  * Intermediate list type that combines all list aspects except increasing (adding and inserting), effectively causing
@@ -11,7 +12,7 @@ import java.util.Comparator;
  *
  * @author Thomas Muenz
  */
-public interface XDecreasingEnum<E> extends XProcessingEnum<E>, XSettingEnum<E>, XDecreasingSequence<E>
+public interface XDecreasingEnum<E> extends XProcessingEnum<E>, XSettingEnum<E>, XDecreasingSequence<E>, XReplacingCollection<E>
 {
 	public interface Creator<E> extends XProcessingEnum.Creator<E>, XSettingEnum.Creator<E>, XDecreasingSequence.Creator<E>
 	{
@@ -51,5 +52,8 @@ public interface XDecreasingEnum<E> extends XProcessingEnum<E>, XSettingEnum<E>,
 
 	@Override
 	public XDecreasingEnum<E> sort(Comparator<? super E> comparator);
+	
+	@Override
+	public long substitute(Function<? super E, ? extends E> mapper);
 
 }

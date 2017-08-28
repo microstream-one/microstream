@@ -1920,6 +1920,10 @@ public final class BinaryPersistence extends Persistence
 		// intentionally no flipping here.
 	}
 
+	public static final short get_short(final Binary bytes, final long offset)
+	{
+		return Memory.get_short(bytes.entityContentAddress + offset);
+	}
 
 	public static final float get_float(final Binary bytes, final long offset)
 	{

@@ -43,8 +43,8 @@ public class MainSearchBinaryStringInFiles
 
 		searchStringsInFiles(
 			DIRECT,
-			new File("D:/Bonus25/storage/channel_1").listFiles(),
-			Memory.toByteArray(1000000000050090709L)
+			new File("C:/Bonus25/storage/channel_1").listFiles(),
+			Memory.toByteArray(1000000000034381713L)
 		);
 	}
 
@@ -96,10 +96,11 @@ public class MainSearchBinaryStringInFiles
 			final byte[] fileContent = JadothFiles.readBytesFromFile(f);
 			for(final byte[] s : strings)
 			{
-				final int index = JadothArrays.indexOf(fileContent, s);
-				if(index >= 0)
+				int index = 0;
+				while((index = JadothArrays.indexOf(fileContent, s, index)) >= 0)
 				{
 					System.out.println(index+"@"+f+" is "+VarString.New().addHexDec(s));
+					index += s.length;
 				}
 			}
 		}

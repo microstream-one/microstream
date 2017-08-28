@@ -1,7 +1,7 @@
 package net.jadoth.traversal;
 
 
-public final class TraversalSignalSkipInstance extends AbstractTraversalSignal
+public final class TraversalSignalSkipInstance extends AbstractTraversalSkipSignal
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

@@ -3,6 +3,7 @@ package net.jadoth.collections.interfaces;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -507,13 +508,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyRngReplaceAll(int offset, int length, XGettingCollection<? extends K> elements, K replacement);
 
-	public int keyModify(Function<K, K> mapper);
+	public long keySubstitute(Function<? super K, ? extends K> mapper, BiConsumer<EN, K> callback);
 
-	public int keyModify(Predicate<? super K> predicate, Function<K, K> mapper);
+	public int keySubstitute(Predicate<? super K> predicate, Function<? super K, ? extends K> mapper);
 
-	public int keyRngModify(int offset, int length, Function<K, K> mapper);
+	public int keyRngSubstitute(int offset, int length, Function<? super K, ? extends K> mapper);
 
-	public int keyRngModify(int offset, int length, Predicate<? super K> predicate, Function<K, K> mapper);
+	public int keyRngSubstitute(int offset, int length, Predicate<? super K> predicate, Function<K, K> mapper);
 
 	public int keySubstituteOne(Predicate<? super K> predicate, K keySubstitute);
 
@@ -1134,13 +1135,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	// replacing - mapped //
 
-	public int valuesModify(Function<V, V> mapper);
+	public int valuesSubstitute(Function<? super V, ? extends V> mapper);
 
-	public int valuesModify(Predicate<? super V> predicate, Function<V, V> mapper);
+	public int valuesSubstitute(Predicate<? super V> predicate, Function<V, V> mapper);
 
-	public int valuesRngModify(int offset, int length, Function<V, V> mapper);
+	public int valuesRngSubstitute(int offset, int length, Function<V, V> mapper);
 
-	public int valuesRngModify(int offset, int length, Predicate<? super V> predicate, Function<V, V> mapper);
+	public int valuesRngSubstitute(int offset, int length, Predicate<? super V> predicate, Function<V, V> mapper);
 
 
 
