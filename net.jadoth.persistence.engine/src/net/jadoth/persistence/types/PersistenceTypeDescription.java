@@ -152,7 +152,7 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	
 	public interface InitializerLookup
 	{
-		public <T> PersistenceTypeDescription.Initializer<T> lookupInitializer(String typename);
+		public <T> PersistenceTypeDescription.Initializer<T> lookupInitializer(String typeName);
 		
 		
 		public final class Implementation implements PersistenceTypeDescription.InitializerLookup

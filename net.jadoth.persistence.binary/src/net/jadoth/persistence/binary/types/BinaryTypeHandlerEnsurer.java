@@ -77,7 +77,7 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Primitive type must be handled by defaults");
+				throw new RuntimeException("Primitive type values cannot be handled as instances.");
 			}
 			if(type.isArray())
 			{
@@ -85,8 +85,10 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 				if(type.getComponentType().isPrimitive())
 				{
 					// (01.04.2013)EXCP: proper exception
-					throw new RuntimeException("Primitive type must be handled by defaults");
+					throw new RuntimeException("Primitive component type arrays must be covered by default handler implementations.");
 				}
+				
+				// array types can never change and therefore can never have obsolete types.
 				return new BinaryHandlerNativeArrayObject<>(type).initialize(typeId, X.emptyTable());
 			}
 
@@ -104,7 +106,10 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 			
 			if(type.isEnum())
 			{
-				// (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
+				/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
+				 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
+				 * makes sense in the first place. The whole enum concept is just to wacky for an entity graph.
+				 */
 //				return this.createEnumHandler(type, typeId, persistableFields, this.lengthResolver);
 			}
 
