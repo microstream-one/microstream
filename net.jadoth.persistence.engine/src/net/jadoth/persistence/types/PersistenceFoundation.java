@@ -1273,30 +1273,33 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			return Persistence.defaultFieldEvaluator();
 		}
+
+		
+		
+		@Override
+		public PersistenceTypeDescription.InitializerLookup getTypeDescriptionInitializerLookup()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#getTypeDescriptionInitializerLookup()
+		}
 		
 		protected PersistenceRuntimeTypeDescriptionProvider createRuntimeTypeDescriptionProvider()
 		{
-			
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createRuntimeTypeDescriptionProvider()
 		}
 		
 		protected PersistenceTypeDescription.Builder createTypeDescriptionBuilder()
 		{
-			
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createTypeDescriptionBuilder()
 		}
 		
 		protected PersistenceTypeDescriptionMismatchListener createTypeMismatchListener()
 		{
-			
-		}
-		
-		protected PersistenceTypeDescription.InitializerLookup typeDescriptionInitializerLookup()
-		{
-			
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createTypeMismatchListener()
 		}
 	
 		protected SwizzleTypeManager                           typeManager()
 		{
-			
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#typeManager()
 		}
 
 

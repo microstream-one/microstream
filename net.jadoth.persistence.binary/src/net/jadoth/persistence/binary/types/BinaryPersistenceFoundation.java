@@ -407,7 +407,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			this.internalSetFieldFixedLengthResolver(resolver);
 			return this;
 		}
-
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
