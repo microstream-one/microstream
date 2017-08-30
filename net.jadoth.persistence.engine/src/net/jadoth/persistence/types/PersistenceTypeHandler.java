@@ -6,7 +6,6 @@ import static net.jadoth.math.JadothMath.positive;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -98,7 +97,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 	public abstract class AbstractImplementation<M, T>
 	implements
 	PersistenceTypeHandler<M, T>,
-	PersistenceTypeDescription.Initializer<T>,
+	PersistenceTypeDescriptionInitializer<T>,
 	PersistenceTypeHandler.Initializer<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -109,9 +108,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		private final Class<T> type;
 		
 		// these fields are effectively final / immutable: they get only initialized once and are never mutated again.
-		
-		private long                                               typeId   ;
-		private XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes;
+		private long                                 typeId ;
+		private PersistenceTypeDescriptionLineage<T> lineage;
 
 
 
@@ -177,27 +175,11 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		{
 			return this.type.getName();
 		}
-		
+						
 		@Override
-		public final boolean isLatestPersisted()
+		public final boolean isCurrent()
 		{
-			/* (13.04.2017 TM)NOTE:
-			 * explicitely defined type handlers at runtime are / must be always the latest persisted.
-			 * Otherwise, the type handling infrastructure is inconsistent.
-			 */
 			return true;
-		}
-				
-		@Override
-		public final PersistenceTypeDescription<T> current()
-		{
-			return this;
-		}
-		
-		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
-		{
-			return this.obsoletes;
 		}
 		
 		@Override
@@ -206,15 +188,21 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 			final long typeId = typeLookup.lookupTypeId(this.type());
 			
 			// must be a no-op after the type description has already been initialized
-			return this.initialize(typeId, this.obsoletes());
+			return this.initialize(typeId, this.lineage());
 		}
 		
 		@Override
 		public PersistenceTypeHandler<M, T> initialize(
-			final long                                               typeId   ,
-			final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes
+			final long                                 typeId   ,
+			final PersistenceTypeDescriptionLineage<T> lineage
 		)
 		{
+			// quick check for redundant calls of this method.
+			if(this.typeId == typeId && this.lineage == lineage)
+			{
+				return this;
+			}
+			
 			if(this.typeId != 0)
 			{
 				if(this.typeId != typeId)
@@ -227,21 +215,25 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 				// fall through
 			}
 			
-			if(this.obsoletes != null)
+			if(this.lineage != null)
 			{
-				if(this.obsoletes != obsoletes)
+				if(this.lineage != lineage)
 				{
 					// (26.04.2017 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Obsolete " + PersistenceTypeDescription.class.getSimpleName()
-						+ "s have already been initialized for type ID " + this.typeId
+						"Already initialized for another " + PersistenceTypeDescriptionLineage.class.getSimpleName()
 					);
 				}
 				// fall through
 			}
+			else if(this.type != lineage.runtimeType())
+			{
+				// (29.08.2017 TM)EXCP: proper exception
+				throw new RuntimeException("Type mismatch.");
+			}
 			
-			this.typeId    = typeId   ;
-			this.obsoletes = obsoletes;
+			this.typeId  = typeId ;
+			this.lineage = lineage;
 			
 			return this;
 		}

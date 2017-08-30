@@ -4,7 +4,6 @@ import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
@@ -40,7 +39,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	}
 
 	public static PersistenceTypeDictionary New(
-		final XGettingSequence<? extends PersistenceTypeDescription<?>> typeDescriptions
+		final XGettingTable<String, ? extends PersistenceTypeDescriptionLineage<?>> typeDescriptions
 	)
 	{
 		final PersistenceTypeDictionary.Implementation td = New();

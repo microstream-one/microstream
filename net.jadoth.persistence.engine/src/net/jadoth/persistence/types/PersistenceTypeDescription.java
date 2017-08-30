@@ -1,14 +1,8 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
-
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
@@ -79,17 +73,13 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	 * @return
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
-
-	public boolean isLatestPersisted();
 	
+	public PersistenceTypeDescriptionLineage<T> lineage();
+
 	public default boolean isCurrent()
 	{
-		return this.current() == this;
+		return this.lineage().current() == this;
 	}
-	
-	public XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes();
-		
-	public PersistenceTypeDescription<T> current();
 	
 	
 	
@@ -108,130 +98,31 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	{
 		return new PersistenceTypeDescription.Builder.Implementation();
 	}
-
+	
 	public static <T> PersistenceTypeDescription<T> New(
-		final long                                                         typeId  ,
-		final String                                                       typeName,
-		final Class<T>                                                     type    ,
+		final PersistenceTypeDescriptionLineage<T>                         lineage,
+		final long                                                         typeId ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return New(typeId, typeName, type, members, null, true, true, X.emptyTable());
-	}
-	
-	public static <T> PersistenceTypeDescription<T> New(
-		final long                                                         typeId           ,
-		final String                                                       typeName         ,
-		final Class<T>                                                     type             ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
-		final PersistenceTypeDescription<T>                                current          ,
-		final boolean                                                      isCurrent        ,
-		final boolean                                                      isLatestPersisted,
-		final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
-	)
-	{
-		return new PersistenceTypeDescription.Implementation<>(
-			        typeId           ,
-			notNull(typeName)        ,
-			        type             , // may be null in case type is not resolvable
-			notNull(members)         ,
-			        current          , // may be null to indicate "this"
-			        isCurrent        ,
-			        isLatestPersisted,
-			notNull(obsoletes)
-		);
+		return new PersistenceTypeDescription.Implementation<>(lineage, typeId, members);
 	}
 	
 	
-	public interface Initializer<T> extends SwizzleTypeLink<T>
-	{
-		public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
-		
-		public PersistenceTypeDescription<T> initialize(long typeId, XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes);
-	}
-	
-	public interface InitializerLookup
-	{
-		public <T> PersistenceTypeDescription.Initializer<T> lookupInitializer(String typeName);
-		
-		
-		public final class Implementation implements PersistenceTypeDescription.InitializerLookup
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final PersistenceTypeHandlerEnsurerLookup<?> typeHandlerEnsurerLookup;
-			private final SwizzleTypeManager                     typeManager             ;
-
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Implementation(
-				final PersistenceTypeHandlerEnsurerLookup<?> typeHandlerEnsurerLookup,
-				final SwizzleTypeManager                     typeManager
-			)
-			{
-				super();
-				this.typeHandlerEnsurerLookup = typeHandlerEnsurerLookup;
-				this.typeManager              = typeManager             ;
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@SuppressWarnings("unchecked")
-			private static <T> Class<T> resolveType(final String typename)
-			{
-				try
-				{
-					return (Class<T>)JadothReflect.classForName(typename);
-				}
-				catch (final ClassNotFoundException e)
-				{
-					throw new RuntimeException(e); // (30.04.2017 TM)EXCP: proper exception
-				}
-			}
-			
-			@Override
-			public <T> Initializer<T> lookupInitializer(final String typename)
-			{
-				final Class<T> type = resolveType(typename);
-				
-				final PersistenceTypeHandlerEnsurer<?> ensurer = this.typeHandlerEnsurerLookup.lookupEnsurer(type);
-				
-//				ensurer.ensureTypeHandler(type, 0, this.typeManager)
-				
-				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDescription.InitializerLookup#lookupInitializer()
-			}
-			
-			
-		}
-		
-	}
-
 	public final class Implementation<T> implements PersistenceTypeDescription<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final long                                                           typeId           ;
-		final String                                                         typeName         ;
-		final Class<T>                                                       type             ;
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members          ;
-		final boolean                                                        hasReferences    ;
-		final boolean                                                        isPrimitive      ;
-		final boolean                                                        variableLength   ;
-		final boolean                                                        isLatestPersisted;
-		final PersistenceTypeDescription<T>                                  current          ;
-		final XGettingTable<Long, PersistenceTypeDescription<T>>             obsoletes        ;
+		final long                                                           typeId        ;
+		final String                                                         typeName      ;
+		final Class<T>                                                       type          ;
+		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
+		final boolean                                                        hasReferences ;
+		final boolean                                                        isPrimitive   ;
+		final boolean                                                        variableLength;
+		final PersistenceTypeDescriptionLineage<T>                           lineage       ;
 
 
 
@@ -240,27 +131,20 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		/////////////////
 
 		Implementation(
-			final long                                                         typeId           ,
-			final String                                                       typeName         ,
-			final Class<T>                                                     type             ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
-			final PersistenceTypeDescription<T>                                current          ,
-			final boolean                                                      isCurrent        ,
-			final boolean                                                      isLatestPersisted,
-			final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
+			final PersistenceTypeDescriptionLineage<T>                         lineage,
+			final long                                                         typeId ,
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			super();
-			this.typeId            = typeId           ;
-			this.typeName          = typeName         ;
-			this.type              = type             ; // may be null for obsolete type description or external process
+			this.lineage           = lineage              ;
+			this.typeId            = typeId               ;
+			this.typeName          = lineage.typeName()   ;
+			this.type              = lineage.runtimeType(); // may be null for an obsolete type description
 			this.members           = members.immure() ; // same instance if already immutable
-			this.isLatestPersisted = isLatestPersisted;
 			this.hasReferences     = PersistenceTypeDescriptionMember.determineHasReferences (members);
 			this.isPrimitive       = PersistenceTypeDescriptionMember.determineIsPrimitive   (members);
 			this.variableLength    = PersistenceTypeDescriptionMember.determineVariableLength(members);
-			this.current           = current != null ? current : isCurrent ? this : null;
-			this.obsoletes         = obsoletes       ;
 		}
 
 		
@@ -268,6 +152,12 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
 		/////////////////////
+		
+		@Override
+		public final PersistenceTypeDescriptionLineage<T> lineage()
+		{
+			return this.lineage;
+		}
 
 		@Override
 		public final long typeId()
@@ -285,12 +175,6 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		public final Class<T> type()
 		{
 			return this.type;
-		}
-		
-		@Override
-		public final boolean isLatestPersisted()
-		{
-			return this.isLatestPersisted;
 		}
 		
 		@Override
@@ -324,18 +208,6 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		}
 		
 		@Override
-		public final PersistenceTypeDescription<T> current()
-		{
-			return this.current;
-		}
-		
-		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
-		{
-			return this.obsoletes;
-		}
-
-		@Override
 		public final String toString()
 		{
 			final VarString vc = VarString.New();
@@ -360,14 +232,9 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	public interface Builder
 	{
 		public <T> PersistenceTypeDescription<T> build(
-			long                                                         typeId           ,
-			String                                                       typeName         ,
-			Class<T>                                                     type             ,
-			XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
-			PersistenceTypeDescription<T>                                current          ,
-			boolean                                                      isCurrent        ,
-			boolean                                                      isLatestPersisted,
-			XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
+			PersistenceTypeDescriptionLineage<T>                         lineage,
+			long                                                         typeId ,
+			XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		);
 				
 		public final class Implementation implements Builder
@@ -389,19 +256,12 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 
 			@Override
 			public <T> PersistenceTypeDescription<T> build(
-				final long                                                         typeId           ,
-				final String                                                       typeName         ,
-				final Class<T>                                                     type             ,
-				final XGettingSequence<? extends PersistenceTypeDescriptionMember> members          ,
-				final PersistenceTypeDescription<T>                                current          ,
-				final boolean                                                      isCurrent        ,
-				final boolean                                                      isLatestPersisted,
-				final XGettingTable<Long, PersistenceTypeDescription<T>>           obsoletes
+				final PersistenceTypeDescriptionLineage<T>                         lineage,
+				final long                                                         typeId ,
+				final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 			)
 			{
-				return PersistenceTypeDescription.New(
-					typeId, typeName, type, members, current, isCurrent, isLatestPersisted, obsoletes
-				);
+				return PersistenceTypeDescription.New(lineage, typeId, members);
 			}
 			
 		}

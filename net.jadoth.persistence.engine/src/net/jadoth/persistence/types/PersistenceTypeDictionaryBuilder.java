@@ -2,16 +2,15 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
-import java.util.Comparator;
 import java.util.function.Function;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XTable;
-import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 import net.jadoth.util.KeyValue;
 
 public interface PersistenceTypeDictionaryBuilder
@@ -48,59 +47,32 @@ public interface PersistenceTypeDictionaryBuilder
 			return true;
 		}
 		
-		protected <T> PersistenceTypeDescription<T> createTypeDescriptionFamily(
-			final String                                      typeName  ,
-			final XList<PersistenceTypeDictionaryEntry>       typeFamily,
-			final XTable<Long, PersistenceTypeDescription<T>> obsoletes
+		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionFamily(
+			final String                                             typeName,
+			final XGettingTable<Long, PersistenceTypeDictionaryEntry> members
 		)
 		{
-			final PersistenceTypeDictionaryEntry current = typeFamily.pop();
-			
-			final PersistenceTypeDescription<T> currentTypeDescription = PersistenceTypeDescription.New(
-				current.typeId()                     ,
-				current.typeName()                   ,
-				null                                 ,
-				current.members()                    ,
-				null                                 ,
-				this.latestTypeDescriptionIsCurrent(),
-				true                                 ,
-				obsoletes
-			);
-			
-			for(final PersistenceTypeDictionaryEntry e : typeFamily)
-			{
-				final PersistenceTypeDescription<T> td = PersistenceTypeDescription.New(
-					e.typeId()            ,
-					e.typeName()          ,
-					null                  ,
-					e.members()           ,
-					currentTypeDescription,
-					false                 ,
-					false                 ,
-					obsoletes
-				);
-				obsoletes.add(td.typeId(), td);
-			}
+			PersistenceTypeDescriptionLineage.New(typeName, members, null, null, false)
+
 			
 			return currentTypeDescription;
 		}
 		
-		public static XTable<String, ? extends XList<PersistenceTypeDictionaryEntry>> groupByTypeName(
+		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupByTypeName(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			final EqHashTable<String, BulkList<PersistenceTypeDictionaryEntry>> table    = EqHashTable.New();
-			final Function<String, BulkList<PersistenceTypeDictionaryEntry>>    supplier = tn -> BulkList.New();
+			final EqHashTable<String, EqHashTable<Long, PersistenceTypeDictionaryEntry>> table    = EqHashTable.New();
+			final Function<String, EqHashTable<Long, PersistenceTypeDictionaryEntry>>    supplier = tn -> EqHashTable.New();
 			
 			for(final PersistenceTypeDictionaryEntry e : entries)
 			{
-				table.ensure(e.typeName(), supplier).add(e);
+				table.ensure(e.typeName(), supplier).add(e.typeId(), e);
 			}
 			
-			final Comparator<PersistenceTypeDictionaryEntry> orderByTypeIdAscending = SwizzleTypeIdOwner::orderAscending;
-			for(final BulkList<PersistenceTypeDictionaryEntry> e : table.values())
+			for(final EqHashTable<Long, PersistenceTypeDictionaryEntry> e : table.values())
 			{
-				JadothSort.valueSort(e, orderByTypeIdAscending);
+				JadothSort.valueSort(e.keys(), Long::compare);
 			}
 			
 			return table;
@@ -112,16 +84,16 @@ public interface PersistenceTypeDictionaryBuilder
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			final XTable<String, ? extends XList<PersistenceTypeDictionaryEntry>> table = groupByTypeName(entries);
+			final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupByTypeName(entries);
 			
-			final BulkList<PersistenceTypeDescription<?>> typeDescriptions = BulkList.New(table.size());
+			final EqHashTable<Long, PersistenceTypeDescription<?>> typeDescriptions = EqHashTable.New();
 			
-			for(final KeyValue<String, ? extends XList<PersistenceTypeDictionaryEntry>> e : table)
+			for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
 			{
-				final PersistenceTypeDescription<?> td = createTypeDescriptionFamily(
+				
+				final PersistenceTypeDescriptionLineage<?> td = createTypeDescriptionFamily(
 					e.key()          ,
-					e.value()        ,
-					EqHashTable.New()
+					e.value()
 				);
 				typeDescriptions.add(td);
 			}
@@ -179,10 +151,9 @@ public interface PersistenceTypeDictionaryBuilder
 		////////////
 		
 		@Override
-		protected <T> PersistenceTypeDescription<T> createTypeDescriptionFamily(
-			final String                                      typeName  ,
-			final XList<PersistenceTypeDictionaryEntry>       typeFamily,
-			final XTable<Long, PersistenceTypeDescription<T>> obsoletes
+		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionFamily(
+			final String                                typeName,
+			final XList<PersistenceTypeDictionaryEntry> members
 		)
 		{
 			final PersistenceTypeDescription<T> latestTypeDescription = super.createTypeDescriptionFamily(

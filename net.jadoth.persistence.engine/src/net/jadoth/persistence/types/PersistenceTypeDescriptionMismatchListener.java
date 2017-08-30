@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+//(30.08.2017 TM)FIXME: deprecated since lineage concept. Overhaul or delete.
 @FunctionalInterface
 public interface PersistenceTypeDescriptionMismatchListener
 {

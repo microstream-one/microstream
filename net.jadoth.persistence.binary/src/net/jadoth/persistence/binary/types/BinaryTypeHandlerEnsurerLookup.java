@@ -4,8 +4,8 @@ import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 
 public interface BinaryTypeHandlerEnsurerLookup extends PersistenceTypeHandlerEnsurerLookup<Binary>
@@ -54,13 +54,7 @@ public interface BinaryTypeHandlerEnsurerLookup extends PersistenceTypeHandlerEn
 		public PersistenceTypeHandlerEnsurer<Binary> lookupEnsurer(final Class<?> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
-//			// special case Class type handler (must be checked before custom types because of reflective type unsafety)
-//			if(type == Class.class)
-//			{
-//				return this.classTypeHandlerCreator;
-//			}
-
-			// check for registered custom type handling (type Class can never be relevant, even if registered)
+			// check for registered custom type handling
 			if(this.customTypeHandlerRegistry.knowsType(type))
 			{
 				return this.customTypeHandlerRegistry;

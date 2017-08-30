@@ -121,6 +121,11 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			{
 				throw new RuntimeException(); // (30.03.2013)EXCP: proper exception
 			}
+			
+			/* (30.08.2017 TM)FIXME: typehandler must be
+			 * - initialized for the passed typeId
+			 * - registered at the typehandlerManager
+			 */
 
 			final PersistenceTypeHandler<M, T> typeHandler = typeHandlerInitializer.initializeTypeHandler(typeManager);
 			if(typeHandler.type() != type)

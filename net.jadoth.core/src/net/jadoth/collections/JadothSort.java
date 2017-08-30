@@ -3,7 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 
 import net.jadoth.collections.sorting.Sortable;
-import net.jadoth.collections.types.XList;
+import net.jadoth.collections.types.XSortableSequence;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.ComparatorSequence;
 
@@ -797,7 +797,7 @@ public final class JadothSort
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <V> void valueSort(final XList<V> values, final Comparator<? super V> comparator)
+	public static <V> void valueSort(final XSortableSequence<V> values, final Comparator<? super V> comparator)
 	{
 		if(values instanceof AbstractSimpleArrayCollection)
 		{
