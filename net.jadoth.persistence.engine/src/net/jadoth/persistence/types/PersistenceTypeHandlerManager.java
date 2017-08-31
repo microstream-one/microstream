@@ -434,7 +434,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.typeDictionaryManager.provideTypeDictionary()
 			;
 			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
-				typeDictionary.liveTypes().values()
+				typeDictionary.currentTypesByName().values()
 			;
 
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;

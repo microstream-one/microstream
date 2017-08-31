@@ -99,7 +99,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.types().values())
+				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.allTypes().values())
 				{
 					if(PersistenceTypeDescription.isEqualDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
@@ -147,15 +147,15 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<?>> types()
+		public final XGettingTable<Long, PersistenceTypeDescription<?>> allTypes()
 		{
-			return this.dictionary.types();
+			return this.dictionary.allTypes();
 		}
 		
 		@Override
-		public final XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		public final XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName()
 		{
-			return this.dictionary.liveTypes();
+			return this.dictionary.currentTypesByName();
 		}
 
 		@Override
@@ -213,7 +213,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDescription<?> td : typeDictionary.types().values())
+				for(final PersistenceTypeDescription<?> td : typeDictionary.allTypes().values())
 				{
 					this.registerTypeDescription(td);
 				}

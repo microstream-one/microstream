@@ -2,6 +2,7 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceTypeDescriptionLineage<T>
@@ -48,10 +49,10 @@ public interface PersistenceTypeDescriptionLineage<T>
 		// instance fields //
 		////////////////////
 
-		final String                                             typeName   ;
-		final Class<T>                                           runtimeType;
-		final XGettingTable<Long, PersistenceTypeDescription<T>> members    ;
-		      PersistenceTypeDescription<T>                      current    ; // effective final
+		final String                                           typeName   ;
+		final Class<T>                                         runtimeType;
+		final EqHashTable<Long, PersistenceTypeDescription<T>> dictionaryDescriptions;
+		      PersistenceTypeDescription<T>                    runtimeDescription    ; // initialized effectively final
 
 		transient Boolean isValid;
 
@@ -62,16 +63,14 @@ public interface PersistenceTypeDescriptionLineage<T>
 		/////////////////
 
 		Implementation(
-			final String                                             typeName   ,
-			final XGettingTable<Long, PersistenceTypeDescription<T>> members    ,
-			final Class<T>                                           runtimeType,
-			final PersistenceTypeDescription<T>                      current    ,
-			final boolean                                            isValid
+			final String                        typeName   ,
+			final Class<T>                      runtimeType,
+			final PersistenceTypeDescription<T> current
 		)
 		{
 			super();
 			this.typeName    = typeName   ;
-			this.members     = members    ;
+			this.members     = EqHashTable.New();
 			this.runtimeType = runtimeType;
 			this.current     = current    ;
 			this.isValid     = isValid    ;

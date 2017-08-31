@@ -11,13 +11,17 @@ import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingTable<Long, PersistenceTypeDescription<?>> types();
+	public XGettingTable<Long, PersistenceTypeDescription<?>> allTypes();
 	
-	public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes();
+	public XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName();
+	
+	public XGettingTable<Long, PersistenceTypeDescription<?>> currentTypesById();
+	
+	public XGettingTable<String, PersistenceTypeDescriptionLineage<?>> types();
 
 	public boolean registerType(PersistenceTypeDescription<?> typeDescription);
 
-	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions);
+	public boolean registerTypes(Iterable<? extends PersistenceTypeDescription<?>> typeDescriptions);
 
 	@Override
 	public PersistenceTypeDescription<?> lookupTypeByName(String typeName);
@@ -235,13 +239,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public XGettingTable<Long, PersistenceTypeDescription<?>> types()
+		public XGettingTable<Long, PersistenceTypeDescription<?>> allTypes()
 		{
 			return this.typesPerTypeId;
 		}
 		
 		@Override
-		public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		public XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName()
 		{
 			return this.typesPerTypeName;
 		}
