@@ -3,7 +3,10 @@ package net.jadoth.storage.types;
 import java.nio.ByteBuffer;
 
 import net.jadoth.memory.Chunks;
+import net.jadoth.meta.JadothConsole;
+import net.jadoth.util.JadothExceptions;
 import net.jadoth.util.KeyValue;
+import net.jadoth.util.chars.VarString;
 
 public interface StorageRequestTaskSaveEntities extends StorageRequestTask
 {
@@ -39,10 +42,50 @@ public interface StorageRequestTaskSaveEntities extends StorageRequestTask
 		@Override
 		protected final KeyValue<ByteBuffer[], long[]> internalProcessBy(final StorageChannel channel)
 		{
-//			DEBUGStorage.println(
-//				channel.hashIndex() + " processing store task " + System.identityHashCode(this) + " " + this.timestamp()
-//			);
+			this.DEBUG_Print(channel);
 			return channel.storeEntities(this.timestamp(), this.data[channel.channelIndex()]);
+		}
+		
+		public final void DEBUG_Print(final StorageChannel channel)
+		{
+			final VarString vs = VarString.New();
+			if(channel != null)
+			{
+				vs
+				.add(channel.channelIndex())
+				.add(" processing")
+				;
+			}
+			else
+			{
+				vs
+				.add("Issued")
+				;
+			}
+			vs
+			.add(" store task ")
+			.add(System.identityHashCode(this))
+			.add(" @")
+			.add(this.timestamp())
+			.add(". EntityCounts: [")
+			;
+			for(final Chunks c : this.data)
+			{
+				vs.add(c.entityCount()).add(", ");
+			}
+			vs.deleteLast(2).add("]")
+			;
+			
+			if(channel == null)
+			{
+				vs.add(" Stacktrace:");
+				for(final StackTraceElement e : JadothExceptions.cutStacktraceByN(new Throwable(), 2).getStackTrace())
+				{
+					vs.lf().add(e.toString());
+				}
+			}
+
+			JadothConsole.debugln(vs.toString(), 1);
 		}
 
 		@Override
