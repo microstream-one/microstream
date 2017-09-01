@@ -76,17 +76,20 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	
 	public PersistenceTypeDescriptionLineage<T> lineage();
 
-	public default boolean isCurrent()
+	public default boolean isRuntime()
 	{
-		return this.lineage().current() == this;
+		return this.lineage().runtimeDescription() == this;
 	}
+	
+	public PersistenceTypeDescriptionLineage<T> initializeLineage(PersistenceTypeDescriptionLineage<T> lineage);
 	
 	
 	
 	
 	public static boolean isEqualDescription(final PersistenceTypeDescription<?> td1, final PersistenceTypeDescription<?> td2)
 	{
-		return td1 == td2 || td1 != null && td2 != null
+		return td1 == td2
+			|| td1 != null && td2 != null
 			&& td1.typeId() == td2.typeId()
 			&& td1.typeName().equals(td2.typeName())
 			&& PersistenceTypeDescriptionMember.equalMembers(td1.members(), td2.members())
@@ -157,6 +160,21 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		public final PersistenceTypeDescriptionLineage<T> lineage()
 		{
 			return this.lineage;
+		}
+		
+		@Override
+		public final PersistenceTypeDescriptionLineage<T> initializeLineage(final PersistenceTypeDescriptionLineage<T> lineage)
+		{
+			// this implementation only validates the immutable reference.
+			if(this.lineage == lineage)
+			{
+				return lineage;
+			}
+			
+			// (01.09.2017 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Already initialized for another " + PersistenceTypeDescriptionLineage.class.getSimpleName()
+			);
 		}
 
 		@Override

@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import java.util.function.Function;
+
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
@@ -36,135 +38,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback();
 
 
-
-	public static PersistenceTypeDictionary.Implementation New()
+	public static PersistenceTypeDictionary New(final PersistenceTypeDescriptionLineageProvider lineageProvider)
 	{
-		return new PersistenceTypeDictionary.Implementation();
-	}
-
-	public static PersistenceTypeDictionary New(
-		final XGettingTable<String, ? extends PersistenceTypeDescriptionLineage<?>> typeDescriptions
-	)
-	{
-		final PersistenceTypeDictionary.Implementation td = New();
-		
-		td.registerTypes(
-			notNull(typeDescriptions)
+		return new PersistenceTypeDictionary.Implementation(
+			notNull(lineageProvider)
 		);
-		
-		return td;
 	}
-
-
-
-
-
-	public static boolean isVariableLength(final String typeName)
-	{
-		switch(typeName)
-		{
-			case Symbols.TYPE_BYTES:
-			case Symbols.TYPE_CHARS:
-			case Symbols.TYPE_COMPLEX: return true;
-			default: return false;
-		}
-	}
-
-	public static String fullQualifiedFieldName(
-		final String declaringTypeName,
-		final String fieldName
-	)
-	{
-		return fullQualifiedFieldName(VarString.New(), declaringTypeName, fieldName).toString();
-	}
-
-	public static VarString fullQualifiedFieldName(
-		final VarString vc,
-		final String  declaringTypeName,
-		final String  fieldName
-	)
-	{
-		return vc.add(declaringTypeName).add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR).add(fieldName);
-	}
-
-	public static VarString paddedFullQualifiedFieldName(
-		final VarString vc                        ,
-		final String  declaringTypeName         ,
-		final int     maxDeclaringTypeNameLength,
-		final String  fieldName                 ,
-		final int     maxFieldNameLength
-	)
-	{
-		// redundant code here to avoid unnecessary padding in normal case
-		return vc
-			.padRight(declaringTypeName, maxDeclaringTypeNameLength, ' ')
-			.add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR)
-			.padRight(fieldName        , maxFieldNameLength        , ' ')
-		;
-	}
-
-	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
-	public static boolean isInlinedComplexType(final String typeName)
-	{
-		return Symbols.TYPE_COMPLEX.equals(typeName);
-	}
-
-	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
-	public static boolean isInlinedVariableLengthType(final String typeName)
-	{
-		return Symbols.TYPE_BYTES.equals(typeName)
-			|| Symbols.TYPE_CHARS.equals(typeName)
-			|| isInlinedComplexType(typeName)
-		;
-	}
-
-
-
-	public class Symbols
-	{
-		protected static final transient char   TYPE_START                       = '{';
-		protected static final transient char   TYPE_END                         = '}';
-		protected static final transient char   MEMBER_FIELD_DECL_TYPE_SEPERATOR = '#';
-		protected static final transient char   MEMBER_TERMINATOR                = ','; // cannot be ";" as array names are terminated by it
-		protected static final transient char   MEMBER_COMPLEX_DEF_START         = '(';
-		protected static final transient char   MEMBER_COMPLEX_DEF_END           = ')';
-
-		protected static final transient String KEYWORD_PRIMITIVE                = "primitive";
-		protected static final transient String TYPE_CHARS                       = "[char]"   ;
-		protected static final transient String TYPE_BYTES                       = "[byte]"   ;
-		protected static final transient String TYPE_COMPLEX                     = "[list]"   ;
-		protected static final transient int    LITERAL_LENGTH_TYPE_COMPLEX      = TYPE_COMPLEX.length();
-
-		protected static final transient char[] ARRAY_KEYWORD_PRIMITIVE          = KEYWORD_PRIMITIVE.toCharArray();
-		protected static final transient char[] ARRAY_TYPE_CHARS                 = TYPE_CHARS       .toCharArray();
-		protected static final transient char[] ARRAY_TYPE_BYTES                 = TYPE_BYTES       .toCharArray();
-		protected static final transient char[] ARRAY_TYPE_COMPLEX               = TYPE_COMPLEX     .toCharArray();
-
-		public static final String typeChars()
-		{
-			return TYPE_CHARS;
-		}
-
-		public static final String typeBytes()
-		{
-			return TYPE_BYTES;
-		}
-
-		public static final String typeComplex()
-		{
-			return TYPE_COMPLEX;
-		}
-
-
-
-		protected Symbols()
-		{
-			super();
-			// can be extended to access the symbols
-		}
-
-	}
-
 
 
 	public final class Implementation implements PersistenceTypeDictionary
@@ -173,9 +52,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
-		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescription<?>> typesPerTypeName = EqHashTable.New();
-		private       PersistenceTypeDescriptionRegistrationCallback     callback        ;
+		private final PersistenceTypeDescriptionLineageProvider                 lineageProvider ;
+		private final EqHashTable<Long  , PersistenceTypeDescription<?>>        typesPerTypeId   = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDescription<?>>        typesPerTypeName = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDescriptionLineage<?>> lineages         = EqHashTable.New();
+		private       PersistenceTypeDescriptionRegistrationCallback            callback        ;
+		
+		private final Function<String, PersistenceTypeDescriptionLineage<?>> lineageEnsurer;
 
 
 
@@ -183,19 +66,51 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// constructors     //
 		/////////////////////
 
-		Implementation()
+		Implementation(final PersistenceTypeDescriptionLineageProvider lineageProvider)
 		{
 			super();
+			this.lineageProvider = lineageProvider    ;
+			this.lineageEnsurer  = this::ensureLineage;
 		}
 
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
-		final boolean internalRegisterType(final PersistenceTypeDescription<?> typeDescription)
+		private <T> PersistenceTypeDescriptionLineage<T> ensureLineage(final String typeName)
 		{
+			return this.lineageProvider.provideTypeDescriptionLineage(typeName);
+		}
+		
+		private synchronized <T> PersistenceTypeDescriptionLineage<T> ensureLineage(
+			final PersistenceTypeDescription<T> typeDescription
+		)
+		{
+			// type safety ensured by type name: the type parameter T always represents the type with the given name.
+			@SuppressWarnings("unchecked")
+			final
+			PersistenceTypeDescriptionLineage<T> lineage = (PersistenceTypeDescriptionLineage<T>)this.lineages.ensure(
+				typeDescription.typeName(),
+				this.lineageEnsurer
+			);
+			
+			return lineage;
+		}
+
+		final <T> boolean internalRegisterType(final PersistenceTypeDescription<T> typeDescription)
+		{
+			// type safety ensured by type name: the type parameter T always represents the type with the given name.
+			@SuppressWarnings("unchecked")
+			final
+			PersistenceTypeDescriptionLineage<T> lineage = (PersistenceTypeDescriptionLineage<T>)this.lineages.ensure(
+				typeDescription.typeName(),
+				this.lineageEnsurer
+			);
+			
+			lineage.
+			
 			if(!this.typesPerTypeId.add(typeDescription.typeId(), typeDescription))
 			{
 				return false;
@@ -324,4 +239,118 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	}
 
+	
+	public static boolean isVariableLength(final String typeName)
+	{
+		switch(typeName)
+		{
+			case Symbols.TYPE_BYTES:
+			case Symbols.TYPE_CHARS:
+			case Symbols.TYPE_COMPLEX:
+			{
+					return true;
+			}
+			default:
+			{
+				return false;
+			}
+		}
+	}
+
+	public static String fullQualifiedFieldName(
+		final String declaringTypeName,
+		final String fieldName
+	)
+	{
+		return fullQualifiedFieldName(VarString.New(), declaringTypeName, fieldName).toString();
+	}
+
+	public static VarString fullQualifiedFieldName(
+		final VarString vc               ,
+		final String    declaringTypeName,
+		final String    fieldName
+	)
+	{
+		return vc.add(declaringTypeName).add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR).add(fieldName);
+	}
+
+	public static VarString paddedFullQualifiedFieldName(
+		final VarString vc                        ,
+		final String    declaringTypeName         ,
+		final int       maxDeclaringTypeNameLength,
+		final String    fieldName                 ,
+		final int       maxFieldNameLength
+	)
+	{
+		// redundant code here to avoid unnecessary padding in normal case
+		return vc
+			.padRight(declaringTypeName, maxDeclaringTypeNameLength, ' ')
+			.add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR)
+			.padRight(fieldName        , maxFieldNameLength        , ' ')
+		;
+	}
+
+	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
+	public static boolean isInlinedComplexType(final String typeName)
+	{
+		return Symbols.TYPE_COMPLEX.equals(typeName);
+	}
+
+	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
+	public static boolean isInlinedVariableLengthType(final String typeName)
+	{
+		return Symbols.TYPE_BYTES.equals(typeName)
+			|| Symbols.TYPE_CHARS.equals(typeName)
+			|| isInlinedComplexType(typeName)
+		;
+	}
+
+
+
+	public class Symbols
+	{
+		protected static final transient char   TYPE_START                       = '{';
+		protected static final transient char   TYPE_END                         = '}';
+		protected static final transient char   MEMBER_FIELD_DECL_TYPE_SEPERATOR = '#';
+		protected static final transient char   MEMBER_TERMINATOR                = ','; // cannot be ";" as array names are terminated by it
+		protected static final transient char   MEMBER_COMPLEX_DEF_START         = '(';
+		protected static final transient char   MEMBER_COMPLEX_DEF_END           = ')';
+
+		protected static final transient String KEYWORD_PRIMITIVE                = "primitive";
+		protected static final transient String TYPE_CHARS                       = "[char]"   ;
+		protected static final transient String TYPE_BYTES                       = "[byte]"   ;
+		protected static final transient String TYPE_COMPLEX                     = "[list]"   ;
+		protected static final transient int    LITERAL_LENGTH_TYPE_COMPLEX      = TYPE_COMPLEX.length();
+
+		protected static final transient char[] ARRAY_KEYWORD_PRIMITIVE          = KEYWORD_PRIMITIVE.toCharArray();
+		protected static final transient char[] ARRAY_TYPE_CHARS                 = TYPE_CHARS       .toCharArray();
+		protected static final transient char[] ARRAY_TYPE_BYTES                 = TYPE_BYTES       .toCharArray();
+		protected static final transient char[] ARRAY_TYPE_COMPLEX               = TYPE_COMPLEX     .toCharArray();
+
+		public static final String typeChars()
+		{
+			return TYPE_CHARS;
+		}
+
+		public static final String typeBytes()
+		{
+			return TYPE_BYTES;
+		}
+
+		public static final String typeComplex()
+		{
+			return TYPE_COMPLEX;
+		}
+
+
+
+		protected Symbols()
+		{
+			super();
+			// can be extended to access the symbols
+		}
+
+	}
+
+	
 }

@@ -9,36 +9,32 @@ public interface PersistenceTypeDescriptionLineage<T>
 {
 	public String typeName();
 	
-	public XGettingTable<Long, PersistenceTypeDescription<T>> members();
+	public XGettingTable<Long, PersistenceTypeDescription<T>> dictionaryEntries();
 	
 	public default PersistenceTypeDescription<T> latest()
 	{
-		return this.members().values().peek();
+		return this.dictionaryEntries().values().peek();
 	}
 	
 	public Class<T> runtimeType();
 	
-	public PersistenceTypeDescription<T> current();
+	public PersistenceTypeDescription<T> runtimeDescription();
 	
 	public boolean isValid();
+	
+	public boolean register(PersistenceTypeDescription<T> typeDescription);
 	
 	
 	
 	
 	public static <T> PersistenceTypeDescriptionLineage<T> New(
-		final String                                             typeName   ,
-		final XGettingTable<Long, PersistenceTypeDescription<T>> members    ,
-		final Class<T>                                           runtimeType,
-		final PersistenceTypeDescription<T>                      current    ,
-		final boolean                                            isValid
+		final String                        typeName   ,
+		final PersistenceTypeDescription<T> runtimeType
 	)
 	{
 		return new PersistenceTypeDescriptionLineage.Implementation<>(
 			notNull(typeName), // may never be null as this is the lineage's identity.
-			notNull(members) , // may be initially empty, but never null.
-			runtimeType      , // can be null if the type can not be resolved into a runtime class.
-			current          , // can be null
-			isValid
+			runtimeType        // can be null if the type can not be resolved into a runtime class.
 		);
 	}
 	
@@ -49,12 +45,12 @@ public interface PersistenceTypeDescriptionLineage<T>
 		// instance fields //
 		////////////////////
 
-		final String                                           typeName   ;
-		final Class<T>                                         runtimeType;
-		final EqHashTable<Long, PersistenceTypeDescription<T>> dictionaryDescriptions;
-		      PersistenceTypeDescription<T>                    runtimeDescription    ; // initialized effectively final
+		final String                                           typeName          ;
+		final Class<T>                                         runtimeType       ;
+		final EqHashTable<Long, PersistenceTypeDescription<T>> dictionaryEntries ;
+		      PersistenceTypeDescription<T>                    runtimeDescription; // initialized effectively final
 
-		transient Boolean isValid;
+		transient boolean isValid;
 
 
 
@@ -63,17 +59,18 @@ public interface PersistenceTypeDescriptionLineage<T>
 		/////////////////
 
 		Implementation(
-			final String                        typeName   ,
-			final Class<T>                      runtimeType,
-			final PersistenceTypeDescription<T> current
+			final String                        typeName          ,
+			final PersistenceTypeDescription<T> runtimeDescription
 		)
 		{
 			super();
-			this.typeName    = typeName   ;
-			this.members     = EqHashTable.New();
-			this.runtimeType = runtimeType;
-			this.current     = current    ;
-			this.isValid     = isValid    ;
+			this.typeName           = typeName   ;
+			this.dictionaryEntries  = EqHashTable.New();
+			this.runtimeDescription = runtimeDescription;
+			this.runtimeType        = runtimeDescription != null
+				? runtimeDescription.type()
+				: null
+			;
 		}
 
 
@@ -89,9 +86,9 @@ public interface PersistenceTypeDescriptionLineage<T>
 		}
 
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<T>> members()
+		public final XGettingTable<Long, PersistenceTypeDescription<T>> dictionaryEntries()
 		{
-			return this.members;
+			return this.dictionaryEntries;
 		}
 
 		@Override
@@ -101,44 +98,88 @@ public interface PersistenceTypeDescriptionLineage<T>
 		}
 
 		@Override
-		public final PersistenceTypeDescription<T> current()
+		public final PersistenceTypeDescription<T> runtimeDescription()
 		{
-			return this.current;
+			return this.runtimeDescription;
 		}
 
 		@Override
-		public final synchronized boolean isValid()
+		public final boolean isValid()
 		{
-			if(this.isValid == null)
+			synchronized(this.dictionaryEntries)
 			{
-				this.updateValidity();
+				return this.isValid;
+			}
+		}
+		
+		@Override
+		public final boolean register(final PersistenceTypeDescription<T> typeDescription)
+		{
+			if(this.runtimeType != typeDescription.type() || !this.typeName.equals(typeDescription.typeName()))
+			{
+				// (01.09.2017 TM)EXCP: proper exception
+				throw new RuntimeException();
 			}
 			
-			return this.isValid;
-		}
-		
-		final synchronized boolean updateValidity()
-		{
-			return this.isValid = PersistenceTypeDescription.isEqualDescription(this.latest(), this.current());
-		}
-		
-		final synchronized void initializeCurrent(final PersistenceTypeDescription<T> current)
-		{
-			if(this.current == current)
+			synchronized(this.dictionaryEntries)
 			{
-				// no-op
-				return;
-			}
-			else if(this.current != null)
-			{
-				// (30.08.2017 TM)EXCP: proper exception
+				/*
+				 * if the passed typeDescription is the same as or equal to the runtime-derived Description,
+				 * the latter is used from this point on to consistently include the instance in the lineage.
+				 */
+				final PersistenceTypeDescription<T> effective =
+					PersistenceTypeDescription.isEqualDescription(this.runtimeDescription, typeDescription)
+					? this.runtimeDescription
+					: typeDescription
+				;
+				
+				if(this.dictionaryEntries.add(effective.typeId(), effective))
+				{
+					// the newly registered instance must be initialized to this lineage.
+					effective.initializeLineage(this);
+					
+					// this check becomes very simply via the "effective" instance consolidation above.
+					this.isValid = effective == this.runtimeDescription;
+					
+					// reporting back newly registered
+					return true;
+				}
+				
+				final PersistenceTypeDescription<T> registered = this.dictionaryEntries.get(effective.typeId());
+				if(registered == effective)
+				{
+					// basically just used for validation
+					effective.initializeLineage(this);
+					
+					// reporting back already registered (and consistent)
+					return false;
+				}
+				
+				// (01.09.2017 TM)EXCP: proper exception
 				throw new RuntimeException(
-					"Current " + PersistenceTypeDescription.class.getSimpleName() + " already initialized."
+					PersistenceTypeDescription.class.getSimpleName()
+					+ " already registered for TypeId " + registered.typeId() + "."
 				);
 			}
-			
-			this.current = current;
 		}
+		
+//		final synchronized void initializeCurrent(final PersistenceTypeDescription<T> current)
+//		{
+//			if(this.current == current)
+//			{
+//				// no-op
+//				return;
+//			}
+//			else if(this.current != null)
+//			{
+//				// (30.08.2017 TM)EXCP: proper exception
+//				throw new RuntimeException(
+//					"Current " + PersistenceTypeDescription.class.getSimpleName() + " already initialized."
+//				);
+//			}
+//
+//			this.current = current;
+//		}
 
 	}
 
