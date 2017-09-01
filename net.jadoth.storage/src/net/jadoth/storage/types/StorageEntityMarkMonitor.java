@@ -216,7 +216,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
-//				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
+				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
 			}
 		}
 
@@ -294,6 +294,8 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 
 			// mark this channel as having completed the sweep
 			this.needsSweep[channel.channelIndex()] = false;
+			
+			DEBUGStorage.println(channel.channelIndex() + " completed sweeping.");
 
 			// decrement sweep channel count and execute completion logic if required.
 			if(--this.sweepingChannelCount == 0)
