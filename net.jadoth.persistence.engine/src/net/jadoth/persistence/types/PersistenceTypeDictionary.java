@@ -109,7 +109,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 				this.lineageEnsurer
 			);
 			
-			lineage.
+			lineage.register(typeDescription);
+			
 			
 			if(!this.typesPerTypeId.add(typeDescription.typeId(), typeDescription))
 			{
