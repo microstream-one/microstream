@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import net.jadoth.meta.JadothConsole;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
 import net.jadoth.util.file.JadothFiles;
 
@@ -147,6 +148,12 @@ public interface StorageFileWriter
 			super();
 			this.grave = grave;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void delete(final StorageLockedChannelFile file)
@@ -163,6 +170,42 @@ public interface StorageFileWriter
 				throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
 			}
 		}
+		
+		@Override
+		public void truncate(final StorageLockedFile file, final long newLength)
+		{
+			/* (04.09.2017 TM)NOTE:
+			 * truncation is the only possibility where data can be deleted.
+			 * As a safety net, those files are backupped in full before truncated, now.
+			 */
+			this.createTruncationBak(file.file(), newLength);
+			StorageFileWriter.super.truncate(file, newLength);
+		}
+		
+		public final void createTruncationBak(final File file, final long newLength)
+		{
+			final File dirBak = new File(this.grave.toFile(), "bak");
+			
+			final String bakFileName = file.getName() + "_truncated_from_" + file.length() + "_to_" + newLength
+				+ "_@" + System.currentTimeMillis() + ".bak"
+			;
+			JadothConsole.debugln("Creating truncation bak file: " + bakFileName);
+			JadothFiles.ensureDirectory(dirBak);
+			try
+			{
+				Files.copy(
+					file.toPath(),
+					dirBak.toPath().resolve(bakFileName)
+				);
+				JadothConsole.debugln("* bak file created: " + bakFileName);
+			}
+			catch(final IOException e)
+			{
+				throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
+			}
+		}
+		
+		
 
 		public static final class Provider implements StorageFileWriter.Provider
 		{
@@ -258,5 +301,13 @@ public interface StorageFileWriter
 		}
 
 	}
+	
+	
+	// (04.09.2017 TM)NOTE: Gravedigger#createTruncationBak test
+//	public static void main(final String[] args)
+//	{
+//		final Gravedigger gd = new Gravedigger(Paths.get("D:/test/grave"));
+//		gd.createTruncationBak(new File("D:/test/sample.dat"), 10);
+//	}
 
 }
