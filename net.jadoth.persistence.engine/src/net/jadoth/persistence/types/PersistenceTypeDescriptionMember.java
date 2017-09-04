@@ -9,6 +9,20 @@ import net.jadoth.util.Equalator;
 
 public interface PersistenceTypeDescriptionMember
 {
+	/* (30.06.2015 TM)TODO: PersistenceTypeDescription<?> Generics
+	 * Must consider Generics Type information as well, at least as a simple normalized String for
+	 * equality comparison.
+	 * Otherwise, changing type parameter won't be recognized by the type validation and
+	 * loading/building of entities will result in heap pollution (wrong instance for the type).
+	 * Example:
+	 * Lazy<Person> changed to Lazy<Employee>.
+	 * Currently, this is just recognized as Lazy.
+	 * 
+	 * (05.04.2017 TM)NOTE: but does it really have to be stored here?
+	 * Wouldn't it be enough to store it in the member description?
+	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
+	 */
+	
 	public String typeName();
 
 	public String name();

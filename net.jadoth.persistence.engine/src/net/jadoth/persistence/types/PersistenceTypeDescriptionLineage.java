@@ -121,6 +121,11 @@ public interface PersistenceTypeDescriptionLineage<T>
 				throw new RuntimeException();
 			}
 			
+			if(this.runtimeType != null && typeDescription.typeId() > this.runtimeDescription.typeId())
+			{
+				
+			}
+			
 			synchronized(this.dictionaryEntries)
 			{
 				/*
@@ -140,6 +145,8 @@ public interface PersistenceTypeDescriptionLineage<T>
 					
 					// this check becomes very simply via the "effective" instance consolidation above.
 					this.isValid = effective == this.runtimeDescription;
+					
+					this.dictionaryEntries.keys().sort(Long::compareTo);
 					
 					// reporting back newly registered
 					return true;
@@ -172,7 +179,7 @@ public interface PersistenceTypeDescriptionLineage<T>
 //			}
 //			else if(this.current != null)
 //			{
-//				// (30.08.2017 TM)EXCP: proper exception
+//				// (30.08.2017 TM)EX-CP: proper exception
 //				throw new RuntimeException(
 //					"Current " + PersistenceTypeDescription.class.getSimpleName() + " already initialized."
 //				);

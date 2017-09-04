@@ -4,12 +4,9 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Function;
 
-import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.util.KeyValue;
 
@@ -47,15 +44,10 @@ public interface PersistenceTypeDictionaryBuilder
 			return true;
 		}
 		
-		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionFamily(
-			final String                                             typeName,
-			final XGettingTable<Long, PersistenceTypeDictionaryEntry> members
-		)
+		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionLineage(final String typeName)
 		{
-			PersistenceTypeDescriptionLineage.New(typeName, members, null, null, false)
-
-			
-			return currentTypeDescription;
+			// no runtime type in default implementation (e.g. standalone process)
+			return PersistenceTypeDescriptionLineage.New(typeName, null);
 		}
 		
 		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupByTypeName(
@@ -90,11 +82,7 @@ public interface PersistenceTypeDictionaryBuilder
 			
 			for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
 			{
-				
-				final PersistenceTypeDescriptionLineage<?> td = createTypeDescriptionFamily(
-					e.key()          ,
-					e.value()
-				);
+				final PersistenceTypeDescriptionLineage<?> td = createTypeDescriptionLineage(e.key());
 				typeDescriptions.add(td);
 			}
 			
@@ -151,10 +139,7 @@ public interface PersistenceTypeDictionaryBuilder
 		////////////
 		
 		@Override
-		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionFamily(
-			final String                                typeName,
-			final XList<PersistenceTypeDictionaryEntry> members
-		)
+		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionLineage(final String typeName)
 		{
 			final PersistenceTypeDescription<T> latestTypeDescription = super.createTypeDescriptionFamily(
 				typeName,
