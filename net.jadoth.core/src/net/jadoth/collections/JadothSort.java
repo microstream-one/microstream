@@ -139,6 +139,22 @@ public final class JadothSort
 			return o2.doubleValue() >= o1.doubleValue() ? o2.doubleValue() != o1.doubleValue() ? -1 : 0 : 1;
 		}
 	}
+	
+	public static final int compare(final String o1, final String o2)
+	{
+		if(o1 == null)
+		{
+			return o2 == null ? 0 : -1;
+		}
+		else if(o2 == null)
+		{
+			return 1;
+		}
+		else
+		{
+			return o1.compareTo(o2);
+		}
+	}
 
 	public static final int compareLength(final String o1, final String o2)
 	{

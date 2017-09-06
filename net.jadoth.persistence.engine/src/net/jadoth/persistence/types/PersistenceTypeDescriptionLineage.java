@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceTypeDescriptionLineage<T>
@@ -115,15 +116,20 @@ public interface PersistenceTypeDescriptionLineage<T>
 		@Override
 		public final boolean register(final PersistenceTypeDescription<T> typeDescription)
 		{
-			if(this.runtimeType != typeDescription.type() || !this.typeName.equals(typeDescription.typeName()))
+			if(this.runtimeType != typeDescription.type())
 			{
 				// (01.09.2017 TM)EXCP: proper exception
-				throw new RuntimeException();
+				throw new RuntimeException("Runtime type mismatch");
 			}
-			
+			if(!this.typeName.equals(typeDescription.typeName()))
+			{
+				// (01.09.2017 TM)EXCP: proper exception
+				throw new RuntimeException("typeName mismatch");
+			}
 			if(this.runtimeType != null && typeDescription.typeId() > this.runtimeDescription.typeId())
 			{
-				
+				// (01.09.2017 TM)EXCP: proper exception
+				throw new RuntimeException("TypeId greater than that of the runtime description");
 			}
 			
 			synchronized(this.dictionaryEntries)
@@ -146,7 +152,7 @@ public interface PersistenceTypeDescriptionLineage<T>
 					// this check becomes very simply via the "effective" instance consolidation above.
 					this.isValid = effective == this.runtimeDescription;
 					
-					this.dictionaryEntries.keys().sort(Long::compareTo);
+					JadothSort.valueSort(this.dictionaryEntries.keys(), Long::compareTo);
 					
 					// reporting back newly registered
 					return true;
@@ -170,24 +176,6 @@ public interface PersistenceTypeDescriptionLineage<T>
 			}
 		}
 		
-//		final synchronized void initializeCurrent(final PersistenceTypeDescription<T> current)
-//		{
-//			if(this.current == current)
-//			{
-//				// no-op
-//				return;
-//			}
-//			else if(this.current != null)
-//			{
-//				// (30.08.2017 TM)EX-CP: proper exception
-//				throw new RuntimeException(
-//					"Current " + PersistenceTypeDescription.class.getSimpleName() + " already initialized."
-//				);
-//			}
-//
-//			this.current = current;
-//		}
-
 	}
 
 }

@@ -19,6 +19,17 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
 
 
+	
+	public static PersistenceTypeDictionaryManager.Implementation New(
+		final PersistenceTypeDictionaryProvider typeDictionaryProvider,
+		final PersistenceTypeDictionaryExporter typeDictionaryExporter
+	)
+	{
+		return new PersistenceTypeDictionaryManager.Implementation(
+			notNull(typeDictionaryProvider),
+			notNull(typeDictionaryExporter)
+		);
+	}
 
 	public final class Implementation implements PersistenceTypeDictionaryManager
 	{
@@ -30,8 +41,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		private final PersistenceTypeDictionaryExporter typeDictionaryExporter;
 
 		private transient PersistenceTypeDictionary cachedTypeDictionary;
-
-		private transient boolean changed;
+		private transient boolean                   changed             ;
 
 
 
@@ -39,7 +49,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final PersistenceTypeDictionaryProvider typeDictionaryProvider,
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)

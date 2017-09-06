@@ -433,6 +433,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionary typeDictionary =
 				this.typeDictionaryManager.provideTypeDictionary()
 			;
+			
+			// (06.09.2017 TM)FIXME: validate all entries regarding runtime description, create diffs, etc.
+			
 			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
 				typeDictionary.currentTypesByName().values()
 			;

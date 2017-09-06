@@ -2,22 +2,19 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
-import java.util.function.Function;
-
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
-import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
 	public XGettingTable<Long, PersistenceTypeDescription<?>> allTypes();
 	
-	public XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName();
+	public XGettingTable<String, PersistenceTypeDescription<?>> latestTypesByName();
 	
-	public XGettingTable<Long, PersistenceTypeDescription<?>> currentTypesById();
+	public XGettingTable<Long, PersistenceTypeDescription<?>> latestTypesPerTId();
 	
 	public XGettingTable<String, PersistenceTypeDescriptionLineage<?>> types();
 
@@ -36,6 +33,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	public void setTypeDescriptionRegistrationCallback(PersistenceTypeDescriptionRegistrationCallback callback);
 
 	public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback();
+	
+	public <T> PersistenceTypeDescriptionLineage<T> ensureTypeLineage(String typeName);
+	
+	public <T> PersistenceTypeDescriptionLineage<T> lookupTypeLineage(String typeName);
+	
+	
 
 
 	public static PersistenceTypeDictionary New(final PersistenceTypeDescriptionLineageProvider lineageProvider)
@@ -52,14 +55,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDescriptionLineageProvider                 lineageProvider ;
-		private final EqHashTable<Long  , PersistenceTypeDescription<?>>        typesPerTypeId   = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescription<?>>        typesPerTypeName = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescriptionLineage<?>> lineages         = EqHashTable.New();
-		private       PersistenceTypeDescriptionRegistrationCallback            callback        ;
+		private final PersistenceTypeDescriptionLineageProvider                 lineageProvider     ;
+		private final EqHashTable<Long  , PersistenceTypeDescription<?>>        typesPerTypeId       = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDescription<?>>        latestTypesPerName   = EqHashTable.New();
+		private final EqHashTable<Long, PersistenceTypeDescription<?>>          latestTypesPerTypeId = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDescriptionLineage<?>> typeLineages         = EqHashTable.New();
+		private       PersistenceTypeDescriptionRegistrationCallback            callback            ;
 		
-		private final Function<String, PersistenceTypeDescriptionLineage<?>> lineageEnsurer;
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -69,8 +71,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		Implementation(final PersistenceTypeDescriptionLineageProvider lineageProvider)
 		{
 			super();
-			this.lineageProvider = lineageProvider    ;
-			this.lineageEnsurer  = this::ensureLineage;
+			this.lineageProvider = lineageProvider;
 		}
 
 		
@@ -79,49 +80,44 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// methods //
 		////////////
 
-		private <T> PersistenceTypeDescriptionLineage<T> ensureLineage(final String typeName)
+		@Override
+		public synchronized <T> PersistenceTypeDescriptionLineage<T> ensureTypeLineage(final String typeName)
 		{
-			return this.lineageProvider.provideTypeDescriptionLineage(typeName);
-		}
-		
-		private synchronized <T> PersistenceTypeDescriptionLineage<T> ensureLineage(
-			final PersistenceTypeDescription<T> typeDescription
-		)
-		{
-			// type safety ensured by type name: the type parameter T always represents the type with the given name.
-			@SuppressWarnings("unchecked")
-			final
-			PersistenceTypeDescriptionLineage<T> lineage = (PersistenceTypeDescriptionLineage<T>)this.lineages.ensure(
-				typeDescription.typeName(),
-				this.lineageEnsurer
-			);
+			PersistenceTypeDescriptionLineage<T> lineage = this.lookupTypeLineage(typeName);
+			if(lineage != null)
+			{
+				return lineage;
+			}
 			
+			lineage = this.lineageProvider.provideTypeDescriptionLineage(typeName);
+			this.typeLineages.add(typeName, lineage);
+			this.internalSortTypeLineages();
+
 			return lineage;
 		}
-
+		
+		@Override
+		public synchronized <T> PersistenceTypeDescriptionLineage<T> lookupTypeLineage(final String typeName)
+		{
+			// it is the caller's responsibility to pass the proper typeName representing the specified type T.
+			@SuppressWarnings("unchecked")
+			final PersistenceTypeDescriptionLineage<T> lineage =
+				(PersistenceTypeDescriptionLineage<T>)this.typeLineages.get(typeName)
+			;
+			return lineage;
+		}
+		
 		final <T> boolean internalRegisterType(final PersistenceTypeDescription<T> typeDescription)
 		{
-			// type safety ensured by type name: the type parameter T always represents the type with the given name.
-			@SuppressWarnings("unchecked")
-			final
-			PersistenceTypeDescriptionLineage<T> lineage = (PersistenceTypeDescriptionLineage<T>)this.lineages.ensure(
-				typeDescription.typeName(),
-				this.lineageEnsurer
-			);
-			
-			lineage.register(typeDescription);
-			
-			
-			if(!this.typesPerTypeId.add(typeDescription.typeId(), typeDescription))
+			final PersistenceTypeDescriptionLineage<T> lineage = this.ensureTypeLineage(typeDescription.typeName());
+			if(!lineage.register(typeDescription))
 			{
 				return false;
 			}
 			
-			if(!typeDescription.isCurrent())
-			{
-				this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
-			}
-
+			this.typesPerTypeId.add(typeDescription.typeId(), typeDescription);
+			this.latestTypesPerName.put(lineage.typeName(), lineage.latest());
+			
 			// callback gets set externally, can be null as well, so it must be checked.
 			if(this.callback != null)
 			{
@@ -130,10 +126,33 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			
 			return true;
 		}
-
-		private void internalSort()
+		
+		private void rebuildLatestTypesPerTypeId()
 		{
-			SwizzleTypeIdOwner.sortByTypeIdAscending(this.typesPerTypeId.values());
+			// Table must be rebuilt completely to evict the old TypeIds für (the) update type(s).
+			final EqHashTable<Long, PersistenceTypeDescription<?>> table = this.latestTypesPerTypeId;
+			table.clear();
+			for(final PersistenceTypeDescriptionLineage<?> tdl : this.typeLineages.values())
+			{
+				final PersistenceTypeDescription<?> td = tdl.latest();
+				if(!table.add(td.typeId(), td))
+				{
+					// (05.09.2017 TM)EXCP: proper exception
+					throw new RuntimeException("Duplicate TypeId " + td.typeId());
+				}
+			}
+			JadothSort.valueSort(table.keys(), Long::compareTo);
+		}
+
+		private void internalSortTypeDescriptions()
+		{
+			JadothSort.valueSort(this.typesPerTypeId.keys()    , Long::compareTo);
+			JadothSort.valueSort(this.latestTypesPerName.keys(), JadothSort::compare);
+		}
+		
+		private void internalSortTypeLineages()
+		{
+			JadothSort.valueSort(this.typeLineages.keys(), JadothSort::compare);
 		}
 
 
@@ -143,27 +162,41 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		/////////////////////
 
 		@Override
-		public void setTypeDescriptionRegistrationCallback(final PersistenceTypeDescriptionRegistrationCallback callback)
+		public synchronized void setTypeDescriptionRegistrationCallback(
+			final PersistenceTypeDescriptionRegistrationCallback callback
+		)
 		{
 			this.callback = callback;
 		}
 
 		@Override
-		public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public final synchronized PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
 		{
 			return this.callback;
 		}
+		
+		@Override
+		public final synchronized XGettingTable<String, PersistenceTypeDescriptionLineage<?>> types()
+		{
+			return this.typeLineages;
+		}
 
 		@Override
-		public XGettingTable<Long, PersistenceTypeDescription<?>> allTypes()
+		public final synchronized XGettingTable<Long, PersistenceTypeDescription<?>> allTypes()
 		{
 			return this.typesPerTypeId;
 		}
+
+		@Override
+		public final synchronized XGettingTable<Long, PersistenceTypeDescription<?>> latestTypesPerTId()
+		{
+			return this.latestTypesPerTypeId;
+		}
 		
 		@Override
-		public XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName()
+		public final synchronized XGettingTable<String, PersistenceTypeDescription<?>> latestTypesByName()
 		{
-			return this.typesPerTypeName;
+			return this.latestTypesPerName;
 		}
 
 		@Override
@@ -171,7 +204,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			if(this.internalRegisterType(typeDescription))
 			{
-				this.internalSort();
+				this.rebuildLatestTypesPerTypeId();
+				this.internalSortTypeDescriptions();
 				return true;
 			}
 			return false;
@@ -179,7 +213,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		@Override
 		public synchronized boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+			final Iterable<? extends PersistenceTypeDescription<?>> typeDescriptions
 		)
 		{
 			final long oldSize = this.typesPerTypeId.size();
@@ -191,26 +225,27 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 			if(this.typesPerTypeId.size() != oldSize)
 			{
-				this.internalSort();
+				this.rebuildLatestTypesPerTypeId();
+				this.internalSortTypeDescriptions();
 				return true;
 			}
 			return false;
 		}
 
 		@Override
-		public PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
+		public synchronized PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
 		{
-			return this.typesPerTypeName.get(typeName);
+			return this.latestTypesPerName.get(typeName);
 		}
 
 		@Override
-		public PersistenceTypeDescription<?> lookupTypeById(final long typeId)
+		public synchronized PersistenceTypeDescription<?> lookupTypeById(final long typeId)
 		{
 			return this.typesPerTypeId.get(typeId);
 		}
 
 		@Override
-		public long determineHighestTypeId()
+		public synchronized long determineHighestTypeId()
 		{
 			long maxTypeId = -1;
 			
@@ -226,7 +261,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public String toString()
+		public synchronized String toString()
 		{
 			final VarString vc = VarString.New();
 
@@ -237,9 +272,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 			return vc.toString();
 		}
-
+		
 	}
-
 	
 	public static boolean isVariableLength(final String typeName)
 	{

@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.util.KeyValue;
@@ -13,24 +14,43 @@ import net.jadoth.util.KeyValue;
 public interface PersistenceTypeDictionaryBuilder
 {
 	public PersistenceTypeDictionary buildTypeDictionary(XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries);
+		
 	
 	
-	
-	
-	public static PersistenceTypeDictionaryBuilder.Implementation New()
+	public static PersistenceTypeDictionaryBuilder.Implementation New(
+		final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ,
+		final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder
+	)
 	{
-		return new PersistenceTypeDictionaryBuilder.Implementation();
+		return new PersistenceTypeDictionaryBuilder.Implementation(
+			notNull(typeLineageProvider)   ,
+			notNull(typeDescriptionBuilder)
+		);
 	}
 	
 	public class Implementation implements PersistenceTypeDictionaryBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ;
+		final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Implementation(
+			final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ,
+			final PersistenceTypeDescriptionBuilder        typeDescriptionBuilder
+		)
 		{
 			super();
+			this.typeLineageProvider    = typeLineageProvider   ;
+			this.typeDescriptionBuilder = typeDescriptionBuilder;
 		}
 		
 		
@@ -44,13 +64,13 @@ public interface PersistenceTypeDictionaryBuilder
 			return true;
 		}
 		
-		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionLineage(final String typeName)
+		protected <T> PersistenceTypeDescriptionLineage<T> fillTypeDescriptionLineage(final String typeName)
 		{
 			// no runtime type in default implementation (e.g. standalone process)
 			return PersistenceTypeDescriptionLineage.New(typeName, null);
 		}
 		
-		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupByTypeName(
+		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupAndSort(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 		)
 		{
@@ -59,7 +79,11 @@ public interface PersistenceTypeDictionaryBuilder
 			
 			for(final PersistenceTypeDictionaryEntry e : entries)
 			{
-				table.ensure(e.typeName(), supplier).add(e.typeId(), e);
+				if(!table.ensure(e.typeName(), supplier).add(e.typeId(), e))
+				{
+					// (05.09.2017 TM)EXCP: proper exception
+					throw new RuntimeException("Duplicate TypeDictionary entry for TypeId " + e.typeId());
+				}
 			}
 			
 			for(final EqHashTable<Long, PersistenceTypeDictionaryEntry> e : table.values())
@@ -70,96 +94,36 @@ public interface PersistenceTypeDictionaryBuilder
 			return table;
 		}
 		
-		
 		@Override
 		public PersistenceTypeDictionary buildTypeDictionary(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupByTypeName(entries);
-			
-			final EqHashTable<Long, PersistenceTypeDescription<?>> typeDescriptions = EqHashTable.New();
-			
+			final PersistenceTypeDictionary dictionary = PersistenceTypeDictionary.New(this.typeLineageProvider);
+
+			final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupAndSort(entries);
 			for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
 			{
-				final PersistenceTypeDescriptionLineage<?> td = createTypeDescriptionLineage(e.key());
-				typeDescriptions.add(td);
+				populateTypeLineage(dictionary.ensureTypeLineage(e.key()), e.value().values());
 			}
 			
-			return PersistenceTypeDictionary.New(typeDescriptions);
+			return dictionary;
 		}
 		
-	}
-	
-	public static PersistenceTypeDictionaryBuilder.RuntimeLinker New(
-		final PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider,
-		final PersistenceTypeDescription.Builder         typeDescriptionBuilder        ,
-		final PersistenceTypeDescriptionMismatchListener typeMismatchListener
-	)
-	{
-		return new RuntimeLinker(
-			notNull(runtimeTypeDescriptionProvider),
-			notNull(typeDescriptionBuilder)        ,
-			notNull(typeMismatchListener)
-		);
-	}
-	
-	public final class RuntimeLinker extends PersistenceTypeDictionaryBuilder.Implementation
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		final PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider;
-		final PersistenceTypeDescription.Builder         typeDescriptionBuilder        ;
-		final PersistenceTypeDescriptionMismatchListener typeMismatchListener          ;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		RuntimeLinker(
-			final PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider,
-			final PersistenceTypeDescription.Builder         typeDescriptionBuilder        ,
-			final PersistenceTypeDescriptionMismatchListener typeMismatchListener
+		private static <T> void populateTypeLineage(
+			final PersistenceTypeDescriptionLineage<T>               typeLineage,
+			final XGettingCollection<PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			super();
-			this.runtimeTypeDescriptionProvider = runtimeTypeDescriptionProvider;
-			this.typeDescriptionBuilder         = typeDescriptionBuilder        ;
-			this.typeMismatchListener           = typeMismatchListener          ;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		@Override
-		protected <T> PersistenceTypeDescriptionLineage<T> createTypeDescriptionLineage(final String typeName)
-		{
-			final PersistenceTypeDescription<T> latestTypeDescription = super.createTypeDescriptionFamily(
-				typeName,
-				typeFamily,
-				obsoletes
-			);
-						
-			final PersistenceTypeDescription<T> runtimeTypeDescription =
-				this.runtimeTypeDescriptionProvider.provideRuntimeTypeDescription(
-					latestTypeDescription,
-					obsoletes,
-					(latest, runtime) ->
-					{
-						obsoletes.add(latest.typeId(), latest);
-						this.typeMismatchListener.registerMismatch(latest, runtime);
-					}
-				)
-			;
-			
-			return runtimeTypeDescription;
+			for(final PersistenceTypeDictionaryEntry e : entries)
+			{
+				final PersistenceTypeDescription<T> td = PersistenceTypeDescription.New(
+					typeLineage,
+					e.typeId() ,
+					e.members()
+				);
+				typeLineage.register(td);
+			}
 		}
 		
 	}

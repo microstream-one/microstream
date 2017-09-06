@@ -175,13 +175,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		{
 			return this.type.getName();
 		}
-						
-		@Override
-		public final boolean isCurrent()
-		{
-			return true;
-		}
-		
+				
 		@Override
 		public PersistenceTypeHandler<M, T> initializeTypeHandler(final SwizzleTypeLookup typeLookup)
 		{

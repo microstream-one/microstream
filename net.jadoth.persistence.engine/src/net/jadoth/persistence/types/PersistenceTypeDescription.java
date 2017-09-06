@@ -97,9 +97,9 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	}
 	
 
-	public static PersistenceTypeDescription.Builder Builder()
+	public static PersistenceTypeDescriptionBuilder Builder()
 	{
-		return new PersistenceTypeDescription.Builder.Implementation();
+		return new PersistenceTypeDescriptionBuilder.Implementation();
 	}
 	
 	public static <T> PersistenceTypeDescription<T> New(
@@ -144,7 +144,7 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 			this.typeId            = typeId               ;
 			this.typeName          = lineage.typeName()   ;
 			this.type              = lineage.runtimeType(); // may be null for an obsolete type description
-			this.members           = members.immure() ; // same instance if already immutable
+			this.members           = members.immure()     ; // same instance if already immutable
 			this.hasReferences     = PersistenceTypeDescriptionMember.determineHasReferences (members);
 			this.isPrimitive       = PersistenceTypeDescriptionMember.determineIsPrimitive   (members);
 			this.variableLength    = PersistenceTypeDescriptionMember.determineVariableLength(members);
@@ -244,46 +244,6 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 			return vc.toString();
 		}
 
-	}
-	
-	@FunctionalInterface
-	public interface Builder
-	{
-		public <T> PersistenceTypeDescription<T> build(
-			PersistenceTypeDescriptionLineage<T>                         lineage,
-			long                                                         typeId ,
-			XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-		);
-				
-		public final class Implementation implements Builder
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Implementation()
-			{
-				super();
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@Override
-			public <T> PersistenceTypeDescription<T> build(
-				final PersistenceTypeDescriptionLineage<T>                         lineage,
-				final long                                                         typeId ,
-				final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-			)
-			{
-				return PersistenceTypeDescription.New(lineage, typeId, members);
-			}
-			
-		}
-		
 	}
 	
 }
