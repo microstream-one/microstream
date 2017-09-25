@@ -55,12 +55,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
+		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
 		private final PersistenceTypeDescriptionLineageProvider                 lineageProvider     ;
 		private final EqHashTable<Long  , PersistenceTypeDescription<?>>        typesPerTypeId       = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDescription<?>>        latestTypesPerName   = EqHashTable.New();
 		private final EqHashTable<Long, PersistenceTypeDescription<?>>          latestTypesPerTypeId = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDescriptionLineage<?>> typeLineages         = EqHashTable.New();
-		private       PersistenceTypeDescriptionRegistrationCallback            callback            ;
+		private       PersistenceTypeDescriptionRegistrationCallback            registrationCallback;
 		
 
 
@@ -119,9 +120,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			this.latestTypesPerName.put(lineage.typeName(), lineage.latest());
 			
 			// callback gets set externally, can be null as well, so it must be checked.
-			if(this.callback != null)
+			if(this.registrationCallback != null)
 			{
-				this.callback.registerTypeDescription(typeDescription);
+				this.registrationCallback.registerTypeDescription(typeDescription);
 			}
 			
 			return true;
@@ -166,13 +167,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			final PersistenceTypeDescriptionRegistrationCallback callback
 		)
 		{
-			this.callback = callback;
+			this.registrationCallback = callback;
 		}
 
 		@Override
 		public final synchronized PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
 		{
-			return this.callback;
+			return this.registrationCallback;
 		}
 		
 		@Override

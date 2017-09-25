@@ -35,11 +35,10 @@ public interface PersistenceTypeDescriptionLineage<T>
 	{
 		return new PersistenceTypeDescriptionLineage.Implementation<>(
 			notNull(typeName), // may never be null as this is the lineage's identity.
-			runtimeType        // can be null if the type can not be resolved into a runtime class.
+			runtimeType        // can be null if the type cannot be resolved into a runtime class.
 		);
 	}
-	
-	
+		
 	public final class Implementation<T> implements PersistenceTypeDescriptionLineage<T>
 	{
 		////////////////////////////////////////////////////////////////////////////

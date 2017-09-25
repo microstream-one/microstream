@@ -45,7 +45,7 @@ public interface PersistenceTypeDictionaryBuilder
 		
 		Implementation(
 			final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ,
-			final PersistenceTypeDescriptionBuilder        typeDescriptionBuilder
+			final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder
 		)
 		{
 			super();
@@ -58,17 +58,18 @@ public interface PersistenceTypeDictionaryBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		protected boolean latestTypeDescriptionIsCurrent()
-		{
-			return true;
-		}
-		
-		protected <T> PersistenceTypeDescriptionLineage<T> fillTypeDescriptionLineage(final String typeName)
-		{
-			// no runtime type in default implementation (e.g. standalone process)
-			return PersistenceTypeDescriptionLineage.New(typeName, null);
-		}
+
+		// (25.09.2017 TM)XXX: remove if not needed
+//		protected boolean latestTypeDescriptionIsCurrent()
+//		{
+//			return true;
+//		}
+//
+//		protected <T> PersistenceTypeDescriptionLineage<T> fillTypeDescriptionLineage(final String typeName)
+//		{
+//			// no runtime type in default implementation (e.g. standalone process)
+//			return PersistenceTypeDescriptionLineage.New(typeName, null);
+//		}
 		
 		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupAndSort(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
