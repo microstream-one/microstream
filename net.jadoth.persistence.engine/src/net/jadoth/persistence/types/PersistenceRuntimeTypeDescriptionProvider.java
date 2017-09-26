@@ -7,7 +7,7 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 public interface PersistenceRuntimeTypeDescriptionProvider
 {
 	public <T> PersistenceTypeDescription<T> provideRuntimeTypeDescription(
-		PersistenceTypeDescriptionLineage<T>         lineage                       ,
+		PersistenceTypeLineage<T>         lineage                       ,
 		PersistenceTypeDescriptionMismatchHandler<T> typeDescriptionMismatchHandler,
 		SwizzleTypeManager                           typeManager
 	);
@@ -36,7 +36,7 @@ public interface PersistenceRuntimeTypeDescriptionProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(	final PersistenceTypeDescriptionInitializerLookup typeDescriptionInitializerLookup	)
+		Implementation(final PersistenceTypeDescriptionInitializerLookup typeDescriptionInitializerLookup)
 		{
 			super();
 			this.typeDescriptionInitializerLookup = typeDescriptionInitializerLookup;
@@ -68,7 +68,7 @@ public interface PersistenceRuntimeTypeDescriptionProvider
 		
 		@Override
 		public <T> PersistenceTypeDescription<T> provideRuntimeTypeDescription(
-			final PersistenceTypeDescriptionLineage<T>         lineage                       ,
+			final PersistenceTypeLineage<T>         lineage                       ,
 			final PersistenceTypeDescriptionMismatchHandler<T> typeDescriptionMismatchHandler,
 			final SwizzleTypeManager                           typeManager
 		)

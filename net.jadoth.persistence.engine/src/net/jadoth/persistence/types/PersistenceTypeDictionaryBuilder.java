@@ -112,7 +112,7 @@ public interface PersistenceTypeDictionaryBuilder
 		}
 		
 		private static <T> void populateTypeLineage(
-			final PersistenceTypeDescriptionLineage<T>               typeLineage,
+			final PersistenceTypeLineage<T>               typeLineage,
 			final XGettingCollection<PersistenceTypeDictionaryEntry> entries
 		)
 		{

@@ -12,5 +12,5 @@ public interface PersistenceTypeDescriptionInitializer<T> extends SwizzleTypeLin
 	
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 	
-	public PersistenceTypeDescription<T> initialize(long typeId, PersistenceTypeDescriptionLineage<T> lineage);
+	public PersistenceTypeDescription<T> initialize(long typeId, PersistenceTypeLineage<T> lineage);
 }

@@ -6,7 +6,7 @@ import net.jadoth.collections.types.XGettingSequence;
 public interface PersistenceTypeDescriptionBuilder
 {
 	public <T> PersistenceTypeDescription<T> build(
-		PersistenceTypeDescriptionLineage<T>                         lineage,
+		PersistenceTypeLineage<T>                         lineage,
 		long                                                         typeId ,
 		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	);
@@ -30,7 +30,7 @@ public interface PersistenceTypeDescriptionBuilder
 
 		@Override
 		public <T> PersistenceTypeDescription<T> build(
-			final PersistenceTypeDescriptionLineage<T>                         lineage,
+			final PersistenceTypeLineage<T>                         lineage,
 			final long                                                         typeId ,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)

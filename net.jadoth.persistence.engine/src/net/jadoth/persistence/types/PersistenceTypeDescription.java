@@ -74,14 +74,14 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	
-	public PersistenceTypeDescriptionLineage<T> lineage();
+	public PersistenceTypeLineage<T> lineage();
 
 	public default boolean isRuntime()
 	{
 		return this.lineage().runtimeDescription() == this;
 	}
 	
-	public PersistenceTypeDescriptionLineage<T> initializeLineage(PersistenceTypeDescriptionLineage<T> lineage);
+	public PersistenceTypeLineage<T> initializeLineage(PersistenceTypeLineage<T> lineage);
 	
 	
 	
@@ -103,7 +103,7 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 	}
 	
 	public static <T> PersistenceTypeDescription<T> New(
-		final PersistenceTypeDescriptionLineage<T>                         lineage,
+		final PersistenceTypeLineage<T>                         lineage,
 		final long                                                         typeId ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
@@ -125,7 +125,7 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		final boolean                                                        hasReferences ;
 		final boolean                                                        isPrimitive   ;
 		final boolean                                                        variableLength;
-		final PersistenceTypeDescriptionLineage<T>                           lineage       ;
+		final PersistenceTypeLineage<T>                                      typeLineage   ;
 
 
 
@@ -134,17 +134,17 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		/////////////////
 
 		Implementation(
-			final PersistenceTypeDescriptionLineage<T>                         lineage,
+			final PersistenceTypeLineage<T>                                    typeLineage,
 			final long                                                         typeId ,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			super();
-			this.lineage           = lineage              ;
-			this.typeId            = typeId               ;
-			this.typeName          = lineage.typeName()   ;
-			this.type              = lineage.runtimeType(); // may be null for an obsolete type description
-			this.members           = members.immure()     ; // same instance if already immutable
+			this.typeLineage       = typeLineage              ;
+			this.typeId            = typeId                   ;
+			this.typeName          = typeLineage.typeName()   ;
+			this.type              = typeLineage.runtimeType(); // may be null for an obsolete type description
+			this.members           = members.immure()         ; // same instance if already immutable
 			this.hasReferences     = PersistenceTypeDescriptionMember.determineHasReferences (members);
 			this.isPrimitive       = PersistenceTypeDescriptionMember.determineIsPrimitive   (members);
 			this.variableLength    = PersistenceTypeDescriptionMember.determineVariableLength(members);
@@ -157,23 +157,23 @@ public interface PersistenceTypeDescription<T> extends PersistenceTypeDictionary
 		/////////////////////
 		
 		@Override
-		public final PersistenceTypeDescriptionLineage<T> lineage()
+		public final PersistenceTypeLineage<T> lineage()
 		{
-			return this.lineage;
+			return this.typeLineage;
 		}
 		
 		@Override
-		public final PersistenceTypeDescriptionLineage<T> initializeLineage(final PersistenceTypeDescriptionLineage<T> lineage)
+		public final PersistenceTypeLineage<T> initializeLineage(final PersistenceTypeLineage<T> lineage)
 		{
 			// this implementation only validates the immutable reference.
-			if(this.lineage == lineage)
+			if(this.typeLineage == lineage)
 			{
 				return lineage;
 			}
 			
 			// (01.09.2017 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Already initialized for another " + PersistenceTypeDescriptionLineage.class.getSimpleName()
+				"Already initialized for another " + PersistenceTypeLineage.class.getSimpleName()
 			);
 		}
 

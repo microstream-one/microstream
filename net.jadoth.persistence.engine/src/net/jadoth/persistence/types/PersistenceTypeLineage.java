@@ -6,7 +6,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingTable;
 
-public interface PersistenceTypeDescriptionLineage<T>
+public interface PersistenceTypeLineage<T>
 {
 	public String typeName();
 	
@@ -25,21 +25,20 @@ public interface PersistenceTypeDescriptionLineage<T>
 	
 	public boolean register(PersistenceTypeDescription<T> typeDescription);
 	
+	public void initializeRuntimeTypeDescription(PersistenceTypeDescription<T> runtimeDescription);
 	
 	
 	
-	public static <T> PersistenceTypeDescriptionLineage<T> New(
-		final String                        typeName   ,
-		final PersistenceTypeDescription<T> runtimeType
-	)
+	
+	public static <T> PersistenceTypeLineage<T> New(final String typeName, final Class<T> runtimeType)
 	{
-		return new PersistenceTypeDescriptionLineage.Implementation<>(
+		return new PersistenceTypeLineage.Implementation<>(
 			notNull(typeName), // may never be null as this is the lineage's identity.
 			runtimeType        // can be null if the type cannot be resolved into a runtime class.
 		);
 	}
 		
-	public final class Implementation<T> implements PersistenceTypeDescriptionLineage<T>
+	public final class Implementation<T> implements PersistenceTypeLineage<T>
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -58,19 +57,12 @@ public interface PersistenceTypeDescriptionLineage<T>
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final String                        typeName          ,
-			final PersistenceTypeDescription<T> runtimeDescription
-		)
+		Implementation(final String typeName, final Class<T> runtimeType)
 		{
 			super();
 			this.typeName           = typeName   ;
 			this.dictionaryEntries  = EqHashTable.New();
-			this.runtimeDescription = runtimeDescription;
-			this.runtimeType        = runtimeDescription != null
-				? runtimeDescription.type()
-				: null
-			;
+			this.runtimeType        = runtimeType;
 		}
 
 
@@ -113,6 +105,26 @@ public interface PersistenceTypeDescriptionLineage<T>
 		}
 		
 		@Override
+		public final void initializeRuntimeTypeDescription(final PersistenceTypeDescription<T> runtimeDescription)
+		{
+			synchronized(this.dictionaryEntries)
+			{
+				if(this.runtimeDescription != null)
+				{
+					if(this.runtimeDescription == runtimeDescription)
+					{
+						return;
+					}
+					throw new RuntimeException("Runtime Description already initialized"); // (26.09.2017 TM)EXCP: proper exception
+				}
+				this.runtimeDescription = runtimeDescription;
+				
+				// must result in the typeId being the highest in any case.
+				this.dictionaryEntries.put(runtimeDescription.typeId(), runtimeDescription);
+			}
+		}
+		
+		@Override
 		public final boolean register(final PersistenceTypeDescription<T> typeDescription)
 		{
 			if(this.runtimeType != typeDescription.type())
@@ -137,6 +149,7 @@ public interface PersistenceTypeDescriptionLineage<T>
 				 * if the passed typeDescription is the same as or equal to the runtime-derived Description,
 				 * the latter is used from this point on to consistently include the instance in the lineage.
 				 */
+				// (26.09.2017 TM)FIXME: runtime description does not have an ID, yet.
 				final PersistenceTypeDescription<T> effective =
 					PersistenceTypeDescription.isEqualDescription(this.runtimeDescription, typeDescription)
 					? this.runtimeDescription

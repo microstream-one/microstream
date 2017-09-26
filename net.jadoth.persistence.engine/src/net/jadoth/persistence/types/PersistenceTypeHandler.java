@@ -109,7 +109,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		
 		// these fields are effectively final / immutable: they get only initialized once and are never mutated again.
 		private long                                 typeId ;
-		private PersistenceTypeDescriptionLineage<T> lineage;
+		private PersistenceTypeLineage<T> lineage;
 
 
 
@@ -188,7 +188,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		@Override
 		public PersistenceTypeHandler<M, T> initialize(
 			final long                                 typeId   ,
-			final PersistenceTypeDescriptionLineage<T> lineage
+			final PersistenceTypeLineage<T> lineage
 		)
 		{
 			// quick check for redundant calls of this method.
@@ -215,7 +215,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 				{
 					// (26.04.2017 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Already initialized for another " + PersistenceTypeDescriptionLineage.class.getSimpleName()
+						"Already initialized for another " + PersistenceTypeLineage.class.getSimpleName()
 					);
 				}
 				// fall through

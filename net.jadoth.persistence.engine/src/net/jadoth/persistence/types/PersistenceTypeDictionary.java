@@ -16,7 +16,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	
 	public XGettingTable<Long, PersistenceTypeDescription<?>> latestTypesPerTId();
 	
-	public XGettingTable<String, PersistenceTypeDescriptionLineage<?>> types();
+	public XGettingTable<String, PersistenceTypeLineage<?>> types();
 
 	public boolean registerType(PersistenceTypeDescription<?> typeDescription);
 
@@ -34,9 +34,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback();
 	
-	public <T> PersistenceTypeDescriptionLineage<T> ensureTypeLineage(String typeName);
+	public <T> PersistenceTypeLineage<T> ensureTypeLineage(String typeName);
 	
-	public <T> PersistenceTypeDescriptionLineage<T> lookupTypeLineage(String typeName);
+	public <T> PersistenceTypeLineage<T> lookupTypeLineage(String typeName);
 	
 	
 
@@ -60,7 +60,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		private final EqHashTable<Long  , PersistenceTypeDescription<?>>        typesPerTypeId       = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDescription<?>>        latestTypesPerName   = EqHashTable.New();
 		private final EqHashTable<Long, PersistenceTypeDescription<?>>          latestTypesPerTypeId = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescriptionLineage<?>> typeLineages         = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeLineage<?>> typeLineages         = EqHashTable.New();
 		private       PersistenceTypeDescriptionRegistrationCallback            registrationCallback;
 		
 
@@ -82,9 +82,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		////////////
 
 		@Override
-		public synchronized <T> PersistenceTypeDescriptionLineage<T> ensureTypeLineage(final String typeName)
+		public synchronized <T> PersistenceTypeLineage<T> ensureTypeLineage(final String typeName)
 		{
-			PersistenceTypeDescriptionLineage<T> lineage = this.lookupTypeLineage(typeName);
+			PersistenceTypeLineage<T> lineage = this.lookupTypeLineage(typeName);
 			if(lineage != null)
 			{
 				return lineage;
@@ -98,19 +98,19 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public synchronized <T> PersistenceTypeDescriptionLineage<T> lookupTypeLineage(final String typeName)
+		public synchronized <T> PersistenceTypeLineage<T> lookupTypeLineage(final String typeName)
 		{
 			// it is the caller's responsibility to pass the proper typeName representing the specified type T.
 			@SuppressWarnings("unchecked")
-			final PersistenceTypeDescriptionLineage<T> lineage =
-				(PersistenceTypeDescriptionLineage<T>)this.typeLineages.get(typeName)
+			final PersistenceTypeLineage<T> lineage =
+				(PersistenceTypeLineage<T>)this.typeLineages.get(typeName)
 			;
 			return lineage;
 		}
 		
 		final <T> boolean internalRegisterType(final PersistenceTypeDescription<T> typeDescription)
 		{
-			final PersistenceTypeDescriptionLineage<T> lineage = this.ensureTypeLineage(typeDescription.typeName());
+			final PersistenceTypeLineage<T> lineage = this.ensureTypeLineage(typeDescription.typeName());
 			if(!lineage.register(typeDescription))
 			{
 				return false;
@@ -133,7 +133,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			// Table must be rebuilt completely to evict the old TypeIds für (the) update type(s).
 			final EqHashTable<Long, PersistenceTypeDescription<?>> table = this.latestTypesPerTypeId;
 			table.clear();
-			for(final PersistenceTypeDescriptionLineage<?> tdl : this.typeLineages.values())
+			for(final PersistenceTypeLineage<?> tdl : this.typeLineages.values())
 			{
 				final PersistenceTypeDescription<?> td = tdl.latest();
 				if(!table.add(td.typeId(), td))
@@ -177,7 +177,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized XGettingTable<String, PersistenceTypeDescriptionLineage<?>> types()
+		public final synchronized XGettingTable<String, PersistenceTypeLineage<?>> types()
 		{
 			return this.typeLineages;
 		}
