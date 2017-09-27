@@ -38,7 +38,7 @@ public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
+		
 	@Override
 	public final T create(final Binary bytes)
 	{

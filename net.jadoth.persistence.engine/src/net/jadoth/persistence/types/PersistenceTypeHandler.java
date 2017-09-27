@@ -12,10 +12,8 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.swizzling.types.SwizzleTypeLookup;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, ObjectStateHandler<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>, ObjectStateHandler<T>
 {
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);
@@ -84,32 +82,21 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 //		return input.typeDescription();
 //	}
 
-	// (28.04.2017 TM)FIXME: OGS-3: This has to go. See PersistenceTypeDescription.Initializer
-	public interface Initializer<M, T> extends SwizzleTypeLink<T>
-	{
-		public PersistenceTypeHandler<M, T> initializeTypeHandler(SwizzleTypeLookup typeLookup);
-	}
-	
-	
+	public void initializeTypeId(long typeId);
 
 
 
-	public abstract class AbstractImplementation<M, T>
-	implements
-	PersistenceTypeHandler<M, T>,
-	PersistenceTypeDescriptionInitializer<T>,
-	PersistenceTypeHandler.Initializer<M, T>
+	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// basic type swizzling //
-		private final Class<T> type;
+		private final Class<T> type  ;
 		
 		// these fields are effectively final / immutable: they get only initialized once and are never mutated again.
-		private long                                 typeId ;
-		private PersistenceTypeLineage<T> lineage;
+		private long           typeId;
 
 
 
@@ -126,7 +113,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		protected AbstractImplementation(final Class<T> type, final long tid)
 		{
 			this(type);
-			this.typeId  = positive(tid );
+			this.typeId  = positive(tid);
 		}
 
 
@@ -143,16 +130,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 			throw new PersistenceExceptionTypeConsistency();
 		}
 
-//		protected final void validateBasicTypeDefinition(final PersistenceTypeDescription typeDefinition)
-//		{
-//			if(this.tid == typeDefinition.typeId() && this.type.getName().equals(typeDefinition.typeName()))
-//			{
-//				return; // validation successful
-//			}
-//			throw new RuntimeException(); // (18.03.2013)EXCP: proper exception
-//		}
-
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
@@ -175,61 +153,30 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		{
 			return this.type.getName();
 		}
-				
-		@Override
-		public PersistenceTypeHandler<M, T> initializeTypeHandler(final SwizzleTypeLookup typeLookup)
-		{
-			final long typeId = typeLookup.lookupTypeId(this.type());
-			
-			// must be a no-op after the type description has already been initialized
-			return this.initialize(typeId, this.lineage());
-		}
 		
 		@Override
-		public PersistenceTypeHandler<M, T> initialize(
-			final long                                 typeId   ,
-			final PersistenceTypeLineage<T> lineage
-		)
+		public synchronized void initializeTypeId(final long typeId)
 		{
-			// quick check for redundant calls of this method.
-			if(this.typeId == typeId && this.lineage == lineage)
-			{
-				return this;
-			}
-			
+			/* note:
+			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.
+			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
+			 * everything is fine.
+			 */
 			if(this.typeId != 0)
 			{
-				if(this.typeId != typeId)
+				if(this.typeId == typeId)
 				{
-					// (26.04.2017 TM)EXCP: proper exception
-					throw new RuntimeException(
-						"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
-					);
+					// consistency no-op, abort
+					return;
 				}
-				// fall through
+				
+				// (26.04.2017 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
+				);
 			}
 			
-			if(this.lineage != null)
-			{
-				if(this.lineage != lineage)
-				{
-					// (26.04.2017 TM)EXCP: proper exception
-					throw new RuntimeException(
-						"Already initialized for another " + PersistenceTypeLineage.class.getSimpleName()
-					);
-				}
-				// fall through
-			}
-			else if(this.type != lineage.runtimeType())
-			{
-				// (29.08.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Type mismatch.");
-			}
-			
-			this.typeId  = typeId ;
-			this.lineage = lineage;
-			
-			return this;
+			this.typeId = typeId;
 		}
 	
 	}

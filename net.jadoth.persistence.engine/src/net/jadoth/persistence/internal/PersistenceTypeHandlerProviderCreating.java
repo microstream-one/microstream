@@ -6,7 +6,6 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
-import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -19,8 +18,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	// instance fields  //
 	/////////////////////
 
-	private final SwizzleTypeManager                     typeManager             ;
-	private final PersistenceTypeHandlerEnsurerLookup<M> typeHandlerEnsurerLookup;
+	private final SwizzleTypeManager               typeManager       ;
+	private final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;
 
 
 
@@ -29,13 +28,13 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	/////////////////////
 
 	public PersistenceTypeHandlerProviderCreating(
-		final SwizzleTypeManager                     typeManager             ,
-		final PersistenceTypeHandlerEnsurerLookup<M> typeHandlerCreatorLookup
+		final SwizzleTypeManager               typeManager       ,
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
 	)
 	{
 		super();
-		this.typeManager              = notNull(typeManager)             ;
-		this.typeHandlerEnsurerLookup = notNull(typeHandlerCreatorLookup);
+		this.typeManager        = notNull(typeManager)       ;
+		this.typeHandlerEnsurer = notNull(typeHandlerEnsurer);
 	}
 
 
@@ -51,16 +50,12 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandlerEnsurer<M> ensurer     = this.typeHandlerEnsurerLookup.lookupEnsurer(type);
-		final PersistenceTypeHandler<M, T>     typeHandler = ensurer.ensureTypeHandler(
-			type            ,
-			typeId          ,
-			this.typeManager
-		);
+		final PersistenceTypeHandler<M, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
 
 		typeHandlerManager.register(typeHandler);
 
-		/* must ensure type handlers for all field types as well to keep type definitions consistent
+		/*
+		 * must ensure type handlers for all field types as well to keep type definitions consistent
 		 * if some field's type is "too abstract" to be persisted, is has to be registered to an
 		 * apropriate type handler (No-op, etc.) manually beforehand.
 		 *

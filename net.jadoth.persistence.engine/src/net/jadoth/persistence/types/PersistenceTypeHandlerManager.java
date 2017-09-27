@@ -25,7 +25,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	@Override
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long typeId);
-
+	
+	/* (27.09.2017 TM)XXX: not sure if all these ensuring methods still make sense,
+	 * since the new concept is the the type lineage provider automatically creates a runtime definition
+	 * which potentially is a handler.
+	 */
+	
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(T instance);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
@@ -166,7 +171,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			final PersistenceTypeDescription<?> registeredTd =
+			final PersistenceTypeDefinition<?> registeredTd =
 				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
@@ -436,7 +441,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// (06.09.2017 TM)FIXME: validate all entries regarding runtime description, create diffs, etc.
 			
-			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
+			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
 				typeDictionary.currentTypesByName().values()
 			;
 

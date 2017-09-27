@@ -6,15 +6,15 @@ import net.jadoth.collections.types.XGettingCollection;
 
 public interface PersistenceTypeDictionaryManager extends PersistenceTypeDictionaryProvider
 {
-	public PersistenceTypeDictionaryManager addTypeDescription(PersistenceTypeDescription<?> typeDescription);
+	public PersistenceTypeDictionaryManager addTypeDescription(PersistenceTypeDefinition<?> typeDescription);
 
 	public PersistenceTypeDictionaryManager validateTypeDescriptions(PersistenceTypeDictionary typeDictionary);
 
-	public PersistenceTypeDictionaryManager validateTypeDescriptions(XGettingCollection<PersistenceTypeDescription<?>> typeDescriptions);
+	public PersistenceTypeDictionaryManager validateTypeDescriptions(XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions);
 
 	public PersistenceTypeDictionaryManager addTypeDescriptions(PersistenceTypeDictionary typeDictionary);
 
-	public PersistenceTypeDictionaryManager addTypeDescriptions(XGettingCollection<PersistenceTypeDescription<?>> typeDescriptions);
+	public PersistenceTypeDictionaryManager addTypeDescriptions(XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions);
 
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
 
@@ -90,11 +90,11 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			return this.cachedTypeDictionary;
 		}
 
-		final void internalValidateTypeDescription(final PersistenceTypeDescription<?> td)
+		final void internalValidateTypeDescription(final PersistenceTypeDefinition<?> td)
 		{
 			final PersistenceTypeDictionary     dictionary    = this.cachedTypeDictionary();
-			final PersistenceTypeDescription<?> currentByTid  = dictionary.lookupTypeById  (td.typeId()  );
-			final PersistenceTypeDescription<?> currentByName = dictionary.lookupTypeByName(td.typeName());
+			final PersistenceTypeDefinition<?> currentByTid  = dictionary.lookupTypeById  (td.typeId()  );
+			final PersistenceTypeDefinition<?> currentByName = dictionary.lookupTypeByName(td.typeName());
 
 			if(currentByTid != currentByName)
 			{
@@ -133,7 +133,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public final PersistenceTypeDictionaryManager.Implementation addTypeDescription(
-			final PersistenceTypeDescription<?> typeDescription
+			final PersistenceTypeDefinition<?> typeDescription
 		)
 		{
 			this.internalValidateTypeDescription(typeDescription);
@@ -159,7 +159,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public final PersistenceTypeDictionaryManager.Implementation validateTypeDescriptions(
-			final XGettingCollection<PersistenceTypeDescription<?>> typeDescriptions
+			final XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			typeDescriptions.iterate(this::internalValidateTypeDescription);
@@ -180,7 +180,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public final PersistenceTypeDictionaryManager.Implementation addTypeDescriptions(
-			final XGettingCollection<PersistenceTypeDescription<?>> typeDescriptions
+			final XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			typeDescriptions.iterate(this::internalValidateTypeDescription);

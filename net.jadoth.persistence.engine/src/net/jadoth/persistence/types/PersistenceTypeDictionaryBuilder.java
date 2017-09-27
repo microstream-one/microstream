@@ -18,13 +18,13 @@ public interface PersistenceTypeDictionaryBuilder
 	
 	
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
-		final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ,
-		final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder
+		final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider,
+		final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
-			notNull(typeLineageProvider)   ,
-			notNull(typeDescriptionBuilder)
+			notNull(typeLineageBuilderProvider),
+			notNull(typeDefinitionBuilder)
 		);
 	}
 	
@@ -33,9 +33,9 @@ public interface PersistenceTypeDictionaryBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ;
-		final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder;
+
+		final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider;
+		final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder     ;
 		
 		
 		
@@ -44,13 +44,13 @@ public interface PersistenceTypeDictionaryBuilder
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeDescriptionLineageProvider typeLineageProvider   ,
-			final PersistenceTypeDescriptionBuilder         typeDescriptionBuilder
+			final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider,
+			final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder
 		)
 		{
 			super();
-			this.typeLineageProvider    = typeLineageProvider   ;
-			this.typeDescriptionBuilder = typeDescriptionBuilder;
+			this.typeLineageBuilderProvider = typeLineageBuilderProvider;
+			this.typeDefinitionBuilder      = typeDefinitionBuilder     ;
 		}
 		
 		
@@ -58,18 +58,6 @@ public interface PersistenceTypeDictionaryBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		// (25.09.2017 TM)XXX: remove if not needed
-//		protected boolean latestTypeDescriptionIsCurrent()
-//		{
-//			return true;
-//		}
-//
-//		protected <T> PersistenceTypeDescriptionLineage<T> fillTypeDescriptionLineage(final String typeName)
-//		{
-//			// no runtime type in default implementation (e.g. standalone process)
-//			return PersistenceTypeDescriptionLineage.New(typeName, null);
-//		}
 		
 		public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupAndSort(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
@@ -118,7 +106,7 @@ public interface PersistenceTypeDictionaryBuilder
 		{
 			for(final PersistenceTypeDictionaryEntry e : entries)
 			{
-				final PersistenceTypeDescription<T> td = PersistenceTypeDescription.New(
+				final PersistenceTypeDefinition<T> td = PersistenceTypeDefinition.New(
 					typeLineage,
 					e.typeId() ,
 					e.members()

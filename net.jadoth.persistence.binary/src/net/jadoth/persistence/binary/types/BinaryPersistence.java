@@ -72,7 +72,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
-import net.jadoth.swizzling.types.SwizzleTypeLookup;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.VMUtils;
@@ -551,12 +550,10 @@ public final class BinaryPersistence extends Persistence
 //		return typeDictionary;
 //	}
 
-	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
-		final SwizzleTypeLookup typeLookup
-	)
+	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry()
 	{
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
-			new PersistenceCustomTypeHandlerRegistry.Implementation<Binary>(typeLookup)
+			PersistenceCustomTypeHandlerRegistry.<Binary>New()
 			.registerTypeHandlers(defaultHandlers())
 		;
 		return defaultCustomTypeHandlerRegistry;
@@ -569,7 +566,7 @@ public final class BinaryPersistence extends Persistence
 	 * - class loader
 	 * - any kind of io stream, channel, etc.
 	 */
-	public static final XGettingSequence<? extends PersistenceTypeHandler.Initializer<Binary, ?>> defaultHandlers()
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers()
 	{
 		return ConstList.New(
 			new BinaryHandlerPrimitive<>(byte   .class),
@@ -1954,6 +1951,9 @@ public final class BinaryPersistence extends Persistence
 		return Memory.byteSizePrimitive(primitiveType);
 	}
 
+	
+	// (27.09.2017 TM)XXX: this stuff must come from the foundation, not some static context ------ //
+	
 	public static final BinaryFieldLengthResolver createFieldLengthResolver()
 	{
 		return new BinaryFieldLengthResolver.Implementation();
@@ -1976,5 +1976,8 @@ public final class BinaryPersistence extends Persistence
 		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
 		return dp.provideTypeDictionary();
 	}
-
+	
+	// (27.09.2017 TM)NOTE: -------------- //
+	
+	
 }

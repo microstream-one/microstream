@@ -4,12 +4,12 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
 
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 
 
 public interface StorageEntityTypeConversionFileProvider
 {
-	public File provideConversionFile(PersistenceTypeDescription<?> typeDescription, File sourceFile);
+	public File provideConversionFile(PersistenceTypeDefinition<?> typeDescription, File sourceFile);
 
 
 
@@ -56,7 +56,7 @@ public interface StorageEntityTypeConversionFileProvider
 		/////////////////////
 
 		@Override
-		public File provideConversionFile(final PersistenceTypeDescription<?> typeDescription, final File sourceFile)
+		public File provideConversionFile(final PersistenceTypeDefinition<?> typeDescription, final File sourceFile)
 		{
 			/* don't bother with including a type id.
 			 * TypeId mapping is the type dictionary's concern, not that of an export file.

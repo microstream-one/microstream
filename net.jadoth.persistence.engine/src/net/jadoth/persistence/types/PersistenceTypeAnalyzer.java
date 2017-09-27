@@ -11,13 +11,12 @@ import net.jadoth.collections.types.XPrependingEnum;
 import net.jadoth.collections.types.XPrependingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.JadothReflect;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface PersistenceTypeAnalyzer
 {
 	public XGettingEnum<Field> collectPersistableFields(
 		Class<?>                                               type             ,
-		SwizzleTypeManager                                     typeManager      ,
+//		SwizzleTypeManager                                     typeManager      ,
 		XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 	);
 
@@ -30,20 +29,20 @@ public interface PersistenceTypeAnalyzer
 		/////////////////////
 
 		public static final void collectPersistableInstanceFields(
-			final XPrependingSequence<Field> collection   ,
-			final Class<?>                   type         ,
-			final Predicate<Field>           isPersistable,
-			final SwizzleTypeManager         typeManager
+			final XPrependingSequence<Field> persistableInstanceFields,
+			final Class<?>                   type                     ,
+			final Predicate<Field>           isPersistable
+//			final SwizzleTypeManager         typeManager
 		)
 		{
 
-			JadothReflect.collectTypedFields(collection, type, field ->
+			JadothReflect.collectTypedFields(persistableInstanceFields, type, field ->
 				{
 					if(!JadothReflect.isInstanceField(field) || !isPersistable.test(field))
 					{
 						return false;
 					}
-					typeManager.ensureTypeId(field.getType());
+//					typeManager.ensureTypeId(field.getType());
 					return true;
 				}
 			);
@@ -83,13 +82,14 @@ public interface PersistenceTypeAnalyzer
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(
 			final Class<?>                                               type             ,
-			final SwizzleTypeManager                                     typeManager      ,
+//			final SwizzleTypeManager                                     typeManager      ,
 			final XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 		)
 		{
-			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persistableInstanceFields = HashEnum.New();
 
-			/* tricky:
+			/*
+			 * tricky:
 			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
 			 * because there will (can!) never be actual instances of exactely (only) that type encountered
 			 * that would have to be persistet.
@@ -104,7 +104,7 @@ public interface PersistenceTypeAnalyzer
 			 */
 			if(JadothReflect.isAbstract(type))
 			{
-				return persistableFields; // handle abstract types as having no fields at all / stateless types.
+				return persistableInstanceFields; // handle abstract types as having no fields at all / stateless types.
 			}
 
 			if(!this.isPersistable.test(type))
@@ -113,13 +113,13 @@ public interface PersistenceTypeAnalyzer
 			}
 
 			collectPersistableInstanceFields(
-				persistableFields ,
+				persistableInstanceFields ,
 				type              ,
-				this.fieldSelector,
-				typeManager
+				this.fieldSelector
+//				typeManager
 			);
 
-			return persistableFields;
+			return persistableInstanceFields;
 		}
 
 	}

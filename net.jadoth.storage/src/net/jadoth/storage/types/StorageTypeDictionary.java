@@ -6,7 +6,7 @@ import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionRegistrationCallback;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 
@@ -75,7 +75,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerType(final PersistenceTypeDescription<?> typeDescription)
+		public final boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
@@ -85,7 +85,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 		@Override
 		public final boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			synchronized(this.registry)
@@ -99,9 +99,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.allTypes().values())
+				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypes().values())
 				{
-					if(PersistenceTypeDescription.isEqualDescription(typeDesc, this.registry.get(typeDesc.typeId())))
+					if(PersistenceTypeDefinition.isEqualDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
 						continue;
 					}
@@ -147,25 +147,25 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<?>> allTypes()
+		public final XGettingTable<Long, PersistenceTypeDefinition<?>> allTypes()
 		{
 			return this.dictionary.allTypes();
 		}
 		
 		@Override
-		public final XGettingTable<String, PersistenceTypeDescription<?>> currentTypesByName()
+		public final XGettingTable<String, PersistenceTypeDefinition<?>> currentTypesByName()
 		{
 			return this.dictionary.currentTypesByName();
 		}
 
 		@Override
-		public final PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
+		public final PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
 			return this.dictionary.lookupTypeByName(typeName);
 		}
 
 		@Override
-		public final PersistenceTypeDescription<?> lookupTypeById(final long typeId)
+		public final PersistenceTypeDefinition<?> lookupTypeById(final long typeId)
 		{
 			return this.dictionary.lookupTypeById(typeId);
 		}
@@ -213,7 +213,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDescription<?> td : typeDictionary.allTypes().values())
+				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
 				{
 					this.registerTypeDescription(td);
 				}
@@ -224,7 +224,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final void registerTypeDescription(final PersistenceTypeDescription<?> typeDescription)
+		public final void registerTypeDescription(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{

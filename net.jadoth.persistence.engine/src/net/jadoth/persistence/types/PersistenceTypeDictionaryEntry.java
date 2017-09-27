@@ -4,7 +4,13 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.util.chars.VarString;
 
-public interface PersistenceTypeDictionaryEntry extends SwizzleTypeIdentity
+/**
+ * Data that ties a {@link PersistenceTypeDescription} to a biunique type id, aka a {@link SwizzleTypeIdentity}.
+ * 
+ * @author TM
+ *
+ */
+public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescription, SwizzleTypeIdentity
 {
 	@Override
 	public long   typeId();
@@ -12,6 +18,7 @@ public interface PersistenceTypeDictionaryEntry extends SwizzleTypeIdentity
 	@Override
 	public String typeName();
 
+	@Override
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
 	

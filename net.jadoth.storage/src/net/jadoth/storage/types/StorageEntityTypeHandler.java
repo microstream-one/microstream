@@ -7,10 +7,10 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
-public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<T>
+public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T>
 {
 	public long simpleReferenceCount();
 
@@ -35,7 +35,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 	
 	
 	public static <T> StorageEntityTypeHandler.Implementation<T> New(
-		final PersistenceTypeDescription<T> typeDescription
+		final PersistenceTypeDefinition<T> typeDescription
 	)
 	{
 		return new StorageEntityTypeHandler.Implementation<>(
@@ -50,7 +50,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// static methods    //
 		/////////////////////
 
-		static long calculateMinimumEntityLength(final PersistenceTypeDescription<?> typeDescription)
+		static long calculateMinimumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			long minimumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -63,7 +63,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 			return minimumEntityLength;
 		}
 
-		static long calculateMaximumEntityLength(final PersistenceTypeDescription<?> typeDescription)
+		static long calculateMaximumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			long maximumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -87,7 +87,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDescription<T> typeDescription     ;
+		private final PersistenceTypeDefinition<T> typeDescription     ;
 		private final BinaryReferenceTraverser[]    referenceTraversers ;
 		private final int                           simpleReferenceCount;
 		private final long                          simpleReferenceRange;
@@ -103,7 +103,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// constructors     //
 		/////////////////////
 
-		Implementation(final PersistenceTypeDescription<T> typeDescription)
+		Implementation(final PersistenceTypeDefinition<T> typeDescription)
 		{
 			super();
 
@@ -152,7 +152,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		}
 		
 		@Override
-		public final PersistenceTypeDescription<T> current()
+		public final PersistenceTypeDefinition<T> current()
 		{
 			return this.typeDescription.current();
 		}
@@ -164,7 +164,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		}
 		
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDescription<T>> obsoletes()
+		public final XGettingTable<Long, PersistenceTypeDefinition<T>> obsoletes()
 		{
 			return this.typeDescription.obsoletes();
 		}

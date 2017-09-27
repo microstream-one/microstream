@@ -92,15 +92,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 
-	public PersistenceRuntimeTypeDescriptionProvider getRuntimeTypeDescriptionProvider();
+	public PersistenceRuntimeTypeDefinitionProvider getRuntimeTypeDescriptionProvider();
 	
-	public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder();
+	public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder();
 	
 	public PersistenceTypeDescriptionMismatchListener getTypeMismatchListener();
 	
-	PersistenceTypeDescriptionLineageProvider getTypeLineageProvider();
+	PersistenceTypeLineageProvider getTypeLineageProvider();
 
-	public PersistenceTypeDescriptionInitializerLookup getTypeDescriptionInitializerLookup();
+	public PersistenceTypeDefinitionInitializerProvider getTypeDescriptionInitializerLookup();
 
 
 
@@ -199,7 +199,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	);
 	
 	public PersistenceFoundation<M> setTypeDescriptionLineageProvider(
-		PersistenceTypeDescriptionLineageProvider typeLineageProvider
+		PersistenceTypeLineageProvider typeLineageProvider
 	);
 
 
@@ -293,10 +293,10 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceFieldLengthResolver             fieldFixedLengthResolver      ;
 		private BufferSizeProvider                         bufferSizeProvider            ;
 		private PersistenceFieldEvaluator                  fieldEvaluator                ;
-		private PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider;
-		private PersistenceTypeDescriptionBuilder          typeDescriptionBuilder        ;
+		private PersistenceRuntimeTypeDefinitionProvider  runtimeTypeDescriptionProvider;
+		private PersistenceTypeDefinitionBuilder          typeDescriptionBuilder        ;
 		private PersistenceTypeDescriptionMismatchListener typeMismatchListener          ;
-		private PersistenceTypeDescriptionLineageProvider  typeLineageProvider           ;
+		private PersistenceTypeLineageProvider  typeLineageProvider           ;
 
 
 
@@ -612,7 +612,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceRuntimeTypeDescriptionProvider getRuntimeTypeDescriptionProvider()
+		public PersistenceRuntimeTypeDefinitionProvider getRuntimeTypeDescriptionProvider()
 		{
 			if(this.runtimeTypeDescriptionProvider == null)
 			{
@@ -622,7 +622,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder()
+		public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder()
 		{
 			if(this.typeDescriptionBuilder == null)
 			{
@@ -644,7 +644,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 
 		@Override
-		public PersistenceTypeDescriptionLineageProvider getTypeLineageProvider()
+		public PersistenceTypeLineageProvider getTypeLineageProvider()
 		{
 			if(this.typeLineageProvider == null)
 			{
@@ -1082,7 +1082,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeDescriptionLineageProvider(final PersistenceTypeDescriptionLineageProvider typeLineageProvider)
+		public PersistenceFoundation<M> setTypeDescriptionLineageProvider(final PersistenceTypeLineageProvider typeLineageProvider)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#setTypeDescriptionLineageProvider()
 		}
@@ -1333,17 +1333,17 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		
 		@Override
-		public PersistenceTypeDescriptionInitializerLookup getTypeDescriptionInitializerLookup()
+		public PersistenceTypeDefinitionInitializerProvider getTypeDescriptionInitializerLookup()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#getTypeDescriptionInitializerLookup()
 		}
 		
-		protected PersistenceRuntimeTypeDescriptionProvider createRuntimeTypeDescriptionProvider()
+		protected PersistenceRuntimeTypeDefinitionProvider createRuntimeTypeDescriptionProvider()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createRuntimeTypeDescriptionProvider()
 		}
 		
-		protected PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
+		protected PersistenceTypeDefinitionBuilder createTypeDescriptionBuilder()
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createTypeDescriptionBuilder()
 		}

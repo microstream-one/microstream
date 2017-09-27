@@ -1,29 +1,44 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.EqHashTable;
+import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface PersistenceTypeLineageBuilder<T>
 {
-	public boolean registerTypeDescription(long typeId, XGettingSequence<? extends PersistenceTypeDescriptionMember> members);
-	
+	public boolean registerTypeDescription(
+		long                                                         typeId ,
+		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	);
 	
 	public PersistenceTypeLineage<T> buildTypeLineage();
 	
 	
 	
-	public final class Implementation<T> implements PersistenceTypeLineageBuilder<T>
+	public static <T> PersistenceTypeLineageBuilder.Implementation<T> New(
+		final PersistenceTypeDefinitionBuilder        typeDefinitionBuilder            ,
+		final PersistenceTypeChangeCallback           typeChangeCallback               ,
+		final PersistenceTypeDefinitionInitializer<T> runtimeTypeDescriptionInitializer
+	)
+	{
+		return new PersistenceTypeLineageBuilder.Implementation<>(
+			notNull(typeDefinitionBuilder)            ,
+			notNull(typeChangeCallback)               ,
+			notNull(runtimeTypeDescriptionInitializer)
+		);
+	}
+	
+	
+	final class Implementation<T> implements PersistenceTypeLineageBuilder<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeLineage<T>                        typeLineage                      ;
-		final PersistenceTypeDescriptionInitializer<T>         runtimeTypeDescriptionInitializer;
-		final SwizzleTypeManager                               typeManager                      ;
-		final EqHashTable<Long, PersistenceTypeDescription<T>> typeDescriptions                 ;
-
+		final PersistenceTypeLineage.Implementation<T> typeLineage                     ;
+		final PersistenceTypeChangeCallback            typeChangeCallback              ;
+		final PersistenceTypeDefinitionInitializer<T>  runtimeTypeDefinitionInitializer;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -31,16 +46,19 @@ public interface PersistenceTypeLineageBuilder<T>
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeLineage<T>                typeLineage                      ,
-			final PersistenceTypeDescriptionInitializer<T> runtimeTypeDescriptionInitializer,
-			final SwizzleTypeManager                       typeManager
+			final PersistenceTypeDefinitionBuilder        typeDefinitionBuilder            ,
+			final PersistenceTypeChangeCallback           typeChangeCallback               ,
+			final PersistenceTypeDefinitionInitializer<T> runtimeTypeDescriptionInitializer
 		)
 		{
 			super();
-			this.typeLineage                       = typeLineage                      ;
-			this.runtimeTypeDescriptionInitializer = runtimeTypeDescriptionInitializer;
-			this.typeManager                       = typeManager                      ;
-			this.typeDescriptions                  = EqHashTable.New()                ;
+			this.typeLineage                      = PersistenceTypeLineage.New(
+				runtimeTypeDescriptionInitializer.typeName(),
+				typeDefinitionBuilder                       ,
+				runtimeTypeDescriptionInitializer.type()
+			);
+			this.runtimeTypeDefinitionInitializer = runtimeTypeDescriptionInitializer;
+			this.typeChangeCallback               = typeChangeCallback               ;
 		}
 
 		
@@ -55,40 +73,48 @@ public interface PersistenceTypeLineageBuilder<T>
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
-			final PersistenceTypeDescription<T> td = PersistenceTypeDescription.New(this.typeLineage, typeId, members);
-			return this.typeDescriptions.add(typeId, td);
+			return this.typeLineage.registerTypeDescription(typeId, members);
 		}
-
-
-
+		
 		@Override
 		public PersistenceTypeLineage<T> buildTypeLineage()
 		{
-			this.typeDescriptions.keys().sort(Long::compare);
-			
-			final PersistenceTypeDescription<T> latest = this.typeDescriptions.values().last();
-			
-			final long currentTypeId;
-			if(PersistenceTypeDescriptionMember.equalMembers(latest.members(), this.runtimeTypeDescriptionInitializer.members()))
+			final PersistenceTypeDefinition<T> latest = this.typeLineage.latest();
+
+			final PersistenceTypeDefinition<T> runtimeTypeDef;
+			if(latest == null)
 			{
-				// case: latest type description fits the runtime type
-				currentTypeId = latest.typeId();
-				this.typeManager.registerType(currentTypeId, this.runtimeTypeDescriptionInitializer.type());
+				// trivial case: no type dictionary entries so far, so the runtime type is the first and only definition.
+				runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForNewTypeId(this.typeLineage);
 			}
 			else
 			{
-				// case: runtime type differes from latest type description. Handling (exception or refactoring) needed.
-				// (26.09.2017 TM)FIXME: mark for handling
-				currentTypeId = this.typeManager.ensureTypeId(this.runtimeTypeDescriptionInitializer.type());
+				if(PersistenceTypeDescriptionMember.equalMembers(latest.members(), this.runtimeTypeDefinitionInitializer.members()))
+				{
+					// case: latest type description fits the runtime type, so its typeId can be adopted.
+					runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForExistingTypeId(
+						latest.typeId(),
+						this.typeLineage
+					);
+				}
+				else
+				{
+					// validate the change before assigning and registering a new type id.
+					this.typeChangeCallback.validateTypeChange(latest, this.runtimeTypeDefinitionInitializer);
+					
+					// case: runtime type differs from the latest type description.
+					runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForNewTypeId(this.typeLineage);
+				}
+				
+				if(runtimeTypeDef.typeId() != latest.typeId())
+				{
+					this.typeChangeCallback.registerTypeChange(latest, runtimeTypeDef);
+				}
 			}
 			
-			final PersistenceTypeDescription<T> runtimeTypeDescription = this.runtimeTypeDescriptionInitializer.initialize(
-				currentTypeId,
-				this.typeLineage
-			);
-			this.typeLineage.initializeRuntimeTypeDescription(runtimeTypeDescription);
+			this.typeLineage.initializeRuntimeTypeDescription(runtimeTypeDef);
 			
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeLineageBuilder<T>#buildTypeLineage()
+			return this.typeLineage;
 		}
 		
 	}
