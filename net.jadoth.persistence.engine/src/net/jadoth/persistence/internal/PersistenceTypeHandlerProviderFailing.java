@@ -56,7 +56,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	public long currentTypeId()
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -84,7 +84,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		/*
 		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -95,7 +95,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		/*
 		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -106,7 +106,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		/*
 		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -116,7 +116,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		/*
 		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -126,7 +126,17 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		/*
 		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type) throws PersistenceExceptionTypeNotPersistable
+	{
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}

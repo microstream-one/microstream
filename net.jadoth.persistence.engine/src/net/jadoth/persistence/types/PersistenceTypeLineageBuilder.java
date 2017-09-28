@@ -53,7 +53,7 @@ public interface PersistenceTypeLineageBuilder
 		@Override
 		public <T> PersistenceTypeLineage<T> buildTypeLineage(final String typeName)
 		{
-			final Class<T> type = resolveTypeOptional(typeName); // might be null
+			final Class<T> type = Persistence.resolveTypeOptional(typeName); // might be null
 			return internalBuildTypeLineage(typeName, type);
 		}
 		
