@@ -1,6 +1,9 @@
 package net.jadoth.persistence.binary.types;
 
+import java.io.File;
+
 import net.jadoth.functional.Dispatcher;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -11,7 +14,9 @@ import net.jadoth.persistence.types.PersistenceRegisterer;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryExporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
@@ -20,7 +25,6 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
-import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -140,6 +144,24 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	@Override
 	public PersistenceManager<Binary> createPersistenceManager();
 
+	
+	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
+	{
+		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
+			PersistenceTypeDictionaryProvider.New(
+				PersistenceTypeDictionaryFileHandler.New(dictionaryFile),
+				PersistenceTypeDictionaryParser.New(BinaryPersistence.createFieldLengthResolver()),
+				PersistenceTypeDictionaryBuilder.New()
+			)
+		;
+		return typeDictionaryProvider;
+	}
+
+	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
+	{
+		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
+		return dp.provideTypeDictionary();
+	}
 
 
 	public class Implementation

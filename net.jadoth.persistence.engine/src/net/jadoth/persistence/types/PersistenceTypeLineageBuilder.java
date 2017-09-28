@@ -2,121 +2,66 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
-import net.jadoth.collections.types.XGettingSequence;
-
-public interface PersistenceTypeLineageBuilder<T>
+public interface PersistenceTypeLineageBuilder
 {
-	public boolean registerTypeDescription(
-		long                                                         typeId ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-	);
+	public <T> PersistenceTypeLineage<T> buildTypeLineage(String typeName);
 	
-	public PersistenceTypeLineage<T> buildTypeLineage();
+	public <T> PersistenceTypeLineage<T> buildTypeLineage(Class<T> type);
 	
 	
 	
-	public static <T> PersistenceTypeLineageBuilder.Implementation<T> New(
-		final PersistenceTypeDefinitionBuilder        typeDefinitionBuilder            ,
-		final PersistenceTypeChangeCallback           typeChangeCallback               ,
-		final PersistenceTypeDefinitionInitializer<T> runtimeTypeDescriptionInitializer
+	public static PersistenceTypeLineageBuilder.Implementation New(
+		final PersistenceTypeDefinitionBuilder typeDefinitionBuilder
 	)
 	{
-		return new PersistenceTypeLineageBuilder.Implementation<>(
-			notNull(typeDefinitionBuilder)            ,
-			notNull(typeChangeCallback)               ,
-			notNull(runtimeTypeDescriptionInitializer)
+		return new PersistenceTypeLineageBuilder.Implementation(
+			notNull(typeDefinitionBuilder)
 		);
 	}
 	
-	
-	final class Implementation<T> implements PersistenceTypeLineageBuilder<T>
+	public final class Implementation implements PersistenceTypeLineageBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeLineage.Implementation<T> typeLineage                     ;
-		final PersistenceTypeChangeCallback            typeChangeCallback              ;
-		final PersistenceTypeDefinitionInitializer<T>  runtimeTypeDefinitionInitializer;
+		final PersistenceTypeDefinitionBuilder typeDefinitionBuilder;
 		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		
-		Implementation(
-			final PersistenceTypeDefinitionBuilder        typeDefinitionBuilder            ,
-			final PersistenceTypeChangeCallback           typeChangeCallback               ,
-			final PersistenceTypeDefinitionInitializer<T> runtimeTypeDescriptionInitializer
-		)
+
+		Implementation(final PersistenceTypeDefinitionBuilder typeDefinitionBuilder)
 		{
 			super();
-			this.typeLineage                      = PersistenceTypeLineage.New(
-				runtimeTypeDescriptionInitializer.typeName(),
-				typeDefinitionBuilder                       ,
-				runtimeTypeDescriptionInitializer.type()
-			);
-			this.runtimeTypeDefinitionInitializer = runtimeTypeDescriptionInitializer;
-			this.typeChangeCallback               = typeChangeCallback               ;
+			this.typeDefinitionBuilder = typeDefinitionBuilder;
 		}
-
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public boolean registerTypeDescription(
-			final long                                                         typeId ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-		)
+				
+		private <T> PersistenceTypeLineage<T> internalBuildTypeLineage(final String typeName, final Class<T> type)
 		{
-			return this.typeLineage.registerTypeDescription(typeId, members);
+			return PersistenceTypeLineage.New(typeName, type, this.typeDefinitionBuilder);
 		}
 		
 		@Override
-		public PersistenceTypeLineage<T> buildTypeLineage()
+		public <T> PersistenceTypeLineage<T> buildTypeLineage(final String typeName)
 		{
-			final PersistenceTypeDefinition<T> latest = this.typeLineage.latest();
-
-			final PersistenceTypeDefinition<T> runtimeTypeDef;
-			if(latest == null)
-			{
-				// trivial case: no type dictionary entries so far, so the runtime type is the first and only definition.
-				runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForNewTypeId(this.typeLineage);
-			}
-			else
-			{
-				if(PersistenceTypeDescriptionMember.equalMembers(latest.members(), this.runtimeTypeDefinitionInitializer.members()))
-				{
-					// case: latest type description fits the runtime type, so its typeId can be adopted.
-					runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForExistingTypeId(
-						latest.typeId(),
-						this.typeLineage
-					);
-				}
-				else
-				{
-					// validate the change before assigning and registering a new type id.
-					this.typeChangeCallback.validateTypeChange(latest, this.runtimeTypeDefinitionInitializer);
-					
-					// case: runtime type differs from the latest type description.
-					runtimeTypeDef = this.runtimeTypeDefinitionInitializer.initializeForNewTypeId(this.typeLineage);
-				}
-				
-				if(runtimeTypeDef.typeId() != latest.typeId())
-				{
-					this.typeChangeCallback.registerTypeChange(latest, runtimeTypeDef);
-				}
-			}
-			
-			this.typeLineage.initializeRuntimeTypeDescription(runtimeTypeDef);
-			
-			return this.typeLineage;
+			final Class<T> type = resolveTypeOptional(typeName); // might be null
+			return internalBuildTypeLineage(typeName, type);
+		}
+		
+		@Override
+		public <T> PersistenceTypeLineage<T> buildTypeLineage(final Class<T> type)
+		{
+			return internalBuildTypeLineage(type.getName(), type);
 		}
 		
 	}
-	
 }

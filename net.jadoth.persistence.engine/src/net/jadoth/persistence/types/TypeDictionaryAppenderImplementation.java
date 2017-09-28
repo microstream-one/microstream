@@ -1,7 +1,9 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.math.JadothMath.notNegative;
+
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.types.PersistenceTypeDictionary.Symbols;
 import net.jadoth.util.chars.VarString;
 
 final class TypeDictionaryAppenderImplementation
@@ -39,11 +41,11 @@ implements PersistenceTypeDescriptionMember.Appender
 	/////////////////////
 
 	public TypeDictionaryAppenderImplementation(
-		final VarString vc,
-		final int level,
-		final int maxFieldTypeNameLength,
-		final int maxDeclaringTypeNameLength,
-		final int maxFieldNameLength
+		final VarString vc                        ,
+		final int       level                     ,
+		final int       maxFieldTypeNameLength    ,
+		final int       maxDeclaringTypeNameLength,
+		final int       maxFieldNameLength
 	)
 	{
 		super();
@@ -66,13 +68,29 @@ implements PersistenceTypeDescriptionMember.Appender
 
 	private void appendField(final PersistenceTypeDescriptionMemberField member)
 	{
-		PersistenceTypeDictionary.paddedFullQualifiedFieldName(
+		paddedFullQualifiedFieldName(
 			this.vc.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank(),
 			member.declaringTypeName(),
 			this.maxDeclaringTypeNameLength,
 			member.name(),
 			this.maxFieldNameLength
 		);
+	}
+	
+	public static VarString paddedFullQualifiedFieldName(
+		final VarString vc                        ,
+		final String    declaringTypeName         ,
+		final int       maxDeclaringTypeNameLength,
+		final String    fieldName                 ,
+		final int       maxFieldNameLength
+	)
+	{
+		// redundant code here to avoid unnecessary padding in normal case
+		return vc
+			.padRight(declaringTypeName, maxDeclaringTypeNameLength, ' ')
+			.add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR)
+			.padRight(fieldName        , maxFieldNameLength        , ' ')
+		;
 	}
 
 	private void appendPseudoField(final PersistenceTypeDescriptionMemberPseudoField member)

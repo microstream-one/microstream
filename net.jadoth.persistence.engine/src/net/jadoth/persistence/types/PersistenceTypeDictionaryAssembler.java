@@ -1,6 +1,9 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.collections.BulkList;
+import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionaryAssembler
@@ -42,7 +45,11 @@ public interface PersistenceTypeDictionaryAssembler
 		@Override
 		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)
 		{
-			for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
+			// copy and sort all entries locally to guarantee
+			final BulkList<PersistenceTypeDefinition<?>> allTypes = typeDictionary.iterateAllTypes(BulkList.New(1000));
+			JadothSort.valueSort(allTypes, SwizzleTypeIdOwner::orderAscending);
+			
+			for(final PersistenceTypeDefinition<?> td : allTypes)
 			{
 				this.appendTypeDescription(vc, td);
 			}

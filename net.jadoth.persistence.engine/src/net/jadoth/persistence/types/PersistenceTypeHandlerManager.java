@@ -439,7 +439,21 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.typeDictionaryManager.provideTypeDictionary()
 			;
 			
-			// (06.09.2017 TM)FIXME: validate all entries regarding runtime description, create diffs, etc.
+			/* (28.09.2017 TM)FIXME: /!\ type dictionary stuff
+			 *  - ensure runtime definitions
+			 *  - change for checks
+			 *  - register latest typeId for each type
+			 *  - initialize runtime definitions
+			 *  - set/initialize runtime definitions to their type lineages
+			 */
+			
+			final PersistenceTypeDefinitionInitializerProvider<M> tdip = PersistenceTypeDefinitionInitializerProvider.New(
+				this.typeHandlerProvider,
+				this
+			);
+			
+			
+			// (28.09.2017 TM)FIXME: old from before type refactoring ------------
 			
 			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
 				typeDictionary.currentTypesByName().values()
@@ -455,14 +469,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				typeRegistry.registerType(e.typeId(), e.type())
 			);
 
-			// (29.04.2017 TM)FIXME: must register defined custom type handlers at the type dictionary here
-
 			this.update(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
 			liveTypeDescriptions.iterate(e ->
 				this.ensureTypeHandler(e.type())
 			);
+			
+			// (28.09.2017 TM) ------------- //
 
 			this.initialized = true;
 		}

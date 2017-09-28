@@ -82,25 +82,24 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 		/////////////////////
 
 		@Override
-		public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(
-			final Class<T>           type
-//			final long               typeId     ,
-//			final SwizzleTypeManager typeManager
-		)
+		public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
+			// lookup predefined handler first to cover primitives and to give custom handlers precedence
 			final PersistenceTypeHandler<Binary, T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
 			if(customHandler != null)
 			{
 				return customHandler;
 			}
 			
+			// should never happen or more precisely: should only happen for unhandled primitives
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
 				throw new RuntimeException("Primitive type values cannot be handled as instances.");
 			}
 			
+			// array special casing
 			if(type.isArray())
 			{
 				// array special cases
@@ -114,6 +113,7 @@ public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<
 				return new BinaryHandlerNativeArrayObject<>(type)/*.initialize(typeId, X.emptyTable())*/;
 			}
 
+			// create generic handler for all other cases ("normal" classes without predefined handler)
 			return this.createGenericHandler(type);
 		}
 		

@@ -5,7 +5,7 @@ import net.jadoth.collections.types.XGettingSequence;
 @FunctionalInterface
 public interface PersistenceTypeDefinitionBuilder
 {
-	public <T> PersistenceTypeDefinition<T> build(
+	public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
 		String                                                       typeName,
 		Class<T>                                                     type    ,
 //		PersistenceTypeLineage<T>                                    lineage,
@@ -31,7 +31,7 @@ public interface PersistenceTypeDefinitionBuilder
 		////////////
 
 		@Override
-		public <T> PersistenceTypeDefinition<T> build(
+		public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
 			final String                                                       typeName,
 			final Class<T>                                                     type    ,
 //			final PersistenceTypeLineage<T>                                    lineage,

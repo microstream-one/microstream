@@ -20,19 +20,20 @@ public interface PersistenceTypeLineage<T>
 		
 	public boolean registerTypeDescription(long typeId, XGettingSequence<? extends PersistenceTypeDescriptionMember> members);
 
-	public void initializeRuntimeTypeDescription(PersistenceTypeDefinition<T> runtimeDescription);
+	public boolean initializeRuntimeTypeDefinition(PersistenceTypeDefinition<T> runtimeDescription);
+	
 	
 	
 	public static <T> PersistenceTypeLineage.Implementation<T> New(
 		final String                           typeName             ,
-		final PersistenceTypeDefinitionBuilder typeDefinitionBuilder,
-		final Class<T>                         runtimeType
+		final Class<T>                         runtimeType          ,
+		final PersistenceTypeDefinitionBuilder typeDefinitionBuilder
 	)
 	{
 		return new PersistenceTypeLineage.Implementation<>(
 			notNull(typeName)             , // may never be null as this is the lineage's identity.
-			notNull(typeDefinitionBuilder),
-			runtimeType                     // can be null if the type cannot be resolved into a runtime class.
+			runtimeType                   , // can be null if the type cannot be resolved into a runtime class.
+			notNull(typeDefinitionBuilder)
 		);
 	}
 		
@@ -56,15 +57,15 @@ public interface PersistenceTypeLineage<T>
 
 		Implementation(
 			final String                           typeName             ,
-			final PersistenceTypeDefinitionBuilder typeDefinitionBuilder,
-			final Class<T>                         runtimeType
+			final Class<T>                         runtimeType          ,
+			final PersistenceTypeDefinitionBuilder typeDefinitionBuilder
 		)
 		{
 			super();
 			this.typeName              = typeName             ;
+			this.runtimeType           = runtimeType          ;
 			this.entries               = EqHashTable.New()    ;
 			this.typeDefinitionBuilder = typeDefinitionBuilder;
-			this.runtimeType           = runtimeType          ;
 		}
 
 
@@ -112,7 +113,12 @@ public interface PersistenceTypeLineage<T>
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
-			final PersistenceTypeDefinition<T> typeDesciption = this.typeDefinitionBuilder.build(this, typeId, members);
+			final PersistenceTypeDefinition<T> typeDesciption = this.typeDefinitionBuilder.buildTypeDefinition(
+				this.typeName(),
+				this.runtimeType(),
+				typeId,
+				members
+			);
 			
 			synchronized(this.entries)
 			{
@@ -126,28 +132,51 @@ public interface PersistenceTypeLineage<T>
 		}
 		
 		@Override
-		public final void initializeRuntimeTypeDescription(final PersistenceTypeDefinition<T> runtimeDescription)
+		public final boolean initializeRuntimeTypeDefinition(final PersistenceTypeDefinition<T> runtimeDescription)
 		{
 			synchronized(this.entries)
 			{
-				if(this.runtimeDescription != null)
+				// false indicates no-op, actual non-viability causes exceptions
+				if(!this.checkViability(runtimeDescription))
 				{
-					if(this.runtimeDescription == runtimeDescription)
-					{
-						// no-op call, abort
-						return;
-					}
-					
-					// conflicting call/usage
-					throw new RuntimeException("Runtime Description already initialized"); // (26.09.2017 TM)EXCP: proper exception
+					return false;
 				}
 				
 				// normal case: effective final initialization
 				this.runtimeDescription = runtimeDescription;
 				
-				// must result in the typeId being the highest in any case.
+				// correct behavior of the put has been checked above
 				this.entries.put(runtimeDescription.typeId(), runtimeDescription);
+				
+				return true;
 			}
+		}
+		
+		private boolean checkViability(final PersistenceTypeDefinition<T> runtimeDescription)
+		{
+			if(this.runtimeDescription != null)
+			{
+				if(this.runtimeDescription == runtimeDescription)
+				{
+					// no-op call, abort
+					return true;
+				}
+				
+				// conflicting call/usage
+				// (26.09.2017 TM)EXCP: proper exception
+				throw new RuntimeException("Runtime Description already initialized");
+			}
+			
+			final Long                         typeId     = runtimeDescription.typeId();
+			final PersistenceTypeDefinition<T> latest     = this.latest();
+			final PersistenceTypeDefinition<T> equivalent = this.entries.get(typeId);
+			if(equivalent != null && equivalent != latest)
+			{
+				// (28.09.2017 TM)EXCP: proper exception
+				throw new RuntimeException("Invalid runtime description type id: " + typeId);
+			}
+			
+			return false;
 		}
 		
 	}

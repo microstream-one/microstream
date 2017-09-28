@@ -4,6 +4,7 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Function;
 
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.types.XGettingCollection;
@@ -18,13 +19,11 @@ public interface PersistenceTypeDictionaryBuilder
 	
 	
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
-		final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider,
-		final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder
+		final PersistenceTypeLineageBuilder typeLineageBuilder
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
-			notNull(typeLineageBuilderProvider),
-			notNull(typeDefinitionBuilder)
+			notNull(typeLineageBuilder)
 		);
 	}
 	
@@ -34,8 +33,7 @@ public interface PersistenceTypeDictionaryBuilder
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider;
-		final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder     ;
+		final PersistenceTypeLineageBuilder typeLineageBuilder;
 		
 		
 		
@@ -44,13 +42,11 @@ public interface PersistenceTypeDictionaryBuilder
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeLineageBuilderProvider typeLineageBuilderProvider,
-			final PersistenceTypeDefinitionBuilder      typeDefinitionBuilder
+			final PersistenceTypeLineageBuilder typeLineageBuilder
 		)
 		{
 			super();
-			this.typeLineageBuilderProvider = typeLineageBuilderProvider;
-			this.typeDefinitionBuilder      = typeDefinitionBuilder     ;
+			this.typeLineageBuilder = typeLineageBuilder;
 		}
 		
 		
@@ -88,30 +84,27 @@ public interface PersistenceTypeDictionaryBuilder
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			final PersistenceTypeDictionary dictionary = PersistenceTypeDictionary.New(this.typeLineageProvider);
+			final BulkList<PersistenceTypeLineage<?>> initialTypeLineages = BulkList.New();
 
 			final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupAndSort(entries);
 			for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
 			{
-				populateTypeLineage(dictionary.ensureTypeLineage(e.key()), e.value().values());
+				final PersistenceTypeLineage<?> typeLineage = this.typeLineageBuilder.buildTypeLineage(e.key());
+				populateTypeLineage(typeLineage, e.value().values());
+				initialTypeLineages.add(typeLineage);
 			}
 			
-			return dictionary;
+			return PersistenceTypeDictionary.New(this.typeLineageBuilder, initialTypeLineages);
 		}
 		
-		private static <T> void populateTypeLineage(
-			final PersistenceTypeLineage<T>               typeLineage,
+		private static void populateTypeLineage(
+			final PersistenceTypeLineage<?>                          typeLineage,
 			final XGettingCollection<PersistenceTypeDictionaryEntry> entries
 		)
 		{
 			for(final PersistenceTypeDictionaryEntry e : entries)
 			{
-				final PersistenceTypeDefinition<T> td = PersistenceTypeDefinition.New(
-					typeLineage,
-					e.typeId() ,
-					e.members()
-				);
-				typeLineage.register(td);
+				typeLineage.registerTypeDescription(e.typeId(), e.members());
 			}
 		}
 		

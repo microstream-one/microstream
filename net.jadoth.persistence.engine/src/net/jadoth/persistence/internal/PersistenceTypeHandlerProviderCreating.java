@@ -50,7 +50,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandler<M, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
+		final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(type);
 
 		typeHandlerManager.register(typeHandler);
 
@@ -170,6 +170,13 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	public final void updateCurrentHighestTypeId(final long highestTypeId)
 	{
 		this.typeManager.updateCurrentHighestTypeId(highestTypeId);
+	}
+	
+	@Override
+	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable
+	{
+		return this.typeHandlerEnsurer.ensureTypeHandler(type);
 	}
 
 }

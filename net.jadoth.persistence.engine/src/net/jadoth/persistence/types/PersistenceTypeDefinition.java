@@ -79,7 +79,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 			&& PersistenceTypeDescription.isEqualStructure(td1, td2)
 		;
 	}
-	
+		
 
 	public static PersistenceTypeDefinitionBuilder Builder()
 	{

@@ -1,21 +1,32 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.reflect.JadothReflect;
+import static net.jadoth.Jadoth.notNull;
 
-public interface PersistenceTypeDefinitionInitializerProvider
+public interface PersistenceTypeDefinitionInitializerProvider<M>
 {
 	public <T> PersistenceTypeDefinitionInitializer<T> lookupInitializer(String typeName);
 	
 	
 	
-	public final class Implementation implements PersistenceTypeDefinitionInitializerProvider
+	public static <M> PersistenceTypeDefinitionInitializerProvider.Implementation<M> New(
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer,
+		final PersistenceTypeHandlerManager<M> typeHandlerManager
+	)
+	{
+		return new PersistenceTypeDefinitionInitializerProvider.Implementation<>(
+			notNull(typeHandlerEnsurer),
+			notNull(typeHandlerManager)
+		);
+	}
+	
+	public final class Implementation<M> implements PersistenceTypeDefinitionInitializerProvider<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeHandlerEnsurer<?> typeHandlerEnsurer;
-		final PersistenceTypeHandlerManager<?> typeHandlerManager;
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;
+		final PersistenceTypeHandlerManager<M> typeHandlerManager;
 
 		
 		
@@ -24,8 +35,8 @@ public interface PersistenceTypeDefinitionInitializerProvider
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeHandlerEnsurer<?> typeHandlerEnsurer,
-			final PersistenceTypeHandlerManager<?> typeHandlerManager
+			final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer,
+			final PersistenceTypeHandlerManager<M> typeHandlerManager
 		)
 		{
 			super();
@@ -38,29 +49,20 @@ public interface PersistenceTypeDefinitionInitializerProvider
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@SuppressWarnings("unchecked")
-		private static <T> Class<T> resolveType(final String typename)
-		{
-			try
-			{
-				return (Class<T>)JadothReflect.classForName(typename);
-			}
-			catch (final ClassNotFoundException e)
-			{
-				throw new RuntimeException(e); // (30.04.2017 TM)EXCP: proper exception
-			}
-		}
 		
 		@Override
 		public <T> PersistenceTypeDefinitionInitializer<T> lookupInitializer(final String typename)
 		{
-			final Class<T> type = resolveType(typename);
-			final PersistenceTypeHandler<?, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
-						
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDescription.InitializerLookup#lookupInitializer()
+			final Class<T> type = Persistence.resolveTypeOptional(typename);
+			if(type == null)
+			{
+				return null;
+			}
+			
+			final PersistenceTypeHandler<M, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
+			
+			return PersistenceTypeDefinitionInitializer.New(this.typeHandlerManager, typeHandler);
 		}
-		
 		
 	}
 	

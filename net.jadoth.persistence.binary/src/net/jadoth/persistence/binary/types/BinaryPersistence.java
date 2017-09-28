@@ -1,6 +1,5 @@
 package net.jadoth.persistence.binary.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -61,13 +60,8 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeVoid;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
-import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -1951,33 +1945,9 @@ public final class BinaryPersistence extends Persistence
 		return Memory.byteSizePrimitive(primitiveType);
 	}
 
-	
-	// (27.09.2017 TM)XXX: this stuff must come from the foundation, not some static context ------ //
-	
 	public static final BinaryFieldLengthResolver createFieldLengthResolver()
 	{
 		return new BinaryFieldLengthResolver.Implementation();
 	}
-	
-	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
-	{
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
-			PersistenceTypeDictionaryProvider.New(
-				PersistenceTypeDictionaryFileHandler.New(dictionaryFile),
-				PersistenceTypeDictionaryParser.New(createFieldLengthResolver()),
-				PersistenceTypeDictionaryBuilder.New()
-			)
-		;
-		return typeDictionaryProvider;
-	}
-
-	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
-	{
-		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
-		return dp.provideTypeDictionary();
-	}
-	
-	// (27.09.2017 TM)NOTE: -------------- //
-	
 	
 }

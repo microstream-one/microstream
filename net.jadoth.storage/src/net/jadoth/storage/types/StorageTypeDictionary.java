@@ -3,7 +3,6 @@ package net.jadoth.storage.types;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
-import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -75,22 +74,20 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
+		public final boolean registerType(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerType(typeDescription);
+				return this.dictionary.registerType(typeDefinition);
 			}
 		}
 
 		@Override
-		public final boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
-		)
+		public final boolean registerTypes(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerTypes(typeDescriptions);
+				return this.dictionary.registerTypes(typeDefinitions);
 			}
 		}
 
@@ -152,12 +149,6 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			return this.dictionary.allTypes();
 		}
 		
-		@Override
-		public final XGettingTable<String, PersistenceTypeDefinition<?>> currentTypesByName()
-		{
-			return this.dictionary.currentTypesByName();
-		}
-
 		@Override
 		public final PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
@@ -222,6 +213,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 				return typeDictionary;
 			}
 		}
+		
 
 		@Override
 		public final void registerTypeDescription(final PersistenceTypeDefinition<?> typeDescription)

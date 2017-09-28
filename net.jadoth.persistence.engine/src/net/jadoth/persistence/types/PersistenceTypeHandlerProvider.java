@@ -5,7 +5,7 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 
 
-public interface PersistenceTypeHandlerProvider<M> extends SwizzleTypeManager
+public interface PersistenceTypeHandlerProvider<M> extends PersistenceTypeHandlerEnsurer<M>, SwizzleTypeManager
 {
 	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(
 		PersistenceTypeHandlerManager<M> typeHandlerManager,
@@ -16,5 +16,12 @@ public interface PersistenceTypeHandlerProvider<M> extends SwizzleTypeManager
 		PersistenceTypeHandlerManager<M> typeHandlerManager,
 		long                             typeId
 	);
+	
+	
+	// must be able to act as a pure TypeHandlerEnsurer as well because of type refactoring type mismatch checks.
+	
+	@Override
+	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
 
 }
