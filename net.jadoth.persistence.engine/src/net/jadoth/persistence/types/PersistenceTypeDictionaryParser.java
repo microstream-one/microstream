@@ -428,6 +428,7 @@ public interface PersistenceTypeDictionaryParser
 				return null;
 			}
 			
+			// no unique TypeId constraint here in order to collect all entries, even if with inconsistencies.
 			final BulkList<PersistenceTypeDictionaryEntry> entries = BulkList.New();
 			
 			try

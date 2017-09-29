@@ -3,10 +3,15 @@ package net.jadoth.persistence.types;
 @FunctionalInterface
 public interface PersistenceTypeChangeCallback
 {
-	public default void validateTypeChange(final PersistenceTypeDescription latest, final PersistenceTypeDescription current)
+	public default void validateMissingRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
 	{
-		// no-op by default
+		// missing runtime types allowed by default
 	}
 	
-	public <T> void registerTypeChange(PersistenceTypeDefinition<T> latest, PersistenceTypeDefinition<T> current);
+	public default void validateTypeChange(final PersistenceTypeDefinition<?> latest, final PersistenceTypeDescription current)
+	{
+		// type change allowed by default
+	}
+	
+	public <T> void registerTypeChange(PersistenceTypeDefinition<?> latest, PersistenceTypeDefinition<?> current);
 }

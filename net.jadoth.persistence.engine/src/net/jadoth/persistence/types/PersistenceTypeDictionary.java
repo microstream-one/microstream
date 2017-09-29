@@ -18,13 +18,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	
 	public XGettingTable<String, PersistenceTypeDefinition<?>> latestTypesByName();
 	
-	public XGettingTable<Long, PersistenceTypeDefinition<?>> latestTypesPerTId();
+	public XGettingTable<Long, PersistenceTypeDefinition<?>> latestTypesById();
 	
-	public XGettingTable<String, PersistenceTypeLineage<?>> types();
+	public XGettingTable<String, PersistenceTypeLineage<?>> typeLineages();
 
-	public boolean registerType(PersistenceTypeDefinition<?> typeDescription);
+	public boolean registerType(PersistenceTypeDefinition<?> typeDefinition);
 
-	public boolean registerTypes(Iterable<? extends PersistenceTypeDefinition<?>> typeDescriptions);
+	public boolean registerTypes(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
 
 	@Override
 	public PersistenceTypeDefinition<?> lookupTypeByName(String typeName);
@@ -196,7 +196,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized XGettingTable<String, PersistenceTypeLineage<?>> types()
+		public final synchronized XGettingTable<String, PersistenceTypeLineage<?>> typeLineages()
 		{
 			return this.typeLineages;
 		}
@@ -208,7 +208,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public final synchronized XGettingTable<Long, PersistenceTypeDefinition<?>> latestTypesPerTId()
+		public final synchronized XGettingTable<Long, PersistenceTypeDefinition<?>> latestTypesById()
 		{
 			return this.latestTypesPerTypeId;
 		}
@@ -220,19 +220,19 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public final synchronized boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
+		public final synchronized boolean registerType(final PersistenceTypeDefinition<?> typeDefinition)
 		{
-			return this.internalRegisterType(typeDescription);
+			return this.internalRegisterType(typeDefinition);
 		}
 
 		@Override
 		public synchronized boolean registerTypes(
-			final Iterable<? extends PersistenceTypeDefinition<?>> typeDescriptions
+			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
 			final long oldSize = this.allTypesPerTypeId.size();
 
-			for(final PersistenceTypeDefinition<?> td : typeDescriptions)
+			for(final PersistenceTypeDefinition<?> td : typeDefinitions)
 			{
 				this.internalRegisterType(td);
 			}

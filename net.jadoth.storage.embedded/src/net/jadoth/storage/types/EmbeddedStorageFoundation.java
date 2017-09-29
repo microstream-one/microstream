@@ -425,11 +425,12 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 				this.getRootResolver()
 			);
 
-			// (04.05.2015)TODO: /!\ Entry point for improved type description validation
-			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)
+			// initialize persistence (= binary) type handler manager (validate and ensure type handlers)
 			thm.initialize();
 
-			// (22.01.2015 TM)TODO: prevent unnecessary writing of type dictionary
+			/* (22.01.2015 TM)TODO: prevent unnecessary writing of type dictionary
+			 * (29.09.2017 TM)NOTE: might be fixed by TypeHandlerManager#initialize overhaul for type refactoring.
+			 */
 
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();

@@ -8,6 +8,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsiste
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionRegistrationCallback;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 
 public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDescriptionRegistrationCallback
@@ -166,6 +167,43 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			return this.dictionary.determineHighestTypeId();
 		}
+		
+		@Override
+		public final XGettingTable<String, PersistenceTypeLineage<?>> typeLineages()
+		{
+			return this.dictionary.typeLineages();
+		}
+		
+		@Override
+		public final <T> PersistenceTypeLineage<T> ensureTypeLineage(final String typeName)
+		{
+			return this.dictionary.ensureTypeLineage(typeName);
+		}
+		
+		@Override
+		public final <T> PersistenceTypeLineage<T> lookupTypeLineage(final String typeName)
+		{
+			return this.dictionary.lookupTypeLineage(typeName);
+		}
+		
+		@Override
+		public final <C extends Consumer<? super PersistenceTypeDefinition<?>>> C iterateAllTypes(final C logic)
+		{
+			this.registry.iterateObjects(logic);
+			return logic;
+		}
+		
+		@Override
+		public final XGettingTable<Long, PersistenceTypeDefinition<?>> latestTypesById()
+		{
+			return this.dictionary.latestTypesById();
+		}
+		
+		@Override
+		public final XGettingTable<String, PersistenceTypeDefinition<?>> latestTypesByName()
+		{
+			return this.dictionary.latestTypesByName();
+		}
 
 		@Override
 		public final void setTypeDescriptionRegistrationCallback(
@@ -188,7 +226,6 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			return this;
 		}
 
-
 		@Override
 		public <D extends PersistenceTypeDictionary> D initialize(final D typeDictionary)
 		{
@@ -206,7 +243,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 				}
 				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
 				{
-					this.registerTypeDescription(td);
+					this.registerTypeDefinition(td);
 				}
 				this.dictionary = typeDictionary;
 				
@@ -216,7 +253,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		
 
 		@Override
-		public final void registerTypeDescription(final PersistenceTypeDefinition<?> typeDescription)
+		public final void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
