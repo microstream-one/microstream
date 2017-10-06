@@ -1217,7 +1217,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceTypeChangeCallback createTypeChangeCallback()
 		{
 			// (06.10.2017 TM)NOTE: by default, type changes cause the initialization to abort with an exception
-			return PersistenceTypeChangeCallback.Aborting();
+			return PersistenceTypeChangeCallback.Failing();
 		}
 
 		protected PersistenceTypeResolver createTypeResolver()

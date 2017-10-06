@@ -449,24 +449,9 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		protected BinaryTypeHandlerEnsurerLookup createTypeHandlerEnsurerLookup()
-		{
-			/* note:
-			 * registry is enough for native class type handler,
-			 * type manager would cause initializer loop.
-			 * Maybe the typing should be a little strengthened for this case
-			 */
-			return new BinaryTypeHandlerEnsurerLookup.Implementation(
-				this.getTypeHandlerEnsurer()       ,
-				this.getCustomTypeHandlerRegistry(),
-				this.getTypeHandlerRegistry()
-			);
-		}
-
-		@Override
 		protected PersistenceTypeHandlerEnsurer<Binary> createTypeHandlerEnsurer()
 		{
-			return new BinaryTypeHandlerEnsurer.Implementation(
+			return BinaryTypeHandlerEnsurer.New(
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver()
 			);

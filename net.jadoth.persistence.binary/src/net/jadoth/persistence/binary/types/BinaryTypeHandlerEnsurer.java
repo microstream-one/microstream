@@ -18,7 +18,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 
 
 /**
- * Called "ensurer", because depending on the case, if creates new type handler or it just initializes
+ * Called "ensurer", because depending on the case, it creates a new type handler or it just returns
  * already existing, pre-registered ones. So "ensuring" is the most suited common denominator.
  * 
  * @author TM
@@ -26,11 +26,8 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 public interface BinaryTypeHandlerEnsurer extends PersistenceTypeHandlerEnsurer<Binary>
 {
 	@Override
-	public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(
-		Class<T>           type
-//		long               typeId     ,
-//		SwizzleTypeManager typeManager
-	) throws PersistenceExceptionTypeNotPersistable;
+	public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
 
 
 	

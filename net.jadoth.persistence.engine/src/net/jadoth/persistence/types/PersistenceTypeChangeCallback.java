@@ -17,12 +17,12 @@ public interface PersistenceTypeChangeCallback
 	
 	
 	
-	public static PersistenceTypeChangeCallback.ImplementationAborting Aborting()
+	public static PersistenceTypeChangeCallback.ImplementationFailing Failing()
 	{
-		return new PersistenceTypeChangeCallback.ImplementationAborting();
+		return new PersistenceTypeChangeCallback.ImplementationFailing();
 	}
 	
-	public final class ImplementationAborting implements PersistenceTypeChangeCallback
+	public final class ImplementationFailing implements PersistenceTypeChangeCallback
 	{
 		@Override
 		public final void validateMissingRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
@@ -41,8 +41,10 @@ public interface PersistenceTypeChangeCallback
 		@Override
 		public final <T> void registerTypeChange(final PersistenceTypeDefinition<?> latest, final PersistenceTypeDefinition<?> current)
 		{
+			// reroute to failing validation
 			this.validateTypeChange(latest, current);
 		}
 		
 	}
+	
 }
