@@ -452,6 +452,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		protected PersistenceTypeHandlerEnsurer<Binary> createTypeHandlerEnsurer()
 		{
 			return BinaryTypeHandlerEnsurer.New(
+				this.getCustomTypeHandlerRegistry(),
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver()
 			);
@@ -460,9 +461,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		@Override
 		protected PersistenceCustomTypeHandlerRegistry<Binary> createCustomTypeHandlerRegistry()
 		{
-			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
-				this.getSwizzleRegistry()
-			);
+			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry();
 		}
 
 		@Override
