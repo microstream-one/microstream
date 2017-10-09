@@ -1,4 +1,4 @@
-package net.jadoth.traversal;
+package net.jadoth.test.traversal;
 
 public class MainTestExampleGraphTraversal
 {
