@@ -10,5 +10,5 @@ package net.jadoth.util;
  */
 public interface ComponentType
 {
-	
+	// only typing interface so far.
 }
