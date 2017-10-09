@@ -90,9 +90,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 	
-	public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder();
+	public PersistenceTypeDefinitionBuilder getTypeDefinitionBuilder();
 	
-	public PersistenceTypeDefinitionInitializerProvider<M> getTypeDescriptionInitializerLookup();
+	public PersistenceTypeDefinitionInitializerProvider<M> getTypeDefinitionInitializerProvider();
 
 	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
 	
@@ -267,7 +267,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceFieldLengthResolver                  fieldFixedLengthResolver         ;
 		private BufferSizeProvider                              bufferSizeProvider               ;
 		private PersistenceFieldEvaluator                       fieldEvaluator                   ;
-		private PersistenceTypeDefinitionBuilder                typeDescriptionBuilder           ;
+		private PersistenceTypeDefinitionBuilder                typeDefinitionBuilder           ;
 		private PersistenceTypeLineageBuilder                   typeLineageBuilder               ;
 		private PersistenceTypeDefinitionInitializerProvider<M> typeDefinitionInitializerProvider;
 
@@ -596,13 +596,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder()
+		public PersistenceTypeDefinitionBuilder getTypeDefinitionBuilder()
 		{
-			if(this.typeDescriptionBuilder == null)
+			if(this.typeDefinitionBuilder == null)
 			{
-				this.typeDescriptionBuilder = this.dispatch(this.createTypeDescriptionBuilder());
+				this.typeDefinitionBuilder = this.dispatch(this.createTypeDefinitionBuilder());
 			}
-			return this.typeDescriptionBuilder;
+			return this.typeDefinitionBuilder;
 		}
 		
 		@Override
@@ -616,7 +616,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionInitializerProvider<M> getTypeDescriptionInitializerLookup()
+		public PersistenceTypeDefinitionInitializerProvider<M> getTypeDefinitionInitializerProvider()
 		{
 			if(this.typeDefinitionInitializerProvider == null)
 			{
@@ -1263,14 +1263,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultFieldEvaluator();
 		}
 				
-		protected PersistenceTypeDefinitionBuilder createTypeDescriptionBuilder()
+		protected PersistenceTypeDefinitionBuilder createTypeDefinitionBuilder()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createTypeDescriptionBuilder()
+			return PersistenceTypeDefinitionBuilder.New();
 		}
 		
 		protected PersistenceTypeLineageBuilder createTypeLineageBuilder()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceFoundation.AbstractImplementation#createTypeDescriptionBuilder()
+			return PersistenceTypeLineageBuilder.New(
+				this.getTypeDefinitionBuilder()
+			);
 		}
 
 		protected PersistenceTypeDefinitionInitializerProvider<M> createTypeDescriptionInitializerLookup()

@@ -4,7 +4,7 @@ import static net.jadoth.Jadoth.notNull;
 
 public interface PersistenceTypeDefinitionInitializerProvider<M>
 {
-	public <T> PersistenceTypeDefinitionInitializer<T> lookupInitializer(Class<T> type);
+	public <T> PersistenceTypeDefinitionInitializer<T> provideTypeDefinitionInitializer(Class<T> type);
 	
 	
 	
@@ -51,7 +51,7 @@ public interface PersistenceTypeDefinitionInitializerProvider<M>
 		////////////
 		
 		@Override
-		public <T> PersistenceTypeDefinitionInitializer<T> lookupInitializer(final Class<T> type)
+		public <T> PersistenceTypeDefinitionInitializer<T> provideTypeDefinitionInitializer(final Class<T> type)
 		{
 			final PersistenceTypeHandler<M, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
 			

@@ -86,7 +86,7 @@ public interface PersistenceTypeDefinitionInitializer<T> extends PersistenceType
 		{
 			synchronized(this.typeHandlerManager)
 			{
-				this.typeHandlerManager.validateTypeMapping(typeId, this.type());
+				this.typeHandlerManager.validatePossibleTypeMapping(typeId, this.type());
 				this.typeHandler.initializeTypeId(typeId);
 				this.typeHandlerManager.register(this.typeHandler);
 			}

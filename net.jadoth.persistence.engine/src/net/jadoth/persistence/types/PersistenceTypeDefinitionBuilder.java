@@ -8,10 +8,15 @@ public interface PersistenceTypeDefinitionBuilder
 	public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
 		String                                                       typeName,
 		Class<T>                                                     type    ,
-//		PersistenceTypeLineage<T>                                    lineage,
 		long                                                         typeId ,
 		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	);
+	
+	
+	public static PersistenceTypeDefinitionBuilder.Implementation New()
+	{
+		return new PersistenceTypeDefinitionBuilder.Implementation();
+	}
 			
 	public final class Implementation implements PersistenceTypeDefinitionBuilder
 	{
@@ -34,12 +39,11 @@ public interface PersistenceTypeDefinitionBuilder
 		public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
 			final String                                                       typeName,
 			final Class<T>                                                     type    ,
-//			final PersistenceTypeLineage<T>                                    lineage,
 			final long                                                         typeId ,
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
-			return PersistenceTypeDefinition.New(/*lineage, */typeName, type, typeId, members);
+			return PersistenceTypeDefinition.New(typeName, type, typeId, members);
 		}
 		
 	}

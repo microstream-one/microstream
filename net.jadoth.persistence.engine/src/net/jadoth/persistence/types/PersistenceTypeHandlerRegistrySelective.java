@@ -73,11 +73,17 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.lookupType(typeId);
 		}
+		
+		@Override
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		{
+			this.handlerRegistry.validateExistingTypeMapping(typeId, type);
+		}
 
 		@Override
-		public void validateTypeMapping(final long typeId, final Class<?> type)
+		public void validatePossibleTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.handlerRegistry.validateTypeMapping(typeId, type);
+			this.handlerRegistry.validatePossibleTypeMapping(typeId, type);
 		}
 
 		@Override

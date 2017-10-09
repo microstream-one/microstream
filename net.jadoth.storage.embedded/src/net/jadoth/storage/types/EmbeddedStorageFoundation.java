@@ -425,7 +425,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 				this.getRootResolver()
 			);
 
-			// initialize persistence (= binary) type handler manager (validate and ensure type handlers)
+			// initialize type handler manager (validate and ensure type handlers, populate type dictionary)
 			thm.initialize();
 
 			/* (22.01.2015 TM)TODO: prevent unnecessary writing of type dictionary

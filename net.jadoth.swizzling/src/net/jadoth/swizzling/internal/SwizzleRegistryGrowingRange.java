@@ -142,7 +142,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		@Override
 		public void accept(final SwizzleTypeLink<?> e)
 		{
-			SwizzleRegistryGrowingRange.this.validateExistingMapping(e.type(), e.typeId());
+			SwizzleRegistryGrowingRange.this.validateExistingTypeMapping(e.typeId(), e.type());
 		}
 	};
 
@@ -829,7 +829,8 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		return this.synchronizedPutIds(oid, tid);
 	}
 
-	void validateExistingMapping(final Class<?> type, final long typeId)
+	@Override
+	public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
 	{
 		// don't know if this method's synchronization pattern is worth much performance, but it's funny to use it
 		final Entry[][] slotsPerOid, slotsPerRef;
@@ -845,8 +846,8 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		validateExistingTypeForTypeId(slotsPerOid[(int)(typeId & modulo)         ], typeId, type);
 		validateExistingTypeIdForType(slotsPerRef[identityHashCode(type) & modulo], typeId, type);
 	}
-
-	void validatePossibleMapping(final Class<?> type, final long typeId)
+	
+	public final void validatePossibleMapping(final Class<?> type, final long typeId)
 	{
 		// don't know if this method's synchronization pattern is worth much performance, but it's funny to use it
 		final Entry[][] slotsPerOid, slotsPerRef;
@@ -1121,9 +1122,9 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public void validateTypeMapping(final long typeId, final Class<?> type)
+	public void validatePossibleTypeMapping(final long typeId, final Class<?> type)
 	{
-		this.validateExistingMapping(type, typeId);
+		this.validatePossibleMapping(type, typeId);
 	}
 
 	@Override

@@ -51,6 +51,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(type);
+		typeHandler.initializeTypeId(typeId);
 
 		typeHandlerManager.register(typeHandler);
 
@@ -145,11 +146,17 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	{
 		return this.typeManager.typeCount();
 	}
+	
+	@Override
+	public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+	{
+		this.typeManager.validateExistingTypeMapping(typeId, type);
+	}
 
 	@Override
-	public final void validateTypeMapping(final long typeId, final Class<?> type)
+	public final void validatePossibleTypeMapping(final long typeId, final Class<?> type)
 	{
-		this.typeManager.validateTypeMapping(typeId, type);
+		this.typeManager.validatePossibleTypeMapping(typeId, type);
 	}
 
 	@Override

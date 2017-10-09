@@ -91,11 +91,17 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		{
 			return this.typeRegistry.lookupType(tid);
 		}
+		
+		@Override
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		{
+			this.typeRegistry.validateExistingTypeMapping(typeId, type);
+		}
 
 		@Override
-		public void validateTypeMapping(final long typeId, final Class<?> type)
+		public void validatePossibleTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.typeRegistry.validateTypeMapping(typeId, type);
+			this.typeRegistry.validatePossibleTypeMapping(typeId, type);
 		}
 
 		@Override

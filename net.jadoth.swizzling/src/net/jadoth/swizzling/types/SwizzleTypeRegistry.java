@@ -14,7 +14,7 @@ public interface SwizzleTypeRegistry extends SwizzleTypeLookup
 		{
 			for(final KeyValue<Long, Class<?>> e : types)
 			{
-				this.validateTypeMapping(e.key(), e.value());
+				this.validatePossibleTypeMapping(e.key(), e.value());
 			}
 			
 			final long currentSize = this.typeCount();
@@ -34,7 +34,7 @@ public interface SwizzleTypeRegistry extends SwizzleTypeLookup
 		{
 			for(final KeyValue<Class<?>, Long> e : types)
 			{
-				this.validateTypeMapping(e.value(), e.key());
+				this.validatePossibleTypeMapping(e.value(), e.key());
 			}
 			
 			final long currentSize = this.typeCount();

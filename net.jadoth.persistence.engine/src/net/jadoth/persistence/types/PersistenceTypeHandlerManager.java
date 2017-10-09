@@ -300,11 +300,17 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			return this.typeHandlerRegistry.typeCount();
 		}
+		
+		@Override
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		{
+			this.typeHandlerRegistry.validateExistingTypeMapping(typeId, type);
+		}
 
 		@Override
-		public final void validateTypeMapping(final long typeId, final Class<?> type)
+		public final void validatePossibleTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.typeHandlerRegistry.validateTypeMapping(typeId, type);
+			this.typeHandlerRegistry.validatePossibleTypeMapping(typeId, type);
 		}
 
 		@Override
@@ -454,7 +460,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return;
 			}
 			
-			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerProvider.lookupInitializer(type);
+			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerProvider.provideTypeDefinitionInitializer(type);
 			
 			if(PersistenceTypeDescription.isEqualStructure(latestDictionaryTypeDefinition, tdi))
 			{

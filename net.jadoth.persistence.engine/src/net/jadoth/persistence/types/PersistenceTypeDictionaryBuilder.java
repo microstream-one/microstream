@@ -85,6 +85,23 @@ public interface PersistenceTypeDictionaryBuilder
 	{
 		final BulkList<PersistenceTypeLineage<?>> dictionaryTypeLineages = BulkList.New();
 
+		fillTypeLineages(typeLineageBuilder, dictionaryTypeLineages, entries);
+		
+		return PersistenceTypeDictionary.New(typeLineageBuilder, dictionaryTypeLineages);
+	}
+	
+	public static void fillTypeLineages(
+		final PersistenceTypeLineageBuilder                              typeLineageBuilder    ,
+		final BulkList<PersistenceTypeLineage<?>>                        dictionaryTypeLineages,
+		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
+	)
+	{
+		if(entries == null)
+		{
+			// lineages collection remains empty
+			return;
+		}
+		
 		final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupEntries(entries);
 
 		// this sorting is required by the type checking in order to (easily) get the entry with the highest typeId.
@@ -96,8 +113,6 @@ public interface PersistenceTypeDictionaryBuilder
 			populateTypeLineage(typeLineage, e.value().values());
 			dictionaryTypeLineages.add(typeLineage);
 		}
-		
-		return PersistenceTypeDictionary.New(typeLineageBuilder, dictionaryTypeLineages);
 	}
 	
 	
