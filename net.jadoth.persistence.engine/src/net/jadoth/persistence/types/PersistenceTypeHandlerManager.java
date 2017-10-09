@@ -512,6 +512,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			matchingTypeDefinitions.iterate(kv ->
 				typeRegistry.registerType(kv.key(), kv.value().type())
 			);
+			
+			// (09.10.2017 TM)FIXME: optionally register all Swizzle.defaultTypeMappings here in case the dictionary did not contain them
 
 			// initialize matched TDIs
 			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefinitions)
@@ -538,9 +540,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.typeChangeCallback.registerTypeChange(latestTd, newTd);
 			}
 			
+			// (09.10.2017 TM)FIXME: iterate all default type handlers and initialize them in case the dictionary did not contain them
+			
 			/* (29.09.2017 TM)XXX: Unnecessary type dictionary update?
 			 * Note sure why the freshly populuted and validated type dictionary has to be upated
-			 * into another and validated again twice instead of just updatnig the highest TypeId
+			 * into another and validated again twice instead of just updating the highest TypeId
 			 * and exporting the typeDictionary explicitely.
 			 * Maybe the "updating" logic should be unburdened.
 			 */
