@@ -86,7 +86,7 @@ public class TestStorage extends TestComponentProvider
 
 	static final EmbeddedStorageConnectionFoundation createTestConnectionFoundation()
 	{
-		return TEST.initialize(new EmbeddedStorageConnectionFoundation.Implementation());
+		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
 	}
 
 	static final PersistenceRootResolver createTestRootResolver(final String rootIdentifier, final Object rootInstance)

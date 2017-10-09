@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleTypeLookup;
 
 public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerStateless<Class<?>>
@@ -49,13 +48,10 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerStatele
 	// override methods //
 	/////////////////////
 
-	// Can't store the class name because names are meant to be irrelevant and handled solely in the type dictionary.
-
-//	@Override
-//	public void store(final Binary bytes, final Class<?> instance, final long oid, final SwizzleStoreLinker linker)
-//	{
-//		// no-op, static state is not stored
-//	}
+	/*
+	 * Can't store the class name because names are meant to be structually irrelevant
+	 * and be handled solely in the type dictionary. TypeIds identify types, not their names.
+	 */
 
 	@Override
 	public Class<?> create(final Binary bytes)
@@ -70,92 +66,4 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerStatele
 		return this.typeLookup.lookupType(BinaryPersistence.getBuildItemObjectId(bytes));
 	}
 	
-	@Override
-	public final PersistenceTypeHandler<Binary, Class<?>> initializeTypeHandler(final SwizzleTypeLookup typeLookup)
-	{
-		this.typeLookup = typeLookup;
-		return this;
-	}
-
-//	@Override
-//	public void update(final Binary bytes, final Class<?> instance, final SwizzleBuildLinker builder)
-//	{
-//		// no-op, see create()
-//	}
-//
-//	@Override
-//	public boolean isEqual(
-//		final Class<?>                 source                    ,
-//		final Class<?>                 target                    ,
-//		final ObjectStateHandlerLookup instanceStateHandlerLookup
-//	)
-//	{
-//		return source == target; // class instances are always singletons, hence reference comparison
-//	}
-//
-//	@Override
-//	public final boolean hasPersistedReferences()
-//	{
-//		return false;
-//	}
-//
-//	@Override
-//	public final boolean hasInstanceReferences()
-//	{
-//		return false;
-//	}
-//
-//	@Override
-//	public final boolean hasPersistedVariableLength()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public boolean hasVaryingPersistedLengthInstances()
-//	{
-//		return false;
-//	}
-
-
-
-//	public static final class Creator implements BinaryTypeHandlerCreator
-//	{
-//		///////////////////////////////////////////////////////////////////////////
-//		// instance fields  //
-//		/////////////////////
-//
-//		private final PersistenceTypeHandlerLookup<Binary> typeLookup;
-//
-//
-//
-//		///////////////////////////////////////////////////////////////////////////
-//		// constructors     //
-//		/////////////////////
-//
-//		public Creator(final PersistenceTypeHandlerLookup<Binary> typeLookup)
-//		{
-//			super();
-//			this.typeLookup = notNull(typeLookup);
-//		}
-//
-//
-//
-//		///////////////////////////////////////////////////////////////////////////
-//		// override methods //
-//		/////////////////////
-//
-//		@SuppressWarnings("unchecked") // necessary to cheat the type system because of too high abstraction
-//		@Override
-//		public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-//			final Class<T>           type       ,
-//			final long               typeId     ,
-//			final SwizzleTypeManager typeManager
-//		)
-//			throws PersistenceExceptionTypeNotPersistable
-//		{
-//			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerNativeClass(this.typeLookup, typeId);
-//		}
-//	}
-
 }

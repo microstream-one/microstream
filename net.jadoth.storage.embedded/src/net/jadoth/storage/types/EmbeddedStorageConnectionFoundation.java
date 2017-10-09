@@ -19,7 +19,6 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurerLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -105,11 +104,6 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	);
 
 	@Override
-	public EmbeddedStorageConnectionFoundation setTypeHandlerCreatorLookup(
-		PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup
-	);
-
-	@Override
 	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 	BinaryPersistenceFoundation setDictionaryStorage(H typeDictionaryStorageHandler);
 
@@ -128,6 +122,11 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	public StorageConnection createStorageConnection();
 
 
+	
+	public static EmbeddedStorageConnectionFoundation.Implementation New()
+	{
+		return new EmbeddedStorageConnectionFoundation.Implementation();
+	}
 
 	public class Implementation
 	extends BinaryPersistenceFoundation.Implementation
@@ -145,6 +144,17 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+
+		protected Implementation()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		protected final void internalSetStorageManager(final StorageManager storageManager)
 		{
@@ -290,15 +300,6 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		public EmbeddedStorageConnectionFoundation.Implementation setTypeManager(final SwizzleTypeManager typeManager)
 		{
 			this.internalSetTypeManager(typeManager);
-			return this;
-		}
-
-		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup
-		)
-		{
-			this.internalSetTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
 			return this;
 		}
 

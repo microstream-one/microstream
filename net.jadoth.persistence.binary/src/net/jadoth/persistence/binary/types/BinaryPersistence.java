@@ -1,5 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -60,8 +61,10 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeVoid;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -1948,6 +1951,14 @@ public final class BinaryPersistence extends Persistence
 	public static final BinaryFieldLengthResolver createFieldLengthResolver()
 	{
 		return new BinaryFieldLengthResolver.Implementation();
+	}
+	
+	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
+	{
+		final BinaryPersistenceFoundation f = BinaryPersistenceFoundation.New()
+		.setTypeDictionaryLoader(PersistenceTypeDictionaryFileHandler.New(dictionaryFile))
+		;
+		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
 	
 }

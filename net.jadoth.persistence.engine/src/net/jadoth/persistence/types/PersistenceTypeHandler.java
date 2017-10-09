@@ -166,7 +166,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			{
 				if(this.typeId == typeId)
 				{
-					// consistency no-op, abort
+					// consistent no-op, abort
 					return;
 				}
 				

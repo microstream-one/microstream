@@ -271,7 +271,18 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceTypeLineageBuilder                   typeLineageBuilder               ;
 		private PersistenceTypeDefinitionInitializerProvider<M> typeDefinitionInitializerProvider;
 
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
+		protected AbstractImplementation()
+		{
+			super();
+		}
+
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// getters          //

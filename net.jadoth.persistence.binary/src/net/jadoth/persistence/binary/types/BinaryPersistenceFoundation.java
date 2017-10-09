@@ -1,9 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import java.io.File;
-
 import net.jadoth.functional.Dispatcher;
-import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -14,9 +11,7 @@ import net.jadoth.persistence.types.PersistenceRegisterer;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
-import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryExporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
@@ -115,9 +110,6 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
 
 	@Override
-	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup);
-
-	@Override
 	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
 
 	@Override
@@ -145,29 +137,27 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public PersistenceManager<Binary> createPersistenceManager();
 
 	
-	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
+	
+	public static BinaryPersistenceFoundation.Implementation New()
 	{
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
-			PersistenceTypeDictionaryProvider.New(
-				PersistenceTypeDictionaryFileHandler.New(dictionaryFile),
-				PersistenceTypeDictionaryParser.New(BinaryPersistence.createFieldLengthResolver()),
-				PersistenceTypeDictionaryBuilder.New()
-			)
-		;
-		return typeDictionaryProvider;
+		return new BinaryPersistenceFoundation.Implementation();
 	}
-
-	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
-	{
-		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
-		return dp.provideTypeDictionary();
-	}
-
 
 	public class Implementation
 	extends PersistenceFoundation.AbstractImplementation<Binary>
 	implements BinaryPersistenceFoundation
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected Implementation()
+		{
+			super();
+		}
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// setters          //
 		/////////////////////
@@ -274,15 +264,6 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		public BinaryPersistenceFoundation.Implementation setTypeManager(final SwizzleTypeManager typeManager)
 		{
 			this.internalSetTypeManager(typeManager);
-			return this;
-		}
-
-		@Override
-		public BinaryPersistenceFoundation.Implementation setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerEnsurerLookup<Binary> typeHandlerCreatorLookup
-		)
-		{
-			this.internalSetTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
 			return this;
 		}
 
