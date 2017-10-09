@@ -817,7 +817,13 @@ public final class JadothSort
 	{
 		if(values instanceof AbstractSimpleArrayCollection)
 		{
-			valueSort(((AbstractSimpleArrayCollection<V>)values).internalGetStorageArray(), comparator);
+			valueSort(
+				((AbstractSimpleArrayCollection<V>)values).internalGetStorageArray(),
+				0,
+				((AbstractSimpleArrayCollection<?>)values).internalSize(),
+				comparator
+			);
+			return;
 		}
 		
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JadothSort#valueSort()

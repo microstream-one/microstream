@@ -75,6 +75,8 @@ extends AbstractChainEntry<E, K, V, EN>
 		// sort by chain length
 		JadothSort.valueSort(
 			result.internalGetStorageArray(),
+			0,
+			result.internalSize(),
 			(kv1, kv2) -> kv1.key().intValue() - kv2.key().intValue()
 		);
 

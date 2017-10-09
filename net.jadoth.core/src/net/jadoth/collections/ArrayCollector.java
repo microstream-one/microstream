@@ -1411,12 +1411,21 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			throw new IndexBoundsException(this.size, index);
 		}
 
-		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
-			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
-			: elements.toArray() // anything else is probably not worth the hassle
-		;
+		final Object[] elementsToAdd;
+		final int      lengthToAdd  ;
+		if(elements instanceof AbstractSimpleArrayCollection)
+		{
+			elementsToAdd = ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray();
+			lengthToAdd   = ((AbstractSimpleArrayCollection<?>)elements).internalSize();
+		}
+		else
+		{
+			// anything else is probably not worth the hassle
+			elementsToAdd = elements.toArray();
+			lengthToAdd   = elementsToAdd.length;
+		}
 
-		return this.internalInsertArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInsertArray((int)index, elementsToAdd, lengthToAdd);
 	}
 
 	@Override
@@ -1497,12 +1506,21 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			throw new IndexBoundsException(this.size, index);
 		}
 
-		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
-			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
-			: elements.toArray() // anything else is probably not worth the hassle
-		;
+		final Object[] elementsToAdd;
+		final int      lengthToAdd  ;
+		if(elements instanceof AbstractSimpleArrayCollection)
+		{
+			elementsToAdd = ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray();
+			lengthToAdd   = ((AbstractSimpleArrayCollection<?>)elements).internalSize();
+		}
+		else
+		{
+			// anything else is probably not worth the hassle
+			elementsToAdd = elements.toArray();
+			lengthToAdd   = elementsToAdd.length;
+		}
 
-		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInputArray((int)index, elementsToAdd, lengthToAdd);
 	}
 
 	@Override
