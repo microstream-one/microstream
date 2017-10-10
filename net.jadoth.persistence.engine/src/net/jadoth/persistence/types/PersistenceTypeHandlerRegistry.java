@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import net.jadoth.Jadoth;
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedTypeId;
@@ -160,17 +161,30 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 				this.i2h.clear();
 			}
 		}
-
+		
 		@Override
-		public void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.t2h.iterateValues(procedure);
+			this.t2h.iterateValues(iterator);
+			return iterator;
 		}
 
 		@Override
 		public boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
 		{
 			return this.typeRegistry.registerType(tid, type);
+		}
+		
+		@Override
+		public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+		{
+			return this.typeRegistry.ensureRegisteredType(type, tid);
+		}
+		
+		@Override
+		public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
+		{
+			return this.typeRegistry.ensureRegisteredTypes(typeMapping);
 		}
 
 		@Override

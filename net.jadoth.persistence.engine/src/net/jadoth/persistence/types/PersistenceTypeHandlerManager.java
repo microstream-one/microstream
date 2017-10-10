@@ -10,6 +10,7 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
@@ -370,6 +371,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 			return false;
 		}
+		
+		@Override
+		public final long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+		{
+			return this.typeHandlerRegistry.ensureRegisteredType(type, tid);
+		}
 
 		@Override
 		public final void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
@@ -384,11 +391,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
 		}
-
+		
 		@Override
-		public final void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.typeHandlerRegistry.iterateTypeHandlers(procedure);
+			return this.typeHandlerRegistry.iterateTypeHandlers(iterator);
 		}
 
 		@Override
@@ -444,34 +451,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //
 //			return typeDefinitions;
 //		}
-		
-		
-		private <T> void createTypeDefinitionInitializer(
-			final PersistenceTypeDefinitionInitializerCreator<M>            runtimeTypeDefInitializerProvider,
-			final PersistenceTypeDefinition<T>                               latestDictionaryTypeDefinition   ,
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions          ,
-			final HashTable<PersistenceTypeDefinition<?> , PersistenceTypeDefinitionInitializer<?>> changedTypeDefinitions
-		)
-		{
-			final Class<T> type = latestDictionaryTypeDefinition.type();
-			if(type == null)
-			{
-				this.typeChangeCallback.validateMissingRuntimeType(latestDictionaryTypeDefinition);
-				return;
-			}
-			
-			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerProvider.createTypeDefinitionInitializer(type);
-			
-			if(PersistenceTypeDescription.isEqualStructure(latestDictionaryTypeDefinition, tdi))
-			{
-				matchingTypeDefinitions.add(latestDictionaryTypeDefinition.typeId(), tdi);
-			}
-			else
-			{
-				this.typeChangeCallback.validateTypeChange(latestDictionaryTypeDefinition, tdi);
-				changedTypeDefinitions.add(latestDictionaryTypeDefinition, tdi);
-			}
-		}
 
 		private void internalInitialize()
 		{
@@ -510,11 +489,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// register unconflicted / unchanged types
 			matchingTypeDefinitions.iterate(kv ->
-				typeRegistry.registerType(kv.key(), kv.value().type())
-			);
+			{
+				typeRegistry.registerType(kv.key(), kv.value().type());
+			});
 			
-			// (09.10.2017 TM)FIXME: optionally register all Swizzle.defaultTypeMappings here in case the dictionary did not contain them
-
+			// supplement registered unconflicted types with system defaults (note the supplementing logic)
+			typeRegistry.ensureRegisteredTypes(Swizzle.defaultTypeMapping());
+			
 			// initialize matched TDIs
 			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefinitions)
 			{
@@ -539,6 +520,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				// register new deprecated "latest" and new TypeDefinintion for change (e.g. entity type conversion)
 				this.typeChangeCallback.registerTypeChange(latestTd, newTd);
 			}
+			
+			this.typeHandlerProvider.iterateTypeHandlers(th ->
+			{
+				
+			});
 			
 			// (09.10.2017 TM)FIXME: iterate all default type handlers and initialize them in case the dictionary did not contain them
 			
@@ -574,6 +560,33 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //			// (28.09.2017 TM) ------------- //
 
 			this.initialized = true;
+		}
+		
+		private <T> void createTypeDefinitionInitializer(
+			final PersistenceTypeDefinitionInitializerCreator<M>             runtimeTypeDefInitializerCreator,
+			final PersistenceTypeDefinition<T>                               latestDictionaryTypeDefinition   ,
+			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions          ,
+			final HashTable<PersistenceTypeDefinition<?> , PersistenceTypeDefinitionInitializer<?>> changedTypeDefinitions
+		)
+		{
+			final Class<T> type = latestDictionaryTypeDefinition.type();
+			if(type == null)
+			{
+				this.typeChangeCallback.validateMissingRuntimeType(latestDictionaryTypeDefinition);
+				return;
+			}
+			
+			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerCreator.createTypeDefinitionInitializer(type);
+			
+			if(PersistenceTypeDescription.isEqualStructure(latestDictionaryTypeDefinition, tdi))
+			{
+				matchingTypeDefinitions.add(latestDictionaryTypeDefinition.typeId(), tdi);
+			}
+			else
+			{
+				this.typeChangeCallback.validateTypeChange(latestDictionaryTypeDefinition, tdi);
+				changedTypeDefinitions.add(latestDictionaryTypeDefinition, tdi);
+			}
 		}
 
 		@Override

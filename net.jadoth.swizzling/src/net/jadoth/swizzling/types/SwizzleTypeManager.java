@@ -2,6 +2,7 @@ package net.jadoth.swizzling.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownTid;
@@ -108,6 +109,18 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		public boolean registerType(final long tid, final Class<?> type)
 		{
 			return this.typeRegistry.registerType(tid, type);
+		}
+		
+		@Override
+		public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+		{
+			return this.typeRegistry.ensureRegisteredType(type, tid);
+		}
+		
+		@Override
+		public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
+		{
+			return this.typeRegistry.ensureRegisteredTypes(typeMapping);
 		}
 		
 		@Override

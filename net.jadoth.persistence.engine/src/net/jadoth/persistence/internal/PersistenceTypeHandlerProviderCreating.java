@@ -2,6 +2,9 @@ package net.jadoth.persistence.internal;
 
 import static net.jadoth.Jadoth.notNull;
 
+import java.util.function.Consumer;
+
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -128,6 +131,18 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	{
 		return this.typeManager.registerType(tid, type);
 	}
+	
+	@Override
+	public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+	{
+		return this.typeManager.ensureRegisteredType(type, tid);
+	}
+	
+	@Override
+	public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
+	{
+		return this.typeManager.ensureRegisteredTypes(typeMapping);
+	}
 
 	@Override
 	public final long lookupTypeId(final Class<?> type)
@@ -184,6 +199,12 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		return this.typeHandlerEnsurer.ensureTypeHandler(type);
+	}
+	
+	@Override
+	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+	{
+		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
 	}
 
 }

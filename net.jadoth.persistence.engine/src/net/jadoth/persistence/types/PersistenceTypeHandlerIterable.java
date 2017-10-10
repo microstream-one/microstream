@@ -4,5 +4,5 @@ import java.util.function.Consumer;
 
 public interface PersistenceTypeHandlerIterable<M>
 {
-	public void iterateTypeHandlers(Consumer<? super PersistenceTypeHandler<M, ?>> procedure);
+	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(C iterator);
 }

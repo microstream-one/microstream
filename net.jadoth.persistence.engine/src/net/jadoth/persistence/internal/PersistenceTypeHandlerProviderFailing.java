@@ -1,7 +1,9 @@
 package net.jadoth.persistence.internal;
 
+import java.util.function.Consumer;
+
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
@@ -24,38 +26,55 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(
 		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final Class<T> type
+		final Class<T>                         type
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		throw new PersistenceExceptionTypeNotPersistable(type);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(
 		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final long typeId
+		final long                             typeId
 	)
 	{
-		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public long ensureTypeId(final Class<?> type)
 	{
-		throw new PersistenceExceptionTypeNotPersistable(type);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public <T> Class<T> ensureType(final long typeId)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeManager#ensureType
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public long currentTypeId()
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
@@ -64,19 +83,51 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
 	{
-		throw new PersistenceExceptionTypeNotPersistable(type);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+	{
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
+	{
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public long lookupTypeId(final Class<?> type)
 	{
-		throw new PersistenceExceptionTypeNotPersistable(type);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public <T> Class<T> lookupType(final long typeId)
 	{
-		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
+		/*
+		 * this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does intentionally not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -149,6 +200,13 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 		 * this implementation actually does intentionally not support that operation.
 		 */
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+	{
+		// no-op
+		return iterator;
 	}
 
 }

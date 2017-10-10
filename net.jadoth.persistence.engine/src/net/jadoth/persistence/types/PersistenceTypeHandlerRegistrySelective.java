@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyWrongHandler;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -35,7 +36,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		/////////////////////
 
 		private final PersistenceTypeHandlerRegistry<M> handlerRegistry;
-		private final SwizzleObjectLookup                    objectLookup   ;
+		private final SwizzleObjectLookup               objectLookup   ;
 
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> oidToHandler = HashMapIdObject.New();
 		private final MiniMap<Object, PersistenceTypeHandler<M, ?>> objToHandler = new MiniMap<>();
@@ -48,7 +49,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 		public Implementation(
 			final PersistenceTypeHandlerRegistry<M> handlerRegistry,
-			final SwizzleObjectLookup objectLookup
+			final SwizzleObjectLookup               objectLookup
 		)
 		{
 			super();
@@ -161,6 +162,18 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.registerType(tid, type);
 		}
+		
+		@Override
+		public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+		{
+			return this.handlerRegistry.ensureRegisteredType(type, tid);
+		}
+		
+		@Override
+		public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
+		{
+			return this.handlerRegistry.ensureRegisteredTypes(typeMapping);
+		}
 
 		@Override
 		public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
@@ -175,11 +188,11 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			this.handlerRegistry.validatePossibleTypeMappings(mappings);
 		}
-
+		
 		@Override
-		public void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.handlerRegistry.iterateTypeHandlers(procedure);
+			return this.handlerRegistry.iterateTypeHandlers(iterator);
 		}
 
 	}

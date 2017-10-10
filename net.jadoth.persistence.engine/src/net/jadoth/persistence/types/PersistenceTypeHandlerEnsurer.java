@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import java.util.function.Consumer;
+
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 /**
@@ -10,8 +12,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
  * 
  * @author TM
  */
-@FunctionalInterface
-public interface PersistenceTypeHandlerEnsurer<M>
+public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandlerIterable<M>
 {
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
@@ -27,6 +28,8 @@ public interface PersistenceTypeHandlerEnsurer<M>
 			notNull(typeHandlerCreator)
 		);
 	}
+	
+	
 
 	public class Implementation<M> implements PersistenceTypeHandlerEnsurer<M>
 	{
@@ -71,6 +74,12 @@ public interface PersistenceTypeHandlerEnsurer<M>
 			}
 			
 			return this.typeHandlerCreator.createTypeHandler(type);
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		{
+			return this.customTypeHandlerRegistry.iterateTypeHandlers(iterator);
 		}
 
 	}

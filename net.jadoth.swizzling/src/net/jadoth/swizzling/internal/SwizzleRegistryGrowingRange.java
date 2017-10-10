@@ -899,6 +899,19 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 //		JadothConsole.debugln(Jadoth.systemString(this) + " registering " + tid + " <-> " + type);
 		return this.synchronizedPut(tid, Swizzle.classTypeId(), type);
 	}
+	
+	@Override
+	public synchronized long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
+	{
+		final long existingTypeId = this.lookupObjectId(type);
+		if(existingTypeId != 0L)
+		{
+			return existingTypeId;
+		}
+		
+		this.registerType(tid, type);
+		return tid;
+	}
 
 	@Override
 	public boolean registerObject(final long oid, final long tid, final Object object)

@@ -1,9 +1,11 @@
 package net.jadoth.persistence.types;
 
+import java.util.function.Consumer;
+
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 
-public interface PersistenceCustomTypeHandlerRegistry<M>
+public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
 {
 	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
 		PersistenceTypeHandler<M, ?> typeHandlerInitializer
@@ -104,6 +106,13 @@ public interface PersistenceCustomTypeHandlerRegistry<M>
 		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
 		{
 			return this.internalLookupTypeHandler(type);
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		{
+			this.mapping.values().iterate(iterator);
+			return iterator;
 		}
 
 	}

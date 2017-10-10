@@ -23,5 +23,5 @@ public interface PersistenceTypeHandlerProvider<M> extends PersistenceTypeHandle
 	@Override
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
-
+	
 }
