@@ -92,8 +92,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceTypeDefinitionBuilder getTypeDefinitionBuilder();
 	
-	public PersistenceTypeDefinitionInitializerProvider<M> getTypeDefinitionInitializerProvider();
-
 	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
 	
 	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
@@ -176,10 +174,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceFoundation<M> setTypeDefinitionBuilder(PersistenceTypeDefinitionBuilder typeDefinitionBuilder);
 	
-	public PersistenceFoundation<M> setTypeDefinitionInitializerProvider(
-		PersistenceTypeDefinitionInitializerProvider<M> tpeDefinitionInitializerProvider
-	);
-
 	public PersistenceFoundation<M> setTypeHandlerEnsurer(PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer);
 	
 	public PersistenceFoundation<M> setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
@@ -245,7 +239,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceFieldEvaluator                       fieldEvaluator                   ;
 		private PersistenceTypeDefinitionBuilder                typeDefinitionBuilder            ;
 		private PersistenceTypeLineageBuilder                   typeLineageBuilder               ;
-		private PersistenceTypeDefinitionInitializerProvider<M> typeDefinitionInitializerProvider;
 
 		
 		
@@ -601,16 +594,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return this.typeLineageBuilder;
 		}
 		
-		@Override
-		public PersistenceTypeDefinitionInitializerProvider<M> getTypeDefinitionInitializerProvider()
-		{
-			if(this.typeDefinitionInitializerProvider == null)
-			{
-				this.typeDefinitionInitializerProvider = this.dispatch(this.createTypeDescriptionInitializerLookup());
-			}
-			return this.typeDefinitionInitializerProvider;
-		}
-		
 		
 
 		///////////////////////////////////////////////////////////////////////////
@@ -880,15 +863,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			this.typeDefinitionBuilder = builder;
 			return this;
 		}
-		
-		@Override
-		public PersistenceFoundation<M> setTypeDefinitionInitializerProvider(
-			final PersistenceTypeDefinitionInitializerProvider<M> provider
-		)
-		{
-			this.typeDefinitionInitializerProvider = provider;
-			return this;
-		}
 
 		@Override
 		public PersistenceFoundation<M> setTypeHandlerEnsurer(final PersistenceTypeHandlerEnsurer<M> ensurer)
@@ -919,7 +893,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected SwizzleRegistry createSwizzleRegistry()
 		{
-			final SwizzleRegistryGrowingRange newSwizzleRegistry = new SwizzleRegistryGrowingRange();
+			final SwizzleRegistryGrowingRange newSwizzleRegistry = SwizzleRegistryGrowingRange.New();
 			Swizzle.registerDefaults(newSwizzleRegistry);
 			return newSwizzleRegistry;
 		}
@@ -1156,15 +1130,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.getTypeDefinitionBuilder()
 			);
 		}
-
-		protected PersistenceTypeDefinitionInitializerProvider<M> createTypeDescriptionInitializerLookup()
-		{
-			return PersistenceTypeDefinitionInitializerProvider.New(
-				this.getTypeHandlerProvider(),
-				this.getTypeHandlerManager()
-			);
-		}
-
+		
 
 
 		///////////////////////////////////////////////////////////////////////////

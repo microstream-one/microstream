@@ -2,24 +2,24 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
-public interface PersistenceTypeDefinitionInitializerProvider<M>
+public interface PersistenceTypeDefinitionInitializerCreator<M>
 {
-	public <T> PersistenceTypeDefinitionInitializer<T> provideTypeDefinitionInitializer(Class<T> type);
+	public <T> PersistenceTypeDefinitionInitializer<T> createTypeDefinitionInitializer(Class<T> type);
 	
 	
 	
-	public static <M> PersistenceTypeDefinitionInitializerProvider.Implementation<M> New(
+	public static <M> PersistenceTypeDefinitionInitializerCreator.Implementation<M> New(
 		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer,
 		final PersistenceTypeHandlerManager<M> typeHandlerManager
 	)
 	{
-		return new PersistenceTypeDefinitionInitializerProvider.Implementation<>(
+		return new PersistenceTypeDefinitionInitializerCreator.Implementation<>(
 			notNull(typeHandlerEnsurer),
 			notNull(typeHandlerManager)
 		);
 	}
 	
-	public final class Implementation<M> implements PersistenceTypeDefinitionInitializerProvider<M>
+	public final class Implementation<M> implements PersistenceTypeDefinitionInitializerCreator<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -51,7 +51,7 @@ public interface PersistenceTypeDefinitionInitializerProvider<M>
 		////////////
 		
 		@Override
-		public <T> PersistenceTypeDefinitionInitializer<T> provideTypeDefinitionInitializer(final Class<T> type)
+		public <T> PersistenceTypeDefinitionInitializer<T> createTypeDefinitionInitializer(final Class<T> type)
 		{
 			final PersistenceTypeHandler<M, T> typeHandler = this.typeHandlerEnsurer.ensureTypeHandler(type);
 			

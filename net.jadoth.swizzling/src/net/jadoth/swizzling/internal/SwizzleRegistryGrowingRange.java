@@ -156,27 +156,33 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	};
 
 
+	
+	public static SwizzleRegistryGrowingRange New()
+	{
+		return New(MINIMUM_SLOT_LENGTH);
+	}
+	
+	public static SwizzleRegistryGrowingRange New(final int slotSize)
+	{
+		return New(slotSize, DEFAULT_HASH_DENSITY);
+	}
+	
+	public static SwizzleRegistryGrowingRange New(final float hashDensity)
+	{
+		return New(MINIMUM_SLOT_LENGTH, hashDensity);
+	}
+	
+	public static SwizzleRegistryGrowingRange New(final int slotSize, final float hashDensity)
+	{
+		return new SwizzleRegistryGrowingRange(slotSize, hashDensity);
+	}
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public SwizzleRegistryGrowingRange()
-	{
-		this(MINIMUM_SLOT_LENGTH);
-	}
-
-	public SwizzleRegistryGrowingRange(final int slotSize)
-	{
-		this(slotSize, DEFAULT_HASH_DENSITY);
-	}
-
-	public SwizzleRegistryGrowingRange(final float hashDensity)
-	{
-		this(MINIMUM_SLOT_LENGTH, hashDensity);
-	}
-
-	public SwizzleRegistryGrowingRange(final int slotSize, final float hashDensity)
+	SwizzleRegistryGrowingRange(final int slotSize, final float hashDensity)
 	{
 		super();
 		final int paddedSlotSize = padCapacity(slotSize);

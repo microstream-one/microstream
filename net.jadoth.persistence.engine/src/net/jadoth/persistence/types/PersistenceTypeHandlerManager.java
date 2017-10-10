@@ -447,7 +447,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		
 		
 		private <T> void createTypeDefinitionInitializer(
-			final PersistenceTypeDefinitionInitializerProvider<M>            runtimeTypeDefInitializerProvider,
+			final PersistenceTypeDefinitionInitializerCreator<M>            runtimeTypeDefInitializerProvider,
 			final PersistenceTypeDefinition<T>                               latestDictionaryTypeDefinition   ,
 			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions          ,
 			final HashTable<PersistenceTypeDefinition<?> , PersistenceTypeDefinitionInitializer<?>> changedTypeDefinitions
@@ -460,7 +460,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return;
 			}
 			
-			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerProvider.provideTypeDefinitionInitializer(type);
+			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerProvider.createTypeDefinitionInitializer(type);
 			
 			if(PersistenceTypeDescription.isEqualStructure(latestDictionaryTypeDefinition, tdi))
 			{
@@ -491,7 +491,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 			
-			final PersistenceTypeDefinitionInitializerProvider<M> tdip = PersistenceTypeDefinitionInitializerProvider.New(
+			final PersistenceTypeDefinitionInitializerCreator<M> tdip = PersistenceTypeDefinitionInitializerCreator.New(
 				this.typeHandlerProvider,
 				this
 			);

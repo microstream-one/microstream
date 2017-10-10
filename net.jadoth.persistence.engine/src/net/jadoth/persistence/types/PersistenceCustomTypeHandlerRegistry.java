@@ -21,10 +21,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M>
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
 
 	public boolean knowsType(Class<?> type);
-
-//	public <D extends PersistenceTypeDictionary> D updateTypeDictionary(D typeDictionary);
-
-	
+		
 	
 	
 	public static <M> PersistenceCustomTypeHandlerRegistry.Implementation<M> New()
@@ -32,14 +29,12 @@ public interface PersistenceCustomTypeHandlerRegistry<M>
 		return new PersistenceCustomTypeHandlerRegistry.Implementation<>();
 	}
 
-
 	public final class Implementation<M> implements PersistenceCustomTypeHandlerRegistry<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 		
-//		private final SwizzleTypeLookup                                 typeLookup;
 		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping = HashTable.New();
 
 		
@@ -48,10 +43,9 @@ public interface PersistenceCustomTypeHandlerRegistry<M>
 		// constructors //
 		/////////////////
 		
-		Implementation(/*final SwizzleTypeLookup typeLookup*/)
+		Implementation()
 		{
 			super();
-//			this.typeLookup = typeLookup;
 		}
 		
 
@@ -107,25 +101,10 @@ public interface PersistenceCustomTypeHandlerRegistry<M>
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(
-			final Class<T>           type
-//			final long               typeId     ,
-//			final SwizzleTypeManager typeManager
-		)
+		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
 		{
 			return this.internalLookupTypeHandler(type);
 		}
-
-//		@Override
-//		public <D extends PersistenceTypeDictionary> D updateTypeDictionary(final D typeDictionary)
-//		{
-//			final BulkList<PersistenceTypeDefinition<?>> typeDescs = this.mapping.iterate(
-//				new TypeDescriptionBuilder<M>(this.typeLookup)
-//			).yield();
-//			typeDictionary.registerTypes(typeDescs);
-//
-//			return typeDictionary;
-//		}
 
 	}
 
