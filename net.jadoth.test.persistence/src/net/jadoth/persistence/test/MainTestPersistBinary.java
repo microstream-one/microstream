@@ -8,7 +8,7 @@ import net.jadoth.persistence.types.PersistenceManager;
 public class MainTestPersistBinary extends TestComponentProvider
 {
 	// actual persistence manager creation (automated and application-specific assembly)//
-	static final BinaryPersistenceFoundation foundation = BinaryPersistence.factory(dispatcher);
+	static final BinaryPersistenceFoundation foundation = BinaryPersistence.Foundation(dispatcher);
 	static final PersistenceManager<Binary> persistenceManager =
 		TEST
 		.setFilenameData("BinaryTest.dat")

@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.storage.types.StorageFileWriter.Provider;
-import net.jadoth.util.AbstractInstanceDispatcher;
+import net.jadoth.util.InstanceDispatcher;
 import net.jadoth.util.MissingAssemblyPartException;
 
 public interface StorageFoundation
@@ -94,7 +94,7 @@ public interface StorageFoundation
 
 
 
-	public class Implementation extends AbstractInstanceDispatcher implements StorageFoundation
+	public class Implementation extends InstanceDispatcher.Implementation implements StorageFoundation
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -126,125 +126,6 @@ public interface StorageFoundation
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
-
-		protected final void internalSetInitialDataFileNumberProvider(
-			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider
-		)
-		{
-			this.initialDataFileNumberProvider = initialDataFileNumberProvider;
-		}
-
-		protected final void internalSetRequestAcceptorCreator(
-			final StorageRequestAcceptor.Creator requestAcceptorCreator
-		)
-		{
-			this.requestAcceptorCreator = requestAcceptorCreator;
-		}
-
-		protected final void internalSetTaskBrokerCreator(final StorageTaskBroker.Creator taskBrokerCreator)
-		{
-			this.taskBrokerCreator = taskBrokerCreator;
-		}
-
-		protected final void internalSetDataChunkValidatorProvider(
-			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
-		)
-		{
-			this.dataChunkValidatorProvider = dataChunkValidatorProvider;
-		}
-
-		protected final void internalSetChannelCreator(final StorageChannel.Creator channelCreator)
-		{
-			this.channelCreator = channelCreator;
-		}
-
-		protected final void internalSetThreadProvider(final StorageThreadProvider threadProvider)
-		{
-			this.threadProvider = threadProvider;
-		}
-
-		protected final void internalSetTaskCreator(final StorageRequestTaskCreator taskCreator)
-		{
-			this.requestTaskCreator = taskCreator;
-		}
-
-		protected final void internalSetTypeDictionary(final StorageTypeDictionary typeDictionary)
-		{
-			this.typeDictionary = typeDictionary;
-		}
-
-		protected final void internalSetRootTypeIdProvider(final StorageRootTypeIdProvider rootTypeIdProvider)
-		{
-			this.rootTypeIdProvider = rootTypeIdProvider;
-		}
-
-		protected final void internalSetConfiguration(final StorageConfiguration configuration)
-		{
-			this.configuration = configuration;
-		}
-
-		protected final void internalSetTimestampProvider(final StorageTimestampProvider timestampProvider)
-		{
-			this.timestampProvider = timestampProvider;
-		}
-
-		protected final void internalSetObjectIdRangeEvaluator(
-			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator
-		)
-		{
-			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
-		}
-
-		protected final void internalSetReaderProvider(final StorageFileReader.Provider readerProvider)
-		{
-			this.readerProvider = readerProvider;
-		}
-
-		protected final void internalSetWriterProvider(final StorageFileWriter.Provider writerProvider)
-		{
-			this.writerProvider = writerProvider;
-		}
-
-		protected final void internalSetWriteListenerProvider(final StorageWriteListener.Provider writeListenerProvider)
-		{
-			this.writeListenerProvider = writeListenerProvider;
-		}
-
-		protected final void internalSetGCZombieOidHandler(
-			final StorageGCZombieOidHandler gCZombieOidHandler
-		)
-		{
-			this.gCZombieOidHandler = gCZombieOidHandler;
-		}
-
-		protected final void internalSetRootOidSelectorProvider(
-			final StorageRootOidSelector.Provider rootOidSelectorProvider
-		)
-		{
-			this.rootOidSelectorProvider = rootOidSelectorProvider;
-		}
-
-		protected final void internalSetOidMarkQueueCreator(
-			final StorageOidMarkQueue.Creator oidMarkQueueCreator
-		)
-		{
-			this.oidMarkQueueCreator = oidMarkQueueCreator;
-		}
-
-		protected final void internalSetEntityMarkMonitorCreator(
-			final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator
-		)
-		{
-			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
-		}
-
-
-		protected final void internalSetExceptionHandler(
-			final StorageExceptionHandler exceptionHandler
-		)
-		{
-			this.exceptionHandler = exceptionHandler;
-		}
 
 		protected StorageGCZombieOidHandler createStorageGCZombieOidHandler()
 		{
@@ -563,7 +444,7 @@ public interface StorageFoundation
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider
 		)
 		{
-			this.internalSetInitialDataFileNumberProvider(initialDataFileNumberProvider);
+			this.initialDataFileNumberProvider = initialDataFileNumberProvider;
 			return this;
 		}
 
@@ -572,14 +453,14 @@ public interface StorageFoundation
 			final StorageRequestAcceptor.Creator requestAcceptorCreator
 		)
 		{
-			this.internalSetRequestAcceptorCreator(requestAcceptorCreator);
+			this.requestAcceptorCreator = requestAcceptorCreator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setTaskBrokerCreator(final StorageTaskBroker.Creator taskBrokerCreator)
 		{
-			this.internalSetTaskBrokerCreator(taskBrokerCreator);
+			this.taskBrokerCreator = taskBrokerCreator;
 			return this;
 		}
 
@@ -588,49 +469,49 @@ public interface StorageFoundation
 			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
 		)
 		{
-			this.internalSetDataChunkValidatorProvider(dataChunkValidatorProvider);
+			this.dataChunkValidatorProvider = dataChunkValidatorProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setChannelCreator(final StorageChannel.Creator channelCreator)
 		{
-			this.internalSetChannelCreator(channelCreator);
+			this.channelCreator = channelCreator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation setThreadProvider(final StorageThreadProvider threadProvider)
 		{
-			this.internalSetThreadProvider(threadProvider);
+			this.threadProvider = threadProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setTaskCreator(final StorageRequestTaskCreator taskCreator)
 		{
-			this.internalSetTaskCreator(taskCreator);
+			this.requestTaskCreator = taskCreator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setTypeDictionary(final StorageTypeDictionary typeDictionary)
 		{
-			this.internalSetTypeDictionary(typeDictionary);
+			this.typeDictionary = typeDictionary;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setRootTypeIdProvider(final StorageRootTypeIdProvider rootTIDProvider)
 		{
-			this.internalSetRootTypeIdProvider(rootTIDProvider);
+			this.rootTypeIdProvider = rootTIDProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setConfiguration(final StorageConfiguration configuration)
 		{
-			this.internalSetConfiguration(configuration);
+			this.configuration = configuration;
 			return this;
 		}
 
@@ -639,7 +520,7 @@ public interface StorageFoundation
 			final StorageTimestampProvider storageTimestampProvider
 		)
 		{
-			this.internalSetTimestampProvider(storageTimestampProvider);
+			this.timestampProvider = storageTimestampProvider;
 			return this;
 		}
 
@@ -648,21 +529,21 @@ public interface StorageFoundation
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator
 		)
 		{
-			this.internalSetObjectIdRangeEvaluator(objectIdRangeEvaluator);
+			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation setReaderProvider(final StorageFileReader.Provider readerProvider)
 		{
-			this.internalSetReaderProvider(readerProvider);
+			this.readerProvider = readerProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setWriterProvider(final Provider writerProvider)
 		{
-			this.internalSetWriterProvider(writerProvider);
+			this.writerProvider = writerProvider;
 			return this;
 		}
 
@@ -671,14 +552,14 @@ public interface StorageFoundation
 			final StorageWriteListener.Provider writeListenerProvider
 		)
 		{
-			this.internalSetWriteListenerProvider(writeListenerProvider);
+			this.writeListenerProvider = writeListenerProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setGCZombieOidHandler(final StorageGCZombieOidHandler gCZombieOidHandler)
 		{
-			this.internalSetGCZombieOidHandler(gCZombieOidHandler);
+			this.gCZombieOidHandler = gCZombieOidHandler;
 			return this;
 		}
 
@@ -687,28 +568,28 @@ public interface StorageFoundation
 			final StorageRootOidSelector.Provider rootOidSelectorProvider
 		)
 		{
-			this.internalSetRootOidSelectorProvider(rootOidSelectorProvider);
+			this.rootOidSelectorProvider = rootOidSelectorProvider;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setOidMarkQueueCreator(final StorageOidMarkQueue.Creator oidMarkQueueCreator)
 		{
-			this.internalSetOidMarkQueueCreator(oidMarkQueueCreator);
+			this.oidMarkQueueCreator = oidMarkQueueCreator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation.Implementation setEntityMarkMonitorCreator(final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator)
 		{
-			this.internalSetEntityMarkMonitorCreator(entityMarkMonitorCreator);
+			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
 			return this;
 		}
 
 		@Override
 		public StorageFoundation setExceptionHandler(final StorageExceptionHandler exceptionHandler)
 		{
-			this.internalSetExceptionHandler(exceptionHandler);
+			this.exceptionHandler = exceptionHandler;
 			return this;
 		}
 

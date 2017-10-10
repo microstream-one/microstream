@@ -26,8 +26,8 @@ import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.BiProcedure;
-import net.jadoth.functional.Dispatcher;
 import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
@@ -1853,23 +1853,22 @@ public final class BinaryPersistence extends Persistence
 		};
 	}
 
-	public static BinaryPersistenceFoundation factory()
+	public static BinaryPersistenceFoundation Foundation()
 	{
-		return factory(null);
+		return Foundation(null);
 	}
 
-	public static BinaryPersistenceFoundation factory(final Dispatcher dispatcher)
+	public static BinaryPersistenceFoundation Foundation(final InstanceDispatcherLogic dispatcher)
 	{
-		final BinaryPersistenceFoundation.Implementation factory =
-			new BinaryPersistenceFoundation.Implementation()
-			.setInstanceDispatcher(dispatcher)
+		final BinaryPersistenceFoundation.Implementation factory = BinaryPersistenceFoundation.New()
+			.setInstanceDispatcherLogic(dispatcher)
 		;
 		return factory;
 	}
 
 	public static final long readChunkLength(
-		final ByteBuffer          lengthBuffer,
-		final ReadableByteChannel channel     ,
+		final ByteBuffer          lengthBuffer ,
+		final ReadableByteChannel channel      ,
 		final MessageWaiter       messageWaiter
 	)
 		throws IOException

@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -19,7 +19,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
+import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -44,7 +44,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	/////////////////////
 
 	@Override
-	public BinaryPersistenceFoundation setInstanceDispatcher(Dispatcher instanceDispatcher);
+	public BinaryPersistenceFoundation setInstanceDispatcherLogic(InstanceDispatcherLogic logic);
 
 	@Override
 	public BinaryPersistenceFoundation setObjectManager(SwizzleObjectManager objectManager);
@@ -77,7 +77,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
 
 	@Override
-	public BinaryPersistenceFoundation setBuilderCreator(PersistenceLoader.Creator<Binary> builderCreator);
+	public BinaryPersistenceFoundation setLoaderCreator(PersistenceLoader.Creator<Binary> loaderCreator);
 
 	@Override
 	public BinaryPersistenceFoundation setPersistenceTarget(PersistenceTarget<Binary> target);
@@ -167,7 +167,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeDictionaryAssembler typeDictionaryAssembler
 		)
 		{
-			this.internalSetTypeDictionaryAssembler(typeDictionaryAssembler);
+			super.setTypeDictionaryAssembler(typeDictionaryAssembler);
 			return this;
 		}
 
@@ -176,7 +176,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeDictionaryStorer typeDictionaryStorer
 		)
 		{
-			this.internalSetTypeDictionaryStorer(typeDictionaryStorer);
+			super.setTypeDictionaryStorer(typeDictionaryStorer);
 			return this;
 		}
 
@@ -185,7 +185,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeDictionaryProvider typeDictionaryProvider
 		)
 		{
-			this.internalSetTypeDictionaryProvider(typeDictionaryProvider);
+			super.setTypeDictionaryProvider(typeDictionaryProvider);
 			return this;
 		}
 
@@ -194,7 +194,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeDictionaryManager typeDictionaryManager
 		)
 		{
-			this.internalSetTypeDictionaryManager(typeDictionaryManager);
+			super.setTypeDictionaryManager(typeDictionaryManager);
 			return this;
 		}
 
@@ -203,37 +203,39 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeSovereignty typeSovereignty
 		)
 		{
-			this.internalSetTypeSovereignty(typeSovereignty);
+			super.setTypeSovereignty(typeSovereignty);
 			return this;
 		}
 
 		@Override
-		public BinaryPersistenceFoundation.Implementation setInstanceDispatcher(final Dispatcher instanceDispatcher)
+		public BinaryPersistenceFoundation.Implementation setInstanceDispatcherLogic(
+			final InstanceDispatcherLogic logic
+		)
 		{
-			this.internalSetDispatcher(instanceDispatcher);
+			super.setInstanceDispatcherLogic(logic);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setObjectManager(final SwizzleObjectManager objectManager)
 		{
-			this.internalSetObjectManager(objectManager);
+			super.setObjectManager(objectManager);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setSwizzleRegistry(final SwizzleRegistry swizzleRegistry)
 		{
-			this.internalSetSwizzleRegistry(swizzleRegistry);
+			super.setSwizzleRegistry(swizzleRegistry);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setStorerCreator(
-			final PersistenceStorer.Creator<Binary> persisterCreator
+			final PersistenceStorer.Creator<Binary> creator
 		)
 		{
-			this.internalSetPersisterCreator(persisterCreator);
+			super.setStorerCreator(creator);
 			return this;
 		}
 
@@ -242,28 +244,28 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeHandlerManager<Binary> typeHandlerManager
 		)
 		{
-			this.internalSetTypeHandlerManager(typeHandlerManager);
+			super.setTypeHandlerManager(typeHandlerManager);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
 		{
-			this.internalSetOidProvider(oidProvider);
+			super.setObjectIdProvider(oidProvider);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
 		{
-			this.internalSetTidProvider(tidProvider);
+			super.setTypeIdProvider(tidProvider);
 			return this;
 		}
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setTypeManager(final SwizzleTypeManager typeManager)
 		{
-			this.internalSetTypeManager(typeManager);
+			super.setTypeManager(typeManager);
 			return this;
 		}
 
@@ -272,7 +274,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeHandlerRegistry<Binary> typeHandlerRegistry
 		)
 		{
-			this.internalSetTypeHandlerRegistry(typeHandlerRegistry);
+			super.setTypeHandlerRegistry(typeHandlerRegistry);
 			return this;
 		}
 
@@ -281,7 +283,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeHandlerProvider<Binary> typeHandlerProvider
 		)
 		{
-			this.internalSetTypeHandlerProvider(typeHandlerProvider);
+			super.setTypeHandlerProvider(typeHandlerProvider);
 			return this;
 		}
 
@@ -290,16 +292,16 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceRegisterer.Creator registererCreator
 		)
 		{
-			this.internalSetRegistererCreator(registererCreator);
+			super.setRegistererCreator(registererCreator);
 			return this;
 		}
 
 		@Override
-		public BinaryPersistenceFoundation.Implementation setBuilderCreator(
-			final PersistenceLoader.Creator<Binary> builderCreator
+		public BinaryPersistenceFoundation.Implementation setLoaderCreator(
+			final PersistenceLoader.Creator<Binary> creator
 		)
 		{
-			this.internalSetBuilderCreator(builderCreator);
+			super.setLoaderCreator(creator);
 			return this;
 		}
 
@@ -308,7 +310,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTarget<Binary> target
 		)
 		{
-			this.internalSetTarget(target);
+			super.setPersistenceTarget(target);
 			return this;
 		}
 
@@ -317,34 +319,34 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceSource<Binary> source
 		)
 		{
-			this.internalSetSource(source);
+			super.setPersistenceSource(source);
 			return this;
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setTypeDictionaryExporter(
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryExporter(
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)
 		{
-			this.internalSetTypeDictionaryExporter(typeDictionaryExporter);
+			super.setTypeDictionaryExporter(typeDictionaryExporter);
 			return this;
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setTypeDictionaryParser(
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryParser(
 			final PersistenceTypeDictionaryParser typeDictionaryParser
 		)
 		{
-			this.internalSetTypeDictionaryParser(typeDictionaryParser);
+			super.setTypeDictionaryParser(typeDictionaryParser);
 			return this;
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setTypeDictionaryLoader(
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryLoader(
 			final PersistenceTypeDictionaryLoader typeDictionaryLoader
 		)
 		{
-			this.internalSetTypeDictionaryLoader(typeDictionaryLoader);
+			super.setTypeDictionaryLoader(typeDictionaryLoader);
 			return this;
 		}
 
@@ -352,8 +354,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 		BinaryPersistenceFoundation setDictionaryStorage(final H typeDictionaryStorageHandler)
 		{
-			this.internalSetTypeDictionaryLoader(typeDictionaryStorageHandler);
-			this.internalSetTypeDictionaryStorer(typeDictionaryStorageHandler);
+			super.setTypeDictionaryLoader(typeDictionaryStorageHandler);
+			super.setTypeDictionaryStorer(typeDictionaryStorageHandler);
 			return this;
 		}
 
@@ -361,8 +363,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		public <S extends PersistenceTarget<Binary> & PersistenceSource<Binary>>
 		BinaryPersistenceFoundation setPersistenceStorage(final S persistenceStorage)
 		{
-			this.internalSetSource(persistenceStorage);
-			this.internalSetTarget(persistenceStorage);
+			super.setPersistenceSource(persistenceStorage);
+			super.setPersistenceTarget(persistenceStorage);
 			return this;
 		}
 
@@ -380,7 +382,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final BufferSizeProvider bufferSizeProvider
 		)
 		{
-			this.internalSetBufferSizeProvider(bufferSizeProvider);
+			super.setBufferSizeProvider(bufferSizeProvider);
 			return this;
 		}
 
@@ -389,7 +391,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeEvaluator getTypeEvaluatorPersistable
 		)
 		{
-			this.internalSetTypeEvaluatorPersistable(getTypeEvaluatorPersistable);
+			super.setTypeEvaluatorPersistable(getTypeEvaluatorPersistable);
 			return this;
 		}
 
@@ -398,7 +400,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable
 		)
 		{
-			this.internalSetTypeEvaluatorTypeIdMappable(getTypeEvaluatorTypeIdMappable);
+			super.setTypeEvaluatorTypeIdMappable(getTypeEvaluatorTypeIdMappable);
 			return this;
 		}
 
@@ -407,7 +409,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			final PersistenceFieldLengthResolver resolver
 		)
 		{
-			this.internalSetFieldFixedLengthResolver(resolver);
+			super.setFieldFixedLengthResolver(resolver);
 			return this;
 		}
 		
@@ -428,12 +430,11 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		{
 			return new BinaryLoader.CreatorSimple();
 		}
-
+		
 		@Override
-		protected PersistenceTypeHandlerEnsurer<Binary> createTypeHandlerEnsurer()
+		protected PersistenceTypeHandlerCreator<Binary> createTypeHandlerCreator()
 		{
-			return BinaryTypeHandlerEnsurer.New(
-				this.getCustomTypeHandlerRegistry(),
+			return BinaryTypeHandlerCreator.New(
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver()
 			);

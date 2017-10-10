@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryLoader;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -45,7 +45,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	/////////////////////
 
 	@Override
-	public EmbeddedStorageConnectionFoundation setInstanceDispatcher(Dispatcher instanceDispatcher);
+	public EmbeddedStorageConnectionFoundation setInstanceDispatcherLogic(InstanceDispatcherLogic instanceDispatcher);
 
 	@Override
 	public EmbeddedStorageConnectionFoundation setObjectManager(SwizzleObjectManager objectManager);
@@ -156,11 +156,6 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		// methods //
 		////////////
 
-		protected final void internalSetStorageManager(final StorageManager storageManager)
-		{
-			this.storageManager = storageManager;
-		}
-
 		protected StorageManager createStorageManager()
 		{
 			throw new MissingAssemblyPartException(StorageManager.class);
@@ -193,7 +188,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryAssembler typeDictionaryAssembler
 		)
 		{
-			this.internalSetTypeDictionaryAssembler(typeDictionaryAssembler);
+			super.setTypeDictionaryAssembler(typeDictionaryAssembler);
 			return this;
 		}
 
@@ -202,7 +197,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryStorer typeDictionaryStorer
 		)
 		{
-			this.internalSetTypeDictionaryStorer(typeDictionaryStorer);
+			super.setTypeDictionaryStorer(typeDictionaryStorer);
 			return this;
 		}
 
@@ -211,7 +206,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryProvider typeDictionaryProvider
 		)
 		{
-			this.internalSetTypeDictionaryProvider(typeDictionaryProvider);
+			super.setTypeDictionaryProvider(typeDictionaryProvider);
 			return this;
 		}
 
@@ -220,7 +215,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryManager typeDictionaryManager
 		)
 		{
-			this.internalSetTypeDictionaryManager(typeDictionaryManager);
+			super.setTypeDictionaryManager(typeDictionaryManager);
 			return this;
 		}
 
@@ -229,16 +224,16 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeSovereignty typeSovereignty
 		)
 		{
-			this.internalSetTypeSovereignty(typeSovereignty);
+			super.setTypeSovereignty(typeSovereignty);
 			return this;
 		}
 
 		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setInstanceDispatcher(
-			final Dispatcher instanceDispatcher
+		public EmbeddedStorageConnectionFoundation.Implementation setInstanceDispatcherLogic(
+			final InstanceDispatcherLogic logic
 		)
 		{
-			this.internalSetDispatcher(instanceDispatcher);
+			super.setInstanceDispatcherLogic(logic);
 			return this;
 		}
 
@@ -247,7 +242,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final SwizzleObjectManager objectManager
 		)
 		{
-			this.internalSetObjectManager(objectManager);
+			super.setObjectManager(objectManager);
 			return this;
 		}
 
@@ -256,7 +251,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final SwizzleRegistry swizzleRegistry
 		)
 		{
-			this.internalSetSwizzleRegistry(swizzleRegistry);
+			super.setSwizzleRegistry(swizzleRegistry);
 			return this;
 		}
 
@@ -265,7 +260,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceStorer.Creator<Binary> persisterCreator
 		)
 		{
-			this.internalSetPersisterCreator(persisterCreator);
+			super.setStorerCreator(persisterCreator);
 			return this;
 		}
 
@@ -274,7 +269,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeHandlerManager<Binary> typeHandlerManager
 		)
 		{
-			this.internalSetTypeHandlerManager(typeHandlerManager);
+			super.setTypeHandlerManager(typeHandlerManager);
 			return this;
 		}
 
@@ -283,7 +278,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final SwizzleObjectIdProvider oidProvider
 		)
 		{
-			this.internalSetOidProvider(oidProvider);
+			super.setObjectIdProvider(oidProvider);
 			return this;
 		}
 
@@ -292,14 +287,16 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final SwizzleTypeIdProvider tidProvider
 		)
 		{
-			this.internalSetTidProvider(tidProvider);
+			super.setTypeIdProvider(tidProvider);
 			return this;
 		}
 
 		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setTypeManager(final SwizzleTypeManager typeManager)
+		public EmbeddedStorageConnectionFoundation.Implementation setTypeManager(
+			final SwizzleTypeManager typeManager
+		)
 		{
-			this.internalSetTypeManager(typeManager);
+			super.setTypeManager(typeManager);
 			return this;
 		}
 
@@ -308,7 +305,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeHandlerRegistry<Binary> typeHandlerRegistry
 		)
 		{
-			this.internalSetTypeHandlerRegistry(typeHandlerRegistry);
+			super.setTypeHandlerRegistry(typeHandlerRegistry);
 			return this;
 		}
 
@@ -317,7 +314,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeHandlerProvider<Binary> typeHandlerProvider
 		)
 		{
-			this.internalSetTypeHandlerProvider(typeHandlerProvider);
+			super.setTypeHandlerProvider(typeHandlerProvider);
 			return this;
 		}
 
@@ -326,16 +323,16 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceRegisterer.Creator registererCreator
 		)
 		{
-			this.internalSetRegistererCreator(registererCreator);
+			super.setRegistererCreator(registererCreator);
 			return this;
 		}
 
 		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setBuilderCreator(
-			final PersistenceLoader.Creator<Binary> builderCreator
+		public EmbeddedStorageConnectionFoundation.Implementation setLoaderCreator(
+			final PersistenceLoader.Creator<Binary> creator
 		)
 		{
-			this.internalSetBuilderCreator(builderCreator);
+			super.setLoaderCreator(creator);
 			return this;
 		}
 
@@ -344,7 +341,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTarget<Binary> target
 		)
 		{
-			this.internalSetTarget(target);
+			super.setPersistenceTarget(target);
 			return this;
 		}
 
@@ -353,7 +350,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceSource<Binary> source
 		)
 		{
-			this.internalSetSource(source);
+			super.setPersistenceSource(source);
 			return this;
 		}
 
@@ -362,7 +359,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)
 		{
-			this.internalSetTypeDictionaryExporter(typeDictionaryExporter);
+			super.setTypeDictionaryExporter(typeDictionaryExporter);
 			return this;
 		}
 
@@ -371,7 +368,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryParser typeDictionaryParser
 		)
 		{
-			this.internalSetTypeDictionaryParser(typeDictionaryParser);
+			super.setTypeDictionaryParser(typeDictionaryParser);
 			return this;
 		}
 
@@ -380,7 +377,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeDictionaryLoader typeDictionaryLoader
 		)
 		{
-			this.internalSetTypeDictionaryLoader(typeDictionaryLoader);
+			super.setTypeDictionaryLoader(typeDictionaryLoader);
 			return this;
 		}
 
@@ -388,8 +385,8 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 		EmbeddedStorageConnectionFoundation.Implementation setDictionaryStorage(final H typeDictionaryStorageHandler)
 		{
-			this.internalSetTypeDictionaryLoader(typeDictionaryStorageHandler);
-			this.internalSetTypeDictionaryStorer(typeDictionaryStorageHandler);
+			super.setTypeDictionaryLoader(typeDictionaryStorageHandler);
+			super.setTypeDictionaryStorer(typeDictionaryStorageHandler);
 			return this;
 		}
 
@@ -397,8 +394,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		public <S extends PersistenceTarget<Binary> & PersistenceSource<Binary>>
 		EmbeddedStorageConnectionFoundation.Implementation setPersistenceStorage(final S persistenceStorage)
 		{
-			this.internalSetSource(persistenceStorage);
-			this.internalSetTarget(persistenceStorage);
+			super.setPersistenceStorage(persistenceStorage);
 			return this;
 		}
 
@@ -406,8 +402,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
 		EmbeddedStorageConnectionFoundation.Implementation setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
-			this.setTypeIdProvider    (swizzleTypeIdProvider);
-			this.setObjectIdProvider  (swizzleTypeIdProvider);
+			this.setSwizzleIdProvider(swizzleTypeIdProvider);
 			return this;
 		}
 
@@ -416,7 +411,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final StorageManager storageManager
 		)
 		{
-			this.internalSetStorageManager(storageManager);
+			this.storageManager = storageManager;
 			return this;
 		}
 
@@ -425,7 +420,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeEvaluator typeEvaluatorPersistable
 		)
 		{
-			this.internalSetTypeEvaluatorPersistable(typeEvaluatorPersistable);
+			super.setTypeEvaluatorPersistable(typeEvaluatorPersistable);
 			return this;
 		}
 
@@ -434,7 +429,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final BufferSizeProvider bufferSizeProvider
 		)
 		{
-			this.internalSetBufferSizeProvider(bufferSizeProvider);
+			super.setBufferSizeProvider(bufferSizeProvider);
 			return this;
 		}
 
@@ -443,7 +438,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			final PersistenceTypeEvaluator typeEvaluatorTypeIdMappable
 		)
 		{
-			this.internalSetTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable);
+			super.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable);
 			return this;
 		}
 
@@ -479,7 +474,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		{
 			if(this.connectionRequestAcceptor == null)
 			{
-				this.connectionRequestAcceptor = this.storageManager.createRequestAcceptor();
+				this.connectionRequestAcceptor = this.getStorageManager().createRequestAcceptor();
 			}
 			return this.connectionRequestAcceptor;
 		}

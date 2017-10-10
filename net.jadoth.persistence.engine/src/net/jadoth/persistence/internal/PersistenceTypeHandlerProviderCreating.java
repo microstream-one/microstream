@@ -56,11 +56,11 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		typeHandlerManager.register(typeHandler);
 
 		/*
-		 * must ensure type handlers for all field types as well to keep type definitions consistent
-		 * if some field's type is "too abstract" to be persisted, is has to be registered to an
-		 * apropriate type handler (No-op, etc.) manually beforehand.
+		 * Must ensure type handlers for all field types as well to keep type definitions consistent.
+		 * If some field's type is "too abstract" to be persisted, is has to be registered to an
+		 * appropriate type handler (No-op, etc.) manually beforehand.
 		 *
-		 * creating new type handlers in the process will eventually end up here again for the new types
+		 * Creating new type handlers in the process will eventually end up here again for the new types.
 		 */
 		typeHandler.getInstanceReferenceFields().iterate(e ->
 		{

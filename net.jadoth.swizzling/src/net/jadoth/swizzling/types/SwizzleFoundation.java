@@ -1,16 +1,18 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.functional.Dispatcher;
-import net.jadoth.util.AbstractInstanceDispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
+import net.jadoth.util.InstanceDispatcher;
 import net.jadoth.util.MissingAssemblyPartException;
 
 
 
-public interface SwizzleFoundation
+public interface SwizzleFoundation extends InstanceDispatcher
 {
-	public Dispatcher getInstanceDispatcher(); // (14.04.2013)XXX: move dispatching aspect to separate super type
+	@Override
+	public SwizzleFoundation setInstanceDispatcherLogic(InstanceDispatcherLogic logic);
 
-
+	
+	
 	public SwizzleObjectIdProvider getObjectIdProvider();
 
 	public SwizzleTypeIdProvider getTypeIdProvider();
@@ -25,7 +27,7 @@ public interface SwizzleFoundation
 
 
 
-	public class Implementation extends AbstractInstanceDispatcher implements SwizzleFoundation
+	public class Implementation extends InstanceDispatcher.Implementation implements SwizzleFoundation
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -76,11 +78,12 @@ public interface SwizzleFoundation
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
 		/////////////////////
-
+		
 		@Override
-		public Dispatcher getInstanceDispatcher()
+		public SwizzleFoundation setInstanceDispatcherLogic(final InstanceDispatcherLogic logic)
 		{
-			return this.internalGetDispatcher();
+			super.setInstanceDispatcherLogic(logic);
+			return this;
 		}
 
 		@Override

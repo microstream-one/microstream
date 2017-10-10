@@ -103,13 +103,6 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			return new BinaryPersistenceRootsProvider.Implementation();
 		}
 
-		protected final void internalSetConnectionFoundation(
-			final EmbeddedStorageConnectionFoundation connectionFoundation
-		)
-		{
-			this.connectionFoundation = connectionFoundation;
-		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -215,20 +208,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			return this.rootsProvider;
 		}
 
-		protected void internalSetRootResolver(final PersistenceRootResolver rootResolver)
-		{
-			this.rootResolver = rootResolver;
-		}
-
-		protected final void internalSetRootsProvider(final BinaryPersistenceRootsProvider rootsProvider)
-		{
-			this.rootsProvider = rootsProvider;
-		}
-
 		@Override
 		public EmbeddedStorageFoundation.Implementation setRootResolver(final PersistenceRootResolver rootResolver)
 		{
-			this.internalSetRootResolver(rootResolver);
+			this.rootResolver = rootResolver;
 			return this;
 		}
 
@@ -247,7 +230,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		public EmbeddedStorageFoundation.Implementation setConfiguration(final StorageConfiguration configuration)
 		{
-			this.internalSetConfiguration(configuration);
+			super.setConfiguration(configuration);
 			return this;
 		}
 
@@ -256,7 +239,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageRequestAcceptor.Creator requestAcceptorCreator
 		)
 		{
-			this.internalSetRequestAcceptorCreator(requestAcceptorCreator);
+			super.setRequestAcceptorCreator(requestAcceptorCreator);
 			return this;
 		}
 
@@ -265,7 +248,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageTaskBroker.Creator taskBrokerCreator
 		)
 		{
-			this.internalSetTaskBrokerCreator(taskBrokerCreator);
+			super.setTaskBrokerCreator(taskBrokerCreator);
 			return this;
 		}
 
@@ -274,28 +257,28 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
 		)
 		{
-			this.internalSetDataChunkValidatorProvider(dataChunkValidatorProvider);
+			super.setDataChunkValidatorProvider(dataChunkValidatorProvider);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setChannelCreator(final StorageChannel.Creator channelCreator)
 		{
-			this.internalSetChannelCreator(channelCreator);
+			super.setChannelCreator(channelCreator);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setTaskCreator(final StorageRequestTaskCreator taskCreator)
 		{
-			this.internalSetTaskCreator(taskCreator);
+			super.setTaskCreator(taskCreator);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setTypeDictionary(final StorageTypeDictionary typeDictionary)
 		{
-			this.internalSetTypeDictionary(typeDictionary);
+			super.setTypeDictionary(typeDictionary);
 			return this;
 		}
 
@@ -304,7 +287,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageRootTypeIdProvider rootTypeIdProvider
 		)
 		{
-			this.internalSetRootTypeIdProvider(rootTypeIdProvider);
+			super.setRootTypeIdProvider(rootTypeIdProvider);
 			return this;
 		}
 
@@ -313,14 +296,14 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final EmbeddedStorageConnectionFoundation connectionFoundation
 		)
 		{
-			this.internalSetConnectionFoundation(connectionFoundation);
+			this.connectionFoundation = connectionFoundation;
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation setRootsProvider(final BinaryPersistenceRootsProvider rootsProvider)
 		{
-			this.internalSetRootsProvider(rootsProvider);
+			this.rootsProvider = rootsProvider;
 			return this;
 		}
 
@@ -330,7 +313,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageTimestampProvider storageTimestampProvider
 		)
 		{
-			this.internalSetTimestampProvider(storageTimestampProvider);
+			super.setStorageTimestampProvider(storageTimestampProvider);
 			return this;
 		}
 

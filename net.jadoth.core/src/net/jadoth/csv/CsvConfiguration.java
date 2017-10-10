@@ -1,8 +1,9 @@
 package net.jadoth.csv;
 
 import static net.jadoth.Jadoth.notNull;
-import net.jadoth.util.AbstractInstanceDispatcher;
+
 import net.jadoth.util.Immutable;
+import net.jadoth.util.InstanceDispatcher;
 import net.jadoth.util.chars.EscapeHandler;
 import net.jadoth.util.chars.VarString;
 
@@ -496,7 +497,7 @@ public interface CsvConfiguration
 
 
 
-		public final class Implementation extends AbstractInstanceDispatcher implements Builder
+		public final class Implementation extends InstanceDispatcher.Implementation implements Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -519,97 +520,6 @@ public interface CsvConfiguration
 			private int           skipLineCountPostHeader = CSV.DEFAULT_SKIP_LINE_COUNT_POST_HEADER;
 			private int           trailingLineCount       = CSV.DEFAULT_TRAILING_LINE_COUNT        ;
 			private EscapeHandler escapeHandler           = CSV.DEFAULT_ESCAPE_HANDLER             ;
-
-
-
-			///////////////////////////////////////////////////////////////////////////
-			// declared methods //
-			/////////////////////
-
-			protected final void internalSetLineSeparator(final char lineSeparator)
-			{
-				this.lineSeparator = lineSeparator;
-			}
-
-			protected final void internalSetTerminator(final char terminator)
-			{
-				this.terminator = terminator;
-			}
-
-			protected final void internalSetValueSeparator(final char valueSeparator)
-			{
-				this.valueSeparator = valueSeparator;
-			}
-
-			protected final void internalSetValueDelimiter(final char valueDelimiter)
-			{
-				this.valueDelimiter = valueDelimiter;
-			}
-
-			protected final void internalSetValueEscaper(final char valueEscaper)
-			{
-				this.valueEscaper = valueEscaper;
-			}
-
-			protected final void internalSetSegmentStarter(final char segmentStarter)
-			{
-				this.segmentStarter = segmentStarter;
-			}
-
-			protected final void internalSetSegmentTerminator(final char segmentTerminator)
-			{
-				this.segmentTerminator = segmentTerminator;
-			}
-
-			protected final void internalSetHeaderStarter(final char headerStarter)
-			{
-				this.headerStarter = headerStarter;
-			}
-
-			protected final void internalSetHeaderTerminator(final char headerTerminator)
-			{
-				this.headerTerminator = headerTerminator;
-			}
-
-			protected final void internalSetCommentSignal(final char commentSignal)
-			{
-				this.commentSignal = commentSignal;
-			}
-
-			protected final void internalSetCommentSimpleStarter(final char commentSimpleStarter)
-			{
-				this.commentSimpleStarter = commentSimpleStarter;
-			}
-
-			protected final void internalSetCommentFullStarter(final char commentFullStarter)
-			{
-				this.commentFullStarter = commentFullStarter;
-			}
-
-			protected final void internalSetCommentFullTerminator(final String commentFullTerminator)
-			{
-				this.commentFullTerminator = notNull(commentFullTerminator);
-			}
-
-			protected final void internalSetSkipLineCount(final int skipLineCount)
-			{
-				this.skipLineCount = skipLineCount;
-			}
-
-			protected final void internalSetSkipLineCountPostHeader(final int skipLineCountPostHeader)
-			{
-				this.skipLineCountPostHeader = skipLineCountPostHeader;
-			}
-
-			protected final void internalSetTrailingLineCount(final int trailingLineCount)
-			{
-				this.trailingLineCount = trailingLineCount;
-			}
-
-			protected final void internalSetEscapeHandler(final EscapeHandler escapeHandler)
-			{
-				this.escapeHandler = escapeHandler;
-			}
 
 
 
@@ -728,119 +638,119 @@ public interface CsvConfiguration
 			@Override
 			public Builder.Implementation setRecordSeparator(final char lineSeparator)
 			{
-				this.internalSetLineSeparator(lineSeparator);
+				this.lineSeparator = lineSeparator;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setTerminator(final char terminator)
 			{
-				this.internalSetTerminator(terminator);
+				this.terminator = terminator;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setValueSeparator(final char valueSeparator)
 			{
-				this.internalSetValueSeparator(valueSeparator);
+				this.valueSeparator = valueSeparator;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setLiteralDelimiter(final char valueDelimiter)
 			{
-				this.internalSetValueDelimiter(valueDelimiter);
+				this.valueDelimiter = valueDelimiter;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setEscaper(final char valueEscaper)
 			{
-				this.internalSetValueEscaper(valueEscaper);
+				this.valueEscaper = valueEscaper;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setSegmentStarter(final char segmentStarter)
+			public Builder.Implementation setSegmentStarter(final char segmentStarter)
 			{
-				this.internalSetSegmentStarter(segmentStarter);
+				this.segmentStarter = segmentStarter;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setSegmentTerminator(final char segmentTerminator)
+			public Builder.Implementation setSegmentTerminator(final char segmentTerminator)
 			{
-				this.internalSetSegmentTerminator(segmentTerminator);
+				this.segmentTerminator = segmentTerminator;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setHeaderStarter(final char headerStarter)
+			public Builder.Implementation setHeaderStarter(final char headerStarter)
 			{
-				this.internalSetHeaderStarter(headerStarter);
+				this.headerStarter = headerStarter;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setHeaderTerminator(final char headerTerminator)
+			public Builder.Implementation setHeaderTerminator(final char headerTerminator)
 			{
-				this.internalSetHeaderTerminator(headerTerminator);
+				this.headerTerminator = headerTerminator;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentSignal(final char commentSignal)
+			public Builder.Implementation setCommentSignal(final char commentSignal)
 			{
-				this.internalSetCommentSignal(commentSignal);
+				this.commentSignal = commentSignal;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentSimpleStarter(final char commentSimpleStarter)
+			public Builder.Implementation setCommentSimpleStarter(final char commentSimpleStarter)
 			{
-				this.internalSetCommentSimpleStarter(commentSimpleStarter);
+				this.commentSimpleStarter = commentSimpleStarter;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentFullStarter(final char commentFullStarter)
+			public Builder.Implementation setCommentFullStarter(final char commentFullStarter)
 			{
-				this.internalSetCommentFullStarter(commentFullStarter);
+				this.commentFullStarter = commentFullStarter;
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentFullTerminator(final String commentFullTerminator)
+			public Builder.Implementation setCommentFullTerminator(final String commentFullTerminator)
 			{
-				this.internalSetCommentFullTerminator(commentFullTerminator);
+				this.commentFullTerminator = notNull(commentFullTerminator);
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setSkipLineCount(final int skipLineCount)
 			{
-				this.internalSetSkipLineCount(skipLineCount);
+				this.skipLineCount = skipLineCount;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setPostColumnHeaderSkipLineCount(final int skipLineCountPostHeader)
 			{
-				this.internalSetSkipLineCountPostHeader(skipLineCountPostHeader);
+				this.skipLineCountPostHeader = skipLineCountPostHeader;
 				return this;
 			}
 
 			@Override
-			public Builder setTrailingLineCount(final int skipLineCountTrailing)
+			public Builder setTrailingLineCount(final int trailingLineCount)
 			{
-				this.internalSetTrailingLineCount(skipLineCountTrailing);
+				this.trailingLineCount = trailingLineCount;
 				return this;
 			}
 
 			@Override
 			public Builder.Implementation setEscapeHandler(final EscapeHandler escapeHandler)
 			{
-				this.internalSetEscapeHandler(escapeHandler);
+				this.escapeHandler = escapeHandler;
 				return this;
 			}
 
