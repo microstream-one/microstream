@@ -1,6 +1,7 @@
 package net.jadoth.persistence.test;
 
 import static net.jadoth.math.JadothMath.random;
+
 import net.jadoth.Jadoth;
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
@@ -14,7 +15,7 @@ public class MainTestSwizzleRegistryConcurrency
 
 	static final Object[] objects = new Object[COUNT];
 	static final long[]   oids    = new long[COUNT];
-	static final SwizzleRegistryGrowingRange reg = new SwizzleRegistryGrowingRange(HASH_DENSITY);
+	static final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(HASH_DENSITY);
 	static {
 		reg.registerType(10L, Object.class);
 		long oid = 1_000_000_000_000L;

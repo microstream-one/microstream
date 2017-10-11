@@ -4,7 +4,6 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Function;
 
-import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
@@ -79,26 +78,25 @@ public interface PersistenceTypeDictionaryBuilder
 	}
 	
 	public static PersistenceTypeDictionary buildTypeDictionary(
-		final PersistenceTypeLineageBuilder                              typeLineageBuilder,
+		final PersistenceTypeDictionaryProvider                          typeDictionaryProvider,
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 	)
 	{
-		final BulkList<PersistenceTypeLineage<?>> dictionaryTypeLineages = BulkList.New();
-
-		fillTypeLineages(typeLineageBuilder, dictionaryTypeLineages, entries);
+		final PersistenceTypeDictionary td = typeDictionaryProvider.provideTypeDictionary();
 		
-		return PersistenceTypeDictionary.New(typeLineageBuilder, dictionaryTypeLineages);
+		fillTypeLineages(td, entries);
+		
+		return td;
 	}
 	
 	public static void fillTypeLineages(
-		final PersistenceTypeLineageBuilder                              typeLineageBuilder    ,
-		final BulkList<PersistenceTypeLineage<?>>                        dictionaryTypeLineages,
+		final PersistenceTypeDictionary                                  typeDictionary,
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 	)
 	{
-		if(entries == null)
+		if(entries != null)
 		{
-			// lineages collection remains empty
+			// typeDictionary remains empty
 			return;
 		}
 		
@@ -109,20 +107,19 @@ public interface PersistenceTypeDictionaryBuilder
 		
 		for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
 		{
-			final PersistenceTypeLineage<?> typeLineage = typeLineageBuilder.buildTypeLineage(e.key());
+			final PersistenceTypeLineage<?> typeLineage = typeDictionary.ensureTypeLineage(e.key());
 			populateTypeLineage(typeLineage, e.value().values());
-			dictionaryTypeLineages.add(typeLineage);
 		}
 	}
 	
 	
 	
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
-		final PersistenceTypeLineageBuilder typeLineageBuilder
+		final PersistenceTypeDictionaryProvider typeDictionaryProvider
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
-			notNull(typeLineageBuilder)
+			notNull(typeDictionaryProvider)
 		);
 	}
 	
@@ -132,7 +129,7 @@ public interface PersistenceTypeDictionaryBuilder
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeLineageBuilder typeLineageBuilder;
+		final PersistenceTypeDictionaryProvider typeDictionaryProvider;
 		
 		
 		
@@ -140,12 +137,10 @@ public interface PersistenceTypeDictionaryBuilder
 		// constructors //
 		/////////////////
 		
-		Implementation(
-			final PersistenceTypeLineageBuilder typeLineageBuilder
-		)
+		Implementation(final PersistenceTypeDictionaryProvider typeDictionaryProvider)
 		{
 			super();
-			this.typeLineageBuilder = typeLineageBuilder;
+			this.typeDictionaryProvider = typeDictionaryProvider;
 		}
 		
 		
@@ -169,8 +164,7 @@ public interface PersistenceTypeDictionaryBuilder
 			 * - properly named methods and variables.
 			 * - explanatory comments where naming isn't self-explanatory.
 			 */
-			
-			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(this.typeLineageBuilder, entries);
+			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(this.typeDictionaryProvider, entries);
 		}
 				
 	}

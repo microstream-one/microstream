@@ -28,8 +28,8 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 
 		private final SwizzleTypeRegistry typeRegistry;
 
-		private final MiniMap<Class<?>, PersistenceTypeHandler<M, ?>>  t2h = new MiniMap<>();
-		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> i2h = HashMapIdObject.New();
+		private final MiniMap<Class<?>, PersistenceTypeHandler<M, ?>> t2h = new MiniMap<>();
+		private final HashMapIdObject<PersistenceTypeHandler<M, ?>>   i2h = HashMapIdObject.New();
 
 
 
@@ -142,7 +142,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 
 				// register new bidirectional assignment
 				// note: basic type<->tid registration already happened above if necessary
-				this.putMapping( typeHandler);
+				this.putMapping(typeHandler);
 				return true;
 			}
 		}

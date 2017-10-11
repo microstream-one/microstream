@@ -5,7 +5,6 @@ import static net.jadoth.Jadoth.notNull;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
-import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleFoundation;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
@@ -58,6 +57,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceTypeDictionaryManager getTypeDictionaryManager();
 
+	public PersistenceTypeDictionaryImporter getTypeDictionaryImporter();
+	
 	public PersistenceTypeDictionaryProvider getTypeDictionaryProvider();
 
 	public PersistenceTypeDictionaryExporter getTypeDictionaryExporter();
@@ -90,13 +91,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 	
-	public PersistenceTypeDefinitionBuilder getTypeDefinitionBuilder();
+	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
 	
 	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
 	
 	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
 	
-	public PersistenceTypeLineageBuilder getTypeLineageBuilder();
+	public PersistenceTypeLineageCreator getTypeLineageCreator();
 
 
 	
@@ -136,7 +137,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
 
-	public PersistenceFoundation<M> setTypeDictionaryProvider(PersistenceTypeDictionaryProvider typeDictionaryProvider);
+	public PersistenceFoundation<M> setTypeDictionaryImporter(PersistenceTypeDictionaryImporter typeDictionaryImporter);
 
 	public PersistenceFoundation<M> setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
 
@@ -172,13 +173,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public <S extends PersistenceTarget<M> & PersistenceSource<M>>
 	PersistenceFoundation<M> setPersistenceStorage(S persistenceStorage);
 	
-	public PersistenceFoundation<M> setTypeDefinitionBuilder(PersistenceTypeDefinitionBuilder typeDefinitionBuilder);
+	public PersistenceFoundation<M> setTypeDefinitionCreator(PersistenceTypeDefinitionCreator typeDefinitionCreator);
 	
 	public PersistenceFoundation<M> setTypeHandlerEnsurer(PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer);
 	
 	public PersistenceFoundation<M> setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
 	
-	public PersistenceFoundation<M> setTypeLineageBuilder(PersistenceTypeLineageBuilder typeLineageBuilder);
+	public PersistenceFoundation<M> setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
 
 
 
@@ -215,30 +216,31 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceSource<M>                    source                     ;
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
-		private SwizzleTypeManager                              typeManager                      ;
-		private PersistenceTypeHandlerRegistry<M>               typeHandlerRegistry              ;
-		private PersistenceTypeHandlerProvider<M>               typeHandlerProvider              ;
-		private PersistenceTypeDictionaryManager                typeDictionaryManager            ;
-		private PersistenceTypeDictionaryProvider               typeDictionaryProvider           ;
-		private PersistenceTypeDictionaryExporter               typeDictionaryExporter           ;
-		private PersistenceTypeDictionaryLoader                 typeDictionaryLoader             ;
-		private PersistenceTypeDictionaryParser                 typeDictionaryParser             ;
-		private PersistenceTypeDictionaryBuilder                typeDictionaryBuilder            ;
-		private PersistenceTypeDictionaryAssembler              typeDictionaryAssembler          ;
-		private PersistenceTypeDictionaryStorer                 typeDictionaryStorer             ;
-		private PersistenceTypeHandlerEnsurer<M>                typeHandlerEnsurer               ;
-		private PersistenceTypeHandlerCreator<M>                typeHandlerCreator               ;
-		private PersistenceCustomTypeHandlerRegistry<M>         customTypeHandlerRegistry        ;
-		private PersistenceTypeAnalyzer                         typeAnalyzer                     ;
-		private PersistenceTypeEvaluator                        typeEvaluatorTypeIdMappable      ;
-		private PersistenceTypeChangeCallback                   typeChangeCallback               ;
-		private PersistenceTypeResolver                         typeResolver                     ;
-		private PersistenceTypeEvaluator                        typeEvaluatorPersistable         ;
-		private PersistenceFieldLengthResolver                  fieldFixedLengthResolver         ;
-		private BufferSizeProvider                              bufferSizeProvider               ;
-		private PersistenceFieldEvaluator                       fieldEvaluator                   ;
-		private PersistenceTypeDefinitionBuilder                typeDefinitionBuilder            ;
-		private PersistenceTypeLineageBuilder                   typeLineageBuilder               ;
+		private SwizzleTypeManager                      typeManager                ;
+		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
+		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
+		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
+		private PersistenceTypeDictionaryProvider       typeDictionaryProvider     ;
+		private PersistenceTypeDictionaryImporter       typeDictionaryImporter     ;
+		private PersistenceTypeDictionaryExporter       typeDictionaryExporter     ;
+		private PersistenceTypeDictionaryLoader         typeDictionaryLoader       ;
+		private PersistenceTypeDictionaryParser         typeDictionaryParser       ;
+		private PersistenceTypeDictionaryBuilder        typeDictionaryBuilder      ;
+		private PersistenceTypeDictionaryAssembler      typeDictionaryAssembler    ;
+		private PersistenceTypeDictionaryStorer         typeDictionaryStorer       ;
+		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
+		private PersistenceTypeHandlerCreator<M>        typeHandlerCreator         ;
+		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
+		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
+		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
+		private PersistenceTypeChangeCallback           typeChangeCallback         ;
+		private PersistenceTypeResolver                 typeResolver               ;
+		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
+		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
+		private BufferSizeProvider                      bufferSizeProvider         ;
+		private PersistenceFieldEvaluator               fieldEvaluator             ;
+		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
+		private PersistenceTypeLineageCreator           typeLineageCreator         ;
 
 		
 		
@@ -381,6 +383,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.typeManager = this.dispatch(this.createTypeManager());
 			}
 			return this.typeManager;
+		}
+		
+		@Override
+		public PersistenceTypeDictionaryImporter getTypeDictionaryImporter()
+		{
+			if(this.typeDictionaryImporter == null)
+			{
+				this.typeDictionaryImporter = this.dispatch(this.createTypeDictionaryImporter());
+			}
+			return this.typeDictionaryImporter;
 		}
 		
 		@Override
@@ -575,23 +587,23 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionBuilder getTypeDefinitionBuilder()
+		public PersistenceTypeDefinitionCreator getTypeDefinitionCreator()
 		{
-			if(this.typeDefinitionBuilder == null)
+			if(this.typeDefinitionCreator == null)
 			{
-				this.typeDefinitionBuilder = this.dispatch(this.createTypeDefinitionBuilder());
+				this.typeDefinitionCreator = this.dispatch(this.createTypeDefinitionCreator());
 			}
-			return this.typeDefinitionBuilder;
+			return this.typeDefinitionCreator;
 		}
 		
 		@Override
-		public PersistenceTypeLineageBuilder getTypeLineageBuilder()
+		public PersistenceTypeLineageCreator getTypeLineageCreator()
 		{
-			if(this.typeLineageBuilder == null)
+			if(this.typeLineageCreator == null)
 			{
-				this.typeLineageBuilder = this.dispatch(this.createTypeLineageBuilder());
+				this.typeLineageCreator = this.dispatch(this.createTypeLineageCreator());
 			}
-			return this.typeLineageBuilder;
+			return this.typeLineageCreator;
 		}
 		
 		
@@ -794,11 +806,11 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryProvider(
-			final PersistenceTypeDictionaryProvider provider
+		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryImporter(
+			final PersistenceTypeDictionaryImporter provider
 		)
 		{
-			this.typeDictionaryProvider = provider;
+			this.typeDictionaryImporter = provider;
 			return this;
 		}
 
@@ -858,9 +870,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeDefinitionBuilder(final PersistenceTypeDefinitionBuilder builder)
+		public PersistenceFoundation<M> setTypeDefinitionCreator(final PersistenceTypeDefinitionCreator builder)
 		{
-			this.typeDefinitionBuilder = builder;
+			this.typeDefinitionCreator = builder;
 			return this;
 		}
 
@@ -879,9 +891,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeLineageBuilder(final PersistenceTypeLineageBuilder builder)
+		public PersistenceFoundation<M> setTypeLineageCreator(final PersistenceTypeLineageCreator builder)
 		{
-			this.typeLineageBuilder = builder;
+			this.typeLineageCreator = builder;
 			return this;
 		}
 		
@@ -894,7 +906,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected SwizzleRegistry createSwizzleRegistry()
 		{
 			final SwizzleRegistryGrowingRange newSwizzleRegistry = SwizzleRegistryGrowingRange.New();
-			Swizzle.registerDefaults(newSwizzleRegistry);
+			
+			// (11.10.2017 TM)NOTE: registering of defaults moved / split into and after type initialization
+//			Swizzle.registerDefaults(newSwizzleRegistry);
 			return newSwizzleRegistry;
 		}
 
@@ -925,6 +939,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				PersistenceTypeHandlerManager.New(
 					this.getTypeHandlerRegistry(),
 					this.getTypeHandlerProvider(),
+					this.getTypeDictionaryImporter(),
 					this.getTypeDictionaryManager(),
 					this.getTypeEvaluatorTypeIdMappable(),
 					this.getTypeChangeCallback()
@@ -959,7 +974,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			final PersistenceTypeDictionaryManager newTypeDictionaryManager =
 				new PersistenceTypeDictionaryManager.Implementation(
-					this.getTypeDictionaryProvider(),
+					this.getTypeDictionaryProvider().provideTypeDictionary(),
 					this.getTypeDictionaryExporter()
 				)
 			;
@@ -968,14 +983,24 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
 		{
-			final PersistenceTypeDictionaryProvider newTypeDictionaryProvider =
+			final PersistenceTypeDictionaryProvider newPersistenceTypeDictionaryProvider =
 				PersistenceTypeDictionaryProvider.New(
+					this.getTypeLineageCreator()
+				)
+			;
+			return newPersistenceTypeDictionaryProvider;
+		}
+		
+		protected PersistenceTypeDictionaryImporter createTypeDictionaryImporter()
+		{
+			final PersistenceTypeDictionaryImporter newTypeDictionaryImporter =
+				PersistenceTypeDictionaryImporter.New(
 					this.getTypeDictionaryLoader() ,
 					this.getTypeDictionaryParser() ,
 					this.getTypeDictionaryBuilder()
 				)
 			;
-			return new PersistenceTypeDictionaryProvider.Caching(newTypeDictionaryProvider);
+			return new PersistenceTypeDictionaryImporter.Caching(newTypeDictionaryImporter);
 		}
 
 		protected PersistenceTypeDictionaryExporter createTypeDictionaryExporter()
@@ -1095,7 +1120,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceTypeDictionaryBuilder createTypeDictionaryBuilder()
 		{
 			return PersistenceTypeDictionaryBuilder.New(
-				this.getTypeLineageBuilder()
+				this.getTypeDictionaryProvider()
 			);
 		}
 
@@ -1119,15 +1144,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultFieldEvaluator();
 		}
 				
-		protected PersistenceTypeDefinitionBuilder createTypeDefinitionBuilder()
+		protected PersistenceTypeDefinitionCreator createTypeDefinitionCreator()
 		{
-			return PersistenceTypeDefinitionBuilder.New();
+			return PersistenceTypeDefinitionCreator.New();
 		}
 		
-		protected PersistenceTypeLineageBuilder createTypeLineageBuilder()
+		protected PersistenceTypeLineageCreator createTypeLineageCreator()
 		{
-			return PersistenceTypeLineageBuilder.New(
-				this.getTypeDefinitionBuilder()
+			return PersistenceTypeLineageCreator.New(
+				this.getTypeDefinitionCreator()
 			);
 		}
 		

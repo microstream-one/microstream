@@ -66,12 +66,11 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractGenericB
 
 	protected BinaryHandlerEnum(
 		final Class<T>                       type          ,
-		final long                           tid           ,
 		final XGettingEnum<Field>            allFields     ,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		super(type, tid, allFields, lengthResolver);
+		super(type, allFields, lengthResolver);
 		this.cachedEnumReferences = initializeEnumReferencesCache(type);
 	}
 

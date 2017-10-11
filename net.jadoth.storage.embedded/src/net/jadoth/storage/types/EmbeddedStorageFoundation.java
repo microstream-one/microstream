@@ -9,6 +9,7 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
@@ -393,10 +394,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			 * in order to have a way for the entity type handler creation recognize lazy references.
 			 * Required for storage-side graph deep-reference loading.
 			 */
-			final StorageManager                      stm = this.createStorageManager();
+			final StorageManager stm = this.createStorageManager();
 			ecf.setStorageManager(stm);
 
-			final BinaryPersistenceRootsProvider      prp = this.getRootsProvider();
+			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
 
 			// register root system constants like equalators etc. to guarantee referential integrity
 			this.registerRootSystemConstants();
@@ -410,6 +411,9 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 			// initialize type handler manager (validate and ensure type handlers, populate type dictionary)
 			thm.initialize();
+			
+			// after type setup is done, java constants can/must be registered
+			Swizzle.registerJavaConstants(ecf.getSwizzleRegistry());
 
 			/* (22.01.2015 TM)TODO: prevent unnecessary writing of type dictionary
 			 * (29.09.2017 TM)NOTE: might be fixed by TypeHandlerManager#initialize overhaul for type refactoring.
@@ -418,7 +422,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();
 			std
-			.initialize(ecf.getTypeDictionaryProvider().provideTypeDictionary())
+			.initialize(ecf.getTypeDictionaryImporter().importTypeDictionary())
 			.setTypeDescriptionRegistrationCallback(std)
 			;
 

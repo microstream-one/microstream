@@ -3,9 +3,9 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XGettingSequence;
 
 @FunctionalInterface
-public interface PersistenceTypeDefinitionBuilder
+public interface PersistenceTypeDefinitionCreator
 {
-	public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
+	public <T> PersistenceTypeDefinition<T> createTypeDefinition(
 		String                                                       typeName,
 		Class<T>                                                     type    ,
 		long                                                         typeId ,
@@ -13,12 +13,12 @@ public interface PersistenceTypeDefinitionBuilder
 	);
 	
 	
-	public static PersistenceTypeDefinitionBuilder.Implementation New()
+	public static PersistenceTypeDefinitionCreator.Implementation New()
 	{
-		return new PersistenceTypeDefinitionBuilder.Implementation();
+		return new PersistenceTypeDefinitionCreator.Implementation();
 	}
 			
-	public final class Implementation implements PersistenceTypeDefinitionBuilder
+	public final class Implementation implements PersistenceTypeDefinitionCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -36,7 +36,7 @@ public interface PersistenceTypeDefinitionBuilder
 		////////////
 
 		@Override
-		public <T> PersistenceTypeDefinition<T> buildTypeDefinition(
+		public <T> PersistenceTypeDefinition<T> createTypeDefinition(
 			final String                                                       typeName,
 			final Class<T>                                                     type    ,
 			final long                                                         typeId ,

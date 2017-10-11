@@ -69,13 +69,12 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				 *  on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
 				 * Use enums for logic, if you must, but keep them out of proper entity graphs.
 				 */
-//				return this.createEnumHandler(type, 0, persistableFields, this.lengthResolver);
+//				return this.createEnumHandler(type, persistableFields, this.lengthResolver);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
 			return new BinaryHandlerGeneric<>(
 				type                                           ,
-				0                                              , // typeId gets initialized later
 				BinaryPersistence.blankMemoryInstantiator(type),
 				persistableFields                              ,
 				lengthResolver
@@ -85,14 +84,12 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		<T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
 			final Class<?>                       type          ,
-			final long                           tid           ,
 			final XGettingEnum<Field>            allFields     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
 				(Class<E>)type     ,
-				tid                ,
 				allFields          ,
 				lengthResolver
 			);

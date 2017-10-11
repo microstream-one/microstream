@@ -4,29 +4,31 @@ import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.types.XGettingCollection;
 
-public interface PersistenceTypeDictionaryManager extends PersistenceTypeDictionaryProvider
+public interface PersistenceTypeDictionaryManager
 {
-	public PersistenceTypeDictionaryManager addTypeDescription(PersistenceTypeDefinition<?> typeDescription);
+	public PersistenceTypeDictionaryManager addTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
 
-	public PersistenceTypeDictionaryManager validateTypeDescriptions(PersistenceTypeDictionary typeDictionary);
+	public PersistenceTypeDictionaryManager validateTypeDefinitions(PersistenceTypeDictionary typeDictionary);
 
-	public PersistenceTypeDictionaryManager validateTypeDescriptions(XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions);
+	public PersistenceTypeDictionaryManager validateTypeDefinitions(XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions);
 
-	public PersistenceTypeDictionaryManager addTypeDescriptions(PersistenceTypeDictionary typeDictionary);
+	public PersistenceTypeDictionaryManager addTypeDefinitions(PersistenceTypeDictionary typeDictionary);
 
-	public PersistenceTypeDictionaryManager addTypeDescriptions(XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions);
-
+	public PersistenceTypeDictionaryManager addTypeDefinitions(XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions);
+	
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
+	
+	public PersistenceTypeDictionary typeDictionary();
 
 
 	
 	public static PersistenceTypeDictionaryManager.Implementation New(
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider,
+		final PersistenceTypeDictionary         cachedTypeDictionary  ,
 		final PersistenceTypeDictionaryExporter typeDictionaryExporter
 	)
 	{
 		return new PersistenceTypeDictionaryManager.Implementation(
-			notNull(typeDictionaryProvider),
+			notNull(cachedTypeDictionary)  ,
 			notNull(typeDictionaryExporter)
 		);
 	}
@@ -37,11 +39,9 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDictionaryProvider typeDictionaryProvider;
-		private final PersistenceTypeDictionaryExporter typeDictionaryExporter;
-
-		private transient PersistenceTypeDictionary cachedTypeDictionary;
-		private transient boolean                   changed             ;
+		private final     PersistenceTypeDictionary         typeDictionary        ;
+		private final     PersistenceTypeDictionaryExporter typeDictionaryExporter;
+		private transient boolean                           changed               ;
 
 
 
@@ -50,12 +50,12 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeDictionaryProvider typeDictionaryProvider,
+			final PersistenceTypeDictionary         cachedTypeDictionary  ,
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)
 		{
 			super();
-			this.typeDictionaryProvider = notNull(typeDictionaryProvider);
+			this.typeDictionary         = notNull(cachedTypeDictionary  );
 			this.typeDictionaryExporter = notNull(typeDictionaryExporter);
 		}
 
@@ -80,19 +80,15 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			this.changed = false;
 		}
 
-		private PersistenceTypeDictionary cachedTypeDictionary()
+		@Override
+		public final PersistenceTypeDictionary typeDictionary()
 		{
-			if(this.cachedTypeDictionary == null)
-			{
-				this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
-				this.markChanged();
-			}
-			return this.cachedTypeDictionary;
+			return this.typeDictionary;
 		}
 
-		final void internalValidateTypeDescription(final PersistenceTypeDefinition<?> td)
+		final void internalValidateTypeDefinition(final PersistenceTypeDefinition<?> td)
 		{
-			final PersistenceTypeDictionary     dictionary    = this.cachedTypeDictionary();
+			final PersistenceTypeDictionary    dictionary    = this.typeDictionary();
 			final PersistenceTypeDefinition<?> currentByTid  = dictionary.lookupTypeById  (td.typeId()  );
 			final PersistenceTypeDefinition<?> currentByName = dictionary.lookupTypeByName(td.typeName());
 
@@ -100,6 +96,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			{
 				throw new RuntimeException("Invalid type description: " + td); // (05.04.2013 TM)EXCP: proper exception
 			}
+			
 			// (31.07.2014 TM)NOTE: existing descriptions may not be altered, consistency must be preserved
 			// (31.07.2014 TM)TODO: maybe modularize logic to make existing type descriptions alterable
 			if(currentByTid != null && !PersistenceTypeDescriptionMember.equalMembers(currentByTid.members(), td.members()))
@@ -126,65 +123,61 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		/////////////////////
 
 		@Override
-		public final PersistenceTypeDictionary provideTypeDictionary()
-		{
-			return this.cachedTypeDictionary();
-		}
-
-		@Override
-		public final PersistenceTypeDictionaryManager.Implementation addTypeDescription(
-			final PersistenceTypeDefinition<?> typeDescription
+		public final PersistenceTypeDictionaryManager.Implementation addTypeDefinition(
+			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
-			this.internalValidateTypeDescription(typeDescription);
-			if(this.cachedTypeDictionary().registerType(typeDescription))
+			this.internalValidateTypeDefinition(typeDefinition);
+			if(this.typeDictionary().registerType(typeDefinition))
 			{
 				this.markChanged();
 			}
+			
+			// (11.10.2017 TM)FIXME: /!\ unnecessary TypeDictionary writes
 			this.updateExport();
 			return this;
 		}
 
 		@Override
-		public final PersistenceTypeDictionaryManager validateTypeDescriptions(
+		public final PersistenceTypeDictionaryManager validateTypeDefinitions(
 			final PersistenceTypeDictionary typeDictionary
 		)
 		{
-			if(this.cachedTypeDictionary() != typeDictionary)
+			if(this.typeDictionary() != typeDictionary)
 			{
-				this.validateTypeDescriptions(typeDictionary.allTypes().values());
+				this.validateTypeDefinitions(typeDictionary.allTypes().values());
 			}
 			return this;
 		}
 
 		@Override
-		public final PersistenceTypeDictionaryManager.Implementation validateTypeDescriptions(
-			final XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions
+		public final PersistenceTypeDictionaryManager.Implementation validateTypeDefinitions(
+			final XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
-			typeDescriptions.iterate(this::internalValidateTypeDescription);
+			typeDefinitions.iterate(this::internalValidateTypeDefinition);
 			return this;
 		}
 
 		@Override
-		public final PersistenceTypeDictionaryManager addTypeDescriptions(
+		public final PersistenceTypeDictionaryManager addTypeDefinitions(
 			final PersistenceTypeDictionary typeDictionary
 		)
 		{
-			if(this.cachedTypeDictionary() != typeDictionary)
+			if(this.typeDictionary() != typeDictionary)
 			{
-				this.addTypeDescriptions(typeDictionary.allTypes().values());
+				this.addTypeDefinitions(typeDictionary.allTypes().values());
 			}
 			return this;
 		}
 
 		@Override
-		public final PersistenceTypeDictionaryManager.Implementation addTypeDescriptions(
-			final XGettingCollection<PersistenceTypeDefinition<?>> typeDescriptions
+		public final PersistenceTypeDictionaryManager.Implementation addTypeDefinitions(
+			final XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
-			typeDescriptions.iterate(this::internalValidateTypeDescription);
-			if(this.cachedTypeDictionary().registerTypes(typeDescriptions))
+			typeDefinitions.iterate(this::internalValidateTypeDefinition);
+			if(this.typeDictionary().registerTypes(typeDefinitions))
 			{
 				this.markChanged();
 			}
@@ -195,7 +188,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		@Override
 		public final PersistenceTypeDictionaryManager.Implementation exportTypeDictionary()
 		{
-			this.typeDictionaryExporter.exportTypeDictionary(this.cachedTypeDictionary());
+			this.typeDictionaryExporter.exportTypeDictionary(this.typeDictionary());
 			return this;
 		}
 

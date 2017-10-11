@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
@@ -47,14 +46,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	
 
 
-	public static PersistenceTypeDictionary New(
-		final PersistenceTypeLineageBuilder                 typeLineageBuilder,
-		final XGettingCollection<PersistenceTypeLineage<?>> initialTypeLineages
-	)
+	public static PersistenceTypeDictionary New(final PersistenceTypeLineageCreator typeLineageCreator)
 	{
 		return new PersistenceTypeDictionary.Implementation(
-			notNull(typeLineageBuilder),
-			notNull(initialTypeLineages)
+			notNull(typeLineageCreator)
 		);
 	}
 
@@ -65,7 +60,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		/////////////////////
 
 		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
-		private final PersistenceTypeLineageBuilder                     typeLineageBuilder  ;
+		private final PersistenceTypeLineageCreator                     typeLineageCreator  ;
 		private final EqHashTable<String, PersistenceTypeLineage<?>>    typeLineages         = EqHashTable.New();
 		
 		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> allTypesPerTypeId    = EqHashTable.New();
@@ -80,19 +75,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// constructors     //
 		/////////////////////
 
-		Implementation(
-			final PersistenceTypeLineageBuilder                 typeLineageBuilder,
-			final XGettingCollection<PersistenceTypeLineage<?>> initialTypeLineages
-		)
+		Implementation(final PersistenceTypeLineageCreator typeLineageCreator)
 		{
 			super();
-			this.typeLineageBuilder = typeLineageBuilder;
-			
-			for(final PersistenceTypeLineage<?> typeLineage : initialTypeLineages)
-			{
-				this.typeLineages.add(typeLineage.typeName(), typeLineage);
-			}
-			this.initializeLookupTables();
+			this.typeLineageCreator = typeLineageCreator;
 		}
 
 		
@@ -101,6 +87,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// methods //
 		////////////
 		
+		// (11.10.2017 TM)FIXME: refactor/fix/whatever and delete
 		private void initializeLookupTables()
 		{
 			for(final PersistenceTypeLineage<?> lineage : this.typeLineages.values())
@@ -140,7 +127,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 				return lineage;
 			}
 			
-			lineage = this.typeLineageBuilder.buildTypeLineage(typeName);
+			lineage = this.typeLineageCreator.createTypeLineage(typeName);
 			this.typeLineages.add(typeName, lineage);
 
 			return lineage;

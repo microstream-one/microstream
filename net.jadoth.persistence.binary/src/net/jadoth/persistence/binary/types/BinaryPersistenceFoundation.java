@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryExporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryImporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
@@ -92,7 +92,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
 
 	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryProvider(PersistenceTypeDictionaryProvider typeDictionaryProvider);
+	public BinaryPersistenceFoundation setTypeDictionaryImporter(PersistenceTypeDictionaryImporter typeDictionaryImporter);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
@@ -181,11 +181,11 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		public BinaryPersistenceFoundation.Implementation setTypeDictionaryProvider(
-			final PersistenceTypeDictionaryProvider typeDictionaryProvider
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryImporter(
+			final PersistenceTypeDictionaryImporter typeDictionaryImporter
 		)
 		{
-			super.setTypeDictionaryProvider(typeDictionaryProvider);
+			super.setTypeDictionaryImporter(typeDictionaryImporter);
 			return this;
 		}
 
@@ -447,9 +447,9 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
+		protected PersistenceTypeDictionaryImporter createTypeDictionaryImporter()
 		{
-			return super.createTypeDictionaryProvider();
+			return super.createTypeDictionaryImporter();
 		}
 
 		@Override

@@ -23,13 +23,12 @@ public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<
 
 	protected BinaryHandlerGeneric(
 		final Class<T>                       type          ,
-		final long                           tid           ,
 		final BinaryInstantiator<T>          instantiator  ,
 		final XGettingEnum<Field>            allFields     ,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		super(type, tid, allFields, lengthResolver);
+		super(type, allFields, lengthResolver);
 		this.instantiator = notNull(instantiator);
 	}
 

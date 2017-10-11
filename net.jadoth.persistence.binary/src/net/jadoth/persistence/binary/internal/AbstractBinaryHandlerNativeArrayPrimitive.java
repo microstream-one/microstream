@@ -11,15 +11,6 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
-	public AbstractBinaryHandlerNativeArrayPrimitive(
-		final long                                                                      typeId      ,
-		final Class<A>                                                                  arrayType   ,
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
-	)
-	{
-		super(typeId, arrayType, pseudoFields);
-	}
 	
 	public AbstractBinaryHandlerNativeArrayPrimitive(
 		final Class<A>                                                                  arrayType   ,

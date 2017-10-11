@@ -1957,7 +1957,7 @@ public final class BinaryPersistence extends Persistence
 		final BinaryPersistenceFoundation f = BinaryPersistenceFoundation.New()
 		.setTypeDictionaryLoader(PersistenceTypeDictionaryFileHandler.New(dictionaryFile))
 		;
-		return f.getTypeDictionaryProvider().provideTypeDictionary();
+		return f.getTypeDictionaryImporter().importTypeDictionary();
 	}
 	
 }

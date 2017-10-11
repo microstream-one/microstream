@@ -81,9 +81,9 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	}
 		
 
-	public static PersistenceTypeDefinitionBuilder Builder()
+	public static PersistenceTypeDefinitionCreator Builder()
 	{
-		return new PersistenceTypeDefinitionBuilder.Implementation();
+		return new PersistenceTypeDefinitionCreator.Implementation();
 	}
 	
 	public static <T> PersistenceTypeDefinition<T> New(

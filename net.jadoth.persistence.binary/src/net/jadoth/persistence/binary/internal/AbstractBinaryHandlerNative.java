@@ -139,16 +139,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
-	public AbstractBinaryHandlerNative(
-		final long                                                         typeId,
-		final Class<T>                                                     type  ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
-	)
-	{
-		super(type, typeId);
-		this.fields = fields.immure();
-	}
 	
 	protected AbstractBinaryHandlerNative(
 		final Class<T>                                                     type  ,
@@ -164,12 +154,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-//	@Override
-//	public PersistenceTypeDescription<T> typeDescription()
-//	{
-//		return this.typeDescription;
-//	}
 	
 	@Override
 	public boolean isPrimitiveType()

@@ -358,16 +358,6 @@ public class Swizzle
 		return TID_Class;
 	}
 
-	public static final <R extends SwizzleRegistry> R registerDefaults(final R registry)
-	{
-		// (09.10.2017 TM)NOTE: TypeIds for basic types are theoretically arbitrary, hence no hard initialization here.
-//		registerDefaultTypeMappings(registry);
-		
-		// (09.10.2017 TM)NOTE: Opposed to basic types, java constants are NOT arbitrary. They must be force-initialized here.
-		registerJavaConstants(registry);
-		return registry;
-	}
-
 	public static final <R extends SwizzleRegistry> R registerJavaConstants(final R registry)
 	{
 		synchronized(registry)

@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryExporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryImporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
@@ -74,8 +74,8 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	);
 
 	@Override
-	public EmbeddedStorageConnectionFoundation setTypeDictionaryProvider(
-		PersistenceTypeDictionaryProvider typeDictionaryProvider
+	public EmbeddedStorageConnectionFoundation setTypeDictionaryImporter(
+		PersistenceTypeDictionaryImporter typeDictionaryImporter
 	);
 
 	@Override
@@ -202,11 +202,11 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		}
 
 		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setTypeDictionaryProvider(
-			final PersistenceTypeDictionaryProvider typeDictionaryProvider
+		public EmbeddedStorageConnectionFoundation.Implementation setTypeDictionaryImporter(
+			final PersistenceTypeDictionaryImporter typeDictionaryImporter
 		)
 		{
-			super.setTypeDictionaryProvider(typeDictionaryProvider);
+			super.setTypeDictionaryImporter(typeDictionaryImporter);
 			return this;
 		}
 
@@ -402,7 +402,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
 		EmbeddedStorageConnectionFoundation.Implementation setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
-			this.setSwizzleIdProvider(swizzleTypeIdProvider);
+			super.setSwizzleIdProvider(swizzleTypeIdProvider);
 			return this;
 		}
 

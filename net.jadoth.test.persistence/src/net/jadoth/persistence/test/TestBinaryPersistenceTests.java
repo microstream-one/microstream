@@ -135,7 +135,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testReadStateDefs(final BinaryPersistenceFoundation factory)
 	{
-		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideTypeDictionary();
+		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryImporter().importTypeDictionary();
 		JadothConsole.debugln('\n'+typeDictionary.toString());
 	}
 

@@ -10,15 +10,6 @@ extends AbstractBinaryHandlerNativeCustom<T>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
-	public AbstractBinaryHandlerNativeCustomValue(
-		final long                                                         typeId,
-		final Class<T>                                                     type  ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
-	)
-	{
-		super(typeId, type, fields);
-	}
 	
 	protected AbstractBinaryHandlerNativeCustomValue(
 		final Class<T>                                                     type  ,
@@ -28,8 +19,6 @@ extends AbstractBinaryHandlerNativeCustom<T>
 		super(type, fields);
 	}
 	
-	
-	// damn git
 	
 	
 	///////////////////////////////////////////////////////////////////////////

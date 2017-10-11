@@ -1,7 +1,6 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.math.JadothMath.positive;
 
 import java.lang.reflect.Field;
 
@@ -9,6 +8,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleStoreLinker;
@@ -95,8 +95,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 		// basic type swizzling //
 		private final Class<T> type  ;
 		
-		// these fields are effectively final / immutable: they get only initialized once and are never mutated again.
-		private long           typeId;
+		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
+		private long           typeId = Swizzle.nullId();
 
 
 
@@ -109,12 +109,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			super();
 			this.type = notNull(type);
 		}
-
-		protected AbstractImplementation(final Class<T> type, final long tid)
-		{
-			this(type);
-			this.typeId  = positive(tid);
-		}
+		
 
 
 		///////////////////////////////////////////////////////////////////////////

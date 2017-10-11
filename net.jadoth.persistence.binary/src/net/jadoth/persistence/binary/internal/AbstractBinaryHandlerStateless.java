@@ -13,11 +13,6 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-
-	protected AbstractBinaryHandlerStateless(final long tid, final Class<T> type)
-	{
-		super(tid, type, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
-	}
 	
 	protected AbstractBinaryHandlerStateless(final Class<T> type)
 	{

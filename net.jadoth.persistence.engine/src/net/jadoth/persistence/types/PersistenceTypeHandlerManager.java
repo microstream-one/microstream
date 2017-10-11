@@ -71,6 +71,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
 		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
+		final PersistenceTypeDictionaryImporter typeDictionaryImporter     ,
 		final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
 		final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable,
 		final PersistenceTypeChangeCallback     typeChangeCallback
@@ -79,6 +80,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		return new PersistenceTypeHandlerManager.Implementation<>(
 			notNull(typeHandlerRegistry)        ,
 			notNull(typeHandlerProvider)        ,
+			notNull(typeDictionaryImporter)     ,
 			notNull(typeDictionaryManager)      ,
 			notNull(typeEvaluatorTypeIdMappable),
 			notNull(typeChangeCallback)
@@ -95,6 +97,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		        final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ;
 		private final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ;
+		private final PersistenceTypeDictionaryImporter typeDictionaryImporter     ;
 		private final PersistenceTypeDictionaryManager  typeDictionaryManager      ;
 		private final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable;
 		private final PersistenceTypeChangeCallback     typeChangeCallback         ;
@@ -109,6 +112,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		Implementation(
 			final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 			final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
+			final PersistenceTypeDictionaryImporter typeDictionaryImporter     ,
 			final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
 			final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable,
 			final PersistenceTypeChangeCallback     typeChangeCallback
@@ -117,6 +121,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			super();
 			this.typeHandlerRegistry         = typeHandlerRegistry        ;
 			this.typeHandlerProvider         = typeHandlerProvider        ;
+			this.typeDictionaryImporter      = typeDictionaryImporter     ;
 			this.typeDictionaryManager       = typeDictionaryManager      ;
 			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
 			this.typeChangeCallback          = typeChangeCallback         ;
@@ -181,7 +186,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			final PersistenceTypeDefinition<?> registeredTd =
-				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
+				this.typeDictionaryManager.typeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
 			{
@@ -192,7 +197,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				// (07.04.2013)TODO proper exception
 				throw new RuntimeException("Swizzle inconsistency for " + typeHandler.typeName());
 			}
-
 
 			final Equalator<PersistenceTypeDescriptionMember> memberValidator = (m1, m2) ->
 			{
@@ -320,7 +324,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.validateTypeHandler(typeHandler);
 			if(this.typeHandlerRegistry.register(typeHandler))
 			{
-				this.typeDictionaryManager.addTypeDescription(typeHandler);
+				this.typeDictionaryManager.addTypeDefinition(typeHandler);
 				return true;
 			}
 			return false;
@@ -456,17 +460,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 //			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
 
-			final PersistenceTypeDictionary typeDictionary =
-				this.typeDictionaryManager.provideTypeDictionary()
-			;
-			
-			/* (28.09.2017 TM)FIXME: /!\ type dictionary stuff
-			 *  v ensure runtime definitions
-			 *  v change for checks
-			 *  - register latest typeId for each type
-			 *  - initialize runtime definitions
-			 *  - set/initialize runtime definitions to their type lineages
-			 */
+			final PersistenceTypeDictionary importedTypeDict = this.typeDictionaryImporter.importTypeDictionary();
 			
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 			
@@ -477,14 +471,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions =
 				EqHashTable.New()
 			;
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefinitions =
+			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs =
 				HashTable.New()
 			;
 						
 			// create type definition initializers and check for type changes / conflicts / mismatches.
-			for(final PersistenceTypeDefinition<?> td : typeDictionary.latestTypesById().values())
+			for(final PersistenceTypeDefinition<?> td : importedTypeDict.latestTypesById().values())
 			{
-				this.createTypeDefinitionInitializer(tdip, td, matchingTypeDefinitions, changedTypeDefinitions);
+				this.createTypeDefinitionInitializer(tdip, td, matchingTypeDefinitions, changedTypeDefs);
 			}
 			
 			// register unconflicted / unchanged types
@@ -495,18 +489,18 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// supplement registered unconflicted types with system defaults (note the supplementing logic)
 			typeRegistry.ensureRegisteredTypes(Swizzle.defaultTypeMapping());
-			
+						
 			// initialize matched TDIs
 			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefinitions)
 			{
 				final PersistenceTypeDefinition<?> newTd = e.value().initialize(e.key());
 				
 				// replace simple dictionary type definition by runtime type definition (e.g. a TypeHandler instance)
-				typeDictionary.registerType(newTd);
+				importedTypeDict.registerType(newTd);
 			}
 						
 			// assign new TIDs for changedTypes and initialize changed TDIs with new TIDs
-			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> e : changedTypeDefinitions)
+			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> e : changedTypeDefs)
 			{
 				final PersistenceTypeDefinition<?>       latestTd = e.key();
 				final PersistenceTypeDefinitionInitializer<?> tdi = e.value();
@@ -515,26 +509,21 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				final PersistenceTypeDefinition<?> newTd = tdi.initialize(newTypeId);
 				
 				// register properly initialized new runtime TypeDefinintion (e.g. TypeHandler)
-				typeDictionary.registerType(newTd);
+				importedTypeDict.registerType(newTd);
 				
 				// register new deprecated "latest" and new TypeDefinintion for change (e.g. entity type conversion)
 				this.typeChangeCallback.registerTypeChange(latestTd, newTd);
 			}
+
+			// iterate all default type handlers and initialize them in case the dictionary did not contain them
+			this.typeHandlerProvider.iterateTypeHandlers(this::ensureRegisteredCustomTypeHandler);
 			
-			this.typeHandlerProvider.iterateTypeHandlers(th ->
-			{
-				
-			});
-			
-			// (09.10.2017 TM)FIXME: iterate all default type handlers and initialize them in case the dictionary did not contain them
-			
-			/* (29.09.2017 TM)XXX: Unnecessary type dictionary update?
-			 * Note sure why the freshly populuted and validated type dictionary has to be upated
-			 * into another and validated again twice instead of just updating the highest TypeId
-			 * and exporting the typeDictionary explicitely.
-			 * Maybe the "updating" logic should be unburdened.
+			/*
+			 * update the internal type dictionary instance from the imported, validated and supplemented instance
+			 * Note that depending on the PersistenceTypeDictionaryProvider implementation, this might be the same
+			 * instance.
 			 */
-			this.update(typeDictionary);
+			this.update(importedTypeDict);
 			
 //			// (28.09.2017 TM)NOTE: old from before type refactoring ------------
 //			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
@@ -560,6 +549,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //			// (28.09.2017 TM) ------------- //
 
 			this.initialized = true;
+		}
+		
+		final void ensureRegisteredCustomTypeHandler(final PersistenceTypeHandler<M, ?> customTypeHandler)
+		{
+			final Class<?> type = customTypeHandler.type();
+			final PersistenceTypeHandler<M, ?> registered = this.lookupTypeHandler(type);
+			if(registered != null)
+			{
+				if(registered == customTypeHandler)
+				{
+					return;
+				}
+				// (11.10.2017 TM)EXCP: proper exception
+				throw new RuntimeException("TypeHandler inconsistency detected for " + type);
+			}
+			
+			final long usedTypeId = this.ensureTypeId(type);
+			customTypeHandler.initializeTypeId(usedTypeId);
+			this.register(customTypeHandler);
 		}
 		
 		private <T> void createTypeDefinitionInitializer(
@@ -603,7 +611,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
 		{
-			this.typeDictionaryManager.validateTypeDescriptions(typeDictionary);
+			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary);
 
 			// update the highest type id first after validation has been passed successfully to guarantee consistency
 			if(this.currentTypeId() < highestTypeId)
@@ -613,7 +621,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 
 			// finally add the type descriptions
-			this.typeDictionaryManager.addTypeDescriptions(typeDictionary);
+			this.typeDictionaryManager.addTypeDefinitions(typeDictionary);
 		}
 
 		@Override
@@ -624,7 +632,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 			/*
 			 * inlining the max() call changes the second argument from 0 to something like 43466428.
-			 * Unbelievable giant JDK bug!
+			 * Unbelievable compiler or JDK bug!
 			 */
 //			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
 		}
