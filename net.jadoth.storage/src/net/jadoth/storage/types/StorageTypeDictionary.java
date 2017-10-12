@@ -6,12 +6,12 @@ import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionRegistrationCallback;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationCallback;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 
-public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDescriptionRegistrationCallback
+public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationCallback
 {
 	public <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(P procedure);
 
@@ -175,9 +175,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 		
 		@Override
-		public final <T> PersistenceTypeLineage<T> ensureTypeLineage(final String typeName)
+		public final <T> PersistenceTypeLineage<T> ensureTypeLineage(final String typeName, final Class<T> type)
 		{
-			return this.dictionary.ensureTypeLineage(typeName);
+			return this.dictionary.ensureTypeLineage(typeName, type);
 		}
 		
 		@Override
@@ -206,8 +206,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final void setTypeDescriptionRegistrationCallback(
-			final PersistenceTypeDescriptionRegistrationCallback callback
+		public final void setRegistrationCallback(
+			final PersistenceTypeDefinitionRegistrationCallback callback
 		)
 		{
 			// as a storage type dictionary is a registration callback itself, this method is only valid for this
@@ -215,13 +215,13 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				// (06.12.2014)EXCP: proper exception
 				throw new RuntimeException(
-					"Inconsistent " + PersistenceTypeDescriptionRegistrationCallback.class.getSimpleName()
+					"Inconsistent " + PersistenceTypeDefinitionRegistrationCallback.class.getSimpleName()
 				);
 			}
 		}
 
 		@Override
-		public final PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public final PersistenceTypeDefinitionRegistrationCallback getRegistrationCallback()
 		{
 			return this;
 		}

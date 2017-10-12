@@ -47,12 +47,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
 
-	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
-
-	public default void update(final PersistenceTypeDictionary typeDictionary)
-	{
-		this.update(typeDictionary, 0);
-	}
+//	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
+//
+//	public default void update(final PersistenceTypeDictionary typeDictionary)
+//	{
+//		this.update(typeDictionary, 0);
+//	}
 
 
 
@@ -468,7 +468,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.typeHandlerProvider,
 				this
 			);
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions =
+			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefs =
 				EqHashTable.New()
 			;
 			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs =
@@ -478,11 +478,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// create type definition initializers and check for type changes / conflicts / mismatches.
 			for(final PersistenceTypeDefinition<?> td : importedTypeDict.latestTypesById().values())
 			{
-				this.createTypeDefinitionInitializer(tdip, td, matchingTypeDefinitions, changedTypeDefs);
+				this.createTypeDefinitionInitializer(tdip, td, matchingTypeDefs, changedTypeDefs);
 			}
 			
 			// register unconflicted / unchanged types
-			matchingTypeDefinitions.iterate(kv ->
+			matchingTypeDefs.iterate(kv ->
 			{
 				typeRegistry.registerType(kv.key(), kv.value().type());
 			});
@@ -491,7 +491,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			typeRegistry.ensureRegisteredTypes(Swizzle.defaultTypeMapping());
 						
 			// initialize matched TDIs
-			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefinitions)
+			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefs)
 			{
 				final PersistenceTypeDefinition<?> newTd = e.value().initialize(e.key());
 				
@@ -518,12 +518,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// iterate all default type handlers and initialize them in case the dictionary did not contain them
 			this.typeHandlerProvider.iterateTypeHandlers(this::ensureRegisteredCustomTypeHandler);
 			
-			/*
-			 * update the internal type dictionary instance from the imported, validated and supplemented instance
-			 * Note that depending on the PersistenceTypeDictionaryProvider implementation, this might be the same
-			 * instance.
-			 */
-			this.update(importedTypeDict);
+			// when all types are registered, update the current highest typeId once.
+			this.updateHighestTypeId();
 			
 //			// (28.09.2017 TM)NOTE: old from before type refactoring ------------
 //			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
@@ -608,34 +604,45 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			this.typeHandlerProvider.updateCurrentHighestTypeId(highestTypeId);
 		}
-
-		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
+		
+		private void updateHighestTypeId()
 		{
-			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary);
-
-			// update the highest type id first after validation has been passed successfully to guarantee consistency
-			if(this.currentTypeId() < highestTypeId)
+			final long highestDictionaryTypeId = this.typeDictionaryManager.typeDictionary().determineHighestTypeId();
+			if(this.currentTypeId() < highestDictionaryTypeId)
 			{
 				// only update if new value is actually higher. No reason to throw an exception otherwise.
-				this.updateCurrentHighestTypeId(highestTypeId);
+				this.updateCurrentHighestTypeId(highestDictionaryTypeId);
 			}
-
-			// finally add the type descriptions
-			this.typeDictionaryManager.addTypeDefinitions(typeDictionary);
 		}
-
-		@Override
-		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
-		{
-			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
-			this.internalUpdate(typeDictionary, effectiveHighestTypeId);
-
-			/*
-			 * inlining the max() call changes the second argument from 0 to something like 43466428.
-			 * Unbelievable compiler or JDK bug!
-			 */
-//			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
-		}
+		
+		// (12.10.2017 TM)NOTE: external updating no longer required with the new initialization concept.
+//		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
+//		{
+//			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary);
+//
+//			// update the highest type id first after validation has been passed successfully to guarantee consistency
+//			if(this.currentTypeId() < highestTypeId)
+//			{
+//				// only update if new value is actually higher. No reason to throw an exception otherwise.
+//				this.updateCurrentHighestTypeId(highestTypeId);
+//			}
+//
+//			// finally add the type descriptions
+//			this.typeDictionaryManager.addTypeDefinitions(typeDictionary);
+//		}
+//
+//		@Override
+//		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
+//		{
+//			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
+//			this.internalUpdate(typeDictionary, effectiveHighestTypeId);
+//
+//			/*
+//			 * inlining the max() call changes the second argument from 0 to something like 43466428.
+//			 * Unbelievable compiler or JDK bug!
+//			 */
+////			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
+//		}
 
 	}
 

@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceTypeLineage<T>
@@ -18,7 +17,11 @@ public interface PersistenceTypeLineage<T>
 	
 	public PersistenceTypeDefinition<T> runtimeDefinition();
 		
-	public boolean registerTypeDescription(long typeId, XGettingSequence<? extends PersistenceTypeDescriptionMember> members);
+//	public boolean registerTypeDescription(long typeId, XGettingSequence<? extends PersistenceTypeDescriptionMember> members);
+	
+	public boolean registerTypeDefinition(PersistenceTypeDefinition<T> typeDefinition);
+	
+	
 
 	public boolean initializeRuntimeTypeDefinition(PersistenceTypeDefinition<T> runtimeDefinition);
 	
@@ -26,14 +29,14 @@ public interface PersistenceTypeLineage<T>
 	
 	public static <T> PersistenceTypeLineage.Implementation<T> New(
 		final String                           typeName             ,
-		final Class<T>                         runtimeType          ,
-		final PersistenceTypeDefinitionCreator typeDefinitionCreator
+		final Class<T>                         runtimeType
+//		final PersistenceTypeDefinitionCreator typeDefinitionCreator
 	)
 	{
 		return new PersistenceTypeLineage.Implementation<>(
 			notNull(typeName)             , // may never be null as this is the lineage's identity.
-			runtimeType                   , // can be null if the type cannot be resolved into a runtime class.
-			notNull(typeDefinitionCreator)
+			runtimeType                     // can be null if the type cannot be resolved into a runtime class.
+//			notNull(typeDefinitionCreator)
 		);
 	}
 		
@@ -46,7 +49,6 @@ public interface PersistenceTypeLineage<T>
 		final String                                          typeName             ;
 		final Class<T>                                        runtimeType          ;
 		final EqHashTable<Long, PersistenceTypeDefinition<T>> entries              ;
-		final PersistenceTypeDefinitionCreator                typeDefinitionCreator;
 		      PersistenceTypeDefinition<T>                    runtimeDefinition   ; // initialized effectively final
 
 
@@ -57,15 +59,15 @@ public interface PersistenceTypeLineage<T>
 
 		Implementation(
 			final String                           typeName             ,
-			final Class<T>                         runtimeType          ,
-			final PersistenceTypeDefinitionCreator typeDefinitionCreator
+			final Class<T>                         runtimeType
+//			final PersistenceTypeDefinitionCreator typeDefinitionCreator
 		)
 		{
 			super();
 			this.typeName              = typeName             ;
 			this.runtimeType           = runtimeType          ;
 			this.entries               = EqHashTable.New()    ;
-			this.typeDefinitionCreator = typeDefinitionCreator;
+//			this.typeDefinitionCreator = typeDefinitionCreator;
 		}
 
 
@@ -107,22 +109,34 @@ public interface PersistenceTypeLineage<T>
 			}
 		}
 		
-		@Override
-		public final boolean registerTypeDescription(
-			final long                                                         typeId ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-		)
+		private void validate(final PersistenceTypeDefinition<T> typeDefinition)
 		{
-			final PersistenceTypeDefinition<T> typeDesciption = this.typeDefinitionCreator.createTypeDefinition(
-				this.typeName(),
-				this.runtimeType(),
-				typeId,
-				members
-			);
+			if(isValid(typeDefinition))
+			{
+				return;
+			}
 			
+			// (12.10.2017 TM)EXCP: proper exception
+			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName);
+		}
+		
+		private boolean isValid(final PersistenceTypeDefinition<T> typeDefinition)
+		{
+			return this.typeName.equals(typeDefinition.typeName()) && this.runtimeType == typeDefinition.type();
+		}
+		
+		@Override
+		public boolean registerTypeDefinition(final PersistenceTypeDefinition<T> typeDefinition)
+		{
+			this.validate(typeDefinition);
+			return this.internalRegisterTypeDefinition(typeDefinition);
+		}
+		
+		private boolean internalRegisterTypeDefinition(final PersistenceTypeDefinition<T> typeDefinition)
+		{
 			synchronized(this.entries)
 			{
-				if(this.entries.add(typeId, typeDesciption))
+				if(this.entries.add(typeDefinition.typeId(), typeDefinition))
 				{
 					this.entries.keys().sort(Long::compare);
 					return true;
@@ -130,7 +144,7 @@ public interface PersistenceTypeLineage<T>
 				return false;
 			}
 		}
-		
+				
 		@Override
 		public final boolean initializeRuntimeTypeDefinition(final PersistenceTypeDefinition<T> runtimeDefinition)
 		{

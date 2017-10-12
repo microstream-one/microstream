@@ -57,7 +57,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 
 	public void validateFields(XGettingSequence<Field> fieldDescriptions);
 
-//	public void validateTypeDefinition(PersistenceTypeDescription typeDescription);
+//	public void validateTypeDefinition(PersistenceTypeDefinition typeDefinition);
 
 //	public PersistenceTypeDescription<T> typeDescription();
 
@@ -172,6 +172,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			}
 			
 			this.typeId = typeId;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return this.toTypeString();
 		}
 	
 	}

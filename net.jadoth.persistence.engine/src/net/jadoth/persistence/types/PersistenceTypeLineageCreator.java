@@ -1,21 +1,17 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
-
 public interface PersistenceTypeLineageCreator
 {
-	public <T> PersistenceTypeLineage<T> createTypeLineage(String typeName);
-	
-	public <T> PersistenceTypeLineage<T> createTypeLineage(Class<T> type);
+	public <T> PersistenceTypeLineage<T> createTypeLineage(String typeName, Class<T> type);
 	
 	
 	
 	public static PersistenceTypeLineageCreator.Implementation New(
-		final PersistenceTypeDefinitionCreator typeDefinitionCreator
+//		final PersistenceTypeDefinitionCreator typeDefinitionCreator
 	)
 	{
 		return new PersistenceTypeLineageCreator.Implementation(
-			notNull(typeDefinitionCreator)
+//			notNull(typeDefinitionCreator)
 		);
 	}
 	
@@ -25,7 +21,7 @@ public interface PersistenceTypeLineageCreator
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
+//		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
 		
 		
 		
@@ -33,10 +29,10 @@ public interface PersistenceTypeLineageCreator
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceTypeDefinitionCreator typeDefinitionCreator)
+		Implementation(/*final PersistenceTypeDefinitionCreator typeDefinitionCreator*/)
 		{
 			super();
-			this.typeDefinitionCreator = typeDefinitionCreator;
+//			this.typeDefinitionCreator = typeDefinitionCreator;
 		}
 		
 		
@@ -45,23 +41,16 @@ public interface PersistenceTypeLineageCreator
 		// methods //
 		////////////
 				
-		private <T> PersistenceTypeLineage<T> internalBuildTypeLineage(final String typeName, final Class<T> type)
-		{
-			return PersistenceTypeLineage.New(typeName, type, this.typeDefinitionCreator);
-		}
+//		private <T> PersistenceTypeLineage<T> internalBuildTypeLineage(final String typeName, final Class<T> type)
+//		{
+//			return PersistenceTypeLineage.New(typeName, type/*, this.typeDefinitionCreator*/);
+//		}
 		
 		@Override
-		public <T> PersistenceTypeLineage<T> createTypeLineage(final String typeName)
+		public <T> PersistenceTypeLineage<T> createTypeLineage(final String typeName, final Class<T> type)
 		{
-			final Class<T> type = Persistence.resolveTypeOptional(typeName); // might be null
-			return internalBuildTypeLineage(typeName, type);
+			return PersistenceTypeLineage.New(typeName, type/*, this.typeDefinitionCreator*/);
 		}
-		
-		@Override
-		public <T> PersistenceTypeLineage<T> createTypeLineage(final Class<T> type)
-		{
-			return internalBuildTypeLineage(type.getName(), type);
-		}
-		
+				
 	}
 }

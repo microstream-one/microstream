@@ -11,8 +11,6 @@ import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.meta.JadothConsole;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.storage.types.StorageRawFileStatistics;
@@ -238,14 +236,14 @@ public class MainTestStorage extends TestStorage
 	static void testImport()
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
-		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			new File("C:/FilesImport/PersistenceTypeDictionary.ptd")
-		);
+//		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
+//			new File("C:/FilesImport/PersistenceTypeDictionary.ptd")
+//		);
 		final XEnum<File>               dataFiles  = X.Enum(new File("C:/FilesImport/channel_0").listFiles())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
-		connection.persistenceManager().updateMetadata(dictionary);
+//		connection.persistenceManager().updateMetadata(dictionary);
 		connection.importFiles(dataFiles);
 	}
 

@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.chars.VarString;
 
 /**
  * Type that further defines a {@link PersistenceTypeDictionaryEntry} regarding runtime links and
@@ -67,6 +66,11 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 * @return
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
+	
+	public default String toTypeString()
+	{
+		return this.getClass().getName() + "<" + this.type().getName() + ">(TID " + this.typeId() + ")";
+	}
 	
 	
 	
@@ -215,20 +219,21 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		@Override
 		public final String toString()
 		{
-			final VarString vc = VarString.New();
-			
-			vc.add(this.typeId).blank().add(this.typeName).blank().add('{');
-			if(!this.members.isEmpty())
-			{
-				vc.lf();
-				for(final PersistenceTypeDescriptionMember member : this.members)
-				{
-					vc.tab().add(member).add(';').lf();
-				}
-			}
-			vc.add('}');
-			
-			return vc.toString();
+			return this.toTypeString();
+//			final VarString vc = VarString.New();
+//
+//			vc.add(this.typeId).blank().add(this.typeName).blank().add('{');
+//			if(!this.members.isEmpty())
+//			{
+//				vc.lf();
+//				for(final PersistenceTypeDescriptionMember member : this.members)
+//				{
+//					vc.tab().add(member).add(';').lf();
+//				}
+//			}
+//			vc.add('}');
+//
+//			return vc.toString();
 		}
 
 	}

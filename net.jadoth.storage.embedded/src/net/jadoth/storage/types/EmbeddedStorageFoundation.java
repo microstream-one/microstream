@@ -387,7 +387,6 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
 
 			final EmbeddedStorageConnectionFoundation ecf = this.getConnectionFoundation();
-			final PersistenceTypeHandlerManager<?>    thm = ecf.getTypeHandlerManager();
 
 			/* (13.09.2015)TODO: StorageEntityTypeHandlerCreator for storage-side lazy ref handling
 			 * link PersistenceTypeHandlerManager and to-be-created StorageEntityTypeHandlerCreator
@@ -410,6 +409,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			);
 
 			// initialize type handler manager (validate and ensure type handlers, populate type dictionary)
+			final PersistenceTypeHandlerManager<?> thm = ecf.getTypeHandlerManager();
 			thm.initialize();
 			
 			// after type setup is done, java constants can/must be registered
@@ -422,8 +422,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();
 			std
-			.initialize(ecf.getTypeDictionaryImporter().importTypeDictionary())
-			.setTypeDescriptionRegistrationCallback(std)
+			.initialize(ecf.getTypeDictionaryManager().typeDictionary())
+			.setRegistrationCallback(std)
 			;
 
 			// resolve root types to root type ids after types have been initialized

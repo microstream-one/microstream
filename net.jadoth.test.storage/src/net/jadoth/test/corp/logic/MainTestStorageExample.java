@@ -17,9 +17,7 @@ public class MainTestStorageExample
 		.createStorageManager(Storage.RootResolver(ROOT))
 		.start()
 	;
-
-
-
+	
 
 
 	public static void main(final String[] args)

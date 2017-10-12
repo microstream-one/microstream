@@ -826,7 +826,8 @@ public final class JadothSort
 			return;
 		}
 		
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JadothSort#valueSort()
+		// (12.10.2017 TM)TODO: more value sorts or refactoring for other solution.
+		values.sort(comparator);
 	}
 
 	/**

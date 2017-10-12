@@ -516,37 +516,6 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-//	private static <T> PersistenceTypeDescription<?> primitiveTypeDescription(
-//		final Class<T>            type,
-//		final SwizzleTypeIdLookup typeLookup
-//	)
-//	{
-//		// funny thing in this method: primitive generics typing :D
-//		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type));
-//	}
-//
-//	public static final <D extends PersistenceTypeDictionary> D registerTypeDictionaryDefaults(
-//		final D                 typeDictionary,
-//		final SwizzleTypeLookup typeLookup
-//	)
-//	{
-//		typeDictionary.registerTypes(X.List(
-//			// type handlers for primitives have to be added seperately here as special cases
-//			primitiveTypeDescription(byte   .class, typeLookup),
-//			primitiveTypeDescription(boolean.class, typeLookup),
-//			primitiveTypeDescription(short  .class, typeLookup),
-//			primitiveTypeDescription(char   .class, typeLookup),
-//			primitiveTypeDescription(int    .class, typeLookup),
-//			primitiveTypeDescription(float  .class, typeLookup),
-//			primitiveTypeDescription(long   .class, typeLookup),
-//			primitiveTypeDescription(double .class, typeLookup),
-//
-//			new BinaryHandlerNativeClass().initialize(typeLookup.lookupTypeId(Class.class), X.emptyTable())
-//		));
-//		createDefaultCustomTypeHandlerRegistry(typeLookup).updateTypeDictionary(typeDictionary);
-//		return typeDictionary;
-//	}
-
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry()
 	{
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =

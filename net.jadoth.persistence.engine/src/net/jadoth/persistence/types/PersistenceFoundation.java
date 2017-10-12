@@ -1120,7 +1120,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceTypeDictionaryBuilder createTypeDictionaryBuilder()
 		{
 			return PersistenceTypeDictionaryBuilder.New(
-				this.getTypeDictionaryProvider()
+				this.getTypeDictionaryProvider(),
+				this.getTypeDefinitionCreator()
 			);
 		}
 
@@ -1151,9 +1152,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		protected PersistenceTypeLineageCreator createTypeLineageCreator()
 		{
-			return PersistenceTypeLineageCreator.New(
-				this.getTypeDefinitionCreator()
-			);
+			return PersistenceTypeLineageCreator.New();
 		}
 		
 
