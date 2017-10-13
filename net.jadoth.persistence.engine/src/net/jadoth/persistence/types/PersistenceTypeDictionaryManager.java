@@ -6,15 +6,15 @@ import net.jadoth.collections.types.XGettingCollection;
 
 public interface PersistenceTypeDictionaryManager
 {
-	public PersistenceTypeDictionaryManager addTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public PersistenceTypeDictionaryManager registerRuntimeTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
 
 	public PersistenceTypeDictionaryManager validateTypeDefinitions(PersistenceTypeDictionary typeDictionary);
 
 	public PersistenceTypeDictionaryManager validateTypeDefinitions(XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions);
 
-	public PersistenceTypeDictionaryManager addTypeDefinitions(PersistenceTypeDictionary typeDictionary);
+//	public PersistenceTypeDictionaryManager addTypeDefinitions(PersistenceTypeDictionary typeDictionary);
 
-	public PersistenceTypeDictionaryManager addTypeDefinitions(XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions);
+//	public PersistenceTypeDictionaryManager addTypeDefinitions(XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions);
 	
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
 	
@@ -123,12 +123,12 @@ public interface PersistenceTypeDictionaryManager
 		/////////////////////
 
 		@Override
-		public final PersistenceTypeDictionaryManager.Implementation addTypeDefinition(
+		public final PersistenceTypeDictionaryManager.Implementation registerRuntimeTypeDefinition(
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
 			this.internalValidateTypeDefinition(typeDefinition);
-			if(this.typeDictionary().registerType(typeDefinition))
+			if(this.typeDictionary().registerRuntimeDefinition(typeDefinition))
 			{
 				this.markChanged();
 			}
@@ -159,31 +159,31 @@ public interface PersistenceTypeDictionaryManager
 			return this;
 		}
 
-		@Override
-		public final PersistenceTypeDictionaryManager addTypeDefinitions(
-			final PersistenceTypeDictionary typeDictionary
-		)
-		{
-			if(this.typeDictionary() != typeDictionary)
-			{
-				this.addTypeDefinitions(typeDictionary.allTypes().values());
-			}
-			return this;
-		}
-
-		@Override
-		public final PersistenceTypeDictionaryManager.Implementation addTypeDefinitions(
-			final XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions
-		)
-		{
-			typeDefinitions.iterate(this::internalValidateTypeDefinition);
-			if(this.typeDictionary().registerTypes(typeDefinitions))
-			{
-				this.markChanged();
-			}
-			this.updateExport();
-			return this;
-		}
+//		@Override
+//		public final PersistenceTypeDictionaryManager addTypeDefinitions(
+//			final PersistenceTypeDictionary typeDictionary
+//		)
+//		{
+//			if(this.typeDictionary() != typeDictionary)
+//			{
+//				this.addTypeDefinitions(typeDictionary.allTypes().values());
+//			}
+//			return this;
+//		}
+//
+//		@Override
+//		public final PersistenceTypeDictionaryManager.Implementation addTypeDefinitions(
+//			final XGettingCollection<PersistenceTypeDefinition<?>> typeDefinitions
+//		)
+//		{
+//			typeDefinitions.iterate(this::internalValidateTypeDefinition);
+//			if(this.typeDictionary().registerTypeEntries(typeDefinitions))
+//			{
+//				this.markChanged();
+//			}
+//			this.updateExport();
+//			return this;
+//		}
 
 		@Override
 		public final PersistenceTypeDictionaryManager.Implementation exportTypeDictionary()

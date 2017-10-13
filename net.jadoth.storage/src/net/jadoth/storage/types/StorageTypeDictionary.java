@@ -75,20 +75,38 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerType(final PersistenceTypeDefinition<?> typeDefinition)
+		public final boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerType(typeDefinition);
+				return this.dictionary.registerDefinitionEntry(typeDefinition);
 			}
 		}
 
 		@Override
-		public final boolean registerTypes(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
+		public final boolean registerDefinitionEntries(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerTypes(typeDefinitions);
+				return this.dictionary.registerDefinitionEntries(typeDefinitions);
+			}
+		}
+		
+		@Override
+		public final boolean registerRuntimeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		{
+			synchronized(this.registry)
+			{
+				return this.dictionary.registerRuntimeDefinition(typeDefinition);
+			}
+		}
+		
+		@Override
+		public boolean registerRuntimeDefinitions(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
+		{
+			synchronized(this.registry)
+			{
+				return this.dictionary.registerRuntimeDefinitions(typeDefinitions);
 			}
 		}
 

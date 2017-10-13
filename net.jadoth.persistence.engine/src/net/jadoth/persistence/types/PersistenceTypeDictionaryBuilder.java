@@ -78,16 +78,20 @@ public interface PersistenceTypeDictionaryBuilder
 	)
 	{
 		final EqHashTable<Long, PersistenceTypeDictionaryEntry> uniqueTypeIdEntries = EqHashTable.New();
-		for(final PersistenceTypeDictionaryEntry e : entries)
-		{
-			if(!uniqueTypeIdEntries.add(e.typeId(), e))
-			{
-				// (12.10.2017 TM)EXCP: proper exception
-				throw new RuntimeException("TypeId conflict for " + e.typeId() + " " + e.typeName());
-			}
-		}
 		
-		JadothSort.valueSort(uniqueTypeIdEntries.keys(), Long::compare);
+		// entries may be null, e.g. when there is no imported type dictionary, yet.
+		if(entries != null)
+		{
+			for(final PersistenceTypeDictionaryEntry e : entries)
+			{
+				if(!uniqueTypeIdEntries.add(e.typeId(), e))
+				{
+					// (12.10.2017 TM)EXCP: proper exception
+					throw new RuntimeException("TypeId conflict for " + e.typeId() + " " + e.typeName());
+				}
+			}
+			JadothSort.valueSort(uniqueTypeIdEntries.keys(), Long::compare);
+		}
 		
 		return uniqueTypeIdEntries;
 	}
@@ -116,7 +120,7 @@ public interface PersistenceTypeDictionaryBuilder
 
 		// bulk-register collected type definitions for efficiency reasons (only sort once)
 		final PersistenceTypeDictionary td = typeDictionaryProvider.provideTypeDictionary();
-		td.registerTypes(typeDefs);
+		td.registerDefinitionEntries(typeDefs);
 		
 //		fillTypeLineages(td, entries);
 		

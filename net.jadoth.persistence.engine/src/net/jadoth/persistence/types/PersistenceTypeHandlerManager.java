@@ -5,6 +5,7 @@ import static net.jadoth.Jadoth.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingSequence;
@@ -324,7 +325,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.validateTypeHandler(typeHandler);
 			if(this.typeHandlerRegistry.register(typeHandler))
 			{
-				this.typeDictionaryManager.addTypeDefinition(typeHandler);
+				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
 				return true;
 			}
 			return false;
@@ -455,51 +456,76 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //
 //			return typeDefinitions;
 //		}
-
-		private void internalInitialize()
+		
+		private void ensureRegisteredTypes(
+			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingRuntimeTypeDefs
+		)
 		{
-//			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
-
-			final PersistenceTypeDictionary importedTypeDict = this.typeDictionaryImporter.importTypeDictionary();
-			
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 			
-			final PersistenceTypeDefinitionInitializerCreator<M> tdip = PersistenceTypeDefinitionInitializerCreator.New(
-				this.typeHandlerProvider,
-				this
-			);
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefs =
-				EqHashTable.New()
-			;
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs =
-				HashTable.New()
-			;
-						
-			// create type definition initializers and check for type changes / conflicts / mismatches.
-			for(final PersistenceTypeDefinition<?> td : importedTypeDict.latestTypesById().values())
-			{
-				this.createTypeDefinitionInitializer(tdip, td, matchingTypeDefs, changedTypeDefs);
-			}
-			
 			// register unconflicted / unchanged types
-			matchingTypeDefs.iterate(kv ->
+			matchingRuntimeTypeDefs.iterate(kv ->
 			{
 				typeRegistry.registerType(kv.key(), kv.value().type());
 			});
 			
 			// supplement registered unconflicted types with system defaults (note the supplementing logic)
 			typeRegistry.ensureRegisteredTypes(Swizzle.defaultTypeMapping());
+		}
+		
+		
+		private void fillMatchingAndChangedTypeDefinitions(
+			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>>                       matchingRuntimeTypeDefs,
+			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs
+		)
+		{
+			final PersistenceTypeDictionary importedTypeDict = this.typeDictionaryImporter.importTypeDictionary();
+			
+			final PersistenceTypeDefinitionInitializerCreator<M> tdip = PersistenceTypeDefinitionInitializerCreator.New(
+				this.typeHandlerProvider,
+				this
+			);
+			
+			// create type definition initializers and check for type changes / conflicts / mismatches.
+			for(final PersistenceTypeDefinition<?> td : importedTypeDict.latestTypesById().values())
+			{
+				this.createTypeDefinitionInitializer(tdip, td, matchingRuntimeTypeDefs, changedTypeDefs);
+			}
+		}
+
+		private void internalInitialize()
+		{
+//			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
+			
+			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingRuntimeTypeDefs =
+				EqHashTable.New()
+			;
+			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs =
+				HashTable.New()
+			;
+			
+			this.fillMatchingAndChangedTypeDefinitions(matchingRuntimeTypeDefs, changedTypeDefs);
+						
+			
+			
+			// BAUSTELLE \\
+			
+			this.ensureRegisteredTypes(matchingRuntimeTypeDefs);
+			
+			
 						
 			// initialize matched TDIs
-			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingTypeDefs)
+			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingRuntimeTypeDefs)
 			{
-				final PersistenceTypeDefinition<?> newTd = e.value().initialize(e.key());
+				// gets registered in the runtime type dictionary indirectly via relaying from the type handler manager
+				/*final PersistenceTypeDefinition<?> newTd = */e.value().initialize(e.key());
 				
 				// replace simple dictionary type definition by runtime type definition (e.g. a TypeHandler instance)
-				importedTypeDict.registerType(newTd);
+//				importedTypeDict.registerRuntimeDefinition(newTd);
 			}
 						
 			// assign new TIDs for changedTypes and initialize changed TDIs with new TIDs
+			final BulkList<PersistenceTypeDefinition<?>> newTds = BulkList.New();
 			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> e : changedTypeDefs)
 			{
 				final PersistenceTypeDefinition<?>       latestTd = e.key();
@@ -509,11 +535,19 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				final PersistenceTypeDefinition<?> newTd = tdi.initialize(newTypeId);
 				
 				// register properly initialized new runtime TypeDefinintion (e.g. TypeHandler)
-				importedTypeDict.registerType(newTd);
+				newTds.add(newTd);
 				
 				// register new deprecated "latest" and new TypeDefinintion for change (e.g. entity type conversion)
 				this.typeChangeCallback.registerTypeChange(latestTd, newTd);
 			}
+			
+			for(final PersistenceTypeDefinition<?> newTd : newTds)
+			{
+				this.register(newTd);
+			}
+			
+
+			importedTypeDict.registerRuntimeDefinition(newTd);
 
 			// iterate all default type handlers and initialize them in case the dictionary did not contain them
 			this.typeHandlerProvider.iterateTypeHandlers(this::ensureRegisteredCustomTypeHandler);
