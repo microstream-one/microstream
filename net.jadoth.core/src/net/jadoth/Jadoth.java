@@ -30,6 +30,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.DownwrapList;
@@ -235,6 +236,11 @@ public final class Jadoth
 	public static <K, V> KeyValue<K, V> keyValue(final K key, final V value)
 	{
 		return new KeyValue.Implementation<>(key, value);
+	}
+	
+	public static <T, K, V> KeyValue<K, V> toKeyValue(final T instance, final Function<? super T, KeyValue<K, V>> mapper)
+	{
+		return mapper.apply(instance);
 	}
 
 	public static _longKeyValue _longKeyValue(final long key, final long value)
