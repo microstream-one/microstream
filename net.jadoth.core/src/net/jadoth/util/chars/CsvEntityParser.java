@@ -3,6 +3,7 @@ package net.jadoth.util.chars;
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingList;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XSequence;
 
 public interface CsvEntityParser<T>
@@ -68,6 +69,20 @@ public interface CsvEntityParser<T>
 		protected int columnCount()
 		{
 			return this.columnCount;
+		}
+		
+		protected void beginTable(
+			final String                   tableName  ,
+			final XGettingSequence<String> columnNames,
+			final XGettingList<String>     columnTypes
+		)
+		{
+			// no-op
+		}
+		
+		protected void completeTable()
+		{
+			// no-op
 		}
 
 		protected void validateRow(final BulkList<String> row)

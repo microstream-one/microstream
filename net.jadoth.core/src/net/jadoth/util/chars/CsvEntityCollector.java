@@ -25,7 +25,10 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	// constructors     //
 	/////////////////////
 
-	public CsvEntityCollector(final CsvEntityParser.AbstractImplementation<T> parser, final XSequence<? super T> rows)
+	public CsvEntityCollector(
+		final CsvEntityParser.AbstractImplementation<T> parser,
+		final XSequence<? super T>                      rows
+	)
 	{
 		super();
 		this.parser = notNull(parser) ;
@@ -40,9 +43,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 		final XGettingList<String>     columnTypes
 	)
 	{
-		/* table meta data ignored in entity-based implementation.
-		 * Could however be used for validation in more complex implementations.
-		 */
+		this.parser.beginTable(tableName, columnNames, columnTypes);
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	}
 
 	@Override
-	public final void completeRow()
+	public void completeRow()
 	{
 		try
 		{
@@ -79,6 +80,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	public final void completeTable()
 	{
 		this.row.clear();
+		this.parser.completeTable();
 	}
 
 	public final XSequence<? super T> rows()
