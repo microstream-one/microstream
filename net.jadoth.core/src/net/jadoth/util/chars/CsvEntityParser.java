@@ -64,15 +64,20 @@ public interface CsvEntityParser<T>
 		{
 			return new BulkList<>(this.collectorInitialCapacity);
 		}
+		
+		protected int columnCount()
+		{
+			return this.columnCount;
+		}
 
 		protected void validateRow(final BulkList<String> row)
 		{
-			if(Jadoth.to_int(row.size()) == this.columnCount)
+			if(Jadoth.to_int(row.size()) == this.columnCount())
 			{
 				return;
 			}
 			// (18.04.2016)EXCP: proper exception
-			throw new RuntimeException("Column count mismatch (" + row.size() + " != " + this.columnCount + ")");
+			throw new RuntimeException("Column count mismatch (" + row.size() + " != " + this.columnCount() + ")");
 		}
 
 
