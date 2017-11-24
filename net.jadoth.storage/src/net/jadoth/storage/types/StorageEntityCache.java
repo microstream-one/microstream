@@ -40,6 +40,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// constants        //
+		/////////////////////
+		
+		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
+		private static final boolean DEBUG_GC_ENABLED = true;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
@@ -1361,10 +1370,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound, final StorageChannel channel)
 		{
-//			if(!DEBUG_GC_ENABLED)
-//			{
-//				return true;
-//			}
+			if(!DEBUG_GC_ENABLED)
+			{
+				return true;
+			}
 
 //			DEBUGStorage.println(this.channelIndex() + " issued gc");
 
@@ -1447,10 +1456,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public final boolean incrementalGarbageCollection(final long timeBudgetBound, final StorageChannel channel)
 		{
-//			if(!DEBUG_GC_ENABLED)
-//			{
-//				return true;
-//			}
+			if(!DEBUG_GC_ENABLED)
+			{
+				return true;
+			}
 
 			try
 			{
