@@ -44,7 +44,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		/////////////////////
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
-		private static final boolean DEBUG_GC_ENABLED = true;
+		private static final boolean DEBUG_GC_ENABLED = false;
 		
 		
 		
