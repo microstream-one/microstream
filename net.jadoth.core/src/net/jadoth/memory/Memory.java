@@ -1163,6 +1163,11 @@ public final class Memory
 		return VM.reallocateMemory(address, bytes);
 	}
 
+	public static final void setMemory(final long address, final long length, byte value)
+	{
+		VM.setMemory(address, length, value);
+	}
+
 	public static final void free(final long address)
 	{
 		VM.freeMemory(address);
