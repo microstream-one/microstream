@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleRegistry;
@@ -57,8 +58,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	@Override
 	public <T> Class<T> ensureType(long typeId);
 
-	
-	
+
+
 	public static <M> PersistenceTypeHandlerManager<M> New(
 		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
@@ -73,7 +74,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			notNull(typeEvaluatorTypeIdMappable)
 		);
 	}
-	
+
 
 
 	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
@@ -176,7 +177,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			if(!SwizzleTypeIdentity.Static.equals(registeredTd, typeHandler))
 			{
 				// (07.04.2013)TODO proper exception
-				throw new RuntimeException("Swizzle inconsistency for " + typeHandler.typeName());
+				throw new PersistenceExceptionTypeConsistency("Swizzle inconsistency for " + typeHandler.typeName());
 			}
 
 
@@ -185,7 +186,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				if(m1 == null || m2 == null)
 				{
 					// (01.07.2015)EXCP proper exception
-					throw new RuntimeException("Member count mismatch of type " + typeHandler.typeName());
+					throw new PersistenceExceptionTypeConsistency("Member count mismatch of type " + typeHandler.typeName());
 				}
 
 				if(m1.equals(m2, PersistenceTypeDescriptionMember.DESCRIPTION_MEMBER_EQUALATOR))
@@ -193,7 +194,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 					return true;
 				}
 				// (07.04.2013)EXCP proper exception
-				throw new RuntimeException(
+				throw new PersistenceExceptionTypeConsistency(
 					"Inconsistent member in type description for type "
 					+ typeHandler.typeName() + ": " + m1 + " != " + m2
 				);
@@ -204,7 +205,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013)TODO proper exception
-				throw new RuntimeException("member inconsistency for " + typeHandler.typeName());
+				throw new PersistenceExceptionTypeConsistency("member inconsistency for " + typeHandler.typeName());
 			}
 		}
 
