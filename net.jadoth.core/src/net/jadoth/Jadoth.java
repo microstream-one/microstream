@@ -195,6 +195,21 @@ public final class Jadoth
 		}
 		return object;
 	}
+	
+	/**
+	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
+	 * The use is small, but still there:<br>
+	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
+	 *   instead of missing method calls and comments (like "may be null" or "optional").
+	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
+	 * 
+	 * @param object the passed reference.
+	 * @return the passed reference without doing ANYTHING else.
+	 */
+	public static final <T> T mayNull(final T object)
+	{
+		return object;
+	}
 
 	public static final <S extends Sized> S notEmpty(final S sized)
 	{
