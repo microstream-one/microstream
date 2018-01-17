@@ -1,10 +1,10 @@
-package net.jadoth.util;
+
 
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XList;
 
-public class A_MainTestSortMulti
+public class MainTestSortMulti
 {
 	static final String[] STRINGS = {
 		"hallo"  ,
