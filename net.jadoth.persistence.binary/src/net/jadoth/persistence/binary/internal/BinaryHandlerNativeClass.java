@@ -68,7 +68,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	@Override
 	public Class<?> create(final Binary bytes)
 	{
-		/* classes get registered before instance data ist processed,
+		/* classes get registered before instance data is processed,
 		 * hence it is enough to lookup the class by its oid, which is this class instance's tid.
 		 */
 		return this.typeLookup.lookupType(BinaryPersistence.getBuildItemObjectId(bytes));

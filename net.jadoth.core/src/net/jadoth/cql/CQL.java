@@ -14,6 +14,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.X;
 import net.jadoth.collections.XIterable;
@@ -474,6 +475,13 @@ public final class CQL
 		return e -> new AggregateSum<>(getter);
 	}
 
+	
+	@SafeVarargs
+	public static final <E> Comparator<? super E> chain(final Comparator<? super E>... comparators)
+	{
+		return JadothSort.chain(comparators);
+	}
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// internal helper methods //

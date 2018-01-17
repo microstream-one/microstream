@@ -160,7 +160,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 				}
 				catch(final Exception e)
 				{
-					/* Interruption (abort export) ist actually not an error, but it is a problem to
+					/* Interruption (abort export) is actually not an error, but it is a problem to
 					 * abort only one thread and let the others continue, so an exception has to be
 					 * thrown nevertheless.
 					 */

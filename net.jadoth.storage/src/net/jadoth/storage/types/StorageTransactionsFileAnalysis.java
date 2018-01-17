@@ -788,7 +788,7 @@ public interface StorageTransactionsFileAnalysis
 				);
 			}
 
-			/* lastConsistentStoreTimestamp ist not updated to associate the new file length with the old timestamp
+			/* lastConsistentStoreTimestamp is not updated to associate the new file length with the old timestamp
 			 * i.e. when a inter-channel rollback has to occur, the transfer part is not rolled back, as it is
 			 * channel-local
 			 */

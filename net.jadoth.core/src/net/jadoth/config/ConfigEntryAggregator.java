@@ -1,6 +1,7 @@
 package net.jadoth.config;
 
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
@@ -58,10 +59,10 @@ public final class ConfigEntryAggregator implements CsvRowCollector
 
 	public ConfigEntryAggregator setNewConfig(final String name)
 	{
-		// alte Datei registrieren
+		// register old file
 		this.completeConfig();
 
-		// kann niemals die gleiche table zweimal sein, weil Dateinamen in einem Verzeichnis eindeutig sind
+		// can never be the same table twice, as filenames are unique inside a folder
 		this.config = EqHashTable.New();
 		this.name = name;
 
@@ -120,12 +121,14 @@ public final class ConfigEntryAggregator implements CsvRowCollector
 	@Override
 	public final void completeTable()
 	{
-		this.clear(); // cleanup at end
+		// cleanup at end
+		this.clear();
 	}
 
 	public final EqHashTable<String, ConfigFile> yield()
 	{
-		this.completeConfig(); // letzte eingelesene datei abschließen
+		// close last read file
+		this.completeConfig();
 		return this.configs;
 	}
 

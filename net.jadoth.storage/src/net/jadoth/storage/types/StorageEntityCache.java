@@ -779,13 +779,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntity.Implementation     previousInType
 		)
 		{
-			// (19.10.2015 TM)FIX-ME: /!\ DEBUG GC problem
-//			if(entity.objectId <= 1000000000032112569L || type.typeId != 10000 || type.typeId != 1000163)
-//			{
-//				// (19.10.2015 TM)NOTE: alle neu angelegten Lazy und ZahlungManuelleVerrechnungen referenzen ignorieren (hoechstwahrscheinlich Dummies, gibt im Fehlerfall genug andere Typen)
-//				DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + type.typeHandler().typeName());
-//			}
-
 //			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
 
 			// 1.) unregister entity from hash table (= unfindable by future requests)

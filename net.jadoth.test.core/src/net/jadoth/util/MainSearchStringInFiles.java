@@ -28,37 +28,13 @@ public class MainSearchStringInFiles
 			
 //			"1000000000056176168" // KeyAhVlUSt$Implementation
 			"1000000000054447655" // EqHashEnum
-			
-//			"1000000000025679576" // 0 ZahlungAusschuettungbetrag$Implementation
-//			"1000000000025680038" // 1 = 0 referenzierende ZahlungAuszahlung$Implementation
-//			"1000000000025679571" // 2 = 0 referenzierende HashTable
-//			"1000000000025679567" // 4 = 2 referenzierende Lazy
-			
-			// KonzAusAnspruchAhg
-//			"1000000000039543476" // 0 KonzAusAnspruchAhg$Implementation
-//			"1000000000039546071" // 1 = 0 referenzierende ZahlungAusschuettungbetrag$Implementation
-//			"1000000000039546799" // 2 = 1 referenzierende ZahlungAuszahlung$Implementation
-//			"1000000000039546067" // 3 = 1 referenzierende HashTable
-//			"1000000000039546063" // 5 = 3 referenzierende Lazy
-//			"1000000000039530216" // 7 = 5 referenzierende VorgangKonzAusschuettungNachStaffel
-			
-			// HausAusAnspruchAhg
-//			"1000000000025153392" // 0 HausAusAnspruchAhg$Implementation
-//			"1000000000025155744" // 1 = 0 referenzierende ZahlungAusschuettungbetrag$Implementation
-//			"1000000000025155738" // 2 = 1 referenzierende HashTable
-//			"1000000000025155897" // 3 = 1 referenzierende ZahlungAuszahlung$Implementation
-//			"1000000000025155734" // 4 = 2 referenzierende Lazy (#ausschuettungsbetraege)
-//			"1000000000025155740" // 5 = 3 referenzierende HashTable
-//			"1000000000025150620" // 6 = 4 referenzierende VorgangHausAusschuettung
-//			"1000000000025155736" // 7 = 5 referenzierende Lazy (#auszahlungen)
-//			"1000000000025150620" // 6 = 7 referenzierende VorgangHausAusschuettung
 		);
 	}
 	
 	static void printOid(final String s, final Integer index, final Integer endIndex)
 	{
 		final int newLineIndex = s.lastIndexOf('\n', index);
-		// 20 ist die Länge einer OID
+		// 20 is the length of an OID
 		System.out.println("Line: " + s.substring(newLineIndex + 1, newLineIndex + 1 + 20));
 //		System.out.println("Line: " + s.substring(newLineIndex + 1, endIndex));
 	}
@@ -148,7 +124,6 @@ public class MainSearchStringInFiles
 		{
 			throw new RuntimeException(e);
 		}
-
 	}
 
 }
