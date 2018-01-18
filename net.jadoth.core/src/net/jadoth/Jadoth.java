@@ -735,6 +735,20 @@ public final class Jadoth
 
 		return array;
 	}
+	
+	@SafeVarargs
+	public static <E> E[] Array(final int length, final Class<E> componentType, final E... initialElements)
+	{
+		@SuppressWarnings("unchecked")
+		final E[] array = (E[])Array.newInstance(componentType, length);
+		
+		if(initialElements != null)
+		{
+			System.arraycopy(initialElements, 0, array, 0, initialElements.length);
+		}
+		
+		return array;
+	}
 
 	/**
 	 * Instantiaties a new array instance that has a component type defined by the method's type parameter {@literal E},
