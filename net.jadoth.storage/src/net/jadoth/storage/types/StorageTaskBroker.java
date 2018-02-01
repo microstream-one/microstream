@@ -371,7 +371,7 @@ public interface StorageTaskBroker
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
 			final StorageRequestTaskSaveEntities task = this.taskCreator.createSaveTask(medium);
 			
-			((StorageRequestTaskSaveEntities.Implementation)task).DEBUG_Print(null);
+//			((StorageRequestTaskSaveEntities.Implementation)task).DEBUG_Print(null);
 			
 			this.enqueueTaskAndNotifyAll(task);
 			return task;

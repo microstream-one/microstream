@@ -42,7 +42,7 @@ public interface StorageRequestTaskSaveEntities extends StorageRequestTask
 		@Override
 		protected final KeyValue<ByteBuffer[], long[]> internalProcessBy(final StorageChannel channel)
 		{
-			this.DEBUG_Print(channel);
+//			this.DEBUG_Print(channel);
 			return channel.storeEntities(this.timestamp(), this.data[channel.channelIndex()]);
 		}
 		
