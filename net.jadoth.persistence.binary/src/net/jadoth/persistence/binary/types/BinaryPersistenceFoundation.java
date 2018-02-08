@@ -113,6 +113,9 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 	@Override
 	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeHandlerCreator(PersistenceTypeHandlerCreator<Binary> typeHandlerCreator);
 
 	@Override
 	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
@@ -262,6 +265,15 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		)
 		{
 			this.internalSetTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeHandlerCreator(
+			final PersistenceTypeHandlerCreator<Binary> typeHandlerCreator
+		)
+		{
+			this.internalSetTypeHandlerCreator(typeHandlerCreator);
 			return this;
 		}
 

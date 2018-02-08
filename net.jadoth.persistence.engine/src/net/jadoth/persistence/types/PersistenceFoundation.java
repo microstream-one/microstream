@@ -120,6 +120,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setTypeManager(SwizzleTypeManager typeManager);
 
 	public PersistenceFoundation<M> setTypeHandlerCreatorLookup(PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup);
+	
+	public PersistenceFoundation<M> setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
 
 	public PersistenceFoundation<M> setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
 
@@ -596,6 +598,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			this.typeHandlerCreatorLookup = typeHandlerCreatorLookup;
 		}
+		
+		protected final void internalSetTypeHandlerCreator(
+			final PersistenceTypeHandlerCreator<M> typeHandlerCreator
+		)
+		{
+			this.typeHandlerCreator = typeHandlerCreator;
+		}
 
 		protected final void internalSetPersisterCreator(
 			final PersistenceStorer.Creator<M> persisterCreator
@@ -797,6 +806,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		)
 		{
 			this.internalSetTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
+			return this;
+		}
+		
+		@Override
+		public PersistenceFoundation.AbstractImplementation<M> setTypeHandlerCreator(
+			final PersistenceTypeHandlerCreator<M> typeHandlerCreator
+		)
+		{
+			this.internalSetTypeHandlerCreator(typeHandlerCreator);
 			return this;
 		}
 
