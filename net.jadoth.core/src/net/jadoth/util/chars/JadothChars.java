@@ -432,7 +432,7 @@ public final class JadothChars
 	public static final VarByte readAllBytesFromInputStream(final VarByte bytes, final InputStream inputStream)
 		throws IOException
 	{
-		final byte[] buffer = Memory.pageSizeBuffer();
+		final byte[] buffer = new byte[Memory.pageSize()];
 		for(int bytesRead = -1; (bytesRead = inputStream.read(buffer)) >= 0;)
 		{
 			bytes.append(buffer, 0, bytesRead);

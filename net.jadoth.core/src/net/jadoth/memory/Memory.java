@@ -713,11 +713,6 @@ public final class Memory
 		return PAGE_SIZE;
 	}
 
-	public static byte[] pageSizeBuffer()
-	{
-		return new byte[pageSize()];
-	}
-
 	public static void putShort(final byte[] bytes, final int index, final short value)
 	{
 		VM.putShort(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
@@ -1163,7 +1158,7 @@ public final class Memory
 		return VM.reallocateMemory(address, bytes);
 	}
 
-	public static final void setMemory(final long address, final long length, byte value)
+	public static final void setMemory(final long address, final long length, final byte value)
 	{
 		VM.setMemory(address, length, value);
 	}
