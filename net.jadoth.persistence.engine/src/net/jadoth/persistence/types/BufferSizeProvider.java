@@ -13,22 +13,24 @@ public interface BufferSizeProvider
 
 
 
-	public final class PageSize implements BufferSizeProvider, Stateless
+	public final class Default implements BufferSizeProvider, Stateless
 	{
 
 		@Override
 		public final long initialBufferSize()
 		{
-			return Memory.pageSize();
+			return Memory.defaultBufferSize();
 		}
 
 		@Override
 		public final long incrementalBufferSize()
 		{
-			return Memory.pageSize();
+			return Memory.defaultBufferSize();
 		}
 
 	}
+	
+	
 
 	public final class Simple implements BufferSizeProvider, Immutable
 	{

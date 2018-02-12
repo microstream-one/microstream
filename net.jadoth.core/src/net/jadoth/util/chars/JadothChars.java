@@ -143,7 +143,7 @@ public final class JadothChars
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-
+	
 	public static final int maxCharCount_byte()
 	{
 		return MAX_CHAR_COUNT_byte;
@@ -432,7 +432,7 @@ public final class JadothChars
 	public static final VarByte readAllBytesFromInputStream(final VarByte bytes, final InputStream inputStream)
 		throws IOException
 	{
-		final byte[] buffer = new byte[Memory.pageSize()];
+		final byte[] buffer = new byte[Memory.defaultBufferSize()];
 		for(int bytesRead = -1; (bytesRead = inputStream.read(buffer)) >= 0;)
 		{
 			bytes.append(buffer, 0, bytesRead);
@@ -442,13 +442,13 @@ public final class JadothChars
 
 	public static final VarByte readAllBytesFromInputStream(final InputStream inputStream) throws IOException
 	{
-		return readAllBytesFromInputStream(VarByte.New(Memory.pageSize()), inputStream);
+		return readAllBytesFromInputStream(VarByte.New(Memory.defaultBufferSize()), inputStream);
 	}
 
 	public static final String readStringFromInputStream(final InputStream inputStream, final Charset charset)
 		throws IOException
 	{
-		return readAllBytesFromInputStream(VarByte.New(Memory.pageSize()), inputStream).toString(charset);
+		return readAllBytesFromInputStream(VarByte.New(Memory.defaultBufferSize()), inputStream).toString(charset);
 	}
 
 	public static final int indexOf(final char[] data, final int dataLength, final char[] subject)

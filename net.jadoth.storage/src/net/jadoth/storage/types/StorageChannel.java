@@ -11,8 +11,10 @@ import java.util.function.Predicate;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Chunks;
+import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 import net.jadoth.util.KeyValue;
@@ -91,13 +93,14 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// instance fields  //
 		/////////////////////
 
-		private final int                               channelIndex          ;
-		private final StorageExceptionHandler           exceptionHandler      ;
-		private final StorageTaskBroker                 taskBroker            ;
-		private final StorageChannelController          channelController     ;
-		private final StorageHousekeepingController     housekeepingController;
-		private final StorageFileManager.Implementation fileManager           ;
-		private final StorageEntityCache.Implementation entityCache           ;
+		private final int                               channelIndex             ;
+		private final StorageExceptionHandler           exceptionHandler         ;
+		private final StorageTaskBroker                 taskBroker               ;
+		private final StorageChannelController          channelController        ;
+		private final StorageHousekeepingController     housekeepingController   ;
+		private final StorageFileManager.Implementation fileManager              ;
+		private final StorageEntityCache.Implementation entityCache              ;
+		private final BufferSizeProvider                loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -128,23 +131,25 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		/////////////////////
 
 		public Implementation(
-			final int                               hashIndex             ,
-			final StorageExceptionHandler   exceptionHandler      ,
-			final StorageTaskBroker                 taskBroker            ,
-			final StorageChannelController          controller            ,
-			final StorageHousekeepingController     housekeepingController,
-			final StorageEntityCache.Implementation entityCache           ,
+			final int                               hashIndex                ,
+			final StorageExceptionHandler           exceptionHandler         ,
+			final StorageTaskBroker                 taskBroker               ,
+			final StorageChannelController          controller               ,
+			final StorageHousekeepingController     housekeepingController   ,
+			final StorageEntityCache.Implementation entityCache              ,
+			final BufferSizeProvider                loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
 		{
 			super();
-			this.channelIndex           = notNegative(hashIndex)             ;
-			this.exceptionHandler       = notNull    (exceptionHandler)      ;
-			this.taskBroker             = notNull    (taskBroker)            ;
-			this.channelController      = notNull    (controller)            ;
-			this.fileManager            = notNull    (fileManager)           ;
-			this.entityCache            = notNull    (entityCache)           ;
-			this.housekeepingController = notNull    (housekeepingController);
+			this.channelIndex              = notNegative(hashIndex)                ;
+			this.exceptionHandler          = notNull    (exceptionHandler)         ;
+			this.taskBroker                = notNull    (taskBroker)               ;
+			this.channelController         = notNull    (controller)               ;
+			this.fileManager               = notNull    (fileManager)              ;
+			this.entityCache               = notNull    (entityCache)              ;
+			this.housekeepingController    = notNull    (housekeepingController)   ;
+			this.loadingBufferSizeProvider = notNull    (loadingBufferSizeProvider);
 		}
 
 
@@ -372,6 +377,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		{
 			return this.entityCache.typeDictionary();
 		}
+		
+		private ChunksBuffer createLoadingChunksBuffer()
+		{
+			return ChunksBuffer.New(this.loadingBufferSizeProvider);
+		}
 
 		@Override
 		public final Binary collectLoadByOids(final SwizzleIdSet loadOids)
@@ -381,7 +391,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			/* it is probably best to start (any maybe continue) with lots of small, memory-agile
 			 * byte buffers than to estimate one sufficiently huge bulky byte buffer.
 			 */
-			final ChunksBuffer chunks = ChunksBuffer.New();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
 			if(!loadOids.isEmpty())
 			{
 				// progress must have been incremented accordingly at task creation time
@@ -394,7 +404,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		public final Binary collectLoadRoots()
 		{
 			// pretty straight forward: cram all root instances the entity cache knows of into the buffer
-			final ChunksBuffer chunks = ChunksBuffer.New();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
 			this.entityCache.copyRoots(chunks);
 			return chunks.complete();
 		}
@@ -402,7 +412,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		@Override
 		public final Binary collectLoadByTids(final SwizzleIdSet loadTids)
 		{
-			final ChunksBuffer chunks = ChunksBuffer.New();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
 			if(!loadTids.isEmpty())
 			{
 				// progress must have been incremented accordingly at task creation time
@@ -676,9 +686,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final long                                  rootTypeId
 			)
 			{
-				// (14.07.2016 TM)TODO: make marking configuration dynamic
+				// (14.07.2016 TM)TODO: make configuration dynamic
 				final int  markBufferLength  = 10000;
 				final long markingWaitTimeMs =    10;
+				final int  loadingBufferSize =  Memory.defaultBufferSize();
+				final int  readingDefaultBufferSize =  Memory.defaultBufferSize();
 
 				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
 
@@ -688,6 +700,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 					markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);
 				}
 				final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
+				
+				final BufferSizeProvider loadingBufferSizeProvider        = new BufferSizeProvider.Simple(loadingBufferSize);
+				final BufferSizeProvider readingDefaultBufferSizeProvider = new BufferSizeProvider.Simple(readingDefaultBufferSize);
 
 				for(int i = 0; i < channels.length; i++)
 				{
@@ -708,15 +723,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 					// file manager to handle "file" IO (whatever "file" might be, might be a RDBMS binary table as well)
 					final StorageFileManager.Implementation fileManager = new StorageFileManager.Implementation(
-						i                              ,
-						initialDataFileNumberProvider  ,
-						timestampProvider              ,
-						storageFileProvider            ,
-						fileDissolver                  ,
-						entityCache                      ,
-						readerProvider.provideReader(i),
-						writerProvider.provideWriter(i),
-						writeListener
+						i                               ,
+						initialDataFileNumberProvider   ,
+						timestampProvider               ,
+						storageFileProvider             ,
+						fileDissolver                   ,
+						entityCache                     ,
+						readerProvider.provideReader(i) ,
+						writerProvider.provideWriter(i) ,
+						writeListener                   ,
+						readingDefaultBufferSizeProvider
 					);
 
 					// required to resolve the initializer cyclic depedency
@@ -724,12 +740,13 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 					// everything bundled together in a "channel".
 					channels[i] = new StorageChannel.Implementation(
-						i                     ,
-						exceptionHandler      ,
-						taskBroker            ,
-						channelController     ,
-						housekeepingController,
-						entityCache,
+						i                        ,
+						exceptionHandler         ,
+						taskBroker               ,
+						channelController        ,
+						housekeepingController   ,
+						entityCache              ,
+						loadingBufferSizeProvider,
 						fileManager
 					);
 

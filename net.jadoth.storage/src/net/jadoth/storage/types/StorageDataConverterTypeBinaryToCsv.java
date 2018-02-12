@@ -234,7 +234,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			return Math.max(
 				(writeBufferSize & ~3) == writeBufferSize ? writeBufferSize : (writeBufferSize & ~3) + 4,
-				Memory.pageSize()
+				Memory.defaultBufferSize()
 			);
 		}
 
@@ -293,11 +293,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.listStarter             = toSingleByte(configuration.literalListStarter()   );
 			this.listTerminator          = toSingleByte(configuration.literalListTerminator());
 			this.listSeparator           = toSingleByte(configuration.literalListSeparator() );
-			this.literalByteLengthTrue   = this.literalTrue.length                          ;
-			this.literalByteLengthFalse  = this.literalFalse.length                         ;
+			this.literalByteLengthTrue   = this.literalTrue.length                            ;
+			this.literalByteLengthFalse  = this.literalFalse.length                           ;
 
-			this.readBufferSize          = Math.max(readBufferSize, Memory.pageSize())        ;
-			this.readBufferNormal        = ByteBuffer.allocateDirect(this.readBufferSize)     ;
+			this.readBufferSize          = Math.max(readBufferSize, Memory.defaultBufferSize());
+			this.readBufferNormal        = ByteBuffer.allocateDirect(this.readBufferSize)      ;
 			this.readBufferLarge         = ByteBuffer.allocateDirect(0); // don't squander memory if normal size is already huge
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
