@@ -687,9 +687,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			)
 			{
 				// (14.07.2016 TM)TODO: make configuration dynamic
-				final int  markBufferLength  = 10000;
-				final long markingWaitTimeMs =    10;
-				final int  loadingBufferSize =  Memory.defaultBufferSize();
+				final int  markBufferLength         = 10000;
+				final long markingWaitTimeMs        =    10;
+				final int  loadingBufferSize        =  Memory.defaultBufferSize();
 				final int  readingDefaultBufferSize =  Memory.defaultBufferSize();
 
 				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
