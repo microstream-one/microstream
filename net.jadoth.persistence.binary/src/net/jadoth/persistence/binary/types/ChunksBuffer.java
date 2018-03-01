@@ -25,11 +25,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksBuffer New()
-	{
-		return new ChunksBuffer(new BufferSizeProvider.Default());
-	}
-
 	public static final ChunksBuffer New(final BufferSizeProvider bufferSizeProvider)
 	{
 		return new ChunksBuffer(bufferSizeProvider);
