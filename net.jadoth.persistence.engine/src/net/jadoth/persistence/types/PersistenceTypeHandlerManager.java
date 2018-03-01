@@ -60,7 +60,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 
 
-	public static <M> PersistenceTypeHandlerManager<M> New(
+	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
 		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
 		final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
