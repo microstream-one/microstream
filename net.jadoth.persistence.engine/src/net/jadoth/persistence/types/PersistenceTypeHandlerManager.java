@@ -68,8 +68,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	@Override
 	public <T> Class<T> ensureType(long typeId);
 
-	
-	
+
+
 	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
 		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
 		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
