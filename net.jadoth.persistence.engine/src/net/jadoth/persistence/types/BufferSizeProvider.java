@@ -13,7 +13,7 @@ public interface BufferSizeProvider
 
 
 
-	public final class PageSize implements BufferSizeProvider, Stateless
+	public final class Default implements BufferSizeProvider, Stateless
 	{
 
 		@Override

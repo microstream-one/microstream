@@ -57,7 +57,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerStatele
 	public Class<?> create(final Binary bytes)
 	{
 		/*
-		 * Classes get registered before instance data ist processed,
+		 * Classes get registered before instance data is processed,
 		 * hence it is enough to lookup the class by its oid, which is this class instance's tid.
 		 * Note:
 		 * Can't just store the class name and resolve it via reflection, because obsolete types

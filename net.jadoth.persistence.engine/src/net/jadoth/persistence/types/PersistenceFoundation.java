@@ -1137,7 +1137,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected BufferSizeProvider createBufferSizeProvider()
 		{
-			return new BufferSizeProvider.PageSize();
+			return new BufferSizeProvider.Default();
 		}
 
 		protected PersistenceFieldEvaluator createFieldEvaluator()
