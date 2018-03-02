@@ -169,10 +169,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.typeDictionary                  = typeDictionary                                                 ;
 			this.fileProvider                    = fileProvider                                                   ;
 			// the * 2 is important for simplifying the flush check
-			this.bufferSize                      = Math.max(bufferSize, 2 * Memory.pageSize())                    ;
+			this.bufferSize                      = Math.max(bufferSize, 2 * Memory.defaultBufferSize())           ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
 			this.byteBufferStartAddress          = Memory.directByteBufferAddress(this.byteBuffer)                ;
-			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + Memory.pageSize()                ;
+			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + Memory.defaultBufferSize()       ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
 			this.literalTrue                     = configuration.literalBooleanTrue().toCharArray()               ;

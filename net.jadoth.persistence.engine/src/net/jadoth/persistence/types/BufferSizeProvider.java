@@ -19,16 +19,18 @@ public interface BufferSizeProvider
 		@Override
 		public final long initialBufferSize()
 		{
-			return Memory.pageSize();
+			return Memory.defaultBufferSize();
 		}
 
 		@Override
 		public final long incrementalBufferSize()
 		{
-			return Memory.pageSize();
+			return Memory.defaultBufferSize();
 		}
 
 	}
+	
+	
 
 	public final class Simple implements BufferSizeProvider, Immutable
 	{

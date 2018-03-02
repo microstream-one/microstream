@@ -15,12 +15,14 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
+import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.memory.Memory;
 import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
@@ -187,9 +189,7 @@ public interface StorageFileManager
 
 		private StorageLockedChannelFile fileTransactions;
 
-		// sufficient to load any non-huge (large length array) entity with high efficiency
-		// (14.06.2014)TODO: make standard buffer size configurable nevertheless.
-		private final ByteBuffer standardByteBuffer = ByteBuffer.allocateDirect(Memory.pageSize());
+		private final ByteBuffer standardByteBuffer;
 
 		private StorageDataFile.Implementation fileCleanupCursor, headFile;
 
@@ -216,7 +216,8 @@ public interface StorageFileManager
 			final StorageEntityCache.Implementation    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
-			final StorageWriteListener                 writeListener
+			final StorageWriteListener                 writeListener                ,
+			final BufferSizeProvider                   standardBufferSizeProvider
 		)
 		{
 			super();
@@ -229,6 +230,15 @@ public interface StorageFileManager
 			this.reader                        =     notNull(reader)                       ;
 			this.writer                        =     notNull(writer)                       ;
 			this.writeListener                 =     notNull(writeListener)                ;
+			
+			/*
+			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
+			 * There is absolutely no reason whatsoever to not unnecessary shackle and borderline-ruin the JDK
+			 * tools for working with memory. Right?
+			 */
+			this.standardByteBuffer            = ByteBuffer.allocateDirect(
+				Jadoth.to_int(standardBufferSizeProvider.initialBufferSize())
+			);
 		}
 
 

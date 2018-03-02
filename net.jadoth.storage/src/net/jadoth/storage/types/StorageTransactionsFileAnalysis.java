@@ -130,33 +130,33 @@ public interface StorageTransactionsFileAnalysis
 			return LENGTH_FILE_DELETION;
 		}
 
-		static void initializeEntry(final long address, final byte length, final byte type)
+		public static void initializeEntry(final long address, final byte length, final byte type)
 		{
 			Memory.set_byte(address + OFFSET_COMMON_LENGTH, length);
 			Memory.set_byte(address + OFFSET_COMMON_TYPE  , type  );
 		}
 
-		static void initializeEntryFileCreation(final long address)
+		public static void initializeEntryFileCreation(final long address)
 		{
 			initializeEntry(address, entryLengthFileCreation(), TYPE_FILE_CREATION);
 		}
 
-		static void initializeEntryStore(final long address)
+		public static void initializeEntryStore(final long address)
 		{
 			initializeEntry(address, entryLengthStore(), TYPE_STORE);
 		}
 
-		static void initializeEntryTransfer(final long address)
+		public static void initializeEntryTransfer(final long address)
 		{
 			initializeEntry(address, entryLengthTransfer(), TYPE_TRANSFER);
 		}
 
-		static void initializeEntryFileDeletion(final long address)
+		public static void initializeEntryFileDeletion(final long address)
 		{
 			initializeEntry(address, entryLengthFileDeletion(), TYPE_FILE_DELETION);
 		}
 
-		static void initializeEntryFileTruncation(final long address)
+		public static void initializeEntryFileTruncation(final long address)
 		{
 			initializeEntry(address, entryLengthFileTruncation(), TYPE_FILE_TRUNCATION);
 		}
@@ -282,7 +282,7 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(Memory.pageSize());
+			final ByteBuffer buffer  = ByteBuffer.allocateDirect(Memory.defaultBufferSize());
 			final long       address = Memory.directByteBufferAddress(buffer);
 
 			// process whole file part by part
@@ -788,7 +788,7 @@ public interface StorageTransactionsFileAnalysis
 				);
 			}
 
-			/* lastConsistentStoreTimestamp ist not updated to associate the new file length with the old timestamp
+			/* lastConsistentStoreTimestamp is not updated to associate the new file length with the old timestamp
 			 * i.e. when a inter-channel rollback has to occur, the transfer part is not rolled back, as it is
 			 * channel-local
 			 */

@@ -56,8 +56,6 @@ public final class Memory
 	private static final int MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1;
 	private static final int MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO   ;
 
-	private static final int  PAGE_SIZE = VM.pageSize();
-
 	// constant names documentating that a value shall be shifted by n bits. Also to get CheckStyle off my back.
 	private static final int BITS1 = 1;
 	private static final int BITS2 = 2;
@@ -707,15 +705,30 @@ public final class Memory
 		putLong(bytes, 0, value);
 		return bytes;
 	}
-
+	
+	/**
+	 * Arbitrary value that coincidently matches most hardware's page sizes
+	 * without being hard-tied to Unsafe#pageSize.
+	 * So this value is an educated guess and most of the time (almost always)
+	 * a "good" value when paged-sized-ish buffer sizes are needed, while still
+	 * not being at the mercy of an OS's JVM implementation.
+	 * 
+	 * @return a "good" value for a paged-sized-ish default buffer size.
+	 */
+	public static int defaultBufferSize()
+	{
+		return 4096;
+	}
+	
+	/**
+	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
+	 * Use with care (and the dependency to a system value in mind!).
+	 * 
+	 * @return the system's memory "page size".
+	 */
 	public static int pageSize()
 	{
-		return PAGE_SIZE;
-	}
-
-	public static byte[] pageSizeBuffer()
-	{
-		return new byte[pageSize()];
+		return VM.pageSize();
 	}
 
 	public static void putShort(final byte[] bytes, final int index, final short value)
@@ -1161,6 +1174,11 @@ public final class Memory
 	public static final long reallocate(final long address, final long bytes)
 	{
 		return VM.reallocateMemory(address, bytes);
+	}
+
+	public static final void setMemory(final long address, final long length, final byte value)
+	{
+		VM.setMemory(address, length, value);
 	}
 
 	public static final void free(final long address)

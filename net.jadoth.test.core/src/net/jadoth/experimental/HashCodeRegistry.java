@@ -209,7 +209,7 @@ public final class HashCodeRegistry<E>
 			// case: not registered yet, append new entry to current last
 			last.next = new Entry<>(element, hashCode);
 			this.incrementSize(); // incrementSize must stand AFTER new entry creation
-			// (26.12.2010)FIXME: dann ist aber eins zu viel drin
+			// (26.12.2010)FIXME: but then there's one too many.
 			return hashCode;
 		}
 	}

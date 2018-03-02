@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
@@ -52,16 +53,22 @@ public final class JadothConsole
 	public static final void debugln(final String s, final int stackTraceCut)
 	{
 		// index 1 is always safely this method call itself, index 2 is always safely the calling context
-		final String e = JadothThreads.getStackTraceElement(2 + stackTraceCut).toString();
+		final StackTraceElement e = JadothThreads.getStackTraceElement(2 + stackTraceCut);
 
-		// every StackTraceElement string is guaranteed to be in the pattern [class].[method]([class].java:[line])
 		System.out.println(
 			VarString.New(LINE_BUFFER_INITIAL_SIZE)
-			.padRight(e.substring(e.lastIndexOf('.', e.lastIndexOf('.') - 1)), SOURCE_POSITION_PADDING, ' ')
+			.padRight(toMethodLink(e), SOURCE_POSITION_PADDING, ' ')
 			.add(formatTimestamp(now()))
 			.add(TIME_SEPERATOR)
 			.add(s))
 		;
+	}
+	
+	private static String toMethodLink(final StackTraceElement e)
+	{
+		// every StackTraceElement string is guaranteed to be in the pattern [class].[method]([class].java:[line])
+		final String s = e.toString();
+		return s.substring(s.lastIndexOf('.', s.lastIndexOf('.') - 1));
 	}
 
 	public static final void printlnElapsedNanos(final long elapsedTime)
@@ -219,11 +226,11 @@ public final class JadothConsole
 	}
 
 	public static final void printArray(
-		final Object[] array,
-		final String start,
-		final String separator,
-		final String end,
-		final Integer limit
+		final Object[] array    ,
+		final String   start    ,
+		final String   separator,
+		final String   end      ,
+		final Integer  limit
 	)
 	{
 		final char[] sepp = separator != null ? separator.toCharArray() : null;
@@ -253,6 +260,157 @@ public final class JadothConsole
 
 		System.out.println(vc.toString());
 		System.out.flush();
+	}
+	
+	public static <T> T printTime(final Supplier<? extends T> logic)
+	{
+		return internalPrintTime(logic, null, 1, 0, 0);
+	}
+	
+	public static <T> T printTime(final Supplier<? extends T> logic, final String name)
+	{
+		return internalPrintTime(logic, name, 1, 0, 0);
+	}
+	
+	public static <T> T printTime(
+		final Supplier<? extends T> logic          ,
+		final int                   stackTraceDepth
+	)
+	{
+		return internalPrintTime(logic, null,  1, 2, stackTraceDepth);
+	}
+	
+	public static <T> T printTime(
+		final Supplier<? extends T> logic               ,
+		final int                   stackTraceDepthStart,
+		final int                   stackTraceDepth
+	)
+	{
+		return internalPrintTime(logic, null, 1, stackTraceDepthStart + 1, stackTraceDepth);
+	}
+	
+	public static <T> T printTime(
+		final Supplier<? extends T> logic          ,
+		final String                name           ,
+		final int                   stackTraceDepth
+	)
+	{
+		return internalPrintTime(logic, name,  1, 2, stackTraceDepth);
+	}
+	
+	public static <T> T printTime(
+		final Supplier<? extends T> logic               ,
+		final String                name                ,
+		final int                   stackTraceDepthStart,
+		final int                   stackTraceDepth
+	)
+	{
+		return internalPrintTime(logic, name,  1, stackTraceDepthStart + 1, stackTraceDepth);
+	}
+	
+	public static <T> T internalPrintTime(
+		final Supplier<? extends T> logic               ,
+		final String                name                ,
+		final int                   stackTraceCallLevel ,
+		final int                   stackTraceDepthStart,
+		final int                   stackTraceDepth
+	)
+	{
+		final long tStart = System.nanoTime();
+		final T result = logic.get();
+		final long tStop = System.nanoTime();
+		
+		simplePrint(name, stackTraceCallLevel + 1, stackTraceDepthStart + 1, stackTraceDepth, tStart, tStop);
+		
+		return result;
+	}
+	
+	public static void printTime(final Runnable logic)
+	{
+		internalPrintTime(logic, null, 1, 0, 0);
+	}
+	
+	public static void printTime(final Runnable logic, final String name)
+	{
+		internalPrintTime(logic, name, 1, 0, 0);
+	}
+	
+	public static void printTime(final Runnable logic, final int stackTraceDepth)
+	{
+		internalPrintTime(logic, null,  1, 2, stackTraceDepth);
+	}
+	
+	public static void printTime(final Runnable logic, final int stackTraceDepthStart, final int stackTraceDepth)
+	{
+		internalPrintTime(logic, null, 1, stackTraceDepthStart + 1, stackTraceDepth);
+	}
+	
+	public static void printTime(
+		final Runnable logic          ,
+		final String   name           ,
+		final int      stackTraceDepth
+	)
+	{
+		internalPrintTime(logic, name, 1, 2, stackTraceDepth);
+	}
+	
+	public static void printTime(
+		final Runnable logic               ,
+		final String   name                ,
+		final int      stackTraceDepthStart,
+		final int      stackTraceDepth
+	)
+	{
+		internalPrintTime(logic, name, 1, stackTraceDepthStart + 1, stackTraceDepth);
+	}
+	
+	private static void internalPrintTime(
+		final Runnable logic               ,
+		final String   name                ,
+		final int      stackTraceCallLevel ,
+		final int      stackTraceDepthStart,
+		final int      stackTraceDepth
+	)
+	{
+		final long tStart = System.nanoTime();
+		logic.run();
+		final long tStop = System.nanoTime();
+		
+		simplePrint(name, stackTraceCallLevel + 1, stackTraceDepthStart + 1, stackTraceDepth, tStart, tStop);
+	}
+	
+	private static void simplePrint(
+		final String name                ,
+		final int    stackTraceCallLevel ,
+		final int    stackTraceDepthStart,
+		final int    stackTraceDepth     ,
+		final long   tStart              ,
+		final long   tStop
+	)
+	{
+		final StackTraceElement[] stacktrace       = new Throwable().getStackTrace();
+		final StackTraceElement   callLevelElement = stacktrace[stackTraceCallLevel + 1];
+		
+		final VarString vs = VarString.New(toMethodLink(callLevelElement)).blank();
+		vs.add(new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)).add(" nanoseconds");
+		if(name != null)
+		{
+			vs.add(" for ").add(name);
+		}
+		
+		// empty stack trace output intentionally not suppressed to indicate faulty stack trace bounds.
+		if(stackTraceDepth > 0/* && stackTraceDepthStart + 1 < stacktrace.length*/)
+		{
+			vs.lf().add("Stacktrace: ");
+			final int stackTraceLimit = Math.min(stackTraceDepthStart + stackTraceDepth + 1, stacktrace.length);
+			for(int i = stackTraceDepthStart + 1; i < stackTraceLimit; i++)
+			{
+				vs.lf().add(toMethodLink(stacktrace[i]));
+			}
+			vs.lf().add("/ Stacktrace");
+		}
+		
+		System.out.println(vs);
 	}
 
 

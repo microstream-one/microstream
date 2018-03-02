@@ -13,7 +13,7 @@ import net.jadoth.util.file.JadothFiles;
 
 public class MainTestRTF
 {
-	static final String INVALIDATOR       = "§§";
+	static final String INVALIDATOR       = "$$";
 	static final String INVALIDATOR_REGEX = INVALIDATOR;
 	
 	public static void main(final String[] args) throws Exception
@@ -52,13 +52,13 @@ public class MainTestRTF
 		final File target = new File(dir.getParent(), dir.getName()+"_merged_rtf.txt");
 		String s = vs.toString();
 		
-		// lol-cr raus
+		// remove lol-cr
 		s = s.replaceAll("\\r","");
 		
-		// markierten metatext rauswerfen
+		// remove marked meta text
 		s = Pattern.compile(INVALIDATOR_REGEX+".*?"+INVALIDATOR_REGEX, Pattern.DOTALL).matcher(s).replaceAll("");
 		
-		// leerzeilen kürzen und alles über einer leerzeile rauswerfen
+		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
 		JadothFiles.writeStringToFile(target, s);

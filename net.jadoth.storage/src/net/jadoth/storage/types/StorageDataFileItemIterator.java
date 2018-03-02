@@ -37,7 +37,7 @@ public interface StorageDataFileItemIterator
 		public default ByteBuffer provideInitialBuffer()
 		{
 			// page-sized direct byte buffer as default
-			return ByteBuffer.allocateDirect(Memory.pageSize());
+			return ByteBuffer.allocateDirect(Memory.defaultBufferSize());
 		}
 
 		/**
@@ -70,7 +70,7 @@ public interface StorageDataFileItemIterator
 			/* anything below page size is unreasonable and slows down initialization significantly.
 			 * Also, this capping passively / automatically defends against nonsense values (<= header length).
 			 */
-			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, Memory.pageSize()));
+			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, Memory.defaultBufferSize()));
 		}
 
 		/**

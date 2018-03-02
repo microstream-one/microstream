@@ -147,26 +147,4 @@ public class MainTestExampleGraphTraversal
 
 	}
 
-	static void customObjectGraphTraverser(final Object root)
-	{
-//		final ObjectGraphTraverser traverser = ObjectGraphTraverser.Factory()
-//			.setHandlingLogic                 (null      ) // callback, der auf eine Instanz angewendet werden soll. Z.B. System.out::println oder was auch immer
-//			.setHandlingLogicProvider         (null      ) // Indirektion anstatt dem oben, um je Typ eine andere Logik auszuw�hlen oder state zu resetten oder so.
-//
-//			.leafTypes                        (null, null) // "Leaves" werden zwar von der Logik gehandelt, aber ihre Referenzen werden nicht mehr durchlaufen.
-//			.nodeTypes                   (null, null) // Umgekehrter Fall: Zwar Referenzen weiterverfolgen, aber Instanzen an sich nicht handeln (reiner "Node")
-//			.excludeTypes                     (null, null) // Kombination aus beidem: weder handeln noch Referenzen verfolgen, d.h. effektiv ausschlie�en
-//
-//			.setTraversalHandlerProvider      (null)       // F�r custom Logik zum Rerenzen traversieren, �hnlich wie f�r Handling-Logik.
-//
-//			.setTraversableFieldSelector      (null)       // Zu traversierende Referenzen einfach nach Feld ausw�hlen
-//
-//			.skipAll                          (null, null) // Konkrete Instanzen ignorieren
-//
-//			.buildObjectGraphTraverser()
-//		;
-//
-//		traverser.traverse(root);
-	}
-
 }

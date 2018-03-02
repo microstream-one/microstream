@@ -146,9 +146,9 @@ public final class Year20XX extends Number implements ValueType
 		return this.value > other.value;
 	}
 
-	public boolean isSame(final Year20XX other) // für Konsistenz mit isBefore() und isAfter()
+	public boolean isSame(final Year20XX other)
 	{
-		return this.value == other.value; // durch cache müsste ref-Vergleich auch reichen, aber sicher ist sicher.
+		return this.value == other.value;
 	}
 
 
@@ -160,7 +160,7 @@ public final class Year20XX extends Number implements ValueType
 	@Override
 	public boolean equals(final Object obj)
 	{
-		// true ValueType (value as primary identity, immutable), thus equals() und hashCode() applicable
+		// true ValueType (value as primary identity, immutable), thus equals() and hashCode() applicable
 		if(obj == this)
 		{
 			return true;
@@ -179,7 +179,7 @@ public final class Year20XX extends Number implements ValueType
 	@Override
 	public int hashCode()
 	{
-		// true ValueType (value as primary identity, immutable), thus equals() und hashCode() applicable
+		// true ValueType (value as primary identity, immutable), thus equals() and hashCode() applicable
 		return this.value;
 	}
 

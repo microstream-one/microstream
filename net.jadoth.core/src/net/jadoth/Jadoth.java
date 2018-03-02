@@ -30,6 +30,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.DownwrapList;
@@ -194,6 +195,21 @@ public final class Jadoth
 		}
 		return object;
 	}
+	
+	/**
+	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
+	 * The use is small, but still there:<br>
+	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
+	 *   instead of missing method calls and comments (like "may be null" or "optional").
+	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
+	 * 
+	 * @param object the passed reference.
+	 * @return the passed reference without doing ANYTHING else.
+	 */
+	public static final <T> T mayNull(final T object)
+	{
+		return object;
+	}
 
 	public static final <S extends Sized> S notEmpty(final S sized)
 	{
@@ -235,6 +251,11 @@ public final class Jadoth
 	public static <K, V> KeyValue<K, V> keyValue(final K key, final V value)
 	{
 		return new KeyValue.Implementation<>(key, value);
+	}
+	
+	public static <T, K, V> KeyValue<K, V> toKeyValue(final T instance, final Function<? super T, KeyValue<K, V>> mapper)
+	{
+		return mapper.apply(instance);
 	}
 
 	public static _longKeyValue _longKeyValue(final long key, final long value)
@@ -712,6 +733,20 @@ public final class Jadoth
 			array[i] = supplier.get();
 		}
 
+		return array;
+	}
+	
+	@SafeVarargs
+	public static <E> E[] Array(final int length, final Class<E> componentType, final E... initialElements)
+	{
+		@SuppressWarnings("unchecked")
+		final E[] array = (E[])Array.newInstance(componentType, length);
+		
+		if(initialElements != null)
+		{
+			System.arraycopy(initialElements, 0, array, 0, initialElements.length);
+		}
+		
 		return array;
 	}
 

@@ -97,6 +97,7 @@ public final class JadothThreads
 			return null;
 		}
 	}
+	
 	private static final Integer ONE = 1;
 	public static final StackTraceElement getStackTraceElement()
 	{
@@ -110,6 +111,7 @@ public final class JadothThreads
 			return new Throwable().getStackTrace()[1];
 		}
 	}
+	
 	public static final StackTraceElement getStackTraceElement(final Integer index)
 	{
 		try
@@ -126,6 +128,42 @@ public final class JadothThreads
 			// do it the slow way
 			return new Throwable().getStackTrace()[index]; // NPE intentional
 		}
+	}
+	
+	public static StackTraceElement getStackTraceElementForDeclaringClass(final Class<?> declaringClass)
+	{
+		return getStackTraceElementForDeclaringClassName(declaringClass.getName());
+	}
+	
+	public static StackTraceElement getStackTraceElementForDeclaringClassName(final String declaringClassName)
+	{
+		for(final StackTraceElement e : new Throwable().getStackTrace())
+		{
+			if(e.getClassName().equals(declaringClassName))
+			{
+				return e;
+			}
+		}
+		
+		return null;
+	}
+	
+	public static String getMethodNameForDeclaringClass(final Class<?> declaringClass)
+	{
+		return getMethodNameForDeclaringClassName(declaringClass.getName());
+	}
+	
+	public static String getMethodNameForDeclaringClassName(final String declaringClassName)
+	{
+		for(final StackTraceElement e : new Throwable().getStackTrace())
+		{
+			if(e.getClassName().equals(declaringClassName))
+			{
+				return e.getMethodName();
+			}
+		}
+		
+		return null;
 	}
 
 	public static String getCurrentMethodName()

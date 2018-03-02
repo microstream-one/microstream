@@ -2363,47 +2363,7 @@ public final class JadothSort
 		return(double)uniformity * 2 / (length * (length + 1));
 	}
 
-
-	/**
-	 * Sorting order evaluation helper method for source code simplification where performance is not a (big) concern.
-	 * <p>
-	 * Each value in the passed array represents a single comparison value (like returned by {@link Comparator}).
-	 * The lower the index, the higher the sorting priority.
-	 * <p>
-	 * Example:
-	 * <pre>
-	 * return JadothSort.evaluateComparisons(
-	 *     entity1.valueA().compareTo(entity2.valueA()),
-	 *     entity1.valueB().compareTo(entity2.valueB()),
-	 *     entity1.valueC().compareTo(entity2.valueC())
-	 * );
-	 * </pre>
-	 * This can be compared to the SQL construct "ORDER BY valueA, valueB, valueC"
-	 * <p>
-	 * Note that with this approach, every value comparison computed is computed on every call and an additional
-	 * int array is allocated, while a subsequent comparison of values aborts as soon as a non-zero value is encountered
-	 * and does not allocate an additional array. Therefore this method is only viable to simplify source code if
-	 * performance is no big concern (e.g. not many elements to sort, not many values to compare, fast value comparisons)
-	 *
-	 * @param comparisons the array containing the partial comparisons.
-	 * @return the first encountered non-zero value while iterating the array starting upwards from index 0.
-	 */
-	public static final int evaluateComparisons(final int... comparisons)
-	{
-		if(comparisons != null)
-		{
-			for(final int i : comparisons)
-			{
-				if(i != 0)
-				{
-					return i;
-				}
-			}
-		}
-		return 0;
-	}
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// Debugging Statistics //
