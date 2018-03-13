@@ -1717,7 +1717,7 @@ public final class BinaryPersistence extends Persistence
 		final int                      length
 	)
 	{
-		if(BinaryPersistence.getListElementCount(bytes) < length)
+		if(BinaryPersistence.getListElementCount(bytes, binaryOffset) < length)
 		{
 			throw new BinaryPersistenceExceptionStateArrayLength(
 				array,
