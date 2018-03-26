@@ -11,7 +11,6 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.memory.Memory;
 import net.jadoth.meta.JadothConsole;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
@@ -137,12 +136,12 @@ public abstract class AbstractConfig implements Config
 		}
 
 		// strictly read-only, so accessing the string instance's storage array is safe
-		final char[]           chars              = Memory.accessChars(rawValue);
-		final int              length             = chars.length                ;
-		final char             variableStarter    = this.variableStarter        ;
-		final char             variableTerminator = this.variableTerminator     ;
-		final String           stringStrt         = this.stringStarter          ;
-		final String           stringTerm         = this.stringTerminator       ;
+		final char[]           chars              = rawValue.toCharArray() ;
+		final int              length             = chars.length           ;
+		final char             variableStarter    = this.variableStarter   ;
+		final char             variableTerminator = this.variableTerminator;
+		final String           stringStrt         = this.stringStarter     ;
+		final String           stringTerm         = this.stringTerminator  ;
 
 		// lazily initialized to make the normal case (no variable at all) as efficient as possible
 		BulkList<String> elements = null;
