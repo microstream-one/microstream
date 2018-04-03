@@ -188,12 +188,12 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	{
 		final PersistenceRootResolver resolver = this.resolver;
 
-		// for what it's worth, lock the resolver in case it's used concurrently (which really shouldn't be done)
+		// the resolver is locked, just in case it's used concurrently.
 		synchronized(resolver)
 		{
 			for(int i = 0; i < identifiers.length; i++)
 			{
-				instances[i] = resolver.apply(identifiers[i]);
+				instances[i] = resolver.resolveRootInstance(identifiers[i]);
 			}
 		}
 	}

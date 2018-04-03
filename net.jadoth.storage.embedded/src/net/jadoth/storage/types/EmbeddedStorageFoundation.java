@@ -95,7 +95,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		protected PersistenceRootResolver createRootResolver()
 		{
-			return PersistenceRootResolver.DEFAULT_RESOLVER;
+			return PersistenceRootResolver.New();
 		}
 
 		protected BinaryPersistenceRootsProvider createRootsProvider()
@@ -187,7 +187,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 						continue;
 					}
 					this.registerRootInstance(
-						rootResolver.toIdentifier(field),
+						rootResolver.deriveIdentifier(field),
 						Memory.getStaticReference(field)
 					);
 				}
@@ -365,7 +365,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			/* if the resolver knows any explicit roots, register them right away.
 			 * Not absolutely mandatory but saves redundant code in use sites (application root logic)
 			 */
-			this.getRootResolver().iterateKnownEntries(e ->
+			this.getRootResolver().iterateEntries(e ->
 				this.registerRootInstance(e.key(), e.value())
 			);
 		}

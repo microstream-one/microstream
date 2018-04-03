@@ -222,12 +222,12 @@ public final class Storage
 
 	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
 	{
-		return new PersistenceRootResolver.SingleOverride(rootIdentifier, rootInstance);
+		return PersistenceRootResolver.New(rootIdentifier, rootInstance);
 	}
 
 	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
 	{
-		return new PersistenceRootResolver.SingleOverride("root", rootInstance);
+		return PersistenceRootResolver.New("root", rootInstance);
 	}
 
 	/**
