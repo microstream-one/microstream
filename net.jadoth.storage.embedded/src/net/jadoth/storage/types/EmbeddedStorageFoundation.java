@@ -419,7 +419,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			this.registerRootSystemConstants();
 
 			// register special case type handler for roots instance
-			prp.registerTypeHandlerCreator(
+			prp.registerRootsTypeHandlerCreator(
 				ecf.getCustomTypeHandlerRegistry(),
 				ecf.getSwizzleRegistry(),
 				this.getRootResolver()

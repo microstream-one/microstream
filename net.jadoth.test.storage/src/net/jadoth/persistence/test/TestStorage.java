@@ -91,7 +91,7 @@ public class TestStorage extends TestComponentProvider
 
 	static final PersistenceRootResolver createTestRootResolver(final String rootIdentifier, final Object rootInstance)
 	{
-		return new PersistenceRootResolver.SingleOverride(rootIdentifier, rootInstance);
+		return PersistenceRootResolver.New(rootIdentifier, rootInstance);
 	}
 
 	protected static File convertBinToCsv(final File... binaryFiles)

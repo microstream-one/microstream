@@ -26,7 +26,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		}
 
 		@Override
-		public final void registerTypeHandlerCreator(
+		public final void registerRootsTypeHandlerCreator(
 			final PersistenceCustomTypeHandlerRegistry<Binary> typeHandlerRegistry,
 			final SwizzleRegistry                              objectRegistry     ,
 			final PersistenceRootResolver                      rootResolver

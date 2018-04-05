@@ -13,7 +13,7 @@ public interface PersistenceRootsProvider<M>
 	 *
 	 * @param registry
 	 */
-	public void registerTypeHandlerCreator(
+	public void registerRootsTypeHandlerCreator(
 		PersistenceCustomTypeHandlerRegistry<M> typeHandlerRegistry,
 		SwizzleRegistry                         objectRegistry     ,
 		PersistenceRootResolver                 rootResolver
