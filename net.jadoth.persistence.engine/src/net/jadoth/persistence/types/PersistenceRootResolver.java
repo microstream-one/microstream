@@ -32,7 +32,12 @@ public interface PersistenceRootResolver
 
 	public default String deriveIdentifier(final Field field)
 	{
-		return field.getDeclaringClass().getName() + fieldIdentifierDelimiter() + field.getName();
+		return buildFieldIdentifier(field.getDeclaringClass().getName(), field.getName());
+	}
+	
+	public static String buildFieldIdentifier(final String className, final String fieldName)
+	{
+		return className + fieldIdentifierDelimiter() + fieldName;
 	}
 
 	/**
@@ -180,7 +185,7 @@ public interface PersistenceRootResolver
 	public static PersistenceRootResolver New(final String identifier, final Object instance)
 	{
 		// hardcoded table implementation to ensure value-equality.
-		return new Overriding(
+		return new Implementation(
 			EqConstHashTable.New(
 				keyValue(identifier, instance)
 			),
@@ -188,12 +193,39 @@ public interface PersistenceRootResolver
 		);
 	}
 	
-	public static PersistenceRootResolver New(final XGettingMap<String, ?> identifierOverrides)
+	public static PersistenceRootResolver New(final XGettingMap<String, ?> identifierMapping)
 	{
 		// hardcoded table implementation to ensure value-equality.
-		return new Overriding(
-			EqConstHashTable.New(identifierOverrides),
+		return new Implementation(
+			EqConstHashTable.New(identifierMapping),
 			X.emptyTable()
+		);
+	}
+	
+	public static PersistenceRootResolver New(
+		final String                      identifier         ,
+		final Object                      instance           ,
+		final XGettingMap<String, String> refactoringMappings
+	)
+	{
+		// hardcoded table implementation to ensure value-equality.
+		return new Implementation(
+			EqConstHashTable.New(
+				keyValue(identifier, instance)
+			),
+			X.emptyTable()
+		);
+	}
+	
+	public static PersistenceRootResolver New(
+		final XGettingMap<String, ?>      identifierMappings ,
+		final XGettingMap<String, String> refactoringMappings
+	)
+	{
+		// hardcoded table implementation to ensure value-equality.
+		return new Implementation(
+			EqConstHashTable.New(identifierMappings) ,
+			EqConstHashTable.New(refactoringMappings)
 		);
 	}
 	
@@ -207,14 +239,14 @@ public interface PersistenceRootResolver
 		 */
 	}
 	
-	public final class Overriding implements PersistenceRootResolver
+	public final class Implementation implements PersistenceRootResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final XImmutableTable<String, ?>      identifierOverrides;
-		final XImmutableTable<String, String> identifierMappings ;
+		final XImmutableTable<String, ?>      identifierMappings ;
+		final XImmutableTable<String, String> refactoringMappings;
 
 
 
@@ -222,14 +254,14 @@ public interface PersistenceRootResolver
 		// constructors //
 		/////////////////
 
-		Overriding(
-			final XImmutableTable<String, ?>      identifierOverrides,
-			final XImmutableTable<String, String> identifierMappings
+		Implementation(
+			final XImmutableTable<String, ?>      identifierMappings ,
+			final XImmutableTable<String, String> refactoringMappings
 		)
 		{
 			super();
-			this.identifierOverrides = identifierOverrides;
 			this.identifierMappings  = identifierMappings ;
+			this.refactoringMappings = refactoringMappings;
 		}
 
 
@@ -237,52 +269,83 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
 		/////////////////////
+		
+		final Result tryResolveRootInstance(final String originalIdentifier, final String effectiveIdentifier)
+			throws ClassNotFoundException, NoSuchFieldException
+		{
+			final Object overrideInstance = this.identifierMappings.get(effectiveIdentifier);
+			if(overrideInstance != null)
+			{
+				return PersistenceRootResolver.createResult(overrideInstance, effectiveIdentifier);
+			}
+			
+			final String className = PersistenceRootResolver.getClassName(effectiveIdentifier);
+			final String fieldName = PersistenceRootResolver.getFieldName(effectiveIdentifier);
+			
+			return PersistenceRootResolver.createResult(
+				PersistenceRootResolver.getStaticReference(
+					PersistenceRootResolver.resolveField(className, fieldName)
+				),
+				originalIdentifier,
+				effectiveIdentifier
+			);
+		}
 
 		@Override
 		public final Result resolveRootInstance(final String identifier)
 		{
-			final Object overrideInstance = this.identifierOverrides.get(identifier);
-			if(overrideInstance != null)
-			{
-				return PersistenceRootResolver.createResult(overrideInstance, identifier);
-			}
-			
-			final String className = PersistenceRootResolver.getClassName(identifier);
-			final String fieldName = PersistenceRootResolver.getFieldName(identifier);
-			
 			try
 			{
-				return PersistenceRootResolver.createResult(
-					PersistenceRootResolver.getStaticReference(
-						PersistenceRootResolver.resolveField(className, fieldName)
-					),
-					identifier
-				);
+				return tryResolveRootInstance(identifier, identifier);
 			}
 			catch(final ReflectiveOperationException e)
 			{
-				// (05.04.2018 TM)FIXME: check map
-				try
+				// if the current identifier is invalid/outdated, mapping alternatives are tried.
+				
+				// possible alternative #1: completely mapped identifier (className#fieldName)
+				final String mappedIdentifier = this.refactoringMappings.get(identifier);
+				if(mappedIdentifier != null)
 				{
-					return PersistenceRootResolver.createResult(
-						PersistenceRootResolver.getStaticReference(
-							PersistenceRootResolver.resolveField(className, fieldName)
-						),
-						identifier
-					);
+					try
+					{
+						return tryResolveRootInstance(identifier, mappedIdentifier);
+					}
+					catch(final ReflectiveOperationException e1)
+					{
+						// an explicitely mapped but invalid alternative is an error and gets handled as such
+						throw new IllegalArgumentException(e1);
+					}
 				}
-				catch(final ReflectiveOperationException e1)
+
+				// possible alternative #2: only mapped className (fieldName remains the same)
+				final String className = PersistenceRootResolver.getClassName(identifier);
+				final String mappedClassName = this.refactoringMappings.get(className);
+				if(mappedClassName != null)
 				{
-					// the mapping entry is invalid (maybe outdated), too.
-					throw new IllegalArgumentException(e1);
+					final String fieldName = PersistenceRootResolver.getFieldName(identifier);
+					try
+					{
+						return tryResolveRootInstance(
+							identifier,
+							PersistenceRootResolver.buildFieldIdentifier(mappedClassName, fieldName)
+						);
+					}
+					catch(final ReflectiveOperationException e1)
+					{
+						// an explicitely mapped but invalid alternative is an error and gets handled as such
+						throw new IllegalArgumentException(e1);
+					}
 				}
+
+				// if no mapped alternative was found, the initial reflective exception turned out to be an error.
+				throw new IllegalArgumentException(e);
 			}
 		}
 
 		@Override
 		public final void iterateEntries(final Consumer<? super KeyValue<String, ?>> procedure)
 		{
-			this.identifierOverrides.iterate(procedure);
+			this.identifierMappings.iterate(procedure);
 		}
 
 	}

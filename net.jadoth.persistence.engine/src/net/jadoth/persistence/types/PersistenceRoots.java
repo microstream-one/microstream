@@ -16,7 +16,8 @@ public interface PersistenceRoots
 		// instance fields  //
 		/////////////////////
 
-		private final EqHashTable<String, Object> constants = EqHashTable.New();
+		private final EqHashTable<String, Object> roots = EqHashTable.New();
+		transient PersistenceRootResolver.Result[] rootsResolvingResults;
 
 
 
@@ -30,7 +31,26 @@ public interface PersistenceRoots
 			/* intentionally make internal collection publicly available
 			 * as this implementation is actually just a typed wrapper for it.
 			 */
-			return this.constants;
+			return this.roots;
+		}
+		
+		public final Object[] setResolvedRoots(
+			final PersistenceRootResolver.Result[] rootsResolvingResults
+		)
+		{
+			final Object[] instances = new Object[rootsResolvingResults.length];
+			
+			for(int i = 0; i < rootsResolvingResults.length; i++)
+			{
+				this.roots.add(
+					rootsResolvingResults[i].resolvedIdentifier(),
+					instances[i] = rootsResolvingResults[i].resolvedRootInstance()
+				);
+			}
+			
+			this.rootsResolvingResults = rootsResolvingResults;
+			
+			return instances;
 		}
 
 	}

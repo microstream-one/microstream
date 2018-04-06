@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
@@ -184,21 +183,25 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
 	}
 
-	private void resolveInstances(final String[] identifiers, final Object[] instances)
+	private PersistenceRootResolver.Result[] resolveInstances(final String[] identifiers)
 	{
 		final PersistenceRootResolver resolver = this.resolver;
+		
+		final PersistenceRootResolver.Result[] results = new PersistenceRootResolver.Result[identifiers.length];
 
-		// the resolver is locked, just in case it's used concurrently.
+		// the resolver is locked over the whole loop, just in case it's used concurrently AND not thread-safe.
 		synchronized(resolver)
 		{
 			for(int i = 0; i < identifiers.length; i++)
 			{
-				instances[i] = resolver.resolveRootInstance(identifiers[i]);
+				results[i] = resolver.resolveRootInstance(identifiers[i]);
 			}
 		}
+		
+		return results;
 	}
 
-	private void registerInstances(final long[] oids, final Object[] instances)
+	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
 		final SwizzleRegistry registry = this.globalRegistry;
 
@@ -225,27 +228,22 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final SwizzleBuildLinker              builder
 	)
 	{
-		/* Note that performance is not important here as roots only get loaded once per system start
+		/*
+		 * Note that performance is not important here as roots only get loaded once per system start
 		 * and are very few in numbers (hence the temp array copying detour).
-		 * Also the temp arrays allow much more efficent (smaller) lock times on the global registry.
-		 *
-		 * The method naming and structuring should be self-explanatory for the most part.
+		 * Also the temp arrays allow shorter lock times on the global registry.
 		 */
 
 		final long[]   objectIds   = buildTempObjectIdArray(bytes);
 		final String[] identifiers = buildTempIdentifiersArray(bytes);
-		final Object[] instances   = new Object[objectIds.length];
 
 		validateArrayLengths(objectIds, identifiers);
-
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
 
-		this.resolveInstances(identifiers, instances);
-
-		this.registerInstances(objectIds, instances);
-
-		X.addAllTo(instance.entries(), identifiers, instances);
+		final PersistenceRootResolver.Result[] resolvedRoots = this.resolveInstances(identifiers);
+		final Object[]                         instances     = instance.setResolvedRoots(resolvedRoots);
+		this.registerInstancesPerObjectId(objectIds, instances);
 	}
 
 	@Override

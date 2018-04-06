@@ -149,12 +149,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			// if both have equal content, no updates have to be made.
 			if(loadedEntries.equalsContent(definedEntries, Implementation::equalEntries))
 			{
+				// (06.04.2018 TM)FIXME: /!\ OGS-41: if loadedRoots has changes, it must be stored nonetheless
 				return true;
 			}
 
-			/* to ensure removal of old, addition of new and same order, it is best to simply clear and add all.
-			 * important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
-			 * the one that gets saved to maintain the associated OID.
+			/*
+			 * To ensure removal of old, addition of new and same order, it is best to simply clear and add all.
+			 * Important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
+			 * the one that gets saved to maintain the associated ObjectId.
 			 */
 			loadedEntries.clear();
 			loadedEntries.addAll(definedEntries);
