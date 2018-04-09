@@ -316,6 +316,11 @@ public interface PersistenceRootResolver
 						throw new IllegalArgumentException(e1);
 					}
 				}
+				else if(this.refactoringMappings.keys().contains(identifier))
+				{
+					// an identifier explicitely mapped to null means the element has been deleted.
+					return PersistenceRootResolver.createResult(null, identifier, null);
+				}
 
 				// possible alternative #2: only mapped className (fieldName remains the same)
 				final String className = PersistenceRootResolver.getClassName(identifier);
@@ -335,6 +340,11 @@ public interface PersistenceRootResolver
 						// an explicitely mapped but invalid alternative is an error and gets handled as such
 						throw new IllegalArgumentException(e1);
 					}
+				}
+				else if(this.refactoringMappings.keys().contains(className))
+				{
+					// a className explicitely mapped to null means it has been deleted.
+					return PersistenceRootResolver.createResult(null, identifier, null);
 				}
 
 				// if no mapped alternative was found, the initial reflective exception turned out to be an error.

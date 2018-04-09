@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
@@ -135,21 +136,42 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			this.connectionFactory.createStorageConnection().importFiles(initialImportFiles);
 		}
 
-		static final boolean equalEntries(final KeyValue<String, Object> e1, final KeyValue<String, Object> e2)
-		{
-			// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
-			return e1.key().equals(e2.key()) && e1.value() == e2.value();
-		}
-
 		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
-			final XTable<String, Object> loadedEntries  = loadedRoots.entries();
-			final XTable<String, Object> definedEntries = this.definedRoots.entries();
+			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
+			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
 
-			// if both have equal content, no updates have to be made.
-			if(loadedEntries.equalsContent(definedEntries, Implementation::equalEntries))
+			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
+				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
+				e1.key().equals(e2.key()) && e1.value() == e2.value()
+			);
+			
+			/* (09.04.2018 TM)TODO: OGS-41
+			 * The following cases have to be covered:
+			 * 1.) Loaded and defined roots are perfectly equal. -> return true (roots are synchronous)
+			 * 2.) Loaded and defined roots are equal, but the loaded roots have changes. -> return false (roots must be stored)
+			 * 3.) L&D roots are not equal, but the defined contains all the loaded and more. -> add new instances, return false (roots must be stored)
+			 * 4.) L&D roots are not equal and some instances of loaded are missing in defined. -> throw exception
+			 * 
+			 * Or is really it an exception?
+			 * What about changed order of otherwise matching entries?
+			 * See design notes.
+			 */
+			if(!equalContent)
 			{
-				// (06.04.2018 TM)FIXME: /!\ OGS-41: if loadedRoots has changes, it must be stored nonetheless
+				// (14.09.2015 TM)EXCP: proper exception
+				throw new RuntimeException("Mismatch of loaded roots and defined roots");
+			}
+			
+			// if both have equal content, no updates have to be made.
+			if()
+			{
+				// if loadedRoots has changes, it must be stored nonetheless
+				if(loadedRoots.hasChanged())
+				{
+					return false;
+				}
+				
 				return true;
 			}
 
@@ -193,13 +215,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
+				// (09.04.2018 TM)FIXME: refactor logic to cover changed roots correctly.
 				return; // loaded roots are equal to defined roots, no store update required
-			}
-			else if(!loadedRoots.entries().isEmpty())
-			{
-				// (14.09.2015 TM)TODO: loaded root mismatch handling should be dynamical (callback).
-				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("Mismatch of loaded roots and defined roots");
 			}
 
 			// either the loaded roots instance shall be updated or the defined roots have to be stored initially

@@ -143,7 +143,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		public final EmbeddedStorageFoundation registerRootInstance(final String identifier, final Object instance)
 		{
-			this.getRootsProvider().provideRoots().entries().put(identifier, instance);
+			this.getRootsProvider().provideRoots().registerRootInstance(identifier, instance);
 			return this;
 		}
 
