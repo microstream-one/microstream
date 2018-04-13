@@ -7,12 +7,10 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.collections.types.XTable;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
-import net.jadoth.util.KeyValue;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -164,24 +162,24 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			
 			// if both have equal content, no updates have to be made.
-			if()
-			{
-				// if loadedRoots has changes, it must be stored nonetheless
-				if(loadedRoots.hasChanged())
-				{
-					return false;
-				}
-				
-				return true;
-			}
+//			if()
+//			{
+//				// if loadedRoots has changes, it must be stored nonetheless
+//				if(loadedRoots.hasChanged())
+//				{
+//					return false;
+//				}
+//
+//				return true;
+//			}
 
 			/*
 			 * To ensure removal of old, addition of new and same order, it is best to simply clear and add all.
 			 * Important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
 			 * the one that gets saved to maintain the associated ObjectId.
 			 */
-			loadedEntries.clear();
-			loadedEntries.addAll(definedEntries);
+//			loadedEntries.clear();
+//			loadedEntries.addAll(definedEntries);
 			return false;
 		}
 

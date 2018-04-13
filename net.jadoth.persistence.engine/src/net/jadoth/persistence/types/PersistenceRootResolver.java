@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.keyValue;
+import static net.jadoth.Jadoth.mayNull;
 import static net.jadoth.Jadoth.notNull;
 
 import java.lang.reflect.Field;
@@ -70,10 +71,11 @@ public interface PersistenceRootResolver
 		final String resolvedIdentifier
 	)
 	{
+		// if an explicit delete entry was found, the instance and the resolved identifier are null.
 		return new Result.Implementation(
-			notNull(resolvedRootInstance),
+			mayNull(resolvedRootInstance),
 			notNull(providedIdentifier)  ,
-			notNull(resolvedIdentifier)
+			mayNull(resolvedIdentifier)
 		);
 	}
 
@@ -290,64 +292,72 @@ public interface PersistenceRootResolver
 				effectiveIdentifier
 			);
 		}
-
+		
 		@Override
 		public final Result resolveRootInstance(final String identifier)
 		{
+			/*
+			 * Mapping lookups take precedence over the direct resolving attmpt.
+			 * This is important to enable refactorings that switch names.
+			 * E.g.:
+			 * A -> B
+			 * C -> A
+			 * However, this also increases the responsibility of the developer who defines the mapping:
+			 * The mapping has to be removed after the first usage, otherwise the new instance under the old name
+			 * is mapped to the old name's new name, as well. (In the example: after two executions, both instances
+			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
+			 * but an outdated mapping rule defined by the using developer).
+			 */
+			
+			// possible alternative #1: completely mapped identifier (className#fieldName)
+			if(this.refactoringMappings.keys().contains(identifier))
+			{
+				final String mappedIdentifier = this.refactoringMappings.get(identifier);
+				if(mappedIdentifier == null)
+				{
+					// an identifier explicitely mapped to null means the element has been deleted.
+					return PersistenceRootResolver.createResult(null, identifier, null);
+				}
+				try
+				{
+					return tryResolveRootInstance(identifier, mappedIdentifier);
+				}
+				catch(final ReflectiveOperationException e)
+				{
+					// check next case
+				}
+			}
+
+			// possible alternative #2: only mapped className (fieldName remains the same)
+			final String className = PersistenceRootResolver.getClassName(identifier);
+			if(this.refactoringMappings.keys().contains(className))
+			{
+				final String mappedClassName = this.refactoringMappings.get(className);
+				if(mappedClassName == null)
+				{
+					// a className explicitely mapped to null means it has been deleted.
+					return PersistenceRootResolver.createResult(null, identifier, null);
+				}
+				final String fieldName        = PersistenceRootResolver.getFieldName(identifier);
+				final String mappedIdentifier = PersistenceRootResolver.buildFieldIdentifier(mappedClassName, fieldName);
+				try
+				{
+					return tryResolveRootInstance(identifier, mappedIdentifier);
+				}
+				catch(final ReflectiveOperationException e)
+				{
+					// check next case
+				}
+			}
+			
+			// if no mapping was found, the identifier is used for a direct resolving attempt.
 			try
 			{
 				return tryResolveRootInstance(identifier, identifier);
 			}
 			catch(final ReflectiveOperationException e)
 			{
-				// if the current identifier is invalid/outdated, mapping alternatives are tried.
-				
-				// possible alternative #1: completely mapped identifier (className#fieldName)
-				final String mappedIdentifier = this.refactoringMappings.get(identifier);
-				if(mappedIdentifier != null)
-				{
-					try
-					{
-						return tryResolveRootInstance(identifier, mappedIdentifier);
-					}
-					catch(final ReflectiveOperationException e1)
-					{
-						// an explicitely mapped but invalid alternative is an error and gets handled as such
-						throw new IllegalArgumentException(e1);
-					}
-				}
-				else if(this.refactoringMappings.keys().contains(identifier))
-				{
-					// an identifier explicitely mapped to null means the element has been deleted.
-					return PersistenceRootResolver.createResult(null, identifier, null);
-				}
-
-				// possible alternative #2: only mapped className (fieldName remains the same)
-				final String className = PersistenceRootResolver.getClassName(identifier);
-				final String mappedClassName = this.refactoringMappings.get(className);
-				if(mappedClassName != null)
-				{
-					final String fieldName = PersistenceRootResolver.getFieldName(identifier);
-					try
-					{
-						return tryResolveRootInstance(
-							identifier,
-							PersistenceRootResolver.buildFieldIdentifier(mappedClassName, fieldName)
-						);
-					}
-					catch(final ReflectiveOperationException e1)
-					{
-						// an explicitely mapped but invalid alternative is an error and gets handled as such
-						throw new IllegalArgumentException(e1);
-					}
-				}
-				else if(this.refactoringMappings.keys().contains(className))
-				{
-					// a className explicitely mapped to null means it has been deleted.
-					return PersistenceRootResolver.createResult(null, identifier, null);
-				}
-
-				// if no mapped alternative was found, the initial reflective exception turned out to be an error.
+				// (11.04.2018 TM)EXCP: proper exception
 				throw new IllegalArgumentException(e);
 			}
 		}
