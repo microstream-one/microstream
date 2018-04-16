@@ -1,18 +1,13 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.Jadoth.notNull;
 import static net.jadoth.math.JadothMath.notNegative;
 import static net.jadoth.math.JadothMath.positive;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
-import net.jadoth.reference._longReference;
-import net.jadoth.util.file.JadothFiles;
 
-public abstract class AbstractIdProviderByFile
+public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -20,48 +15,12 @@ public abstract class AbstractIdProviderByFile
 
 	protected static final long DEFAULT_INCREASE = 1000;
 
-	protected static final Charset CHARSET = StandardCharsets.UTF_8;
-
-	public static final Charset standardCharset()
-	{
-		return CHARSET;
-	}
-
-	public static final void writeId(final File file, final long value)
-	{
-		try
-		{
-			JadothFiles.writeStringToFile(file, Long.toString(value), standardCharset());
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
-	}
-
-	public static final long readId(final File file, final _longReference defaultId)
-	{
-		if(!file.exists())
-		{
-			return defaultId.get();
-		}
-		try
-		{
-			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
-	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
 
-	private final File file;
 	private final long increase;
 
 	private long id       ;
@@ -85,8 +44,7 @@ public abstract class AbstractIdProviderByFile
 
 	public AbstractIdProviderByFile(final File file, final long increase, final long id)
 	{
-		super();
-		this.file      =     notNull(file    );
+		super(file);
 		this.id        = notNegative(id      );
 		this.increase  =    positive(increase);
 		this.threshold = id + increase        ;
@@ -100,13 +58,35 @@ public abstract class AbstractIdProviderByFile
 
 	private void writeId(final long value)
 	{
-		writeId(this.file, value);
+		try
+		{
+			this.write(Long.toString(value));
+		}
+		catch(final Exception e)
+		{
+			throw new PersistenceExceptionTransfer(e);
+		}
 	}
 
 	protected void internalInitialize()
 	{
-		// either read existing id or write and provide default value ("IT'S SO CONCISE I'M GONNA DIE!!")
-		this.threshold = this.id = readId(this.file, this::provideDefaultId);
+		// either read existing id or write and provide default value
+		this.threshold = this.id = this.canRead()
+			? this.readId()
+			: this.provideDefaultId()
+		;
+	}
+	
+	protected long readId()
+	{
+		try
+		{
+			return Long.parseLong(this.read());
+		}
+		catch(final Exception e)
+		{
+			throw new PersistenceExceptionTransfer(e);
+		}
 	}
 	
 	protected long provideDefaultId()

@@ -210,6 +210,13 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		{
 			for(int i = 0; i < oids.length; i++)
 			{
+				// instances can be null when they are explicitely registered to be null in the refactoring
+				if(instances[i] == null)
+				{
+					continue;
+				}
+				
+				// all still live instances are registered for their OID.
 				registry.registerObject(oids[i], instances[i]);
 			}
 		}

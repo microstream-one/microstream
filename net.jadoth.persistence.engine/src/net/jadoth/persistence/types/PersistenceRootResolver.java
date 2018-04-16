@@ -46,7 +46,7 @@ public interface PersistenceRootResolver
 	 *
 	 * @param procedure
 	 */
-	public default void iterateEntries(final Consumer<? super KeyValue<String, ?>> procedure)
+	public default void iterateIdentifierMappings(final Consumer<? super KeyValue<String, ?>> procedure)
 	{
 		// no entries in stateless default implementation
 	}
@@ -269,8 +269,14 @@ public interface PersistenceRootResolver
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void iterateIdentifierMappings(final Consumer<? super KeyValue<String, ?>> procedure)
+		{
+			this.identifierMappings.iterate(procedure);
+		}
 		
 		final Result tryResolveRootInstance(final String originalIdentifier, final String effectiveIdentifier)
 			throws ClassNotFoundException, NoSuchFieldException
@@ -297,7 +303,7 @@ public interface PersistenceRootResolver
 		public final Result resolveRootInstance(final String identifier)
 		{
 			/*
-			 * Mapping lookups take precedence over the direct resolving attmpt.
+			 * Mapping lookups take precedence over the direct resolving attempt.
 			 * This is important to enable refactorings that switch names.
 			 * E.g.:
 			 * A -> B
@@ -309,7 +315,7 @@ public interface PersistenceRootResolver
 			 * but an outdated mapping rule defined by the using developer).
 			 */
 			
-			// possible alternative #1: completely mapped identifier (className#fieldName)
+			// mapping variant #1: completely mapped identifier (className#fieldName or arbitrary name, e.g. "root")
 			if(this.refactoringMappings.keys().contains(identifier))
 			{
 				final String mappedIdentifier = this.refactoringMappings.get(identifier);
@@ -318,17 +324,28 @@ public interface PersistenceRootResolver
 					// an identifier explicitely mapped to null means the element has been deleted.
 					return PersistenceRootResolver.createResult(null, identifier, null);
 				}
+				
 				try
 				{
 					return tryResolveRootInstance(identifier, mappedIdentifier);
 				}
 				catch(final ReflectiveOperationException e)
 				{
-					// check next case
+					// check next case.
 				}
 			}
+			
+			/*
+			 * identifier mappings must be checked before trying to extract a reflection class name in case
+			 * they are arbitrary strings (e.g. "root") instead of reflective identifiers.
+			 */
+			final Object overrideInstance = this.identifierMappings.get(identifier);
+			if(overrideInstance != null)
+			{
+				return PersistenceRootResolver.createResult(overrideInstance, identifier);
+			}
 
-			// possible alternative #2: only mapped className (fieldName remains the same)
+			// mapping variant #2: only mapped className (fieldName remains the same)
 			final String className = PersistenceRootResolver.getClassName(identifier);
 			if(this.refactoringMappings.keys().contains(className))
 			{
@@ -338,6 +355,7 @@ public interface PersistenceRootResolver
 					// a className explicitely mapped to null means it has been deleted.
 					return PersistenceRootResolver.createResult(null, identifier, null);
 				}
+				
 				final String fieldName        = PersistenceRootResolver.getFieldName(identifier);
 				final String mappedIdentifier = PersistenceRootResolver.buildFieldIdentifier(mappedClassName, fieldName);
 				try
@@ -350,22 +368,8 @@ public interface PersistenceRootResolver
 				}
 			}
 			
-			// if no mapping was found, the identifier is used for a direct resolving attempt.
-			try
-			{
-				return tryResolveRootInstance(identifier, identifier);
-			}
-			catch(final ReflectiveOperationException e)
-			{
-				// (11.04.2018 TM)EXCP: proper exception
-				throw new IllegalArgumentException(e);
-			}
-		}
-
-		@Override
-		public final void iterateEntries(final Consumer<? super KeyValue<String, ?>> procedure)
-		{
-			this.identifierMappings.iterate(procedure);
+			// no mapping could be found, so the only remaining option is to resolve the identifier in a general way.
+			return PersistenceRootResolver.super.resolveRootInstance(identifier);
 		}
 
 	}

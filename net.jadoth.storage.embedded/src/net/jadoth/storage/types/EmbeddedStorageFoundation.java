@@ -365,7 +365,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			/* if the resolver knows any explicit roots, register them right away.
 			 * Not absolutely mandatory but saves redundant code in use sites (application root logic)
 			 */
-			this.getRootResolver().iterateEntries(e ->
+			this.getRootResolver().iterateIdentifierMappings(e ->
 				this.registerRootInstance(e.key(), e.value())
 			);
 		}

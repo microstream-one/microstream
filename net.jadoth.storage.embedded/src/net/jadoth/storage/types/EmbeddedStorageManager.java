@@ -144,42 +144,23 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				e1.key().equals(e2.key()) && e1.value() == e2.value()
 			);
 			
-			/* (09.04.2018 TM)TODO: OGS-41
-			 * The following cases have to be covered:
-			 * 1.) Loaded and defined roots are perfectly equal. -> return true (roots are synchronous)
-			 * 2.) Loaded and defined roots are equal, but the loaded roots have changes. -> return false (roots must be stored)
-			 * 3.) L&D roots are not equal, but the defined contains all the loaded and more. -> add new instances, return false (roots must be stored)
-			 * 4.) L&D roots are not equal and some instances of loaded are missing in defined. -> throw exception
-			 * 
-			 * Or is really it an exception?
-			 * What about changed order of otherwise matching entries?
-			 * See design notes.
-			 */
-			if(!equalContent)
+			// if defined roots and (potentially re-mapped) match exactely, they are synchronous.
+			if(equalContent)
 			{
-				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("Mismatch of loaded roots and defined roots");
+				// however, if the loaded roots had to be re-mapped somewhere, it still has to be stored to synchronize.
+				return !loadedRoots.hasChanged();
 			}
 			
-			// if both have equal content, no updates have to be made.
-//			if()
-//			{
-//				// if loadedRoots has changes, it must be stored nonetheless
-//				if(loadedRoots.hasChanged())
-//				{
-//					return false;
-//				}
-//
-//				return true;
-//			}
-
 			/*
-			 * To ensure removal of old, addition of new and same order, it is best to simply clear and add all.
-			 * Important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
-			 * the one that gets saved to maintain the associated ObjectId.
+			 * If both roots instances are not perfectly synchronous, the loaded roots has to have its entries
+			 * synchronized to the defined roots. The defined roots represent the current design of the application,
+			 * so they are always correct. However, the loaded roots instance has to be stored to maintain the
+			 * ObjectId associated with it. Hence the entry synchronizsation.
+			 * Synchronizing entries simply means here: clear the the loaded roots and add all defined roots entries.
 			 */
-//			loadedEntries.clear();
-//			loadedEntries.addAll(definedEntries);
+			loadedRoots.updateEntries(definedEntries);
+			
+			// having the loaded roots updated means it is not synchronous and needs to be stored, so return false.
 			return false;
 		}
 
@@ -213,12 +194,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
-				// (09.04.2018 TM)FIXME: refactor logic to cover changed roots correctly.
-				return; // loaded roots are equal to defined roots, no store update required
+				// loaded roots are perfectly synchronous to defined roots, no store update required.
+				return;
 			}
 
-			// either the loaded roots instance shall be updated or the defined roots have to be stored initially
-			initConnection.storeFull(loadedRoots); // (05.11.2013 TM)TODO: really always deep? Not on demand?
+			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
+			initConnection.store(loadedRoots);
 		}
 
 		@Override
