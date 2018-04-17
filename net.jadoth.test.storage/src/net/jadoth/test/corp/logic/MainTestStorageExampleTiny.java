@@ -14,6 +14,12 @@ public class MainTestStorageExampleTiny
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.createStorageManager(Storage.RootResolver(ROOT))
+		// (17.04.2018 TM)NOTE: explicit mapping
+//		.createStorageManager(Storage.RootResolverBuilder()
+//			.registerRoot("root", () -> ROOT)
+//			.registerMapping("oldRoot", "root")
+//			.build()
+//		)
 		.start()
 	;
 
@@ -32,4 +38,11 @@ public class MainTestStorageExampleTiny
 		STORAGE.shutdown();
 		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
 	}
+	
+	
+	static Reference<ClientCorporation> root()
+	{
+		return ROOT;
+	}
+		
 }
