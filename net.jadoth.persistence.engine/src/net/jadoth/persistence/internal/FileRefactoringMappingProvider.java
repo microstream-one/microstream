@@ -7,13 +7,12 @@ import java.io.IOException;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.persistence.types.PersistenceRefactoringMapping;
-import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.util.chars.StringTable;
 
 
 public class FileRefactoringMappingProvider
 extends AbstractProviderByFile
-implements PersistenceRefactoringMappingProvider
+implements PersistenceRefactoringMapping.Provider
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -84,6 +83,11 @@ implements PersistenceRefactoringMappingProvider
 	
 	private static String normalize(final String s)
 	{
+		if(s == null)
+		{
+			return null;
+		}
+		
 		final String normalized = s.trim();
 		
 		return normalized.isEmpty()

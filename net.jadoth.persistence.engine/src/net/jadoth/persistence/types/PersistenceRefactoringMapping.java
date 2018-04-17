@@ -16,6 +16,34 @@ public interface PersistenceRefactoringMapping
 	public XGettingTable<String, String> entries();
 	
 	
+		
+	public interface Provider
+	{
+		public PersistenceRefactoringMapping provideRefactoringMapping();
+		
+		public static PersistenceRefactoringMapping.Provider New()
+		{
+			return new PersistenceRefactoringMapping.Provider.Implementation();
+		}
+		
+		public final class Implementation implements PersistenceRefactoringMapping.Provider
+		{
+			Implementation()
+			{
+				super();
+			}
+
+			@Override
+			public PersistenceRefactoringMapping provideRefactoringMapping()
+			{
+				return PersistenceRefactoringMapping.New();
+			}
+			
+		}
+		
+	}
+	
+	
 	
 	public static PersistenceRefactoringMapping New(final XGettingTable<String, String> entries)
 	{

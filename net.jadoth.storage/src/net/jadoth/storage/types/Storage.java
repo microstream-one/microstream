@@ -227,7 +227,7 @@ public final class Storage
 
 	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
 	{
-		return PersistenceRootResolver.New("root", rootInstance);
+		return RootResolver("root", rootInstance);
 	}
 
 	/**

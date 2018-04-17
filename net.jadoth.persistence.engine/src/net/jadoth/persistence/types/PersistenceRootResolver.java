@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.EqConstHashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.memory.Memory;
@@ -191,7 +190,7 @@ public interface PersistenceRootResolver
 			EqConstHashTable.New(
 				keyValue(identifier, instance)
 			),
-			X.emptyTable()
+			PersistenceRefactoringMapping.Provider.New()
 		);
 	}
 	
@@ -200,14 +199,14 @@ public interface PersistenceRootResolver
 		// hardcoded table implementation to ensure value-equality.
 		return new Implementation(
 			EqConstHashTable.New(identifierMapping),
-			X.emptyTable()
+			PersistenceRefactoringMapping.Provider.New()
 		);
 	}
 	
 	public static PersistenceRootResolver New(
-		final String                      identifier         ,
-		final Object                      instance           ,
-		final XGettingMap<String, String> refactoringMappings
+		final String                                 identifier         ,
+		final Object                                 instance           ,
+		final PersistenceRefactoringMapping.Provider refactoringMappingProvider
 	)
 	{
 		// hardcoded table implementation to ensure value-equality.
@@ -215,19 +214,19 @@ public interface PersistenceRootResolver
 			EqConstHashTable.New(
 				keyValue(identifier, instance)
 			),
-			X.emptyTable()
+			refactoringMappingProvider
 		);
 	}
 	
 	public static PersistenceRootResolver New(
-		final XGettingMap<String, ?>      identifierMappings ,
-		final XGettingMap<String, String> refactoringMappings
+		final XGettingMap<String, ?>                 identifierMappings        ,
+		final PersistenceRefactoringMapping.Provider refactoringMappingProvider
 	)
 	{
 		// hardcoded table implementation to ensure value-equality.
 		return new Implementation(
 			EqConstHashTable.New(identifierMappings) ,
-			EqConstHashTable.New(refactoringMappings)
+			refactoringMappingProvider
 		);
 	}
 	
@@ -247,8 +246,10 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 
-		final XImmutableTable<String, ?>      identifierMappings ;
-		final XImmutableTable<String, String> refactoringMappings;
+		final XImmutableTable<String, ?>             identifierMappings        ;
+		final PersistenceRefactoringMapping.Provider refactoringMappingProvider;
+		
+		transient XGettingMap<String, String> refactoringMappings;
 
 
 
@@ -257,13 +258,13 @@ public interface PersistenceRootResolver
 		/////////////////
 
 		Implementation(
-			final XImmutableTable<String, ?>      identifierMappings ,
-			final XImmutableTable<String, String> refactoringMappings
+			final XImmutableTable<String, ?>             identifierMappings        ,
+			final PersistenceRefactoringMapping.Provider refactoringMappingProvider
 		)
 		{
 			super();
-			this.identifierMappings  = identifierMappings ;
-			this.refactoringMappings = refactoringMappings;
+			this.identifierMappings         = identifierMappings        ;
+			this.refactoringMappingProvider = refactoringMappingProvider;
 		}
 
 
@@ -271,6 +272,16 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private synchronized XGettingMap<String, String> refactoringMappings()
+		{
+			if(this.refactoringMappings == null)
+			{
+				this.refactoringMappings = this.refactoringMappingProvider.provideRefactoringMapping().entries();
+			}
+			
+			return this.refactoringMappings;
+		}
 		
 		@Override
 		public final void iterateIdentifierMappings(final Consumer<? super KeyValue<String, ?>> procedure)
@@ -314,11 +325,12 @@ public interface PersistenceRootResolver
 			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
 			 * but an outdated mapping rule defined by the using developer).
 			 */
+			final XGettingMap<String, String> refactoringMappings = this.refactoringMappings();
 			
 			// mapping variant #1: completely mapped identifier (className#fieldName or arbitrary name, e.g. "root")
-			if(this.refactoringMappings.keys().contains(identifier))
+			if(refactoringMappings.keys().contains(identifier))
 			{
-				final String mappedIdentifier = this.refactoringMappings.get(identifier);
+				final String mappedIdentifier = refactoringMappings.get(identifier);
 				if(mappedIdentifier == null)
 				{
 					// an identifier explicitely mapped to null means the element has been deleted.
@@ -347,9 +359,9 @@ public interface PersistenceRootResolver
 
 			// mapping variant #2: only mapped className (fieldName remains the same)
 			final String className = PersistenceRootResolver.getClassName(identifier);
-			if(this.refactoringMappings.keys().contains(className))
+			if(refactoringMappings.keys().contains(className))
 			{
-				final String mappedClassName = this.refactoringMappings.get(className);
+				final String mappedClassName = refactoringMappings.get(className);
 				if(mappedClassName == null)
 				{
 					// a className explicitely mapped to null means it has been deleted.

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.util.file.JadothFiles;
 
 public abstract class AbstractProviderByFile
@@ -19,6 +20,34 @@ public abstract class AbstractProviderByFile
 	{
 		return StandardCharsets.UTF_8;
 	}
+	
+	public static final void write(final File file, final String value) throws PersistenceExceptionTransfer
+	{
+		try
+		{
+			JadothFiles.writeStringToFile(file, value, standardCharset());
+		}
+		catch(final Exception e)
+		{
+			throw new PersistenceExceptionTransfer(e);
+		}
+	}
+
+//	public static final long readId(final File file, final _longReference defaultId)
+//	{
+//		if(!file.exists())
+//		{
+//			return defaultId.get();
+//		}
+//		try
+//		{
+//			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
+//		}
+//		catch(final Exception e)
+//		{
+//			throw new PersistenceExceptionTransfer(e);
+//		}
+//	}
 
 
 

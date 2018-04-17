@@ -14,6 +14,34 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	/////////////////////
 
 	protected static final long DEFAULT_INCREASE = 1000;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static final void writeId(final File file, final long value) throws PersistenceExceptionTransfer
+	{
+		write(file, Long.toString(value));
+	}
+
+//	public static final long readId(final File file, final _longReference defaultId)
+//	{
+//		if(!file.exists())
+//		{
+//			return defaultId.get();
+//		}
+//		try
+//		{
+//			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
+//		}
+//		catch(final Exception e)
+//		{
+//			throw new PersistenceExceptionTransfer(e);
+//		}
+//	}
+	
 
 
 

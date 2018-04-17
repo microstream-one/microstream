@@ -17,7 +17,6 @@ import net.jadoth.collections.types.XSequence;
 import net.jadoth.cql.CQL;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.meta.JadothConsole;
-import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -87,11 +86,6 @@ public class TestStorage extends TestComponentProvider
 	static final EmbeddedStorageConnectionFoundation createTestConnectionFoundation()
 	{
 		return TEST.initialize(new EmbeddedStorageConnectionFoundation.Implementation());
-	}
-
-	static final PersistenceRootResolver createTestRootResolver(final String rootIdentifier, final Object rootInstance)
-	{
-		return PersistenceRootResolver.New(rootIdentifier, rootInstance);
 	}
 
 	protected static File convertBinToCsv(final File... binaryFiles)
