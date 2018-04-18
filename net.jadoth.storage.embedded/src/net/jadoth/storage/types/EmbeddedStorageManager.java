@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRoots;
@@ -189,6 +190,10 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 					// (14.09.2015 TM)EXCP: proper exception
 					throw new RuntimeException("No roots found for existing data.");
 				}
+				
+				// (18.04.2018 TM)FIXME: /!\ DEBUG
+				JadothConsole.debugln("New roots ...");
+				this.definedRoots.entries().iterate(System.out::println);
 
 				loadedRoots = this.definedRoots;
 			}
@@ -197,6 +202,10 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;
 			}
+			
+			// (18.04.2018 TM)FIXME: /!\ DEBUG
+			JadothConsole.debugln("Updating roots ...");
+			loadedRoots.entries().iterate(System.out::println);
 
 			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
 			initConnection.store(loadedRoots);

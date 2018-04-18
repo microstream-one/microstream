@@ -14,12 +14,6 @@ public class MainTestStorageExampleTiny
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.createStorageManager(Storage.RootResolver(ROOT))
-		// (17.04.2018 TM)NOTE: explicit mapping
-//		.createStorageManager(Storage.RootResolverBuilder()
-//			.registerRoot("root", () -> ROOT)
-//			.registerMapping("oldRoot", "root")
-//			.build()
-//		)
 		.start()
 	;
 

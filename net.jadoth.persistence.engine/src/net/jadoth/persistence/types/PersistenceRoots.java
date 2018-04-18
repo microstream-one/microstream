@@ -2,6 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.util.KeyValue;
 
 
 public interface PersistenceRoots
@@ -16,21 +17,59 @@ public interface PersistenceRoots
 
 
 
+		
+	public static PersistenceRoots New(final XGettingTable<String, Object> roots)
+	{
+		return PersistenceRoots.Implementation.New(roots);
+	}
+
 	public final class Implementation implements PersistenceRoots
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		public static PersistenceRoots.Implementation createUninitialized()
+		{
+			return new PersistenceRoots.Implementation(
+				EqHashTable.New()
+			);
+		}
+		
+		public static PersistenceRoots.Implementation New(final XGettingTable<String, Object> roots)
+		{
+			return new PersistenceRoots.Implementation(
+				EqHashTable.New(roots)
+			);
+		}
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		private final EqHashTable<String, Object> roots = EqHashTable.New();
+		private final EqHashTable<String, Object> roots;
 		
-		transient PersistenceRootResolver.Result[] rootsResolvingResults;
-		transient boolean                          hasChanged           ;
-
-
+		transient boolean hasChanged;
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation(final EqHashTable<String, Object> roots)
+		{
+			super();
+			this.roots      = roots;
+			this.hasChanged = false;
+		}
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final XGettingTable<String, Object> entries()
@@ -47,31 +86,26 @@ public interface PersistenceRoots
 			return this.hasChanged;
 		}
 		
-		public final Object[] setResolvedRoots(final PersistenceRootResolver.Result[] rootsResolvingResults)
+		public final Object[] setResolvedRoots(final XGettingTable<String, PersistenceRootEntry> resolvedRoots)
 		{
-			final Object[] instances = new Object[rootsResolvingResults.length];
+			final Object[] instances = new Object[resolvedRoots.intSize()];
 			boolean hasChanged = false;
 			
 			int i = 0;
-			for(final PersistenceRootResolver.Result result : rootsResolvingResults)
+			for(final KeyValue<String, PersistenceRootEntry> resolvedRoot : resolvedRoots)
 			{
-				if(result.resolvedIdentifier() != null)
-				{
-					this.roots.add(
-						result.resolvedIdentifier(),
-						instances[i++] = result.resolvedRootInstance()
-					);
-				}
+				final String               identifier = resolvedRoot.key();
+				final PersistenceRootEntry rootEntry  = resolvedRoot.value();
+				instances[i++] = rootEntry.instance(); // inluding nulls to keep indexes consistent with objectIds.
 				
 				// if at least one entry has changed, the whole roots instance has changed.
-				if(result.hasChanged())
+				if(!hasChanged && !identifier.equals(rootEntry.identifier()))
 				{
 					hasChanged = true;
 				}
 			}
 			
-			this.rootsResolvingResults = rootsResolvingResults;
-			this.hasChanged            = hasChanged           ;
+			this.hasChanged = hasChanged;
 			
 			return instances;
 		}
@@ -88,9 +122,7 @@ public interface PersistenceRoots
 		{
 			this.roots.clear();
 			this.roots.addAll(newEntries);
-			
-			this.hasChanged            = true;
-			this.rootsResolvingResults = null;
+			this.hasChanged = true;
 		}
 
 	}

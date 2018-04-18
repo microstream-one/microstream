@@ -18,10 +18,6 @@ public class MainTestStorageExample
 		.start()
 	;
 
-
-
-
-
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from existing DB via STORAGE.start() or required to be generated for empty DB

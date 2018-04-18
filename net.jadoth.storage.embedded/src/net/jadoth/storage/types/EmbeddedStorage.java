@@ -205,7 +205,7 @@ public final class EmbeddedStorage
 		return esm;
 	}
 
-	public static final EmbeddedStorageManager createStorageManager(
+	public static final EmbeddedStorageManager createEmbeddedStorageManager(
 		final PersistenceRootResolver       rootResolver          ,
 		final File                          directory             ,
 		final StorageChannelCountProvider   channelCountProvider  ,

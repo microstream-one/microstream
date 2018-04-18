@@ -5,7 +5,15 @@ import net.jadoth.swizzling.types.SwizzleRegistry;
 
 public interface PersistenceRootsProvider<M>
 {
-	public PersistenceRoots provideRoots();
+	public PersistenceRoots provideRoots(PersistenceRootResolver rootResolver);
+	
+	/**
+	 * This is really the actual concrete class, not abstract interface of the {@link PersistenceRoots} instance
+	 * that this provider will create. This information is needed to create the correct TypeIdProvider.
+	 * 
+	 * @return
+	 */
+	public Class<?> provideRootsClass();
 
 	/**
 	 * Only the {@link PersistenceRootsProvider} implementation can ensure that the handler fits the instance,

@@ -3,11 +3,14 @@ package net.jadoth.persistence.binary.internal;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.Jadoth;
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -183,24 +186,6 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
 	}
 
-	private PersistenceRootResolver.Result[] resolveInstances(final String[] identifiers)
-	{
-		final PersistenceRootResolver resolver = this.resolver;
-		
-		final PersistenceRootResolver.Result[] results = new PersistenceRootResolver.Result[identifiers.length];
-
-		// the resolver is locked over the whole loop, just in case it's used concurrently AND not thread-safe.
-		synchronized(resolver)
-		{
-			for(int i = 0; i < identifiers.length; i++)
-			{
-				results[i] = resolver.resolveRootInstance(identifiers[i]);
-			}
-		}
-		
-		return results;
-	}
-
 	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
 		final SwizzleRegistry registry = this.globalRegistry;
@@ -225,7 +210,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	@Override
 	public final PersistenceRoots.Implementation create(final Binary bytes)
 	{
-		return new PersistenceRoots.Implementation();
+		return PersistenceRoots.Implementation.createUninitialized();
 	}
 
 	@Override
@@ -248,8 +233,10 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
 
-		final PersistenceRootResolver.Result[] resolvedRoots = this.resolveInstances(identifiers);
-		final Object[]                         instances     = instance.setResolvedRoots(resolvedRoots);
+		final XGettingTable<String, PersistenceRootEntry> resolvedRoots = this.resolver.resolveRootInstances(
+			EqHashEnum.New(identifiers)
+		);
+		final Object[] instances = instance.setResolvedRoots(resolvedRoots);
 		this.registerInstancesPerObjectId(objectIds, instances);
 	}
 

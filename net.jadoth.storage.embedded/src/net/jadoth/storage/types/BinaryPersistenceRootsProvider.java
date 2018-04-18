@@ -16,13 +16,21 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		PersistenceRoots.Implementation roots;
 
 		@Override
-		public final PersistenceRoots.Implementation provideRoots()
+		public final PersistenceRoots.Implementation provideRoots(final PersistenceRootResolver rootResolver)
 		{
 			if(this.roots == null)
 			{
-				this.roots = new PersistenceRoots.Implementation();
+				// must always be consistent with #provideRootsClass
+				this.roots = PersistenceRoots.Implementation.New(rootResolver.getRootInstances());
 			}
 			return this.roots;
+		}
+		
+		@Override
+		public final Class<?> provideRootsClass()
+		{
+			// must always be consistent with #provideRoots
+			return PersistenceRoots.Implementation.class;
 		}
 
 		@Override

@@ -1,7 +1,11 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.Jadoth.notNull;
+
 import java.io.File;
 
+import net.jadoth.persistence.internal.FileRefactoringMappingProvider;
+import net.jadoth.persistence.types.PersistenceRefactoringMapping;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 
 public final class Storage
@@ -230,9 +234,39 @@ public final class Storage
 		return RootResolver("root", rootInstance);
 	}
 	
+	public static final PersistenceRootResolver RootResolver(
+		final String                                 rootIdentifier,
+		final Object                                 rootInstance  ,
+		final PersistenceRefactoringMapping.Provider refactoringMapping
+	)
+	{
+		return PersistenceRootResolver.Wrap(
+			RootResolver(rootIdentifier, rootInstance),
+			refactoringMapping
+		);
+	}
+	
+	public static final PersistenceRootResolver RootResolver(
+		final Object                                 rootInstance  ,
+		final PersistenceRefactoringMapping.Provider refactoringMapping
+	)
+	{
+		return PersistenceRootResolver.Wrap(
+			RootResolver(rootInstance),
+			refactoringMapping
+		);
+	}
+	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder()
 	{
 		return PersistenceRootResolver.Builder();
+	}
+	
+	public static final PersistenceRefactoringMapping.Provider RefactoringMapping(final File refactorings)
+	{
+		return FileRefactoringMappingProvider.New(
+			notNull(refactorings)
+		);
 	}
 
 	/**
