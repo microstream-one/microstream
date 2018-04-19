@@ -22,12 +22,15 @@ public class Persistence extends Swizzle
 	/////////////////////
 
 	/**
-	 * Reasons for choosing UTF8 as the dictionary charset:
+	 * Reasons for choosing UTF8 as the standard charset:
 	 * 1.) It is independent from endianess.
-	 * 2.) It is massively smaller due to dictionary content containing almost only simple ASCII characters
-	 * 3.) It is overall more common than the Java standard UTF16.
+	 * 2.) It is massively smaller due to most content containing almost only single-byte ASCII characters
+	 * 3.) It is overall more commonly and widespread used and compatible than any specific format.
 	 */
-	private static final Charset DICTIONARY_CHARSET = StandardCharsets.UTF_8;
+	public static final Charset standardCharset()
+	{
+		return StandardCharsets.UTF_8;
+	}
 
 	// types that may never be encountered by persistancelayer at all (not yet complete)
 	private static final Class<?>[] NOT_ID_MAPPABLE_TYPES =
@@ -78,11 +81,6 @@ public class Persistence extends Swizzle
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
 	/////////////////////
-
-	public static final Charset dictionaryCharset()
-	{
-		return DICTIONARY_CHARSET;
-	}
 
 	public static boolean isPersistable(final Class<?> type)
 	{

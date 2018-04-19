@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
@@ -151,6 +152,23 @@ public final class JadothFiles
 			return JadothChars.readStringFromInputStream(fis, charset);
 		}
 	}
+	
+	public static final <E extends Exception> String readStringFromFile(
+		final File                     file           ,
+		final Charset                  charset        ,
+		final Function<IOException, E> exceptionMapper
+	)
+		throws E
+	{
+		try
+		{
+			return readStringFromFile(file, charset);
+		}
+		catch(final IOException e)
+		{
+			throw exceptionMapper.apply(e);
+		}
+	}
 
 	public static final byte[] readBytesFromFile(final File file) throws IOException
 	{
@@ -171,6 +189,24 @@ public final class JadothFiles
 		try(final FileOutputStream out = new FileOutputStream(ensureWriteableFile(file)))
 		{
 			out.write(string.getBytes(charset));
+		}
+	}
+	
+	public static final <E extends Exception> void writeStringToFile(
+		final File                     file           ,
+		final String                   string         ,
+		final Charset                  charset        ,
+		final Function<IOException, E> exceptionMapper
+	)
+		throws E
+	{
+		try
+		{
+			writeStringToFile(file, string, charset);
+		}
+		catch(final IOException e)
+		{
+			throw exceptionMapper.apply(e);
 		}
 	}
 

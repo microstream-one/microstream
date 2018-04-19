@@ -86,14 +86,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 
 	private void writeId(final long value)
 	{
-		try
-		{
-			this.write(Long.toString(value));
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
+		this.write(Long.toString(value));
 	}
 
 	protected void internalInitialize()
@@ -107,14 +100,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	
 	protected long readId()
 	{
-		try
-		{
-			return Long.parseLong(this.read());
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
+		return Long.parseLong(this.read());
 	}
 	
 	protected long provideDefaultId()

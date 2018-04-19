@@ -1,12 +1,13 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
-
 import java.io.File;
 
-import net.jadoth.persistence.internal.FileRefactoringMappingProvider;
-import net.jadoth.persistence.types.PersistenceRefactoringMapping;
+import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
+import net.jadoth.util.chars.StringTable;
+import net.jadoth.util.file.JadothFiles;
 
 public final class Storage
 {
@@ -235,9 +236,9 @@ public final class Storage
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final String                                 rootIdentifier,
-		final Object                                 rootInstance  ,
-		final PersistenceRefactoringMapping.Provider refactoringMapping
+		final String                                rootIdentifier    ,
+		final Object                                rootInstance      ,
+		final PersistenceRefactoringMappingProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -247,8 +248,8 @@ public final class Storage
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final Object                                 rootInstance  ,
-		final PersistenceRefactoringMapping.Provider refactoringMapping
+		final Object                                rootInstance      ,
+		final PersistenceRefactoringMappingProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -262,11 +263,37 @@ public final class Storage
 		return PersistenceRootResolver.Builder();
 	}
 	
-	public static final PersistenceRefactoringMapping.Provider RefactoringMapping(final File refactorings)
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
 	{
-		return FileRefactoringMappingProvider.New(
-			notNull(refactorings)
+		return RefactoringMapping(
+			readRefactoringMappings(refactoringsFile)
 		);
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final XGettingTable<String, String> refactoringMappings
+	)
+	{
+		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
+	}
+	
+	public static XGettingTable<String, String> readRefactoringMappings(final File file)
+	{
+		// (19.04.2018 TM)EXCP: proper exception
+		final String fileContent = JadothFiles.readStringFromFile(
+			file,
+			Persistence.standardCharset(),
+			RuntimeException::new
+		);
+		final StringTable stringTable                     = StringTable.Static.parse(fileContent);
+		final XGettingTable<String, String> keyValueTable = stringTable.toKeyValueTable(
+			row ->
+				row[0], // debuggability linebreak, do not rewrite!
+			row ->
+				row[1] // debuggability linebreak, do not rewrite!
+		);
+		
+		return keyValueTable;
 	}
 
 	/**
@@ -348,8 +375,7 @@ public final class Storage
 		return milliseconds / ONE_MILLION;
 	}
 	
-
-
+	
 
 	private Storage()
 	{

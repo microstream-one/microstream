@@ -3,11 +3,9 @@ package net.jadoth.persistence.internal;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.util.file.JadothFiles;
 
 public abstract class AbstractProviderByFile
@@ -15,40 +13,11 @@ public abstract class AbstractProviderByFile
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-
-	public static final Charset standardCharset()
-	{
-		return StandardCharsets.UTF_8;
-	}
 	
 	public static final void write(final File file, final String value) throws PersistenceExceptionTransfer
 	{
-		try
-		{
-			JadothFiles.writeStringToFile(file, value, standardCharset());
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
+		JadothFiles.writeStringToFile(file, value, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
 	}
-
-//	public static final long readId(final File file, final _longReference defaultId)
-//	{
-//		if(!file.exists())
-//		{
-//			return defaultId.get();
-//		}
-//		try
-//		{
-//			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
-//		}
-//		catch(final Exception e)
-//		{
-//			throw new PersistenceExceptionTransfer(e);
-//		}
-//	}
-
 
 
 
@@ -70,9 +39,9 @@ public abstract class AbstractProviderByFile
 		this.file = notNull(file);
 	}
 	
-	protected void write(final String value) throws IOException
+	protected void write(final String value)
 	{
-		JadothFiles.writeStringToFile(this.file, value, standardCharset());
+		write(this.file, value);
 	}
 	
 	protected boolean canRead()
@@ -80,9 +49,9 @@ public abstract class AbstractProviderByFile
 		return this.file.exists();
 	}
 
-	protected String read() throws IOException
+	protected String read()
 	{
-		return JadothFiles.readStringFromFile(this.file, standardCharset());
+		return JadothFiles.readStringFromFile(this.file, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
 	}
 
 }

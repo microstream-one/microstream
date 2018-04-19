@@ -1,5 +1,7 @@
 package net.jadoth.test.corp.logic;
 
+import java.io.File;
+
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
@@ -14,7 +16,9 @@ public class MainTestStorageExample
 
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createStorageManager(Storage.RootResolver(ROOT))
+		.createStorageManager(
+			Storage.RootResolver("MyAppRoot", ROOT, Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
+		)
 		.start()
 	;
 

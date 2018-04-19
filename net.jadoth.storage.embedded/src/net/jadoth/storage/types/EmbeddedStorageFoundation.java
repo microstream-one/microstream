@@ -1,8 +1,8 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.persistence.types.PersistenceRefactoringMapping;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
@@ -18,7 +18,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 	public BinaryPersistenceRootsProvider getRootsProvider();
 
-	public PersistenceRefactoringMapping.Provider getRefactoringMappingProvider();
+	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 
 	public EmbeddedStorageManager createEmbeddedStorageManager();
 
@@ -61,7 +61,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 	public EmbeddedStorageFoundation setRootsProvider(BinaryPersistenceRootsProvider rootsProvider);
 	
-	public EmbeddedStorageFoundation setRefactoringMappingProvider(PersistenceRefactoringMapping.Provider refactoringMappingProvider);
+	public EmbeddedStorageFoundation setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
 	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation connectionFoundation);
 
@@ -77,7 +77,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		private PersistenceRootResolver                rootResolver              ;
 		private BinaryPersistenceRootsProvider         rootsProvider             ;
-		private PersistenceRefactoringMapping.Provider refactoringMappingProvider;
+		private PersistenceRefactoringMappingProvider refactoringMappingProvider;
 		private EmbeddedStorageConnectionFoundation    connectionFoundation      ;
 
 
@@ -136,7 +136,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		}
 		
 		@Override
-		public PersistenceRefactoringMapping.Provider getRefactoringMappingProvider()
+		public PersistenceRefactoringMappingProvider getRefactoringMappingProvider()
 		{
 			// no lazy creation. This is actually just a getter for an optional element.
 			return this.refactoringMappingProvider;
@@ -253,7 +253,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		
 		@Override
 		public EmbeddedStorageFoundation setRefactoringMappingProvider(
-			final PersistenceRefactoringMapping.Provider refactoringMappingProvider
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
 		{
 			this.refactoringMappingProvider = refactoringMappingProvider;
@@ -300,7 +300,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		protected PersistenceRootResolver provideRootResolver()
 		{
 			final PersistenceRootResolver                definedRootResolver = this.getRootResolver();
-			final PersistenceRefactoringMapping.Provider mappingProvider     = this.getRefactoringMappingProvider();
+			final PersistenceRefactoringMappingProvider mappingProvider     = this.getRefactoringMappingProvider();
 			
 			return mappingProvider == null
 				? definedRootResolver

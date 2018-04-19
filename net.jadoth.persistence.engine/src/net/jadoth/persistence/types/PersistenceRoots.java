@@ -11,8 +11,6 @@ public interface PersistenceRoots
 	
 	public boolean hasChanged();
 	
-	public boolean registerRootInstance(String identifier, Object instance);
-	
 	public void updateEntries(final XGettingTable<String, Object> newEntries);
 
 
@@ -80,15 +78,13 @@ public interface PersistenceRoots
 			return this.roots;
 		}
 		
-		@Override
-		public final boolean hasChanged()
+		public final synchronized Object[] setResolvedRoots(
+			final XGettingTable<String, PersistenceRootEntry> resolvedRoots
+		)
 		{
-			return this.hasChanged;
-		}
-		
-		public final Object[] setResolvedRoots(final XGettingTable<String, PersistenceRootEntry> resolvedRoots)
-		{
+			// inluding nulls to keep indexes consistent with objectIds.
 			final Object[] instances = new Object[resolvedRoots.intSize()];
+			
 			boolean hasChanged = false;
 			
 			int i = 0;
@@ -96,7 +92,17 @@ public interface PersistenceRoots
 			{
 				final String               identifier = resolvedRoot.key();
 				final PersistenceRootEntry rootEntry  = resolvedRoot.value();
-				instances[i++] = rootEntry.instance(); // inluding nulls to keep indexes consistent with objectIds.
+				final Object               instance   = rootEntry.instance(); // call supplier logic only once.
+				
+				// explicitely removed entry special case. Also represents a change. Index must be kept consistent!
+				if((instances[i++] = instance) == null)
+				{
+					hasChanged = true;
+					continue;
+				}
+
+				// normal case: unremoved instances must be registered.
+				this.roots.put(identifier, instance);
 				
 				// if at least one entry has changed, the whole roots instance has changed.
 				if(!hasChanged && !identifier.equals(rootEntry.identifier()))
@@ -105,23 +111,25 @@ public interface PersistenceRoots
 				}
 			}
 			
+			// any change regarding mapping or removing root entries that requires an updating store later on.
 			this.hasChanged = hasChanged;
 			
 			return instances;
 		}
 		
-
 		@Override
-		public final boolean registerRootInstance(final String identifier, final Object instance)
+		public final synchronized boolean hasChanged()
 		{
-			return this.roots.put(identifier, instance);
+			return this.hasChanged;
 		}
 		
 		@Override
-		public final void updateEntries(final XGettingTable<String, Object> newEntries)
+		public final synchronized void updateEntries(final XGettingTable<String, Object> newEntries)
 		{
 			this.roots.clear();
 			this.roots.addAll(newEntries);
+			
+			// having to replace/update the entries is a change as well.
 			this.hasChanged = true;
 		}
 

@@ -1,19 +1,18 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.coalesce;
 import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.EqConstHashTable;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hash.JadothHash;
-import net.jadoth.persistence.types.PersistenceRefactoringMapping.Provider;
 
 public interface PersistenceRootResolver
 {
@@ -21,15 +20,34 @@ public interface PersistenceRootResolver
 	
 	public XGettingTable<String, Object> getRootInstances();
 	
-	public default XGettingTable<String, PersistenceRootEntry> resolveRootInstances(final XGettingEnum<String> identifiers)
+	public default XGettingTable<String, PersistenceRootEntry> resolveRootInstances(
+		final XGettingEnum<String> identifiers
+	)
 	{
-		final EqHashTable<String, PersistenceRootEntry> resolvedRoots = EqHashTable.New();
+		final EqHashTable<String, PersistenceRootEntry> resolvedRoots         = EqHashTable.New();
+		final EqHashEnum<String>                        unresolvedIdentifiers = EqHashEnum.New();
 		
 		synchronized(this)
 		{
 			for(final String identifier : identifiers)
 			{
-				resolvedRoots.add(identifier, this.resolveRootInstance(identifier));
+				final PersistenceRootEntry resolvedRootEntry = this.resolveRootInstance(identifier);
+				if(resolvedRootEntry != null)
+				{
+					resolvedRoots.add(identifier, resolvedRootEntry);
+				}
+				else
+				{
+					unresolvedIdentifiers.add(identifier);
+				}
+			}
+			
+			if(!unresolvedIdentifiers.isEmpty())
+			{
+				// (19.04.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"The following root identifiers cannot be resolved: " + unresolvedIdentifiers
+				);
 			}
 		}
 		
@@ -113,11 +131,10 @@ public interface PersistenceRootResolver
 				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
 				
 				// arbitrary constant identifiers that decouple constant resolving from class/field names.
-				this.register(entries, "XHashEqualator:hashEqualityIdentity", JadothHash::hashEqualityIdentity);
 				this.register(entries, "XHashEqualator:hashEqualityValue"   , JadothHash::hashEqualityValue   );
-				this.register(entries, "XHashEqualator:keyValueHashEqualityKeyIdentity", JadothHash::keyValueHashEqualityKeyIdentity);
-				this.register(entries, "XEmpty:Collection", X::empty);
-				this.register(entries, "XEmpty:Table", X::emptyTable);
+				this.register(entries, "XHashEqualator:hashEqualityIdentity", JadothHash::hashEqualityIdentity);
+				this.register(entries, "XEmpty:Collection"                  , X::empty                        );
+				this.register(entries, "XEmpty:Table"                       , X::emptyTable                   );
 				
 				return entries;
 			}
@@ -221,7 +238,7 @@ public interface PersistenceRootResolver
 	
 	public static PersistenceRootResolver Wrap(
 		final PersistenceRootResolver                actualRootResolver,
-		final PersistenceRefactoringMapping.Provider refactoringMappingProvider
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider
 	)
 	{
 		return new MappingWrapper(actualRootResolver, refactoringMappingProvider);
@@ -234,7 +251,7 @@ public interface PersistenceRootResolver
 		////////////////////
 		
 		final PersistenceRootResolver                actualRootResolver        ;
-		final PersistenceRefactoringMapping.Provider refactoringMappingProvider;
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider;
 		
 		transient XGettingMap<String, String>        refactoringMappings;
 
@@ -246,7 +263,7 @@ public interface PersistenceRootResolver
 		
 		MappingWrapper(
 			final PersistenceRootResolver actualRootResolver        ,
-			final Provider                refactoringMappingProvider
+			final PersistenceRefactoringMappingProvider                refactoringMappingProvider
 		)
 		{
 			super();
@@ -292,10 +309,66 @@ public interface PersistenceRootResolver
 			 * but an outdated mapping rule defined by the using developer).
 			 */
 			final XGettingMap<String, String> refactoringMappings = this.refactoringMappings();
-			final String                      targetIdentifier    = refactoringMappings.get(identifier);
-			final String                      effectiveIdentifier = coalesce(targetIdentifier, identifier);
+			final String                      sourceIdentifier    = normalize(identifier);
 			
-			return this.actualRootResolver.resolveRootInstance(effectiveIdentifier);
+			if(!refactoringMappings.keys().contains(sourceIdentifier))
+			{
+				// simple case: no mapping found, use (normalized) source identifier directly.
+				return this.actualRootResolver.resolveRootInstance(sourceIdentifier);
+			}
+			
+			final String targetIdentifier = normalize(refactoringMappings.get(sourceIdentifier));
+			
+			/*
+			 * special case: an explicit mapping entry for the (normalized) sourceIdentifier exists,
+			 * but its target is null. This means the sourceIdentifier represents an old root entry
+			 * that has been mapped as deleted by the user developer.
+			 */
+			if(targetIdentifier == null)
+			{
+				// mark removed entry
+				return PersistenceRootEntry.New(sourceIdentifier, null);
+			}
+			
+			// normal case: the sourceIdentifier has been mapped to a non-null targetIdentifier. So resolve it.
+			final PersistenceRootEntry mappedEntry = this.actualRootResolver.resolveRootInstance(targetIdentifier);
+			
+			// but there is a catch: an unresolveable explicitely provided targetIdentifier is an error.
+			if(mappedEntry == null)
+			{
+				// (19.04.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Refactoring mapping target identifier cannot be resolved: " + targetIdentifier
+				);
+			}
+			
+			return mappedEntry;
+		}
+		
+		/**
+		 * Identifiers cannot have whitespaces at the end or the beginning.
+		 * A string that only consists of whitespaces is considered no identifier at all.
+		 * 
+		 * Note that for strings that don't have bordering whitespaces or are already <code>null</code>,
+		 * this method takes very little time and does not allocate any new instances. Only
+		 * the problematic case is any mentionable effort.
+		 * 
+		 * @param s the raw string to be normalized.
+		 * @return the normalized string, potentially <code>null</code>.
+		 */
+		private static String normalize(final String s)
+		{
+			if(s == null)
+			{
+				return null;
+			}
+			
+			final String normalized = s.trim();
+			
+			return normalized.isEmpty()
+				? null
+				: normalized
+			;
 		}
 		
 	}

@@ -140,29 +140,29 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
 			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
 
+			// (19.04.2018 TM)FIXME: fix equalsContent!
 			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
 				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
 				e1.key().equals(e2.key()) && e1.value() == e2.value()
 			);
 			
-			// if defined roots and (potentially re-mapped) match exactely, they are synchronous.
-			if(equalContent)
+			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
+			if(!equalContent)
 			{
-				// however, if the loaded roots had to be re-mapped somewhere, it still has to be stored to synchronize.
-				return !loadedRoots.hasChanged();
+				loadedRoots.updateEntries(definedEntries);
 			}
 			
 			/*
-			 * If both roots instances are not perfectly synchronous, the loaded roots has to have its entries
-			 * synchronized to the defined roots. The defined roots represent the current design of the application,
-			 * so they are always correct. However, the loaded roots instance has to be stored to maintain the
-			 * ObjectId associated with it. Hence the entry synchronizsation.
-			 * Synchronizing entries simply means here: clear the the loaded roots and add all defined roots entries.
+			 * If the loaded roots had to changed in any way to match the runtime state of the application,
+			 * it means that it has to be stored to update the persistent state to the current (changed) one.
+			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId.
+			 * Hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * There are 3 possible cases for a change:
+			 * 1.) An entry has been explicitely removed by a refactoring mapping.
+			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
+			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			loadedRoots.updateEntries(definedEntries);
-			
-			// having the loaded roots updated means it is not synchronous and needs to be stored, so return false.
-			return false;
+			return !loadedRoots.hasChanged();
 		}
 
 		@Override
@@ -193,18 +193,19 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				
 				// (18.04.2018 TM)FIXME: /!\ DEBUG
 				JadothConsole.debugln("New roots ...");
-				this.definedRoots.entries().iterate(System.out::println);
 
 				loadedRoots = this.definedRoots;
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
+				// (18.04.2018 TM)FIXME: /!\ DEBUG
+				JadothConsole.debugln("Synchronous roots.");
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;
 			}
 			
 			// (18.04.2018 TM)FIXME: /!\ DEBUG
-			JadothConsole.debugln("Updating roots ...");
+			JadothConsole.debugln("Storing roots ...");
 			loadedRoots.entries().iterate(System.out::println);
 
 			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized

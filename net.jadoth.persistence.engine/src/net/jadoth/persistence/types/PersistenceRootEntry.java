@@ -66,7 +66,10 @@ public interface PersistenceRootEntry
 		@Override
 		public final Object instance()
 		{
-			return this.instanceSupplier.get();
+			return this.instanceSupplier != null
+				? this.instanceSupplier.get()
+				: null
+			;
 		}
 		
 	}
