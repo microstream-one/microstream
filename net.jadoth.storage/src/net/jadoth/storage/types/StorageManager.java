@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import net.jadoth.storage.exceptions.StorageExceptionNotRunning;
 import net.jadoth.swizzling.types.Swizzle;
@@ -42,7 +43,7 @@ public interface StorageManager extends StorageController
 
 
 
-	public final class Implementation implements StorageManager
+	public final class Implementation implements StorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

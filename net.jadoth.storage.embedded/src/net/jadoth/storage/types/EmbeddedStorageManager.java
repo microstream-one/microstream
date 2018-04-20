@@ -7,11 +7,11 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
+import net.jadoth.persistence.types.Unpersistable;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -51,7 +51,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 
 
-	public final class Implementation implements EmbeddedStorageManager
+	public final class Implementation implements EmbeddedStorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -140,7 +140,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
 			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
 
-			// (19.04.2018 TM)FIXME: fix equalsContent!
 			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
 				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
 				e1.key().equals(e2.key()) && e1.value() == e2.value()
@@ -153,10 +152,10 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			
 			/*
-			 * If the loaded roots had to changed in any way to match the runtime state of the application,
+			 * If the loaded roots had to change in any way to match the runtime state of the application,
 			 * it means that it has to be stored to update the persistent state to the current (changed) one.
-			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId.
-			 * Hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
+			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
 			 * There are 3 possible cases for a change:
 			 * 1.) An entry has been explicitely removed by a refactoring mapping.
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
@@ -190,23 +189,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 					// (14.09.2015 TM)EXCP: proper exception
 					throw new RuntimeException("No roots found for existing data.");
 				}
-				
-				// (18.04.2018 TM)FIXME: /!\ DEBUG
-				JadothConsole.debugln("New roots ...");
 
 				loadedRoots = this.definedRoots;
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
-				// (18.04.2018 TM)FIXME: /!\ DEBUG
-				JadothConsole.debugln("Synchronous roots.");
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;
 			}
-			
-			// (18.04.2018 TM)FIXME: /!\ DEBUG
-			JadothConsole.debugln("Storing roots ...");
-			loadedRoots.entries().iterate(System.out::println);
 
 			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
 			initConnection.store(loadedRoots);
@@ -219,7 +209,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public void truncateData()
+		public final void truncateData()
 		{
 			this.storageManager.truncateData();
 		}

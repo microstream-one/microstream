@@ -20,14 +20,14 @@ public class MainTestStorageExampleMore
 		
 		// with refactorings
 //		.createStorageManager(Storage.RootResolver(ROOT, Storage.RefactoringMapping(new File(DIRECTORY, "Refactorings.csv"))))
-		
-		// multiple mappings (must register all persistent application constant instances here
-//		.createFoundation(Storage.RootResolverBuilder()
+//		.createStorageManager(
+////			Storage.RootResolver(ROOT, Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
+//			Storage.RootResolverBuilder()
 //			.registerRoot("root", ROOT)
+////			.registerRoots(PersistenceRootResolver.deriveRoots(SomeClassWithConstants.class))
+//			.setRefactoring(Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
 //			.build()
 //		)
-//		.setRefactoringMappingProvider(Storage.RefactoringMapping(new File(DIRECTORY, "Refactorings.csv")))
-//		.createEmbeddedStorageManager()
 		
 		.createEmbeddedStorageManager(
 			Storage.RootResolver(ROOT)                       , // binding between graph's root instance and the storage
@@ -65,4 +65,11 @@ public class MainTestStorageExampleMore
 
 		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
 	}
+}
+
+class SomeClassWithConstants
+{
+	public static final int[]    SOME_NUMBERS = {1,2,3};
+	public static final String[] SOME_NAMES   = {"Huey", "Dewey", "Louie"};
+//	public static final Object[] SOME_STUFFS  = {null, null};
 }

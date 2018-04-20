@@ -1,7 +1,5 @@
 package net.jadoth.test.corp.logic;
 
-import java.io.File;
-
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
@@ -13,12 +11,10 @@ public class MainTestStorageExample
 {
 	// root of the application's data model graph. Initially empty.
 	static final Reference<ClientCorporation> ROOT = Reference.New(null);
-
+	
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createStorageManager(
-			Storage.RootResolver("MyAppRoot", ROOT, Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
-		)
+		.createStorageManager(Storage.RootResolver(ROOT))
 		.start()
 	;
 
@@ -50,3 +46,6 @@ public class MainTestStorageExample
 		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
 	}
 }
+
+
+

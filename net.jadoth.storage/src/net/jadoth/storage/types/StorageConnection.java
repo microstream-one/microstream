@@ -11,6 +11,7 @@ import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceStoring;
 import net.jadoth.persistence.types.SelfStoring;
 import net.jadoth.persistence.types.Storer;
+import net.jadoth.persistence.types.Unpersistable;
 
 
 /**
@@ -155,7 +156,7 @@ public interface StorageConnection extends PersistenceStoring
 
 
 
-	public final class Implementation implements StorageConnection
+	public final class Implementation implements StorageConnection, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

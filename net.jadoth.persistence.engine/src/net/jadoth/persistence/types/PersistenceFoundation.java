@@ -205,7 +205,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public abstract class AbstractImplementation<M>
 	extends SwizzleFoundation.Implementation
-	implements PersistenceFoundation<M>
+	implements PersistenceFoundation<M>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

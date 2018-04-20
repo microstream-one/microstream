@@ -1685,6 +1685,37 @@ public final class JadothReflect
 	{
 		return (Class<? extends T>)object.getClass();
 	}
+	
+	public static char fieldIdentifierDelimiter()
+	{
+		return '#';
+	}
+	
+	public static String deriveFieldIdentifier(final Field field)
+	{
+		return field.getDeclaringClass().getName() + fieldIdentifierDelimiter() + field.getName();
+	}
+	
+	public static int getFieldIdentifierDelimiterIndex(final String identifier)
+	{
+		final int index = identifier.lastIndexOf(fieldIdentifierDelimiter());
+		if(index < 0)
+		{
+			throw new IllegalArgumentException(); // (16.10.2013 TM)TODO: proper Exception
+		}
+		
+		return index;
+	}
+	
+	public static String getFieldIdentifierClassName(final String fieldIdentifier)
+	{
+		return fieldIdentifier.substring(0, getFieldIdentifierDelimiterIndex(fieldIdentifier));
+	}
+	
+	public static String getFieldIdentifierFieldName(final String fieldIdentifier)
+	{
+		return fieldIdentifier.substring(getFieldIdentifierDelimiterIndex(fieldIdentifier) + 1);
+	}
 
 
 //	/**

@@ -7,7 +7,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import net.jadoth.meta.JadothConsole;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
 import net.jadoth.util.file.JadothFiles;
 
@@ -189,7 +188,7 @@ public interface StorageFileWriter
 			final String bakFileName = file.getName() + "_truncated_from_" + file.length() + "_to_" + newLength
 				+ "_@" + System.currentTimeMillis() + ".bak"
 			;
-			JadothConsole.debugln("Creating truncation bak file: " + bakFileName);
+//			JadothConsole.debugln("Creating truncation bak file: " + bakFileName);
 			JadothFiles.ensureDirectory(dirBak);
 			try
 			{
@@ -197,7 +196,7 @@ public interface StorageFileWriter
 					file.toPath(),
 					dirBak.toPath().resolve(bakFileName)
 				);
-				JadothConsole.debugln("* bak file created: " + bakFileName);
+//				JadothConsole.debugln("* bak file created: " + bakFileName);
 			}
 			catch(final IOException e)
 			{

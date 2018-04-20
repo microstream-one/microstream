@@ -31,52 +31,71 @@ public class Persistence extends Swizzle
 	{
 		return StandardCharsets.UTF_8;
 	}
-
-	// types that may never be encountered by persistancelayer at all (not yet complete)
-	private static final Class<?>[] NOT_ID_MAPPABLE_TYPES =
-	{
-		// system stuff
-		ClassLoader.class,
-		Thread.class,
-
-		// IO stuff
-		InputStream.class,
-		OutputStream.class,
-		FileChannel.class,
-		Socket.class,
-
-		// unshared composition types
-		ChainStorage.class,
-		ChainStorage.Entry.class
-	};
-
-	// types that may never need to be analyzed generically (custom handler must be present)
-	private static final Class<?>[] UNANALYZABLE_TYPES = JadothArrays.add(
-		NOT_ID_MAPPABLE_TYPES,
-		Composition.class,
-		Collection.class
-	);
-
-	private static final String DEFAULT_FILENAME_TYPE_DICTIONARY = "PersistenceTypeDictionary.ptd";
-	private static final String DEFAULT_FILENAME_TYPE_ID         = "TypeId.tid"                   ;
-	private static final String DEFAULT_FILENAME_OBJECT_ID       = "ObjectId.oid"                 ;
-
-
+	
 	public static String defaultFilenameTypeDictionary()
 	{
-		return DEFAULT_FILENAME_TYPE_DICTIONARY;
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return "PersistenceTypeDictionary.ptd";
 	}
 
 	public static String defaultFilenameTypeId()
 	{
-		return DEFAULT_FILENAME_TYPE_ID;
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return "TypeId.tid";
 	}
 
 	public static String defaultFilenameObjectId()
 	{
-		return DEFAULT_FILENAME_OBJECT_ID;
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return "ObjectId.oid";
+	}
+	
+	/**
+	 * types that may never be encountered by the persistance layer at all (not yet complete)
+	 * 
+	 * @return
+	 */
+	public static Class<?>[] notIdMappableTypes()
+	{
+		// (20.04.2018 TM)TODO: add NOT_ID_MAPPABLE_TYPES list
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return new Class<?>[]
+		{
+			// types that are explicitely marked as unpersistable. E.g. the persistence logic itself!
+			Unpersistable.class,
+			
+			// system stuff (cannot be restored intrinsically due to ties to JVM internals)
+			ClassLoader.class,
+			Thread.class,
+
+			// IO stuff (cannot be restored intrinsically due to ties to external resources like files, etc.)
+			InputStream.class,
+			OutputStream.class,
+			FileChannel.class,
+			Socket.class,
+
+			// unshared composition types (those are internal helper class instances, not entities)
+			ChainStorage.class,
+			ChainStorage.Entry.class
+		};
 	}
 
+	/**
+	 * Types that may never need to be analyzed generically (custom handler must be present)
+	 * 
+	 * @return
+	 */
+	public static Class<?>[] unanalyzableTypes()
+	{
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return JadothArrays.add(
+			notIdMappableTypes(),
+			Composition.class,
+			Collection.class
+		);
+	}
+
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
@@ -94,12 +113,12 @@ public class Persistence extends Swizzle
 
 	public static boolean isNotPersistable(final Class<?> type)
 	{
-		return JadothReflect.isOfAnyType(type, UNANALYZABLE_TYPES);
+		return JadothReflect.isOfAnyType(type, unanalyzableTypes());
 	}
 
 	public static boolean isNotTypeIdMappable(final Class<?> type)
 	{
-		return JadothReflect.isOfAnyType(type, NOT_ID_MAPPABLE_TYPES);
+		return JadothReflect.isOfAnyType(type, notIdMappableTypes());
 	}
 
 	public static final PersistenceTypeEvaluator defaultTypeEvaluatorTypeIdMappable()
@@ -123,6 +142,8 @@ public class Persistence extends Swizzle
 		;
 	}
 
+	
+	
 	protected Persistence()
 	{
 		// static only

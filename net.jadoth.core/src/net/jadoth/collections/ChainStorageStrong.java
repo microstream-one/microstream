@@ -636,7 +636,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */
-				return this.notEqual || this.entry == null || (this.entry = this.entry.next) == null
+				return this.notEqual || this.entry == null || (this.entry = this.entry.next) != null
 					? FALSE
 					: TRUE
 				;

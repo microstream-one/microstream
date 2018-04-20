@@ -35,7 +35,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 
 
 
-	public final class Implementation<M> implements PersistenceManager<M>
+	public final class Implementation<M> implements PersistenceManager<M>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

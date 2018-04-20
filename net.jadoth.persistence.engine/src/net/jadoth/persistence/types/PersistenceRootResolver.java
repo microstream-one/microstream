@@ -2,7 +2,9 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import java.lang.reflect.Field;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.EqConstHashTable;
@@ -13,6 +15,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hash.JadothHash;
+import net.jadoth.reflect.JadothReflect;
 
 public interface PersistenceRootResolver
 {
@@ -53,7 +56,74 @@ public interface PersistenceRootResolver
 		
 		return resolvedRoots;
 	}
+	
+	public static XGettingTable<String, Supplier<?>> deriveRoots(final Class<?>... types)
+	{
+		return deriveRoots(JadothReflect::deriveFieldIdentifier, types);
+	}
+	
+	public static XGettingTable<String, Supplier<?>> deriveRoots(
+		final Function<Field, String> rootIdentifierDeriver,
+		final Class<?>...             types
+	)
+	{
+		final EqHashTable<String, Supplier<?>> roots = EqHashTable.New();
+		
+		addRoots(roots, rootIdentifierDeriver, types);
+		
+		return roots;
+	}
 
+	public static void addRoots(
+		final EqHashTable<String, Supplier<?>> roots                ,
+		final Function<Field, String>          rootIdentifierDeriver,
+		final Class<?>...                      types
+	)
+	{
+		for(final Class<?> type : types)
+		{
+			addRoots(roots, rootIdentifierDeriver, type);
+		}
+	}
+	
+	
+	public static void addRoots(
+		final EqHashTable<String, Supplier<?>> roots                ,
+		final Function<Field, String>          rootIdentifierDeriver,
+		final Class<?>                         type
+	)
+	{
+		for(final Field field : type.getDeclaredFields())
+		{
+			/*
+			 * better not trust custom predicates:
+			 * - field MUST be static, otherwise no instance can be safely retrieved in a static way.
+			 * - field MUST be a reference field, because registering primitives is neither possible nor reasonable.
+			 */
+			if(!JadothReflect.isStatic(field) || !JadothReflect.isReference(field))
+			{
+				continue;
+			}
+			
+			final String rootIdentifier = rootIdentifierDeriver.apply(field);
+			if(rootIdentifier == null)
+			{
+				// the deriver function also serves as a predicate: if it returns null, the field shall be skipped.
+				continue;
+			}
+			
+			field.setAccessible(true);
+			
+			/*
+			 * The static field gets registered for the derived identifier.
+			 * The Supplier indirection prevents class initialization loops.
+			 * Lambda line break for debuggability.
+			 */
+			roots.add(rootIdentifier, () ->
+				JadothReflect.getFieldValue(field, null)
+			);
+		}
+	}
 	
 	
 	public interface Builder
@@ -75,6 +145,8 @@ public interface PersistenceRootResolver
 		{
 			return this.registerRoot(identifier, () -> instance);
 		}
+		
+		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoring);
 				
 		public PersistenceRootResolver build();
 		
@@ -86,6 +158,7 @@ public interface PersistenceRootResolver
 			
 			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider  ;
 			private final EqHashTable<String, PersistenceRootEntry>             rootEntries    ;
+			private       PersistenceRefactoringMappingProvider                 refactoring    ;
 			
 			
 			
@@ -151,9 +224,21 @@ public interface PersistenceRootResolver
 			@Override
 			public final synchronized PersistenceRootResolver build()
 			{
-				return new PersistenceRootResolver.Implementation(
+				final PersistenceRootResolver resolver = new PersistenceRootResolver.Implementation(
 					this.rootEntries.immure()
 				);
+				
+				return this.refactoring == null
+					? resolver
+					: PersistenceRootResolver.Wrap(resolver, this.refactoring)
+				;
+			}
+			
+			@Override
+			public final synchronized Builder setRefactoring(final PersistenceRefactoringMappingProvider refactoring)
+			{
+				this.refactoring = refactoring;
+				return this;
 			}
 		}
 	}

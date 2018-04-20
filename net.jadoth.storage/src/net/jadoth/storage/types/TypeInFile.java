@@ -1,7 +1,9 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.persistence.types.Unpersistable;
 
-final class TypeInFile
+
+final class TypeInFile implements Unpersistable
 {
 	final StorageEntityType.Implementation type    ;
 	final StorageDataFile.Implementation   file    ;

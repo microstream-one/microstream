@@ -20,7 +20,6 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.memory.Memory;
-import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
@@ -650,13 +649,13 @@ public interface StorageFileManager
 		@Override
 		public final void rollbackWrite()
 		{
-			JadothConsole.debugln(
-				this.channelIndex()
-				+ " rolling back write: truncating "
-				+ this.headFile.file().getName()
-				+ "(length " + this.headFile.file().length()
-				+ ") at " + this.headFile.totalLength()
-			);
+//			JadothConsole.debugln(
+//				this.channelIndex()
+//				+ " rolling back write: truncating "
+//				+ this.headFile.file().getName()
+//				+ "(length " + this.headFile.file().length()
+//				+ ") at " + this.headFile.totalLength()
+//			);
 			this.writer.truncate(this.headFile, this.headFile.totalLength());
 		}
 
@@ -1270,13 +1269,13 @@ public interface StorageFileManager
 		{
 			if(lastFileLength != lastFile.file().length())
 			{
-				JadothConsole.debugln(
-					this.channelIndex()
-					+ " last file initialization truncating "
-					+ lastFile.file().getName()
-					+ "(length " + lastFile.file().length()
-					+ ") at " + lastFileLength
-				);
+//				JadothConsole.debugln(
+//					this.channelIndex()
+//					+ " last file initialization truncating "
+//					+ lastFile.file().getName()
+//					+ "(length " + lastFile.file().length()
+//					+ ") at " + lastFileLength
+//				);
 				
 //				DEBUGStorage.println(this.channelIndex + " truncating last file to " + lastFileLength + " " + lastFile);
 				// reaching here means in any case that the file has to be truncated and its header must be updated
