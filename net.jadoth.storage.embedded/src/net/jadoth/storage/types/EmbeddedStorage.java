@@ -78,6 +78,16 @@ public final class EmbeddedStorage
 			.setRootResolver(rootResolver)
 		;
 	}
+	
+	public static EmbeddedStorageFoundation createFoundation(final File directory)
+	{
+		JadothFiles.ensureDirectory(directory);
+
+		return createFoundation(
+			Storage.FileProvider(directory),
+			createConnectionFoundation(directory)
+		);
+	}
 
 	public static EmbeddedStorageFoundation createFoundation(
 		final File                    directory   ,
@@ -154,14 +164,21 @@ public final class EmbeddedStorage
 	}
 
 
-
-
 	public static final EmbeddedStorageManager createStorageManager(
 		final PersistenceRootResolver rootResolver
 	)
 	{
 		final EmbeddedStorageManager esm = EmbeddedStorage
 			.createFoundation(rootResolver)
+			.createEmbeddedStorageManager()
+		;
+		return esm;
+	}
+
+	public static final EmbeddedStorageManager createStorageManager()
+	{
+		final EmbeddedStorageManager esm = EmbeddedStorage
+			.createFoundation()
 			.createEmbeddedStorageManager()
 		;
 		return esm;
@@ -204,30 +221,60 @@ public final class EmbeddedStorage
 		;
 		return esm;
 	}
-
-	public static final EmbeddedStorageManager createEmbeddedStorageManager(
-		final PersistenceRootResolver       rootResolver          ,
-		final File                          directory             ,
-		final StorageChannelCountProvider   channelCountProvider  ,
-		final StorageHousekeepingController housekeepingController,
-		final StorageDataFileEvaluator      fileDissolver         ,
-		final StorageEntityCacheEvaluator   entityCacheEvaluator
-	)
+	
+	/**
+	 * Uber-simplicity util method. See {@link #createStorageManager()} and {@link #createFoundation()} variants for
+	 * more practical alternatives.
+	 * 
+	 * @return An {@link EmbeddedStorageManager} instance with an actively running database using all-default-settings.
+	 */
+	public static final EmbeddedStorageManager start()
 	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation(
-				rootResolver          ,
-				directory             ,
-				channelCountProvider  ,
-				housekeepingController,
-				fileDissolver         ,
-				entityCacheEvaluator
-			)
-			.createEmbeddedStorageManager()
-		;
+		final EmbeddedStorageManager esm = createStorageManager();
+		esm.start();
 		return esm;
 	}
 
+	
+	
+	/**
+	 * Default root reference to point to the root instance of a persistent entity graph.
+	 * This is moreless a monkey business because proper applications should not rely on static state as their
+	 * entity graph root but define their own with a proper typing and a suitable identifier.
+	 * The only reasonable thing about this variable is that is lowers the learning curve as it eliminates the
+	 * need to explicitely define a root resolver.
+	 */
+	static Object root;
+	
+	/**
+	 * The default instance to be used as a root of the persistence entity graph.<br>
+	 * The value is <code>null</code> until an actual instance is set via {@link #root(Object)}.<br>
+	 * 
+	 * @return the default root instance.
+	 * 
+	 * @see #root(Object)
+	 */
+	public static Object root()
+	{
+		return root;
+	}
+	
+	/**
+	 * Sets the default root instance to be returned by {@link #root()}.<br>
+	 * Returns the reference that was references as root so far.
+	 * 
+	 * @param rootInstance the new root instance to be set.
+	 * @return the old root reference.
+	 * 
+	 * @see #root()
+	 */
+	public static Object root(final Object rootInstance)
+	{
+		final Object oldRoot = root;
+		root = rootInstance;
+		return oldRoot;
+	}
+	
 
 
 	private EmbeddedStorage()

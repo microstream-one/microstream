@@ -259,12 +259,7 @@ public interface PersistenceRootResolver
 			notNull(entryProvider)
 		);
 	}
-	
-	public static PersistenceRootResolver New()
-	{
-		return Builder().build();
-	}
-	
+		
 	public static PersistenceRootResolver New(final String identifier, final Supplier<?> instanceSupplier)
 	{
 		return Builder()

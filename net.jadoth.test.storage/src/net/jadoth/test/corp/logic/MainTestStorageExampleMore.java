@@ -29,13 +29,15 @@ public class MainTestStorageExampleMore
 //			.build()
 //		)
 		
-		.createEmbeddedStorageManager(
+		.createStorageManager(
 			Storage.RootResolver(ROOT)                       , // binding between graph's root instance and the storage
-			DIRECTORY                                        , // location for the database files
+			Storage.Configuration(
+			Storage.FileProvider(DIRECTORY)                  , // location for the database files
 			Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
 			Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
 			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
 			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
+			)
 		)
 		.start()
 	;

@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.types.Persistence;
@@ -227,33 +228,46 @@ public final class Storage
 
 	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
 	{
-		return PersistenceRootResolver.New(rootIdentifier, () -> rootInstance);
+		return RootResolver(rootIdentifier, () -> rootInstance);
 	}
 
 	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
 	{
-		return RootResolver("root", rootInstance);
+		return RootResolver(() -> rootInstance);
+	}
+
+	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
+	{
+		return RootResolver("root", rootInstanceSupplier);
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final String                                rootIdentifier    ,
-		final Object                                rootInstance      ,
+		final String      rootIdentifier      ,
+		final Supplier<?> rootInstanceSupplier
+	)
+	{
+		return PersistenceRootResolver.New(rootIdentifier, rootInstanceSupplier);
+	}
+	
+	public static final PersistenceRootResolver RootResolver(
+		final String                                rootIdentifier      ,
+		final Supplier<?>                           rootInstanceSupplier,
 		final PersistenceRefactoringMappingProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
-			RootResolver(rootIdentifier, rootInstance),
+			RootResolver(rootIdentifier, rootInstanceSupplier),
 			refactoringMapping
 		);
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final Object                                rootInstance      ,
+		final Supplier<?>                           rootInstanceSupplier,
 		final PersistenceRefactoringMappingProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
-			RootResolver(rootInstance),
+			RootResolver(rootInstanceSupplier),
 			refactoringMapping
 		);
 	}

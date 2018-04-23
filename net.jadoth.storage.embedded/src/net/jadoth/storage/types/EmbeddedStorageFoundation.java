@@ -1,8 +1,8 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
-import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
@@ -75,10 +75,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		// instance fields  //
 		/////////////////////
 
-		private PersistenceRootResolver                rootResolver              ;
-		private BinaryPersistenceRootsProvider         rootsProvider             ;
+		private PersistenceRootResolver               rootResolver              ;
+		private BinaryPersistenceRootsProvider        rootsProvider             ;
 		private PersistenceRefactoringMappingProvider refactoringMappingProvider;
-		private EmbeddedStorageConnectionFoundation    connectionFoundation      ;
+		private EmbeddedStorageConnectionFoundation   connectionFoundation      ;
 
 
 
@@ -88,7 +88,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		protected PersistenceRootResolver createRootResolver()
 		{
-			return PersistenceRootResolver.New();
+			return Storage.RootResolver(EmbeddedStorage::root);
 		}
 
 		protected BinaryPersistenceRootsProvider createRootsProvider()
