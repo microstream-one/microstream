@@ -398,11 +398,11 @@ public interface StorageFileManager
 			      StorageEntity.Implementation   last     = null                    ;
 			      StorageEntity.Implementation   current  = first                   ;
 
-			final int  copyStart                = first.storagePosition                     ;
-			final int  targetFileOldTotalLength = to_int(headFile.totalLength())          ;
-			final int  maximumFileSize          = this.fileEvaluator.maximumFileSize()      ;
-			final int  freeSpace                = maximumFileSize - targetFileOldTotalLength;
-			      int  copyLength               = 0                                         ;
+			final long copyStart                = first.storagePosition                     ;
+			final long targetFileOldTotalLength = headFile.totalLength()                    ;
+			final long maximumFileSize          = this.fileEvaluator.maximumFileSize()      ;
+			final long freeSpace                = maximumFileSize - targetFileOldTotalLength;
+			      long copyLength               = 0                                         ;
 
 			/*
 			 * Collecting the transfer chain has 2 abort conditions:
@@ -436,9 +436,10 @@ public interface StorageFileManager
 	//			System.out.println(last.storagePosition + "\t" + (last.storagePosition - transferPositionOffset) + "\t" + last.length);
 	//			DEBUGStorage.println("transfer assigning\t" + current.objectId + "\t" + fileNewTotalLength + "\t" + current.length + "\t" + targetFile.number());
 				// set new file. Enqueing in the file's item chain is done for the whole sub chain
-				current.typeInFile            = headFile.typeInFile(current.typeInFile.type);
+				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
+				
 				// update position to the one in the target file (old length plus current copy length)
-				current.storagePosition = targetFileOldTotalLength + copyLength;
+				current.storagePosition = to_int(targetFileOldTotalLength + copyLength);
 
 				// advance to next entity and add current entity's length to the total copy length
 				copyLength += current.length;
@@ -473,8 +474,8 @@ public interface StorageFileManager
 
 		private void appendBytesToHeadFile(
 			final StorageDataFile.Implementation sourceFile,
-			final int                            copyStart ,
-			final int                            copyLength
+			final long                           copyStart ,
+			final long                           copyLength
 		)
 		{
 //			DEBUGStorage.println(

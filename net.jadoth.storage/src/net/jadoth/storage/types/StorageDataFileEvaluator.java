@@ -23,9 +23,9 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 	public boolean needsRetirement(long fileTotalLength);
 
-	public int minimumFileSize();
+	public long minimumFileSize();
 
-	public int maximumFileSize();
+	public long maximumFileSize();
 
 
 	public static StorageDataFileEvaluator New(final int minFileSize, final int maxFileSize, final double dissolveRatio)
@@ -60,8 +60,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		// instance fields  //
 		/////////////////////
 
-		private final int     minimumFileSize ;
-		private final int     maximumFileSize ;
+		private final long    minimumFileSize ;
+		private final long    maximumFileSize ;
 		private final double  minimumFillRatio;
 		private final boolean cleanupHeadFile ;
 
@@ -72,8 +72,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		/////////////////////
 
 		Implementation(
-			final int     minFileSize     ,
-			final int     maxFileSize     ,
+			final long    minFileSize     ,
+			final long    maxFileSize     ,
 			final double  minimumFillRatio,
 			final boolean cleanupHeadFile
 		)
@@ -92,13 +92,13 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		/////////////////////
 
 		@Override
-		public final int minimumFileSize()
+		public final long minimumFileSize()
 		{
 			return this.minimumFileSize;
 		}
 
 		@Override
-		public final int maximumFileSize()
+		public final long maximumFileSize()
 		{
 			return this.maximumFileSize;
 		}
