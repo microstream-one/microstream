@@ -30,13 +30,13 @@ public class MainTestStorageExampleMore
 //		)
 		
 		.createStorageManager(
-			Storage.RootResolver(ROOT)                       , // binding between graph's root instance and the storage
+			Storage.RootResolver(ROOT)                           , // binding between graph's root instance and the storage
 			Storage.Configuration(
-			Storage.FileProvider(DIRECTORY)                  , // location for the database files
-			Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
-			Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
-			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
-			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
+				Storage.FileProvider(DIRECTORY)                  , // location for the database files
+				Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
+				Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
+				Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
+				Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
 			)
 		)
 		.start()
@@ -44,7 +44,7 @@ public class MainTestStorageExampleMore
 
 	public static void main(final String[] args)
 	{
-		// either loaded on startup from existing DB via STORAGE.start() or required to be generated for empty DB
+		// either loaded on startup from an existing DB or required to be generated.
 		if(ROOT.get() == null)
 		{
 			// first execution enters here
@@ -53,7 +53,7 @@ public class MainTestStorageExampleMore
 			ROOT.set(Test.generateModelData(100_000));
 
 			Test.print("STORAGE: storing ...");
-			STORAGE.storeFull(ROOT);
+			STORAGE.store(ROOT);
 			Test.print("STORAGE: storing completed.");
 		}
 		else
@@ -65,7 +65,7 @@ public class MainTestStorageExampleMore
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory(DIRECTORY, "testCorpExport"));
 		}
 
-		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
+		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 }
 

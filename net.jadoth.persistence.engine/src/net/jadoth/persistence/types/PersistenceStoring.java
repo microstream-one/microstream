@@ -17,6 +17,8 @@ public interface PersistenceStoring
 	 */
 
 	/**
+	 * @deprecated to be removed soon and replaced by a way to create different types of storers.
+	 * 
 	 * Stores the passed instance and all referenced instances of persistable references recursively (fully deep).
 	 * This is useful for storing all instances of an isolated sub-graph automatically, even if some of them are
 	 * already known to the registry.
@@ -25,7 +27,34 @@ public interface PersistenceStoring
 	 * @param instance the root instance of the subgraph to be stored.
 	 * @return the object id representing the passed instances that was used to unswizzle it.
 	 */
+	@Deprecated
 	public long storeFull(Object instance); // store complete graph, no matter what
+
+	/**
+	 * @deprecated To be removed soon. Use the semantically identical {@link #store(Object)} instead.
+	 * 
+	 */
+	@Deprecated
+	public long storeRequired(Object instance); // store passed instance in any case and required instances recursively
+
+	/**
+	 * @deprecated To be removed soon and replaced by a way to create different types of storers.
+	 * 
+	 * Convenience method to {@link #storeFull(Object)} multiple instances.
+	 *
+	 * @param instances the root instances of the subgraphs to be stored.
+	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
+	 * 
+	 */
+	@Deprecated
+	public long[] storeAllFull(Object... instances);
+	
+	/**
+	 * @deprecated To be removed soon. Use the semantically identical {@link #storeAll(Object...)} instead.
+	 */
+	@Deprecated
+	public long[] storeAllRequired(Object... instances);
+
 
 	/**
 	 * Stores the passed instance in any case and all referenced instances of persistable references recursively,
@@ -37,31 +66,6 @@ public interface PersistenceStoring
 	 * @param instance the root instance of the subgraph of required instances to be stored.
 	 * @return the object id representing the passed instances that was used to unswizzle it.
 	 */
-	public long storeRequired(Object instance); // store passed instance in any case and required instances recursively
-
-	/**
-	 * Convenience method to {@link #storeFull(Object)} multiple instances.
-	 *
-	 * @param instances the root instances of the subgraphs to be stored.
-	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
-	 */
-	public long[] storeAllFull(Object... instances);
-
-	/**
-	 * Convenience method to {@link #storeRequired(Object)} multiple instances.
-	 *
-	 * @param instances the root instances of the subgraphs of required instances to be stored.
-	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
-	 */
-	public long[] storeAllRequired(Object... instances);
-
-
-	/**
-	 * The "natural" way of storing. By default, this method is just an alias for {@link #storeRequired(Object)}.
-	 *
-	 * @param instance the root instance of the subgraph of instances to be stored.
-	 * @return
-	 */
 	public default long store(final Object instance)
 	{
 		return this.storeRequired(instance);
@@ -70,7 +74,7 @@ public interface PersistenceStoring
 	/**
 	 * Convenience method to {@link #store(Object)} multiple instances.
 	 *
-	 * @param instances the root instances of the subgraphs of instances to be stored.
+	 * @param instances the root instances of the subgraphs of required instances to be stored.
 	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
 	 */
 	public default long[] storeAll(final Object... instances)

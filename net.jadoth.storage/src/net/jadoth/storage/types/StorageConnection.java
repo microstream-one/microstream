@@ -120,24 +120,40 @@ public interface StorageConnection extends PersistenceStoring
 
 	public PersistenceManager<Binary> persistenceManager();
 
+	/**
+	 * @deprecated To be removed soon and replaced by a way to create different types of storers.
+	 */
+	@Deprecated
 	@Override
 	public default long[] storeAllFull(final Object... instances)
 	{
 		return this.persistenceManager().storeAllFull(instances);
 	}
-
+	
+	/**
+	 * @deprecated To be removed soon. Use the semantically identical {@link #storeAll(Object...)} instead.
+	 */
+	@Deprecated
 	@Override
 	public default long[] storeAllRequired(final Object... instances)
 	{
 		return this.persistenceManager().storeAllRequired(instances);
 	}
 
+	/**
+	 * @deprecated To be removed soon and replaced by a way to create different types of storers.
+	 */
+	@Deprecated
 	@Override
 	public default long storeFull(final Object instance)
 	{
 		return this.persistenceManager().storeFull(instance);
 	}
 
+	/**
+	 * @deprecated To be removed soon. Use the semantically identical {@link #store(Object)} instead.
+	 */
+	@Deprecated
 	@Override
 	public default long storeRequired(final Object instance)
 	{

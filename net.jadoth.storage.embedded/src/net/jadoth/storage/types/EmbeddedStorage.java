@@ -2,30 +2,43 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 
+import net.jadoth.collections.Singleton;
+import net.jadoth.collections.X;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRootResolver;
+import net.jadoth.reference.Reference;
 import net.jadoth.util.file.JadothFiles;
 
 public final class EmbeddedStorage
 {
-	public static EmbeddedStorageFoundation createFoundation()
+	public static EmbeddedStorageFoundation createFoundationBlank()
 	{
 		return new EmbeddedStorageFoundation.Implementation();
 	}
 
 	public static EmbeddedStorageFoundation createFoundation(final StorageConfiguration configuration)
 	{
-		System.out.println("EmbeddedStorage#createFoundation using storage configuration:\n" + configuration);
-
-		return createFoundation().setConfiguration(configuration);
+		return createFoundationBlank().setConfiguration(configuration);
+	}
+	
+	public static EmbeddedStorageFoundation createFoundation()
+	{
+		return createFoundation(new File(Storage.defaultDirectoryName()));
+	}
+	
+	public static EmbeddedStorageFoundation createFoundation(final PersistenceRootResolver rootResolver)
+	{
+		return createFoundation()
+			.setRootResolver(rootResolver)
+		;
 	}
 
 	public static EmbeddedStorageFoundation createFoundation(
-		final StorageConfiguration                configuration        ,
+		final StorageConfiguration                configuration       ,
 		final EmbeddedStorageConnectionFoundation connectionFoundation
 	)
 	{
@@ -33,9 +46,11 @@ public final class EmbeddedStorage
 			.setConnectionFoundation(connectionFoundation)
 		;
 	}
+	
+	
 
 	public static EmbeddedStorageFoundation createFoundation(
-		final StorageConfiguration                configuration        ,
+		final StorageConfiguration                configuration       ,
 		final EmbeddedStorageConnectionFoundation connectionFoundation,
 		final PersistenceRootResolver             rootResolver
 	)
@@ -126,12 +141,6 @@ public final class EmbeddedStorage
 			rootResolver
 		);
 	}
-
-	public static EmbeddedStorageFoundation createFoundation(final PersistenceRootResolver rootResolver)
-	{
-		return createFoundation(new File(Storage.defaultDirectoryName()), rootResolver);
-	}
-
 
 	static EmbeddedStorageConnectionFoundation createConnectionFoundation(final File directory)
 	{
@@ -238,43 +247,27 @@ public final class EmbeddedStorage
 	
 	
 	/**
-	 * Default root reference to point to the root instance of a persistent entity graph.
+	 * Default root instance of a persistent entity graph.
 	 * This is moreless a monkey business because proper applications should not rely on static state as their
-	 * entity graph root but define their own with a proper typing and a suitable identifier.
-	 * The only reasonable thing about this variable is that is lowers the learning curve as it eliminates the
-	 * need to explicitely define a root resolver.
+	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
+	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
+	 * need to explicitely define and register a root resolver.
 	 */
-	static Object root;
+	static final Singleton<Object> root = X.Singleton(null);
 	
 	/**
 	 * The default instance to be used as a root of the persistence entity graph.<br>
-	 * The value is <code>null</code> until an actual instance is set via {@link #root(Object)}.<br>
+	 * The reference value is initially <code>null</code>.<br>
 	 * 
 	 * @return the default root instance.
 	 * 
 	 * @see #root(Object)
 	 */
-	public static Object root()
+	public static Reference<Object> root()
 	{
 		return root;
 	}
-	
-	/**
-	 * Sets the default root instance to be returned by {@link #root()}.<br>
-	 * Returns the reference that was references as root so far.
-	 * 
-	 * @param rootInstance the new root instance to be set.
-	 * @return the old root reference.
-	 * 
-	 * @see #root()
-	 */
-	public static Object root(final Object rootInstance)
-	{
-		final Object oldRoot = root;
-		root = rootInstance;
-		return oldRoot;
-	}
-	
+		
 
 
 	private EmbeddedStorage()

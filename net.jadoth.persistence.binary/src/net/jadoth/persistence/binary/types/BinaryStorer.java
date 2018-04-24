@@ -2,6 +2,7 @@ package net.jadoth.persistence.binary.types;
 
 import static java.lang.System.identityHashCode;
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
@@ -560,7 +561,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////////
 
 		@Override
-		public final BinaryStorer createPersistenceStorer(
+		public final BinaryStorer.SimpleDeep createPersistenceStorer(
 			final SwizzleObjectManager                  objectManager     ,
 			final SwizzleObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -699,7 +700,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////////
 
 		@Override
-		public final ChannelHashingDeep createPersistenceStorer(
+		public final BinaryStorer.ChannelHashingDeep createPersistenceStorer(
 			final SwizzleObjectManager                  objectManager     ,
 			final SwizzleObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,

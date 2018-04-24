@@ -299,7 +299,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		protected PersistenceRootResolver provideRootResolver()
 		{
-			final PersistenceRootResolver                definedRootResolver = this.getRootResolver();
+			final PersistenceRootResolver               definedRootResolver = this.getRootResolver();
 			final PersistenceRefactoringMappingProvider mappingProvider     = this.getRefactoringMappingProvider();
 			
 			return mappingProvider == null

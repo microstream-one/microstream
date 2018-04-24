@@ -6,20 +6,18 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 
 public class MainTestStorageExample
 {
-	// creates and start an embedded storage manager with all-default-settngs.
+	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 
 	public static void main(final String[] args)
 	{
-		// either loaded on startup from existing DB via STORAGE.start() or required to be generated for empty DB
-		if(EmbeddedStorage.root() == null)
+		// either loaded on startup from an existing DB or required to be generated.
+		if(EmbeddedStorage.root().get() == null)
 		{
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			EmbeddedStorage.root(Test.generateModelData(100_000));
-//			EmbeddedStorage.root(Test.generateHashSet(3));
-
+			EmbeddedStorage.root().set(Test.generateModelData(100_000));
 			Test.print("STORAGE: storing ...");
 			STORAGE.store(EmbeddedStorage.root());
 			Test.print("STORAGE: storing completed.");
@@ -29,14 +27,13 @@ public class MainTestStorageExample
 			// subsequent executions enter here
 
 			Test.print("TEST: model data loaded." );
-			Test.print(EmbeddedStorage.root());
+			Test.print(EmbeddedStorage.root().get());
+			Test.print("TEST: exporting data ..." );
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
+			Test.print("TEST: data export completed.");
 		}
 
 //		STORAGE.shutdown();
-		System.exit(0); // no shutdown required, storage concept is inherently crash-safe
+		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 }
-
-
-

@@ -36,7 +36,7 @@ public class StorageTestSimple extends TestStorage
 		ROOT.set(X.List(X.List(11, 12, 13), X.List(21, 22, 23), X.List(31, 32, 33)));
 
 		// store whole graph recursively, starting at root
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 
 		// shutdown is moreless optional, only to stop threads. Storage will always recover from incomplete states.
 		STORAGE.shutdown();

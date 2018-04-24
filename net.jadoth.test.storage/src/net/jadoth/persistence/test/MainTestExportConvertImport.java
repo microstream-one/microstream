@@ -15,7 +15,7 @@ public class MainTestExportConvertImport extends TestStorage
 	{
 		ROOT.set(testGraphEvenMoreManyType());
 		final StorageConnection storageConnection = STORAGE.createConnection();
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 		testExport(new File("C:/Files/export"));
 		exit();
 	}
