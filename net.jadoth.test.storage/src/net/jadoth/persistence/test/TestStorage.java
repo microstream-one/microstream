@@ -414,13 +414,13 @@ public class TestStorage extends TestComponentProvider
 		for(int i = 0; i < 100; i++)
 		{
 			JadothConsole.debugln("Continuous Call #" + i);
-			connection.storeRequired(ROOT);
+			connection.store(ROOT);
 			storageCleanup(connection);
 		}
 //		ROOT.set(new Object());
 //		for(int i = 3; i --> 0;)
 //		{
-//			connection.storeRequired(ROOT);
+//			connection.store(ROOT);
 //			storageCleanup(connection);
 //		}
 	}

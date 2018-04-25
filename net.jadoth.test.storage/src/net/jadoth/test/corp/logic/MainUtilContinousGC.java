@@ -18,7 +18,7 @@ public class MainUtilContinousGC extends MainTestStorageExample
 			// (24.06.2015 TM)TODO: adjust times according to entity count and housekeeping budgets
 			JadothThreads.sleep((2 + JadothMath.random(4)) * 1000);
 			debugln(i+" storing ...");
-			STORAGE.storeRequired(cc);
+			STORAGE.store(cc);
 			debugln(i+" done.");
 		}
 		System.exit(0);

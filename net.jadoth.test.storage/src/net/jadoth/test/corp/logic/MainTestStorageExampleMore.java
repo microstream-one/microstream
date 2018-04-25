@@ -41,7 +41,7 @@ public class MainTestStorageExampleMore
 		)
 		.start()
 	;
-
+	
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.

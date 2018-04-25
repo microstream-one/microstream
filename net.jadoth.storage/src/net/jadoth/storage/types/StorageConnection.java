@@ -137,7 +137,7 @@ public interface StorageConnection extends PersistenceStoring
 	@Override
 	public default long[] storeAllRequired(final Object... instances)
 	{
-		return this.persistenceManager().storeAllRequired(instances);
+		return this.persistenceManager().storeAll(instances);
 	}
 
 	/**
@@ -157,7 +157,7 @@ public interface StorageConnection extends PersistenceStoring
 	@Override
 	public default long storeRequired(final Object instance)
 	{
-		return this.persistenceManager().storeRequired(instance);
+		return this.persistenceManager().store(instance);
 	}
 
 	public default void store(final SelfStoring storing)
@@ -288,7 +288,7 @@ public interface StorageConnection extends PersistenceStoring
 //		@Override
 //		public long storeRequired(final Object instance)
 //		{
-//			return this.delegate.storeRequired(instance);
+//			return this.delegate.store(instance);
 //		}
 //
 //		@Override
@@ -300,7 +300,7 @@ public interface StorageConnection extends PersistenceStoring
 //		@Override
 //		public long[] storeAllRequired(final Object... instances)
 //		{
-//			return this.delegate.storeAllRequired(instances);
+//			return this.delegate.storeAll(instances);
 //		}
 //
 //		@Override

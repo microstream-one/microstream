@@ -45,7 +45,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 		final int size = ref.get().length;
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 //		storageCleanup(connection);
 
@@ -57,7 +57,9 @@ public class MainTestStorageGCStresstest extends TestStorage
 //				storageCleanup(connection);
 //			}
 
-			connection.storeFull(ref.get()[JadothMath.random(size)]);
+			// (25.04.2018 TM)FIXME: actually requires a FullStorer#store call now
+			connection.store(ref.get()[JadothMath.random(size)]);
+//			connection.storeFull(ref.get()[JadothMath.random(size)]);
 			DEBUGStorage.println("stored #"+i);
 
 			ref.clear();

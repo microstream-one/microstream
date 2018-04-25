@@ -103,7 +103,7 @@ public class MainTestStorage extends TestStorage
 			JadothConsole.debugln("round "+i);
 
 			// do one round of explicitely issued house keeping
-			connection.storeRequired(instance);
+			connection.store(instance);
 			storageCleanup(connection);
 
 //			if(Math.random() < 0.5)

@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.XIterable;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.util.chars.VarString;
 
@@ -84,8 +85,13 @@ public interface Substituter<T>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		public final XGettingEnum<T> elements()
+		{
+			return this.elements;
+		}
 
 		@Override
 		public final synchronized T substitute(final T item)

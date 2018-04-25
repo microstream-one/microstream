@@ -61,7 +61,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -82,7 +82,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 					for(int i3 = 0; i3 < e3.length; i3++)
 					{
 						((TestEntity)e3[i3]).setDate(now);
-						storer.storeRequired(e3[i3]);
+						storer.store(e3[i3]);
 					}
 				}
 			}
@@ -115,7 +115,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -128,7 +128,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 			for(int i3 = 0; i3 < data.length; i3++)
 			{
 				((TestEntity)data[i3]).setDate(now);
-				storer.storeRequired(data[i3]);
+				storer.store(data[i3]);
 			}
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
@@ -149,7 +149,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -163,7 +163,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 			{
 				data[i3] = Lazy.Reference(now);
 			}
-			storer.storeRequired(data);
+			storer.store(data);
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
 

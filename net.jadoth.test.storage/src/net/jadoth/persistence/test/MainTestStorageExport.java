@@ -40,7 +40,7 @@ public class MainTestStorageExport extends TestStorage
 				HashTable.New(keyValue(1, "A"), keyValue(2, "B"), keyValue(3, "C"))
 			)
 		);
-		STORAGE.createConnection().storeRequired(ROOT);
+		STORAGE.createConnection().store(ROOT);
 
 		testExport();
 

@@ -30,7 +30,7 @@ public class MainTestStorageTopLevelTypes
 			new TestPerson()
 		);
 		
-		storer.storeRequired(entityGraph);
+		storer.store(entityGraph);
 		storer.commit();
 	}
 	
