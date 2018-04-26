@@ -15,7 +15,7 @@ import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.util.Equalator;
 
 
@@ -83,7 +83,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		final Binary          bytes    ,
 		final EqBulkList<?>   instance ,
 		final long            oid      ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference

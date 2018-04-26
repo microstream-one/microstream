@@ -6,7 +6,7 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public final class BinaryHandlerNativeArray_char extends AbstractBinaryHandlerNativeArrayPrimitive<char[]>
 {
@@ -26,7 +26,7 @@ public final class BinaryHandlerNativeArray_char extends AbstractBinaryHandlerNa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final char[] array, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final char[] array, final long oid, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeArray_char(bytes, this.typeId(), oid, array);
 	}

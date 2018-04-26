@@ -5,7 +5,7 @@ import java.util.Date;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomValueFixedLength<Date>
 {
@@ -36,7 +36,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Date instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final Date instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		// the data content of a date is simple the timestamp long, nothing else
 		Memory.set_long(

@@ -15,7 +15,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -82,7 +82,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 		final Binary           bytes    ,
 		final ConstHashEnum<?> instance ,
 		final long             oid      ,
-		final SwizzleStoreLinker  linker
+		final PersistenceStoreFunction  linker
 	)
 	{
 		// store elements simply as array binary form

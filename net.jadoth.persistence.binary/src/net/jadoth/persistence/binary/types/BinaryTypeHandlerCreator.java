@@ -11,6 +11,7 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceReferenceFieldMandatoryEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -34,8 +35,9 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeAnalyzer        typeAnalyzer  ;
-		private final PersistenceFieldLengthResolver lengthResolver;
+		private final PersistenceTypeAnalyzer                     typeAnalyzer           ;
+		private final PersistenceFieldLengthResolver              lengthResolver         ;
+		private final PersistenceReferenceFieldMandatoryEvaluator mandatoryFieldEvaluator;
 
 
 
@@ -44,13 +46,15 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		/////////////////////
 
 		public Implementation(
-			final PersistenceTypeAnalyzer        typeAnalyzer  ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final PersistenceTypeAnalyzer                     typeAnalyzer           ,
+			final PersistenceFieldLengthResolver              lengthResolver         ,
+			final PersistenceReferenceFieldMandatoryEvaluator mandatoryFieldEvaluator
 		)
 		{
 			super();
-			this.typeAnalyzer   = notNull(typeAnalyzer);
-			this.lengthResolver = notNull(lengthResolver); // must be provided, may not be null
+			this.typeAnalyzer            = notNull(typeAnalyzer)           ;
+			this.lengthResolver          = notNull(lengthResolver)         ; // must be provided, may not be null
+			this.mandatoryFieldEvaluator = notNull(mandatoryFieldEvaluator);
 		}
 
 
@@ -106,7 +110,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				typeId,
 				BinaryPersistence.blankMemoryInstantiator(type),
 				persistableFields,
-				this.lengthResolver
+				this.lengthResolver,
+				this.mandatoryFieldEvaluator
 			);
 		}
 		
@@ -122,7 +127,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				(Class<E>)type     ,
 				tid                ,
 				allFields          ,
-				this.lengthResolver
+				this.lengthResolver,
+				this.mandatoryFieldEvaluator
 			);
 		}
 

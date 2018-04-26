@@ -24,7 +24,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldV
 import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public abstract class AbstractBinaryHandlerNative<T>
@@ -174,7 +174,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public abstract void store(Binary bytes, T instance, long oid, SwizzleStoreLinker linker);
+	public abstract void store(Binary bytes, T instance, long oid, PersistenceStoreFunction linker);
 
 	@Override
 	public void validateFields(final XGettingSequence<Field> fieldDescriptions)

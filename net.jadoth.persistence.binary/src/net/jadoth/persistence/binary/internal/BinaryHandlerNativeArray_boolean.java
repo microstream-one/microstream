@@ -6,7 +6,7 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandlerNativeArrayPrimitive<boolean[]>
 {
@@ -26,7 +26,7 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final boolean[] array, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final boolean[] array, final long oid, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeArray_boolean(bytes, this.typeId(), oid, array);
 	}

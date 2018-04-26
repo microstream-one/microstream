@@ -11,7 +11,7 @@ import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, ObjectStateHandler<T>
 {
@@ -21,7 +21,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 	public void iteratePersistedReferences(M medium, _longProcedure iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, SwizzleStoreLinker linker);
+	public void store(M medium, T instance, long objectId, PersistenceStoreFunction linker);
 
 	public T    create(M medium);
 

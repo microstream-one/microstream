@@ -6,7 +6,7 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -54,7 +54,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 		final Binary                        bytes    ,
 		final Substituter.Implementation<?> instance ,
 		final long                          oid      ,
-		final SwizzleStoreLinker               linker
+		final PersistenceStoreFunction               linker
 	)
 	{
 		synchronized(instance)

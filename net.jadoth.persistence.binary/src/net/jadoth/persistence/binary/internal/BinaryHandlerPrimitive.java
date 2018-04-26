@@ -10,7 +10,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPrimitiveDefinition;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
@@ -48,7 +48,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		throw new UnsupportedOperationException();
 	}

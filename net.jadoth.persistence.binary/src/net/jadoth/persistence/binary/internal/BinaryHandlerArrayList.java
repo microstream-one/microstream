@@ -11,7 +11,7 @@ import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -60,7 +60,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final Binary             bytes   ,
 		final ArrayList<?>       instance,
 		final long               oid     ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(

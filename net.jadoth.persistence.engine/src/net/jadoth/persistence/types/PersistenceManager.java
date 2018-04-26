@@ -138,10 +138,10 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 		
 		@Override
-		public final long[] storeAll(final Object... instances)
+		public final long[] store(final Object... instances)
 		{
 			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).storeAll(instances);
+			final long[] oids = (persister = this.createStorer()).store(instances);
 			persister.commit();
 			return oids;
 		}

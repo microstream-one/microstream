@@ -12,7 +12,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -69,7 +69,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 		final Binary          bytes    ,
 		final FixedList<?>    instance ,
 		final long            oid      ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		final Object[] arrayInstance = instance.data;

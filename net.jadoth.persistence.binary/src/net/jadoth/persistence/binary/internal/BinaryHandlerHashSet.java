@@ -11,7 +11,7 @@ import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -73,7 +73,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		final Binary             bytes   ,
 		final HashSet<?>         instance,
 		final long               oid     ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		// store elements simply as array binary form

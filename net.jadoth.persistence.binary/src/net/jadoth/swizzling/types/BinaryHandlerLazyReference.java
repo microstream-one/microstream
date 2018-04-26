@@ -30,7 +30,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:
 		 *

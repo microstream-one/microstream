@@ -10,7 +10,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<Class<?>>
@@ -60,7 +60,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Class<?> instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final Class<?> instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		// no-op, static state is not stored
 	}

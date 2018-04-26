@@ -27,6 +27,6 @@ public interface PersistenceStoring
 	 * @param instances the root instances of the subgraphs of required instances to be stored.
 	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
 	 */
-	public long[] storeAll(Object... instances);
+	public long[] store(Object... instances);
 
 }

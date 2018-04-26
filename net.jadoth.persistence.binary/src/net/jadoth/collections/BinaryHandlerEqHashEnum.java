@@ -20,7 +20,7 @@ import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -198,7 +198,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		final Binary          bytes    ,
 		final EqHashEnum<?>   instance ,
 		final long            oid      ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		staticStore(bytes, instance, this.typeId(), oid, linker);

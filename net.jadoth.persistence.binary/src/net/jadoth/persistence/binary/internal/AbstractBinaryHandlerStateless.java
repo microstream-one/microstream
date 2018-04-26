@@ -6,7 +6,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerNativeCustom<T>
 {
@@ -26,7 +26,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeStateless(bytes, this.typeId(), oid);
 	}

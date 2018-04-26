@@ -141,6 +141,14 @@ public class Persistence extends Swizzle
 			!JadothReflect.isTransient(field)
 		;
 	}
+	
+	public static final PersistenceReferenceFieldMandatoryEvaluator defaultReferenceFieldMandatoryEvaluator()
+	{
+		// by default, no field is mandatory
+		return field ->
+			false
+		;
+	}
 
 	
 	

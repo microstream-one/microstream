@@ -17,7 +17,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -121,7 +121,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final Binary                          bytes    ,
 		final PersistenceRoots.Implementation instance ,
 		final long                            oid      ,
-		final SwizzleStoreLinker              linker
+		final PersistenceStoreFunction              linker
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers

@@ -4,7 +4,7 @@ import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<T>
 {
@@ -24,7 +24,7 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}
