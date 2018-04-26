@@ -315,13 +315,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return this.itemCount;
 		}
 
-		@Override
-		public final long storeFull(final Object root)
-		{
-			this.ensureInitialized();
-			return this.internalStoreFull(root);
-		}
-
+		
+		// (26.04.2018 TM)FIXME: StorerFull variant
+		
 		private long internalStoreFull(final Object root)
 		{
 			final long rootOid = this.registerAdd(notNull(root));
@@ -337,7 +333,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final long storeRequired(final Object root)
+		public final long store(final Object root)
 		{
 			this.ensureInitialized();
 			return this.internalStoreRequired(root);
@@ -358,20 +354,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final long[] storeAllFull(final Object... instances)
-		{
-			this.ensureInitialized();
-
-			final long[] oids = new long[instances.length];
-			for(int i = 0; i < instances.length; i++)
-			{
-				oids[i] = this.internalStoreFull(instances[i]);
-			}
-			return oids;
-		}
-
-		@Override
-		public final long[] storeAllRequired(final Object... instances)
+		public final long[] storeAll(final Object... instances)
 		{
 			this.ensureInitialized();
 

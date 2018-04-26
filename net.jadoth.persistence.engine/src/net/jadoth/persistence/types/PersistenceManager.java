@@ -129,34 +129,16 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 
 		@Override
-		public final long storeFull(final Object object)
-		{
-			final PersistenceStorer<M> persister;
-			final long oid = (persister = this.createStorer()).storeFull(object);
-			persister.commit();
-			return oid;
-		}
-
-		@Override
-		public final long storeRequired(final Object object)
+		public final long store(final Object object)
 		{
 			final PersistenceStorer<M> persister;
 			final long oid = (persister = this.createStorer()).store(object);
 			persister.commit();
 			return oid;
 		}
-
+		
 		@Override
-		public final long[] storeAllFull(final Object... instances)
-		{
-			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).storeAllFull(instances);
-			persister.commit();
-			return oids;
-		}
-
-		@Override
-		public final long[] storeAllRequired(final Object... instances)
+		public final long[] storeAll(final Object... instances)
 		{
 			final PersistenceStorer<M> persister;
 			final long[] oids = (persister = this.createStorer()).storeAll(instances);
