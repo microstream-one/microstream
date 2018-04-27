@@ -457,8 +457,8 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		@Override
 		protected BinaryStorer.Creator createStorerCreator()
 		{
-			return new BinaryStorer.Creator.Implementation(
-				this.storageManager.channelController().channelCountProvider()
+			return BinaryStorer.Creator(
+				this.storageManager.channelCountProvider()
 			);
 		}
 
@@ -489,7 +489,8 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 			// reset for new connection, gets set via method called in super method
 			this.connectionRequestAcceptor = null;
 
-			/* even though super.create() always gets called prior to reading the connectionRequestAcceptor
+			/*
+			 * even though super.create() always gets called prior to reading the connectionRequestAcceptor
 			 * and in the process calling internalGetStorageRequestAcceptor() and createRequestAcceptor(),
 			 * sometimes it happens that despite the internalGetStorageRequestAcceptor() and despite being
 			 * singlethreaded and even synchronized (= no code rearrangement), the field reference

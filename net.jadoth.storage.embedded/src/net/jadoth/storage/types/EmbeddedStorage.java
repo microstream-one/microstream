@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import net.jadoth.collections.Singleton;
 import net.jadoth.collections.X;
@@ -28,6 +29,15 @@ public final class EmbeddedStorage
 	public static EmbeddedStorageFoundation createFoundation()
 	{
 		return createFoundation(new File(Storage.defaultDirectoryName()));
+	}
+	
+	public static EmbeddedStorageFoundation createFoundation(
+		final Consumer<? super EmbeddedStorageFoundation> customLogic
+	)
+	{
+		final EmbeddedStorageFoundation esf = createFoundation();
+		customLogic.accept(esf);
+		return esf;
 	}
 	
 	public static EmbeddedStorageFoundation createFoundation(final PersistenceRootResolver rootResolver)

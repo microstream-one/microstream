@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import static net.jadoth.Jadoth.notNull;
 
 import java.lang.reflect.Field;
-import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
@@ -31,15 +30,15 @@ public interface PersistenceTypeAnalyzer
 
 		public static final void collectPersistableInstanceFields(
 			final XPrependingSequence<Field> collection   ,
-			final Class<?>                   type         ,
-			final Predicate<Field>           isPersistable,
+			final Class<?>                   entityType   ,
+			final PersistenceFieldEvaluator  isPersistable,
 			final SwizzleTypeManager         typeManager
 		)
 		{
 
-			JadothReflect.collectTypedFields(collection, type, field ->
+			JadothReflect.collectTypedFields(collection, entityType, field ->
 				{
-					if(!JadothReflect.isInstanceField(field) || !isPersistable.test(field))
+					if(!JadothReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
 					{
 						return false;
 					}

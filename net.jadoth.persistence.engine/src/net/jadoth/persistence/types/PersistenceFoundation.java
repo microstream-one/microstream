@@ -86,7 +86,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFieldLengthResolver getFieldFixedLengthResolver();
 	
-	public PersistenceReferenceFieldMandatoryEvaluator getReferenceFieldMandatoryEvaluator();
+	public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator();
 
 	public BufferSizeProvider getBufferSizeProvider();
 
@@ -176,7 +176,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setFieldEvaluator(PersistenceFieldEvaluator fieldEvaluator);
 
-	public PersistenceFoundation<M> setReferenceFieldMandatoryEvaluator(PersistenceReferenceFieldMandatoryEvaluator evaluator);
+	public PersistenceFoundation<M> setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
 
 
@@ -247,7 +247,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
 		private BufferSizeProvider                      bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluator             ;
-		private PersistenceReferenceFieldMandatoryEvaluator refFieldMandyEvaluator ; // Mandy :-D
+		private PersistenceEagerStoringFieldEvaluator refFieldMandyEvaluator ; // Mandy :-D
 
 
 
@@ -562,7 +562,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceReferenceFieldMandatoryEvaluator getReferenceFieldMandatoryEvaluator()
+		public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator()
 		{
 
 			if(this.refFieldMandyEvaluator == null)
@@ -870,7 +870,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		@Override
 		public PersistenceFoundation<M> setReferenceFieldMandatoryEvaluator(
-			final PersistenceReferenceFieldMandatoryEvaluator evaluator
+			final PersistenceEagerStoringFieldEvaluator evaluator
 		)
 		{
 			this.refFieldMandyEvaluator = evaluator;
@@ -1118,7 +1118,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultFieldEvaluator();
 		}
 		
-		protected PersistenceReferenceFieldMandatoryEvaluator createReferenceFieldMandatoryEvaluator()
+		protected PersistenceEagerStoringFieldEvaluator createReferenceFieldMandatoryEvaluator()
 		{
 			return Persistence.defaultReferenceFieldMandatoryEvaluator();
 		}

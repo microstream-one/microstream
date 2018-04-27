@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
-import net.jadoth.persistence.types.PersistenceReferenceFieldMandatoryEvaluator;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 
 public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<T>
 {
@@ -28,7 +28,7 @@ public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<
 		final BinaryInstantiator<T>                       instantiator           ,
 		final XGettingEnum<Field>                         allFields              ,
 		final PersistenceFieldLengthResolver              lengthResolver         ,
-		final PersistenceReferenceFieldMandatoryEvaluator mandatoryFieldEvaluator
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
 		super(type, tid, allFields, lengthResolver, mandatoryFieldEvaluator);

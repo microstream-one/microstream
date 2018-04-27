@@ -33,11 +33,6 @@ public class MainTestStorageExample
 			Test.print("TEST: data export completed.");
 		}
 		
-		
-		Number[] bobjects = {1, 2, 3};
-		
-		STORAGE.store(bobjects);
-
 //		STORAGE.shutdown();
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}

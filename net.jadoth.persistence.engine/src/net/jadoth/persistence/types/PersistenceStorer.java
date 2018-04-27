@@ -39,7 +39,7 @@ public interface PersistenceStorer<M> extends Storer
 
 	public interface Creator<M>
 	{
-		public PersistenceStorer<M> createPersistenceStorer(
+		public PersistenceStorer<M> createStorer(
 			SwizzleObjectManager             objectManager     ,
 			SwizzleObjectSupplier            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,

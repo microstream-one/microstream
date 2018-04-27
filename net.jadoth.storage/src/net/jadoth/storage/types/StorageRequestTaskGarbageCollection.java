@@ -9,7 +9,7 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Boolean>
-	implements StorageRequestTaskGarbageCollection, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskGarbageCollection, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

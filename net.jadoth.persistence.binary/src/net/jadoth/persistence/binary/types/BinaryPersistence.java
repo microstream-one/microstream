@@ -387,7 +387,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreFunction persister
 		)
 		{
-			VM.putLong(address, persister.applyForced(VM.getObject(src, srcOffset)));
+			VM.putLong(address, persister.applyEager(VM.getObject(src, srcOffset)));
 			return address + LENGTH_OID;
 		}
 	};

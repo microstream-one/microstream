@@ -101,7 +101,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		@Override
 		public final PersistenceStorer<M> createStorer()
 		{
-			return this.storerCreator.createPersistenceStorer(
+			return this.storerCreator.createStorer(
 				this.objectManager     ,
 				this                   ,
 				this.typeHandlerManager,
@@ -113,7 +113,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		@Override
 		public final PersistenceStorer<M> createStorer(final BufferSizeProvider bufferSizeProvider)
 		{
-			return this.storerCreator.createPersistenceStorer(
+			return this.storerCreator.createStorer(
 				this.objectManager     ,
 				this                   ,
 				this.typeHandlerManager,

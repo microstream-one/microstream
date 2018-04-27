@@ -430,7 +430,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		@Override
 		protected BinaryStorer.Creator createStorerCreator()
 		{
-			return new BinaryStorer.Creator.Implementation(() -> 1);
+			return BinaryStorer.Creator(() -> 1);
 		}
 
 		@Override

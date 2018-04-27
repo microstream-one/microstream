@@ -53,7 +53,7 @@ public interface StorageChannelTaskTruncateData extends StorageRequestTask
 		@Override
 		protected final void fail(final StorageChannel channel, final Void result)
 		{
-			// if anything goes wrong, the storage must be shut down as it is in an indefined state.
+			// if anything goes wrong, the storage must be shut down as it is in an undefined state.
 			this.channelController.deactivate();
 
 			// can / may never throw an exception

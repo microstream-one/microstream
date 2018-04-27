@@ -11,7 +11,7 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
-import net.jadoth.persistence.types.PersistenceReferenceFieldMandatoryEvaluator;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -37,7 +37,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 		private final PersistenceTypeAnalyzer                     typeAnalyzer           ;
 		private final PersistenceFieldLengthResolver              lengthResolver         ;
-		private final PersistenceReferenceFieldMandatoryEvaluator mandatoryFieldEvaluator;
+		private final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator;
 
 
 
@@ -48,7 +48,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		public Implementation(
 			final PersistenceTypeAnalyzer                     typeAnalyzer           ,
 			final PersistenceFieldLengthResolver              lengthResolver         ,
-			final PersistenceReferenceFieldMandatoryEvaluator mandatoryFieldEvaluator
+			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 		)
 		{
 			super();
