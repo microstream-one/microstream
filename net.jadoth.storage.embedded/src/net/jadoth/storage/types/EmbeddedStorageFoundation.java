@@ -1,14 +1,8 @@
 package net.jadoth.storage.types;
 
-import java.lang.reflect.Field;
-import java.util.function.Predicate;
-
-import net.jadoth.collections.X;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.memory.Memory;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
-import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
@@ -20,15 +14,11 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 	public EmbeddedStorageConnectionFoundation getConnectionFoundation();
 
-	public EmbeddedStorageFoundation registerRootInstance(String identifier, Object instance);
-
-	public EmbeddedStorageFoundation registerRootConstants(Class<?>... types);
-
-	public EmbeddedStorageFoundation registerRootConstants(Class<?>[] types, Predicate<? super Field> predicate);
-
 	public PersistenceRootResolver getRootResolver();
 
 	public BinaryPersistenceRootsProvider getRootsProvider();
+
+	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 
 	public EmbeddedStorageManager createEmbeddedStorageManager();
 
@@ -62,7 +52,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	public EmbeddedStorageFoundation setConfiguration(StorageConfiguration configuration);
 
 	@Override
-	public EmbeddedStorageFoundation setStorageTimestampProvider(StorageTimestampProvider storageTimestampProvider);
+	public EmbeddedStorageFoundation setTimestampProvider(StorageTimestampProvider storageTimestampProvider);
 
 	@Override
 	public EmbeddedStorageFoundation setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
@@ -70,6 +60,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	public EmbeddedStorageFoundation setRootResolver(PersistenceRootResolver rootResolver);
 
 	public EmbeddedStorageFoundation setRootsProvider(BinaryPersistenceRootsProvider rootsProvider);
+	
+	public EmbeddedStorageFoundation setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
 	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation connectionFoundation);
 
@@ -83,9 +75,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		// instance fields  //
 		/////////////////////
 
-		private PersistenceRootResolver             rootResolver        ;
-		private BinaryPersistenceRootsProvider      rootsProvider       ;
-		private EmbeddedStorageConnectionFoundation connectionFoundation;
+		private PersistenceRootResolver               rootResolver              ;
+		private BinaryPersistenceRootsProvider        rootsProvider             ;
+		private PersistenceRefactoringMappingProvider refactoringMappingProvider;
+		private EmbeddedStorageConnectionFoundation   connectionFoundation      ;
 
 
 
@@ -95,19 +88,12 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		protected PersistenceRootResolver createRootResolver()
 		{
-			return PersistenceRootResolver.DEFAULT_RESOLVER;
+			return Storage.RootResolver(EmbeddedStorage::root);
 		}
 
 		protected BinaryPersistenceRootsProvider createRootsProvider()
 		{
 			return new BinaryPersistenceRootsProvider.Implementation();
-		}
-
-		protected final void internalSetConnectionFoundation(
-			final EmbeddedStorageConnectionFoundation connectionFoundation
-		)
-		{
-			this.connectionFoundation = connectionFoundation;
 		}
 
 
@@ -124,9 +110,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		protected EmbeddedStorageRootTypeIdProvider createRootTypeIdProvider()
 		{
-			// the genericity of this knocks me out :D
 			return EmbeddedStorageRootTypeIdProvider.New(
-				this.getRootsProvider().provideRoots().getClass()
+				this.getRootsProvider().provideRootsClass()
 			);
 		}
 
@@ -141,61 +126,6 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		}
 
 		@Override
-		public final EmbeddedStorageFoundation registerRootInstance(final String identifier, final Object instance)
-		{
-			this.getRootsProvider().provideRoots().entries().put(identifier, instance);
-			return this;
-		}
-
-		@Override
-		public EmbeddedStorageFoundation registerRootConstants(final Class<?>... types)
-		{
-			// default predicate: all non-transient reference constants
-			return this.registerRootConstants(
-				types,
-				((Predicate<Field>)JadothReflect::isFinalField)
-				.and(JadothReflect::isNotTransient)
-			);
-		}
-
-		@Override
-		public EmbeddedStorageFoundation.Implementation registerRootConstants(
-			final Class<?>[]               types    ,
-			final Predicate<? super Field> predicate
-		)
-		{
-			/* better not trust custom predicates:
-			 * - field MUST be static, otherwise no instance can be safely retrieved in a static way
-			 * - field MUST be a reference field, because registering primitives is not possible and reasonable
-			 */
-			final Predicate<? super Field> safePredicate =
-				((Predicate<Field>)JadothReflect::isStatic)
-				.and(JadothReflect::isReferenceField)
-				.and(predicate)
-			;
-
-			// cache resolver instance locally
-			final PersistenceRootResolver rootResolver = this.getRootResolver();
-
-			// loop through all the stuff and register root instances of applicable fields
-			for(final Class<?> type : types)
-			{
-				for(final Field field : type.getDeclaredFields())
-				{
-					if(!safePredicate.test(field))
-					{
-						continue;
-					}
-					this.registerRootInstance(
-						rootResolver.toIdentifier(field),
-						Memory.getStaticReference(field)
-					);
-				}
-			}
-			return this;
-		}
-
-		@Override
 		public PersistenceRootResolver getRootResolver()
 		{
 			if(this.rootResolver == null)
@@ -203,6 +133,13 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 				this.rootResolver = this.dispatch(this.createRootResolver());
 			}
 			return this.rootResolver;
+		}
+		
+		@Override
+		public PersistenceRefactoringMappingProvider getRefactoringMappingProvider()
+		{
+			// no lazy creation. This is actually just a getter for an optional element.
+			return this.refactoringMappingProvider;
 		}
 
 		@Override
@@ -215,20 +152,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			return this.rootsProvider;
 		}
 
-		protected void internalSetRootResolver(final PersistenceRootResolver rootResolver)
-		{
-			this.rootResolver = rootResolver;
-		}
-
-		protected final void internalSetRootsProvider(final BinaryPersistenceRootsProvider rootsProvider)
-		{
-			this.rootsProvider = rootsProvider;
-		}
-
 		@Override
 		public EmbeddedStorageFoundation.Implementation setRootResolver(final PersistenceRootResolver rootResolver)
 		{
-			this.internalSetRootResolver(rootResolver);
+			this.rootResolver = rootResolver;
 			return this;
 		}
 
@@ -247,7 +174,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		public EmbeddedStorageFoundation.Implementation setConfiguration(final StorageConfiguration configuration)
 		{
-			this.internalSetConfiguration(configuration);
+			super.setConfiguration(configuration);
 			return this;
 		}
 
@@ -256,7 +183,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageRequestAcceptor.Creator requestAcceptorCreator
 		)
 		{
-			this.internalSetRequestAcceptorCreator(requestAcceptorCreator);
+			super.setRequestAcceptorCreator(requestAcceptorCreator);
 			return this;
 		}
 
@@ -265,7 +192,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageTaskBroker.Creator taskBrokerCreator
 		)
 		{
-			this.internalSetTaskBrokerCreator(taskBrokerCreator);
+			super.setTaskBrokerCreator(taskBrokerCreator);
 			return this;
 		}
 
@@ -274,28 +201,28 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
 		)
 		{
-			this.internalSetDataChunkValidatorProvider(dataChunkValidatorProvider);
+			super.setDataChunkValidatorProvider(dataChunkValidatorProvider);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setChannelCreator(final StorageChannel.Creator channelCreator)
 		{
-			this.internalSetChannelCreator(channelCreator);
+			super.setChannelCreator(channelCreator);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setTaskCreator(final StorageRequestTaskCreator taskCreator)
 		{
-			this.internalSetTaskCreator(taskCreator);
+			super.setTaskCreator(taskCreator);
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setTypeDictionary(final StorageTypeDictionary typeDictionary)
 		{
-			this.internalSetTypeDictionary(typeDictionary);
+			super.setTypeDictionary(typeDictionary);
 			return this;
 		}
 
@@ -304,7 +231,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final StorageRootTypeIdProvider rootTypeIdProvider
 		)
 		{
-			this.internalSetRootTypeIdProvider(rootTypeIdProvider);
+			super.setRootTypeIdProvider(rootTypeIdProvider);
 			return this;
 		}
 
@@ -313,61 +240,34 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final EmbeddedStorageConnectionFoundation connectionFoundation
 		)
 		{
-			this.internalSetConnectionFoundation(connectionFoundation);
+			this.connectionFoundation = connectionFoundation;
 			return this;
 		}
 
 		@Override
 		public EmbeddedStorageFoundation setRootsProvider(final BinaryPersistenceRootsProvider rootsProvider)
 		{
-			this.internalSetRootsProvider(rootsProvider);
+			this.rootsProvider = rootsProvider;
+			return this;
+		}
+		
+		@Override
+		public EmbeddedStorageFoundation setRefactoringMappingProvider(
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		)
+		{
+			this.refactoringMappingProvider = refactoringMappingProvider;
 			return this;
 		}
 
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setStorageTimestampProvider(
-			final StorageTimestampProvider storageTimestampProvider
+		public EmbeddedStorageFoundation.Implementation setTimestampProvider(
+			final StorageTimestampProvider timestampProvider
 		)
 		{
-			this.internalSetTimestampProvider(storageTimestampProvider);
+			super.setTimestampProvider(timestampProvider);
 			return this;
-		}
-
-		/**
-		 * Registers all necessary system constants to guarantee referential integrity and up-do-date data
-		 * when initializing the storage (instance data from the storage).
-		 * <p>
-		 * There are two typical use-cases:
-		 * <ul>
-		 * <li>Registration of global stateless function instances (e.g. {@link JadothHash#hashEqualityValue()})
-		 * for purposes of referential integrity.</li>
-		 * <li>Registration of application-specific entity graph root instances that get updated (loaded) via
-		 * storage initialization</li>
-		 * </ul>
-		 */
-		protected void registerRootSystemConstants()
-		{
-			/* (19.01.2015 TM)TODO: register JDK constants
-			 * JDK constants like Integer range etc. must be registered and stored as well.
-			 * They are not necessary for correct use with a Java application as the constants
-			 * are associated correctly in the OID registry on every start, however they are necessary
-			 * to guarantee a complete and consistent persistent form.
-			 * For example, currently the cached Integer constant instance with value 0 never gets stored
-			 * as it is already known to the BinaryStorer (being a constant).
-			 */
-
-			this.registerRootConstants(
-				JadothHash.class, // hash equalators
-				X         .class  // empties
-			);
-
-			/* if the resolver knows any explicit roots, register them right away.
-			 * Not absolutely mandatory but saves redundant code in use sites (application root logic)
-			 */
-			this.getRootResolver().iterateKnownEntries(e ->
-				this.registerRootInstance(e.key(), e.value())
-			);
 		}
 
 		private void initializeEmbeddedStorageRootTypeIdProvider(
@@ -397,6 +297,17 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			};
 		}
 
+		protected PersistenceRootResolver provideRootResolver()
+		{
+			final PersistenceRootResolver               definedRootResolver = this.getRootResolver();
+			final PersistenceRefactoringMappingProvider mappingProvider     = this.getRefactoringMappingProvider();
+			
+			return mappingProvider == null
+				? definedRootResolver
+				: PersistenceRootResolver.Wrap(definedRootResolver, mappingProvider)
+			;
+		}
+		
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager()
 		{
@@ -410,19 +321,18 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			 * in order to have a way for the entity type handler creation recognize lazy references.
 			 * Required for storage-side graph deep-reference loading.
 			 */
-			final StorageManager                      stm = this.createStorageManager();
+			final StorageManager stm = this.createStorageManager();
 			ecf.setStorageManager(stm);
 
-			final BinaryPersistenceRootsProvider      prp = this.getRootsProvider();
+			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
 
-			// register root system constants like equalators etc. to guarantee referential integrity
-			this.registerRootSystemConstants();
-
+			final PersistenceRootResolver rootResolver = this.provideRootResolver();
+			
 			// register special case type handler for roots instance
-			prp.registerTypeHandlerCreator(
+			prp.registerRootsTypeHandlerCreator(
 				ecf.getCustomTypeHandlerRegistry(),
 				ecf.getSwizzleRegistry(),
-				this.getRootResolver()
+				rootResolver
 			);
 
 			// (04.05.2015)TODO: /!\ Entry point for improved type description validation
@@ -442,7 +352,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 
 			// finally bundle everything together in the actual instance
-			return new EmbeddedStorageManager.Implementation(stm.configuration(), ecf, prp.provideRoots());
+			return new EmbeddedStorageManager.Implementation(stm.configuration(), ecf, prp.provideRoots(rootResolver));
 		}
 
 	}

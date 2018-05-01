@@ -4,13 +4,12 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPrimitiveDefinition;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
@@ -20,6 +19,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	////////////////////
 	
 	private final Constant<PersistenceTypeDescriptionMemberPrimitiveDefinition> member;
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -44,11 +44,23 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	{
+		return this.member;
+	}
+	
+	@Override
+	public final boolean isPrimitiveType()
+	{
+		return true;
+	}
+
+	@Override
+	public void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreFunction linker)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -63,24 +75,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup instanceStateHandlerLookup)
-	{
-		return source == target;
-	}
-
-	@Override
-	public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
-	{
-		return this.member;
-	}
-	
-	@Override
-	public final boolean isPrimitiveType()
-	{
-		return true;
 	}
 
 

@@ -2,33 +2,22 @@ package net.jadoth.persistence.binary.types;
 
 import static java.lang.System.identityHashCode;
 import static net.jadoth.Jadoth.notNull;
+
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.reference._intReference;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
-import net.jadoth.util.Stateless;
 
 
 public interface BinaryStorer extends PersistenceStorer<Binary>
 {
-	public interface Creator extends PersistenceStorer.Creator<Binary>
-	{
-		@Override
-		public BinaryStorer createPersistenceStorer(
-			SwizzleObjectManager                  objectManager     ,
-			SwizzleObjectSupplier                 objectSupplier    ,
-			PersistenceTypeHandlerManager<Binary> typeManager       ,
-			PersistenceTarget<Binary>             target            ,
-			BufferSizeProvider                    bufferSizeProvider
-		);
-	}
-
 	@Override
 	public BinaryStorer initialize();
 
@@ -51,23 +40,38 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	public long maximumCapacity();
 
 
-
-	public abstract class AbstractImplementation implements BinaryStorer, SwizzleStoreLinker
+	
+	/**
+	 * Default implementation that stores referenced instances only if required (i.e. if they have no OID assigned yet,
+	 * therefore have not been stored yet, therefore require to be stored). It can be seen as a "lazy" or "on demand"
+	 * storer as opposed to{@link ImplementationEager}.<br>
+	 * For a more differentiated solution between the two simple, but extreme strategies,
+	 * see {@link PersistenceEagerStoringFieldEvaluator}.
+	 * 
+	 * @author TM
+	 */
+	public class Implementation implements BinaryStorer, PersistenceStoreFunction
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
 		/////////////////////
 
-		private static final int DEFAULT_SLOT_SIZE = 1024; // anthing below 1024 doesn't pay of
-
-		private static final int MAX_POW_2_INT     = 1_073_741_824; // technical 2^n int limit
-
-
-		public static final int padCapacity(final long n)
+		protected static int defaultSlotSize()
 		{
-			if(n >= MAX_POW_2_INT)
+			// why permanently occupy additional memory with fields and instances for constant values?
+			return 1024; // anthing below 1024 doesn't pay of
+		}
+
+		protected static final int maximumSlotSize()
+		{
+			return 1_073_741_824; // technical 2^n int limit
+		}
+
+		protected static final int padCapacity(final long n)
+		{
+			if(n >= maximumSlotSize())
 			{
-				return MAX_POW_2_INT;
+				return maximumSlotSize();
 			}
 			int i = 1;
 			while(i < n)
@@ -84,18 +88,21 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		////////////////////
 
 		// (12.04.2013)XXX: encapsulate by "PersistenceDistrictManager" complementary to builder?
-		final SwizzleObjectManager                  objectManager ;
-		final SwizzleObjectSupplier                 objectSupplier;
-		final PersistenceTypeHandlerManager<Binary> typeManager   ;
-		final PersistenceTarget<Binary>             target        ;
+		private final SwizzleObjectManager                  objectManager ;
+		private final SwizzleObjectSupplier                 objectSupplier;
+		private final PersistenceTypeHandlerManager<Binary> typeManager   ;
+		private final PersistenceTarget<Binary>             target        ;
+		
+		// channel hashing fields
+		private final BufferSizeProvider bufferSizeProvider;
+		private final int                chunksHashRange   ;
+		private final ChunksBuffer[]     chunks            ;
 
-		// can only directly implement SwizzleStoreLinker once, so the alternative has to use a detour solution.
-		final FullStorer                            fullStorer;
-
-		/* item hashing structures get initialized lazyly for the following reasons:
-		 * - storer instance can commit (be cleared) and reinitialized multiple times.
-		 * - storer instance can be explicitely initialized to a certain capacity.
-		 * - clearing after commit can simply null the array reference, easing garbage collection by a great deal.
+		/*
+		 * item hashing structures get initialized lazily for the following reasons:
+		 * - the storer instance can commit (be cleared) and be reinitialized multiple times.
+		 * - the storer instance can be explicitely initialized to a certain capacity.
+		 * - clearing after committing can simply null the array reference, easing garbage collection.
 		 */
 		final   Item   head      = new Item(null, 0L, null, null);
 		private Item   tail      = this.head                     ;
@@ -103,81 +110,65 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		private int    hashRange;
 		private long   itemCount;
 
-
-
-
-		final class FullStorer implements SwizzleStoreLinker
-		{
-			final SwizzleObjectSupplier objectSupplier;
-
-			public FullStorer(final SwizzleObjectSupplier objectSupplier)
-			{
-				super();
-				this.objectSupplier = objectSupplier;
-			}
-
-			@Override
-			public <T> long apply(final T instance)
-			{
-				return AbstractImplementation.this.registerAddFull(instance);
-			}
-
-			@Override
-			public SwizzleObjectSupplier getSwizzleObjectSupplier()
-			{
-				return this.objectSupplier;
-			}
-
-		}
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(
-			final SwizzleObjectManager                  objectManager ,
-			final SwizzleObjectSupplier                 objectSupplier,
-			final PersistenceTypeHandlerManager<Binary> typeManager   ,
-			final PersistenceTarget<Binary>             target
+		protected Implementation(
+			final SwizzleObjectManager                  objectManager     ,
+			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceTypeHandlerManager<Binary> typeManager       ,
+			final PersistenceTarget<Binary>             target            ,
+			final BufferSizeProvider                    bufferSizeProvider,
+			final int                                   chunkHashSize
 		)
 		{
 			super();
-			this.objectManager  = notNull(objectManager );
-			this.objectSupplier = notNull(objectSupplier);
-			this.typeManager    = notNull(typeManager   );
-			this.target         = notNull(target        );
-			this.fullStorer     = new FullStorer(objectSupplier);
+			this.objectManager      = notNull(objectManager)         ;
+			this.objectSupplier     = notNull(objectSupplier)        ;
+			this.typeManager        = notNull(typeManager)           ;
+			this.target             = notNull(target)                ;
+			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
+			this.chunks             = new ChunksBuffer[chunkHashSize];
+			this.chunksHashRange    = chunkHashSize - 1              ;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
-		protected abstract ChunksBuffer chunk(long oid);
-
-		protected abstract Binary[] complete();
-
-		final long registerAddFull(final Object instance)
+		protected ChunksBuffer chunk(final long oid)
 		{
-			if(instance == null)
+			return this.chunks[(int)(oid & this.chunksHashRange)];
+		}
+
+		protected Binary[] complete()
+		{
+			// (21.03.2016 TM)NOTE: added to avoid NPEs
+			this.initialize();
+
+			for(final ChunksBuffer chunk : this.chunks)
 			{
-				return Swizzle.nullId();
+				chunk.complete();
 			}
 
-			final long oid;
-			if((oid = this.lookupOid(instance)) != Swizzle.nullId())
-			{
-				return oid;
-			}
-
-			return this.registerAdd(instance);
+			/*
+			 * Must return a local copy of the array as the task may not use this instance's interal array.
+			 * For example:
+			 * - storer clears the array after completing, while task needs an uncleared array to clear
+			 *   the chunks themselves
+			 * - task implementation might mutate the array, potentially ruining the storer's state
+			 * The chunks array is usually tiny (the length is equal to the channel count)
+			 */
+			return this.chunks.clone();
 		}
 
 		@Override
-		public final <T> long apply(final T instance)
+		public <T> long apply(final T instance)
 		{
 			if(instance == null)
 			{
@@ -198,32 +189,36 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			return this.registerAdd(instance);
 		}
+		
+		@Override
+		public final <T> long applyEager(final T instance)
+		{
+			if(instance == null)
+			{
+				return Swizzle.nullId();
+			}
+
+			/*
+			 * "forced" still means that if this storer has already stored the encountered instance,
+			 * it won't store it again. That would not only be data-wise redundant and unnecessary,
+			 * but would also create infinite storing loops and overflows.
+			 * So "forced" can only mean to not check the global registry, but it must still mean to check
+			 * the local registry.
+			 */
+			final long oidLocal;
+			if((oidLocal = this.lookupOid(instance)) != Swizzle.nullId())
+			{
+				return oidLocal;
+			}
+
+			return this.registerAdd(instance);
+		}
 
 		@Override
 		public final SwizzleObjectSupplier getSwizzleObjectSupplier()
 		{
 			return this.objectSupplier;
 		}
-
-		private long registerAdd(final Object instance)
-		{
-			final long oid;
-
-			// ensure handler (or fail if type is not persistable) before ensuring an OID.
-			this.tail = this.tail.next = this.registerOid(
-				instance,
-				this.typeManager.ensureTypeHandler(instance),
-				oid = this.objectManager.ensureObjectId(instance)
-			);
-
-			return oid;
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
 
 		@Override
 		public BinaryStorer initialize()
@@ -261,25 +256,34 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		private void internalInitialize()
 		{
-			this.internalInitialize(DEFAULT_SLOT_SIZE);
+			this.internalInitialize(defaultSlotSize());
 		}
 
 		protected void internalInitialize(final int pow2Capacity)
 		{
 			this.hashSlots = new Item[pow2Capacity];
 			this.hashRange = pow2Capacity - 1;
+			
+			final ChunksBuffer[] chunks = this.chunks;
+			for(int i = 0; i < chunks.length; i++)
+			{
+				chunks[i] = ChunksBuffer.New(this.bufferSizeProvider);
+			}
 		}
 
 		@Override
 		public final long currentCapacity()
 		{
-			return this.hashSlots == null ? 0 : this.hashSlots.length;
+			return this.hashSlots == null
+				? 0
+				: this.hashSlots.length
+			;
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return MAX_POW_2_INT;
+			return maximumSlotSize();
 		}
 
 		@Override
@@ -315,69 +319,21 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final long storeFull(final Object root)
+		public final long store(final Object root)
 		{
 			this.ensureInitialized();
-			return this.internalStoreFull(root);
-		}
-
-		private long internalStoreFull(final Object root)
-		{
-			final long rootOid = this.registerAdd(notNull(root));
-
-			// process and collect all instances uniquely in item chain (graph recursion transformed to iteration)
-			for(Item item = this.tail; item != null; item = item.next)
-			{
-//				JadothConsole.debugln("Storing\t" + c.oid + "\t" + c.typeHandler.typeName());
-				item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this.fullStorer);
-			}
-
-			return rootOid;
+			return this.storeGraph(root);
 		}
 
 		@Override
-		public final long storeRequired(final Object root)
-		{
-			this.ensureInitialized();
-			return this.internalStoreRequired(root);
-		}
-
-		private long internalStoreRequired(final Object root)
-		{
-			final long rootOid = this.registerAdd(notNull(root));
-
-			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
-			for(Item item = this.tail; item != null; item = item.next)
-			{
-//				JadothConsole.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
-				item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
-			}
-
-			return rootOid;
-		}
-
-		@Override
-		public final long[] storeAllFull(final Object... instances)
+		public final long[] store(final Object... instances)
 		{
 			this.ensureInitialized();
 
 			final long[] oids = new long[instances.length];
 			for(int i = 0; i < instances.length; i++)
 			{
-				oids[i] = this.internalStoreFull(instances[i]);
-			}
-			return oids;
-		}
-
-		@Override
-		public final long[] storeAllRequired(final Object... instances)
-		{
-			this.ensureInitialized();
-
-			final long[] oids = new long[instances.length];
-			for(int i = 0; i < instances.length; i++)
-			{
-				oids[i] = this.internalStoreRequired(instances[i]);
+				oids[i] = this.storeGraph(instances[i]);
 			}
 			return oids;
 		}
@@ -397,6 +353,23 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public void clear()
 		{
 			this.clearRegistered();
+			this.clearChunks();
+		}
+		
+		protected void clearChunks()
+		{
+			final ChunksBuffer[] chunks = this.chunks;
+			for(int i = 0; i < chunks.length; i++)
+			{
+				/* Note:
+				 * may explicitely NOT clear (deallocate) the current chunks
+				 * because in use with embedded (in-process) storage the chunks
+				 * might still be used by the storage worker threads to update their entity caches.
+				 * The released chunks must be handled by those threads if existing
+				 * or ultimately by the garbage collector (or by some tailored additional logic)
+				 */
+				chunks[i] = null;
+			}
 		}
 
 		@Override
@@ -410,24 +383,6 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			(this.tail = this.head).next = null;
 		}
 
-		@Override
-		public final void registerSkip(final Object instance, final long oid)
-		{
-			this.registerOid(instance, null, oid);
-		}
-
-		@Override
-		public final void registerSkip(final Object instance)
-		{
-			this.registerOid(instance, null, this.objectManager.lookupObjectId(instance));
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
 		public final long lookupOid(final Object instance)
 		{
 			for(Item e = this.hashSlots[identityHashCode(instance) & this.hashRange]; e != null; e = e.link)
@@ -440,21 +395,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return 0L;
 		}
 
-		public final Item registerOid(
-			final Object                                 instance   ,
-			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final long                                   oid
-		)
-		{
-			if(++this.itemCount >= this.hashRange)
-			{
-				this.rebuildStoreItems();
-			}
-
-			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
-				new Item(instance, oid, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
-			;
-		}
+		
 
 		public final void rebuildStoreItems()
 		{
@@ -464,7 +405,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public final void rebuildStoreItems(final int newLength)
 		{
 			// moreless academic check for more than 1 billion entries
-			if(this.hashSlots.length >= MAX_POW_2_INT)
+			if(this.hashSlots.length >= maximumSlotSize())
 			{
 				return; // note that aborting rebuild does not ruin anything, only performance degrades
 			}
@@ -484,242 +425,114 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.hashRange = newRange;
 		}
 
-	}
-
-
-
-	public final class SimpleDeep extends AbstractImplementation
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final BufferSizeProvider bufferSizeProvider;
-
-		private ChunksBuffer chunk;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		public SimpleDeep(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
-			final PersistenceTypeHandlerManager<Binary> typeManager       ,
-			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider
-		)
+		
+		/**
+		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
+		 * have its instances stored recursively if deemed necessary by the logic until all instance
+		 * that can be reached by that logic have been handled.
+		 */
+		protected final long storeGraph(final Object root)
 		{
-			super(objectManager, objectSupplier, typeManager, target);
-			this.bufferSizeProvider = notNull(bufferSizeProvider);
-		}
+			final long rootOid = this.registerAdd(notNull(root));
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		protected void internalInitialize(final int pow2Capacity)
-		{
-			super.internalInitialize(pow2Capacity);
-
-			this.chunk = ChunksBuffer.New(this.bufferSizeProvider);
-		}
-
-		@Override
-		protected final ChunksBuffer chunk(final long oid)
-		{
-			return this.chunk; // always return single chunk in simple implementation
-		}
-
-		@Override
-		protected final Binary[] complete()
-		{
-			return new Binary[]{this.chunk.complete()};
-		}
-
-		@Override
-		public final void clear()
-		{
-			super.clear();
-
-			// intentionally no deallocation here because chunks might still be concurrently iterated
-			this.chunk = null;
-		}
-
-	}
-
-	public final class CreatorSimple implements BinaryStorer.Creator, Stateless
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		public final BinaryStorer createPersistenceStorer(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
-			final PersistenceTypeHandlerManager<Binary> typeManager       ,
-			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider
-		)
-		{
-			return new BinaryStorer.SimpleDeep(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
-		}
-
-	}
-
-
-
-	public final class ChannelHashingDeep extends AbstractImplementation
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final BufferSizeProvider bufferSizeProvider;
-		private final int                channelHashRange  ;
-		private final ChunksBuffer[]     chunks            ;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		public ChannelHashingDeep(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
-			final PersistenceTypeHandlerManager<Binary> typeManager       ,
-			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider,
-			final int                                   channelCount
-		)
-		{
-			super(objectManager, objectSupplier, typeManager, target);
-			this.bufferSizeProvider = notNull(bufferSizeProvider)   ;
-			this.chunks             = new ChunksBuffer[channelCount];
-			this.channelHashRange   = channelCount - 1              ;
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		protected final void internalInitialize(final int pow2Capacity)
-		{
-			super.internalInitialize(pow2Capacity);
-
-			final ChunksBuffer[] chunks = this.chunks;
-			for(int i = 0; i < chunks.length; i++)
+			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
+			for(Item item = this.tail; item != null; item = item.next)
 			{
-				chunks[i] = ChunksBuffer.New(this.bufferSizeProvider);
-			}
-		}
-
-		@Override
-		protected final ChunksBuffer chunk(final long oid)
-		{
-			return this.chunks[(int)(oid & this.channelHashRange)];
-		}
-
-		@Override
-		protected final ChunksBuffer[] complete()
-		{
-			// (21.03.2016 TM)NOTE: added to avoid NPEs
-			this.initialize();
-
-			for(final ChunksBuffer chunk : this.chunks)
-			{
-				chunk.complete();
+				this.storeItem(item);
 			}
 
-			/* must return a local copy of the array as the task may not use this instance's interal array.
-			 * For example:
-			 * - storer clears the array after completing, while task needs an uncleared array to clear
-			 *   the chunks themselves
-			 * - task implementation might mutate the array, potentially ruining the storer's state
-			 * The chunks array is usually tiny (length equal to channel count, so 1, 2, 4, maybe 8 or even 16 ... tiny)
-			 */
-			return this.chunks.clone();
+			return rootOid;
 		}
-
-		@Override
-		public final void clear()
+		
+		protected final void storeItem(final Item item)
 		{
-			super.clear();
-
-			final ChunksBuffer[] chunks = this.chunks;
-			for(int i = 0; i < chunks.length; i++)
-			{
-				/* Note:
-				 * may explicitely NOT clear (deallocate) the current chunks
-				 * because in use with embedded (in-process) storage the chunks
-				 * might still be used by the storage worker threads to update their entity caches.
-				 * The released chunks must be handled by those threads if existing
-				 * or ultimately by the garbage collector (or by some tailored additional logic)
-				 */
-				chunks[i] = null;
-			}
+//			JadothConsole.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
+			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
-
-	}
-
-	public final class CreatorChannelHashingDeep implements BinaryStorer.Creator
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
-
-		private final _intReference channelCountProvider;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
-
-		public CreatorChannelHashingDeep(final _intReference channelCountProvider)
+		
+		protected final long registerAdd(final Object instance)
 		{
-			super();
-			this.channelCountProvider = notNull(channelCountProvider);
-		}
+			final long oid;
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		public final ChannelHashingDeep createPersistenceStorer(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
-			final PersistenceTypeHandlerManager<Binary> typeManager       ,
-			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider
-		)
-		{
-			return new ChannelHashingDeep(
-				objectManager,
-				objectSupplier,
-				typeManager,
-				target,
-				bufferSizeProvider,
-				this.channelCountProvider.get()
+			// ensure handler (or fail if type is not persistable) before ensuring an OID.
+			this.tail = this.tail.next = this.registerOid(
+				instance,
+				this.typeManager.ensureTypeHandler(instance),
+				oid = this.objectManager.ensureObjectId(instance)
 			);
+
+			return oid;
+		}
+		
+		public final Item registerOid(
+			final Object                                 instance   ,
+			final PersistenceTypeHandler<Binary, Object> typeHandler,
+			final long                                   oid
+		)
+		{
+			if(++this.itemCount >= this.hashRange)
+			{
+				this.rebuildStoreItems();
+			}
+
+			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
+				new Item(instance, oid, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
+			;
+		}
+		
+		@Override
+		public final void registerSkip(final Object instance, final long oid)
+		{
+			this.registerOid(instance, null, oid);
 		}
 
+		@Override
+		public final void registerSkip(final Object instance)
+		{
+			this.registerOid(instance, null, this.objectManager.lookupObjectId(instance));
+		}
+		
 	}
-
-
+	
+	/**
+	 * Identical to {@link Implementation}, but stores every referenced instance eagerly.<br>
+	 * For a more differentiated solution between the two simple, but extreme strategies,
+	 * see {@link PersistenceEagerStoringFieldEvaluator}.<br>
+	 * 
+	 * @author TM
+	 */
+	public final class ImplementationEager extends Implementation
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		ImplementationEager(
+			final SwizzleObjectManager                   objectManager     ,
+			final SwizzleObjectSupplier                  objectSupplier    ,
+			final PersistenceTypeHandlerManager<Binary>  typeManager       ,
+			final PersistenceTarget<Binary>              target            ,
+			final BufferSizeProvider                     bufferSizeProvider,
+			final int                                    channelCount
+		)
+		{
+			super(objectManager, objectSupplier, typeManager, target, bufferSizeProvider, channelCount);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final <T> long apply(final T instance)
+		{
+			// for a "full" graph storing strategy, the logic is simply to store everything forced.
+			return this.applyEager(instance);
+		}
+		
+	}
 
 	static final class Item
 	{
@@ -742,6 +555,128 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.link        = link       ;
 		}
 
+	}
+		
+	public static BinaryStorer.Creator Creator(final _intReference chunkHashSizeProvider)
+	{
+		return new BinaryStorer.Creator.Implementation(
+			notNull(chunkHashSizeProvider)
+		);
+	}
+		
+	public interface Creator extends PersistenceStorer.Creator<Binary>
+	{
+		@Override
+		public BinaryStorer createLazyStorer(
+			SwizzleObjectManager                  objectManager     ,
+			SwizzleObjectSupplier                 objectSupplier    ,
+			PersistenceTypeHandlerManager<Binary> typeManager       ,
+			PersistenceTarget<Binary>             target            ,
+			BufferSizeProvider                    bufferSizeProvider
+		);
+		
+		@Override
+		public default BinaryStorer createStorer(
+			final SwizzleObjectManager                  objectManager     ,
+			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceTypeHandlerManager<Binary> typeManager       ,
+			final PersistenceTarget<Binary>             target            ,
+			final BufferSizeProvider                    bufferSizeProvider
+		)
+		{
+			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
+		}
+		
+		@Override
+		public BinaryStorer createEagerStorer(
+			SwizzleObjectManager                  objectManager     ,
+			SwizzleObjectSupplier                 objectSupplier    ,
+			PersistenceTypeHandlerManager<Binary> typeManager       ,
+			PersistenceTarget<Binary>             target            ,
+			BufferSizeProvider                    bufferSizeProvider
+		);
+		
+		
+		
+		public abstract class AbstractImplementation implements BinaryStorer.Creator
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields  //
+			/////////////////////
+
+			private final _intReference chunkHashSizeProvider;
+
+
+
+			///////////////////////////////////////////////////////////////////////////
+			// constructors     //
+			/////////////////////
+
+			protected AbstractImplementation(final _intReference chunkHashSizeProvider)
+			{
+				super();
+				this.chunkHashSizeProvider = chunkHashSizeProvider;
+			}
+
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			protected int getChunkHashSize()
+			{
+				return this.chunkHashSizeProvider.get();
+			}
+
+		}
+		
+		public final class Implementation extends AbstractImplementation
+		{
+			Implementation(final _intReference chunkHashSizeProvider)
+			{
+				super(chunkHashSizeProvider);
+			}
+
+			@Override
+			public final BinaryStorer createLazyStorer(
+				final SwizzleObjectManager                  objectManager     ,
+				final SwizzleObjectSupplier                 objectSupplier    ,
+				final PersistenceTypeHandlerManager<Binary> typeManager       ,
+				final PersistenceTarget<Binary>             target            ,
+				final BufferSizeProvider                    bufferSizeProvider
+			)
+			{
+				return new BinaryStorer.Implementation(
+					objectManager          ,
+					objectSupplier         ,
+					typeManager            ,
+					target                 ,
+					bufferSizeProvider     ,
+					this.getChunkHashSize()
+				);
+			}
+			@Override
+			public BinaryStorer createEagerStorer(
+				final SwizzleObjectManager                  objectManager     ,
+				final SwizzleObjectSupplier                 objectSupplier    ,
+				final PersistenceTypeHandlerManager<Binary> typeManager       ,
+				final PersistenceTarget<Binary>             target            ,
+				final BufferSizeProvider                    bufferSizeProvider
+			)
+			{
+				return new BinaryStorer.ImplementationEager(
+					objectManager          ,
+					objectSupplier         ,
+					typeManager            ,
+					target                 ,
+					bufferSizeProvider     ,
+					this.getChunkHashSize()
+				);
+			}
+
+		}
+				
 	}
 
 }

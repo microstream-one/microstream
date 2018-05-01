@@ -1,5 +1,7 @@
 package net.jadoth.test.corp.model;
 
+import net.jadoth.storage.util.StoreEager;
+
 public interface Contact
 {
 	public String contactId();
@@ -25,6 +27,8 @@ public interface Contact
 		////////////////////
 
 		private final String  contactId;
+		
+		@StoreEager
 		private       Address address  ;
 		private       String  note     ;
 

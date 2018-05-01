@@ -18,7 +18,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 {
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
-	implements StorageRequestTaskImportData, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskImportData, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //

@@ -16,17 +16,16 @@ import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateDescriptor;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
@@ -46,54 +45,45 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	}
 
 	protected static long calculateOffsets(
-		final Field[]                allFieldsDeclOrder,
-		final Field[]                fieldsBinOrder    ,
-		final long[]                 allBinOfs         ,
-		final BinaryValueStorer[]    storers           ,
-		final BinaryValueSetter[]    setters           //,
-//		final ObjectValueCopier[]    copiers           ,
-//		final BinaryValueEqualator[] equltrs
+		final Class<?>                                    entityType        ,
+		final Field[]                                     allFieldsDeclOrder,
+		final Field[]                                     fieldsBinOrder    ,
+		final long[]                                      allBinOfs         ,
+		final BinaryValueStorer[]                         storers           ,
+		final BinaryValueSetter[]                         setters           ,
+		final PersistenceEagerStoringFieldEvaluator isForcedPredicate
 	)
 	{
-		final BinaryValueStorer[]    refStorers = new BinaryValueStorer[   storers.length];
-		final BinaryValueSetter[]    refSetters = new BinaryValueSetter[   setters.length];
-//		final ObjectValueCopier[]    refCopiers = new ObjectValueCopier[   copiers.length];
-//		final BinaryValueEqualator[] refEqultrs = new BinaryValueEqualator[equltrs.length];
-		final Field[]                refFields  = new Field[        fieldsBinOrder.length];
-		final BinaryValueStorer[]    prmStorers = new BinaryValueStorer[   storers.length];
-		final BinaryValueSetter[]    prmSetters = new BinaryValueSetter[   setters.length];
-//		final ObjectValueCopier[]    prmCopiers = new ObjectValueCopier[   copiers.length];
-//		final BinaryValueEqualator[] prmEqultrs = new BinaryValueEqualator[equltrs.length];
-		final Field[]                prmFields  = new Field[        fieldsBinOrder.length];
-		final long[]                 prmBinOffs  = new long[              allBinOfs.length];
+		final BinaryValueStorer[] refStorers = new BinaryValueStorer[   storers.length];
+		final BinaryValueSetter[] refSetters = new BinaryValueSetter[   setters.length];
+		final Field[]             refFields  = new Field[        fieldsBinOrder.length];
+		final BinaryValueStorer[] prmStorers = new BinaryValueStorer[   storers.length];
+		final BinaryValueSetter[] prmSetters = new BinaryValueSetter[   setters.length];
+		final Field[]             prmFields  = new Field[        fieldsBinOrder.length];
+		final long[]              prmBinOffs = new long[              allBinOfs.length];
 
 		long primBinOffsets = 0;
 		int r = 0, p = 0;
 		for(int i = 0; i < allFieldsDeclOrder.length; i++)
 		{
-			final Class<?>             fldType = allFieldsDeclOrder[i].getType()                   ;
-			final BinaryValueStorer    storer  = BinaryPersistence.getObjectValueStorer   (fldType);
-			final BinaryValueSetter    setter  = BinaryPersistence.getObjectValueSetter   (fldType);
-//			final ObjectValueCopier    copier  =       ObjectState.getObjectValueCopier   (fldType);
-//			final BinaryValueEqualator equltr  = BinaryPersistence.getObjectValueEqualator(fldType);
-			if(fldType.isPrimitive())
+			final Class<?>          fieldType = allFieldsDeclOrder[i].getType()                                    ;
+			final boolean           isForced  = isForcedPredicate.isEagerStoring(entityType, allFieldsDeclOrder[i]);
+			final BinaryValueStorer storer    = BinaryPersistence.getObjectValueStorer(fieldType, isForced)        ;
+			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                  ;
+			if(fieldType.isPrimitive())
 			{
-				primBinOffsets += Memory.byteSizePrimitive(fldType);
+				primBinOffsets += Memory.byteSizePrimitive(fieldType);
 				prmStorers[p] = storer;
 				prmSetters[p] = setter;
-//				prmCopiers[p] = copier;
-//				prmEqultrs[p] = equltr;
 				prmBinOffs[p] = primBinOffsets;
-				prmFields[ p] = allFieldsDeclOrder[i];
+				prmFields [p] = allFieldsDeclOrder[i];
 				p++;
 			}
 			else
 			{
 				refStorers[r] = storer;
 				refSetters[r] = setter;
-//				refCopiers[r] = copier;
-//				refEqultrs[r] = equltr;
-				refFields[ r] = allFieldsDeclOrder[i];
+				refFields [r] = allFieldsDeclOrder[i];
 				r++;
 			}
 		}
@@ -102,6 +92,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		{
 			allBinOfs[i] = i * BinaryPersistence.oidLength();
 		}
+		
 		final long binPrimOffset = r * BinaryPersistence.oidLength();
 		for(int i = 0; i < p; i++)
 		{
@@ -110,13 +101,9 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 
 		System.arraycopy(refStorers, 0, storers       , 0, r);
 		System.arraycopy(refSetters, 0, setters       , 0, r);
-//		System.arraycopy(refCopiers, 0, copiers       , 0, r);
-//		System.arraycopy(refEqultrs, 0, equltrs       , 0, r);
 		System.arraycopy(refFields , 0, fieldsBinOrder, 0, r);
 		System.arraycopy(prmStorers, 0, storers       , r, p);
 		System.arraycopy(prmSetters, 0, setters       , r, p);
-//		System.arraycopy(prmCopiers, 0, copiers       , r, p);
-//		System.arraycopy(prmEqultrs, 0, equltrs       , r, p);
 		System.arraycopy(prmFields , 0, fieldsBinOrder, r, p);
 
 		return binPrimOffset + primBinOffsets; // the offset at the end is equal to the total binary length
@@ -169,10 +156,11 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	/////////////////////
 
 	protected AbstractGenericBinaryHandler(
-		final Class<T>                       type          ,
-		final long                           tid           ,
-		final XGettingEnum<Field>            allFields     ,
-		final PersistenceFieldLengthResolver lengthResolver
+		final Class<T>                                    type                   ,
+		final long                                        tid                    ,
+		final XGettingEnum<Field>                         allFields              ,
+		final PersistenceFieldLengthResolver              lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
 		super(type, tid);
@@ -199,13 +187,13 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		 * However those would have to be located in the handler creator instance, not here
 		 */
 		this.binaryLength = calculateOffsets(
-			allFieldsDeclOrder                                                   ,
-			allFieldsPersOrder                                                   ,
-			/*this.allBinOfs  = */new long[                allFieldsDeclOrder.length],
-			this.binStorers = new BinaryValueStorer[   allFieldsDeclOrder.length],
-			this.memSetters = new BinaryValueSetter[   allFieldsDeclOrder.length]
-//			this.copiers    = new ObjectValueCopier[   allFieldsDeclOrder.length],
-//			this.equalators = new BinaryValueEqualator[allFieldsDeclOrder.length]
+			type                                                              ,
+			allFieldsDeclOrder                                                ,
+			allFieldsPersOrder                                                ,
+			                  new long[             allFieldsDeclOrder.length],
+			this.binStorers = new BinaryValueStorer[allFieldsDeclOrder.length],
+			this.memSetters = new BinaryValueSetter[allFieldsDeclOrder.length],
+			mandatoryFieldEvaluator
 		);
 
 		// memory offsets must correspond to other arrays
@@ -296,13 +284,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final ObjectStateDescriptor<T> getStateDescriptor()
-	{
-		return this;
-	}
-
-	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeFixedSize(
 			bytes            ,
@@ -387,17 +369,6 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		throws SwizzleExceptionConsistency
 	{
 		fieldDescriptions.iterateIndexed(this::validate);
-	}
-
-	@Override
-	public boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup instanceStateHandlerLookup)
-	{
-		/* (09.06.2017 TM)NOTE:
-		 * the whole concept of generic equality checks via binary handler implementations has never been used
-		 * so far and is still experimental code. The only reason the code is not completely removed is that there
-		 * is already a lot of implemented code and structures that could be used in the future.
-		 */
-		throw new UnsupportedOperationException();
 	}
 
 }

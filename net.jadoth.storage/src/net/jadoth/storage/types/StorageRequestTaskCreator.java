@@ -18,7 +18,7 @@ public interface StorageRequestTaskCreator
 		StorageTypeDictionary       oldTypes
 	);
 
-	public StorageRequestTaskSaveEntities createSaveTask(Chunks[] medium);
+	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
 
 	public StorageRequestTaskLoadByOids createLoadTaskByOids(SwizzleIdSet[] loadOids);
 
@@ -148,9 +148,9 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskSaveEntities createSaveTask(final Chunks[] medium)
+		public StorageRequestTaskStoreEntities createSaveTask(final Chunks[] medium)
 		{
-			return new StorageRequestTaskSaveEntities.Implementation(
+			return new StorageRequestTaskStoreEntities.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				medium
 			);

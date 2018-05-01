@@ -89,7 +89,7 @@ public interface StorageRequestAcceptor
 
 	public interface Creator
 	{
-		public StorageRequestAcceptor createCommunicator(
+		public StorageRequestAcceptor createRequestAcceptor(
 			StorageValidatorDataChunk dataChunkValidator,
 			StorageTaskBroker         taskBroker
 		);
@@ -99,7 +99,7 @@ public interface StorageRequestAcceptor
 		{
 
 			@Override
-			public StorageRequestAcceptor createCommunicator(
+			public StorageRequestAcceptor createRequestAcceptor(
 				final StorageValidatorDataChunk dataChunkValidator,
 				final StorageTaskBroker         taskBroker
 			)
@@ -159,7 +159,7 @@ public interface StorageRequestAcceptor
 			// prevalidate on the caller site before creating and enqueing a task (may be no-op)
 			this.prevalidatorDataChunk.validateDataChunk(dataMedium);
 
-			waitOnTask(this.taskBroker.enqueueSaveTask(dataMedium));
+			waitOnTask(this.taskBroker.enqueueStoreTask(dataMedium));
 		}
 
 		@Override

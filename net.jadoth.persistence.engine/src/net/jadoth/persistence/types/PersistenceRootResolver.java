@@ -1,123 +1,280 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
 
 import java.lang.reflect.Field;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import net.jadoth.collections.EqConstHashTable;
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.X;
+import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.collections.types.XImmutableTable;
-import net.jadoth.memory.Memory;
+import net.jadoth.hash.JadothHash;
 import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.KeyValue;
 
-public interface PersistenceRootResolver extends Function<String, Object>
+public interface PersistenceRootResolver
 {
-	@Override
-	public Object apply(String input);
-
-	public String toIdentifier(Field field);
-
-	/**
-	 * Iterates all entries that are explicitely known to this instance (e.g. custom mapped override entries).
-	 *
-	 * @param procedure
-	 */
-	public void iterateKnownEntries(Consumer<? super KeyValue<String, ?>> procedure);
-
-
-	static final PersistenceRootResolver DEFAULT_RESOLVER =
-		new PersistenceRootResolver()
-		{
-			@Override
-			public Object apply(final String input)
-			{
-				return Static.resolveIdentifier(input);
-			}
-
-			@Override
-			public String toIdentifier(final Field field)
-			{
-				return Static.toIdentifier(field);
-			}
-
-			@Override
-			public void iterateKnownEntries(final Consumer<? super KeyValue<String, ?>> procedure)
-			{
-				// no-op, no explicit entries
-			}
-
-		}
-	;
-
-
-	/**
-	 * A simple implementation that allows one override mapping (e.g. application entity graph root)
-	 * and otherwise relays to the default. Anything more complex is best implemented in an
-	 * application-specific tailored way.
-	 *
-	 * @author Thomas Muenz
-	 *
-	 */
-	public final class SingleOverride implements PersistenceRootResolver
+	public PersistenceRootEntry resolveRootInstance(String identifier);
+	
+	public XGettingTable<String, Object> getRootInstances();
+	
+	public default XGettingTable<String, PersistenceRootEntry> resolveRootInstances(
+		final XGettingEnum<String> identifiers
+	)
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		final String identifier;
-		final Object instance  ;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		public SingleOverride(final String identifier, final Object instance)
+		final EqHashTable<String, PersistenceRootEntry> resolvedRoots         = EqHashTable.New();
+		final EqHashEnum<String>                        unresolvedIdentifiers = EqHashEnum.New();
+		
+		synchronized(this)
 		{
-			super();
-			this.identifier = notNull(identifier);
-			this.instance   = notNull(instance)  ;
+			for(final String identifier : identifiers)
+			{
+				final PersistenceRootEntry resolvedRootEntry = this.resolveRootInstance(identifier);
+				if(resolvedRootEntry != null)
+				{
+					resolvedRoots.add(identifier, resolvedRootEntry);
+				}
+				else
+				{
+					unresolvedIdentifiers.add(identifier);
+				}
+			}
+			
+			if(!unresolvedIdentifiers.isEmpty())
+			{
+				// (19.04.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"The following root identifiers cannot be resolved: " + unresolvedIdentifiers
+				);
+			}
 		}
+		
+		return resolvedRoots;
+	}
+	
+	public static XGettingTable<String, Supplier<?>> deriveRoots(final Class<?>... types)
+	{
+		return deriveRoots(JadothReflect::deriveFieldIdentifier, types);
+	}
+	
+	public static XGettingTable<String, Supplier<?>> deriveRoots(
+		final Function<Field, String> rootIdentifierDeriver,
+		final Class<?>...             types
+	)
+	{
+		final EqHashTable<String, Supplier<?>> roots = EqHashTable.New();
+		
+		addRoots(roots, rootIdentifierDeriver, types);
+		
+		return roots;
+	}
 
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
-		@Override
-		public final Object apply(final String input)
+	public static void addRoots(
+		final EqHashTable<String, Supplier<?>> roots                ,
+		final Function<Field, String>          rootIdentifierDeriver,
+		final Class<?>...                      types
+	)
+	{
+		for(final Class<?> type : types)
 		{
-			return this.identifier.equals(input)  ? this.instance : DEFAULT_RESOLVER.apply(input);
+			addRoots(roots, rootIdentifierDeriver, type);
 		}
-
-		@Override
-		public final String toIdentifier(final Field field)
+	}
+	
+	
+	public static void addRoots(
+		final EqHashTable<String, Supplier<?>> roots                ,
+		final Function<Field, String>          rootIdentifierDeriver,
+		final Class<?>                         type
+	)
+	{
+		for(final Field field : type.getDeclaredFields())
 		{
-			return DEFAULT_RESOLVER.toIdentifier(field);
-		}
-
-		@Override
-		public final void iterateKnownEntries(final Consumer<? super KeyValue<String, ?>> procedure)
-		{
-			procedure.accept(
-				keyValue(this.identifier, this.instance)
+			/*
+			 * better not trust custom predicates:
+			 * - field MUST be static, otherwise no instance can be safely retrieved in a static way.
+			 * - field MUST be a reference field, because registering primitives is neither possible nor reasonable.
+			 */
+			if(!JadothReflect.isStatic(field) || !JadothReflect.isReference(field))
+			{
+				continue;
+			}
+			
+			final String rootIdentifier = rootIdentifierDeriver.apply(field);
+			if(rootIdentifier == null)
+			{
+				// the deriver function also serves as a predicate: if it returns null, the field shall be skipped.
+				continue;
+			}
+			
+			field.setAccessible(true);
+			
+			/*
+			 * The static field gets registered for the derived identifier.
+			 * The Supplier indirection prevents class initialization loops.
+			 * Lambda line break for debuggability.
+			 */
+			roots.add(rootIdentifier, () ->
+				JadothReflect.getFieldValue(field, null)
 			);
 		}
-
 	}
+	
+	
+	public interface Builder
+	{
+		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
+		
+		public default Builder registerRoots(final XGettingTable<String, Supplier<?>> roots)
+		{
+			synchronized(this)
+			{
+				roots.iterate(kv ->
+					this.registerRoot(kv.key(), kv.value())
+				);
+			}
+			return this;
+		}
+		
+		public default Builder registerRoot(final String identifier, final Object instance)
+		{
+			return this.registerRoot(identifier, () -> instance);
+		}
+		
+		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoring);
+				
+		public PersistenceRootResolver build();
+		
+		public final class Implementation implements PersistenceRootResolver.Builder
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider  ;
+			private final EqHashTable<String, PersistenceRootEntry>             rootEntries    ;
+			private       PersistenceRefactoringMappingProvider                 refactoring    ;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Implementation(final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider)
+			{
+				super();
+				this.entryProvider = entryProvider;
+				this.rootEntries   = this.initializeRootEntries();
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public final synchronized Builder registerRoot(final String identifier, final Supplier<?> instanceSupplier)
+			{
+				final PersistenceRootEntry entry = this.entryProvider.apply(identifier, instanceSupplier);
+				this.addEntry(identifier, entry);
+				return this;
+			}
+			
+			private void addEntry(final String identifier, final PersistenceRootEntry entry)
+			{
+				if(this.rootEntries.add(identifier, entry))
+				{
+					return;
+				}
+				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
+			}
+			
+			/**
+			 * System constants that must be present and may not be replaced by user logic are initially registered.
+			 */
+			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
+			{
+				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
+				
+				// arbitrary constant identifiers that decouple constant resolving from class/field names.
+				this.register(entries, "XHashEqualator:hashEqualityValue"   , JadothHash::hashEqualityValue   );
+				this.register(entries, "XHashEqualator:hashEqualityIdentity", JadothHash::hashEqualityIdentity);
+				this.register(entries, "XEmpty:Collection"                  , X::empty                        );
+				this.register(entries, "XEmpty:Table"                       , X::emptyTable                   );
+				
+				return entries;
+			}
+			
+			private void register(
+				final EqHashTable<String, PersistenceRootEntry> entries         ,
+				final String                                    identifier      ,
+				final Supplier<?>                               instanceSupplier
+			)
+			{
+				entries.add(identifier, this.entryProvider.apply(identifier, instanceSupplier));
+			}
+			
+			@Override
+			public final synchronized PersistenceRootResolver build()
+			{
+				final PersistenceRootResolver resolver = new PersistenceRootResolver.Implementation(
+					this.rootEntries.immure()
+				);
+				
+				return this.refactoring == null
+					? resolver
+					: PersistenceRootResolver.Wrap(resolver, this.refactoring)
+				;
+			}
+			
+			@Override
+			public final synchronized Builder setRefactoring(final PersistenceRefactoringMappingProvider refactoring)
+			{
+				this.refactoring = refactoring;
+				return this;
+			}
+		}
+	}
+	
+	
 
-	public final class MappedOverride implements PersistenceRootResolver
+	
+	public static PersistenceRootResolver.Builder Builder()
+	{
+		return Builder(PersistenceRootEntry::New);
+	}
+	
+	public static PersistenceRootResolver.Builder Builder(
+		final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider
+	)
+	{
+		return new PersistenceRootResolver.Builder.Implementation(
+			notNull(entryProvider)
+		);
+	}
+		
+	public static PersistenceRootResolver New(final String identifier, final Supplier<?> instanceSupplier)
+	{
+		return Builder()
+			.registerRoot(identifier, instanceSupplier)
+			.build()
+		;
+	}
+	
+	public final class Implementation implements PersistenceRootResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final XImmutableTable<String, ?> identifierOverrides;
+		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries;
 
 
 
@@ -125,98 +282,175 @@ public interface PersistenceRootResolver extends Function<String, Object>
 		// constructors //
 		/////////////////
 
-		public MappedOverride(final XGettingTable<String, ?> identifierOverrides)
+		Implementation(final EqConstHashTable<String, PersistenceRootEntry> rootEntries)
 		{
 			super();
-			// make sure to use value-equality implementation internally
-			this.identifierOverrides = EqConstHashTable.New(identifierOverrides);
+			this.rootEntries = rootEntries;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
+		// methods //
+		////////////
+								
 		@Override
-		public final Object apply(final String input)
+		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
-			final Object overrideInstance = this.identifierOverrides.get(input);
-			return overrideInstance != null
-				? overrideInstance
-				: DEFAULT_RESOLVER.apply(input)
-			;
+			return this.rootEntries.get(identifier);
 		}
-
+		
 		@Override
-		public final String toIdentifier(final Field field)
+		public final XGettingTable<String, Object> getRootInstances()
 		{
-			return DEFAULT_RESOLVER.toIdentifier(field);
-		}
-
-		@Override
-		public final void iterateKnownEntries(final Consumer<? super KeyValue<String, ?>> procedure)
-		{
-			this.identifierOverrides.iterate(procedure);
+			final EqHashTable<String, Object> rootInstances = EqHashTable.New();
+			
+			for(final PersistenceRootEntry entry : this.rootEntries.values())
+			{
+				rootInstances.add(entry.identifier(), entry.instance());
+			}
+			
+			return rootInstances;
 		}
 
 	}
-
-
-	public final class Static
+	
+	
+	public static PersistenceRootResolver Wrap(
+		final PersistenceRootResolver                actualRootResolver,
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+	)
+	{
+		return new MappingWrapper(actualRootResolver, refactoringMappingProvider);
+	}
+	
+	public final class MappingWrapper implements PersistenceRootResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// instance fields //
+		////////////////////
+		
+		final PersistenceRootResolver                actualRootResolver        ;
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider;
+		
+		transient XGettingMap<String, String>        refactoringMappings;
 
-		static final char FIELD_IDENTIFIER_DELIMITER = '#';
-
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		public static String toIdentifier(final Field field)
+		// constructors //
+		/////////////////
+		
+		MappingWrapper(
+			final PersistenceRootResolver actualRootResolver        ,
+			final PersistenceRefactoringMappingProvider                refactoringMappingProvider
+		)
 		{
-			return field.getDeclaringClass().getName() + FIELD_IDENTIFIER_DELIMITER + field.getName();
+			super();
+			this.actualRootResolver         = actualRootResolver        ;
+			this.refactoringMappingProvider = refactoringMappingProvider;
 		}
 
-		public static Field resolveField(final String identifier)
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private synchronized XGettingMap<String, String> refactoringMappings()
 		{
-			final int index = identifier.lastIndexOf(FIELD_IDENTIFIER_DELIMITER);
-			if(index < 0)
+			if(this.refactoringMappings == null)
 			{
-				throw new IllegalArgumentException(); // (16.10.2013 TM)TODO: proper Exception
+				this.refactoringMappings = this.refactoringMappingProvider.provideRefactoringMapping().entries();
 			}
-			final String classString = identifier.substring(0, index);
-			final String fieldName   = identifier.substring(index + 1);
-
-			final Class<?> c;
-			try
-			{
-				c = Class.forName(classString);
-				return JadothReflect.getAnyField(c, fieldName);
-			}
-			catch(final Exception e)
-			{
-				throw new IllegalArgumentException(e); // (16.10.2013 TM)TODO: proper Exception
-			}
+			
+			return this.refactoringMappings;
 		}
-
-		public static final Object resolveIdentifier(final String identifier)
+		
+		@Override
+		public final XGettingTable<String, Object> getRootInstances()
 		{
-			return Memory.getStaticReference(resolveField(identifier));
+			return this.actualRootResolver.getRootInstances();
 		}
 
-
-
-		private Static()
+		@Override
+		public PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
-			// static only
-			throw new UnsupportedOperationException();
+			/*
+			 * Mapping lookups take precedence over the direct resolving attempt.
+			 * This is important to enable refactorings that switch names.
+			 * E.g.:
+			 * A -> B
+			 * C -> A
+			 * However, this also increases the responsibility of the developer who defines the mapping:
+			 * The mapping has to be removed after the first usage, otherwise the new instance under the old name
+			 * is mapped to the old name's new name, as well. (In the example: after two executions, both instances
+			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
+			 * but an outdated mapping rule defined by the using developer).
+			 */
+			final XGettingMap<String, String> refactoringMappings = this.refactoringMappings();
+			final String                      sourceIdentifier    = normalize(identifier);
+			
+			if(!refactoringMappings.keys().contains(sourceIdentifier))
+			{
+				// simple case: no mapping found, use (normalized) source identifier directly.
+				return this.actualRootResolver.resolveRootInstance(sourceIdentifier);
+			}
+			
+			final String targetIdentifier = normalize(refactoringMappings.get(sourceIdentifier));
+			
+			/*
+			 * special case: an explicit mapping entry for the (normalized) sourceIdentifier exists,
+			 * but its target is null. This means the sourceIdentifier represents an old root entry
+			 * that has been mapped as deleted by the user developer.
+			 */
+			if(targetIdentifier == null)
+			{
+				// mark removed entry
+				return PersistenceRootEntry.New(sourceIdentifier, null);
+			}
+			
+			// normal case: the sourceIdentifier has been mapped to a non-null targetIdentifier. So resolve it.
+			final PersistenceRootEntry mappedEntry = this.actualRootResolver.resolveRootInstance(targetIdentifier);
+			
+			// but there is a catch: an unresolveable explicitely provided targetIdentifier is an error.
+			if(mappedEntry == null)
+			{
+				// (19.04.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Refactoring mapping target identifier cannot be resolved: " + targetIdentifier
+				);
+			}
+			
+			return mappedEntry;
 		}
-
+		
+		/**
+		 * Identifiers cannot have whitespaces at the end or the beginning.
+		 * A string that only consists of whitespaces is considered no identifier at all.
+		 * 
+		 * Note that for strings that don't have bordering whitespaces or are already <code>null</code>,
+		 * this method takes very little time and does not allocate any new instances. Only
+		 * the problematic case is any mentionable effort.
+		 * 
+		 * @param s the raw string to be normalized.
+		 * @return the normalized string, potentially <code>null</code>.
+		 */
+		private static String normalize(final String s)
+		{
+			if(s == null)
+			{
+				return null;
+			}
+			
+			final String normalized = s.trim();
+			
+			return normalized.isEmpty()
+				? null
+				: normalized
+			;
+		}
+		
 	}
 
 }

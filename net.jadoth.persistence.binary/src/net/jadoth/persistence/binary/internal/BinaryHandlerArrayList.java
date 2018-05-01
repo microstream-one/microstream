@@ -4,14 +4,12 @@ import java.util.ArrayList;
 
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -60,7 +58,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final Binary             bytes   ,
 		final ArrayList<?>       instance,
 		final long               oid     ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -106,31 +104,5 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	{
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, SIZED_ARRAY_BINARY_OFFSET, iterator);
 	}
-
-	@Override
-	public final boolean isEqual(
-		final ArrayList<?>             source            ,
-		final ArrayList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.size() == target.size()
-			&& ObjectState.isEqual(
-				Memory.accessStorage(source),
-				Memory.accessStorage(target),
-				0                           ,
-				source.size()               ,
-				stateHandlerLookup
-			)
-		;
-	}
-
-//	@Override
-//	public final void copy(final ArrayList<?> source, final ArrayList<?> target)
-//	{
-//		target.ensureCapacity(source.size());
-//		BinaryCollectionHandling.copyContent(Memory.accessStorage(source), Memory.accessStorage(target), source.size());
-//		Memory.setSize(target, source.size());
-//	}
 
 }

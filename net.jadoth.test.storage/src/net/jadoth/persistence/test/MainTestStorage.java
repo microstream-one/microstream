@@ -90,7 +90,7 @@ public class MainTestStorage extends TestStorage
 		}
 		ROOT.set(Lazy.Reference(ints0));
 		JadothConsole.debugln("store big graph ...");
-		connection.storeFull(ROOT);
+		connection.store(ROOT);
 		JadothConsole.debugln("store big graph done");
 	}
 
@@ -103,7 +103,7 @@ public class MainTestStorage extends TestStorage
 			JadothConsole.debugln("round "+i);
 
 			// do one round of explicitely issued house keeping
-			connection.storeRequired(instance);
+			connection.store(instance);
 			storageCleanup(connection);
 
 //			if(Math.random() < 0.5)
@@ -290,7 +290,7 @@ public class MainTestStorage extends TestStorage
 		final BulkList<Integer> ints = BulkList.New();
 		ROOT.set(ints);
 		JadothConsole.debugln("initial storing root...");
-		storageConnection.storeFull(ROOT); // save whole graph recursively, starting at root
+		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		createIntegers(ints, 100_000);
 		for(int i = 0; i < 1; i++)
@@ -300,7 +300,7 @@ public class MainTestStorage extends TestStorage
 //			Thread.sleep(987);
 //			JadothConsole.debugln("storing ints #"+i);
 			final long tStart = System.nanoTime();
-			storageConnection.storeFull(ints);
+			storageConnection.store(ints);
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 //			Thread.sleep(1000);
@@ -321,7 +321,7 @@ public class MainTestStorage extends TestStorage
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
 		JadothConsole.debugln("initial storing root...");
-		storageConnection.storeFull(ROOT); // save whole graph recursively, starting at root
+		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		for(int i = 0; i < 100; i++)
 		{
@@ -330,7 +330,7 @@ public class MainTestStorage extends TestStorage
 			ints.add(subInts);
 
 			final long tStart = System.nanoTime();
-			storageConnection.storeRequired(ints);
+			storageConnection.store(ints);
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
@@ -345,12 +345,12 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 
 		for(int i = 100; i --> 0;)
 		{
 			ints.add(createIntegers(BulkList.New(), 1_000));
-			storageConnection.storeRequired(ints);
+			storageConnection.store(ints);
 		}
 
 //		final StorageRawFileStatistics stats = storageConnection.createStorageStatitics();

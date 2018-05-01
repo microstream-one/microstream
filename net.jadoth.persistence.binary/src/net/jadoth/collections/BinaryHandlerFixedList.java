@@ -3,16 +3,14 @@ package net.jadoth.collections;
 import net.jadoth.Jadoth;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
 /**
@@ -69,7 +67,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 		final Binary          bytes    ,
 		final FixedList<?>    instance ,
 		final long            oid      ,
-		final SwizzleStoreLinker linker
+		final PersistenceStoreFunction linker
 	)
 	{
 		final Object[] arrayInstance = instance.data;
@@ -114,27 +112,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	{
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
-
-	@Override
-	public final boolean isEqual(
-		final FixedList<?>             source            ,
-		final FixedList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.data.length == target.data.length
-			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
-		;
-	}
-
-//	@Override
-//	public final void copy(final FixedList<?> source, final FixedList<?> target)
-//	{
-//		if(source.data.length > target.data.length)
-//		{
-//			throw new RuntimeException(); // (23.10.2013 TM)EXCP: proper exception
-//		}
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.data.length);
-//	}
 
 }

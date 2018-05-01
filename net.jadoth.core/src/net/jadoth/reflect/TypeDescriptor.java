@@ -1,10 +1,10 @@
-package net.jadoth.memory.objectstate;
+package net.jadoth.reflect;
 
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
 
-public interface ObjectStateDescriptor<T>
+public interface TypeDescriptor<T>
 {
 	public Class<T> type();
 

@@ -71,6 +71,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
 import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
@@ -305,10 +306,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object          src      ,
-			final long            srcOffset,
-			final long            address  ,
-			final SwizzleFunction persister
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
 		)
 		{
 			VM.putByte(address, VM.getByte(src, srcOffset));
@@ -320,10 +321,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object          src      ,
-			final long            srcOffset,
-			final long            address  ,
-			final SwizzleFunction persister
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
 		)
 		{
 			VM.putShort(address, VM.getShort(src, srcOffset));
@@ -335,10 +336,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object          src      ,
-			final long            srcOffset,
-			final long            address  ,
-			final SwizzleFunction persister
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
 		)
 		{
 			VM.putInt(address, VM.getInt(src, srcOffset));
@@ -350,10 +351,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object          src      ,
-			final long            srcOffset,
-			final long            address  ,
-			final SwizzleFunction persister
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
 		)
 		{
 			VM.putLong(address, VM.getLong(src, srcOffset));
@@ -361,17 +362,32 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-	private static final BinaryValueStorer STORE_REF = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_REFERENCE = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object          src      ,
-			final long            srcOffset,
-			final long            address  ,
-			final SwizzleFunction persister
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
 		)
 		{
 			VM.putLong(address, persister.apply(VM.getObject(src, srcOffset)));
+			return address + LENGTH_OID;
+		}
+	};
+	
+	private static final BinaryValueStorer STORE_REFERENCE_FORCED = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                   src      ,
+			final long                     srcOffset,
+			final long                     address  ,
+			final PersistenceStoreFunction persister
+		)
+		{
+			VM.putLong(address, persister.applyEager(VM.getObject(src, srcOffset)));
 			return address + LENGTH_OID;
 		}
 	};
@@ -637,14 +653,14 @@ public final class BinaryPersistence extends Persistence
 	;
 
 	public static final void storeFixedSize(
-		final Binary              bytes        ,
-		final SwizzleFunction     persister    ,
-		final long                length       ,
-		final long                typeId       ,
-		final long                objectId     ,
-		final Object              instance     ,
-		final long[]              memoryOffsets,
-		final BinaryValueStorer[] storers
+		final Binary                   bytes        ,
+		final PersistenceStoreFunction persister    ,
+		final long                     length       ,
+		final long                     typeId       ,
+		final long                     objectId     ,
+		final Object                   instance     ,
+		final long[]                   memoryOffsets,
+		final BinaryValueStorer[]      storers
 	)
 	{
 		long address = bytes.storeEntityHeader(length, typeId, objectId);
@@ -1466,44 +1482,62 @@ public final class BinaryPersistence extends Persistence
 	{
 		return STORE_1;
 	}
+	
 	public static final BinaryValueStorer getStorer_boolean()
 	{
 		return STORE_1;
 	}
+	
 	public static final BinaryValueStorer getStorer_short()
 	{
 		return STORE_2;
 	}
+	
 	public static final BinaryValueStorer getStorer_char()
 	{
 		return STORE_2;
 	}
+	
 	public static final BinaryValueStorer getStorer_int()
 	{
 		return STORE_4;
 	}
+	
 	public static final BinaryValueStorer getStorer_float()
 	{
 		return STORE_4;
 	}
+	
 	public static final BinaryValueStorer getStorer_long()
 	{
 		return STORE_8;
 	}
+	
 	public static final BinaryValueStorer getStorer_double()
 	{
 		return STORE_8;
 	}
+	
 	public static final BinaryValueStorer getStorerReference()
 	{
-		return STORE_REF;
+		return STORE_REFERENCE;
+	}
+	
+	public static final BinaryValueStorer getStorerReferenceForced()
+	{
+		return STORE_REFERENCE_FORCED;
 	}
 
-	public static BinaryValueStorer getObjectValueStorer(final Class<?> type) throws IllegalArgumentException
+	public static BinaryValueStorer getObjectValueStorer(
+		final Class<?> type    ,
+		final boolean  isForced
+	)
+		throws IllegalArgumentException
 	{
 		// primitive special cases
 		if(type.isPrimitive())
 		{
+			// "forced" is not applicable for primitive values
 			switch(Memory.byteSizePrimitive(type))
 			{
 				case  BYTE_SIZE_1: return STORE_1;
@@ -1514,8 +1548,11 @@ public final class BinaryPersistence extends Persistence
 			}
 		}
 
-		// normal case of standard reference
-		return STORE_REF;
+		// reference case. Either "forced" or normal.
+		return isForced
+			? STORE_REFERENCE_FORCED
+			: STORE_REFERENCE
+		;
 	}
 
 	public static final BinaryValueSetter getSetter_byte()

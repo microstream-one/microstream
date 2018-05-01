@@ -11,11 +11,12 @@ import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceStoring;
 import net.jadoth.persistence.types.SelfStoring;
 import net.jadoth.persistence.types.Storer;
+import net.jadoth.persistence.types.Unpersistable;
 
 
 /**
  * Ultra-thin delegatig type that connects a {@link PersistenceManager} instance (potentially exclusively created)
- * to a storage instace.
+ * to a storage instance.
  *
  * @author TM
  */
@@ -118,44 +119,42 @@ public interface StorageConnection extends PersistenceStoring
 
 
 	public PersistenceManager<Binary> persistenceManager();
-
+	
 	@Override
-	public default long[] storeAllFull(final Object... instances)
+	public default long[] store(final Object... instances)
 	{
-		return this.persistenceManager().storeAllFull(instances);
+		return this.persistenceManager().store(instances);
 	}
 
 	@Override
-	public default long[] storeAllRequired(final Object... instances)
+	public default long store(final Object instance)
 	{
-		return this.persistenceManager().storeAllRequired(instances);
-	}
-
-	@Override
-	public default long storeFull(final Object instance)
-	{
-		return this.persistenceManager().storeFull(instance);
-	}
-
-	@Override
-	public default long storeRequired(final Object instance)
-	{
-		return this.persistenceManager().storeRequired(instance);
+		return this.persistenceManager().store(instance);
 	}
 
 	public default void store(final SelfStoring storing)
 	{
 		storing.storeBy(this.createStorer()).commit();
 	}
+	
+	public default Storer createLazyStorer()
+	{
+		return this.persistenceManager().createLazyStorer();
+	}
 
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
 	}
+	
+	public default Storer createEagerStorer()
+	{
+		return this.persistenceManager().createEagerStorer();
+	}
 
 
 
-	public final class Implementation implements StorageConnection
+	public final class Implementation implements StorageConnection, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -271,7 +270,7 @@ public interface StorageConnection extends PersistenceStoring
 //		@Override
 //		public long storeRequired(final Object instance)
 //		{
-//			return this.delegate.storeRequired(instance);
+//			return this.delegate.store(instance);
 //		}
 //
 //		@Override
@@ -283,7 +282,7 @@ public interface StorageConnection extends PersistenceStoring
 //		@Override
 //		public long[] storeAllRequired(final Object... instances)
 //		{
-//			return this.delegate.storeAllRequired(instances);
+//			return this.delegate.storeAll(instances);
 //		}
 //
 //		@Override

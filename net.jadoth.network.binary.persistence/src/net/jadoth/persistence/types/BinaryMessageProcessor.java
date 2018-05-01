@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.Jadoth.notNull;
-import net.jadoth.meta.JadothConsole;
+
 import net.jadoth.network.types.NetworkMessageProcessor;
 import net.jadoth.network.types.NetworkMessageReceiver;
 import net.jadoth.network.types.NetworkSession;
@@ -93,7 +93,7 @@ public interface BinaryMessageProcessor<M, S extends NetworkSession<M>> extends 
 		public void accept(final S session)
 		{
 			final Object message = this.readRequest(session);
-			JadothConsole.debugln("Received message " + message);
+//			JadothConsole.debugln("Received message " + message);
 			this.receiveMessage(message, session);
 		}
 

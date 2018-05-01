@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.Jadoth.notNull;
 
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import net.jadoth.storage.exceptions.StorageExceptionNotRunning;
 import net.jadoth.swizzling.types.Swizzle;
@@ -15,6 +16,12 @@ public interface StorageManager extends StorageController
 
 	// (20.05.2013)TODO: StorageManager#channelController() - not sure this belongs here
 	public StorageChannelController channelController();
+	
+	public default StorageChannelCountProvider channelCountProvider()
+	{
+		return this.channelController().channelCountProvider();
+	}
+
 
 	public StorageConfiguration configuration();
 
@@ -42,7 +49,7 @@ public interface StorageManager extends StorageController
 
 
 
-	public final class Implementation implements StorageManager
+	public final class Implementation implements StorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -55,7 +62,7 @@ public interface StorageManager extends StorageController
 		private final StorageFileProvider                     fileProvider                 ;
 		private final StorageFileReader.Provider              readerProvider               ;
 		private final StorageFileWriter.Provider              writerProvider               ;
-		private final StorageRequestAcceptor.Creator          communicatorCreator          ;
+		private final StorageRequestAcceptor.Creator          requestAcceptorCreator       ;
 		private final StorageTaskBroker.Creator               taskBrokerCreator            ;
 		private final StorageValidatorDataChunk.Provider      dataChunkValidatorProvider   ;
 		private final StorageChannel.Creator                  channelCreator               ;
@@ -126,7 +133,7 @@ public interface StorageManager extends StorageController
 			this.fileProvider                  = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator          = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController        = storageConfiguration.housekeepingController();
-			this.communicatorCreator           = notNull(requestAcceptorCreator)              ;
+			this.requestAcceptorCreator           = notNull(requestAcceptorCreator)              ;
 			this.taskBrokerCreator             = notNull(taskBrokerCreator)                   ;
 			this.dataChunkValidatorProvider    = notNull(dataChunkValidatorProvider)          ;
 			this.channelCreator                = notNull(channelCreator)                      ;
@@ -441,7 +448,7 @@ public interface StorageManager extends StorageController
 		{
 			this.ensureRunning();
 
-			return this.communicatorCreator.createCommunicator(
+			return this.requestAcceptorCreator.createRequestAcceptor(
 				this.dataChunkValidatorProvider.provideDataChunkValidator(),
 				this.taskbroker
 			);

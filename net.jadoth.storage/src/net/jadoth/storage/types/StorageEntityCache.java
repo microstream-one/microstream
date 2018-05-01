@@ -13,6 +13,7 @@ import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
 
@@ -37,7 +38,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 
-	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>
+	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //

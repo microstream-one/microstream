@@ -30,7 +30,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		{
 			long tStart, tStop;
 			tStart = System.nanoTime();
-			final long oid = persistenceManager.storeFull(testObject());
+			final long oid = persistenceManager.store(testObject());
 
 //			persistenceManager.staticStore(
 //				TestPerson.class,

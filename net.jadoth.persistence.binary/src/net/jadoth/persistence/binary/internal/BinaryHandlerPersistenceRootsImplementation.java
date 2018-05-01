@@ -3,19 +3,20 @@ package net.jadoth.persistence.binary.internal;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -119,7 +120,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final Binary                          bytes    ,
 		final PersistenceRoots.Implementation instance ,
 		final long                            oid      ,
-		final SwizzleStoreLinker              linker
+		final PersistenceStoreFunction              linker
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -184,21 +185,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
 	}
 
-	private void resolveInstances(final String[] identifiers, final Object[] instances)
-	{
-		final PersistenceRootResolver resolver = this.resolver;
-
-		// for what it's worth, lock the resolver in case it's used concurrently (which really shouldn't be done)
-		synchronized(resolver)
-		{
-			for(int i = 0; i < identifiers.length; i++)
-			{
-				instances[i] = resolver.apply(identifiers[i]);
-			}
-		}
-	}
-
-	private void registerInstances(final long[] oids, final Object[] instances)
+	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
 		final SwizzleRegistry registry = this.globalRegistry;
 
@@ -207,6 +194,13 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		{
 			for(int i = 0; i < oids.length; i++)
 			{
+				// instances can be null when they are explicitely registered to be null in the refactoring
+				if(instances[i] == null)
+				{
+					continue;
+				}
+				
+				// all still live instances are registered for their OID.
 				registry.registerObject(oids[i], instances[i]);
 			}
 		}
@@ -215,7 +209,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	@Override
 	public final PersistenceRoots.Implementation create(final Binary bytes)
 	{
-		return new PersistenceRoots.Implementation();
+		return PersistenceRoots.Implementation.createUninitialized();
 	}
 
 	@Override
@@ -225,27 +219,24 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final SwizzleBuildLinker              builder
 	)
 	{
-		/* Note that performance is not important here as roots only get loaded once per system start
+		/*
+		 * Note that performance is not important here as roots only get loaded once per system start
 		 * and are very few in numbers (hence the temp array copying detour).
-		 * Also the temp arrays allow much more efficent (smaller) lock times on the global registry.
-		 *
-		 * The method naming and structuring should be self-explanatory for the most part.
+		 * Also the temp arrays allow shorter lock times on the global registry.
 		 */
 
 		final long[]   objectIds   = buildTempObjectIdArray(bytes);
 		final String[] identifiers = buildTempIdentifiersArray(bytes);
-		final Object[] instances   = new Object[objectIds.length];
 
 		validateArrayLengths(objectIds, identifiers);
-
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
 
-		this.resolveInstances(identifiers, instances);
-
-		this.registerInstances(objectIds, instances);
-
-		X.addAllTo(instance.entries(), identifiers, instances);
+		final XGettingTable<String, PersistenceRootEntry> resolvedRoots = this.resolver.resolveRootInstances(
+			EqHashEnum.New(identifiers)
+		);
+		final Object[] instances = instance.setResolvedRoots(resolvedRoots);
+		this.registerInstancesPerObjectId(objectIds, instances);
 	}
 
 	@Override
@@ -290,17 +281,6 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	public final boolean hasPersistedVariableLength()
 	{
 		return true;
-	}
-
-	@Override
-	public final boolean isEqual(
-		final PersistenceRoots.Implementation source            ,
-		final PersistenceRoots.Implementation target            ,
-		final ObjectStateHandlerLookup        stateHandlerLookup
-	)
-	{
-		// FIXME BinaryHandlerPersistenceRootsImplementation#isEqual()
-		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 }

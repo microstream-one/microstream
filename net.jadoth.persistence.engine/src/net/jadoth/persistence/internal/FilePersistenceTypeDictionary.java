@@ -32,7 +32,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 		}
 		try
 		{
-			return JadothFiles.readStringFromFile(file, Persistence.dictionaryCharset());
+			return JadothFiles.readStringFromFile(file, Persistence.standardCharset());
 		}
 		catch(final IOException e)
 		{
@@ -44,7 +44,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 	{
 		try
 		{
-			JadothFiles.writeStringToFile(file, typeDictionaryString, Persistence.dictionaryCharset());
+			JadothFiles.writeStringToFile(file, typeDictionaryString, Persistence.standardCharset());
 		}
 		catch(final Exception t)
 		{

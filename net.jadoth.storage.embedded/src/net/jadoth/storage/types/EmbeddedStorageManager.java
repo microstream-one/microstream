@@ -6,12 +6,12 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XTable;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
-import net.jadoth.util.KeyValue;
+import net.jadoth.persistence.types.Unpersistable;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -51,7 +51,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 
 
-	public final class Implementation implements EmbeddedStorageManager
+	public final class Implementation implements EmbeddedStorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -135,30 +135,33 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			this.connectionFactory.createStorageConnection().importFiles(initialImportFiles);
 		}
 
-		static final boolean equalEntries(final KeyValue<String, Object> e1, final KeyValue<String, Object> e2)
-		{
-			// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
-			return e1.key().equals(e2.key()) && e1.value() == e2.value();
-		}
-
 		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
-			final XTable<String, Object> loadedEntries  = loadedRoots.entries();
-			final XTable<String, Object> definedEntries = this.definedRoots.entries();
+			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
+			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
 
-			// if both have equal content, no updates have to be made.
-			if(loadedEntries.equalsContent(definedEntries, Implementation::equalEntries))
+			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
+				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
+				e1.key().equals(e2.key()) && e1.value() == e2.value()
+			);
+			
+			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
+			if(!equalContent)
 			{
-				return true;
+				loadedRoots.updateEntries(definedEntries);
 			}
-
-			/* to ensure removal of old, addition of new and same order, it is best to simply clear and add all.
-			 * important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
-			 * the one that gets saved to maintain the associated OID.
+			
+			/*
+			 * If the loaded roots had to change in any way to match the runtime state of the application,
+			 * it means that it has to be stored to update the persistent state to the current (changed) one.
+			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
+			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * There are 3 possible cases for a change:
+			 * 1.) An entry has been explicitely removed by a refactoring mapping.
+			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
+			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			loadedEntries.clear();
-			loadedEntries.addAll(definedEntries);
-			return false;
+			return !loadedRoots.hasChanged();
 		}
 
 		@Override
@@ -191,17 +194,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
-				return; // loaded roots are equal to defined roots, no store update required
-			}
-			else if(!loadedRoots.entries().isEmpty())
-			{
-				// (14.09.2015 TM)TODO: loaded root mismatch handling should be dynamical (callback).
-				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("Mismatch of loaded roots and defined roots");
+				// loaded roots are perfectly synchronous to defined roots, no store update required.
+				return;
 			}
 
-			// either the loaded roots instance shall be updated or the defined roots have to be stored initially
-			initConnection.storeFull(loadedRoots); // (05.11.2013 TM)TODO: really always deep? Not on demand?
+			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
+			initConnection.store(loadedRoots);
 		}
 
 		@Override
@@ -211,7 +209,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public void truncateData()
+		public final void truncateData()
 		{
 			this.storageManager.truncateData();
 		}

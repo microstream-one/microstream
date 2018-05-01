@@ -15,6 +15,7 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 import net.jadoth.util.KeyValue;
@@ -87,7 +88,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 
-	public final class Implementation implements StorageChannel
+	public final class Implementation implements StorageChannel, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //

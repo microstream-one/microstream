@@ -2,15 +2,18 @@ package net.jadoth.util.chars;
 
 import static net.jadoth.math.JadothMath.notNegative;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqConstHashEnum;
+import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.csv.CSV;
@@ -34,6 +37,11 @@ public interface StringTable
 	public XGettingList<String> columnTypes();
 
 	public XGettingList<String[]> rows();
+	
+	public XGettingTable<String, String> toKeyValueTable(
+		Function<String[], String> keyMapper  ,
+		Function<String[], String> valueMapper
+	);
 
 
 
@@ -303,6 +311,22 @@ public interface StringTable
 		public final XImmutableList<String[]> rows()
 		{
 			return this.rows;
+		}
+		
+		@Override
+		public final XGettingTable<String, String> toKeyValueTable(
+			final Function<String[], String> keyMapper  ,
+			final Function<String[], String> valueMapper
+		)
+		{
+			final EqHashTable<String, String> table = EqHashTable.New();
+			
+			for(final String[] row : this.rows)
+			{
+				table.add(keyMapper.apply(row), valueMapper.apply(row));
+			}
+
+			return table;
 		}
 
 

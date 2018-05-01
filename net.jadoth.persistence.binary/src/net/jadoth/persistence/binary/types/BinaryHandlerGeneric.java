@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 
 public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<T>
 {
@@ -22,14 +23,15 @@ public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<
 	/////////////////////
 
 	protected BinaryHandlerGeneric(
-		final Class<T>                       type          ,
-		final long                           tid           ,
-		final BinaryInstantiator<T>          instantiator  ,
-		final XGettingEnum<Field>            allFields     ,
-		final PersistenceFieldLengthResolver lengthResolver
+		final Class<T>                                    type                   ,
+		final long                                        tid                    ,
+		final BinaryInstantiator<T>                       instantiator           ,
+		final XGettingEnum<Field>                         allFields              ,
+		final PersistenceFieldLengthResolver              lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
-		super(type, tid, allFields, lengthResolver);
+		super(type, tid, allFields, lengthResolver, mandatoryFieldEvaluator);
 		this.instantiator = notNull(instantiator);
 	}
 

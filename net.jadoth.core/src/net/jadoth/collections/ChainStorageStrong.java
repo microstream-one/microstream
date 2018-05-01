@@ -611,16 +611,19 @@ extends AbstractChainStorage<E, K, V, EN>
 		final Aggregator<E, Boolean> agg = new Aggregator<E, Boolean>()
 		{
 			private EN entry = ChainStorageStrong.this.head;
+			private boolean notEqual; // false by default
 
 			@Override
 			public final void accept(final E element)
 			{
 				if((this.entry = this.entry.next) == null)
 				{
+					this.notEqual = true;
 					throw BREAK; // chain is too short
 				}
 				if(!equalator.equal(element, this.entry.element()))
 				{
+					this.notEqual = true;
 					throw BREAK; // unequal element found
 				}
 			}
@@ -628,10 +631,15 @@ extends AbstractChainStorage<E, K, V, EN>
 			@Override
 			public final Boolean yield()
 			{
-				/* current entry may not be null (otherwise chain was too short)
+				/*
+				 * no explicitely unequal pair may have been found (obviously)
+				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */
-				return this.entry != null && (this.entry = this.entry.next) == null ? TRUE : FALSE;
+				return this.notEqual || this.entry == null || (this.entry = this.entry.next) != null
+					? FALSE
+					: TRUE
+				;
 			}
 		};
 

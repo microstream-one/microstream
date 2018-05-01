@@ -8,11 +8,11 @@ import net.jadoth.util.JadothExceptions;
 import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
-public interface StorageRequestTaskSaveEntities extends StorageRequestTask
+public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 {
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<KeyValue<ByteBuffer[], long[]>>
-	implements StorageRequestTaskSaveEntities, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskStoreEntities, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
