@@ -1,15 +1,13 @@
 package net.jadoth.collections;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -113,18 +111,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final BulkList<?>              source            ,
-		final BulkList<?>              target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.size == target.size
-			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
-		;
 	}
 
 }

@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.Jadoth.notNull;
 
-import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceStorer;
@@ -447,7 +446,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		protected final void storeItem(final Item item)
 		{
-			JadothConsole.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
+//			JadothConsole.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
 		
@@ -564,24 +563,40 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			notNull(chunkHashSizeProvider)
 		);
 	}
-	
-	public static BinaryStorer.Creator CreatorEager(final _intReference chunkHashSizeProvider)
-	{
-		return new BinaryStorer.Creator.ImplementationEager(
-			notNull(chunkHashSizeProvider)
-		);
-	}
-	
+		
 	public interface Creator extends PersistenceStorer.Creator<Binary>
 	{
 		@Override
-		public BinaryStorer createStorer(
+		public BinaryStorer createLazyStorer(
 			SwizzleObjectManager                  objectManager     ,
 			SwizzleObjectSupplier                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProvider                    bufferSizeProvider
 		);
+		
+		@Override
+		public default BinaryStorer createStorer(
+			final SwizzleObjectManager                  objectManager     ,
+			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceTypeHandlerManager<Binary> typeManager       ,
+			final PersistenceTarget<Binary>             target            ,
+			final BufferSizeProvider                    bufferSizeProvider
+		)
+		{
+			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
+		}
+		
+		@Override
+		public BinaryStorer createEagerStorer(
+			SwizzleObjectManager                  objectManager     ,
+			SwizzleObjectSupplier                 objectSupplier    ,
+			PersistenceTypeHandlerManager<Binary> typeManager       ,
+			PersistenceTarget<Binary>             target            ,
+			BufferSizeProvider                    bufferSizeProvider
+		);
+		
+		
 		
 		public abstract class AbstractImplementation implements BinaryStorer.Creator
 		{
@@ -624,7 +639,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 			@Override
-			public final BinaryStorer createStorer(
+			public final BinaryStorer createLazyStorer(
 				final SwizzleObjectManager                  objectManager     ,
 				final SwizzleObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -641,18 +656,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 					this.getChunkHashSize()
 				);
 			}
-
-		}
-		
-		public final class ImplementationEager extends AbstractImplementation
-		{
-			ImplementationEager(final _intReference chunkHashSizeProvider)
-			{
-				super(chunkHashSizeProvider);
-			}
-
 			@Override
-			public final BinaryStorer createStorer(
+			public BinaryStorer createEagerStorer(
 				final SwizzleObjectManager                  objectManager     ,
 				final SwizzleObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -671,7 +676,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 		}
-		
+				
 	}
 
 }

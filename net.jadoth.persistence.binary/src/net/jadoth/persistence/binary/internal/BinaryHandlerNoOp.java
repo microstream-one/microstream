@@ -1,6 +1,5 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
@@ -32,16 +31,6 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	{
 		// no-op is only applicable to storing/updating. Creation must fail.
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public final boolean isEqual(
-		final T                        source                    ,
-		final T                        target                    ,
-		final ObjectStateHandlerLookup instanceStateHandlerLookup
-	)
-	{
-		return source == target;
 	}
 
 }

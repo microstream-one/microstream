@@ -12,14 +12,18 @@ public interface PersistenceManager<M>
 extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
 {
 	// manager methods //
+	
+	public PersistenceRegisterer createRegisterer();
 
 	public PersistenceLoader<M> createLoader();
 
+	public PersistenceStorer<M> createLazyStorer();
+	
 	public PersistenceStorer<M> createStorer();
 
-	public PersistenceStorer<M> createStorer(BufferSizeProvider bufferSizeProvider);
+	public PersistenceStorer<M> createEagerStorer();
 
-	public PersistenceRegisterer createRegisterer();
+	public PersistenceStorer<M> createStorer(PersistenceStorer.Creator<M> storerCreator);
 
 	public void updateMetadata(PersistenceTypeDictionary typeDictionary, long highestTypeId, long highestObjectId);
 
@@ -49,7 +53,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		// instance handling components //
 		private final PersistenceTypeHandlerManager<M> typeHandlerManager;
 		private final PersistenceStorer.Creator<M>     storerCreator     ;
-		private final PersistenceLoader.Creator<M>     builderCreator    ;
+		private final PersistenceLoader.Creator<M>     loaderCreator     ;
 		private final BufferSizeProvider               bufferSizeProvider;
 
 		// source and target //
@@ -67,7 +71,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			final SwizzleObjectManager             objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
 			final PersistenceStorer.Creator<M>     storerCreatorDeep ,
-			final PersistenceLoader.Creator<M>     builderCreator    ,
+			final PersistenceLoader.Creator<M>     loaderCreator     ,
 			final PersistenceRegisterer.Creator    registererCreator ,
 			final PersistenceTarget<M>             target            ,
 			final PersistenceSource<M>             source            ,
@@ -80,7 +84,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			this.typeHandlerManager = notNull(typeHandlerManager);
 			this.storerCreator      = notNull(storerCreatorDeep );
 			this.registererCreator  = notNull(registererCreator );
-			this.builderCreator     = notNull(builderCreator    );
+			this.loaderCreator      = notNull(loaderCreator     );
 			this.target             = notNull(target            );
 			this.source             = notNull(source            );
 			this.bufferSizeProvider = notNull(bufferSizeProvider);
@@ -97,7 +101,19 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		{
 			this.objectRegistry.cleanUp();
 		}
-
+				
+		@Override
+		public final PersistenceStorer<M> createLazyStorer()
+		{
+			return this.storerCreator.createLazyStorer(
+				this.objectManager     ,
+				this                   ,
+				this.typeHandlerManager,
+				this.target            ,
+				this.bufferSizeProvider
+			);
+		}
+		
 		@Override
 		public final PersistenceStorer<M> createStorer()
 		{
@@ -111,14 +127,26 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 
 		@Override
-		public final PersistenceStorer<M> createStorer(final BufferSizeProvider bufferSizeProvider)
+		public final PersistenceStorer<M> createEagerStorer()
 		{
-			return this.storerCreator.createStorer(
+			return this.storerCreator.createEagerStorer(
 				this.objectManager     ,
 				this                   ,
 				this.typeHandlerManager,
 				this.target            ,
-				bufferSizeProvider
+				this.bufferSizeProvider
+			);
+		}
+		
+		@Override
+		public final PersistenceStorer<M> createStorer(final PersistenceStorer.Creator<M> storerCreator)
+		{
+			return storerCreator.createStorer(
+				this.objectManager     ,
+				this                   ,
+				this.typeHandlerManager,
+				this.target            ,
+				this.bufferSizeProvider
 			);
 		}
 
@@ -197,7 +225,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		@Override
 		public final PersistenceLoader<M> createLoader()
 		{
-			return this.builderCreator.createBuilder(
+			return this.loaderCreator.createBuilder(
 				this.typeHandlerManager.createDistrict(this.objectRegistry),
 				this
 			);

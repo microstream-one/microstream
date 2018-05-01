@@ -1,12 +1,11 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.X;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerNativeCustom<T>
 {
@@ -35,13 +34,6 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	public final void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		// no-op
-	}
-
-	@Override
-	public final boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup stateHandlerLookup)
-	{
-		// the only reasonable equality for stateless instances
-		return source == target;
 	}
 
 	@Override

@@ -2,11 +2,10 @@ package net.jadoth.util;
 
 import net.jadoth.collections.BinaryHandlerEqHashEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 
 /**
@@ -54,7 +53,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 		final Binary                        bytes    ,
 		final Substituter.Implementation<?> instance ,
 		final long                          oid      ,
-		final PersistenceStoreFunction               linker
+		final PersistenceStoreFunction      linker
 	)
 	{
 		synchronized(instance)
@@ -100,16 +99,6 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final Substituter.Implementation<?> source            ,
-		final Substituter.Implementation<?> target            ,
-		final ObjectStateHandlerLookup      stateHandlerLookup
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME BinaryHandlerSubstituterImplementation#isEqual()
 	}
 
 	@Override

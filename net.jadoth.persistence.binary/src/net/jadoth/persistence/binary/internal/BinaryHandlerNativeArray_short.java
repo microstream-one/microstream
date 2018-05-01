@@ -1,12 +1,9 @@
 package net.jadoth.persistence.binary.internal;
 
-import java.util.Arrays;
-
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerNativeArrayPrimitive<short[]>
 {
@@ -42,15 +39,4 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	{
 		BinaryPersistence.updateArray_short(instance, bytes);
 	}
-
-	@Override
-	public boolean isEqual(
-		final short[]                  source                    ,
-		final short[]                  target                    ,
-		final ObjectStateHandlerLookup instanceStateHandlerLookup
-	)
-	{
-		return Arrays.equals(source, target);
-	}
-
 }

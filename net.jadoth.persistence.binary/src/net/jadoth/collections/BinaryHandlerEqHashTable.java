@@ -1,26 +1,22 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 
 import net.jadoth.Jadoth;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
-import net.jadoth.util.KeyValue;
 
 
 /**
@@ -212,36 +208,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS));
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES));
 		BinaryCollectionHandling.iterateKeyValueEntriesReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
-	}
-
-	@SuppressWarnings("unchecked") // type erasure hassle :(
-	@Override
-	public final boolean isEqual(
-		final EqHashTable<?, ?>        source            ,
-		final EqHashTable<?, ?>        target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		// not sure if equalator should be checked here
-
-		// one must be iterated with a stateful iterator while the other one is iterated directly
-		final Iterator<KeyValue<Object, Object>> srcIterator = ((EqHashTable<Object, Object>)source).iterator();
-		return source.size == target.size
-			&& ObjectState.isEqual(source.hashEqualator, target.hashEqualator, stateHandlerLookup)
-			&& ((EqHashTable<Object, Object>)target).applies(
-				e -> srcIterator.hasNext() && isEqualEntry(e, srcIterator.next(), stateHandlerLookup)
-		);
-	}
-
-	static final boolean isEqualEntry(
-		final KeyValue<Object, Object> e1,
-		final KeyValue<Object, Object> e2,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return ObjectState.isEqual(e1.key(), e2.key(), stateHandlerLookup)
-			&& ObjectState.isEqual(e1.value(), e2.value(), stateHandlerLookup)
-		;
 	}
 
 }

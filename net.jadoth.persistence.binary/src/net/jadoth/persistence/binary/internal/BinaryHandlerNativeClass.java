@@ -2,15 +2,14 @@ package net.jadoth.persistence.binary.internal;
 
 import static net.jadoth.Jadoth.notNull;
 
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandlerCreator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<Class<?>>
@@ -79,16 +78,6 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	public void update(final Binary bytes, final Class<?> instance, final SwizzleBuildLinker builder)
 	{
 		// no-op, see create()
-	}
-
-	@Override
-	public boolean isEqual(
-		final Class<?>                 source                    ,
-		final Class<?>                 target                    ,
-		final ObjectStateHandlerLookup instanceStateHandlerLookup
-	)
-	{
-		return source == target; // class instances are always singletons, hence reference comparison
 	}
 	
 	@Override

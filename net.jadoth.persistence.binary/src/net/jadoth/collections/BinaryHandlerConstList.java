@@ -3,16 +3,14 @@ package net.jadoth.collections;
 import net.jadoth.Jadoth;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 /**
@@ -114,27 +112,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	{
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
-
-	@Override
-	public final boolean isEqual(
-		final ConstList<?>             source            ,
-		final ConstList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.data.length == target.data.length
-			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
-		;
-	}
-
-//	@Override
-//	public final void copy(final ConstList<?> source, final ConstList<?> target)
-//	{
-//		if(source.data.length > target.data.length)
-//		{
-//			throw new RuntimeException(); // (23.10.2013 TM)EXCP: proper exception
-//		}
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.data.length);
-//	}
 
 }

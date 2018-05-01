@@ -27,14 +27,8 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-	@Override
-	public AbstractBinaryHandlerTrivial<T> getStateDescriptor()
-	{
-		return this;
-	}
+	// methods //
+	////////////
 
 	@Override
 	public final void validateFields(final XGettingSequence<Field> fieldDescriptions)
@@ -46,8 +40,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 		}
 		throw new SwizzleExceptionConsistency();
 	}
-	
-
 
 	@Override
 	public void update(final Binary medium, final T instance, final SwizzleBuildLinker builder)

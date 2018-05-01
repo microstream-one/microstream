@@ -7,13 +7,13 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import net.jadoth.reflect.TypeDescriptor;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, ObjectStateHandler<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, TypeDescriptor<T>
 {
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);

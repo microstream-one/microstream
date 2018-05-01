@@ -7,8 +7,6 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectStateDescriptor;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryFieldLengthResolver;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -22,9 +20,9 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldC
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public abstract class AbstractBinaryHandlerNative<T>
@@ -234,18 +232,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	public void complete(final Binary medium, final T instance, final SwizzleBuildLinker builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
-	}
-
-	@Override
-	public boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup instanceStateHandlerLookup)
-	{
-		return source == null ? target == null : source.equals(target);
-	}
-
-	@Override
-	public final ObjectStateDescriptor<T> getStateDescriptor()
-	{
-		return this;
 	}
 
 }

@@ -5,13 +5,12 @@ import java.util.HashSet;
 import net.jadoth.Jadoth;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -167,25 +166,6 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 				throw new RuntimeException("Element hashing insistency in " + Jadoth.systemString(castedInstance));
 			}
 		}
-	}
-
-	@Override
-	public final boolean isEqual(
-		final HashSet<?>               source            ,
-		final HashSet<?>               target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME BinaryHandlerHashSet#isEqual()
-//		return source.size() == target.size()
-//			&& ObjectState.isEqual(
-//				Memory.accessStorage(source),
-//				Memory.accessStorage(target),
-//				0                           ,
-//				source.size()               ,
-//				stateHandlerLookup
-//			)
-//		;
 	}
 
 }

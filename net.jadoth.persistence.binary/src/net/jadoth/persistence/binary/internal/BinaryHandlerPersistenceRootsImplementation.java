@@ -7,17 +7,16 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -282,17 +281,6 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	public final boolean hasPersistedVariableLength()
 	{
 		return true;
-	}
-
-	@Override
-	public final boolean isEqual(
-		final PersistenceRoots.Implementation source            ,
-		final PersistenceRoots.Implementation target            ,
-		final ObjectStateHandlerLookup        stateHandlerLookup
-	)
-	{
-		// FIXME BinaryHandlerPersistenceRootsImplementation#isEqual()
-		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 }

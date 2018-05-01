@@ -16,8 +16,6 @@ import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateDescriptor;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -286,12 +284,6 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final ObjectStateDescriptor<T> getStateDescriptor()
-	{
-		return this;
-	}
-
-	@Override
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeFixedSize(
@@ -377,17 +369,6 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		throws SwizzleExceptionConsistency
 	{
 		fieldDescriptions.iterateIndexed(this::validate);
-	}
-
-	@Override
-	public boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup instanceStateHandlerLookup)
-	{
-		/* (09.06.2017 TM)NOTE:
-		 * the whole concept of generic equality checks via binary handler implementations has never been used
-		 * so far and is still experimental code. The only reason the code is not completely removed is that there
-		 * is already a lot of implemented code and structures that could be used in the future.
-		 */
-		throw new UnsupportedOperationException();
 	}
 
 }

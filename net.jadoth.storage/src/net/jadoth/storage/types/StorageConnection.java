@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.Unpersistable;
 
 /**
  * Ultra-thin delegatig type that connects a {@link PersistenceManager} instance (potentially exclusively created)
- * to a storage instace.
+ * to a storage instance.
  *
  * @author TM
  */
@@ -136,10 +136,20 @@ public interface StorageConnection extends PersistenceStoring
 	{
 		storing.storeBy(this.createStorer()).commit();
 	}
+	
+	public default Storer createLazyStorer()
+	{
+		return this.persistenceManager().createLazyStorer();
+	}
 
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
+	}
+	
+	public default Storer createEagerStorer()
+	{
+		return this.persistenceManager().createEagerStorer();
 	}
 
 

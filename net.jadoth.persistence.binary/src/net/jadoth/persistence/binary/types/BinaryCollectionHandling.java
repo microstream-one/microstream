@@ -5,8 +5,6 @@ import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
@@ -194,16 +192,6 @@ public final class BinaryCollectionHandling
 		{
 			target[i] = null;
 		}
-	}
-
-	public static final boolean isEqual(
-		final Object[]                 source            ,
-		final Object[]                 target            ,
-		final int                      size              ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return ObjectState.isEqual(source, target, 0, size, stateHandlerLookup);
 	}
 
 	public static final int getSizedArrayLength(final Binary bytes, final long headerOffset)

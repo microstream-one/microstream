@@ -7,15 +7,13 @@ import java.lang.reflect.Array;
 
 import net.jadoth.Jadoth;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
 {
@@ -120,14 +118,6 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	public final boolean hasPersistedReferences()
 	{
 		return true;
-	}
-
-	@Override
-	public boolean isEqual(final A source, final A target, final ObjectStateHandlerLookup stateHandlerLookup)
-	{
-		return Array.getLength(source) == Array.getLength(target)
-			&& ObjectState.isEqual((Object[])source, (Object[])target, 0, Array.getLength(source), stateHandlerLookup)
-		;
 	}
 
 }

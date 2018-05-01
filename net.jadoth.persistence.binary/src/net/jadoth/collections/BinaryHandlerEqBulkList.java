@@ -5,17 +5,15 @@ import java.lang.reflect.Field;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.util.Equalator;
 
 
@@ -145,30 +143,5 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
-
-	@Override
-	public final boolean isEqual(
-		final EqBulkList<?>            source            ,
-		final EqBulkList<?>            target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.equalator == target.equalator
-			&& source.size == target.size
-			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
-		;
-	}
-
-//	@Override
-//	public final void copy(final EqBulkList<?> source, final EqBulkList<?> target)
-//	{
-//		if(target.equalator != source.equalator)
-//		{
-//			throw new IllegalArgumentException(); // (24.10.2013 TM)EXCP: proper exception
-//		}
-//		target.ensureCapacity(source.size);
-//		BinaryCollectionHandling.copyContent(source.data, target.data, source.size);
-//		target.size = source.size;
-//	}
 
 }
