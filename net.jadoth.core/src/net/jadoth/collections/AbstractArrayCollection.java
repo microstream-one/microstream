@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.math.JadothMath;
 
@@ -46,7 +46,7 @@ public abstract class AbstractArrayCollection<E> extends AbstractExtendedCollect
 
 	public static final int pow2BoundMaxed(final long n)
 	{
-		return JadothMath.pow2BoundMaxed(Jadoth.checkArrayRange(n));
+		return JadothMath.pow2BoundMaxed(X.checkArrayRange(n));
 	}
 
 

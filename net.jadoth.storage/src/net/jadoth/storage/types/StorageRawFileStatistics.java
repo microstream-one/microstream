@@ -54,8 +54,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final Date creationTime()

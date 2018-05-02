@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BinaryHandlerBulkList;
 import net.jadoth.collections.BinaryHandlerConstHashEnum;
 import net.jadoth.collections.BinaryHandlerConstHashTable;
@@ -23,7 +24,7 @@ import net.jadoth.collections.BinaryHandlerHashEnum;
 import net.jadoth.collections.BinaryHandlerHashTable;
 import net.jadoth.collections.BinaryHandlerLimitList;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.BiProcedure;
@@ -76,7 +77,6 @@ import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.VMUtils;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Unsafe;
@@ -1276,7 +1276,7 @@ public final class BinaryPersistence extends Persistence
 		VM.copyMemory(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
-			array = new byte[Jadoth.checkArrayRange(elementCount)],
+			array = new byte[X.checkArrayRange(elementCount)],
 			Unsafe.ARRAY_BYTE_BASE_OFFSET,
 			elementCount << 0
 		);
@@ -1300,7 +1300,7 @@ public final class BinaryPersistence extends Persistence
 		VM.copyMemory(
 			null,
 			binaryArrayElementDataAddress(valueAddress),
-			array = new char[Jadoth.checkArrayRange(elementCount)],
+			array = new char[X.checkArrayRange(elementCount)],
 			Unsafe.ARRAY_CHAR_BASE_OFFSET,
 			elementCount << 1
 		);
@@ -1311,7 +1311,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final byte[] createArray_byte(final Binary bytes)
 	{
-		return new byte[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new byte[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_byte(final byte[] array, final Binary bytes)
@@ -1327,7 +1327,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final boolean[] createArray_boolean(final Binary bytes)
 	{
-		return new boolean[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new boolean[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_boolean(final boolean[] array, final Binary bytes)
@@ -1343,7 +1343,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final short[] createArray_short(final Binary bytes)
 	{
-		return new short[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new short[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_short(final short[] array, final Binary bytes)
@@ -1359,7 +1359,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final char[] createArray_char(final Binary bytes)
 	{
-		return new char[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new char[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_char(final char[] array, final Binary bytes)
@@ -1375,7 +1375,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final int[] createArray_int(final Binary bytes)
 	{
-		return new int[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new int[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_int(final int[] array, final Binary bytes)
@@ -1391,7 +1391,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final float[] createArray_float(final Binary bytes)
 	{
-		return new float[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new float[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_float(final float[] array, final Binary bytes)
@@ -1407,7 +1407,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long[] createArray_long(final Binary bytes)
 	{
-		return new long[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new long[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_long(final long[] array, final Binary bytes)
@@ -1417,7 +1417,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final double[] createArray_double(final Binary bytes)
 	{
-		return new double[Jadoth.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new double[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_double(final double[] array, final Binary bytes)
@@ -1758,7 +1758,7 @@ public final class BinaryPersistence extends Persistence
 		{
 			throw new BinaryPersistenceExceptionStateArrayLength(
 				array,
-				Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset))
+				X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset))
 			);
 		}
 		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
@@ -1795,7 +1795,7 @@ public final class BinaryPersistence extends Persistence
 		final Consumer<Object>        collector
 	)
 	{
-		final int size = Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset));
+		final int size = X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset));
 		BinaryPersistence.collectObjectReferences(
 			bytes       ,
 			binaryOffset,

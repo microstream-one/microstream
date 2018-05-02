@@ -1,7 +1,5 @@
 package net.jadoth.traversal;
 
-import static net.jadoth.Jadoth.keyValue;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.ConstHashEnum;
 import net.jadoth.collections.ConstHashTable;
 import net.jadoth.collections.HashTable;
@@ -30,6 +29,7 @@ import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReplacingBag;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.collections.types.XTable;
+
 
 public interface ObjectGraphTraverserBuilder
 {
@@ -265,12 +265,12 @@ public interface ObjectGraphTraverserBuilder
 	public static XGettingTable<Class<?>, TypeTraverser<?>> defaultPolymorphTypeTraversers()
 	{
 		return ConstHashTable.<Class<?>, TypeTraverser<?>>New(
-			keyValue(XMap              .class, new TraverserXMapReplacing()          ),
-			keyValue(XGettingMap       .class, new TraverserXMapNonReplacing()       ),
-			keyValue(XReplacingBag     .class, new TraverserXCollectionReplacing()   ),
-			keyValue(XGettingCollection.class, new TraverserXCollectionNonReplacing()),
-			keyValue(Collection        .class, new TraverserCollectionOld()          ),
-			keyValue(Object[]          .class, new TraverserArray()                  )
+			X.keyValue(XMap              .class, new TraverserXMapReplacing()          ),
+			X.keyValue(XGettingMap       .class, new TraverserXMapNonReplacing()       ),
+			X.keyValue(XReplacingBag     .class, new TraverserXCollectionReplacing()   ),
+			X.keyValue(XGettingCollection.class, new TraverserXCollectionNonReplacing()),
+			X.keyValue(Collection        .class, new TraverserCollectionOld()          ),
+			X.keyValue(Object[]          .class, new TraverserArray()                  )
 		);
 	}
 	

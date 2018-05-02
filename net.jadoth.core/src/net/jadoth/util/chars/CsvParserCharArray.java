@@ -1,7 +1,7 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.csv.CSV;
 import net.jadoth.csv.CsvConfiguration;
@@ -978,8 +978,8 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final char[] data, final int offset, final int length)

@@ -50,8 +50,8 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void cleanUp()

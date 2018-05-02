@@ -243,8 +243,8 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public synchronized boolean activate()

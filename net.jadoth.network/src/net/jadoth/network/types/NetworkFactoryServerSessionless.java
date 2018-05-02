@@ -35,8 +35,8 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public NetworkFactoryServerSessionless.Implementation setConnectionProcessorProvider(

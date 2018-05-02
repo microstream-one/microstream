@@ -39,8 +39,8 @@ public interface StorageInventory
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final XGettingSequence<StorageInventoryFile> dataFiles()

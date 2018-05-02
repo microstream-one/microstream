@@ -149,8 +149,8 @@ public interface CsvConfiguration
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final char[] commentFullTerminatorArray()

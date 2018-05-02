@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
 import static net.jadoth.math.JadothMath.notNegative;
 
@@ -8,6 +7,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Chunks;
@@ -18,7 +19,6 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
-import net.jadoth.util.KeyValue;
 
 
 public interface StorageChannel extends Runnable, StorageHashChannelPart
@@ -315,8 +315,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void run()
@@ -356,7 +356,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			final ByteBuffer[] buffers = chunkData.buffers();
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
-			return keyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
+			return X.keyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
 		}
 
 		@Override
@@ -488,7 +488,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return keyValue(0L, 0L);
+				return X.keyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -508,7 +508,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return keyValue(byteCount, entities.entityCount());
+			return X.keyValue(byteCount, entities.entityCount());
 		}
 
 		// intentionally implemented redundantly to the other exportTypeEntities for performance reasons
@@ -522,7 +522,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return keyValue(0L, 0L);
+				return X.keyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -538,7 +538,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return keyValue(byteCount, entities.entityCount());
+			return X.keyValue(byteCount, entities.entityCount());
 		}
 
 		@Override
@@ -790,8 +790,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final long oid)
@@ -844,8 +844,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final long tid)

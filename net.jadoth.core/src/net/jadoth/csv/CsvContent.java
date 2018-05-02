@@ -1,12 +1,13 @@
 package net.jadoth.csv;
 
-import static net.jadoth.Jadoth.keyValue;
 import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.StringTable;
+
 
 public interface CsvContent
 {
@@ -49,7 +50,7 @@ public interface CsvContent
 			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(Jadoth.to_int(segments.size()));
 			for(final StringTable table : segments)
 			{
-				translated.add(keyValue(table.name(), table));
+				translated.add(X.keyValue(table.name(), table));
 			}
 			return New(name, translated, configuration);
 		}
@@ -85,8 +86,8 @@ public interface CsvContent
 
 
 		////////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final String name()

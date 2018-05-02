@@ -55,8 +55,8 @@ public interface StorageHousekeepingController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long housekeepingInterval()

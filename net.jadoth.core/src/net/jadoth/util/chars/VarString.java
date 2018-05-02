@@ -228,7 +228,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return;
 		}
 
-		// note: intentionally no special case handling for char[] or Appendable here as this would alter behaviour
+		// note: intentionally no special case handling for char[] or Appendable here as this would alter behavior
 
 		// default case: create new generic String representation and add that (guaranteed non null)
 		this.internalAdd(object.toString());

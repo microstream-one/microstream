@@ -1,8 +1,8 @@
 package net.jadoth.hash;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.JadothTypes;
-import net.jadoth.util.KeyValue;
 
 
 /**

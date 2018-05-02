@@ -22,8 +22,8 @@ extends NetworkFactoryServerSessionful<S>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageListenerMaxThreadCount(

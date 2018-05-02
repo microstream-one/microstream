@@ -9,9 +9,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.util.VMUtils;
 import sun.misc.Unsafe;
 
@@ -332,7 +333,7 @@ public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.20
 			if(slots[i] == null) continue; // should be faster than setting up the for loop just to skip it again
 			for(VolatileEntry e = slots[i]; e != null; e = e.link)
 			{
-				buffer.add(Jadoth.keyValue((K)e.key, (V)e.value));
+				buffer.add(X.keyValue((K)e.key, (V)e.value));
 			}
 		}
 

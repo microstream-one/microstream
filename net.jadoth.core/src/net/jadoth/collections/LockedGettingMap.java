@@ -14,7 +14,6 @@ import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.concurrent.Synchronized;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 
 public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchronized
 {

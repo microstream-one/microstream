@@ -7,12 +7,12 @@ import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.KeyValue;
 
 /**
  * Primitive (read: fast) pseudo map implementation that maps long id values to weakly referenced objects.

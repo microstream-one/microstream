@@ -46,8 +46,8 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members()

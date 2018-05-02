@@ -2,8 +2,8 @@
 
 import java.util.Comparator;
 
+import net.jadoth.X;
 import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XList;
 
 public class MainTestSortMulti

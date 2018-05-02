@@ -163,7 +163,7 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	 * @return this exception type's generic string plus an explicit message if present.
 	 */
 	@Override
-	public String getMessage() // intentionally not final to enable subclasses to change the behaviour again
+	public String getMessage() // intentionally not final to enable subclasses to change the behavior again
 	{
 		return this.assembleOutputString();
 	}

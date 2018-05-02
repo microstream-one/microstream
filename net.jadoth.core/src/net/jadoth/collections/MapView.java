@@ -13,7 +13,6 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 
 public final class MapView<K, V> implements XGettingMap<K, V>
 {

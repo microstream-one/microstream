@@ -59,8 +59,8 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)

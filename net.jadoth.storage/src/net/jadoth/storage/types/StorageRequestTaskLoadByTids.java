@@ -29,8 +29,8 @@ public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Binary internalProcessBy(final StorageChannel channel)

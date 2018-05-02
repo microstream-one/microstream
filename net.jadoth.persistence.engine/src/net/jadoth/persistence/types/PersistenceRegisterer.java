@@ -60,8 +60,8 @@ public interface PersistenceRegisterer extends SwizzleFunction
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <T> long apply(final T instance)

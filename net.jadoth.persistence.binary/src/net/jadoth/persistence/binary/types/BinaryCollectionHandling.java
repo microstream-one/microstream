@@ -1,7 +1,8 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
@@ -10,7 +11,6 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.util.KeyValue;
 
 public final class BinaryCollectionHandling
 {
@@ -169,7 +169,7 @@ public final class BinaryCollectionHandling
 		final SwizzleBuildLinker builder
 	)
 	{
-		final int size = Jadoth.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));
+		final int size = X.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));
 		if(array.length < size)
 		{
 			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
@@ -196,7 +196,7 @@ public final class BinaryCollectionHandling
 
 	public static final int getSizedArrayLength(final Binary bytes, final long headerOffset)
 	{
-		return Jadoth.checkArrayRange(
+		return X.checkArrayRange(
 			Memory.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
@@ -219,7 +219,7 @@ public final class BinaryCollectionHandling
 		}
 		throw new BinaryPersistenceExceptionStateArrayLength(
 			array,
-			Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, headerOffset))
+			X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, headerOffset))
 		);
 	}
 

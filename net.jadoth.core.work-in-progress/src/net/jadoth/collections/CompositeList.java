@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
@@ -80,7 +81,7 @@ public final class CompositeList<E> implements XGettingList<E>
 		final XGettingList<E>[] lists = this.lists;
 
 		// this can get pretty inefficient. However, the main intention of this implementation is to use iterate anyway
-		for(int c = 0, i = Jadoth.checkArrayRange(index); c < this.count; c++)
+		for(int c = 0, i = X.checkArrayRange(index); c < this.count; c++)
 		{
 			if(i < lists[c].size())
 			{

@@ -68,8 +68,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(

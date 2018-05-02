@@ -2,8 +2,8 @@ package net.jadoth.persistence.test;
 
 import java.io.File;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.storage.types.StorageConnection;

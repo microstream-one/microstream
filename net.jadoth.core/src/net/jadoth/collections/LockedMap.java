@@ -20,7 +20,6 @@ import net.jadoth.concurrent.Synchronized;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 
 public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 {

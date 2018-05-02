@@ -50,8 +50,8 @@ extends PersistenceTypeDescriptionMemberPseudoField
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void assembleTypeDescription(final Appender assembler)

@@ -10,7 +10,6 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
-import net.jadoth.util.KeyValue;
 
 public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composition
 {

@@ -101,8 +101,8 @@ public interface StorageRequestTaskCreator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageChannelTaskInitialize createInitializationTask(

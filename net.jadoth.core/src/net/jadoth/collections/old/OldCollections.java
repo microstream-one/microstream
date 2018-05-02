@@ -14,8 +14,8 @@ import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
 import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.util.KeyValue;
 
 public final class OldCollections
 {

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional.JadothEqualators;
@@ -235,7 +236,7 @@ public class TestJaList
 
 	public TestJaList testProcess()
 	{
-		final int[] ir = Jadoth.ints(0);
+		final int[] ir = X.ints(0);
 		this.testee.iterate(new Consumer<String>(){
 			@Override public void accept(final String element) {
 				ir[0] = TestJaList.this.addLength(ir[0], element);

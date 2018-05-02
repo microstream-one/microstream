@@ -1,6 +1,5 @@
 package net.jadoth.memory;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.Jadoth.notNull;
 
 import java.lang.reflect.Constructor;
@@ -12,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import net.jadoth.X;
 import net.jadoth.util.VMUtils;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Cleaner;
@@ -193,7 +193,7 @@ public final class Memory
 		{
 			return current;
 		}
-		checkArrayRange(capacity);
+		X.checkArrayRange(capacity);
 		deallocateDirectByteBuffer(current);
 		return ByteBuffer.allocateDirect((int)capacity);
 	}
@@ -694,7 +694,7 @@ public final class Memory
 
 	public static byte[] toByteArray(final long[] longArray)
 	{
-		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
+		final byte[] bytes = new byte[X.checkArrayRange((long)longArray.length << BITS3)];
 		VM.copyMemory(longArray, Unsafe.ARRAY_LONG_BASE_OFFSET, bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}

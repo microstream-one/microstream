@@ -307,8 +307,8 @@ public interface LazyReferenceManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public synchronized void register(final LazyReferencing<?> lazyReference)

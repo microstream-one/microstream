@@ -2,8 +2,9 @@ package net.jadoth.util.chars;
 
 import static net.jadoth.collections.JadothArrays.shuffle;
 import static net.jadoth.math.JadothMath.random;
+
+import net.jadoth.X;
 import net.jadoth.collections.HashEnum;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.functional.BiProcedure;

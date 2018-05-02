@@ -1,12 +1,12 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.io.File;
 import java.nio.channels.FileChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -162,9 +162,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				this.entityCaches    = entityCaches                           ;
 				this.sourceFileHeads = sourceFileHeads                        ;
 				this.channelHash     = sourceFileHeads.length - 1             ;
-				this.channelItems    = Jadoth.Array(sourceFileHeads.length, () -> new ChannelItem().resetChains());
+				this.channelItems    = JadothArrays.fill(
+					new ChannelItem[sourceFileHeads.length],
+					() ->
+						new ChannelItem().resetChains()
+				);
 			}
-
+			
 			@Override
 			public boolean accept(final long address, final long availableItemLength)
 			{
@@ -176,7 +180,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 //					DEBUGStorage.println("Gap    @" + this.currentSourceFilePosition + " [" + -length + "]");
 
 					// keep track of current source file position to offset the next batch correctly
-					this.currentSourceFilePosition += checkArrayRange(-length);
+					this.currentSourceFilePosition += X.checkArrayRange(-length);
 
 					// batch is effectively interrupted by the gap, even if the next entity belongs to the same channel
 					this.currentBatchChannel = -1;
@@ -192,7 +196,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 					return false;
 				}
 
-				final int intLength = checkArrayRange(length);
+				final int intLength = X.checkArrayRange(length);
 
 				// read and validate entity head information
 				final long                             objectId     = BinaryPersistence.getEntityObjectId(address);
@@ -304,8 +308,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)

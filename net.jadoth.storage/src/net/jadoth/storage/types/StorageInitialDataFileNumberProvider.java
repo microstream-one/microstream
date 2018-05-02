@@ -32,8 +32,8 @@ public interface StorageInitialDataFileNumberProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 		
 		@Override
 		public int provideInitialDataFileNumber(final int channelIndex)

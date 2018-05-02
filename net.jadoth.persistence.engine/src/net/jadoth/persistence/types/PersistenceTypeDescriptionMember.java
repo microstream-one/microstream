@@ -140,8 +140,8 @@ public interface PersistenceTypeDescriptionMember
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final String typeName()

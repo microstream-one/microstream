@@ -3,6 +3,7 @@ package net.jadoth.util;
 import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothPredicates;

@@ -6,7 +6,6 @@ package net.jadoth.test.lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.jadoth.Jadoth;
 import net.jadoth.reference.LinkReference;
 
 /**
@@ -38,7 +37,7 @@ public class MainTestLinkedReference
 		System.out.println(Arrays.toString(stringChain1.toArray()));
 
 		System.out.println("");
-		final LinkReference<String> stringChain2 = Jadoth.chain("1", "2", "3", "4");
+		final LinkReference<String> stringChain2 = LinkReference.New("1", "2", "3", "4");
 		System.out.println(Arrays.toString(stringChain2.toArray()));
 
 

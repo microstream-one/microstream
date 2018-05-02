@@ -7,11 +7,11 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.XUtilsCollection;
 import net.jadoth.storage.exceptions.StorageExceptionExportFailed;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics.ChannelStatistic;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics.TypeStatistic;
-import net.jadoth.util.KeyValue;
 
 public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTask
 {
@@ -110,8 +110,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final ChannelStatistic internalProcessBy(final StorageChannel channel)

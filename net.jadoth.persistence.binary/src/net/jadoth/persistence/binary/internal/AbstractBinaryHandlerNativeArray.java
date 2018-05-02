@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;

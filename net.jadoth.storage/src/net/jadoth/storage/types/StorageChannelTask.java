@@ -91,8 +91,8 @@ public interface StorageChannelTask extends StorageTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final synchronized void incrementCompletionProgress()

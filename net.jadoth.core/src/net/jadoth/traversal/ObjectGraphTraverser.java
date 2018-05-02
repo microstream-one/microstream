@@ -7,8 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
 
@@ -19,7 +18,7 @@ public interface ObjectGraphTraverser
 	
 	public default void traverse(final Object instance)
 	{
-		this.traverseAll(Jadoth.array(instance));
+		this.traverseAll(X.array(instance));
 	}
 	
 	public void traverseAll(final Object[] instances);
@@ -30,7 +29,7 @@ public interface ObjectGraphTraverser
 
 	public default <A extends TraversalAcceptor> A traverse(final Object instance, final A acceptor)
 	{
-		this.traverseAll(Jadoth.array(instance), acceptor);
+		this.traverseAll(X.array(instance), acceptor);
 		return acceptor;
 	}
 	
@@ -42,7 +41,7 @@ public interface ObjectGraphTraverser
 	
 	public default <M extends TraversalMutator> M traverse(final Object instance, final M acceptor)
 	{
-		this.traverseAll(Jadoth.array(instance), acceptor);
+		this.traverseAll(X.array(instance), acceptor);
 		return acceptor;
 	}
 	

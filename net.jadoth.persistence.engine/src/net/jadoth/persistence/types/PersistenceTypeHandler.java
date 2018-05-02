@@ -138,8 +138,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final Class<T> type()

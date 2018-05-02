@@ -3,8 +3,8 @@ package net.jadoth.storage.types;
 import java.io.File;
 import java.util.function.Consumer;
 
+import net.jadoth.X;
 import net.jadoth.collections.Singleton;
-import net.jadoth.collections.X;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;

@@ -47,8 +47,8 @@ public interface BinaryTypeHandlerCreatorLookup extends PersistenceTypeHandlerCr
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public PersistenceTypeHandlerCreator<Binary> lookupCreator(final Class<?> type)

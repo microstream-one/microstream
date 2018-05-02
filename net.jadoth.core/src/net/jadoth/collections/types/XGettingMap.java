@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.interfaces.ExtendedMap;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.util.ComponentType;
-import net.jadoth.util.KeyValue;
 
 
 /**
@@ -44,7 +44,7 @@ public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyVal
 	public XGettingMap<K, V> view();
 
 	/**
-	 * Provides an instance of an immutable collection type with equal behaviour and data as this instance.
+	 * Provides an instance of an immutable collection type with equal behavior and data as this instance.
 	 * <p>
 	 * If this instance already is of an immutable collection type, it returns itself.
 	 *

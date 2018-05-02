@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.csv.CsvAssembler;
@@ -16,7 +17,6 @@ import net.jadoth.csv.CsvConfiguration;
 import net.jadoth.csv.CsvParser;
 import net.jadoth.exceptions.IORuntimeException;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.Substituter;
 import net.jadoth.util.chars.CsvParserCharArray;
 import net.jadoth.util.chars.VarString;

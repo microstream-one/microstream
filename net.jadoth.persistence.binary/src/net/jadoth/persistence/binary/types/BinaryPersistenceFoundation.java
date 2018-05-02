@@ -424,8 +424,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected BinaryStorer.Creator createStorerCreator()

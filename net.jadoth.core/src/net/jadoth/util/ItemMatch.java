@@ -1,9 +1,11 @@
 package net.jadoth.util;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.collections.JadothArrays.fill;
-import net.jadoth.collections.X;
+
+import net.jadoth.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.util.ItemMatcher.MatchCallback;
+
 
 public class ItemMatch<T>
 {
@@ -649,7 +651,7 @@ public class ItemMatch<T>
 		{
 			if(s2tMapping[s] >= 0)
 			{
-				matchT[s2tMapping[s]] = matchS[s] = keyValue(source[s], target[s2tMapping[s]]);
+				matchT[s2tMapping[s]] = matchS[s] = X.keyValue(source[s], target[s2tMapping[s]]);
 			}
 		}
 

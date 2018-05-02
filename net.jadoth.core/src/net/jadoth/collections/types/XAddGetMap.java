@@ -2,7 +2,7 @@ package net.jadoth.collections.types;
 
 import java.util.function.Function;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 
 public interface XAddGetMap<K, V> extends XAddingMap<K, V>, XGettingMap<K, V>
 {

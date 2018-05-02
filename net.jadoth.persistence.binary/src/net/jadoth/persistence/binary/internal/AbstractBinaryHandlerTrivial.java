@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;

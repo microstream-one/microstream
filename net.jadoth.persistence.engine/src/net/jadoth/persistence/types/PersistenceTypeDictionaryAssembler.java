@@ -36,8 +36,8 @@ public interface PersistenceTypeDictionaryAssembler
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)

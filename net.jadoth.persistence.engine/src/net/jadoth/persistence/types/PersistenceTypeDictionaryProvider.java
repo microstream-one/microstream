@@ -95,8 +95,8 @@ public interface PersistenceTypeDictionaryProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public PersistenceTypeDictionary provideDictionary()

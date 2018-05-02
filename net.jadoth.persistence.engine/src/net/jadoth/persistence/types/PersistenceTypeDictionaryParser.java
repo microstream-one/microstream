@@ -417,8 +417,8 @@ public interface PersistenceTypeDictionaryParser
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public PersistenceTypeDictionary parse(final String input) throws PersistenceExceptionParser
@@ -636,8 +636,8 @@ public interface PersistenceTypeDictionaryParser
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		final TypeMemberBuilder reset()
@@ -682,8 +682,8 @@ public interface PersistenceTypeDictionaryParser
 		}
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		final NestedMemberBuilder reset()

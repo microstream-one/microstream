@@ -2,7 +2,6 @@ package net.jadoth.collections;
 
 import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 
-import java.lang.reflect.Array;
 import java.util.Random;
 
 import net.jadoth.collections.interfaces.ChainStorage;
@@ -3553,7 +3552,7 @@ public abstract class Abstract_intArrayStorage
 
 	public static final int[] toReversed(final int[] array, final int size)
 	{
-		final int[] rArray = (int[])Array.newInstance(array.getClass().getComponentType(), size);
+		final int[] rArray = new int[size];
 		for(int i = 0, r = size; i < size; i++)
 		{
 			rArray[--r] = array[i];
@@ -3710,7 +3709,7 @@ public abstract class Abstract_intArrayStorage
 		{
 			if(a.length < length)
 			{
-				a = (int[])Array.newInstance(a.getClass().getComponentType(), length);
+				a = new int[length];
 			}
 			// convenient and more performant case: increasing iteration direction, arraycopy can be used
 			System.arraycopy(data, offset, a, 0, length);
@@ -3725,7 +3724,7 @@ public abstract class Abstract_intArrayStorage
 			}
 			if(a.length < -length)
 			{
-				a = (int[])Array.newInstance(a.getClass().getComponentType(), -length);
+				a = new int[-length];
 			}
 
 			for(int i = offset, j = 0; i > boundIndex; i--)

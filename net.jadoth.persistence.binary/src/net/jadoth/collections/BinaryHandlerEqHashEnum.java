@@ -3,7 +3,7 @@ package net.jadoth.collections;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hash.HashEqualator;
@@ -54,7 +54,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

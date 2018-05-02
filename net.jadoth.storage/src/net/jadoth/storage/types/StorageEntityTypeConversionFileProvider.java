@@ -52,8 +52,8 @@ public interface StorageEntityTypeConversionFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public File provideConversionFile(final PersistenceTypeDescription<?> typeDescription, final File sourceFile)

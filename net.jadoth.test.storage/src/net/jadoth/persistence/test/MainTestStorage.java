@@ -1,14 +1,12 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.Jadoth.keyValue;
-
 import java.io.File;
 import java.util.Date;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.meta.JadothConsole;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -455,7 +453,7 @@ public class MainTestStorage extends TestStorage
 					null
 				},
 			},
-			EqConstHashTable.New(keyValue("A", "One"), keyValue("B", "Two"), keyValue("C", "Schnitzel")),
+			EqConstHashTable.New(X.keyValue("A", "One"), X.keyValue("B", "Two"), X.keyValue("C", "Schnitzel")),
 			5,
 			1337L,
 			X.Enum("A", "B", "C")

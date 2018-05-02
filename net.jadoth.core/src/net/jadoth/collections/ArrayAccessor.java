@@ -1,7 +1,5 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -12,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldSettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
@@ -44,7 +43,7 @@ import net.jadoth.util.iterables.ReadOnlyListIterator;
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -658,15 +657,15 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		}
 
 		final Object[] shiftlings;
-		System.arraycopy(this.data, (int)sourceIndex, shiftlings = newArray(checkArrayRange(length)), 0, (int)length);
+		System.arraycopy(this.data, (int)sourceIndex, shiftlings = newArray(X.checkArrayRange(length)), 0, (int)length);
 		if(sourceIndex < targetIndex)
 		{
 			System.arraycopy(
 				this.data,
-				checkArrayRange(sourceIndex + length),
+				X.checkArrayRange(sourceIndex + length),
 				this.data,
 				(int)sourceIndex,
-				checkArrayRange(targetIndex - sourceIndex)
+				X.checkArrayRange(targetIndex - sourceIndex)
 			);
 		}
 		else
@@ -675,8 +674,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 				this.data,
 				(int)targetIndex,
 				this.data,
-				checkArrayRange(targetIndex + length),
-				checkArrayRange(sourceIndex - targetIndex)
+				X.checkArrayRange(targetIndex + length),
+				X.checkArrayRange(sourceIndex - targetIndex)
 			);
 		}
 
@@ -722,9 +721,9 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -758,14 +757,14 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.size, offset, offset + elements.length - 1));
 		}
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 		return this;
 	}
 
 	@Override
 	public ArrayAccessor<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -777,7 +776,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		final long                          elementsLength
 	)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), elements, elementsOffset, elementsLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), elements, elementsOffset, elementsLength);
 		return this;
 	}
 
@@ -787,8 +786,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		AbstractArrayStorage.fill(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(offset),
-			Jadoth.checkArrayRange(length),
+			X.checkArrayRange(offset),
+			X.checkArrayRange(length),
 			element
 		);
 		return this;

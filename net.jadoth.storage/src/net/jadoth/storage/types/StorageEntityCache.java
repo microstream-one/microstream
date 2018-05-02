@@ -8,6 +8,7 @@ import static net.jadoth.math.JadothMath.positive;
 import java.nio.ByteBuffer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.memory.Memory;
@@ -1061,7 +1062,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				final StorageEntity.Implementation entity = this.putEntity(adr);
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
-					Jadoth.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
+					X.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
 					Jadoth.to_int(storageBackset + adr)
 				);
@@ -1076,8 +1077,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public int channelIndex()

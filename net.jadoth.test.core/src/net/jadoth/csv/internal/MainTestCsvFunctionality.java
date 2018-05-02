@@ -3,8 +3,8 @@ package net.jadoth.csv.internal;
 import java.io.File;
 import java.io.IOException;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.csv.CsvContent;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.CsvContentBuilderCharArray;
 import net.jadoth.util.chars.StringTable;
 import net.jadoth.util.chars._charArrayRange;

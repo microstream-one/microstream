@@ -3,11 +3,11 @@ package net.jadoth.swizzling.types;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdId;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.util.Clearable;
-import net.jadoth.util.KeyValue;
 
 /**
  * Type combining {@link SwizzleObjectRegistry} and {@link SwizzleTypeRegistry}.

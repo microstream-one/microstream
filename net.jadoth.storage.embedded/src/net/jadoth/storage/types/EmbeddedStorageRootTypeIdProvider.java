@@ -39,8 +39,8 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long provideRootTypeId()

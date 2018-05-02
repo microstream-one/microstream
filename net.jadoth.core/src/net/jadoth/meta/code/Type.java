@@ -40,8 +40,8 @@ public interface Type
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final VarString assembleTypeName(final VarString vs)

@@ -1,8 +1,6 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -10,6 +8,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.old.AbstractBridgeXSet;
@@ -45,7 +44,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public static final <E> HashEnum<E> NewCustom(final long initialCapacity)
 	{
 		return new HashEnum<>(
-			JadothHash.padHashLength(checkArrayRange(initialCapacity)),
+			JadothHash.padHashLength(X.checkArrayRange(initialCapacity)),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -59,7 +58,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	{
 		// (14.04.2016)FIXME: properly calculate slot length from desired capacity in regard to hashDensity
 		return new HashEnum<>(
-			JadothHash.padHashLength(checkArrayRange(initialCapacity)),
+			JadothHash.padHashLength(X.checkArrayRange(initialCapacity)),
 			JadothHash.hashDensity(hashDensity)
 		);
 	}

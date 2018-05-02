@@ -1,6 +1,5 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.Jadoth;
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.math.JadothMath;
 import net.jadoth.storage.types.DEBUGStorage;
@@ -8,6 +7,7 @@ import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.swizzling.types.Lazy;
+import net.jadoth.util.chars.JadothStrings;
 
 
 /*
@@ -67,7 +67,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 //			connection.issueFullCacheCheck((a, b, c) -> true);
 //			connection.issueFullFileCheck(fileEvaluatorHard);
 			final Object o = ref.get();
-			DEBUGStorage.println("loaded: "+Jadoth.systemString(o));
+			DEBUGStorage.println("loaded: "+JadothStrings.systemString(o));
 		}
 		exit();
 	}

@@ -51,8 +51,8 @@ public interface StorageEntityTypeExportFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler<?> entityType)

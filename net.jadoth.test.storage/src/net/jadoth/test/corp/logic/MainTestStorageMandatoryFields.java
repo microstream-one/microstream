@@ -1,6 +1,6 @@
 package net.jadoth.test.corp.logic;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;

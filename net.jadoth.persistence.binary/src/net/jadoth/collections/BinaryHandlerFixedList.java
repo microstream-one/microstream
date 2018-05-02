@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
@@ -82,7 +82,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	@Override
 	public final FixedList<?> create(final Binary bytes)
 	{
-		return new FixedList<>(Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return new FixedList<>(X.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
 	}
 
 	@Override

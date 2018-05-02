@@ -1,14 +1,14 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
+
+import net.jadoth.X;
 import net.jadoth.collections.ConstHashTable;
-import net.jadoth.collections.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.Swizzle.IdType;
-import net.jadoth.util.KeyValue;
 
 public interface StorageIdRangeAnalysis
 {
@@ -24,9 +24,9 @@ public interface StorageIdRangeAnalysis
 	{
 		return new StorageIdRangeAnalysis.Implementation(
 			ConstHashTable.New(
-				keyValue(Swizzle.IdType.TID, highestTid),
-				keyValue(Swizzle.IdType.OID, highestOid),
-				keyValue(Swizzle.IdType.CID, highestCid)
+				X.keyValue(Swizzle.IdType.TID, highestTid),
+				X.keyValue(Swizzle.IdType.OID, highestOid),
+				X.keyValue(Swizzle.IdType.CID, highestCid)
 			)
 		);
 	}

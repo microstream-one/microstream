@@ -50,8 +50,8 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)

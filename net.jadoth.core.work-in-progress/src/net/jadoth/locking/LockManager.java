@@ -3,8 +3,8 @@ package net.jadoth.locking;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.functional.BiProcedure;
-import net.jadoth.util.KeyValue;
 
 
 /* (12.11.2015 TM)TODO: LockManager concept
@@ -169,8 +169,8 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final Class<O> ownerType()

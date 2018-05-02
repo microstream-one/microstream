@@ -1,8 +1,8 @@
 package net.jadoth.persistence.binary.internal;
 
 
+import net.jadoth.X;
 import net.jadoth.collections.Constant;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;

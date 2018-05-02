@@ -7,10 +7,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;

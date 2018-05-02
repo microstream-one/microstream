@@ -37,8 +37,8 @@ public interface PersistenceTypeDictionaryExporter
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void exportTypeDictionary(final PersistenceTypeDictionary typeDictionary)

@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
-import net.jadoth.util.KeyValue;
 
 
 /**

@@ -20,7 +20,7 @@ import net.jadoth.exceptions.IndexBoundsException;
  * Note that this technique of using {@link UnsupportedOperationException} is explicitely not comparable to the
  * JDK's approach like in {@link java.util.Collections#unmodifiableCollection(java.util.Collection)} where a
  * general pupose type (java.util.Collection) is implemented intentionally broken to achieve a certain reduced
- * behaviour,
+ * behavior,
  * while the technique described here is a cleanly encapsuled implementation detail used in combination with proper
  * typing.
  *

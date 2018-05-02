@@ -129,8 +129,8 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@SuppressWarnings("unchecked") // necessary to cheat the type system because of too high abstraction
 		@Override

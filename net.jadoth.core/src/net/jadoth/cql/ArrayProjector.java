@@ -48,8 +48,8 @@ public interface ArrayProjector<T> extends Function<T, Object[]>
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final Object[] apply(final T t)

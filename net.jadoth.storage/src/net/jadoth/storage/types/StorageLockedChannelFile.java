@@ -54,8 +54,8 @@ public interface StorageLockedChannelFile extends StorageLockedFile, StorageHash
 
 
 		////////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int channelIndex()

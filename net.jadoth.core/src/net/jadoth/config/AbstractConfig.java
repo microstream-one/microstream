@@ -8,11 +8,11 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.meta.JadothConsole;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 

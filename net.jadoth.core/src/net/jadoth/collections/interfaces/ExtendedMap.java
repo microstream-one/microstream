@@ -1,6 +1,6 @@
 package net.jadoth.collections.interfaces;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 
 /**
  * @author Thomas Muenz

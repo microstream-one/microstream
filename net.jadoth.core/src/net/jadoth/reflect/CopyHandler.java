@@ -78,8 +78,8 @@ public interface CopyHandler
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		/**
 		 * Default copy implementation. Little meaningful because it does the exact same thing as

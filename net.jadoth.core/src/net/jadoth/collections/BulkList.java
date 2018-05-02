@@ -1,6 +1,5 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 
 import java.util.Comparator;
@@ -14,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
@@ -49,7 +49,7 @@ import net.jadoth.util.iterables.GenericListIterator;
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -116,7 +116,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	public static final <E> BulkList<E> New(final long initialCapacity)
 	{
-		return new BulkList<>(checkArrayRange(initialCapacity));
+		return new BulkList<>(X.checkArrayRange(initialCapacity));
 	}
 
 	// just New(E) confuses the compiler with New(int) when using ::New and causes ambiguity with New(E...)
@@ -1112,9 +1112,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -1146,7 +1146,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		validateIndex(this.size, offset);
 		validateIndex(this.size, offset + elements.length);
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 
 		return this;
 	}
@@ -1154,7 +1154,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final BulkList<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -1169,7 +1169,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.set(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(offset),
+			X.checkArrayRange(offset),
 			elements,
 			elementsOffset,
 			elementsLength
@@ -1184,8 +1184,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.fill(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(offset),
-			Jadoth.checkArrayRange(length),
+			X.checkArrayRange(offset),
+			X.checkArrayRange(length),
 			element
 		);
 
@@ -2022,8 +2022,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.size -= AbstractArrayStorage.removeRange(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -2035,8 +2035,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.retainRange(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		this.size = (int)length;
 

@@ -72,8 +72,8 @@ public interface StorageEntityCacheEvaluator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final boolean clearEntityCache(

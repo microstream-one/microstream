@@ -46,8 +46,8 @@ public interface XIterable<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <P extends Consumer<? super E>> P iterate(final P procedure)

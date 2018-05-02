@@ -159,8 +159,8 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void run() throws NetworkExceptionConnectionAcception

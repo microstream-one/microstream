@@ -1,7 +1,7 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.Jadoth;
 import net.jadoth.reference.LazyReferencing;
+import net.jadoth.util.chars.JadothStrings;
 
 
 /**
@@ -9,11 +9,11 @@ import net.jadoth.reference.LazyReferencing;
  * <p>
  * Note that the shortened name has been chosen intentionally to optimize readability in class design.
  * <p>
- * Also note that a type like this is strongly required to implement lazy loading behaviour in an architectural
+ * Also note that a type like this is strongly required to implement lazy loading behavior in an architectural
  * clean and proper way. I.e. the design has to define that a certain reference is meant be capable of lazy-loading.
  * If such a definition is not done, a loading logic is strictly required to always load the encountered reference,
  * as it is defined by the normal reference.
- * Any "tricks" of whatever framework to "sneak in" lazy loading behaviour where it hasn't actually been defined
+ * Any "tricks" of whatever framework to "sneak in" lazy loading behavior where it hasn't actually been defined
  * are nothing more than dirty hacks and mess up if not destroy the program's consistency of state
  * (e.g. antipatterns like secretly replacing a well-defined collection instance with a framework-proprietary
  * proxy instance of a "similar" collection implementation).
@@ -295,7 +295,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	{
 		return this.subject == null
 			? "(" + this.objectId + ")"
-			: this.objectId + " " + Jadoth.systemString(this.subject)
+			: this.objectId + " " + JadothStrings.systemString(this.subject)
 		;
 	}
 

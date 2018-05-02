@@ -9,12 +9,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.AbstractChainEntry;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 public interface ChainKeyValueStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>

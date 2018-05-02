@@ -1,14 +1,12 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.ints;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.types.HashCollection;
 import net.jadoth.collections.types.HashCollection.Analysis;
-import net.jadoth.util.KeyValue;
 
 
 /**
@@ -41,14 +39,14 @@ extends AbstractChainEntry<E, K, V, EN>
 			final int[] count = distribution.get(chainLength);
 			if(count == null)
 			{
-				distribution.put(chainLength, ints(1));
+				distribution.put(chainLength, X.ints(1));
 			}
 			else
 			{
 				count[0]++;
 			}
 		}
-		distribution.put(0, ints(emptySlotCount));
+		distribution.put(0, X.ints(emptySlotCount));
 
 		final int distRange = distribution.size();
 		final LimitList<KeyValue<Integer, Integer>> result = new LimitList<>(distRange);
@@ -69,7 +67,7 @@ extends AbstractChainEntry<E, K, V, EN>
 					longestEntryChainLength = chainLength;
 				}
 			}
-			result.add(Jadoth.keyValue(e.getKey(), e.getValue()[0]));
+			result.add(X.keyValue(e.getKey(), e.getValue()[0]));
 		}
 
 		// sort by chain length

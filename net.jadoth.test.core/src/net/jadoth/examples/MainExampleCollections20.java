@@ -3,7 +3,7 @@ package net.jadoth.examples;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XList;

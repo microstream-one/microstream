@@ -5,7 +5,6 @@ import static net.jadoth.util.chars.VarString.New;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XMap;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 /**

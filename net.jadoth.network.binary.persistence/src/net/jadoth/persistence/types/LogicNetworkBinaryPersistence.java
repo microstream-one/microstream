@@ -1,11 +1,10 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.X;
 import net.jadoth.memory.Memory;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
@@ -38,7 +37,7 @@ public final class LogicNetworkBinaryPersistence
 
 		// read the chunk length and prepare buffer for receiving the actual chunk
 		// (11.04.2013 TM)XXX: why clumsy getLong() with messed up endianess her?
-		final int messageLength = checkArrayRange(buffer.getLong());
+		final int messageLength = X.checkArrayRange(buffer.getLong());
 		buffer.clear();
 
 		final ByteBuffer checkedBuffer;
@@ -109,7 +108,7 @@ public final class LogicNetworkBinaryPersistence
 	)
 		throws IOException
 	{
-		final int limitedLength = checkArrayRange(length);
+		final int limitedLength = X.checkArrayRange(length);
 
 		final ByteBuffer checkedBuffer;
 		if(length > buffer.capacity())

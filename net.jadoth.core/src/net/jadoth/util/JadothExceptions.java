@@ -1,6 +1,7 @@
 package net.jadoth.util;
 
 import static java.lang.System.arraycopy;
+
 import net.jadoth.exceptions.WrapperRuntimeException;
 
 public class JadothExceptions

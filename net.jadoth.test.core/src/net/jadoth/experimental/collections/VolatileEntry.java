@@ -1,6 +1,6 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 
 public final class VolatileEntry implements KeyValue<Object, Object>
 {

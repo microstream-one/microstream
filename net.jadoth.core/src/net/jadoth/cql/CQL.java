@@ -9,14 +9,15 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.LimitList;
-import net.jadoth.collections.X;
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.functions.AggregateSum;
 import net.jadoth.collections.interfaces.Sized;
@@ -28,7 +29,6 @@ import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.JadothProcedures;
 import net.jadoth.hash.HashEqualator;
-import net.jadoth.util.KeyValue;
 
 
 /**

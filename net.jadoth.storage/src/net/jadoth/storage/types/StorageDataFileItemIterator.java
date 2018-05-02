@@ -299,8 +299,8 @@ public interface StorageDataFileItemIterator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void iterateStoredItems(

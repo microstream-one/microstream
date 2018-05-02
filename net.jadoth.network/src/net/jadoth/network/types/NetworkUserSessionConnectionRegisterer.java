@@ -97,8 +97,8 @@ extends NetworkConnectionProcessor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void accept(final SocketChannel connection)

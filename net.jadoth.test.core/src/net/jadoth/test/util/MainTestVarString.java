@@ -1,6 +1,6 @@
 package net.jadoth.test.util;
 
-import static net.jadoth.Jadoth.chars;
+import net.jadoth.X;
 import net.jadoth.util.chars.VarString;
 
 /**
@@ -44,7 +44,7 @@ public class MainTestVarString
 	{
 		final VarString vc = VarString.New();
 
-		for(final char c : chars('a','b','c','d','e','f','g','h'))
+		for(final char c : X.chars('a','b','c','d','e','f','g','h'))
 		{
 			vc.add(c, ',');
 		}

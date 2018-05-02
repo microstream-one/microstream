@@ -50,6 +50,29 @@ public interface LinkReference<T> extends LinkingReference<T>
 	public LinkReference<T> removeNext();
 	// (22.07.2010 TM)TODO: removeNext(i)
 
+	
+	@SafeVarargs
+	public static <T> LinkReference<T> New(final T... objects)
+	{
+		if(objects == null)
+		{
+			return null;
+		}
+
+		final LinkReference<T> chain = new LinkReference.Implementation<>(objects[0]);
+
+		if(objects.length > 1)
+		{
+			LinkReference<T> loopRef = chain;
+			for(int i = 1; i < objects.length; i++)
+			{
+				loopRef = loopRef.link(objects[i]);
+			}
+		}
+		
+		return chain;
+	}
+	
 
 	public class Implementation<T> extends Singleton<T> implements LinkReference<T>
 	{

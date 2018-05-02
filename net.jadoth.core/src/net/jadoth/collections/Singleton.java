@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.XGettingCollection;
@@ -806,7 +807,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final int indexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange( Singleton.this.indexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange( Singleton.this.indexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override
@@ -825,7 +826,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final int lastIndexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange(Singleton.this.lastIndexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Singleton.this.lastIndexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override

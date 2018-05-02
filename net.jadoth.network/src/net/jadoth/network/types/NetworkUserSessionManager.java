@@ -59,8 +59,8 @@ public interface NetworkUserSessionManager<U, S extends NetworkUserSession<U, ?>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public S registerUserConnection(final U user, final SocketChannel connection)

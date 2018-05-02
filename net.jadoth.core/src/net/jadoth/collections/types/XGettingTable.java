@@ -1,7 +1,8 @@
 package net.jadoth.collections.types;
 
 import java.util.function.Consumer;
-import net.jadoth.util.KeyValue;
+
+import net.jadoth.collections.KeyValue;
 
 /**
  * Map plus order

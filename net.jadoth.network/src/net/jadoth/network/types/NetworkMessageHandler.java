@@ -80,8 +80,8 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void handleMessage(final S messageSession)

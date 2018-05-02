@@ -186,8 +186,8 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final String columnName)
@@ -220,8 +220,8 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final String columnName)

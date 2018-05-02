@@ -1,15 +1,15 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.Jadoth.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
 import net.jadoth.persistence.types.BufferSizeProvider;
+
 
 public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 {
@@ -57,7 +57,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		super();
 		this.bufferSizeProvider = notNull(bufferSizeProvider);
 		this.setCurrent((this.buffers = new ByteBuffer[DEFAULT_BUFFERS_CAPACITY])[this.currentBuffersIndex = 0] =
-			ByteBuffer.allocateDirect(checkArrayRange(bufferSizeProvider.initialBufferSize())))
+			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.initialBufferSize())))
 		;
 	}
 
@@ -84,7 +84,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private void updateCurrentBufferPosition()
 	{
 		this.currentBuffer.position(
-			checkArrayRange(this.currentAddress - Memory.directByteBufferAddress(this.currentBuffer))
+			X.checkArrayRange(this.currentAddress - Memory.directByteBufferAddress(this.currentBuffer))
 		).flip();
 	}
 
@@ -109,7 +109,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private int calculateNewBufferCapacity(final long requiredCapacity)
 	{
 		final long defaultBufferCapacity = this.bufferSizeProvider.incrementalBufferSize();
-		return checkArrayRange(requiredCapacity < defaultBufferCapacity
+		return X.checkArrayRange(requiredCapacity < defaultBufferCapacity
 			? defaultBufferCapacity
 			: requiredCapacity)
 		;
@@ -326,7 +326,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		}
 
 		final long currentDataAddress = Memory.directByteBufferAddress(this.currentBuffer);
-		final byte[] bytes = new byte[Jadoth.checkArrayRange(this.currentAddress - currentDataAddress)];
+		final byte[] bytes = new byte[X.checkArrayRange(this.currentAddress - currentDataAddress)];
 		Memory.copyRangeToArray(currentDataAddress, bytes);
 		iterator.accept(bytes);
 	}

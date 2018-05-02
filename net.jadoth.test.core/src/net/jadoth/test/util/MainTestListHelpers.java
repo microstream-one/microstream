@@ -1,11 +1,8 @@
 package net.jadoth.test.util;
 
-import static net.jadoth.Jadoth.chars;
-import static net.jadoth.Jadoth.ints;
-import static net.jadoth.Jadoth.keyValue;
-
 import java.util.Map;
 
+import net.jadoth.X;
 import net.jadoth.collections.old.OldCollections;
 
 
@@ -21,12 +18,12 @@ public class MainTestListHelpers
 	 */
 	public static void main(final String[] args)
 	{
-		for(final int i : ints(1,2,3,4))
+		for(final int i : X.ints(1,2,3,4))
 		{
 			System.out.println(i);
 		}
 
-		for(final char c : chars('a','b','c','d'))
+		for(final char c : X.chars('a','b','c','d'))
 		{
 			System.out.println(c);
 		}
@@ -41,7 +38,7 @@ public class MainTestListHelpers
 //			System.out.println(i);
 //		}
 
-		final Map<String, Integer> siMap = OldCollections.OldHashMap(keyValue("hallo", 1), keyValue("bla", 2));
+		final Map<String, Integer> siMap = OldCollections.OldHashMap(X.keyValue("hallo", 1), X.keyValue("bla", 2));
 		System.out.println(siMap);
 
 	}

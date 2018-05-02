@@ -1,7 +1,8 @@
 package net.jadoth.test.collections;
 
 import static net.jadoth.collections.JadothCollections.sum;
-import net.jadoth.collections.X;
+
+import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional.SumInteger;
 

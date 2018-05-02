@@ -2,8 +2,8 @@ package net.jadoth.test;
 
 import java.util.Arrays;
 
+import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.collections.X;
 
 /**
  * @author Thomas Muenz

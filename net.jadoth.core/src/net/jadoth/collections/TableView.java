@@ -15,7 +15,6 @@ import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 
 public final class TableView<K, V> implements XGettingTable<K, V>
 {

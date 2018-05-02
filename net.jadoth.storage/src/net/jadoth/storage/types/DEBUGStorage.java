@@ -2,7 +2,7 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.memory.Memory;
 import net.jadoth.meta.JadothConsole;

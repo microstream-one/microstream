@@ -2,9 +2,9 @@ package net.jadoth.collections.types;
 
 import java.util.function.Consumer;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.hash.HashEqualator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 /**

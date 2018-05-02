@@ -4,7 +4,9 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.JadothPredicates;
@@ -127,6 +129,42 @@ public final class JadothArrays
 	}
 
 
+	
+	
+	public static final <T> T[] fill(
+		final T[]                   array   ,
+		final Supplier<? extends T> supplier
+	)
+	{
+		return uncheckedFill(array, 0, array.length, supplier);
+	}
+	
+	public static final <T> T[] fill(
+		final T[]                   array   ,
+		final int                   offset  ,
+		final int                   bound   ,
+		final Supplier<? extends T> supplier
+	)
+	{
+		checkBounds(array, offset, bound);
+		
+		return uncheckedFill(array, offset, bound, supplier);
+	}
+	
+	public static final <T> T[] uncheckedFill(
+		final T[]                   array   ,
+		final int                   offset  ,
+		final int                   bound   ,
+		final Supplier<? extends T> supplier
+	)
+	{
+		for(int i = offset; i < bound; i++)
+		{
+			array[i] = supplier.get();
+		}
+		
+		return array;
+	}
 
 	public static final <T> T[] fill(final T[] array, final T fillElement, final int fromIndex, final int toIndex)
 	{

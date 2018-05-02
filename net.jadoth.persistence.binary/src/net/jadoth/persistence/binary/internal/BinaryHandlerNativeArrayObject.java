@@ -5,7 +5,7 @@ import static net.jadoth.util.JadothTypes.validateNonPrimitiveType;
 
 import java.lang.reflect.Array;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -82,7 +82,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	{
 		final long rawElementCount = BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
-			Array.newInstance(this.componentType, Jadoth.checkArrayRange(rawElementCount))
+			Array.newInstance(this.componentType, X.checkArrayRange(rawElementCount))
 		);
 	}
 

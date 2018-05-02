@@ -2,12 +2,12 @@ package net.jadoth.persistence.types;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedTypeId;
+import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeRegistry;
@@ -45,8 +45,8 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)
@@ -78,7 +78,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
 		{
 			// standard registry does not consider actual objects
-			return this.lookupTypeHandler(Jadoth.getClass(instance));
+			return this.lookupTypeHandler(JadothReflect.getClass(instance));
 		}
 
 		@Override

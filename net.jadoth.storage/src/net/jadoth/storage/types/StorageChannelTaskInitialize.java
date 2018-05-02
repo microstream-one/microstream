@@ -176,8 +176,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final StorageInventory[] internalProcessBy(final StorageChannel channel)

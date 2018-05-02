@@ -2,7 +2,6 @@ package net.jadoth.collections;
 
 import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -15,6 +14,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.functions.AggregateMax;
 import net.jadoth.collections.functions.AggregateMin;
 import net.jadoth.collections.functions.IsCustomEqual;
@@ -4841,7 +4841,8 @@ public abstract class AbstractArrayStorage
 		{
 			if(a.length == 0)
 			{
-				return (T[])Array.newInstance(a.getClass().getComponentType(), 1); // length-one array with null
+				return X.ArrayOfSameType(a, 1); // length-one array with null
+//				return (T[])Array.newInstance(a.getClass().getComponentType(), 1); // length-one array with null
 			}
 			return a;
 		}
@@ -4850,7 +4851,8 @@ public abstract class AbstractArrayStorage
 		{
 			if(a.length < length)
 			{
-				a = (T[])Array.newInstance(a.getClass().getComponentType(), length);
+				a = X.ArrayOfSameType(a, length);
+//				a = (T[])Array.newInstance(a.getClass().getComponentType(), length);
 			}
 			// convenient and more performant case: increasing iteration direction, arraycopy can be used
 			System.arraycopy(data, offset, a, 0, length);
@@ -4865,7 +4867,8 @@ public abstract class AbstractArrayStorage
 			}
 			if(a.length < -length)
 			{
-				a = (T[])Array.newInstance(a.getClass().getComponentType(), -length);
+				a = X.ArrayOfSameType(a, -length);
+//				a = (T[])Array.newInstance(a.getClass().getComponentType(), -length);
 			}
 
 			for(int i = offset, j = 0; i > boundIndex; i--)

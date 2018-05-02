@@ -1,6 +1,6 @@
-package net.jadoth.util;
+package net.jadoth.collections;
 
-
+import net.jadoth.util.Immutable;
 
 /**
  * @author Thomas Muenz
@@ -13,6 +13,11 @@ public interface KeyValue<K, V>
 	public V value();
 
 
+	
+	public static <K, V> KeyValue<K, V> New(final K key, final V value)
+	{
+		return new KeyValue.Implementation<>(key, value);
+	}
 
 	public final class Implementation<K, V> implements KeyValue<K, V>, Immutable
 	{
@@ -29,7 +34,7 @@ public interface KeyValue<K, V>
 		// constructors //
 		/////////////////
 
-		public Implementation(final K key, final V value)
+		Implementation(final K key, final V value)
 		{
 			super();
 			this.key   = key;

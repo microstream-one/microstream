@@ -1,12 +1,12 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.X;
 import net.jadoth.memory.Memory;
 import net.jadoth.util.chars.VarString;
+
 
 public final class BinaryChunkPrinter implements Consumer<Binary>
 {
@@ -85,7 +85,7 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 		final long objectId    = BinaryPersistence.getEntityObjectId(address);
 		final long dataLength  = BinaryPersistence.entityDataLength(totalLength);
 
-		final byte[] content = new byte[checkArrayRange(dataLength)];
+		final byte[] content = new byte[X.checkArrayRange(dataLength)];
 		Memory.copyRangeToArray(BinaryPersistence.entityDataAddress(address), content);
 		printEntity(this.vc, address - baseOffset, totalLength, typeId, objectId, content).lf();
 		return totalLength;

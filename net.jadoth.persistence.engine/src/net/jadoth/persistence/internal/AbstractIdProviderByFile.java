@@ -146,7 +146,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 		 * set and write new higher value as id and threshold.
 		 * This means the passed value is stored as the current highest registered value but no further id range
 		 * is reserved for now. This happens only as soon as the next id is actually required.
-		 * The rationale behind this behaviour is that in a stable developed system, no more type ids are
+		 * The rationale behind this behavior is that in a stable developed system, no more type ids are
 		 * required, so reserving some in advance is just a waste of id range.
 		 */
 		this.writeId(this.threshold = this.id = value);

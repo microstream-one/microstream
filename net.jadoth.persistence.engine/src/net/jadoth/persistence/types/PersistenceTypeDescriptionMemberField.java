@@ -66,8 +66,8 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public String declaringTypeName()

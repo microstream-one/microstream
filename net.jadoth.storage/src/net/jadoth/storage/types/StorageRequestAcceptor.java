@@ -148,8 +148,8 @@ public interface StorageRequestAcceptor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void storeData(final Chunks[] dataMedium) throws InterruptedException

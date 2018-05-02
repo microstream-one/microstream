@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.Jadoth.closeSilent;
 import static net.jadoth.Jadoth.notNull;
 import static net.jadoth.util.chars.MemoryCharConversionUTF8.toSingleByte;
@@ -12,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.LimitList;
@@ -536,8 +536,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void convertDataFile(final File file)
@@ -588,7 +588,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				return this.writeAddress;
 			}
 
-			this.writeBuffer.limit(checkArrayRange(writeAddress - this.writeStart));
+			this.writeBuffer.limit(X.checkArrayRange(writeAddress - this.writeStart));
 			while(this.writeBuffer.hasRemaining())
 			{
 				this.fileChannel.write(this.writeBuffer);
@@ -1034,7 +1034,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			// large buffer has to be enlarged
 			Memory.deallocateDirectByteBuffer(this.readBufferLarge);
-			return this.readBufferLarge = ByteBuffer.allocateDirect(checkArrayRange(nextEntityLength));
+			return this.readBufferLarge = ByteBuffer.allocateDirect(X.checkArrayRange(nextEntityLength));
 		}
 
 		static final class WriteException extends RuntimeException

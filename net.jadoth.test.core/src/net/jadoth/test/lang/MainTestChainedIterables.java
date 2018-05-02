@@ -3,12 +3,11 @@
  */
 package net.jadoth.test.lang;
 
-import static net.jadoth.Jadoth.array;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.jadoth.X;
 import net.jadoth.util.iterables.JadothIterables;
 
 /**
@@ -47,8 +46,8 @@ public class MainTestChainedIterables
 
 	static void testArraysChaining()
 	{
-		final String[] strings1 = array("A", "B", "C");
-		final String[] strings2 = array("D", "E", "F");
+		final String[] strings1 = X.array("A", "B", "C");
+		final String[] strings2 = X.array("D", "E", "F");
 
 		for(final String s : JadothIterables.iterate(strings1, null, null, strings2, null))
 		{
@@ -63,7 +62,7 @@ public class MainTestChainedIterables
 
 	static void testArrayIterable()
 	{
-		for(final String s : JadothIterables.iterate(array("A", "B", "C")))
+		for(final String s : JadothIterables.iterate(X.array("A", "B", "C")))
 		{
 			System.out.println(s);
 		}

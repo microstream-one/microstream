@@ -96,8 +96,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public PersistenceManager<Binary> persistenceManager()

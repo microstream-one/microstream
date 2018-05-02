@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.functions.AggregateCountingAdd;
 import net.jadoth.collections.functions.AggregateCountingPut;
 import net.jadoth.collections.functions.AggregateMax;
@@ -37,7 +38,7 @@ public final class XUtilsCollection
 	private static <T> LimitList<T> buffer(final int srcSize, final long length)
 	{
 		int temp, minimum = srcSize;
-		if((temp = Jadoth.checkArrayRange(length < 0 ? -length : length)) < minimum)
+		if((temp = X.checkArrayRange(length < 0 ? -length : length)) < minimum)
 		{
 			minimum = temp;
 		}

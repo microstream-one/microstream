@@ -330,8 +330,8 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 		/**
 		 * @throws EntityGetDataException
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#readFromEntity()

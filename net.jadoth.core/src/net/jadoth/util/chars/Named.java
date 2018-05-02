@@ -2,7 +2,7 @@ package net.jadoth.util.chars;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 
 

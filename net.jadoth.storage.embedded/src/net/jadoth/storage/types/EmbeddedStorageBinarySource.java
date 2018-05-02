@@ -42,8 +42,8 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer

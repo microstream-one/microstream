@@ -86,8 +86,8 @@ public interface BinaryMessageProcessor<M, S extends NetworkSession<M>> extends 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void accept(final S session)

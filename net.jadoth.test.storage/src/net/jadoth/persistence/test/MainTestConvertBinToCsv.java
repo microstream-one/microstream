@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.persistence.binary.types.BinaryPersistence;

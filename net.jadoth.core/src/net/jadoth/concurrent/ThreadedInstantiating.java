@@ -95,7 +95,7 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 	 * Note that an {@link Instantiator} instance that returns the same instance of type E for more than one
 	 * {@link Thread}, apart from breaking the {@link Instantiator} contract to create a new instance on every call,
 	 * defeats the purpose of a {@link Threaded} in the first place.<br>
-	 * Still, such behaviour won't cause any (direct) error in this class (and may be reasonable in certain situations
+	 * Still, such behavior won't cause any (direct) error in this class (and may be reasonable in certain situations
 	 * despite all concerns).
 	 *
 	 * @param instantiator the {@link Instantiator} instance to be used to create to be associated instances of type E.
@@ -122,7 +122,7 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 	 * Note that an {@link Instantiator} instance that returns the same instance of type E for more than one
 	 * {@link Thread}, apart from breaking the {@link Instantiator} contract to create a new instance on every call,
 	 * defeats the purpose of a {@link Threaded} in the first place.<br>
-	 * Still, such behaviour won't cause any (direct) error in this class (and may be reasonable in certain situations
+	 * Still, such behavior won't cause any (direct) error in this class (and may be reasonable in certain situations
 	 * despite all concerns).
 	 * <p>
 	 * Also note that the internal storage size can drop below the passed value (to the same size used by

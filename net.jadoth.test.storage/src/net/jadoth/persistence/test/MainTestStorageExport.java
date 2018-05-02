@@ -1,19 +1,19 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.Jadoth.booleans;
-import static net.jadoth.Jadoth.bytes;
-import static net.jadoth.Jadoth.chars;
-import static net.jadoth.Jadoth.doubles;
-import static net.jadoth.Jadoth.floats;
-import static net.jadoth.Jadoth.ints;
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.Jadoth.longs;
-import static net.jadoth.Jadoth.shorts;
-import static net.jadoth.Jadoth.strings;
+import static net.jadoth.X.booleans;
+import static net.jadoth.X.bytes;
+import static net.jadoth.X.chars;
+import static net.jadoth.X.doubles;
+import static net.jadoth.X.floats;
+import static net.jadoth.X.ints;
+import static net.jadoth.X.longs;
+import static net.jadoth.X.shorts;
+import static net.jadoth.X.strings;
 
 import java.io.File;
 import java.math.BigInteger;
 
+import net.jadoth.X;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.storage.types.StorageConnection;
@@ -37,7 +37,7 @@ public class MainTestStorageExport extends TestStorage
 				BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE)),
 				strings("a", "", "\n", "a\t", "\n\n'\"'\t", "assdgdfgsdgrgbdft"),
 				new long[0],
-				HashTable.New(keyValue(1, "A"), keyValue(2, "B"), keyValue(3, "C"))
+				HashTable.New(X.keyValue(1, "A"), X.keyValue(2, "B"), X.keyValue(3, "C"))
 			)
 		);
 		STORAGE.createConnection().store(ROOT);

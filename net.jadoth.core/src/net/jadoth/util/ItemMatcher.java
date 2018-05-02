@@ -2,6 +2,7 @@ package net.jadoth.util;
 
 import java.text.DecimalFormat;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.JadothEqualators;
@@ -487,8 +488,8 @@ public interface ItemMatcher<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@SuppressWarnings("unchecked")
 		@Override

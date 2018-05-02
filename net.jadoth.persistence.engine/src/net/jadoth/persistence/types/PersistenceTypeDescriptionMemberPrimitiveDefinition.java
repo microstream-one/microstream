@@ -169,8 +169,8 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public String primitiveDefinition()

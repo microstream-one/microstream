@@ -1,6 +1,5 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 
 import java.util.Comparator;
@@ -13,6 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.functions.IsCustomEqual;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -46,7 +46,7 @@ import net.jadoth.util.iterables.GenericListIterator;
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -949,11 +949,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		final E shiftling = this.data[(int)sourceIndex];
 		if(sourceIndex < targetIndex)
 		{
-			System.arraycopy(this.data, (int)sourceIndex + 1, this.data, (int)sourceIndex, checkArrayRange(targetIndex - sourceIndex));
+			System.arraycopy(this.data, (int)sourceIndex + 1, this.data, (int)sourceIndex, X.checkArrayRange(targetIndex - sourceIndex));
 		}
 		else
 		{
-			System.arraycopy(this.data, (int)targetIndex, this.data, (int)targetIndex + 1, checkArrayRange(sourceIndex - targetIndex));
+			System.arraycopy(this.data, (int)targetIndex, this.data, (int)targetIndex + 1, X.checkArrayRange(sourceIndex - targetIndex));
 		}
 
 		this.data[(int)targetIndex] = shiftling;
@@ -981,15 +981,15 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		}
 
 		final Object[] shiftlings;
-		System.arraycopy(this.data, (int)sourceIndex, shiftlings = newArray(checkArrayRange(length)), 0, (int)length);
+		System.arraycopy(this.data, (int)sourceIndex, shiftlings = newArray(X.checkArrayRange(length)), 0, (int)length);
 		if(sourceIndex < targetIndex)
 		{
 			System.arraycopy(
 				this.data,
-				checkArrayRange(sourceIndex + length),
+				X.checkArrayRange(sourceIndex + length),
 				this.data,
 				(int)sourceIndex,
-				checkArrayRange(targetIndex - sourceIndex)
+				X.checkArrayRange(targetIndex - sourceIndex)
 			);
 		}
 		else
@@ -998,8 +998,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 				this.data,
 				(int)targetIndex,
 				this.data,
-				checkArrayRange(targetIndex + length),
-				checkArrayRange(sourceIndex - targetIndex)
+				X.checkArrayRange(targetIndex + length),
+				X.checkArrayRange(sourceIndex - targetIndex)
 			);
 		}
 
@@ -1043,9 +1043,9 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -1080,14 +1080,14 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.size, offset, offset + elements.length - 1));
 		}
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 		return this;
 	}
 
 	@Override
 	public EqBulkList<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -1102,7 +1102,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		AbstractArrayStorage.set(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(offset),
+			X.checkArrayRange(offset),
 			elements,
 			elementsOffset,
 			elementsLength
@@ -1113,7 +1113,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public EqBulkList<E> fill(final long offset, final long length, final E element)
 	{
-		AbstractArrayStorage.fill(this.data, this.size, Jadoth.checkArrayRange(offset), Jadoth.checkArrayRange(length), element);
+		AbstractArrayStorage.fill(this.data, this.size, X.checkArrayRange(offset), X.checkArrayRange(length), element);
 		return this;
 	}
 
@@ -2051,8 +2051,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		this.size -= AbstractArrayStorage.removeRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -2064,8 +2064,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		AbstractArrayStorage.retainRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		this.size = (int)length;
 

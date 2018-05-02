@@ -76,8 +76,8 @@ public interface PersistenceTypeAnalyzer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(

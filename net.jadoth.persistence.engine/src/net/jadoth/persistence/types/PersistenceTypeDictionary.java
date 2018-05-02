@@ -231,8 +231,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void setTypeDescriptionRegistrationCallback(final PersistenceTypeDescriptionRegistrationCallback callback)

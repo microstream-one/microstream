@@ -210,8 +210,8 @@ public interface StorageFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)

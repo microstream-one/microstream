@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.math.JadothMath;
 
@@ -132,7 +133,7 @@ public class MainTestOldVarList
 	static void testIterationPerformance()
 	{
 //		final XReference<Integer> r = ref(null);
-		final int[] ri = Jadoth.ints(0);
+		final int[] ri = X.ints(0);
 		final BulkList<Integer> segs = new BulkList<Integer>().addAll(INTS);
 		for(int k = 10000; k --> 0;)
 		{

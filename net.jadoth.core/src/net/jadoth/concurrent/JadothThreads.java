@@ -172,7 +172,7 @@ public final class JadothThreads
 	}
 
 	/**
-	 * A copy of the JDK's default behaviour for handling ultimately uncaught exceptions, as implemented in
+	 * A copy of the JDK's default behavior for handling ultimately uncaught exceptions, as implemented in
 	 * the last fallback case of {@link ThreadGroup#uncaughtException(Thread, Throwable)}.
 	 * <p>
 	 * Sadly, this copy is necessary as they one again failed to modularize their default logic adequately.

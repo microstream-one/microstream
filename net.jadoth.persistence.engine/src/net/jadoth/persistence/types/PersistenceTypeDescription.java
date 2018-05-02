@@ -249,8 +249,8 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long typeId()

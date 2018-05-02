@@ -1,11 +1,10 @@
 package net.jadoth.util.logging;
 
-import static net.jadoth.Jadoth.systemString;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import net.jadoth.util.JadothTypes;
+import net.jadoth.util.chars.JadothStrings;
 import net.jadoth.util.chars.VarString;
 
 public interface InvocationLogger
@@ -26,7 +25,7 @@ public interface InvocationLogger
 		{
 			return JadothTypes.isPrimitiveWrapperType(value)
 				? value.toString()
-				: systemString(value)
+				: JadothStrings.systemString(value)
 			;
 		}
 
@@ -44,7 +43,7 @@ public interface InvocationLogger
 		{
 			final VarString vc = VarString.New()
 				.add("->").tab()
-				.add(systemString(delegate)).tab()
+				.add(JadothStrings.systemString(delegate)).tab()
 				.add(returnType).tab()
 				.add(methodname).add("()")
 			;
@@ -68,7 +67,7 @@ public interface InvocationLogger
 		{
 			final VarString vc = VarString.New()
 				.add(toLogString(returnValue)).tab()
-				.add(systemString(delegate)).tab()
+				.add(JadothStrings.systemString(delegate)).tab()
 				.add(returnType).tab()
 				.add(methodname).add("()")
 			;

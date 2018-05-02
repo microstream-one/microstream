@@ -2,12 +2,12 @@ package net.jadoth.traversal;
 
 import java.util.function.Function;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.hash.HashEqualator;
-import net.jadoth.util.KeyValue;
+import net.jadoth.util.chars.JadothStrings;
 
 
 public final class DeduplicatorMultiType implements Function<Object, Object>
@@ -67,7 +67,7 @@ public final class DeduplicatorMultiType implements Function<Object, Object>
 	@Override
 	public final Object apply(final Object instance)
 	{
-		System.out.println(Jadoth.systemString(instance));
+		System.out.println(JadothStrings.systemString(instance));
 		
 		final EqHashEnum<Object> typeRegistry = this.registry.get(instance.getClass());
 		if(typeRegistry == null)

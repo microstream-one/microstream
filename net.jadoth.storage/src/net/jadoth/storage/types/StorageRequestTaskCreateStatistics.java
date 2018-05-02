@@ -49,8 +49,8 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final StorageRawFileStatistics.ChannelStatistics internalProcessBy(final StorageChannel channel)

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.XGettingCollection;
@@ -604,7 +605,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int indexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override
@@ -623,7 +624,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int lastIndexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override

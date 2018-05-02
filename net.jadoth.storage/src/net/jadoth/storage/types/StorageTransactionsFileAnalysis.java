@@ -911,8 +911,8 @@ public interface StorageTransactionsFileAnalysis
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageLockedChannelFile transactionsFile()

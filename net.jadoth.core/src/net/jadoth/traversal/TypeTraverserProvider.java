@@ -3,9 +3,9 @@ package net.jadoth.traversal;
 import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.util.KeyValue;
 
 public interface TypeTraverserProvider
 {

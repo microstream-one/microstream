@@ -93,8 +93,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void cleanUp()

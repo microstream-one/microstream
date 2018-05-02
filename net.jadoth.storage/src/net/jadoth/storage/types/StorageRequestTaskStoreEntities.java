@@ -2,10 +2,10 @@ package net.jadoth.storage.types;
 
 import java.nio.ByteBuffer;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.memory.Chunks;
 import net.jadoth.meta.JadothConsole;
 import net.jadoth.util.JadothExceptions;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 public interface StorageRequestTaskStoreEntities extends StorageRequestTask
@@ -36,8 +36,8 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final KeyValue<ByteBuffer[], long[]> internalProcessBy(final StorageChannel channel)

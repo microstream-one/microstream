@@ -1126,8 +1126,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public PersistenceManager<M> createPersistenceManager()

@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.Jadoth.closeSilent;
 import static net.jadoth.Jadoth.coalesce;
 import static net.jadoth.Jadoth.notNull;
@@ -16,6 +15,7 @@ import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
@@ -585,8 +585,8 @@ public interface StorageFileManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void flush()
@@ -687,7 +687,7 @@ public interface StorageFileManager
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
-			final ByteBuffer dataBuffer = this.buffer(checkArrayRange(length));
+			final ByteBuffer dataBuffer = this.buffer(X.checkArrayRange(length));
 			try
 			{
 				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
@@ -1300,7 +1300,7 @@ public interface StorageFileManager
 			final long length = BinaryPersistence.getEntityLength(address);
 			if(length < 0)
 			{
-				this.headFile.registerGap(checkArrayRange(-length));
+				this.headFile.registerGap(X.checkArrayRange(-length));
 				return true; // gap appended successfully
 			}
 			if(availableItemLength < BinaryPersistence.entityHeaderLength())
@@ -1327,7 +1327,7 @@ public interface StorageFileManager
 			 * deleted entities. This would cause false positive zombie OID encounters.
 			 */
 			entity.updateStorageInformation(
-				checkArrayRange(length),
+				X.checkArrayRange(length),
 				this.headFile,
 				to_int(this.headFile.totalLength())
 			);
@@ -1705,7 +1705,7 @@ public interface StorageFileManager
 				{
 					entityCache
 					.putEntity(entity.objectId(), entity.type())
-					.updateStorageInformation(entity.length(), headFile, checkArrayRange(loopFileLength));
+					.updateStorageInformation(entity.length(), headFile, X.checkArrayRange(loopFileLength));
 					loopFileLength += entity.length();
 				}
 			}

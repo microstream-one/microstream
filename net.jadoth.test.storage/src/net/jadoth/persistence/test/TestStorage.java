@@ -7,11 +7,11 @@ import java.util.Date;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.cql.CQL;

@@ -131,8 +131,8 @@ public interface ServerConnection
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <T> T request(final NetworkRequest<T> request)

@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
@@ -44,7 +45,7 @@ import net.jadoth.util.iterables.GenericListIterator;
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -901,9 +902,9 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -938,14 +939,14 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.size, offset, offset + elements.length - 1));
 		}
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 		return this;
 	}
 
 	@Override
 	public ArrayCollector<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -957,7 +958,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		final long                          elementsLength
 	)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), elements, elementsOffset, elementsLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), elements, elementsOffset, elementsLength);
 		return this;
 	}
 
@@ -967,8 +968,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.fill(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(offset),
-			Jadoth.checkArrayRange(length),
+			X.checkArrayRange(offset),
+			X.checkArrayRange(length),
 			element
 		);
 
@@ -1763,8 +1764,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		this.size -= AbstractArrayStorage.removeRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -1775,8 +1776,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.retainRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		this.size = (int)length;
 

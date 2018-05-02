@@ -9,7 +9,7 @@ import net.jadoth.swizzling.types.Lazy;
  * <p>
  * This type can be seen as a counterpart to {@link Lazy} on the storing side.
  * <p>
- * As explained there, functionality modifying persistence behaviour (loading, storing) is a business logic level
+ * As explained there, functionality modifying persistence behavior (loading, storing) is a business logic level
  * concern and therefor must be defined there explicity.
  * <p>
  * Despite its short name, this type offers the possibility to turn the transient functionality on and off, as

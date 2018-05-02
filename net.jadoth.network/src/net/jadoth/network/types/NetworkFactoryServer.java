@@ -144,8 +144,8 @@ public interface NetworkFactoryServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public int getConnectionListenerMaxThreadCount()

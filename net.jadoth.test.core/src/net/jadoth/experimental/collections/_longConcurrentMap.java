@@ -4,10 +4,10 @@ import static net.jadoth.reflect.JadothReflect.getDeclaredField;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.util.Clearable;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.VMUtils;
 import net.jadoth.util._longKeyValue;
 import sun.misc.Unsafe;
@@ -546,7 +546,7 @@ public final class _longConcurrentMap implements Clearable, Sized
 				if(slots[i] == null) continue; // should be faster than setting up the for loop just to skip it again
 				for(_longEntry e = slots[i]; e != null; e = e.link)
 				{
-					array[a++] = Jadoth._longKeyValue(e.key, e.value);
+					array[a++] = X._longKeyValue(e.key, e.value);
 				}
 			}
 			this.wait = false;

@@ -39,7 +39,7 @@ public final class CharConversion_double
 	 * the technical floating point inaccuracy (e.g. the JDK double parser generates comparable discrepancies),
 	 * the algorithm is still deemed correct ("enough").
 	 * <p>
-	 * Otherwise, the behaviour of the algorithm is the same as that of the JDK implementation (i.e. decimal point
+	 * Otherwise, the behavior of the algorithm is the same as that of the JDK implementation (i.e. decimal point
 	 * character '.', denormalized representation in range ]1E7; 1E-3], exponent character 'E', etc.
 	 * <p>
 	 * Note that this method is intended as an implementation detail and a "know-what-you-are-doing" tool that does

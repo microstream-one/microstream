@@ -41,8 +41,8 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Boolean internalProcessBy(final StorageChannel channel)

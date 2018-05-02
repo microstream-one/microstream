@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import java.util.HashSet;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
@@ -11,6 +11,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.util.chars.JadothStrings;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -41,7 +42,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 
@@ -134,7 +135,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Missing element collection helper instance for " + Jadoth.systemString(instance)
+				"Missing element collection helper instance for " + JadothStrings.systemString(instance)
 			);
 		}
 		
@@ -142,7 +143,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + Jadoth.systemString(instance)
+				"Inconsistent element collection helper instance for " + JadothStrings.systemString(instance)
 			);
 		}
 		
@@ -163,7 +164,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			if(!castedInstance.add(element))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException("Element hashing insistency in " + Jadoth.systemString(castedInstance));
+				throw new RuntimeException("Element hashing insistency in " + JadothStrings.systemString(castedInstance));
 			}
 		}
 	}

@@ -4,11 +4,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.functional.Aggregator;

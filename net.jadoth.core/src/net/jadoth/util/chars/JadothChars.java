@@ -14,7 +14,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.functional._charProcedure;
@@ -2361,8 +2361,8 @@ public final class JadothChars
 
 	public static final char[][] toArrays(final XGettingSequence<String> strings)
 	{
-		final char[][] arrays = new char[Jadoth.checkArrayRange(strings.size())][];
-		strings.iterateIndexed((e, i) -> arrays[Jadoth.checkArrayRange(i)] = e.toCharArray());
+		final char[][] arrays = new char[X.checkArrayRange(strings.size())][];
+		strings.iterateIndexed((e, i) -> arrays[X.checkArrayRange(i)] = e.toCharArray());
 		return arrays;
 	}
 

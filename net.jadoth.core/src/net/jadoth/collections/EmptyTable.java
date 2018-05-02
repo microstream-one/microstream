@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
@@ -15,7 +16,6 @@ import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 
 // (17.09.2013)FIXME: EmptyTable: implement all FIX-ME
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>

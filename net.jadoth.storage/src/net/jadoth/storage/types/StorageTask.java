@@ -50,8 +50,8 @@ public interface StorageTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final synchronized StorageTask awaitNext(final long ms) throws InterruptedException

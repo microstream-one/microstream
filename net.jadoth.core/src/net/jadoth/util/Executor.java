@@ -222,8 +222,8 @@ public interface Executor<EX extends Throwable>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public Executor.Implementation<EX> reset()

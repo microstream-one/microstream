@@ -88,8 +88,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long minimumFileSize()

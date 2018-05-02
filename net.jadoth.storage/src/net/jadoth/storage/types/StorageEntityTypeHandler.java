@@ -140,8 +140,8 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long typeId()

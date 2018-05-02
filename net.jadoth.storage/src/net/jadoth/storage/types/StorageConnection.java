@@ -186,8 +186,8 @@ public interface StorageConnection extends PersistenceStoring
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 //		@Override
 //		public final void cleanUp()

@@ -1,12 +1,12 @@
 package net.jadoth.test.cql;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.cql.CQL.not;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.X;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
 import net.jadoth.collections.types.XList;
@@ -18,7 +18,6 @@ import net.jadoth.cql.CqlQuery;
 import net.jadoth.cql.CqlSelection;
 import net.jadoth.cql.CqlTransfer;
 import net.jadoth.meta.JadothConsole;
-import net.jadoth.util.KeyValue;
 
 public class MainTestCql
 {
@@ -129,7 +128,7 @@ public class MainTestCql
 				CQL
 				.select(not(String::isEmpty))
 				.from(STRINGS)
-				.project(e -> keyValue(e.length(), e))
+				.project(e -> X.keyValue(e.length(), e))
 			)
 			.execute()
 		;

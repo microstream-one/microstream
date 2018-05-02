@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
@@ -11,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingList;
@@ -203,14 +203,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				keyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
-				keyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
-				keyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
-				keyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
-				keyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
-				keyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
-				keyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
-				keyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
+				X.keyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
+				X.keyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
+				X.keyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
+				X.keyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
+				X.keyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
+				X.keyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
+				X.keyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
+				X.keyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
 			);
 		}
 
@@ -219,24 +219,24 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				keyValue(byte     .class.getName()                    , this::parse_byte        ),
-				keyValue(boolean  .class.getName()                    , this::parse_boolean     ),
-				keyValue(short    .class.getName()                    , this::parse_short       ),
-				keyValue(char     .class.getName()                    , this::parse_char        ),
-				keyValue(int      .class.getName()                    , this::parse_int         ),
-				keyValue(float    .class.getName()                    , this::parse_float       ),
-				keyValue(long     .class.getName()                    , this::parse_long        ),
-				keyValue(double   .class.getName()                    , this::parse_double      ),
-				keyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
-				keyValue(boolean[].class.getName()                    , this::parseArray_boolean),
-				keyValue(short[]  .class.getName()                    , this::parseArray_short  ),
-				keyValue(char[]   .class.getName()                    , this::parseChars        ),
-				keyValue(int[]    .class.getName()                    , this::parseArray_int    ),
-				keyValue(float[]  .class.getName()                    , this::parseArray_float  ),
-				keyValue(long[]   .class.getName()                    , this::parseArray_long   ),
-				keyValue(double[] .class.getName()                    , this::parseArray_double ),
-				keyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
-				keyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
+				X.keyValue(byte     .class.getName()                    , this::parse_byte        ),
+				X.keyValue(boolean  .class.getName()                    , this::parse_boolean     ),
+				X.keyValue(short    .class.getName()                    , this::parse_short       ),
+				X.keyValue(char     .class.getName()                    , this::parse_char        ),
+				X.keyValue(int      .class.getName()                    , this::parse_int         ),
+				X.keyValue(float    .class.getName()                    , this::parse_float       ),
+				X.keyValue(long     .class.getName()                    , this::parse_long        ),
+				X.keyValue(double   .class.getName()                    , this::parse_double      ),
+				X.keyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
+				X.keyValue(boolean[].class.getName()                    , this::parseArray_boolean),
+				X.keyValue(short[]  .class.getName()                    , this::parseArray_short  ),
+				X.keyValue(char[]   .class.getName()                    , this::parseChars        ),
+				X.keyValue(int[]    .class.getName()                    , this::parseArray_int    ),
+				X.keyValue(float[]  .class.getName()                    , this::parseArray_float  ),
+				X.keyValue(long[]   .class.getName()                    , this::parseArray_long   ),
+				X.keyValue(double[] .class.getName()                    , this::parseArray_double ),
+				X.keyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
+				X.keyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
 			);
 		}
 
@@ -1148,7 +1148,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final void deriveValueHandlers()
 		{
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
-			final ValueHandler[] valueHandlers = new ValueHandler[Jadoth.checkArrayRange(members.size()) + 1];
+			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size()) + 1];
 			valueHandlers[0] = this.objectIdValueHandler;
 			int i = 1;
 			boolean hasVariableLength = false;
@@ -1229,7 +1229,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members
 		)
 		{
-			final ValueHandler[] valueHandlers = new ValueHandler[Jadoth.checkArrayRange(members.size())];
+			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size())];
 
 			int i = 0;
 			for(final PersistenceTypeDescriptionMemberPseudoField member : members)
@@ -1658,8 +1658,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void convertCsv(final File file)

@@ -30,7 +30,7 @@ public interface Hasher<T>
 	 * <br>
 	 * This is true for immutable objects (such as instances of {@link String}) or for the identity hash code provided
 	 * by {@link System#identityHashCode(Object)}.<br>
-	 * The behaviour can also be achieved by caching a once created hash code object-externally in the {@link Hasher}
+	 * The behavior can also be achieved by caching a once created hash code object-externally in the {@link Hasher}
 	 * implementation to ensure unchanging hash codes even for objects that are mutable in terms of their
 	 * {@link Object#equals(Object)} implemententation.
 	 * <p>

@@ -4,6 +4,7 @@ import static net.jadoth.Jadoth.notNull;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -11,7 +12,6 @@ import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.KeyValue;
 
 public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerCreator<M>
 {
@@ -52,8 +52,8 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public boolean knowsType(final Class<?> type)

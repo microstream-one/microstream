@@ -18,7 +18,6 @@ import net.jadoth.concurrent.ThreadSafe;
 import net.jadoth.functional.AvgInteger;
 import net.jadoth.functional.AvgIntegerNonNull;
 import net.jadoth.functional.SumInteger;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 /**

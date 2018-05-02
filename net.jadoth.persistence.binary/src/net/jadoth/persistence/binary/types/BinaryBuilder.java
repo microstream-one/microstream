@@ -556,8 +556,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long storeEntityHeader(

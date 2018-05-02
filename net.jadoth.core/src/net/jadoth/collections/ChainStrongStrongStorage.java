@@ -3,7 +3,6 @@ package net.jadoth.collections;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static net.jadoth.Jadoth.BREAK;
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.collections.AbstractChainEntry.HOP_NEXT;
 import static net.jadoth.collections.AbstractChainEntry.HOP_PREV;
 
@@ -17,13 +16,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.branching.ThrowBreak;
 import net.jadoth.util.chars.VarString;
 
@@ -4628,7 +4627,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final ListIterator<V> valuesListIterator(final long index)
 	{
-		return new ValueListItr(checkArrayRange(index));
+		return new ValueListItr(X.checkArrayRange(index));
 	}
 
 	@Override

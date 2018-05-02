@@ -99,8 +99,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		protected EmbeddedStorageConnectionFoundation createConnectionFoundation()
 		{

@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

@@ -4,8 +4,8 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.types.PersistenceDistrict;
 import net.jadoth.persistence.types.PersistenceLoader;
@@ -14,7 +14,7 @@ import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceSwizzleSupplier;
 import net.jadoth.reference._intReference;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-import net.jadoth.util.KeyValue;
+import net.jadoth.util.chars.JadothStrings;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 {
@@ -155,8 +155,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
@@ -264,9 +264,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 				// (21.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Conflicting helper registration: "
-					+ Jadoth.systemString(subject) + " already has helper instance "
-					+ Jadoth.systemString(existingEntry.value()) + " associated with it. Not "
-					+ Jadoth.systemString(helper)
+					+ JadothStrings.systemString(subject) + " already has helper instance "
+					+ JadothStrings.systemString(existingEntry.value()) + " associated with it. Not "
+					+ JadothStrings.systemString(helper)
 				);
 			}
 		}
@@ -331,8 +331,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public BinaryLoader createBuilder(

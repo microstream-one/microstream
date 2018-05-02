@@ -1,6 +1,5 @@
 package net.jadoth.collections;
 
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 

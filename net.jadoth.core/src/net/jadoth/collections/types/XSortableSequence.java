@@ -10,7 +10,7 @@ import net.jadoth.collections.sorting.Sortable;
  */
 public interface XSortableSequence<E> extends XGettingSequence<E>, Sortable<E>, XOrderingSequence<E>
 {
-	// (01.12.2011 TM)XXX: what about XOrderingList? At least for content behaviour ensurance.
+	// (01.12.2011 TM)XXX: what about XOrderingList? At least for content behavior ensurance.
 
 	public interface Creator<E> extends XGettingSequence.Factory<E>
 	{

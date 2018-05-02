@@ -53,8 +53,8 @@ public interface StorageChannelCountProvider extends _intReference
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int get()

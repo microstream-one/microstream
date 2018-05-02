@@ -40,8 +40,8 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)

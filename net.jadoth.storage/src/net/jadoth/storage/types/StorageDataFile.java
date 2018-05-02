@@ -220,8 +220,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long exportTo(final StorageLockedFile file)
@@ -234,7 +234,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			/*
 			 * export copies directly without detour over parent/writer.
-			 * This behaviour has design reasons, e.g. an export must be always possible, even if the writer
+			 * This behavior has design reasons, e.g. an export must be always possible, even if the writer
 			 * instance is strictly read-only. It also has performance reasons as the per-type export
 			 * calls this method for every single entity, hence less pointer chasing and no channel forcing
 			 * speeds up things considerably for millions or billions of entities.

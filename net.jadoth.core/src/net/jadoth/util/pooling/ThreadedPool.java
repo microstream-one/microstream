@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.concurrent.Threaded;
 import net.jadoth.concurrent.ThreadedInstantiating;
@@ -285,7 +286,7 @@ public class ThreadedPool<E> implements Pool<E>
 
 	void internalCheckPoolSize()
 	{
-		final int poolSize = Jadoth.checkArrayRange(this.pool.size());
+		final int poolSize = X.checkArrayRange(this.pool.size());
 		if(poolSize == 0)
 		{
 			// avoid calling the controller or getting a lock if pool size is 0 anyway
@@ -317,7 +318,7 @@ public class ThreadedPool<E> implements Pool<E>
 		synchronized(this.pool)
 		{
 			// query effective pool size again after lock is acquired, just to be sure
-			final int effectivePoolSize = Jadoth.checkArrayRange(this.pool.size());
+			final int effectivePoolSize = X.checkArrayRange(this.pool.size());
 
 			final int actualDecrement; // check pool size after a acquiring the lock
 			if((actualDecrement = Math.min(effectivePoolSize, decrementAmount)) == 0)

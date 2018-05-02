@@ -51,8 +51,8 @@ public interface StorageChannelController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final boolean isChannelProcessingEnabled()

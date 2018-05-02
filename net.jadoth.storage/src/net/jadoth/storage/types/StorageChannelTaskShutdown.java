@@ -33,8 +33,8 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)

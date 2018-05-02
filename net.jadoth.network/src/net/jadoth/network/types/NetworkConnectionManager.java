@@ -211,8 +211,8 @@ public interface NetworkConnectionManager extends Suspendable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public synchronized boolean activate()

@@ -58,8 +58,8 @@ public interface StorageConfiguration
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageChannelCountProvider channelCountProvider()

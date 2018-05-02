@@ -76,8 +76,8 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)

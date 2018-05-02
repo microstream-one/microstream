@@ -79,8 +79,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public SocketChannel setNewConnection(final SocketChannel connection)

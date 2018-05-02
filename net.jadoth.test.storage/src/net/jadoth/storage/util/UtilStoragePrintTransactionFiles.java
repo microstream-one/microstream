@@ -2,7 +2,7 @@ package net.jadoth.storage.util;
 
 import java.io.File;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.cql.CQL;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.util.chars.VarString;

@@ -3,7 +3,7 @@ package net.jadoth.util.chars;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.csv.CSV;
 import net.jadoth.csv.CsvAssembler;
 import net.jadoth.csv.CsvRowAssembler;

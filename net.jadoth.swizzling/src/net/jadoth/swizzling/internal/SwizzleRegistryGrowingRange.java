@@ -6,6 +6,7 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdId;
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.JadothMath;
@@ -23,7 +24,6 @@ import net.jadoth.swizzling.exceptions.SwizzleExceptionNullTypeId;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.KeyValue;
 
 public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 {

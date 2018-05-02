@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.exceptions;
 
-import net.jadoth.Jadoth;
+import net.jadoth.util.chars.JadothStrings;
 
 public class SwizzleExceptionConsistencyObject extends SwizzleExceptionConsistency
 {
@@ -42,8 +42,8 @@ public class SwizzleExceptionConsistencyObject extends SwizzleExceptionConsisten
 		return "oid = " + this.oid
 			+ " actualTid = " + this.actualTid
 			+ " passedTid = " + this.passedTid
-			+ " actualRef = " + Jadoth.systemString(this.actualRef)
-			+ " passedRef = " + Jadoth.systemString(this.passedRef)
+			+ " actualRef = " + JadothStrings.systemString(this.actualRef)
+			+ " passedRef = " + JadothStrings.systemString(this.passedRef)
 		;
 	}
 

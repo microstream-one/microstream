@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 
 /**

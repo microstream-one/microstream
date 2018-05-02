@@ -1,11 +1,12 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.checkArrayRange;
+import net.jadoth.X;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleBuildLinker;
+
 
 public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstractStringBuilder<StringBuffer>
 {
@@ -39,7 +40,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	@Override
 	public StringBuffer create(final Binary bytes)
 	{
-		return new StringBuffer(checkArrayRange(Memory.get_long(bytes.buildItemAddress())));
+		return new StringBuffer(X.checkArrayRange(Memory.get_long(bytes.buildItemAddress())));
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	{
 		final long lengthChars = BinaryPersistence.getBuildItemContentLength(bytes) - LENGTH_LENGTH;
 		final long buildItemAddress = bytes.buildItemAddress();
-		instance.ensureCapacity(checkArrayRange(Memory.get_long(buildItemAddress)));
+		instance.ensureCapacity(X.checkArrayRange(Memory.get_long(buildItemAddress)));
 		Memory.setData(instance, null, buildItemAddress + LENGTH_LENGTH, lengthChars);
 	}
 

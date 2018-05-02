@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
 
 import java.util.Collection;
@@ -15,6 +14,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.old.AbstractOldSettingList;
@@ -38,7 +38,6 @@ import net.jadoth.hash.JadothHash;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 
@@ -477,7 +476,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				// set only value, not key, according to inconsistent nonsense behaviour in old collections
+				// set only value, not key, according to inconsistent nonsense behavior in old collections
 				return e.setValue(value);
 			}
 		}
@@ -1088,7 +1087,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 		
-		return keyValue(key, value);
+		return X.keyValue(key, value);
 	}
 	
 	@Override
@@ -1116,7 +1115,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.keyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
@@ -1132,7 +1131,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.keyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 
@@ -1153,7 +1152,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.keyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		return null;
@@ -2268,8 +2267,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final class Keys implements XTable.Keys<K, V>, HashCollection<K>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int hashDistributionRange()
@@ -2321,7 +2320,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		 * This is necessary to ensure that the {@link EqConstHashEnum} instance is really constant and does not
 		 * (can not!) lose elements over time.<br>
 		 * If a {@link EqConstHashEnum} with volatile elements is needed (e.g. as a "read-only weak set"),
-		 * an appropriate custom behaviour {@link EqConstHashEnum} instance can be created via the various
+		 * an appropriate custom behavior {@link EqConstHashEnum} instance can be created via the various
 		 * copy constructors.
 		 *
 		 * @return a new {@link EqConstHashEnum} instance strongly referencing this set's current elements.

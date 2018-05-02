@@ -112,8 +112,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final PersistenceTypeDictionary provideDictionary()

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
 

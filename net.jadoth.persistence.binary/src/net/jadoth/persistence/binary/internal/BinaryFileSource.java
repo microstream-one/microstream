@@ -1,6 +1,5 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
@@ -10,9 +9,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.Constant;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -21,6 +20,7 @@ import net.jadoth.persistence.binary.types.MessageWaiter;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.swizzling.types.SwizzleIdSet;
+
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
@@ -76,7 +76,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private ByteBuffer readChunk(final ReadableByteChannel channel, final long chunkTotalLength)
 	throws IOException
 	{
-		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(checkArrayRange(chunkTotalLength));
+		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
 //		byteBuffer.position(8);
 		BinaryPersistence.fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation

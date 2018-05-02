@@ -2,7 +2,7 @@ package net.jadoth.collections.types;
 
 import java.util.function.Predicate;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 
 
 /**
@@ -30,7 +30,7 @@ public interface XImmutableTable<K, V> extends XImmutableMap<K, V>, XGettingTabl
 	public XImmutableTable<K, V> copy();
 
 	/**
-	 * Provides an instance of an immutable collection type with equal behaviour and data as this instance.
+	 * Provides an instance of an immutable collection type with equal behavior and data as this instance.
 	 * <p>
 	 * If this instance already is of an immutable collection type, it returns itself.
 	 *

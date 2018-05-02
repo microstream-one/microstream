@@ -9,10 +9,10 @@ import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrent.JadothThreads;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 

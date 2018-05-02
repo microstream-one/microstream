@@ -105,8 +105,8 @@ public interface PersistenceDistrict<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <I extends PersistenceBuildItem<M>> I createBuildItem(final Creator<M, I> creator, final long oid)

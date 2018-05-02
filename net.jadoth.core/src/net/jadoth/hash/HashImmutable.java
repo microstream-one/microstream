@@ -10,12 +10,12 @@ import net.jadoth.util.Equalator;
  * and {@link #hashCode()} can never change during the life span of an instance of this type.
  * <p>
  * This additional contract is required to enable the proper use of {@link Object#equals(Object)} and
- * {@link Object#hashCode()}, because {@link Object#hashCode()}-depending hashing depends on this behaviour
+ * {@link Object#hashCode()}, because {@link Object#hashCode()}-depending hashing depends on this behavior
  * to remain consistent.
  * <p>
  * For any type not implementing this class (or not commonly known to be immutable, like {@link String},
  * {@link Integer}, etc.), do not rely on neither {@link Object#equals(Object)} nor {@link Object#hashCode()},
- * as implementations overriding them are potentially broken in terms of the required behaviour (e.g. JDK
+ * as implementations overriding them are potentially broken in terms of the required behavior (e.g. JDK
  * implementations of {@link Collection} are).<br>
  * For those cases, use an externally defined {@link Equalator} or {@link HashEqualator} with fitting implementation
  * instead.

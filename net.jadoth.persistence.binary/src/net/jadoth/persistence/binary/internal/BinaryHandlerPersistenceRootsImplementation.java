@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import static net.jadoth.Jadoth.notNull;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
@@ -47,8 +47,8 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final BinaryHandlerPersistenceRootsImplementation createTypeHandler(final long typeId)
@@ -152,7 +152,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	private static long[] buildTempObjectIdArray(final Binary bytes)
 	{
 		final long amountOids = BinaryPersistence.binaryArrayElementCount(bytes, OFFSET_OID_LIST);
-		return new long[Jadoth.checkArrayRange(amountOids)];
+		return new long[X.checkArrayRange(amountOids)];
 	}
 
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
@@ -160,7 +160,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final long offsetIdentifierList = BinaryPersistence.binaryArrayByteLength(bytes, OFFSET_OID_LIST);
 		final long amountIdentifiers    = BinaryPersistence.binaryArrayElementCount(bytes, offsetIdentifierList);
 
-		return new String[Jadoth.checkArrayRange(amountIdentifiers)];
+		return new String[X.checkArrayRange(amountIdentifiers)];
 	}
 
 	private static void validateArrayLengths(final long[] oids, final String[] identifiers)

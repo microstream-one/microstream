@@ -1,8 +1,5 @@
 package net.jadoth.collections;
 
-import net.jadoth.util.KeyValue;
-
-
 public final class ChainEntryLinkedStrong<E>
 extends AbstractChainEntryLinked<E, E, E, ChainEntryLinkedStrong<E>>
 {

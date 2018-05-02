@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
@@ -82,7 +82,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	@Override
 	public final ConstList<?> create(final Binary bytes)
 	{
-		return ConstList.New(Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return ConstList.New(X.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
 	}
 
 	@Override

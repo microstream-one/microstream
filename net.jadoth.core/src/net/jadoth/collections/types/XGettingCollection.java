@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.XJoinable;
@@ -46,12 +46,12 @@ Copyable
 
 	public default Object[] toArray()
 	{
-		return this.iterate(new ToArrayAggregator<>(new Object[Jadoth.checkArrayRange(this.size())])).yield();
+		return this.iterate(new ToArrayAggregator<>(new Object[X.checkArrayRange(this.size())])).yield();
 	}
 
 	public default E[] toArray(final Class<E> type)
 	{
-		return this.iterate(new ToArrayAggregator<>(JadothArrays.newArray(type, Jadoth.checkArrayRange(this.size())))).yield();
+		return this.iterate(new ToArrayAggregator<>(JadothArrays.newArray(type, X.checkArrayRange(this.size())))).yield();
 	}
 
 	public OldCollection<E> old();
@@ -75,7 +75,7 @@ Copyable
 
 	public default int intSize()
 	{
-		return Jadoth.checkArrayRange(this.size());
+		return X.checkArrayRange(this.size());
 	}
 
 	public Equalator<? super E> equality();
@@ -105,7 +105,7 @@ Copyable
 	public boolean equalsContent(XGettingCollection<? extends E> samples, Equalator<? super E> equalator);
 
 	/**
-	 * Provides an instance of an immutable collection type with equal behaviour and data as this instance.
+	 * Provides an instance of an immutable collection type with equal behavior and data as this instance.
 	 * <p>
 	 * If this instance already is of an immutable collection type, it returns itself.
 	 *
@@ -130,7 +130,7 @@ Copyable
 	/**
 	 * Special version of contains() that guarantees to use identity comparison (" == ") when searching for the
 	 * given element regardless of the collection's internal logic.<br>
-	 * This method has the same behaviour as {@link #containsSearched(Predicate)} with a {@link Predicate} implementation
+	 * This method has the same behavior as {@link #containsSearched(Predicate)} with a {@link Predicate} implementation
 	 * that checks for object identity. The only difference is a performance and usability advantage
 	 * @param element the element to be searched in the collection by identity.
 	 * @return whether this collection contains exactely the given element.
@@ -209,14 +209,14 @@ Copyable
 	 * The reason is because all different kinds of comparison types that actually depend on the situation
 	 * have to be mixed up in a harcoded fashion in one method, from identity comparison over
 	 * data indentity comparison to content comparison. <br>
-	 * In order to get the right behaviour in every situation, one has to distinct between different types of equality<br>
+	 * In order to get the right behavior in every situation, one has to distinct between different types of equality<br>
 	 * <p>
 	 * This means several things:<br>
 	 * 1.) You can't just say for example an ArrayList is the "same" as a LinkedList just because they contain the
 	 * same content.<br>
 	 * There are different implementations for a good reason, so you have to distinct them when comparing.
-	 * There are simple code examples which create massive misbehaviour that will catastrophically ruin the runtime
-	 * behaviour of a programm due to this error in Java / JDK / Sun / whatever.<br>
+	 * There are simple code examples which create massive misbehavior that will catastrophically ruin the runtime
+	 * behavior of a programm due to this error in Java / JDK / Sun / whatever.<br>
 	 * 2.) You can't always determine equality of two collections by determining equality of each element as
 	 * {@link Collection} defines it.
 	 * <p>

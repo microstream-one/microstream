@@ -32,7 +32,6 @@ import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.IdentityEqualator;
-import net.jadoth.util.KeyValue;
 import net.jadoth.util.chars.VarString;
 
 
@@ -1015,8 +1014,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public final class Keys implements XImmutableTable.Keys<K, V>, HashCollection<K>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int hashDistributionRange()
@@ -1068,7 +1067,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		 * This is necessary to ensure that the {@link EqConstHashEnum} instance is really constant and does not
 		 * (can not!) lose elements over time.<br>
 		 * If a {@link EqConstHashEnum} with volatile elements is needed (e.g. as a "read-only weak set"),
-		 * an appropriate custom behaviour {@link EqConstHashEnum} instance can be created via the various
+		 * an appropriate custom behavior {@link EqConstHashEnum} instance can be created via the various
 		 * copy constructors.
 		 *
 		 * @return a new {@link EqConstHashEnum} instance strongly referencing this set's current elements.

@@ -2,7 +2,7 @@ package net.jadoth.collections.types;
 
 import java.util.function.Predicate;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.collections.KeyValue;
 
 
 /**

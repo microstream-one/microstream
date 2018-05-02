@@ -422,8 +422,8 @@ public interface StorageManager extends StorageController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageTypeDictionary typeDictionary()

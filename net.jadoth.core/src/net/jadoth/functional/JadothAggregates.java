@@ -56,4 +56,27 @@ public final class JadothAggregates
 		// static only
 		throw new UnsupportedOperationException();
 	}
+
+	public static final <E, R> Aggregator<E, R> aggregator(
+		final BiProcedure<? super E, ? super R> joiner   ,
+		final R                                 aggregate
+	)
+	{
+		return
+			new Aggregator<E, R>()
+			{
+				@Override
+				public void accept(final E element)
+				{
+					joiner.accept(element, aggregate);
+				}
+				
+				@Override
+				public R yield()
+				{
+					return aggregate;
+				}
+			}
+		;
+	}
 }

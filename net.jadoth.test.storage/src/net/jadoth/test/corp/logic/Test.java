@@ -1,6 +1,5 @@
 package net.jadoth.test.corp.logic;
 
-import static net.jadoth.Jadoth.keyValue;
 import static net.jadoth.Jadoth.notNull;
 
 import java.io.File;
@@ -12,6 +11,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.function.Function;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
@@ -738,7 +738,7 @@ final class Generator
 			allOrder[i] = Test.Order(
 				"order"+number,
 				customer,
-				HashTable.New(keyValue(initialOrderItem.product(), initialOrderItem)),
+				HashTable.New(X.keyValue(initialOrderItem.product(), initialOrderItem)),
 				notNull(customer.billingAddress()),
 				notNull(customer.shippingAddresses().get())
 			);

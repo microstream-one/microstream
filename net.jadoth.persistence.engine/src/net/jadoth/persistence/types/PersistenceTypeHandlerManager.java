@@ -4,10 +4,10 @@ import static net.jadoth.Jadoth.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
@@ -212,14 +212,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
-			return this.ensureTypeHandler(Jadoth.getClass(instance));
+			return this.ensureTypeHandler(JadothReflect.getClass(instance));
 		}
 
 		@Override
@@ -261,7 +261,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
-			return this.typeHandlerRegistry.lookupTypeHandler(Jadoth.getClass(instance));
+			return this.typeHandlerRegistry.lookupTypeHandler(JadothReflect.getClass(instance));
 		}
 
 		@Override
