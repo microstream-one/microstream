@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,7 +19,6 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
@@ -722,7 +722,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		this.chain.join(joiner, aggregate);
 		return aggregate;

@@ -1,6 +1,6 @@
 package net.jadoth.test.corp.logic;
 
-import static net.jadoth.meta.JadothConsole.debugln;
+import static net.jadoth.meta.JadothDebug.debugln;
 
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.math.JadothMath;

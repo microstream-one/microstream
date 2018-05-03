@@ -3,7 +3,7 @@ package net.jadoth.test.collections;
 import java.util.Comparator;
 
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.util.JadothTypes;
 
 /**
@@ -57,7 +57,7 @@ public class MainTestSetAddPerformance
 		for(int k = 0; k < LOOPS; k++)
 		{
 			tStart = System.nanoTime();
-			ints.applies(JadothPredicates.any());
+			ints.applies(JadothFunctional.any());
 			tStop = System.nanoTime();
 			current = tStop - tStart;
 //			System.out.println("VarSet.newEntry = "+VarSet.newEntry);

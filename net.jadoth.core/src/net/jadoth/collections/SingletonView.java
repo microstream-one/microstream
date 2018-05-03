@@ -3,13 +3,13 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.Singleton.OldSingleton;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
@@ -67,7 +67,7 @@ public class SingletonView<E> implements XReferencing<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}

@@ -233,7 +233,7 @@ public final class JadothTypes
 	{
 		if(!type.isInterface())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException("Not an interface type:" + type));
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Not an interface type:" + type));
 		}
 		return type;
 	}
@@ -242,7 +242,7 @@ public final class JadothTypes
 	{
 		if(type.isInterface())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException("Interface type:" + type));
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Interface type:" + type));
 		}
 		return type;
 	}
@@ -251,7 +251,7 @@ public final class JadothTypes
 	{
 		if(type.isArray())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException("Array type:" + type));
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Array type:" + type));
 		}
 		return type;
 	}
@@ -260,7 +260,7 @@ public final class JadothTypes
 	{
 		if(!arrayType.isArray())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException("Not an array type:" + arrayType));
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Not an array type:" + arrayType));
 		}
 		return arrayType;
 	}
@@ -269,7 +269,7 @@ public final class JadothTypes
 	{
 		if(!primitiveType.isPrimitive())
 		{
-			throw JadothExceptions.cutStacktraceByOne(
+			throw UtilStackTrace.cutStacktraceByOne(
 				new IllegalArgumentException("Not a primitive type:" + primitiveType)
 			);
 		}
@@ -280,7 +280,7 @@ public final class JadothTypes
 	{
 		if(primitiveType.isPrimitive())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException("Primitive type:" + primitiveType));
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Primitive type:" + primitiveType));
 		}
 		return primitiveType;
 	}

@@ -5,6 +5,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,9 +18,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
@@ -131,7 +130,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -243,7 +242,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public ArrayAccessor<E> toReversed()
 	{
-		final E[] rData = JadothArrays.newArrayBySample(this.data, this.size);
+		final E[] rData = X.ArrayOfSameType(this.data, this.size);
 		final E[] data = this.data;
 		for(int i = this.size, r = 0; i-- > 0;)
 		{
@@ -255,7 +254,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.size);
+		final E[] array = X.Array(type, this.size);
 		System.arraycopy(this.data, 0, array, 0, this.size);
 		return array;
 	}
@@ -270,7 +269,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.size, joiner, aggregate);
 		return aggregate;

@@ -1,6 +1,7 @@
 package net.jadoth.collections;
 
 import java.util.Comparator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -14,7 +15,6 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
@@ -335,7 +335,7 @@ public final class XUtilsArrayCollection
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender
+		final BiConsumer<VarString, ? super E> appender
 	)
 	{
 		return AbstractArrayStorage.rangedAppendTo(
@@ -349,7 +349,7 @@ public final class XUtilsArrayCollection
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -364,7 +364,7 @@ public final class XUtilsArrayCollection
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{

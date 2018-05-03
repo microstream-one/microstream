@@ -9,8 +9,18 @@ import java.util.Iterator;
  */
 public class ChainedIterables<T> implements Iterable<T>
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
 	final ArrayList<Iterable<T>> iterables;
 
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
 	@SafeVarargs
 	public ChainedIterables(final Iterable<T>... iterables)
 	{
@@ -27,14 +37,18 @@ public class ChainedIterables<T> implements Iterable<T>
 		}
 
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public Iterator<T> iterator()
 	{
 		return new ChainedIterator();
 	}
-
-
 
 	public Iterable<T> add(final Iterable<T> iterable)
 	{

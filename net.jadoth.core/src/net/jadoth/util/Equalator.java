@@ -1,6 +1,11 @@
 package net.jadoth.util;
 
+import static net.jadoth.X.notNull;
+
+import java.util.Comparator;
 import java.util.function.Predicate;
+
+import net.jadoth.hash.JadothHash;
 
 /**
  * @author Thomas Muenz
@@ -17,6 +22,35 @@ public interface Equalator<T>
 		return e -> this.equal(e, sample);
 	}
 
+	
+	public static <E> Equalator<E> Wrap(final Comparator<? super E> comparator)
+	{
+		return new Equalator.ComparatorWrapper<>(
+			notNull(comparator)
+		);
+	}
+	
+	@SafeVarargs
+	public static <E> Equalator<E> Chain(final Equalator<? super E>... equalators)
+	{
+		return new Equalator.Sequence<>(
+			notNull(equalators)
+		);
+	}
+	
+
+	public static <E> Equalator<E> value()
+	{
+		// reusing the same instances has neither memory nor performance disadvantages, only referential advantages
+		return JadothHash.hashEqualityValue();
+	}
+
+	public static <E> Equalator<E> identity()
+	{
+		// reusing the same instances has neither memory nor performance disadvantages, only referential advantages
+		return JadothHash.hashEqualityIdentity();
+	}
+
 
 	public interface Provider<T>
 	{
@@ -30,43 +64,80 @@ public interface Equalator<T>
 	 * @author Thomas Muenz
 	 *
 	 */
-	public class Sequence<T> implements Equalator<T>
+	public final class Sequence<T> implements Equalator<T>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private final Equalator<? super T>[] equalators;
 
-		@SafeVarargs
-		public Sequence(final Equalator<? super T>... equalators)
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Sequence(final Equalator<? super T>[] equalators)
 		{
 			super();
 			this.equalators = equalators;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public boolean equal(final T o1, final T o2)
+		public final boolean equal(final T instance1, final T instance2)
 		{
-			for(final Equalator<? super T> eq : this.equalators)
+			for(final Equalator<? super T> equalator : this.equalators)
 			{
-				if(!eq.equal(o1, o2))
+				if(!equalator.equal(instance1, instance2))
 				{
 					return false;
 				}
 			}
+			
 			return true;
 		}
 
 	}
-
-}
-
-
-/*
-	// computer scientist's humor :D (Higher Order humor :DD)
-	public static final Equalator<Human> HUMAN_RIGHTS = new Equalator<Human>()
+	
+	public final class ComparatorWrapper<T> implements Equalator<T>
 	{
-		@Override
-		public boolean equal(final Human being1, final Human being2)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Comparator<? super T> comparator;
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		ComparatorWrapper(final Comparator<? super T> comparator)
 		{
-			return true; // all human beings are equal
+			super();
+			this.comparator = comparator;
 		}
-	};
- */
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public boolean equal(final T object1, final T object2)
+		{
+			return this.comparator.compare(object1, object2) == 0;
+		}
+		
+	}
+	
+}

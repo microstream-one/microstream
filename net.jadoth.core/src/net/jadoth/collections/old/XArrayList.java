@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -14,7 +15,6 @@ import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.AbstractSimpleArrayCollection;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
-import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.ListView;
 import net.jadoth.collections.SubList;
@@ -23,9 +23,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.reflect.JadothReflect;
 import net.jadoth.util.Equalator;
 
@@ -108,7 +106,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -396,7 +394,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.internalGetStorageArray(), this.subject.size(), joiner, aggregate);
 		return aggregate;
@@ -623,7 +621,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		return this.subject.toArray(JadothArrays.newArray(type, this.subject.size()));
+		return this.subject.toArray(X.Array(type, this.subject.size()));
 	}
 
 	@Override

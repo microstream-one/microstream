@@ -2,7 +2,7 @@ package net.jadoth.experimental.collections;
 
 import net.jadoth.collections.KeyValue;
 import net.jadoth.concurrent.JadothThreads;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 
 
 public class MainTestConcMapThreaded
@@ -50,7 +50,7 @@ public class MainTestConcMapThreaded
 
 		System.out.println("add() check");
 		KeyValue<String, String>[] array;
-		JadothConsole.printArray(array = map.toArray(), "{", ",", "}", PRINT_LIMIT);
+		JadothDebug.printArray(array = map.toArray(), "{", ",", "}", PRINT_LIMIT);
 		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+map.size()+" == "+actualArraySize(array));
 
 
@@ -81,7 +81,7 @@ public class MainTestConcMapThreaded
 		System.out.println("remove() check");
 
 		KeyValue<String, String>[] array2;
-		JadothConsole.printArray(array2 = map.toArray(), "{", ",", "}", PRINT_LIMIT);
+		JadothDebug.printArray(array2 = map.toArray(), "{", ",", "}", PRINT_LIMIT);
 		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+map.size()+" == "+actualArraySize(array2));
 	}
 

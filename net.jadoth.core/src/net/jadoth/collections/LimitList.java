@@ -8,6 +8,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,9 +21,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
@@ -330,7 +329,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -496,7 +495,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.size);
+		final E[] array = X.Array(type, this.size);
 		System.arraycopy(this.data, 0, array, 0, this.size);
 		return array;
 	}
@@ -518,7 +517,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.size, joiner, aggregate);
 		return aggregate;

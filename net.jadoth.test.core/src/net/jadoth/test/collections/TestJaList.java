@@ -7,11 +7,10 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothExceptions;
 import net.jadoth.util.JadothTypes;
+import net.jadoth.util.UtilStackTrace;
 import net.jadoth.util.chars.JadothChars;
 
 /**
@@ -24,7 +23,7 @@ public class TestJaList
 	// constants        //
 	/////////////////////
 
-	static final Equalator<String> EQUAL_STRING = JadothEqualators.equality(String.class);
+	static final Equalator<String> EQUAL_STRING = X::equal;
 
 	static final char n = '\n';
 	static final String[] singleAddValues = {
@@ -64,7 +63,7 @@ public class TestJaList
 
 		if(JadothTypes.to_int(testee.size()) != JadothTypes.to_int(collectionAddValues.size()))
 		{
-			throw JadothExceptions.cutStacktraceByOne(new TestException());
+			throw UtilStackTrace.cutStacktraceByOne(new TestException());
 		}
 
 		return testee;
@@ -227,7 +226,7 @@ public class TestJaList
 
 	public TestJaList testIndexOf(final String s)
 	{
-		return this.check("testIndexOf", this.testee.indexBy(JadothPredicates.isEqualTo(s)), this.matcher.indexOf(s));
+		return this.check("testIndexOf", this.testee.indexBy(JadothFunctional.isEqualTo(s)), this.matcher.indexOf(s));
 	}
 	public TestJaList testLastIndexOf(final String s)
 	{
@@ -485,7 +484,7 @@ public class TestJaList
 
 	private void fail(final String checkName) throws TestException
 	{
-		throw JadothExceptions.cutStacktraceByOne(
+		throw UtilStackTrace.cutStacktraceByOne(
 		new TestException(checkName+" failed:"+n+
 			XList.class.getSimpleName()+" ("+this.nameTestee+") size: "+JadothTypes.to_int(this.testee.size())+n+
 			this.matcher.getClass().getSimpleName()+"size: "+JadothTypes.to_int(this.matcher.size())+n+
@@ -495,7 +494,7 @@ public class TestJaList
 	}
 	private void fail(final String checkName, final Throwable cause) throws TestException
 	{
-		throw JadothExceptions.cutStacktraceByN(new TestException(checkName, cause), 2);
+		throw UtilStackTrace.cutStacktraceByN(new TestException(checkName, cause), 2);
 	}
 
 	private void pass(final String checkName)

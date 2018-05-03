@@ -17,7 +17,6 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.util.Equalator;
@@ -1538,7 +1537,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      K[] keyToArray(final Class<K> type)
 	{
 		final K[] array;
-		this.keyCopyToArray(0, JadothTypes.to_int(this.parent.size()), array = JadothArrays.newArray(type, JadothTypes.to_int(this.parent.size())), 0);
+		this.keyCopyToArray(0, JadothTypes.to_int(this.parent.size()), array = X.Array(type, JadothTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -1554,7 +1553,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      K[] keyRngToArray(final int offset, final int length, final Class<K> type)
 	{
 		final K[] array;
-		this.keyCopyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.keyCopyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -1809,7 +1808,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final <A> void keyJoin(final BiProcedure<? super K, A> joiner, final A aggregate)
+	public final <A> void keyJoin(final BiConsumer<? super K, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -4259,19 +4258,19 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final char separator)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final char separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final String separator)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final String separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
@@ -4295,19 +4294,19 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final char separator)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final char separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final String separator)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final String separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
@@ -6044,7 +6043,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      V[] valuesToArray(final Class<V> type)
 	{
 		final V[] array;
-		this.valuesCopyToArray(0, JadothTypes.to_int(this.parent.size()), array = JadothArrays.newArray(type, JadothTypes.to_int(this.parent.size())), 0);
+		this.valuesCopyToArray(0, JadothTypes.to_int(this.parent.size()), array = X.Array(type, JadothTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -6060,7 +6059,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      V[] valuesRngToArray(final int offset, final int length, final Class<V> type)
 	{
 		final V[] array;
-		this.valuesCopyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.valuesCopyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -6451,7 +6450,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final <A> void valuesJoin(final BiProcedure<? super V, A> joiner, final A aggregate)
+	public final <A> void valuesJoin(final BiConsumer<? super V, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -7031,7 +7030,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender)
 	{
 		for(EN entry = this.head.next; entry != null; entry = entry.next)
 		{
@@ -7041,7 +7040,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender, final char separator)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender, final char separator)
 	{
 		EN entry;
 		if((entry = this.head.next) == null)
@@ -7057,7 +7056,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender, final String separator)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender, final String separator)
 	{
 		if(separator == null || separator.isEmpty())
 		{
@@ -7165,7 +7164,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesRngAppendTo(int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super V> appender)
+	public final VarString valuesRngAppendTo(int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super V> appender)
 	{
 		EN entry;
 		if((entry = this.getRangeChainEntry(offset, length)) == null)
@@ -7196,7 +7195,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super V> appender,
+		final BiConsumer<VarString, ? super V> appender,
 		final char separator
 	)
 	{
@@ -7229,7 +7228,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super V> appender,
+		final BiConsumer<VarString, ? super V> appender,
 		final String separator
 	)
 	{

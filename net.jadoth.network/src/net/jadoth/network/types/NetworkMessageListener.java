@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.exceptions.IORuntimeException;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.util.JadothTypes;
 
 
@@ -152,7 +152,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 		 */
 		protected boolean evaluateSessionException(final S session, final Exception e)
 		{
-			JadothConsole.debugln("Error in session " + session + ": " + e);
+			JadothDebug.debugln("Error in session " + session + ": " + e);
 			e.printStackTrace();
 			// simply kick out erroneous session in basic implementation and swallow exception
 			return true;

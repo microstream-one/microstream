@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,9 +23,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
@@ -803,7 +802,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		EqConstHashTable.this.chain.join(joiner, aggregate);
 		return aggregate;
@@ -1257,7 +1256,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super K, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super K, ? super A> joiner, final A aggregate)
 		{
 			EqConstHashTable.this.chain.keyJoin(joiner, aggregate);
 			return aggregate;
@@ -1693,7 +1692,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final Equalator<? super V> equality()
 		{
-			return JadothEqualators.identity();
+			return Equalator.identity();
 		}
 
 		@Override
@@ -1710,7 +1709,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super V, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super V, ? super A> joiner, final A aggregate)
 		{
 			EqConstHashTable.this.chain.valuesJoin(joiner, aggregate);
 			return aggregate;

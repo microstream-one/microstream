@@ -1,9 +1,9 @@
 package net.jadoth.cql;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 
 public final class CqlWrapperCollectorLinkingFinalizing<O, R> implements Aggregator<O, R>
 {
@@ -12,7 +12,7 @@ public final class CqlWrapperCollectorLinkingFinalizing<O, R> implements Aggrega
 	////////////////////
 	
 	final R                   target   ;
-	final BiProcedure<O, R>   linker   ;
+	final BiConsumer<O, R>   linker   ;
 	final Consumer<? super R> finalizer;
 
 	
@@ -23,7 +23,7 @@ public final class CqlWrapperCollectorLinkingFinalizing<O, R> implements Aggrega
 	
 	CqlWrapperCollectorLinkingFinalizing(
 		final R                   target   ,
-		final BiProcedure<O, R>   linker   ,
+		final BiConsumer<O, R>   linker   ,
 		final Consumer<? super R> finalizer
 	)
 	{

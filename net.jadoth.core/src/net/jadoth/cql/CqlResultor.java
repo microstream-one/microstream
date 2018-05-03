@@ -3,6 +3,7 @@ package net.jadoth.cql;
 import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -11,7 +12,6 @@ import net.jadoth.collections.sorting.Sortable;
 import net.jadoth.collections.sorting.SortableProcedure;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 
 public interface CqlResultor<O, R>
 {
@@ -55,7 +55,7 @@ public interface CqlResultor<O, R>
 		;
 	}
 
-	public static <O, T> CqlResultor<O, T> NewFromSupplier(final Supplier<T> supplier, final BiProcedure<O, T> linker)
+	public static <O, T> CqlResultor<O, T> NewFromSupplier(final Supplier<T> supplier, final BiConsumer<O, T> linker)
 	{
 		final T target = supplier.get();
 		return e -> new Aggregator<O, T>()
@@ -76,7 +76,7 @@ public interface CqlResultor<O, R>
 
 	public static <O, T extends Sortable<O>> CqlResultor<O, T> NewFromSupplier(
 		final Supplier<T>           supplier,
-		final BiProcedure<O, T>     linker  ,
+		final BiConsumer<O, T>     linker  ,
 		final Comparator<? super O> order
 	)
 	{
@@ -89,7 +89,7 @@ public interface CqlResultor<O, R>
 
 	public static <O, T> CqlResultor<O, T> NewFromSupplier(
 		final Supplier<T>         supplier ,
-		final BiProcedure<O, T>   linker   ,
+		final BiConsumer<O, T>   linker   ,
 		final Consumer<? super T> finalizer
 	)
 	{

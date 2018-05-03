@@ -7,7 +7,7 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XEnum;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageConnection;
@@ -60,7 +60,7 @@ public class MainTestStorage extends TestStorage
 
 	static void createBigGraph(final int p6size, final StorageConnection connection)
 	{
-		JadothConsole.debugln("big graph initialization ("+p6size+")");
+		JadothDebug.debugln("big graph initialization ("+p6size+")");
 		final Integer[][][][][][] ints0 = new Integer[p6size][p6size][p6size][p6size][p6size][p6size];
 		for(int i0 = 0; i0 < ints0.length; i0++)
 		{
@@ -87,9 +87,9 @@ public class MainTestStorage extends TestStorage
 			}
 		}
 		ROOT.set(Lazy.Reference(ints0));
-		JadothConsole.debugln("store big graph ...");
+		JadothDebug.debugln("store big graph ...");
 		connection.store(ROOT);
-		JadothConsole.debugln("store big graph done");
+		JadothDebug.debugln("store big graph done");
 	}
 
 
@@ -98,7 +98,7 @@ public class MainTestStorage extends TestStorage
 //		JadothThreads.sleep(2000);
 		for(int i = 1000; i --> 0;)
 		{
-			JadothConsole.debugln("round "+i);
+			JadothDebug.debugln("round "+i);
 
 			// do one round of explicitely issued house keeping
 			connection.store(instance);
@@ -123,15 +123,15 @@ public class MainTestStorage extends TestStorage
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		JadothConsole.debugln("GC#1");
+		JadothDebug.debugln("GC#1");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("GC#2");
+		JadothDebug.debugln("GC#2");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("cache check");
+		JadothDebug.debugln("cache check");
 		connection.issueFullCacheCheck();
-		JadothConsole.debugln("file check");
+		JadothDebug.debugln("file check");
 		connection.issueFullFileCheck();
-		JadothConsole.debugln("Done cleanup");
+		JadothDebug.debugln("Done cleanup");
 	}
 
 	static void oldTestStuff()
@@ -287,7 +287,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<Integer> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothConsole.debugln("initial storing root...");
+		JadothDebug.debugln("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		createIntegers(ints, 100_000);
@@ -318,7 +318,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothConsole.debugln("initial storing root...");
+		JadothDebug.debugln("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		for(int i = 0; i < 100; i++)
@@ -488,7 +488,7 @@ public class MainTestStorage extends TestStorage
 		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
-		JadothConsole.debugln(s.toString());
+		JadothDebug.debugln(s.toString());
 	}
 
 }

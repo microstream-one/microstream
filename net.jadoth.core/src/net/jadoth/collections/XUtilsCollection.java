@@ -1,6 +1,7 @@
 package net.jadoth.collections;
 
 import java.util.Comparator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -25,9 +26,8 @@ import net.jadoth.collections.types.XSortableSequence;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothProcedures;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
@@ -72,7 +72,7 @@ public final class XUtilsCollection
 		}
 		else
 		{
-			collection.iterate(JadothProcedures.wrapWithPredicate(procedure, predicate));
+			collection.iterate(JadothFunctional.wrapWithPredicate(procedure, predicate));
 		}
 		return collection;
 	}
@@ -627,7 +627,7 @@ public final class XUtilsCollection
 		final XGettingSequence<E>               sequence ,
 		final long                              offset   ,
 		final long                              length   ,
-		final BiProcedure<? super E, ? super A> joiner   ,
+		final BiConsumer<? super E, ? super A> joiner   ,
 		final A                                 aggregate
 	)
 	{
@@ -1049,7 +1049,7 @@ public final class XUtilsCollection
 		final long                              offset  ,
 		final long                              length  ,
 		final VarString                         vs      ,
-		final BiProcedure<VarString, ? super E> appender
+		final BiConsumer<VarString, ? super E> appender
 	)
 	{
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)
@@ -1072,7 +1072,7 @@ public final class XUtilsCollection
 		final long                              offset   ,
 		final long                              length   ,
 		final VarString                         vc       ,
-		final BiProcedure<VarString, ? super E> appender ,
+		final BiConsumer<VarString, ? super E> appender ,
 		final char                              separator
 	)
 	{
@@ -1097,7 +1097,7 @@ public final class XUtilsCollection
 		final long                              offset   ,
 		final long                              length   ,
 		final VarString                         vs       ,
-		final BiProcedure<VarString, ? super E> appender ,
+		final BiConsumer<VarString, ? super E> appender ,
 		final String                            separator
 	)
 	{
@@ -1972,7 +1972,7 @@ public final class XUtilsCollection
 	public static <E> VarString appendTo(
 		final XGettingCollection<E> collection,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender
+		final BiConsumer<VarString, ? super E> appender
 	)
 	{
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
@@ -1997,7 +1997,7 @@ public final class XUtilsCollection
 
 	public static <E> VarString appendTo(
 		final XGettingCollection<E> collection,
-		final VarString vc, final BiProcedure<VarString, ? super E> appender,
+		final VarString vc, final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -2024,7 +2024,7 @@ public final class XUtilsCollection
 
 	public static <E> VarString appendTo(
 		final XGettingCollection<E> collection,
-		final VarString vc, final BiProcedure<VarString, ? super E> appender,
+		final VarString vc, final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{
@@ -2178,7 +2178,7 @@ public final class XUtilsCollection
 
 	public static <E, S extends E> E[] toArray(final XGettingCollection<S> collection, final Class<E> arrayComponentType)
 	{
-		final E[] array = JadothArrays.newArray(arrayComponentType, JadothTypes.to_int(collection.size()));
+		final E[] array = X.Array(arrayComponentType, JadothTypes.to_int(collection.size()));
 		JadothArrays.copyTo(collection, array);
 
 		return array;

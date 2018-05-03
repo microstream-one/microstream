@@ -1,9 +1,9 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
+import java.util.function.BiConsumer;
 
 import net.jadoth.X;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
@@ -165,7 +165,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
 			builder,
-			new BiProcedure<Object, Object>()
+			new BiConsumer<Object, Object>()
 			{
 				@Override
 				public void accept(final Object key, final Object value)

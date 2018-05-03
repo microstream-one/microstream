@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.util.Equalator;
@@ -1849,7 +1848,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final      E[] toArray(final Class<E> type)
 	{
 		final E[] array;
-		this.copyToArray(0, JadothTypes.to_int(this.parent.size()), array = JadothArrays.newArray(type, JadothTypes.to_int(this.parent.size())), 0);
+		this.copyToArray(0, JadothTypes.to_int(this.parent.size()), array = X.Array(type, JadothTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -1865,7 +1864,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final      E[] rngToArray(final long offset, final int length, final Class<E> type)
 	{
 		final E[] array;
-		this.copyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.copyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -2120,7 +2119,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final <A> void join(final BiProcedure<? super E, A> joiner, final A aggregate)
+	public final <A> void join(final BiConsumer<? super E, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -2788,7 +2787,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender)
 	{
 		for(EN entry = this.head.next; entry != null; entry = entry.next)
 		{
@@ -2798,7 +2797,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender, final char separator)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender, final char separator)
 	{
 		EN entry;
 		if((entry = this.head.next) == null)
@@ -2814,7 +2813,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender, final String separator)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender, final String separator)
 	{
 		if(separator == null || separator.isEmpty())
 		{
@@ -2922,7 +2921,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString rngAppendTo(long offset, final long length, final VarString vc, final BiProcedure<VarString, ? super E> appender)
+	public final VarString rngAppendTo(long offset, final long length, final VarString vc, final BiConsumer<VarString, ? super E> appender)
 	{
 		EN entry;
 		if((entry = this.getRangeChainEntry(offset, length)) == null)
@@ -2953,7 +2952,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      long offset,
 		final long length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -2986,7 +2985,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      long offset,
 		final long length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{

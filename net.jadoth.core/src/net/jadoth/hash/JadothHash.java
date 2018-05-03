@@ -6,7 +6,7 @@ import net.jadoth.util.JadothTypes;
 
 
 /**
- * Utility methods and centrally defined function instances related to hashing.
+ * Utility methods related to hashing.
  *
  * @author Thomas Muenz
  */
@@ -191,7 +191,7 @@ public final class JadothHash
 		};
 	}
 
-	public static final <E> HashEqualator<E> determineHashEquality(final Class<E> type)
+	public static final <E> HashEqualator<E> deriveHashEquality(final Class<E> type)
 	{
 		return JadothTypes.isValueType(type)
 			? JadothHash.<E>hashEqualityValue()

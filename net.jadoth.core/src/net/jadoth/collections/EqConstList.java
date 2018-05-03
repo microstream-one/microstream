@@ -4,9 +4,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.functions.IsCustomEqual;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -15,7 +17,6 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
@@ -202,7 +203,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.data.length);
+		final E[] array = X.Array(type, this.data.length);
 		System.arraycopy(this.data, 0, array, 0, this.data.length);
 		return array;
 	}
@@ -224,7 +225,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.data.length, joiner, aggregate);
 		return aggregate;

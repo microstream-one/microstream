@@ -12,7 +12,7 @@ import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.util.chars.VarString;
 
 
@@ -322,7 +322,7 @@ public abstract class AbstractConfig implements Config
 			public void accept(final ConfigFile e)
 			{
 				vs.add(e.name()).blank().add('(').add(e.name).add(')').lf();
-				JadothConsole.assembleTable(vs, e.table(), "---", "---\n", "\n---", null, null);
+				JadothDebug.assembleTable(vs, e.table(), "---", "---\n", "\n---", null, null);
 				vs.lf().add("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||").lf();
 			}
 		});

@@ -2,24 +2,24 @@ package net.jadoth.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.util.chars.VarString;
 import net.jadoth.util.file.JadothFiles;
 
 public class MainSearchBinaryStringInFiles
 {
-	static final BiProcedure<File, Consumer<? super File>> LOGGING = (f, p) ->
+	static final BiConsumer<File, Consumer<? super File>> LOGGING = (f, p) ->
 	{
 		System.out.println("Processing "+f);
 		p.accept(f);
 		System.out.println(" * done processing "+f);
 	};
 
-	static final BiProcedure<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
+	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
 
 	public static void main(final String[] args)
 	{
@@ -55,7 +55,7 @@ public class MainSearchBinaryStringInFiles
 	}
 
 	static void searchStringsInFiles(
-		final BiProcedure<File, Consumer<? super File>> logic  ,
+		final BiConsumer<File, Consumer<? super File>> logic  ,
 		final File[]                                    files  ,
 		final byte[]...                                 strings
 	)
@@ -68,7 +68,7 @@ public class MainSearchBinaryStringInFiles
 	}
 
 	static void innerSearchStringsInFiles(
-		final BiProcedure<File, Consumer<? super File>> logic  ,
+		final BiConsumer<File, Consumer<? super File>> logic  ,
 		final File[]                                     files  ,
 		final byte[]...                                  strings
 	)

@@ -3,15 +3,15 @@ package net.jadoth.util.chars;
 import static java.lang.Math.max;
 
 import java.io.Serializable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.collections.JadothCollections;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional._charProcedure;
 import net.jadoth.math.JadothMath;
 
@@ -540,7 +540,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		return this;
 	}
 
-	public final <E> VarString add(final E element, final BiProcedure<VarString, ? super E> joiner)
+	public final <E> VarString add(final E element, final BiConsumer<VarString, ? super E> joiner)
 	{
 		joiner.accept(this, element);
 		return this;
@@ -804,7 +804,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final XGettingCollection<?> listElements)
 	{
-		if(JadothCollections.hasNoElements(listElements))
+		if(X.hasNoContent(listElements))
 		{
 			return this;
 		}
@@ -820,7 +820,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final Object... listElements)
 	{
-		if(JadothArrays.hasNoElements(listElements))
+		if(JadothArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
@@ -838,7 +838,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final String... listElements)
 	{
-		if(JadothArrays.hasNoElements(listElements))
+		if(JadothArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
@@ -863,7 +863,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final VarString... listElements)
 	{
-		if(JadothArrays.hasNoElements(listElements))
+		if(JadothArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
@@ -888,7 +888,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final Appendable... listElements)
 	{
-		if(JadothArrays.hasNoElements(listElements))
+		if(JadothArrays.hasNoContent(listElements))
 		{
 			return this;
 		}

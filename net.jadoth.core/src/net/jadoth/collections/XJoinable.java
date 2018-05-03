@@ -1,8 +1,8 @@
 package net.jadoth.collections;
 
-import net.jadoth.functional.BiProcedure;
+import java.util.function.BiConsumer;
 
 public interface XJoinable<E>
 {
-	public <A> A join(BiProcedure<? super E, ? super A> joiner, A aggregate);
+	public <A> A join(BiConsumer<? super E, ? super A> joiner, A aggregate);
 }

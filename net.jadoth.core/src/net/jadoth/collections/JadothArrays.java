@@ -9,14 +9,19 @@ import java.util.function.Supplier;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothExceptions;
+import net.jadoth.util.UtilStackTrace;
 
 /**
+ * Numerous utility methods for working with arrays, all of which are either missing in the JDK or botched up
+ * in one way or another. For both writing AND reading code, there must be a LOT of util methods, so that the
+ * source code can be as short but comprehensible possible. Keeping the number of util methods at the bare minimum
+ * might make things simpler for the JDK provider, but not for the JDK user. There need to be a rich set of proper
+ * general purpose tools, not the need to write almost every util method anew in every project.
+ * 
  * @author Thomas Muenz
- *
  */
 public final class JadothArrays
 {
@@ -42,17 +47,19 @@ public final class JadothArrays
 		return "Range [" + (length < 0 ? startIndex + length + 1 + ";" + startIndex
 			: startIndex + ";" + (startIndex + length - 1)) + "] not in [0;" + (size - 1) + "]";
 	}
+	
 	private static String exceptionIndexOutOfBounds(final int size, final int index)
 	{
 		return "Index: " + index + ", Size: " + size;
 	}
 
-
+	
+	
 	public static final int validateArrayIndex(final int arrayLength, final int index)
 	{
 		if(index < 0 || index >= arrayLength)
 		{
-			throw JadothExceptions.cutStacktraceByOne(new ArrayIndexOutOfBoundsException(index));
+			throw UtilStackTrace.cutStacktraceByOne(new ArrayIndexOutOfBoundsException(index));
 		}
 		return index;
 	}
@@ -116,20 +123,16 @@ public final class JadothArrays
 		}
 	}
 
-
 	/**
 	 * Returns if the passed array is either null or has the length 0.
 	 *
 	 * @param array
 	 * @return
 	 */
-	public static boolean hasNoElements(final Object[] array)
+	public static boolean hasNoContent(final Object[] array)
 	{
 		return array == null || array.length == 0;
 	}
-
-
-	
 	
 	public static final <T> T[] fill(
 		final T[]                   array   ,
@@ -258,7 +261,7 @@ public final class JadothArrays
 
 	public static final <T> T[] replicate(final T subject, final int times)
 	{
-		final T[] array = newArrayBySample(subject, times);
+		final T[] array = X.ArrayForElementType(subject, times);
 		for(int i = 0; i < times; i++)
 		{
 			array[i] = subject;
@@ -266,12 +269,11 @@ public final class JadothArrays
 		return array;
 	}
 
-
 	public static final <T> T[] subArray(final T[] array, final int offset, final int length)
 	{
 		final T[] newArray; // bounds checks are done by VM.
 		System.arraycopy(
-			array, offset, newArray = newArrayBySample(array, length), 0, length
+			array, offset, newArray = X.ArrayOfSameType(array, length), 0, length
 			);
 		return newArray;
 	}
@@ -327,7 +329,6 @@ public final class JadothArrays
 		return true;
 	}
 
-
 	public static final <E> boolean equals(
 		final E[] array1,
 		final int startIndex1,
@@ -373,7 +374,7 @@ public final class JadothArrays
 		}
 
 		// actual adding of two non-null arrays
-		final T[] a = newArrayBySample(a1, a1.length + a2.length);
+		final T[] a = X.ArrayOfSameType(a1, a1.length + a2.length);
 		System.arraycopy(a1, 0, a,         0, a1.length);
 		System.arraycopy(a2, 0, a, a1.length, a2.length);
 		return a;
@@ -463,7 +464,6 @@ public final class JadothArrays
 		return combined;
 	}
 
-
 	public static final int[] _intAdd(final int[] a1, final int... a2)
 	{
 		// escape conditions (must clone to consistently return a new instance)
@@ -482,7 +482,6 @@ public final class JadothArrays
 		System.arraycopy(a2, 0, a, a1.length, a2.length);
 		return a;
 	}
-
 
 	/**
 	 * Merges the both passed arrays by taking all elements from <code>a1</code> (even duplicates) and adds all
@@ -522,11 +521,10 @@ public final class JadothArrays
 			buffer.add(e); // element not yet contained in a1, add to buffer
 		}
 
-		final T[] newArray = JadothArrays.newArrayBySample(buffer.data, buffer.size);
+		final T[] newArray = X.ArrayOfSameType(buffer.data, buffer.size);
 		System.arraycopy(buffer.data, 0, newArray, 0, buffer.size);
 		return newArray;
 	}
-
 
 	/**
 	 * This method checks if <code>array</code> contains <code>element</code> by object identity
@@ -574,7 +572,6 @@ public final class JadothArrays
 		return false;
 	}
 
-
 	public static final <T, S extends T> boolean contains(final T[] array, final S element, final Equalator<? super T> cmp)
 	{
 		for(final T t : array)
@@ -586,7 +583,6 @@ public final class JadothArrays
 		}
 		return false;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public static final <E> boolean containsId(final Collection<E> c, final E element)
@@ -626,7 +622,7 @@ public final class JadothArrays
 		// case XGettingCollection
 		if(c instanceof XGettingCollection<?>)
 		{
-			return ((XGettingCollection<E>)c).containsSearched(JadothPredicates.predicate(sample, equalator));
+			return ((XGettingCollection<E>)c).containsSearched(JadothFunctional.predicate(sample, equalator));
 		}
 
 		// case old collection, use slow iterator
@@ -639,7 +635,6 @@ public final class JadothArrays
 		}
 		return false;
 	}
-
 
 	/**
 	 * Removed all occurances of {@code e} from array {@code array}.
@@ -760,14 +755,12 @@ public final class JadothArrays
 
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public static final <E> E[] removeDuplicates(final E... elements)
 	{
 		return X.Enum(elements).toArray((Class<E>)elements.getClass().getComponentType());
 	}
-
 
 	//!\\ NOTE: copy of single-object version with only contains part changed! Maintain by copying!
 	public static <E> int removeAllFromArray(
@@ -857,7 +850,7 @@ public final class JadothArrays
 		int currentMoveTargetIndex = start;
 		//if dest is the same as src, skip all to be retained objects
 		while(currentMoveTargetIndex < bound
-			&& !elements.containsSearched(JadothPredicates.predicate(array[currentMoveTargetIndex], equalator))
+			&& !elements.containsSearched(JadothFunctional.predicate(array[currentMoveTargetIndex], equalator))
 		)
 		{
 			currentMoveTargetIndex++;
@@ -870,13 +863,13 @@ public final class JadothArrays
 
 		while(seekIndex < bound)
 		{
-			while(seekIndex < bound && elements.containsSearched(JadothPredicates.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && elements.containsSearched(JadothFunctional.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}
 			currentMoveSourceIndex = seekIndex;
 
-			while(seekIndex < bound && !elements.containsSearched(JadothPredicates.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && !elements.containsSearched(JadothFunctional.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}
@@ -907,7 +900,7 @@ public final class JadothArrays
 	public static final <T> T[] toReversed(final T[] array)
 	{
 		final int len;
-		final T[] rArray = newArrayBySample(array, len = array.length);
+		final T[] rArray = X.ArrayOfSameType(array, len = array.length);
 		for(int i = 0, r = len; i < len; i++)
 		{
 			rArray[--r] = array[i];
@@ -921,14 +914,14 @@ public final class JadothArrays
 			? JadothArrays.reverseArraycopy(
 				array,
 				offset,
-				newArrayBySample(array, -length),
+				X.ArrayOfSameType(array, -length),
 				0,
 				-length
 				)
 				: JadothArrays.reverseArraycopy(
 					array,
 					offset + length - 1,
-					newArrayBySample(array, length),
+					X.ArrayOfSameType(array, length),
 					0,
 					length
 					)
@@ -937,7 +930,7 @@ public final class JadothArrays
 
 	public static final <T> T[] copy(final T[] array)
 	{
-		final T[] newArray = newArrayBySample(array, array.length);
+		final T[] newArray = X.ArrayOfSameType(array, array.length);
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		return newArray;
 	}
@@ -986,7 +979,6 @@ public final class JadothArrays
 		return target;
 	}
 
-
 	@SafeVarargs
 	public static final <T> T[] shuffle(final T... data)
 	{
@@ -1031,7 +1023,6 @@ public final class JadothArrays
 		}
 		return data;
 	}
-
 
 	/**
 	 * Convenience method, calling either {@link System#arraycopy(Object, int, Object, int, int)} for
@@ -1112,7 +1103,7 @@ public final class JadothArrays
 
 	public static <E> E[] copyRange(final E[] elements, final int offset, final int length)
 	{
-		final E[] copy = JadothArrays.newArrayBySample(elements, length);
+		final E[] copy = X.ArrayOfSameType(elements, length);
 		System.arraycopy(elements, offset, copy, 0, length);
 		return copy;
 	}
@@ -1138,7 +1129,6 @@ public final class JadothArrays
 		}
 		return target;
 	}
-
 
 	public static <E> int replaceAllInArray(
 		final E[] data,
@@ -1184,7 +1174,7 @@ public final class JadothArrays
 	public static <T> T[] and(final T[] a1, final T[] a2)
 	{
 		final int length;
-		final T[] target = newArrayBySample(a1, length = min(a1.length, a2.length));
+		final T[] target = X.ArrayOfSameType(a1, length = min(a1.length, a2.length));
 		for(int i = 0; i < length; i++)
 		{
 			target[i] = a1[i] != null && a2[i] != null ? a1[i] : null;
@@ -1195,7 +1185,7 @@ public final class JadothArrays
 	public static <T> T[] or(final T[] a1, final T[] a2)
 	{
 		final int length;
-		final T[] target = newArrayBySample(a1, length = min(a1.length, a2.length));
+		final T[] target = X.ArrayOfSameType(a1, length = min(a1.length, a2.length));
 		for(int i = 0; i < length; i++)
 		{
 			target[i] = a1[i] != null ? a1[i] : a2[i] != null ? a2[i] : null;
@@ -1206,13 +1196,14 @@ public final class JadothArrays
 	public static <T> T[] not(final T[] a1, final T[] a2)
 	{
 		final int length;
-		final T[] target = newArrayBySample(a1, length = min(a1.length, a2.length));
+		final T[] target = X.ArrayOfSameType(a1, length = min(a1.length, a2.length));
 		for(int i = 0; i < length; i++)
 		{
 			target[i] = a2[i] == null ? a1[i] : null;
 		}
 		return target;
 	}
+	
 	/**
 	 * Orders the passed elements by the passed indices.
 	 *
@@ -1295,6 +1286,7 @@ public final class JadothArrays
 		}
 		return loopMaxElement;
 	}
+	
 	public static final <T> boolean applies(final T[] array, final Predicate<? super T> predicate)
 	{
 		for(final T t : array)
@@ -1306,6 +1298,7 @@ public final class JadothArrays
 		}
 		return false;
 	}
+	
 	public static final <T> T search(final T[] array, final Predicate<? super T> predicate)
 	{
 		for(final T t : array)
@@ -1317,6 +1310,7 @@ public final class JadothArrays
 		}
 		return null;
 	}
+	
 	public static final <T> int count(final T[] array, final Predicate<? super T> predicate)
 	{
 		int count = 0;
@@ -1329,6 +1323,7 @@ public final class JadothArrays
 		}
 		return count;
 	}
+	
 	/**
 	 * Reverse order counterpart to {@link System#arraycopy(Object, int, Object, int, int)}.
 	 * <p>
@@ -1439,32 +1434,6 @@ public final class JadothArrays
 		return (Class<E>)array.getClass().getComponentType();
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <T> T[] newArray(final Class<T> componentType, final int length)
-	{
-		// fascinating how the JDK massively lacks basic util methods like this
-		return (T[])Array.newInstance(componentType, length);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> T[] newArrayBySample(final T sampleInstance, final int length)
-	{
-		// fascinating how the JDK massively lacks basic util methods like this
-		return (T[])Array.newInstance(sampleInstance.getClass(), length);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> T[] newArrayBySample(final T[] sample, final int length)
-	{
-		return (T[])Array.newInstance(sample.getClass().getComponentType(), length);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> T[] newArrayBySample(final T[] sample)
-	{
-		return (T[])Array.newInstance(sample.getClass().getComponentType(), sample.length);
-	}
-
 	public static final int arrayHashCode(final Object[] data, final int size)
 	{
 		int hashCode = 1;
@@ -1542,7 +1511,6 @@ public final class JadothArrays
 		}
 		return false;
 	}
-
 
 	@SafeVarargs
 	public static <E> void iterate(final Consumer<? super E> iterator, final E... elements)
@@ -1695,10 +1663,16 @@ public final class JadothArrays
 		return -1;
 	}
 
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
 	private JadothArrays()
 	{
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
 }

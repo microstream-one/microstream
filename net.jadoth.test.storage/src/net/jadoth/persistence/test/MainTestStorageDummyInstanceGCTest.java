@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.Date;
 
 import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.util.UtilResetDirectory;
 
 
 /*
@@ -258,7 +258,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 	{
 		final File dir = new File("c:/Files");
 		System.out.println("Resetting "+dir);
-		UtilResetDirectory.deleteAllFiles(dir, false);
+		JadothDebug.deleteAllFiles(dir, false);
 		System.out.println("done");
 	}
 

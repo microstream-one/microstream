@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.collections.KeyValue;
 import net.jadoth.memory.Chunks;
-import net.jadoth.meta.JadothConsole;
-import net.jadoth.util.JadothExceptions;
+import net.jadoth.meta.JadothDebug;
+import net.jadoth.util.UtilStackTrace;
 import net.jadoth.util.chars.VarString;
 
 public interface StorageRequestTaskStoreEntities extends StorageRequestTask
@@ -79,13 +79,13 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 			if(channel == null)
 			{
 				vs.add(" Stacktrace:");
-				for(final StackTraceElement e : JadothExceptions.cutStacktraceByN(new Throwable(), 2).getStackTrace())
+				for(final StackTraceElement e : UtilStackTrace.cutStacktraceByN(new Throwable(), 2).getStackTrace())
 				{
 					vs.lf().add(e.toString());
 				}
 			}
 
-			JadothConsole.debugln(vs.toString(), 1);
+			JadothDebug.debugln(vs.toString(), 1);
 		}
 
 		@Override

@@ -5,20 +5,20 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.XJoinable;
 import net.jadoth.collections.interfaces.CapacityCarrying;
 import net.jadoth.collections.interfaces.ExtendedCollection;
 import net.jadoth.collections.old.OldCollection;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.ToArrayAggregator;
 import net.jadoth.util.Copyable;
 import net.jadoth.util.Equalator;
+
 
 /**
  * @author Thomas Muenz
@@ -51,7 +51,7 @@ Copyable
 
 	public default E[] toArray(final Class<E> type)
 	{
-		return this.iterate(new ToArrayAggregator<>(JadothArrays.newArray(type, X.checkArrayRange(this.size())))).yield();
+		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();
 	}
 
 	public OldCollection<E> old();
@@ -191,7 +191,7 @@ Copyable
 
 
 	@Override
-	public default <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public default <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		this.iterate(e ->
 			joiner.accept(e, aggregate)

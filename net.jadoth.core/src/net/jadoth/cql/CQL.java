@@ -3,6 +3,7 @@ package net.jadoth.cql;
 import static net.jadoth.X.coalesce;
 
 import java.util.Comparator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -25,8 +26,7 @@ import net.jadoth.collections.sorting.Sortable;
 import net.jadoth.collections.sorting.SortableProcedure;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.functional.JadothProcedures;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.util.JadothTypes;
 
@@ -100,14 +100,14 @@ public final class CQL
 		return CqlAggregation.New(null, null, null, null, null, aggregator);
 	}
 
-	public static <I, R> CqlAggregation<I, R> aggregate(final Supplier<R> supplier, final BiProcedure<I, R> linker)
+	public static <I, R> CqlAggregation<I, R> aggregate(final Supplier<R> supplier, final BiConsumer<I, R> linker)
 	{
 		return aggregate(CqlResultor.NewFromSupplier(supplier, linker));
 	}
 
 	public static <I, R extends Sortable<I>> CqlAggregation<I, R> aggregate(
 		final Supplier<R>           supplier,
-		final BiProcedure<I, R>     linker  ,
+		final BiConsumer<I, R>     linker  ,
 		final Comparator<? super I> order
 	)
 	{
@@ -116,7 +116,7 @@ public final class CQL
 
 	public static <I, R> CqlAggregation<I, R> aggregate(
 		final Supplier<R>          supplier ,
-		final BiProcedure<I, R>    linker   ,
+		final BiConsumer<I, R>    linker   ,
 		final Consumer<? super R> finalizer
 	)
 	{
@@ -230,13 +230,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothProcedures.wrapWithPredicateSkipLimit(target, selector, skip, limit)
-				: JadothProcedures.wrapWithPredicateSkip     (target, selector, skip       )
+				? JadothFunctional.wrapWithPredicateSkipLimit(target, selector, skip, limit)
+				: JadothFunctional.wrapWithPredicateSkip     (target, selector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? JadothProcedures.wrapWithPredicateLimit(target, selector, limit)
-			: JadothProcedures.wrapWithPredicate     (target, selector       )
+			? JadothFunctional.wrapWithPredicateLimit(target, selector, limit)
+			: JadothFunctional.wrapWithPredicate     (target, selector       )
 		;
 	}
 
@@ -249,13 +249,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothProcedures.wrapWithSkipLimit(target, skip, limit)
-				: JadothProcedures.wrapWithSkip     (target, skip)
+				? JadothFunctional.wrapWithSkipLimit(target, skip, limit)
+				: JadothFunctional.wrapWithSkip     (target, skip)
 			;
 		}
 
 		return isLimit(limit)
-			? JadothProcedures.wrapWithLimit(target, limit)
+			? JadothFunctional.wrapWithLimit(target, limit)
 			: i -> target.accept(i)
 		;
 	}
@@ -277,13 +277,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothProcedures.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
-				: JadothProcedures.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
+				? JadothFunctional.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
+				: JadothFunctional.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? JadothProcedures.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
-			: JadothProcedures.wrapWithPredicateFunction     (target, selector, projector       )
+			? JadothFunctional.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
+			: JadothFunctional.wrapWithPredicateFunction     (target, selector, projector       )
 		;
 	}
 
@@ -299,14 +299,14 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothProcedures.wrapWithFunctionSkipLimit(target, projector, skip, limit)
-				: JadothProcedures.wrapWithFunctionSkip     (target, projector, skip       )
+				? JadothFunctional.wrapWithFunctionSkipLimit(target, projector, skip, limit)
+				: JadothFunctional.wrapWithFunctionSkip     (target, projector, skip       )
 			;
 		}
 
 		return isLimit(limit)
-			? JadothProcedures.wrapWithFunctionLimit(target, projector, limit)
-			: JadothProcedures.wrapWithFunction     (target, projector       )
+			? JadothFunctional.wrapWithFunctionLimit(target, projector, limit)
+			: JadothFunctional.wrapWithFunction     (target, projector       )
 		;
 	}
 

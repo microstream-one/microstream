@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingList;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
@@ -76,7 +76,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	@Override
 	public boolean contains(final Object o)
 	{
-		return this.subject.containsSearched(JadothPredicates.isEqualTo((E)o));
+		return this.subject.containsSearched(JadothFunctional.isEqualTo((E)o));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	{
 		for(final Object o : c)
 		{
-			if(!this.subject.containsSearched(JadothPredicates.isEqualTo((E)o)))
+			if(!this.subject.containsSearched(JadothFunctional.isEqualTo((E)o)))
 			{
 				return false;
 			}
@@ -103,7 +103,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	@Override
 	public int indexOf(final Object o)
 	{
-		return X.checkArrayRange(this.subject.indexBy(JadothPredicates.isEqualTo((E)o)));
+		return X.checkArrayRange(this.subject.indexBy(JadothFunctional.isEqualTo((E)o)));
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	@Override
 	public int lastIndexOf(final Object o)
 	{
-		return X.checkArrayRange(this.subject.lastIndexBy(JadothPredicates.isEqualTo((E)o)));
+		return X.checkArrayRange(this.subject.lastIndexBy(JadothFunctional.isEqualTo((E)o)));
 	}
 
 	@Override

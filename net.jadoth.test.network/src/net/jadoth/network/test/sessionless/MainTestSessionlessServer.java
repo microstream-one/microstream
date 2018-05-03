@@ -1,12 +1,11 @@
 package net.jadoth.network.test.sessionless;
 
-import static net.jadoth.util.JadothChannels.closeSilent;
-
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 import net.jadoth.network.types.NetworkConnectionProcessor;
 import net.jadoth.network.types.NetworkFactoryServerSessionless;
+import net.jadoth.util.file.JadothFiles;
 
 public class MainTestSessionlessServer
 {
@@ -33,17 +32,21 @@ public class MainTestSessionlessServer
 		{
 			t.printStackTrace();     // just print the problem in simple example
 		}
-		finally{
-			closeSilent(connection); // close channel after every message in simple example
-			System.gc();             // suggest gc to keep example's memory usage constant
+		finally
+		{
+			JadothFiles.closeSilent(connection); // close channel after every message in simple example
+			System.gc();                         // suggest gc to keep example's memory usage constant
 		}
 	}
 
 	/**
 	 * Stateless function instance relaying the connection to the actual processing method. To be replaced by lambda.
 	 */
-	private static final NetworkConnectionProcessor requestEchoer = new NetworkConnectionProcessor(){
-		@Override public void accept(final SocketChannel connection) {
+	private static final NetworkConnectionProcessor requestEchoer = new NetworkConnectionProcessor()
+	{
+		@Override
+		public void accept(final SocketChannel connection)
+		{
 			echoRequest(connection);
 		}
 	};

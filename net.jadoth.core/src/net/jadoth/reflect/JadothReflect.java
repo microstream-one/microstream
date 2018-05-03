@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.DownwrapList;
 import net.jadoth.collections.JadothArrays;
@@ -1112,7 +1113,7 @@ public final class JadothReflect
 		}
 		final ArrayList<E> labeledElements = getMemberCollectionByLabel(label, elements, new ArrayList<E>());
 		return labeledElements.toArray(
-			JadothArrays.newArrayBySample(elements, labeledElements.size())
+			X.ArrayOfSameType(elements, labeledElements.size())
 		);
 	}
 
@@ -1167,7 +1168,7 @@ public final class JadothReflect
 			return null;
 		}
 		final ArrayList<E> labeledElements = getMemberCollectionWithAnnotation(annotation, elements, new ArrayList<E>());
-		return labeledElements.toArray(JadothArrays.newArrayBySample(elements, labeledElements.size()));
+		return labeledElements.toArray(X.ArrayOfSameType(elements, labeledElements.size()));
 	}
 
 	public static final <E extends AnnotatedElement> E getMemberWithAnnotation(

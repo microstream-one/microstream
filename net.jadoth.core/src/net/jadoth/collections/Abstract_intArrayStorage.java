@@ -3,11 +3,11 @@ package net.jadoth.collections;
 import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 
 import java.util.Random;
+import java.util.function.BiConsumer;
 
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.interfaces._intCollecting;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional._intFunction;
 import net.jadoth.functional._intIndexProcedure;
 import net.jadoth.functional._intPredicate;
@@ -3231,7 +3231,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender
+		final BiConsumer<VarString, Integer> appender
 	)
 	{
 		if(size == 0)
@@ -3249,7 +3249,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final char separator
 	)
 	{
@@ -3270,7 +3270,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final String separator
 	)
 	{
@@ -3383,7 +3383,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender
+		final BiConsumer<VarString, Integer> appender
 	)
 	{
 		final int d; // bi - directional index movement
@@ -3406,7 +3406,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final char separator
 	)
 	{
@@ -3432,7 +3432,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final String separator
 	)
 	{

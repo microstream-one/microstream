@@ -17,7 +17,7 @@ import net.jadoth.cql.CqlProjection;
 import net.jadoth.cql.CqlQuery;
 import net.jadoth.cql.CqlSelection;
 import net.jadoth.cql.CqlTransfer;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 
 public class MainTestCql
 {
@@ -160,7 +160,7 @@ public class MainTestCql
 
 	static void print(final XGettingCollection<?> elements)
 	{
-		JadothConsole.debugln(elements.toString(), 1);
+		JadothDebug.debugln(elements.toString(), 1);
 	}
 
 }

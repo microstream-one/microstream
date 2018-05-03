@@ -2,8 +2,8 @@ package net.jadoth.cql;
 
 import java.util.function.Function;
 
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.functional.JadothFunctions;
+import net.jadoth.X;
+import net.jadoth.functional.JadothFunctional;
 
 public interface ArrayProjector<T> extends Function<T, Object[]>
 {
@@ -15,11 +15,14 @@ public interface ArrayProjector<T> extends Function<T, Object[]>
 	@SafeVarargs
 	public static <T> ArrayProjector<T> New(final Function<? super T, Object>... fieldProjectors)
 	{
-		final Function<? super T, Object>[] nonNulls = JadothArrays.newArrayBySample(fieldProjectors);
+		final Function<? super T, Object>[] nonNulls = X.ArrayOfSameType(fieldProjectors);
 		
 		for(int i = 0; i < fieldProjectors.length; i++)
 		{
-			nonNulls[i] = fieldProjectors[i] != null ? fieldProjectors[i] : JadothFunctions.toNull();
+			nonNulls[i] = fieldProjectors[i] != null
+				? fieldProjectors[i]
+				: JadothFunctional.toNull()
+			;
 		}
 		
 		return new Implementation<>(fieldProjectors);

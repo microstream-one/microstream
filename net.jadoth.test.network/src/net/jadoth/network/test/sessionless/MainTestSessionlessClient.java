@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
-import net.jadoth.util.JadothChannels;
+import net.jadoth.util.file.JadothFiles;
 
 /**
  * Simple test client
@@ -36,7 +36,7 @@ public class MainTestSessionlessClient
 				System.out.println(System.currentTimeMillis()+" Server said: "+answer);
 			}
 			finally {
-				JadothChannels.closeSilent(channel);
+				JadothFiles.closeSilent(channel);
 				System.gc();
 			}
 		}

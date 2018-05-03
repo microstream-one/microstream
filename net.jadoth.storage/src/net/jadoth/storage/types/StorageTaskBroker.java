@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.memory.Chunks;
 import net.jadoth.swizzling.types.SwizzleIdSet;
-import net.jadoth.util.JadothExceptions;
+import net.jadoth.util.UtilStackTrace;
 
 public interface StorageTaskBroker
 {
@@ -352,7 +352,7 @@ public interface StorageTaskBroker
 			}
 
 			// (27.04.2018 TM)EXCP: proper exception
-			throw JadothExceptions.cutStacktraceByOne(new RuntimeException());
+			throw UtilStackTrace.cutStacktraceByOne(new RuntimeException());
 		}
 
 		@Override

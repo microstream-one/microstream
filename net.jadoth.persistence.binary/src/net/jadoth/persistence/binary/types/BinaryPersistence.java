@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -26,7 +27,6 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional._longProcedure;
@@ -1830,7 +1830,7 @@ public final class BinaryPersistence extends Persistence
 		final long                        binaryOffset,
 		final int                         length      ,
 		final SwizzleObjectIdResolving    oidResolver ,
-		final BiProcedure<Object, Object> collector
+		final BiConsumer<Object, Object> collector
 	)
 	{
 		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);

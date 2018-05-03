@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.util.chars.JadothChars;
 import net.jadoth.util.chars.VarString;
 
@@ -324,7 +324,7 @@ public final class JadothFiles
 		final File                   targetFile
 	)
 	{
-		mergeBinary(sourceFiles, targetFile, JadothPredicates.all());
+		mergeBinary(sourceFiles, targetFile, JadothFunctional.all());
 	}
 
 

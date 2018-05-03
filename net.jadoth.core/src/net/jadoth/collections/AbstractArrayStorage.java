@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 import java.util.RandomAccess;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -26,10 +27,8 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothPredicates;
-import net.jadoth.functional.JadothProcedures;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.JadothMath;
@@ -644,7 +643,7 @@ public abstract class AbstractArrayStorage
 	public static final <E, A> void join(
 		final E[]                          data     ,
 		final int                          size     ,
-		final BiProcedure<? super E, ? super A> joiner   ,
+		final BiConsumer<? super E, ? super A> joiner   ,
 		final A                            aggregate
 	)
 	{
@@ -685,7 +684,7 @@ public abstract class AbstractArrayStorage
 		final int                          size  ,
 		final int                          offset,
 		final int                          length,
-		final BiProcedure<? super E, ? super A> joiner,
+		final BiConsumer<? super E, ? super A> joiner,
 		final A                            aggregate
 	)
 	{
@@ -744,7 +743,7 @@ public abstract class AbstractArrayStorage
 		final E[]                          data     ,
 		final int                          lowOffset,
 		final int                          highBound,
-		final BiProcedure<? super E, ? super A> joiner   ,
+		final BiConsumer<? super E, ? super A> joiner   ,
 		final A                            aggregate
 	)
 	{
@@ -765,7 +764,7 @@ public abstract class AbstractArrayStorage
 		final E[]                          data      ,
 		final int                          highOffset,
 		final int                          lowEnd    ,
-		final BiProcedure<? super E, ? super A> joiner    ,
+		final BiConsumer<? super E, ? super A> joiner    ,
 		final A                            aggregate
 	)
 	{
@@ -812,7 +811,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, JadothProcedures.wrapWithPredicate(procedure, predicate));
+		forwardIterate(data, lowOffset, highBound, JadothFunctional.wrapWithPredicate(procedure, predicate));
 	}
 
 	public static final <E> void reverseConditionalIterate(
@@ -823,7 +822,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, JadothProcedures.wrapWithPredicate(procedure, predicate));
+		reverseIterate(data, highOffset, lowEnd, JadothFunctional.wrapWithPredicate(procedure, predicate));
 	}
 
 
@@ -1307,7 +1306,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, JadothProcedures.wrapWithPredicate(target, predicate));
+		forwardIterate(data, lowOffset, highBound, JadothFunctional.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -1319,7 +1318,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, JadothProcedures.wrapWithPredicate(target, predicate));
+		reverseIterate(data, highOffset, lowEnd, JadothFunctional.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -2261,7 +2260,7 @@ public abstract class AbstractArrayStorage
 		{
 			while(i < lastIndex)
 			{
-				if(!samples.containsSearched(JadothPredicates.predicate(data[++i], equalator)))
+				if(!samples.containsSearched(JadothFunctional.predicate(data[++i], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -2302,7 +2301,7 @@ public abstract class AbstractArrayStorage
 			while(i != endIndex)
 			{
 				// let equalator decide on every element (even multiple nulls)
-				if(!samples.containsSearched(JadothPredicates.predicate(data[i += d], equalator)))
+				if(!samples.containsSearched(JadothFunctional.predicate(data[i += d], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -3604,7 +3603,7 @@ public abstract class AbstractArrayStorage
 		int replaceCount = 0;
 		for(int i = offset - d; i != endIndex;)
 		{
-			if(samples.containsSearched(JadothPredicates.predicate(data[i += d], equalator)))
+			if(samples.containsSearched(JadothFunctional.predicate(data[i += d], equalator)))
 			{
 				data[i] = newElement;
 				replaceCount++;
@@ -4026,7 +4025,7 @@ public abstract class AbstractArrayStorage
 		final E[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender
+		final BiConsumer<VarString, ? super E> appender
 	)
 	{
 		if(size == 0)
@@ -4044,7 +4043,7 @@ public abstract class AbstractArrayStorage
 		final E[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -4065,7 +4064,7 @@ public abstract class AbstractArrayStorage
 		final E[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{
@@ -4178,7 +4177,7 @@ public abstract class AbstractArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender
+		final BiConsumer<VarString, ? super E> appender
 	)
 	{
 		final int d; // bi-directional index movement
@@ -4201,7 +4200,7 @@ public abstract class AbstractArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -4227,7 +4226,7 @@ public abstract class AbstractArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{
@@ -4486,7 +4485,7 @@ public abstract class AbstractArrayStorage
 
 	public static final <T> T[] toReversed(final T[] array, final int size)
 	{
-		final T[] rArray = JadothArrays.newArrayBySample(array, size);
+		final T[] rArray = X.ArrayOfSameType(array, size);
 		for(int i = 0, r = size; i < size; i++)
 		{
 			rArray[--r] = array[i];
@@ -4898,17 +4897,17 @@ public abstract class AbstractArrayStorage
 		{
 			if(offset == 0 && size == 0 && length == 0)
 			{
-				return JadothArrays.newArray(type, 0);
+				return X.Array(type, 0);
 			}
 			throw new IndexExceededException(size, offset);
 		}
 		else if(length == 0)
 		{
-			return JadothArrays.newArray(type, 0);
+			return X.Array(type, 0);
 		}
 		else if(length > 0)
 		{
-			final E[] array = JadothArrays.newArray(type, length);
+			final E[] array = X.Array(type, length);
 			System.arraycopy(data, offset, array, 0, length);
 			return array;
 		}
@@ -4929,7 +4928,7 @@ public abstract class AbstractArrayStorage
 		{
 			throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 		}
-		final E[] array = JadothArrays.newArray(type, -length);
+		final E[] array = X.Array(type, -length);
 		for(int i = offset, j = 0; i > boundIndex; i--)
 		{
 			array[j++] = data[i];

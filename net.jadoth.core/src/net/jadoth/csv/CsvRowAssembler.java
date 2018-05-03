@@ -1,8 +1,8 @@
 package net.jadoth.csv;
 
-import net.jadoth.functional.BiProcedure;
+import java.util.function.BiConsumer;
 
-public interface CsvRowAssembler<R> extends BiProcedure<R, CsvAssembler>
+public interface CsvRowAssembler<R> extends BiConsumer<R, CsvAssembler>
 {
 	public static void addNonNullDelimited(final CharSequence s, final CsvAssembler assembler)
 	{

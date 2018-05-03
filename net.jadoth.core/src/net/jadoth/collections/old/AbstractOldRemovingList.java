@@ -5,7 +5,7 @@ import java.util.Collection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.util.JadothTypes;
 
 public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<E>
@@ -41,7 +41,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 	@Override
 	public boolean remove(final Object o)
 	{
-		return ((XProcessingList<E>)this.subject).removeBy(JadothPredicates.isEqualTo((E)o)) > 0;
+		return ((XProcessingList<E>)this.subject).removeBy(JadothFunctional.isEqualTo((E)o)) > 0;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 		// even xcollections have to be handled that way because of the missing type info (argh)
 		for(final Object o : c)
 		{
-			removeCount += list.removeBy(JadothPredicates.isEqualTo((E)o));
+			removeCount += list.removeBy(JadothFunctional.isEqualTo((E)o));
 		}
 		return removeCount > 0;
 	}

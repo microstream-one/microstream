@@ -1,11 +1,10 @@
 package net.jadoth.util;
 
 import java.text.DecimalFormat;
+import java.util.function.BiConsumer;
 
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.chars.JadothChars;
 import net.jadoth.util.chars.VarString;
@@ -179,7 +178,7 @@ public interface ItemMatcher<E>
 			final ItemMatch<E> im,
 			final VarString vc,
 			final String title,
-			final BiProcedure<VarString, ? super E> appender
+			final BiConsumer<VarString, ? super E> appender
 		)
 		{
 			final int mc = calcMatchCount(im.s2tMapping);
@@ -256,7 +255,7 @@ public interface ItemMatcher<E>
 		public static <E> VarString assembleMappingSchemeHorizontal(
 			final ItemMatchResult<E> im,
 			final VarString vc,
-			final BiProcedure<VarString, ? super E> appender
+			final BiConsumer<VarString, ? super E> appender
 		)
 		{
 			final VarString
@@ -301,7 +300,7 @@ public interface ItemMatcher<E>
 		public static <E> VarString assembleMappingSchemeVertical(
 			final ItemMatch<E> im,
 			final VarString vc,
-			final BiProcedure<VarString, ? super E> appender
+			final BiConsumer<VarString, ? super E> appender
 		)
 		{
 			for(int s = 0 ; s < im.source.length; s++)
@@ -367,7 +366,7 @@ public interface ItemMatcher<E>
 		// instance fields  //
 		/////////////////////
 
-		private Equalator<? super E>     equalator              = JadothEqualators.value();
+		private Equalator<? super E>     equalator              = Equalator.value();
 		private Similator<? super E>     similator             ;
 		private MatchCallback<? super E> suspiciousMatchDecider;
 

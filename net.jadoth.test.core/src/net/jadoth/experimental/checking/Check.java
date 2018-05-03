@@ -2,8 +2,8 @@ package net.jadoth.experimental.checking;
 
 import java.util.function.Function;
 
-import net.jadoth.functional.JadothFunctions;
-import net.jadoth.util.JadothExceptions;
+import net.jadoth.functional.JadothFunctional;
+import net.jadoth.util.UtilStackTrace;
 
 @FunctionalInterface
 public interface Check<T, E extends RuntimeException>
@@ -12,7 +12,7 @@ public interface Check<T, E extends RuntimeException>
 
 	public default T check(final T instance)
 	{
-		return this.check(instance, JadothFunctions.passthrough());
+		return this.check(instance, JadothFunctional.passThrough());
 	}
 
 
@@ -29,7 +29,7 @@ public interface Check<T, E extends RuntimeException>
 		}
 
 		final Throwable t = new NullPointerException();
-		final StackTraceElement[] st = JadothExceptions.cutStacktraceByN(t.getStackTrace(), 1);
+		final StackTraceElement[] st = UtilStackTrace.cutStacktraceByN(t.getStackTrace(), 1);
 
 		final E ex = e.apply(t);
 		ex.setStackTrace(st);

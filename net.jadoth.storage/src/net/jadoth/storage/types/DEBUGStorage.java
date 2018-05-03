@@ -5,7 +5,7 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.memory.Memory;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.util.file.JadothFiles;
 
 
@@ -18,7 +18,7 @@ public final class DEBUGStorage
 	{
 		if(ENABLED)
 		{
-			JadothConsole.debugln(s, 2);
+			JadothDebug.debugln(s, 2);
 		}
 
 	}

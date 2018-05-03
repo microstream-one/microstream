@@ -3,12 +3,13 @@ package net.jadoth.util.chars;
 import static net.jadoth.collections.JadothArrays.shuffle;
 import static net.jadoth.math.JadothMath.random;
 
+import java.util.function.BiConsumer;
+
 import net.jadoth.X;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.JadothDebug;
 import net.jadoth.util.ItemMatch;
 import net.jadoth.util.ItemMatchResult;
 import net.jadoth.util.ItemMatcher;
@@ -47,7 +48,7 @@ public class MainTestItemMatcher
 		})
 	;
 
-	public static final BiProcedure<VarString, Object> joiner = new BiProcedure<VarString, Object>(){
+	public static final BiConsumer<VarString, Object> joiner = new BiConsumer<VarString, Object>(){
 		@Override public void accept(final VarString vc, final Object e) {
 			vc.add(e);
 		}
@@ -59,8 +60,8 @@ public class MainTestItemMatcher
 		final ItemMatch<String> match = STRING_MATCHER_FACTORY.match(src, trg);
 
 		System.out.println("INPUT:");
-		JadothConsole.printCollection(src, null, "\t", null, null);
-		JadothConsole.printCollection(trg, null, "\t", null, null);
+		JadothDebug.printCollection(src, null, "\t", null, null);
+		JadothDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
 		System.out.println(ItemMatcher.Static.assembleMappingSchemeVertical(match, VarString.New(), joiner));
@@ -124,8 +125,8 @@ public class MainTestItemMatcher
 
 
 		System.out.println("INPUT:");
-		JadothConsole.printCollection(src, null, "\t", null, null);
-		JadothConsole.printCollection(trg, null, "\t", null, null);
+		JadothDebug.printCollection(src, null, "\t", null, null);
+		JadothDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
 		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(match.getResult(), VarString.New(), joiner));

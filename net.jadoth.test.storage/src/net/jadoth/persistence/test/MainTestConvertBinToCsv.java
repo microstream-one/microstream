@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeBinaryToCsv;
@@ -17,7 +17,7 @@ public class MainTestConvertBinToCsv
 	{
 		convertBinToCsv(
 			X.List(new File("C:/Files/export/bin/de.emverbund.bonus.stammdaten.Datenstand$Implementation.dat")),
-			JadothPredicates.all()
+			JadothFunctional.all()
 		);
 	}
 

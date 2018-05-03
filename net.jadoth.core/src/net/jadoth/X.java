@@ -18,20 +18,27 @@ import net.jadoth.collections.EmptyTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.Singleton;
+import net.jadoth.collections.SynchCollection;
+import net.jadoth.collections.SynchList;
+import net.jadoth.collections.SynchSet;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.old.XArrayList;
+import net.jadoth.collections.types.XCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.collections.types.XSet;
+import net.jadoth.concurrent.ThreadSafe;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.util.JadothExceptions;
+import net.jadoth.exceptions.WrapperRuntimeException;
+import net.jadoth.util.UtilStackTrace;
 import net.jadoth.util._longKeyValue;
 import net.jadoth.util.branching.AbstractBranchingThrow;
 import net.jadoth.util.branching.ThrowBreak;
+import net.jadoth.util.chars.VarString;
 
 /**
  * Central class for general utility methods regarding collections, arrays and some basic general functionality that is
@@ -207,7 +214,7 @@ public final class X
 		if(object == null)
 		{
 			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
-			throw JadothExceptions.cutStacktraceByOne(new NullPointerException());
+			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
 		}
 		return object;
 	}
@@ -253,10 +260,13 @@ public final class X
 
 	
 	
-	public static final boolean equal(final Object o1, final Object o2)
+	public static final <T> boolean equal(final T o1, final T o2)
 	{
 		// leave identity comparison to equals() implementation as this method should mostly be called on value types
-		return o1 == null ? o2 == null : o1.equals(o2);
+		return o1 == null
+			? o2 == null
+			: o1.equals(o2)
+		;
 	}
 	
 	
@@ -690,31 +700,29 @@ public final class X
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	public static final <T> T[] ArrayForElementType(final T sampleInstance, final int length)
+	{
+		// fascinating how the JDK massively lacks basic util methods like this
+		return (T[])Array.newInstance(sampleInstance.getClass(), length);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static <E> E[] ArrayOfSameType(final E[] sampleArray, final int length)
 	{
 		return (E[])Array.newInstance(sampleArray.getClass().getComponentType(), length);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static final <E> E[] ArrayOfSameType(final E[] sampleArray)
+	{
+		return (E[])Array.newInstance(sampleArray.getClass().getComponentType(), sampleArray.length);
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <E> E[] Array(final Class<E> componentType, final int length)
 	{
 		return (E[])Array.newInstance(componentType, length);
-	}
-		
-	@SafeVarargs
-	public static <E> E[] Array(final Class<E> componentType, final int length, final E... initialElements)
-	{
-		final E[] array = X.Array(componentType, length);
-		
-		if(initialElements != null)
-		{
-			// intentionally no min length logic to prevent swallowing of programming errors.
-			System.arraycopy(initialElements, 0, array, 0, initialElements.length);
-		}
-		
-		return array;
 	}
 	
 	/**
@@ -802,7 +810,7 @@ public final class X
 	{
 		if(sized.isEmpty())
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException());
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException());
 		}
 		return sized;
 	}
@@ -811,7 +819,7 @@ public final class X
 	{
 		if(array.length == 0)
 		{
-			throw JadothExceptions.cutStacktraceByOne(new IllegalArgumentException());
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException());
 		}
 		return array;
 	}
@@ -834,8 +842,145 @@ public final class X
 		return new _longKeyValue.Implementation(key, value);
 	}
 
-		
 	
+
+	public static String toString(final XGettingCollection<?> collection)
+	{
+		// CHECKSTYLE.OFF: MagicNumber: special case not worth the hassle
+		return X.assembleString(VarString.New((int)(collection.size() * 4.0f)), collection).toString();
+		// CHECKSTYLE.ON: MagicNumber
+	}
+
+	public static VarString assembleString(final VarString vs, final XGettingCollection<?> collection)
+	{
+		if(collection.isEmpty())
+		{
+			return vs.add('[', ']');
+		}
+	
+		/*
+		 * Intentionally no check for this collection, because it is the author's opinion that there is no sane
+		 * case where circular references in collections make sense.
+		 * 1.) Properly typed collections and algorithms don't even allow it on a compiler-level
+		 * 2.) Any complex special corner case structures, where this MIGHT be reasonable,
+		 *     should typewise be segmented into appropriate types, not overly crazy nested collections.
+		 *     The non-collection instances would serve as an assembly-block.
+		 * 3.) In 99.99% of all cases, such a check would mean a significant performance reduction. Such a cost
+		 *     just to cover a crazy case that should never happen is viable.
+		 * 4.) Any string chosen to represent that case (like JKD's "(this collection)" can create ambiguities
+		 *     for the calling application.
+		 *
+		 * In other words: A framework should not worsen/ruin its code just to try and compensate bad programming
+		 * in a dubious makeshift way. Bad user code creates errors/crashes. It happens all the time. It can't be
+		 * the responsibility of a framework to compensate some of them. The cleanest and best thing to do is to
+		 * indicate the error (in this case by an overflow error) instead of covering it up.
+		 */
+	
+		vs.append('[');
+		collection.iterate(e ->
+			vs.add(e).add(',', ' ')
+		);
+		vs.deleteLast().setLast(']');
+	
+		return vs;
+	}
+
+	/**
+	 * Ensures that the returned {@link XList} instance based on the passed list is thread safe to use.<br>
+	 * This normally means wrapping the passed list in a {@link SynchList}, making it effectively synchronized.<br>
+	 * If the passed list already is thread safe (indicated by the marker interface {@link ThreadSafe}), then the list
+	 * itself is returned without further actions. This automatically ensures that a {@link SynchList} is not
+	 * redundantly wrapped again in another {@link SynchList}.
+	 *
+	 * @param <E> the element type.
+	 * @param list the {@link XList} instance to be synchronized.
+	 * @return a thread safe {@link XList} using the passed list.
+	 */
+	public static <E> XList<E> synchronize(final XList<E> list)
+	{
+		// if type of passed list is already thread safe, there's no need to wrap it in a SynchronizedXList
+		if(list instanceof ThreadSafe)
+		{
+			return list;
+		}
+		// wrap not thread safe list types in a SynchronizedXList
+		return new SynchList<>(list);
+	}
+
+	/**
+	 * Ensures that the returned {@link XSet} instance based on the passed set is thread safe to use.<br>
+	 * This normally means wrapping the passed set in a {@link SynchSet}, making it effectively synchronized.<br>
+	 * If the passed set already is thread safe (indicated by the marker interface {@link ThreadSafe}), then the set
+	 * itself is returned without further actions. This automatically ensures that a {@link SynchSet} is not
+	 * redundantly wrapped again in another {@link SynchSet}.
+	 *
+	 * @param <E> the element type.
+	 * @param set the {@link XSet} instance to be synchronized.
+	 * @return a thread safe {@link XSet} using the passed set.
+	 */
+	public static <E> XSet<E> synchronize(final XSet<E> set)
+	{
+		// if type of passed set is already thread safe, there's no need to wrap it in a SynchronizedXSet
+		if(set instanceof ThreadSafe)
+		{
+			return set;
+		}
+		// wrap not thread safe set types in a SynchronizedXSet
+		return new SynchSet<>(set);
+	}
+
+	/**
+	 * Ensures that the returned {@link XCollection} instance based on the passed collection is thread safe to use.<br>
+	 * This normally means wrapping the passed collection in a {@link SynchCollection}, making it effectively synchronized.<br>
+	 * If the passed collection already is thread safe (indicated by the marker interface {@link ThreadSafe}), then the collection
+	 * itself is returned without further actions. This automatically ensures that a {@link SynchCollection} is not
+	 * redundantly wrapped again in another {@link SynchCollection}.
+	 *
+	 * @param <E> the element type.
+	 * @param collection the {@link XCollection} instance to be synchronized.
+	 * @return a thread safe {@link XCollection} using the passed collection.
+	 */
+	public static <E> XCollection<E> synchronize(final XCollection<E> collection)
+	{
+		// if type of passed collection is already thread safe, there's no need to wrap it in a SynchronizedXCollection
+		if(collection instanceof ThreadSafe)
+		{
+			return collection;
+		}
+		// wrap not thread safe set types in a SynchronizedXCollection
+		return new SynchCollection<>(collection);
+	}
+	
+	
+	/**
+	 * As usual, the JDK developers fail to create smoothly usable methods, so one has to clean up after them.<br>
+	 * Usage:<br>
+	 * <code>throw addSuppressed(new SomethingIsWrongException(), e);</code>
+	 */
+	public static final <T extends Throwable> T addSuppressed(final T throwable, final Throwable suppressed)
+	{
+		throwable.addSuppressed(suppressed);
+		return throwable;
+	}
+
+	public static final <T extends Throwable> T addSuppressed(final T throwable, final Throwable... suppresseds)
+	{
+		for(final Throwable suppressed : suppresseds)
+		{
+			throwable.addSuppressed(suppressed);
+		}
+		return throwable;
+	}
+	
+	public RuntimeException asUnchecked(final Exception e)
+	{
+		return e instanceof RuntimeException
+			? (RuntimeException)e
+			: new WrapperRuntimeException(e)
+		;
+	}
+	
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
@@ -845,5 +990,5 @@ public final class X
 		// static only
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

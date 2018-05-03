@@ -2,6 +2,7 @@ package net.jadoth.collections;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -9,7 +10,6 @@ import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
 
@@ -44,7 +44,7 @@ public class SubView<E> implements XGettingSequence<E>
 	}
 
 	@Override
-	public <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME SubView#join()
 	}

@@ -5,7 +5,7 @@ import net.jadoth.collections.ConstList;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 
 
 public class ItemMatchResult<T>
@@ -181,7 +181,7 @@ public class ItemMatchResult<T>
 		{
 			this.sourceMatches = this.matchesInSourceOrder.filterTo(
 				new BulkList<KeyValue<T, T>>(this.matchCount),
-				JadothPredicates.notNull()
+				JadothFunctional.notNull()
 			).immure();
 		}
 		return this.sourceMatches;
@@ -193,7 +193,7 @@ public class ItemMatchResult<T>
 		{
 			this.targetMatches = this.matchesInTargetOrder.filterTo(
 				new BulkList<KeyValue<T, T>>(this.matchCount),
-				JadothPredicates.notNull()
+				JadothFunctional.notNull()
 			).immure();
 		}
 		return this.targetMatches;

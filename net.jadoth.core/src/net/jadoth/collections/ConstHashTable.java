@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,10 +23,8 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothFunctions;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
@@ -180,7 +179,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		final XGettingCollection<? extends KeyValue<KI, VI>> entries
 	)
 	{
-		return NewProjected(entries, JadothFunctions.<KO>passthrough(), JadothFunctions.<VO>passthrough());
+		return NewProjected(entries, JadothFunctional.<KO>passThrough(), JadothFunctional.<VO>passThrough());
 	}
 
 	public static final <KI, VI, KO, VO> ConstHashTable<KO, VO> NewProjected(
@@ -664,7 +663,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		ConstHashTable.this.chain.join(joiner, aggregate);
 		return aggregate;
@@ -1112,7 +1111,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super K, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super K, ? super A> joiner, final A aggregate)
 		{
 			ConstHashTable.this.chain.keyJoin(joiner, aggregate);
 			return aggregate;
@@ -1553,7 +1552,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final Equalator<? super V> equality()
 		{
-			return JadothEqualators.identity();
+			return Equalator.identity();
 		}
 
 		@Override
@@ -1570,7 +1569,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super V, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super V, ? super A> joiner, final A aggregate)
 		{
 			ConstHashTable.this.chain.valuesJoin(joiner, aggregate);
 			return aggregate;

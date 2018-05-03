@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -14,9 +15,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
 
@@ -50,7 +49,7 @@ public class MappedList<E, S> implements XGettingList<E>
 
 	public MappedList(final XList<S> subject, final Function<S, E> mapper)
 	{
-		this(subject, mapper, JadothEqualators.identity());
+		this(subject, mapper, Equalator.identity());
 	}
 
 
@@ -473,7 +472,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#join
 	}

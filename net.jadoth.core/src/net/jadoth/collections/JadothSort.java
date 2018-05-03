@@ -2363,6 +2363,12 @@ public final class JadothSort
 //		System.out.println("length     : " + values.length);
 //		printStats();
 //	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
 	private JadothSort()
 	{

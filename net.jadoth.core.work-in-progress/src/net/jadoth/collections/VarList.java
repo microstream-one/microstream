@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
@@ -1715,7 +1716,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final String toString()
 	{
-		return JadothCollections.toString(this);
+		return X.toString(this);
 	}
 
 }

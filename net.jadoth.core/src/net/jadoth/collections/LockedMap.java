@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Spliterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,7 +19,6 @@ import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.concurrent.Synchronized;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
 
 public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
@@ -96,7 +96,7 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		synchronized(this.lock)
 		{

@@ -2,6 +2,11 @@ package net.jadoth.meta;
 
 import static net.jadoth.util.time.JadothTime.now;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,23 +19,24 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.util.chars.VarString;
+import net.jadoth.util.file.JadothFiles;
 
 
 
 /**
+ * This is a helper class merely for debugging purposes. None of its members should be used for productive code.
+ * 
  * @author Thomas Muenz
- *
  */
-public final class JadothConsole
+public final class JadothDebug
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	private static final transient int              LINE_BUFFER_INITIAL_SIZE = 256                                 ;
-	private static final transient int              SOURCE_POSITION_PADDING  = 64                                  ;
-	private static final transient DecimalFormat    DECIMAL_FORMAT_NANOS     = new DecimalFormat("00,000,000,000") ;
-	private static final transient char[]           TIME_SEPERATOR           = {'>', ' '}                          ;
+	private static final transient int    LINE_BUFFER_INITIAL_SIZE = 256             ;
+	private static final transient int    SOURCE_POSITION_PADDING  = 64              ;
+	private static final transient char[] TIME_SEPERATOR           = {'>', ' '}      ;
 
 
 
@@ -38,11 +44,22 @@ public final class JadothConsole
 	// static methods //
 	///////////////////
 
-
 	static String formatTimestamp(final Date timestamp)
 	{
-		// JDK geniuses can't write immutable types properly immutable.
+		/*
+		 * JDK people are not capable of programming thread safe utility classes, so a new instance
+		 * must be created on every call.
+		 */
 		return new SimpleDateFormat("HH:mm:ss.SSS").format(timestamp);
+	}
+	
+	static String formatTimestamp(final long timestamp)
+	{
+		/*
+		 * JDK people are not capable of programming thread safe utility classes, so a new instance
+		 * must be created on every call.
+		 */
+		return new DecimalFormat("00,000,000,000").format(timestamp);
 	}
 
 	public static final void debugln(final String s)
@@ -73,7 +90,11 @@ public final class JadothConsole
 
 	public static final void printlnElapsedNanos(final long elapsedTime)
 	{
-		System.out.println("Elapsed Time: " + DECIMAL_FORMAT_NANOS.format(elapsedTime));
+		/*
+		 * JDK people are not capable of programming thread safe utility classes, so a new instance
+		 * must be created on every call.
+		 */
+		System.out.println("Elapsed Time: " + formatTimestamp(elapsedTime));
 	}
 
 	public static final void printCollection(
@@ -91,19 +112,16 @@ public final class JadothConsole
 		{
 			vc.add(start);
 		}
+		
 		final int vcOldLength = vc.length();
 		if(limit == null)
 		{
-			collection.iterate(new Consumer<Object>()
+			collection.iterate(e ->
 			{
-				@Override
-				public void accept(final Object e)
+				vc.add(e);
+				if(sepp != null)
 				{
-					vc.add(e);
-					if(sepp != null)
-					{
-						vc.add(sepp);
-					}
+					vc.add(sepp);
 				}
 			});
 		}
@@ -156,24 +174,21 @@ public final class JadothConsole
 		{
 			vs.add(start);
 		}
+		
 		final int vcOldLength = vs.length();
 		if(limit == null)
 		{
-			collection.iterate(new Consumer<KeyValue<?, ?>>()
+			collection.iterate(kv ->
 			{
-				@Override
-				public void accept(final KeyValue<?, ?> e)
+				vs.add(kv.key());
+				if(mapper != null)
 				{
-					vs.add(e.key());
-					if(mapper != null)
-					{
-						vs.add(mapper);
-					}
-					vs.add(e.value());
-					if(sepp != null)
-					{
-						vs.add(sepp);
-					}
+					vs.add(mapper);
+				}
+				vs.add(kv.value());
+				if(sepp != null)
+				{
+					vs.add(sepp);
 				}
 			});
 		}
@@ -412,10 +427,84 @@ public final class JadothConsole
 		
 		System.out.println(vs);
 	}
+	
+	public static void resetDirecory(final File target, final File source, final boolean output) throws IOException
+	{
+		deleteAllFiles(target, output);
+		copyFile(source, source, target);
+	}
+
+	public static final void deleteAllFiles(final File directory, final boolean output)
+	{
+		if(!directory.exists())
+		{
+			return;
+		}
+		for(final File f : directory.listFiles())
+		{
+			if(f.isDirectory())
+			{
+				deleteAllFiles(f, output);
+			}
+			try
+			{
+				if(output)
+				{
+					debugln("Deleting "+f);
+				}
+				Files.deleteIfExists(f.toPath());
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException("Cannot delete file: "+f, e);
+			}
+		}
+
+	}
+
+	public static void copyFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	{
+		if(subject.isDirectory())
+		{
+			copyDirectory(sourceRoot, subject, targetRoot);
+		}
+		else
+		{
+			copyActualFile(sourceRoot, subject, targetRoot);
+		}
+	}
+
+	public static void copyDirectory(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	{
+		for(final File file : subject.listFiles())
+		{
+			copyFile(sourceRoot, file, targetRoot);
+		}
+	}
+
+	public static void copyActualFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	{
+		final String sourceRootPath = sourceRoot.getAbsolutePath();
+		final String subjectPath    = subject.getAbsolutePath();
+		final File   targetFile     = new File(targetRoot, subjectPath.substring(sourceRootPath.length()));
+
+		JadothFiles.ensureDirectoryAndFile(targetFile);
+
+		final Path sourcePath      = subject.toPath();
+		final Path destinationPath = targetFile.toPath();
+
+		Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+	}
 
 
 
-	private JadothConsole()
+
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private JadothDebug()
 	{
 		// static only
 		throw new UnsupportedOperationException();

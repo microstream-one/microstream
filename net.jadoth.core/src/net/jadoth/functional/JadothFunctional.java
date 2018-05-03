@@ -1,30 +1,269 @@
 package net.jadoth.functional;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
+import net.jadoth.collections.functions.AggregateCount;
+import net.jadoth.util.Equalator;
 
 
-public final class JadothProcedures
+public final class JadothFunctional
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
+	
+	/**
+	 * Functional alias for{@code return true;}.
+	 */
+	public static final <T> Predicate<T> all()
+	{
+		// note on performance: equal to caching an instance in a constant field (lambdas are cached internally)
+		return e -> true;
+	}
+
+	/**
+	 * Functional alias for{@code return true;}.
+	 */
+	public static final <T> Predicate<T> any()
+	{
+		return all();
+	}
+
+	/**
+	 * Functional alias for {@code return false;}.
+	 */
+	public static final <T> Predicate<T> none()
+	{
+		// note on performance: equal to caching an instance in a constant field (lambdas are cached internally)
+		return e -> false;
+	}
+
+	/**
+	 * Functional alias for {@code return e != null;}.
+	 */
+	public static <T> Predicate<T> notNull()
+	{
+		// note on performance: equal to caching an instance in a constant field (lambdas are cached internally)
+		return e -> e != null;
+	}
+
+	public static final <T, R> Function<T, R> toNull()
+	{
+		// note on performance: equal to caching an instance in a constant field (lambdas are cached internally)
+		return t -> null;
+	}
+
+	public static final <T> Function<T, T> passThrough()
+	{
+		// note on performance: equal to caching an instance in a constant field (lambdas are cached internally)
+		return t -> t;
+	}
+
+
+	/**
+	 * Literally a no-op {@link Consumer}.
+	 */
+	public static <E> void noOp(final E e)
+	{
+		// no-op
+	}
+
+	@SafeVarargs
+	public static final <T> Predicate<T> all(final Predicate<? super T>... predicates)
+	{
+		return e ->
+		{
+			for(final Predicate<? super T> predicate : predicates)
+			{
+				if(!predicate.test(e))
+				{
+					return false;
+				}
+			}
+			return true;
+		};
+	}
+	
+	/**
+	 * Required to use lambdas or method reference in conjunction with {@link Predicate#and(Predicate)} etc.
+	 * 
+	 * @param predicate a predicate instance
+	 * @return the passed predicate instance without execution any further logic.
+	 */
+	public static final <T> Predicate<T> select(final Predicate<T> predicate)
+	{
+		return predicate;
+	}
+
+	@SafeVarargs
+	public static final <T> Predicate<T> one(final Predicate<? super T>... predicates)
+	{
+		return e ->
+		{
+			final int size = predicates.length;
+			int i = 0;
+			while(i < size)
+			{
+				if(predicates[i++].test(e))
+				{
+					while(i < size)
+					{
+						if(predicates[i++].test(e))
+						{
+							return false;
+						}
+					}
+					return true;
+				}
+			}
+			return false;
+		};
+	}
+
+	public static final <E> Predicate<E> isEqual(final E sample, final Equalator<? super E> equalator)
+	{
+		return new EqualsSample<>(sample, equalator);
+	}
+
+	public static final <T> Predicate<T> isEqualTo(final T subject)
+	{
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(final T o)
+			{
+				return subject == null ? o == null : subject.equals(o);
+			}
+		};
+	}
+
+	public static final <T> Predicate<T> isSameAs(final T subject)
+	{
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(final T o)
+			{
+				return subject == o;
+			}
+		};
+	}
+
+	public static final <T, E extends T> Predicate<T> predicate(final E subject, final Equalator<T> equalator)
+	{
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(final T t)
+			{
+				return equalator.equal(subject, t);
+			}
+		};
+	}
+
+	public static Predicate<Object> isInstanceOf(final Class<?> type)
+	{
+		return e ->
+			type.isInstance(e)
+		;
+	}
+	
+	public static Predicate<Object> notIsInstanceOf(final Class<?> type)
+	{
+		return e ->
+			!type.isInstance(e)
+		;
+	}
+	
+	public static final Predicate<Object> isInstanceOf(final Class<?> ... types)
+	{
+		return object ->
+		{
+			for(final Class<?> type : types)
+			{
+				if(type.isInstance(object))
+				{
+					return true;
+				}
+			}
+			return false;
+		};
+	}
+	
+	public static final Predicate<Object> notIsInstanceOf(final Class<?> ... types)
+	{
+		return object ->
+		{
+			for(final Class<?> type : types)
+			{
+				if(type.isInstance(object))
+				{
+					return false;
+				}
+			}
+			return true;
+		};
+	}
+
+	/**
+	 * Fluent alias for {@code predicate.negate()}.
+	 */
+	public static <T> Predicate<T> not(final Predicate<T> predicate)
+	{
+		return predicate.negate();
+	}
+
+	// (04.07.2011)TODO in() predicate etc.
+
+	public static final Aggregator<Integer, Integer> max(final int initialValue)
+	{
+		return new JadothFunctional.MaxInteger(initialValue);
+	}
+
+	public static final <E> AggregateCount<E> count()
+	{
+		return new AggregateCount<>();
+	}
+
+	public static final <E, R> Aggregator<E, R> aggregator(
+		final BiConsumer<? super E, ? super R> joiner   ,
+		final R                                aggregate
+	)
+	{
+		return
+			new Aggregator<E, R>()
+			{
+				@Override
+				public void accept(final E element)
+				{
+					joiner.accept(element, aggregate);
+				}
+				
+				@Override
+				public R yield()
+				{
+					return aggregate;
+				}
+			}
+		;
+	}
 
 	public static <E> Aggregator<E, Long> counter()
 	{
 		return new Aggregator<E, Long>()
 		{
 			long count;
-
+	
 			@Override
 			public void accept(final E element)
 			{
 				this.count++;
 			}
-
+	
 			@Override
 			public Long yield()
 			{
@@ -32,16 +271,6 @@ public final class JadothProcedures
 			}
 		};
 	}
-
-	/**
-	 * Constant for literally a no-op procedure.
-	 */
-	public static <E> void noOp(final E e)
-	{
-		// no-op
-	}
-
-	// all direct //
 
 	public static <E> Consumer<E> wrapWithSkip(final Consumer<? super E> procedure, final long skip)
 	{
@@ -98,8 +327,6 @@ public final class JadothProcedures
 			}
 		};
 	}
-
-	// predicate //
 
 	public static final <E> Consumer<E> wrapWithPredicate(
 		final Consumer<? super E> procedure,
@@ -193,8 +420,6 @@ public final class JadothProcedures
 		};
 	}
 
-	// function //
-
 	public static final <I, O> Consumer<I> wrapWithFunction(
 		final Consumer<? super O>   procedure,
 		final Function<? super I, O> function
@@ -270,8 +495,6 @@ public final class JadothProcedures
 			}
 		};
 	}
-
-	// predicate function //
 
 	public static final <I, O> Consumer<I> wrapWithPredicateFunction(
 		final Consumer<? super O>   procedure,
@@ -369,10 +592,68 @@ public final class JadothProcedures
 		};
 	}
 
-
-	private JadothProcedures()
+	/**
+	 * Pass-through function with type upcast. Can sometimes be required to correctly handle nested types.
+	 * <p>
+	 * Consider the following example with V1 extends V:
+	 * (e.g. V is an interface and V1 is an implementation of V)
+	 * <code><pre>
+	 * XMap&lt;K, V1&gt; workingCollection = ... ;
+	 * XImmutableMap&lt;K, V&gt; finalCollection = ConstHashTable.NewProjected(input, &lt;K&gt;passthrough(), &lt;V1,V&gt;upcast());
+	 * </pre></code>
+	 *
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T extends S, S> Function<T, S> upcast()
+	{
+		return (Function<T, S>)passThrough();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// member types     //
+	/////////////////////
+		
+	public static final class MaxInteger implements Aggregator<Integer, Integer>
+	{
+		private int max;
+	
+		public MaxInteger(final int max)
+		{
+			super();
+			this.max = max;
+		}
+	
+		@Override
+		public final void accept(final Integer value)
+		{
+			if(value != null && value > this.max)
+			{
+				this.max = value;
+			}
+		}
+	
+		@Override
+		public final Integer yield()
+		{
+			return this.max;
+		}
+	
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	private JadothFunctional()
 	{
 		// static only
 		throw new UnsupportedOperationException();
 	}
+
 }

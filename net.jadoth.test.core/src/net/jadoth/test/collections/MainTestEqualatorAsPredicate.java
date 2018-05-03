@@ -3,8 +3,8 @@ package net.jadoth.test.collections;
 import static net.jadoth.math.JadothMath.sequence;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
+import net.jadoth.util.Equalator;
 
 public class MainTestEqualatorAsPredicate
 {
@@ -25,7 +25,7 @@ public class MainTestEqualatorAsPredicate
 			long tStart, tStop;
 			tStart = System.nanoTime();
 //			found = ints.contains(lastValue, Jadoth.equals);
-			found = ints.containsSearched(JadothPredicates.isEqual(lastValue, JadothEqualators.value())); // about as fast as equalator
+			found = ints.containsSearched(JadothFunctional.isEqual(lastValue, Equalator.value())); // about as fast as equalator
 			tStop = System.nanoTime();
 			System.out.print(found);
 			System.out.println(" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));

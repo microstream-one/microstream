@@ -4,13 +4,13 @@ import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
 import net.jadoth.util.JadothTypes;
 
@@ -162,7 +162,7 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 	}
 
 	@Override
-	public <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}

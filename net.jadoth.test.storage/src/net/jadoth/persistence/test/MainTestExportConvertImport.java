@@ -5,7 +5,7 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.JadothFunctional;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.util.file.JadothFiles;
 
@@ -34,7 +34,7 @@ public class MainTestExportConvertImport extends TestStorage
 			STORAGE.typeDictionary(),
 			X.List(csvDir.listFiles()),
 			new File(csvDir.getParent(), "bin2"),
-			JadothPredicates.all()
+			JadothFunctional.all()
 		);
 
 		STORAGE.truncateData();
