@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableSet;
@@ -13,6 +12,7 @@ import net.jadoth.collections.types.XSet;
 import net.jadoth.concurrent.Synchronized;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 
 
@@ -522,7 +522,7 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	@Override
 	public synchronized long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

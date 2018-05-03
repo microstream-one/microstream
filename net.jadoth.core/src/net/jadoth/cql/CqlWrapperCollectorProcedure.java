@@ -1,9 +1,9 @@
 package net.jadoth.cql;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 import net.jadoth.collections.sorting.SortableProcedure;
-import java.util.function.Consumer;
 import net.jadoth.functional.SortingAggregator;
 
 public final class CqlWrapperCollectorProcedure<O, T extends Consumer<O>> implements SortingAggregator<O, T>

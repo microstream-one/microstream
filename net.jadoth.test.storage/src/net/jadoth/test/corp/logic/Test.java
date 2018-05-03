@@ -1,6 +1,6 @@
 package net.jadoth.test.corp.logic;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -738,7 +738,7 @@ final class Generator
 			allOrder[i] = Test.Order(
 				"order"+number,
 				customer,
-				HashTable.New(X.keyValue(initialOrderItem.product(), initialOrderItem)),
+				HashTable.New(X.KeyValue(initialOrderItem.product(), initialOrderItem)),
 				notNull(customer.billingAddress()),
 				notNull(customer.shippingAddresses().get())
 			);

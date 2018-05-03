@@ -1,6 +1,6 @@
 package net.jadoth.memory;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

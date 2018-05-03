@@ -1,9 +1,9 @@
 package net.jadoth.collections;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.concurrent.Synchronized;
+import net.jadoth.util.JadothTypes;
 
 
 public final class LockedAdder<E> implements XAddingCollection<E>, Synchronized
@@ -142,7 +142,7 @@ public final class LockedAdder<E> implements XAddingCollection<E>, Synchronized
 	{
 		synchronized(this.lock)
 		{
-			return Jadoth.to_int(this.subject.size()) >= this.subject.maximumCapacity();
+			return JadothTypes.to_int(this.subject.size()) >= this.subject.maximumCapacity();
 		}
 	}
 

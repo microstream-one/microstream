@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import java.util.function.Consumer;
+
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
 
 public interface PersistenceRetrieving extends SwizzleObjectSupplier

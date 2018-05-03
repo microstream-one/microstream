@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownType;
 
 public interface SwizzleObjectManager extends SwizzleObjectLookup

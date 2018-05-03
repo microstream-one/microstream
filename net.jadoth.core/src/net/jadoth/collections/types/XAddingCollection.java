@@ -1,10 +1,11 @@
 package net.jadoth.collections.types;
 
+import java.util.function.Consumer;
+
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ExtendedCollection;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.functional.Aggregator;
-import java.util.function.Consumer;
 
 
 /**

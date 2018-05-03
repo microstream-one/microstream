@@ -643,7 +643,7 @@ public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements Concurr
 				if(slots[i] == null) continue; // should be faster than setting up the for loop just to skip it again
 				for(VolatileEntry e = slots[i]; e != null; e = e.link)
 				{
-					array[a++] = X.keyValue((K)e.key, (V)e.value);
+					array[a++] = X.KeyValue((K)e.key, (V)e.value);
 				}
 			}
 			this.wait = false;

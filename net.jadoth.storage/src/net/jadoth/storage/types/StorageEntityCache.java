@@ -1,13 +1,12 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.math.JadothMath.log2pow2;
 import static net.jadoth.math.JadothMath.notNegative;
 import static net.jadoth.math.JadothMath.positive;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.JadothMath;
@@ -17,6 +16,7 @@ import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.JadothTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -1064,7 +1064,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				entity.updateStorageInformation(
 					X.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
-					Jadoth.to_int(storageBackset + adr)
+					JadothTypes.to_int(storageBackset + adr)
 				);
 			}
 		}
@@ -1354,7 +1354,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			DEBUGStorage.println(this.channelIndex + " issuedCacheCheck until " + nanoTimeBudget + " at " + System.nanoTime());
 			return this.internalLiveCheck(
 				nanoTimeBudget,
-				Jadoth.coalesce(entityEvaluator, this.entityCacheEvaluator)
+				X.coalesce(entityEvaluator, this.entityCacheEvaluator)
 			);
 		}
 

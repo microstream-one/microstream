@@ -1,9 +1,10 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
-import net.jadoth.Jadoth;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.MiniMap;
+import net.jadoth.util.JadothTypes;
 
 
 public interface NetworkMessageManager<S extends NetworkSession<?>> extends Suspendable
@@ -69,7 +70,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 		private void startListener()
 		{
-			final ListenerThread thread = new ListenerThread(Jadoth.to_int(this.listeners.size()) + 1);
+			final ListenerThread thread = new ListenerThread(JadothTypes.to_int(this.listeners.size()) + 1);
 			this.listeners.add(thread);
 			thread.start();
 		}
@@ -92,7 +93,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 		private void synchIncreaseListeners(final int desiredListenerCount)
 		{
-			while(Jadoth.to_int(this.listeners.size()) < desiredListenerCount)
+			while(JadothTypes.to_int(this.listeners.size()) < desiredListenerCount)
 			{
 				this.startListener();
 			}
@@ -101,7 +102,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 		private void synchDecreaseListeners(final int desiredListenerCount)
 		{
 			final BulkList<S> sessionsToTransfer = new BulkList<>();
-			while(Jadoth.to_int(this.listeners.size()) > desiredListenerCount)
+			while(JadothTypes.to_int(this.listeners.size()) > desiredListenerCount)
 			{
 				this.stopListener(sessionsToTransfer);
 			}
@@ -114,7 +115,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 			final BulkList<S> sessionsToTransfer
 		)
 		{
-			final int size = Jadoth.to_int(sessionsToTransfer.size());
+			final int size = JadothTypes.to_int(sessionsToTransfer.size());
 			for(int i = 0; i < size; i++)
 			{
 				final S session;
@@ -132,7 +133,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 			{
 				return;
 			}
-			else if(desiredLisCount > Jadoth.to_int(this.listeners.size()))
+			else if(desiredLisCount > JadothTypes.to_int(this.listeners.size()))
 			{
 				this.synchIncreaseListeners(desiredLisCount);
 			}
@@ -285,7 +286,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 		)
 		{
 			// external iteration is okay for implementation detail array-backed bulklist with feedback loop
-			final int size = Jadoth.to_int(listeners.size());
+			final int size = JadothTypes.to_int(listeners.size());
 			for(int i = 0, limit = 1; i < size; i++)
 			{
 				if((limit = listeners.at(i).logic.register(session, limit)) == 0)

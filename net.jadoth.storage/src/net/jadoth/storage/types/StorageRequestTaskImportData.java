@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.channels.FileChannel;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.types.XGettingEnum;
@@ -12,6 +11,7 @@ import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 import net.jadoth.util.VMUtils;
+import net.jadoth.util.file.JadothFiles;
 
 
 public interface StorageRequestTaskImportData extends StorageRequestTask
@@ -422,7 +422,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
 //					DEBUGStorage.println("Closing silently: " + file);
-					Jadoth.closeSilent(file.fileChannel);
+					JadothFiles.closeSilent(file.fileChannel);
 				}
 			}
 		}

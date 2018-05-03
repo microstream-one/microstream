@@ -3,7 +3,6 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.Date;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
@@ -16,6 +15,7 @@ import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.storage.types.StorageRawFileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.swizzling.types.Lazy;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 import net.jadoth.util.time.JadothTime;
 
@@ -359,7 +359,7 @@ public class MainTestStorage extends TestStorage
 
 	static BulkList<Integer> createIntegers(final BulkList<Integer> ints, final int size)
 	{
-		final int first = 5001 + Jadoth.to_int(ints.size());
+		final int first = 5001 + JadothTypes.to_int(ints.size());
 		final int bound = first + size;
 		for(int i = first; i < bound; i++)
 		{
@@ -453,7 +453,7 @@ public class MainTestStorage extends TestStorage
 					null
 				},
 			},
-			EqConstHashTable.New(X.keyValue("A", "One"), X.keyValue("B", "Two"), X.keyValue("C", "Schnitzel")),
+			EqConstHashTable.New(X.KeyValue("A", "One"), X.KeyValue("B", "Two"), X.KeyValue("C", "Schnitzel")),
 			5,
 			1337L,
 			X.Enum("A", "B", "C")

@@ -2,10 +2,10 @@ package net.jadoth.collections.functions;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static net.jadoth.Jadoth.BREAK;
 
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.functional.Aggregator;
 
 public final class AggregateContains<E> implements Aggregator<E, Boolean>
@@ -41,7 +41,7 @@ public final class AggregateContains<E> implements Aggregator<E, Boolean>
 		if(this.predicate.test(element))
 		{
 			this.contains = TRUE;
-			throw BREAK;
+			throw X.BREAK();
 		}
 	}
 

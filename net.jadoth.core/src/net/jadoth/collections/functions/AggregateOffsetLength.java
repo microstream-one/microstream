@@ -1,6 +1,6 @@
 package net.jadoth.collections.functions;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional.Aggregator;
 
 public final class AggregateOffsetLength<E, R> implements Aggregator<E, R>
@@ -44,7 +44,7 @@ public final class AggregateOffsetLength<E, R> implements Aggregator<E, R>
 		this.aggregate.accept(element);
 		if(--this.length == 0)
 		{
-			throw Jadoth.BREAK;
+			throw X.BREAK();
 		}
 	}
 

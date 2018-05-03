@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.X.coalesce;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

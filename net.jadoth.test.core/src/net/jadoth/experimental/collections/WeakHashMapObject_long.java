@@ -5,7 +5,6 @@ import static java.lang.System.identityHashCode;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.OptimizableCollection;
@@ -13,6 +12,7 @@ import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.math.JadothMath;
+import net.jadoth.util.JadothTypes;
 
 /**
  * Primitive (read: fast) pseudo map implementation that maps long id values to weakly referenced objects.
@@ -199,7 +199,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = Jadoth.to_int(list.size());
+		this.size = JadothTypes.to_int(list.size());
 		return list;
 	}
 
@@ -216,7 +216,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = Jadoth.to_int(list.size());
+		this.size = JadothTypes.to_int(list.size());
 		return list;
 	}
 

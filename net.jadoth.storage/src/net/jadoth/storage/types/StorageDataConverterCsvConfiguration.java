@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
-import net.jadoth.Jadoth;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
@@ -40,7 +40,7 @@ public interface StorageDataConverterCsvConfiguration
 
 	public default String resolveActualTypeName(final String csvTypeName)
 	{
-		return Jadoth.coalesce(this.csvTypeNameToActualTypeNameMapping().get(csvTypeName), csvTypeName);
+		return X.coalesce(this.csvTypeNameToActualTypeNameMapping().get(csvTypeName), csvTypeName);
 	}
 
 
@@ -285,28 +285,32 @@ public interface StorageDataConverterCsvConfiguration
 		static final String DEFAULT_TYPE_NAME_CMPLX             = "complex"  ;
 		static final String DEFAULT_TYPE_NAME_REFERENCE         = "reference";
 
-		static final XGettingMap<String, String> DEFAULT_TYPE_MAPPING = createTypeNameToCsvTypeNameMapping(
-			DEFAULT_TYPE_NAME_CHARS,
-			DEFAULT_TYPE_NAME_BYTES,
-			DEFAULT_TYPE_NAME_CMPLX
-		);
+		static final XGettingMap<String, String> DEFAULT_TYPE_MAPPING =
+			StorageDataConverterCsvConfiguration.createTypeNameToCsvTypeNameMapping(
+				DEFAULT_TYPE_NAME_CHARS,
+				DEFAULT_TYPE_NAME_BYTES,
+				DEFAULT_TYPE_NAME_CMPLX
+			)
+		;
 
-		static final XGettingMap<String, String> DEFAULT_TYPE_MAPPING_REVERSED = deriveTypeNameToCsvTypeNameMapping(
-			DEFAULT_TYPE_MAPPING
-//			DEFAULT_TYPE_NAME_REFERENCE,
-//			long.class.getSimpleName()
-		);
+		static final XGettingMap<String, String> DEFAULT_TYPE_MAPPING_REVERSED =
+			StorageDataConverterCsvConfiguration.deriveTypeNameToCsvTypeNameMapping(
+				DEFAULT_TYPE_MAPPING
+//				DEFAULT_TYPE_NAME_REFERENCE,
+//				long.class.getSimpleName()
+			)
+		;
 
 		static final DefaultImplementation SINGLETON = new DefaultImplementation();
 
 		static final KeyValue<String, String> transientEntry(final Class<?> type)
 		{
-			return X.keyValue(type.getName(), type.getName());
+			return X.KeyValue(type.getName(), type.getName());
 		}
 
 		static final KeyValue<String, String> mappedEntry(final String key, final String value)
 		{
-			return X.keyValue(key, value);
+			return X.KeyValue(key, value);
 		}
 
 

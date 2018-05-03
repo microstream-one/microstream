@@ -1,6 +1,7 @@
 package net.jadoth.util.chars;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.csv.CsvConfiguration;
 import net.jadoth.functional._charProcedure;
 

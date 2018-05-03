@@ -1,8 +1,10 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import java.util.function.Consumer;
+
+import net.jadoth.X;
 
 
 public final class LimitedProcedure<E> implements Consumer<E>
@@ -49,7 +51,7 @@ public final class LimitedProcedure<E> implements Consumer<E>
 			this.limit--; // decrement after procedure call to let continue throw skip it? tricky... maybe too much
 			return;
 		}
-		throw BREAK;
+		throw X.BREAK();
 	}
 
 }

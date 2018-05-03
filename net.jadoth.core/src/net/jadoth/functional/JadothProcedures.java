@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 
 
 public final class JadothProcedures
@@ -69,7 +69,7 @@ public final class JadothProcedures
 				procedure.accept(e);
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -93,7 +93,7 @@ public final class JadothProcedures
 				procedure.accept(e);
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -158,7 +158,7 @@ public final class JadothProcedures
 				procedure.accept(e);
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -187,7 +187,7 @@ public final class JadothProcedures
 				procedure.accept(e);
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -240,7 +240,7 @@ public final class JadothProcedures
 				procedure.accept(function.apply(e));
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -265,7 +265,7 @@ public final class JadothProcedures
 				procedure.accept(function.apply(e));
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -333,7 +333,7 @@ public final class JadothProcedures
 				procedure.accept(function.apply(e));
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};
@@ -363,7 +363,7 @@ public final class JadothProcedures
 				procedure.accept(function.apply(e));
 				if(--this.limit == 0)
 				{
-					throw Jadoth.BREAK;
+					throw X.BREAK();
 				}
 			}
 		};

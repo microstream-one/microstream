@@ -1,13 +1,13 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+
+import net.jadoth.util.file.JadothFiles;
 
 
 public interface StorageLockedFile extends StorageFile
@@ -53,7 +53,7 @@ public interface StorageLockedFile extends StorageFile
 		}
 		catch(final Exception e)
 		{
-			closeSilent(channel);
+			JadothFiles.closeSilent(channel);
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}

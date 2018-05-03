@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
@@ -203,14 +202,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				X.keyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
-				X.keyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
-				X.keyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
-				X.keyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
-				X.keyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
-				X.keyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
-				X.keyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
-				X.keyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
+				X.KeyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
+				X.KeyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
+				X.KeyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
+				X.KeyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
+				X.KeyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
+				X.KeyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
+				X.KeyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
+				X.KeyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
 			);
 		}
 
@@ -219,24 +218,24 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				X.keyValue(byte     .class.getName()                    , this::parse_byte        ),
-				X.keyValue(boolean  .class.getName()                    , this::parse_boolean     ),
-				X.keyValue(short    .class.getName()                    , this::parse_short       ),
-				X.keyValue(char     .class.getName()                    , this::parse_char        ),
-				X.keyValue(int      .class.getName()                    , this::parse_int         ),
-				X.keyValue(float    .class.getName()                    , this::parse_float       ),
-				X.keyValue(long     .class.getName()                    , this::parse_long        ),
-				X.keyValue(double   .class.getName()                    , this::parse_double      ),
-				X.keyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
-				X.keyValue(boolean[].class.getName()                    , this::parseArray_boolean),
-				X.keyValue(short[]  .class.getName()                    , this::parseArray_short  ),
-				X.keyValue(char[]   .class.getName()                    , this::parseChars        ),
-				X.keyValue(int[]    .class.getName()                    , this::parseArray_int    ),
-				X.keyValue(float[]  .class.getName()                    , this::parseArray_float  ),
-				X.keyValue(long[]   .class.getName()                    , this::parseArray_long   ),
-				X.keyValue(double[] .class.getName()                    , this::parseArray_double ),
-				X.keyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
-				X.keyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
+				X.KeyValue(byte     .class.getName()                    , this::parse_byte        ),
+				X.KeyValue(boolean  .class.getName()                    , this::parse_boolean     ),
+				X.KeyValue(short    .class.getName()                    , this::parse_short       ),
+				X.KeyValue(char     .class.getName()                    , this::parse_char        ),
+				X.KeyValue(int      .class.getName()                    , this::parse_int         ),
+				X.KeyValue(float    .class.getName()                    , this::parse_float       ),
+				X.KeyValue(long     .class.getName()                    , this::parse_long        ),
+				X.KeyValue(double   .class.getName()                    , this::parse_double      ),
+				X.KeyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
+				X.KeyValue(boolean[].class.getName()                    , this::parseArray_boolean),
+				X.KeyValue(short[]  .class.getName()                    , this::parseArray_short  ),
+				X.KeyValue(char[]   .class.getName()                    , this::parseChars        ),
+				X.KeyValue(int[]    .class.getName()                    , this::parseArray_int    ),
+				X.KeyValue(float[]  .class.getName()                    , this::parseArray_float  ),
+				X.KeyValue(long[]   .class.getName()                    , this::parseArray_long   ),
+				X.KeyValue(double[] .class.getName()                    , this::parseArray_double ),
+				X.KeyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
+				X.KeyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
 			);
 		}
 
@@ -1094,7 +1093,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushBuffer();
 
 			StorageFile.closeSilent(this.targetFile);
-			Jadoth.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
+			JadothFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;
 			this.targetFile            = null;
@@ -1540,7 +1539,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				Jadoth.closeSilent(this.targetFileChannel);
+				JadothFiles.closeSilent(this.targetFileChannel);
 				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally

@@ -1,6 +1,7 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 

@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.math.JadothMath.notNegative;
+
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.util.chars.VarString;
 

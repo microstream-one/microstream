@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractOldGettingSet;
 import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
@@ -16,6 +15,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -456,7 +456,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || JadothTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -469,7 +469,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}

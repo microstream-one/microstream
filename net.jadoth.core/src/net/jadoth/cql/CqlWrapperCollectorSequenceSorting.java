@@ -1,11 +1,11 @@
 package net.jadoth.cql;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.sorting.SortableProcedure;
 import net.jadoth.functional.Aggregator;
-import java.util.function.Consumer;
 
 public final class CqlWrapperCollectorSequenceSorting<O, R extends Consumer<O> & XIterable<O>>
 implements Aggregator<O, R>

@@ -265,12 +265,12 @@ public interface ObjectGraphTraverserBuilder
 	public static XGettingTable<Class<?>, TypeTraverser<?>> defaultPolymorphTypeTraversers()
 	{
 		return ConstHashTable.<Class<?>, TypeTraverser<?>>New(
-			X.keyValue(XMap              .class, new TraverserXMapReplacing()          ),
-			X.keyValue(XGettingMap       .class, new TraverserXMapNonReplacing()       ),
-			X.keyValue(XReplacingBag     .class, new TraverserXCollectionReplacing()   ),
-			X.keyValue(XGettingCollection.class, new TraverserXCollectionNonReplacing()),
-			X.keyValue(Collection        .class, new TraverserCollectionOld()          ),
-			X.keyValue(Object[]          .class, new TraverserArray()                  )
+			X.KeyValue(XMap              .class, new TraverserXMapReplacing()          ),
+			X.KeyValue(XGettingMap       .class, new TraverserXMapNonReplacing()       ),
+			X.KeyValue(XReplacingBag     .class, new TraverserXCollectionReplacing()   ),
+			X.KeyValue(XGettingCollection.class, new TraverserXCollectionNonReplacing()),
+			X.KeyValue(Collection        .class, new TraverserCollectionOld()          ),
+			X.KeyValue(Object[]          .class, new TraverserArray()                  )
 		);
 	}
 	

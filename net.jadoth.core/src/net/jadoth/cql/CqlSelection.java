@@ -1,13 +1,13 @@
 package net.jadoth.cql;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.types.XSequence;
-import java.util.function.Consumer;
 
 public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSequence<I>>
 {

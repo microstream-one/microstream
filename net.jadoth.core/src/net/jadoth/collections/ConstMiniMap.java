@@ -1,6 +1,7 @@
 package net.jadoth.collections;
 
 import static java.lang.System.identityHashCode;
+
 import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.math.JadothMath;
 

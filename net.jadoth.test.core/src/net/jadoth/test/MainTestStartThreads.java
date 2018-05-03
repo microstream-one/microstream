@@ -1,5 +1,6 @@
 package net.jadoth.test;
 import static net.jadoth.math.JadothMath.sequence;
+
 import net.jadoth.concurrent.JadothThreads;
 
 

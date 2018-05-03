@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static java.lang.System.identityHashCode;
+
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.VMUtils;
 

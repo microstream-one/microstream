@@ -4,8 +4,8 @@ import static net.jadoth.math.JadothMath.range;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
+import net.jadoth.util.JadothTypes;
 
 /**
  * @author Thomas Muenz
@@ -40,7 +40,7 @@ public class MainTestFastListPredicates
 		{
 			intList.add(i);
 		}
-		System.out.println("list filled: "+Jadoth.to_int(intList.size())+" elements.");
+		System.out.println("list filled: "+JadothTypes.to_int(intList.size())+" elements.");
 
 
 		long tStart, tStop, min = Integer.MAX_VALUE;

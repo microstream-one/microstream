@@ -1,6 +1,6 @@
 package net.jadoth.cql;
 
-import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.X.coalesce;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashEnum;
@@ -29,6 +28,7 @@ import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.JadothProcedures;
 import net.jadoth.hash.HashEqualator;
+import net.jadoth.util.JadothTypes;
 
 
 /**
@@ -210,7 +210,7 @@ public final class CQL
 	{
 		// best effort to choose a suitable generic buffer type
 		return source instanceof Sized
-			? new LimitList<>(Jadoth.to_int(((Sized)source).size()))
+			? new LimitList<>(JadothTypes.to_int(((Sized)source).size()))
 			: new BulkList<>()
 		;
 	}

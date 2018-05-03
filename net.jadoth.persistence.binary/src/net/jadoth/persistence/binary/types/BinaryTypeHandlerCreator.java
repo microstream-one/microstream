@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
 
@@ -10,8 +10,8 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;

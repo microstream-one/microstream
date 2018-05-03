@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.HashCollection;
@@ -20,6 +19,7 @@ import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -61,7 +61,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	)
 	{
 		final ConstHashEnum<E> newEnum = new ConstHashEnum<>(
-			JadothHash.padHashLength(Jadoth.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			JadothHash.padHashLength(JadothTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
 			JadothHash.hashDensity(hashDensity)
 		);
 		newEnum.internalAddAll(entries);
@@ -296,7 +296,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 		 * Should this VM implementation detail ever change (which is extremely doubtful as it moreless ruins
 		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
-		return Jadoth.to_int(this.size());
+		return JadothTypes.to_int(this.size());
 	}
 
 	@Override
@@ -588,7 +588,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(this.size != Jadoth.to_int(samples.size()))
+		if(this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}

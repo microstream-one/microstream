@@ -7,7 +7,6 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
@@ -22,6 +21,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -469,7 +469,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstList<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstList<?>) || JadothTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -481,7 +481,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}

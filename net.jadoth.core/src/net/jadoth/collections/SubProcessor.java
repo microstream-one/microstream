@@ -1,11 +1,11 @@
 package net.jadoth.collections;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XProcessingSequence;
-import java.util.function.Consumer;
 import net.jadoth.util.Equalator;
 
 public class SubProcessor<E> extends SubView<E> implements XProcessingSequence<E>

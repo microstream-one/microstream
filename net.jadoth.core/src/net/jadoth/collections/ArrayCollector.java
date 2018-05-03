@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -24,6 +23,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -191,7 +191,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				JadothTypes.to_int(elements.size())
 			);
 		}
 		final int oldSize = this.size;
@@ -245,7 +245,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				JadothTypes.to_int(elements.size())
 			);
 		}
 
@@ -673,7 +673,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayCollector<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayCollector<?>) || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -695,7 +695,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}

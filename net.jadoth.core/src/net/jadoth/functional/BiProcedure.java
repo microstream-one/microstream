@@ -1,6 +1,6 @@
 package net.jadoth.functional;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 /**
  *

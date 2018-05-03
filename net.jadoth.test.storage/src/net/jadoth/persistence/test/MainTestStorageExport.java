@@ -37,7 +37,7 @@ public class MainTestStorageExport extends TestStorage
 				BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE)),
 				strings("a", "", "\n", "a\t", "\n\n'\"'\t", "assdgdfgsdgrgbdft"),
 				new long[0],
-				HashTable.New(X.keyValue(1, "A"), X.keyValue(2, "B"), X.keyValue(3, "C"))
+				HashTable.New(X.KeyValue(1, "A"), X.KeyValue(2, "B"), X.KeyValue(3, "C"))
 			)
 		);
 		STORAGE.createConnection().store(ROOT);

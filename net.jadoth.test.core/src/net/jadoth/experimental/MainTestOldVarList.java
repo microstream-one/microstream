@@ -5,10 +5,10 @@ import static net.jadoth.math.JadothMath.sequence;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.math.JadothMath;
+import net.jadoth.util.JadothTypes;
 
 public class MainTestOldVarList
 {
@@ -225,12 +225,12 @@ public class MainTestOldVarList
 
 	static void checkEach(final String name, final OldVarList<Integer> segs, final BulkList<Integer> bulk)
 	{
-		if(Jadoth.to_int(bulk.size()) != segs.size)
+		if(JadothTypes.to_int(bulk.size()) != segs.size)
 		{
 			System.out.println(false+"\t"+name);
 			return;
 		}
-		for(int i = 0, size = Jadoth.to_int(bulk.size()); i < size; i++)
+		for(int i = 0, size = JadothTypes.to_int(bulk.size()); i < size; i++)
 		{
 			if(!bulk.at(i).equals(segs.get(i)))
 			{

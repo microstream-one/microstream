@@ -1,10 +1,9 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
-
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import java.util.function.Consumer;
+import net.jadoth.X;
 import net.jadoth.util.branching.ThrowBreak;
 
 public final class LimitedOperationWithPredicate<E> implements Consumer<E>
@@ -61,7 +60,7 @@ public final class LimitedOperationWithPredicate<E> implements Consumer<E>
 			this.procedure.accept(e);
 			if(--this.lim == 0)
 			{
-				throw BREAK;
+				throw X.BREAK();
 			}
 		}
 		catch(final ThrowBreak t)

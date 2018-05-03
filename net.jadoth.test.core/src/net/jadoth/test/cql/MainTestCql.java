@@ -128,7 +128,7 @@ public class MainTestCql
 				CQL
 				.select(not(String::isEmpty))
 				.from(STRINGS)
-				.project(e -> X.keyValue(e.length(), e))
+				.project(e -> X.KeyValue(e.length(), e))
 			)
 			.execute()
 		;

@@ -1,11 +1,11 @@
 package net.jadoth.csv;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.StringTable;
 
 
@@ -47,10 +47,10 @@ public interface CsvContent
 			final CsvConfiguration                        configuration
 		)
 		{
-			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(Jadoth.to_int(segments.size()));
+			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(JadothTypes.to_int(segments.size()));
 			for(final StringTable table : segments)
 			{
-				translated.add(X.keyValue(table.name(), table));
+				translated.add(X.KeyValue(table.name(), table));
 			}
 			return New(name, translated, configuration);
 		}

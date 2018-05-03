@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
@@ -19,6 +18,7 @@ import net.jadoth.collections.types.XReferencing;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 // (02.11.2012 TM)FIXME: Single: consolidate with Singleton<E>
 public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
@@ -1087,7 +1087,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public int size()
 		{
-			return Jadoth.to_int(Single.this.size());
+			return JadothTypes.to_int(Single.this.size());
 		}
 
 		@Override

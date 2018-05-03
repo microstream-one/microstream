@@ -1,6 +1,6 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.Jadoth.box;
+import static net.jadoth.X.box;
 import static net.jadoth.math.JadothMath.sequence;
 
 import java.util.Arrays;

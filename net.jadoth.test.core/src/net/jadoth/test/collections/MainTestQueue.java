@@ -1,6 +1,7 @@
 package net.jadoth.test.collections;
 
 import static net.jadoth.math.JadothMath.sequence;
+
 import net.jadoth.experimental.RingQueue;
 
 public class MainTestQueue

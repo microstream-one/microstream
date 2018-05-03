@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
 import java.util.function.BiFunction;

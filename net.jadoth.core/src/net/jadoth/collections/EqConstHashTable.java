@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.HashCollection;
@@ -30,6 +29,7 @@ import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -959,7 +959,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		if(EqConstHashTable.this.size != Jadoth.to_int(samples.size()))
+		if(EqConstHashTable.this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -1418,7 +1418,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
-			if(EqConstHashTable.this.size != Jadoth.to_int(samples.size()))
+			if(EqConstHashTable.this.size != JadothTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -1910,13 +1910,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long size()
 		{
-			return Jadoth.to_int(EqConstHashTable.this.size());
+			return JadothTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return Jadoth.to_int(EqConstHashTable.this.size());
+			return JadothTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override
@@ -2218,7 +2218,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(EqConstHashTable.this.size());
+			return JadothTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override

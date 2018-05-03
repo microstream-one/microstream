@@ -1,15 +1,15 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.ref.WeakReference;
 import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.HashTable;
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.meta.JadothConsole;
+import net.jadoth.util.JadothTypes;
 
 public interface NetworkSessionManager<S extends NetworkSession<?>> extends Suspendable
 {
@@ -114,7 +114,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		protected void iterateSessions(final Consumer<? super S> procedure)
 		{
-			JadothConsole.debugln("" + Jadoth.to_int(this.sessions.size()));
+			JadothConsole.debugln("" + JadothTypes.to_int(this.sessions.size()));
 			this.sessions.iterate(procedure);
 		}
 

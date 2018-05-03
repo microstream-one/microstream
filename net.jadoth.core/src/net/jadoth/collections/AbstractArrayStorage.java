@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.functions.AggregateMax;
 import net.jadoth.collections.functions.AggregateMin;
@@ -35,6 +34,7 @@ import net.jadoth.hash.HashEqualator;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.branching.ThrowBreak;
 import net.jadoth.util.chars.VarString;
 
@@ -1089,7 +1089,7 @@ public abstract class AbstractArrayStorage
 				size,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				JadothTypes.to_int(elements.size())
 			);
 		}
 
@@ -1118,7 +1118,7 @@ public abstract class AbstractArrayStorage
 				length >= 0 ? offset + length : offset + 1,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				JadothTypes.to_int(elements.size())
 			);
 		}
 
@@ -1150,7 +1150,7 @@ public abstract class AbstractArrayStorage
 				size,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size()),
+				JadothTypes.to_int(elements.size()),
 				equalator
 			);
 		}
@@ -1459,7 +1459,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			da:
 			for(int di = 0; di < size; di++)
 			{
@@ -1505,7 +1505,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			da:
 			for(int di = 0; di < size; di++)
 			{
@@ -1554,7 +1554,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			ch:
 			for(int i = 0; i < size; i++)
 			{
@@ -1616,7 +1616,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			da:
 			for(int di = offset; di != bound; di += d)
 			{
@@ -1671,7 +1671,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			da:
 			for(int di = offset; di != bound; di += d)
 			{
@@ -1729,7 +1729,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = Jadoth.to_int(samples.size());
+			final int arrayLength = JadothTypes.to_int(samples.size());
 			ar:
 			for(int i = 0; i < arrayLength; i++)
 			{
@@ -2144,7 +2144,7 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		if(Jadoth.to_int(elements.size()) == 0)
+		if(JadothTypes.to_int(elements.size()) == 0)
 		{
 			// effectively clear the array, return size as remove count.
 			for(int i = size; i-- > 0;)
@@ -2244,7 +2244,7 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		if(Jadoth.to_int(samples.size()) == 0)
+		if(JadothTypes.to_int(samples.size()) == 0)
 		{
 			// effectively clear the array, return size as remove count.
 			for(int i = size; i-- > 0;)
@@ -2629,7 +2629,7 @@ public abstract class AbstractArrayStorage
 			throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 		}
 
-		if(Jadoth.to_int(samples.size()) == 0)
+		if(JadothTypes.to_int(samples.size()) == 0)
 		{
 			return 0;
 		}
@@ -4654,7 +4654,7 @@ public abstract class AbstractArrayStorage
 		final Equalator<? super E>            equalator
 	)
 	{
-		if(size != Jadoth.to_int(samples.size()))
+		if(size != JadothTypes.to_int(samples.size()))
 		{
 			return false; // content can only be equal if sizes are equal
 		}
@@ -4739,7 +4739,7 @@ public abstract class AbstractArrayStorage
 		final Equalator<? super E> equalator
 	)
 	{
-		if(size != Jadoth.to_int(sequence.size()))
+		if(size != JadothTypes.to_int(sequence.size()))
 		{
 			return false; // content can only be equal if sizes are equal
 		}
@@ -4759,7 +4759,7 @@ public abstract class AbstractArrayStorage
 		final int d; // bi-directional index movement
 		if((d = checkIterationDirection(size, offset, length)) == 0)
 		{
-			return Jadoth.to_int(sequence.size()) == 0;
+			return JadothTypes.to_int(sequence.size()) == 0;
 		}
 
 		if(d < 0)

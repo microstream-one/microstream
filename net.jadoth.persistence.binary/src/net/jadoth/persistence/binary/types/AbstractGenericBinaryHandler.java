@@ -5,7 +5,6 @@ import static net.jadoth.functional.JadothPredicates.not;
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashEnum;
@@ -26,6 +25,7 @@ import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.util.JadothTypes;
 
 public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
@@ -205,10 +205,10 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		// references are always stored at beginning
 		this.refBinStartOffset = BinaryPersistence.entityBinaryPosition(0);
 		this.refBinBoundOffset = BinaryPersistence.entityBinaryPosition(
-			BinaryPersistence.referenceBinaryLength(Jadoth.to_int(this.refFields.size()))
+			BinaryPersistence.referenceBinaryLength(JadothTypes.to_int(this.refFields.size()))
 		);
 
-		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(Jadoth.to_int(allFields.size()));
+		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(JadothTypes.to_int(allFields.size()));
 		createTypeDescriptionMembers(allFieldsPersOrder, lengthResolver, members);
 
 		/* (21.10.2014 TM)XXX: binary handler declaration order or persistent order?

@@ -1,8 +1,10 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
-import net.jadoth.collections.functions.ParallelProcedure;
+import static net.jadoth.X.notNull;
+
 import java.util.function.Consumer;
+
+import net.jadoth.collections.functions.ParallelProcedure;
 
 /* Architectural note:
  * message processor threads can easily die on any exception (that is not handled by the implementation)

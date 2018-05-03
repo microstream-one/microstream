@@ -1,12 +1,12 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 
 public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<T>
 {

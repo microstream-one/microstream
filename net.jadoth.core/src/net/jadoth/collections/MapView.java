@@ -1,18 +1,18 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 public final class MapView<K, V> implements XGettingMap<K, V>
 {
@@ -49,7 +49,7 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

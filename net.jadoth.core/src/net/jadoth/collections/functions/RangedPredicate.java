@@ -2,7 +2,7 @@ package net.jadoth.collections.functions;
 
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 
 public final class RangedPredicate<E> implements Predicate<E>
 {
@@ -32,7 +32,7 @@ public final class RangedPredicate<E> implements Predicate<E>
 		}
 		if(--this.length <= 0)
 		{
-			throw Jadoth.BREAK;
+			throw X.BREAK();
 		}
 		return false;
 	}

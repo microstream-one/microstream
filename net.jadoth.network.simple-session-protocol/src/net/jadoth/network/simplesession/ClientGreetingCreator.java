@@ -1,6 +1,6 @@
 package net.jadoth.network.simplesession;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.math.JadothMath.positive;
 
 import java.nio.ByteOrder;

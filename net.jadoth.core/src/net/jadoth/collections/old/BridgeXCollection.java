@@ -3,11 +3,11 @@ package net.jadoth.collections.old;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.util.JadothTypes;
 
 public class BridgeXCollection<E> implements OldCollection<E>
 {
@@ -129,15 +129,15 @@ public class BridgeXCollection<E> implements OldCollection<E>
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
-		final int oldSize = Jadoth.to_int(this.subject.size());
+		final int oldSize = JadothTypes.to_int(this.subject.size());
 		((XSet<E>)this.subject).removeBy(e -> !c.contains(e));
-		return oldSize - Jadoth.to_int(this.subject.size()) > 0;
+		return oldSize - JadothTypes.to_int(this.subject.size()) > 0;
 	}
 
 	@Override
 	public int size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

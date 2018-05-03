@@ -1,6 +1,6 @@
 package net.jadoth.csv;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.functional._charProcedure;
 import net.jadoth.util.chars.CsvVarStringLiteralEscapingAssembler;

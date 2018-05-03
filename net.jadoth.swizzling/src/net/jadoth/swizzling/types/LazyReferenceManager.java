@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.types;
 
-import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.X.coalesce;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;

@@ -9,7 +9,6 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
@@ -17,6 +16,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
@@ -433,7 +433,7 @@ public class ListView<E> implements XGettingList<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ChainStorage;
@@ -25,6 +24,7 @@ import net.jadoth.hash.JadothHash;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -301,7 +301,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
 		this.optimize();
-		return Jadoth.to_int(this.size());
+		return JadothTypes.to_int(this.size());
 	}
 
 	@Override
@@ -806,7 +806,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
 		this.consolidate();
-		if(this.size != Jadoth.to_int(samples.size()))
+		if(this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}

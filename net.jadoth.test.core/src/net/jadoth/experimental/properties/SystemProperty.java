@@ -1,6 +1,7 @@
 package net.jadoth.experimental.properties;
 
 import static net.jadoth.util.chars.VarString.New;
+
 import net.jadoth.util.chars.VarString;
 
 /**

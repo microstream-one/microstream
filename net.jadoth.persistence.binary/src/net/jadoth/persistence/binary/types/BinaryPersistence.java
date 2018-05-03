@@ -8,7 +8,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BinaryHandlerBulkList;
 import net.jadoth.collections.BinaryHandlerConstHashEnum;
@@ -77,6 +76,7 @@ import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.VMUtils;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Unsafe;
@@ -1634,7 +1634,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
 	{
-		final int[] fieldOffsets = new int[Jadoth.to_int(fields.size())];
+		final int[] fieldOffsets = new int[JadothTypes.to_int(fields.size())];
 		fields.iterateIndexed(new IndexProcedure<Field>()
 		{
 			@Override

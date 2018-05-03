@@ -1,10 +1,8 @@
 package net.jadoth.storage.types;
 
 
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.coalesce;
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.Jadoth.to_int;
+import static net.jadoth.X.coalesce;
+import static net.jadoth.X.notNull;
 import static net.jadoth.math.JadothMath.notNegative;
 
 import java.io.File;
@@ -14,7 +12,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
@@ -27,6 +24,8 @@ import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
+import net.jadoth.util.JadothTypes;
+import net.jadoth.util.file.JadothFiles;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
@@ -141,7 +140,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				closeSilent(channel);
+				JadothFiles.closeSilent(channel);
 				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
 			}
 		}
@@ -236,7 +235,7 @@ public interface StorageFileManager
 			 * tools for working with memory. Right?
 			 */
 			this.standardByteBuffer            = ByteBuffer.allocateDirect(
-				Jadoth.to_int(standardBufferSizeProvider.initialBufferSize())
+				JadothTypes.to_int(standardBufferSizeProvider.initialBufferSize())
 			);
 		}
 
@@ -439,7 +438,7 @@ public interface StorageFileManager
 				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
 				
 				// update position to the one in the target file (old length plus current copy length)
-				current.storagePosition = to_int(targetFileOldTotalLength + copyLength);
+				current.storagePosition = JadothTypes.to_int(targetFileOldTotalLength + copyLength);
 
 				// advance to next entity and add current entity's length to the total copy length
 				copyLength += current.length;
@@ -1329,7 +1328,7 @@ public interface StorageFileManager
 			entity.updateStorageInformation(
 				X.checkArrayRange(length),
 				this.headFile,
-				to_int(this.headFile.totalLength())
+				JadothTypes.to_int(this.headFile.totalLength())
 			);
 			this.headFile.increaseContentLength(length);
 

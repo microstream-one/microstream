@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeClass;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;

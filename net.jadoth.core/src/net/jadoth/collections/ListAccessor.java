@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractOldSettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
@@ -18,6 +17,7 @@ import net.jadoth.collections.types.XSettingList;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 /**
@@ -520,7 +520,7 @@ public class ListAccessor<E> implements XSettingList<E>
 	@Override
 	public final long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

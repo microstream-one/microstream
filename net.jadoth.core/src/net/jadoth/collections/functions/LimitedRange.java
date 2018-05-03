@@ -1,8 +1,8 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
-
 import java.util.function.Predicate;
+
+import net.jadoth.X;
 
 
 public final class LimitedRange<E> implements Predicate<E>
@@ -46,7 +46,7 @@ public final class LimitedRange<E> implements Predicate<E>
 			this.limit--;
 			return true;
 		}
-		throw BREAK;
+		throw X.BREAK();
 	}
 
 }

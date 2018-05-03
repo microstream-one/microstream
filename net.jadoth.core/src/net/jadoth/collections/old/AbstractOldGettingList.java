@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 public abstract class AbstractOldGettingList<E> implements OldList<E>
@@ -170,7 +170,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	@Override
 	public int size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

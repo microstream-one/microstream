@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldSettingList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -22,6 +21,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -481,7 +481,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayAccessor<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayAccessor<?>) || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -504,7 +504,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}

@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.util.Immutable;
 import net.jadoth.util.chars.VarString;
 

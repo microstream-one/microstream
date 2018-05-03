@@ -376,8 +376,73 @@ public final class JadothTypes
 			"value of type " + value.getClass() + " cannot be interpreted as " + Integer.class
 		);
 	}
+	
+	public static final Byte asByte(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Byte
+				? (Byte)value
+				: Byte.valueOf(value.byteValue())
+		;
+	}
+	
+	public static final Short asShort(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Short
+				? (Short)value
+				: Short.valueOf(value.shortValue())
+		;
+	}
+	
+	public static final Integer asInteger(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Integer
+				? (Integer)value
+				: Integer.valueOf(value.intValue())
+		;
+	}
+	
+	public static final Float asFloat(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Float
+				? (Float)value
+				: Float.valueOf(value.floatValue())
+		;
+	}
+	
+	public static final Long asLong(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Long
+				? (Long)value
+				: Long.valueOf(value.longValue())
+		;
+	}
+	
+	public static final Double asDouble(final Number value)
+	{
+		return value == null
+			? null
+			: value instanceof Double
+				? (Double)value
+				: Double.valueOf(value.doubleValue())
+		;
+	}
 
 
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
 	private JadothTypes()
 	{
 		// static only

@@ -2,9 +2,9 @@ package net.jadoth.test.collections;
 
 import java.util.Comparator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.util.JadothTypes;
 
 /**
  * @author Thomas Muenz
@@ -140,9 +140,9 @@ public class MainTestSetAddPerformance
 		}
 
 		final Integer[] intArray = ints.toArray(Integer.class);
-		if(Jadoth.to_int(ints.size()) != SIZE)
+		if(JadothTypes.to_int(ints.size()) != SIZE)
 		{
-			throw new RuntimeException("ints.size() "+Jadoth.to_int(ints.size())+" != SIZE " + SIZE);
+			throw new RuntimeException("ints.size() "+JadothTypes.to_int(ints.size())+" != SIZE " + SIZE);
 		}
 		if(intArray.length != SIZE)
 		{

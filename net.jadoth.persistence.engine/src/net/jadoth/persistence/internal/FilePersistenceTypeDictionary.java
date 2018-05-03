@@ -1,6 +1,6 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;

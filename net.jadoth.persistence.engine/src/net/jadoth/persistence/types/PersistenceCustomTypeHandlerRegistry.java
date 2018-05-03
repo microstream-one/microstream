@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;

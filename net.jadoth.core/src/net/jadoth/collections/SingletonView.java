@@ -6,13 +6,13 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.Singleton.OldSingleton;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 public class SingletonView<E> implements XReferencing<E>
 {
@@ -413,7 +413,7 @@ public class SingletonView<E> implements XReferencing<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

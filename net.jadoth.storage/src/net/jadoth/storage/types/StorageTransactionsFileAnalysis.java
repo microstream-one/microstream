@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -395,6 +394,22 @@ public interface StorageTransactionsFileAnalysis
 			{
 				closeSilent(lock);
 				closeSilent(channel);
+			}
+		}
+		
+		public static void closeSilent(final AutoCloseable closable)
+		{
+			if(closable == null)
+			{
+				return;
+			}
+			try
+			{
+				closable.close();
+			}
+			catch(final Exception t)
+			{
+				// sshhh, silence!
 			}
 		}
 

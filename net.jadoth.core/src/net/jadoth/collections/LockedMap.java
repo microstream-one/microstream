@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;

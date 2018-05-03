@@ -1,14 +1,13 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.HashCollection;
@@ -21,6 +20,7 @@ import net.jadoth.hash.HashEqualator;
 import net.jadoth.hash.JadothHash;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -111,7 +111,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			JadothHash.padHashLength(Jadoth.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			JadothHash.padHashLength(JadothTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
 			JadothHash.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
@@ -715,7 +715,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(this.size != Jadoth.to_int(samples.size()))
+		if(this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}

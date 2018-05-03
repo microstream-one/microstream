@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.old.AbstractBridgeXSet;
@@ -38,6 +37,7 @@ import net.jadoth.hash.JadothHash;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -1087,7 +1087,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 		
-		return X.keyValue(key, value);
+		return X.KeyValue(key, value);
 	}
 	
 	@Override
@@ -1115,7 +1115,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return X.keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
@@ -1131,7 +1131,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return X.keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 
@@ -1152,7 +1152,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return X.keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		return null;
@@ -1562,7 +1562,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
 		this.consolidate();
-		if(EqHashTable.this.size != Jadoth.to_int(samples.size()))
+		if(EqHashTable.this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -2532,7 +2532,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
 			this.consolidate();
-			if(EqHashTable.this.size != Jadoth.to_int(samples.size()))
+			if(EqHashTable.this.size != JadothTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -3407,7 +3407,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final XList<V> copy()
 		{
-			return new BulkList<V>(Jadoth.to_int(EqHashTable.this.size())).addAll(this);
+			return new BulkList<V>(JadothTypes.to_int(EqHashTable.this.size())).addAll(this);
 		}
 
 		@Override
@@ -3620,13 +3620,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long size()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return JadothTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return JadothTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override
@@ -4290,7 +4290,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return JadothTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override

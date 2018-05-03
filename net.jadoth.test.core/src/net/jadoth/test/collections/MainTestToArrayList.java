@@ -6,9 +6,9 @@ import static net.jadoth.math.JadothMath.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
+import net.jadoth.util.JadothTypes;
 
 /**
  * @author Thomas Muenz
@@ -25,7 +25,7 @@ public class MainTestToArrayList
 	public static void main(final String[] args)
 	{
 		final XList<Integer> ints = X.List(intArray);
-		System.out.println(Jadoth.to_int(ints.size()));
+		System.out.println(JadothTypes.to_int(ints.size()));
 		System.out.println();
 
 		long tStart;

@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.math.JadothMath.notNegative;
 
 import java.io.IOException;
@@ -356,7 +356,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			final ByteBuffer[] buffers = chunkData.buffers();
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
-			return X.keyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
+			return X.KeyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
 		}
 
 		@Override
@@ -488,7 +488,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return X.keyValue(0L, 0L);
+				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -508,7 +508,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return X.keyValue(byteCount, entities.entityCount());
+			return X.KeyValue(byteCount, entities.entityCount());
 		}
 
 		// intentionally implemented redundantly to the other exportTypeEntities for performance reasons
@@ -522,7 +522,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return X.keyValue(0L, 0L);
+				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -538,7 +538,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return X.keyValue(byteCount, entities.entityCount());
+			return X.KeyValue(byteCount, entities.entityCount());
 		}
 
 		@Override

@@ -5,7 +5,6 @@ import static net.jadoth.math.JadothMath.notNegative;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashTable;
@@ -20,6 +19,7 @@ import net.jadoth.csv.CSV;
 import net.jadoth.csv.CsvConfiguration;
 import net.jadoth.csv.CsvContent;
 import net.jadoth.memory.Memory;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.branching.ThrowBreak;
 
 public interface StringTable
@@ -278,7 +278,7 @@ public interface StringTable
 			super();
 			this.name    = name                 ; // may be null
 			this.columns = EqConstHashEnum.New(columns);
-			validateColumnCount(Jadoth.to_int(this.columns.size()), rows);
+			validateColumnCount(JadothTypes.to_int(this.columns.size()), rows);
 			this.types   = ConstList.New(columnTypes);
 			this.rows    = ConstList.New(rows);
 		}

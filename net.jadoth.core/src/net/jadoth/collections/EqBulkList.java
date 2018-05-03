@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.functions.IsCustomEqual;
 import net.jadoth.collections.old.AbstractBridgeXList;
@@ -25,6 +24,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -489,7 +489,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()));
+			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, JadothTypes.to_int(elements.size()));
 		}
 		final int oldSize = this.size;
 		elements.iterate(this);
@@ -539,7 +539,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()));
+			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, JadothTypes.to_int(elements.size()));
 		}
 
 		final int oldSize = this.size;
@@ -819,7 +819,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof EqBulkList<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof EqBulkList<?>) || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -835,7 +835,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -1265,7 +1265,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		}
 
 		// calculate new capacity
-		final int newSize = Jadoth.to_int(this.size + requiredFreeCapacity);
+		final int newSize = JadothTypes.to_int(this.size + requiredFreeCapacity);
 		int newCapacity;
 		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
@@ -1360,7 +1360,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.addAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()));
+			return this.addAll(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, JadothTypes.to_int(elements.size()));
 		}
 		return elements.iterate(this);
 	}

@@ -1,6 +1,6 @@
 package net.jadoth.util.pooling;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.collections.XUtilsCollection.rngProcess;
 import static net.jadoth.math.JadothMath.positive;
 
@@ -8,7 +8,6 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.concurrent.Threaded;
@@ -16,6 +15,7 @@ import net.jadoth.concurrent.ThreadedInstantiating;
 import net.jadoth.exceptions.ExceptionCreator;
 import net.jadoth.memory.Instantiator;
 import net.jadoth.util.Immutable;
+import net.jadoth.util.JadothTypes;
 
 public class ThreadedPool<E> implements Pool<E>
 {
@@ -117,7 +117,7 @@ public class ThreadedPool<E> implements Pool<E>
 	{
 		synchronized(this.pool)
 		{
-			return Jadoth.to_int(this.pool.size()) + Jadoth.to_int(this.used.size());
+			return JadothTypes.to_int(this.pool.size()) + JadothTypes.to_int(this.used.size());
 		}
 	}
 
@@ -126,7 +126,7 @@ public class ThreadedPool<E> implements Pool<E>
 	{
 		synchronized(this.pool)
 		{
-			return Jadoth.to_int(this.pool.size());
+			return JadothTypes.to_int(this.pool.size());
 		}
 	}
 
@@ -136,7 +136,7 @@ public class ThreadedPool<E> implements Pool<E>
 		synchronized(this.pool)
 		{
 			// (20.07.2012 TM)FIXME: Shouldn't that accumulate all sizes of the thread local enums?
-			return Jadoth.to_int(this.used.size());
+			return JadothTypes.to_int(this.used.size());
 		}
 	}
 
@@ -296,7 +296,7 @@ public class ThreadedPool<E> implements Pool<E>
 		final int decrementAmount = this.controller.calculateCloseCount(
 			this.maxCount,
 			this.totalCount,
-			Jadoth.to_int(this.pool.size()),
+			JadothTypes.to_int(this.pool.size()),
 			this.lastGetTime,
 			this.lastReturnTime,
 			this.lastCloseTime

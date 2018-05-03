@@ -1,6 +1,6 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
+import net.jadoth.X;
 import net.jadoth.functional.Aggregator;
 
 public final class PickAggregate<E> implements Aggregator<E, E>
@@ -11,7 +11,7 @@ public final class PickAggregate<E> implements Aggregator<E, E>
 	public final void accept(final E element)
 	{
 		this.found = element;
-		throw BREAK;
+		throw X.BREAK();
 	}
 
 	@Override

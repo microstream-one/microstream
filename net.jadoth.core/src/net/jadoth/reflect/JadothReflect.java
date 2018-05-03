@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.DownwrapList;
 import net.jadoth.collections.JadothArrays;
@@ -242,7 +241,7 @@ public final class JadothReflect
 
 		final Class<?>[] allInterfaces = new Class<?>[interfaceCount];
 		int allInterfacesIndex = 0;
-		for(int i = Jadoth.to_int(hierarchy.size()); i-- > 0;)
+		for(int i = JadothTypes.to_int(hierarchy.size()); i-- > 0;)
 		{
 			final Class<?>[] currentClassInterfaces = hierarchy.at(i);
 			for(int j = 0; j < currentClassInterfaces.length; j++)

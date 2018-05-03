@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.functions.AggregateCountingAdd;
 import net.jadoth.collections.functions.AggregateCountingPut;
@@ -31,6 +30,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothProcedures;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 public final class XUtilsCollection
@@ -107,7 +107,7 @@ public final class XUtilsCollection
 			JadothSort.valueSort(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection),
 				0,
-				Jadoth.to_int(collection.size()),
+				JadothTypes.to_int(collection.size()),
 				order
 			);
 		}
@@ -125,7 +125,7 @@ public final class XUtilsCollection
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
 			AbstractArrayStorage.shuffle(
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), Jadoth.to_int(collection.size())
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), JadothTypes.to_int(collection.size())
 			);
 		}
 		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
@@ -135,7 +135,7 @@ public final class XUtilsCollection
 		else
 		{
 			final FastRandom random = new FastRandom();
-			for(int i = Jadoth.to_int(collection.size()); i > 1; i--)
+			for(int i = JadothTypes.to_int(collection.size()); i > 1; i--)
 			{
 				collection.swap(i - 1, random.nextInt(i));
 			}
@@ -149,9 +149,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedShuffle(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection),
-				Jadoth.to_int(collection.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length)
+				JadothTypes.to_int(collection.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length)
 			);
 		}
 		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
@@ -161,7 +161,7 @@ public final class XUtilsCollection
 		else
 		{
 			final FastRandom random = new FastRandom();
-			for(int i = Jadoth.to_int(collection.size()); i > 1; i--)
+			for(int i = JadothTypes.to_int(collection.size()); i > 1; i--)
 			{
 				collection.swap(i - 1, random.nextInt(i));
 			}
@@ -255,9 +255,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedBinarySearch(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element,
 				comparator
 			);
@@ -275,9 +275,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedHasUniqueValues(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length)
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length)
 			);
 		}
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
@@ -294,9 +294,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedHasUniqueValues(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				equalator
 			);
 		}
@@ -332,9 +332,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedContainsAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				elements
 			);
 		}
@@ -353,9 +353,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAggregate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new AggregateMax<>(comparator)
 			);
 		}
@@ -374,9 +374,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAggregate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new AggregateMin<>(comparator)
 			);
 		}
@@ -397,9 +397,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedScan(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsCustomEqual<>(equalator, sample)
 			);
 		}
@@ -414,9 +414,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedIndexOF(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -436,9 +436,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedConditionalCount(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsCustomEqual<>(equalator, sample)
 			);
 		}
@@ -457,9 +457,9 @@ public final class XUtilsCollection
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return AbstractArrayStorage.rangedCount(AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -478,9 +478,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedIsSorted(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				comparator
 			);
 		}
@@ -499,17 +499,17 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedCopyTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				target
 			);
 		}
 
 		AbstractArrayStorage.validateRange0toUpperBound(
-			Jadoth.to_int(sequence.size()),
-			Jadoth.to_int(offset),
-			Jadoth.to_int(length)
+			JadothTypes.to_int(sequence.size()),
+			JadothTypes.to_int(offset),
+			JadothTypes.to_int(length)
 		);
 		sequence.iterate(
 			new Consumer<E>()
@@ -526,7 +526,7 @@ public final class XUtilsCollection
 					}
 					if(this.len-- == 0)
 					{
-						throw Jadoth.BREAK;
+						throw X.BREAK();
 					}
 					target.accept(e);
 				}
@@ -548,9 +548,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedCopyTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				target,
 				predicate
 			);
@@ -566,9 +566,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedIterate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				procedure
 			);
 			return sequence;
@@ -588,9 +588,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedIterate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				procedure
 			);
 			return sequence;
@@ -611,9 +611,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedConditionalIterate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate,
 				procedure
 			);
@@ -635,9 +635,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedJoin(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				joiner,
 				aggregate
 			);
@@ -659,9 +659,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedQueryElement(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsCustomEqual<>(equalator, sample),
 				null
 			);
@@ -681,9 +681,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedContainsSame(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -702,9 +702,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedContainsSame(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -724,9 +724,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedContains(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsCustomEqual<>(equalator, sample)
 			);
 		}
@@ -745,9 +745,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedContains(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate
 			);
 		}
@@ -762,9 +762,9 @@ public final class XUtilsCollection
 			return AbstractArrayStorage.rangedContainsNull(
 				AbstractSimpleArrayCollection.internalGetStorageArray(
 					(AbstractSimpleArrayCollection<?>)sequence),
-					Jadoth.to_int(sequence.size()),
-					Jadoth.to_int(offset),
-					Jadoth.to_int(length)
+					JadothTypes.to_int(sequence.size()),
+					JadothTypes.to_int(offset),
+					JadothTypes.to_int(length)
 			);
 		}
 
@@ -792,9 +792,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedApplies(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate
 			);
 		}
@@ -813,9 +813,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedConditionalCount(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate
 			);
 		}
@@ -834,9 +834,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedConditionalIndexOf(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate
 			);
 		}
@@ -855,9 +855,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedScan(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate
 			);
 		}
@@ -878,9 +878,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedQueryElement(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsCustomEqual<>(equalator, sample), null
 			);
 		}
@@ -900,9 +900,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedQueryElement(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate, null
 			);
 		}
@@ -922,9 +922,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedEqualsContent(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				other, equalator
 			);
 		}
@@ -945,9 +945,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedIterate(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				aggregate
 			);
 			return aggregate.yield();
@@ -955,7 +955,7 @@ public final class XUtilsCollection
 
 
 		// sanity checks
-		final int size = Jadoth.to_int(sequence.size());
+		final int size = JadothTypes.to_int(sequence.size());
 		if(offset < 0 || offset >= size)
 		{
 			throw new IllegalArgumentException(exceptionStringOffset(size, offset));
@@ -988,9 +988,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vs
 			);
 		}
@@ -1010,9 +1010,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vs,
 				separator
 			);
@@ -1033,9 +1033,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vs,
 				separator
 			);
@@ -1056,9 +1056,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vs,
 				appender
 			);
@@ -1080,9 +1080,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vc,
 				appender,
 				separator
@@ -1105,9 +1105,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedAppendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				vs,
 				appender,
 				separator
@@ -1128,9 +1128,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedScan(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsGreater<>(comparator)
 			);
 		}
@@ -1150,9 +1150,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedScan(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				new IsSmaller<>(comparator)
 			);
 		}
@@ -1167,9 +1167,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedDistinct(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				target
 			);
 		}
@@ -1189,9 +1189,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedDistinct(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				target,
 				equalator
 			);
@@ -1213,9 +1213,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedIntersect(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				samples,
 				equalator,
 				target
@@ -1238,9 +1238,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedUnion(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				samples,
 				equalator,
 				target
@@ -1264,9 +1264,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedExcept(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				samples,
 				equalator,
 				target
@@ -1358,7 +1358,7 @@ public final class XUtilsCollection
 	)
 	{
 		final int size;
-		if(index == (size = Jadoth.to_int(target.size())))
+		if(index == (size = JadothTypes.to_int(target.size())))
 		{
 			XUtilsCollection.addAll(target, elements, offset, length, predicate);
 			return target;
@@ -1374,9 +1374,9 @@ public final class XUtilsCollection
 		);
 
 		// internal copying of selected elements
-		if(Jadoth.to_int(buffer.size()) > 0)
+		if(JadothTypes.to_int(buffer.size()) > 0)
 		{
-			target.insertAll(index, buffer.internalGetStorageArray(), 0, Jadoth.to_int(buffer.size()));
+			target.insertAll(index, buffer.internalGetStorageArray(), 0, JadothTypes.to_int(buffer.size()));
 		}
 		return target;
 	}
@@ -1400,12 +1400,12 @@ public final class XUtilsCollection
 		}
 
 		// select elements into buffer
-		final LimitList<E> buffer = XUtilsCollection.addAll(new LimitList<E>(Jadoth.to_int(elements.size())), elements, predicate);
+		final LimitList<E> buffer = XUtilsCollection.addAll(new LimitList<E>(JadothTypes.to_int(elements.size())), elements, predicate);
 
 		// internal copying of selected elements
 		if(buffer.size() > 0)
 		{
-			target.insertAll(index, buffer.internalGetStorageArray(), 0, Jadoth.to_int(buffer.size()));
+			target.insertAll(index, buffer.internalGetStorageArray(), 0, JadothTypes.to_int(buffer.size()));
 		}
 		return target;
 	}
@@ -1428,9 +1428,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRetrieve(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element,
 				(E)MARKER
 			);
@@ -1452,9 +1452,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRetrieve(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				sample,
 				equalator,
 				(E)MARKER
@@ -1476,9 +1476,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRetrieve(
 				AbstractSimpleArrayCollection.<E>internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate,
 				(E)MARKER
 			);
@@ -1498,9 +1498,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveOne(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -1520,9 +1520,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveOne(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				sample,
 				equalator
 			);
@@ -1541,9 +1541,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveNull(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length)
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length)
 			);
 		}
 
@@ -1561,9 +1561,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemove(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				element
 			);
 		}
@@ -1583,9 +1583,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemove(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				sample,
 				equalator
 			);
@@ -1607,9 +1607,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				samples,
 				equalator,
 				(E)MARKER
@@ -1630,9 +1630,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				elements
 			);
 		}
@@ -1653,9 +1653,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRetainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				(XGettingCollection<E>)samples,
 				equalator,
 				(E)MARKER
@@ -1677,9 +1677,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRetainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				(XGettingCollection<E>)elements,
 				(E)MARKER
 			);
@@ -1700,9 +1700,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveDuplicates(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				equalator,
 				(E)MARKER
 			);
@@ -1722,9 +1722,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedRemoveDuplicates(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				(E)MARKER
 			);
 		}
@@ -1744,9 +1744,9 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.rangedReduce(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				predicate,
 				(E)MARKER
 			);
@@ -1768,9 +1768,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedMoveTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				target,
 				predicate,
 				(E)MARKER
@@ -1793,9 +1793,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedProcess(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				procedure,
 				(E)MARKER
 			);
@@ -1821,9 +1821,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedSort(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				comparator
 			);
 		}
@@ -1841,9 +1841,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedShuffle(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length)
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length)
 			);
 		}
 
@@ -1861,9 +1861,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedSortMerge(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				comparator
 			);
 		}
@@ -1882,9 +1882,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedSortInsertion(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				comparator
 			);
 		}
@@ -1903,9 +1903,9 @@ public final class XUtilsCollection
 		{
 			AbstractArrayStorage.rangedSortQuick(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-				Jadoth.to_int(sequence.size()),
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length),
+				JadothTypes.to_int(sequence.size()),
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length),
 				comparator
 			);
 		}
@@ -1918,11 +1918,11 @@ public final class XUtilsCollection
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return AbstractArrayStorage.appendTo(
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), Jadoth.to_int(collection.size()), vc
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), JadothTypes.to_int(collection.size()), vc
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -1936,11 +1936,11 @@ public final class XUtilsCollection
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return AbstractArrayStorage.appendTo(
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), Jadoth.to_int(collection.size()), vc, separator
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), JadothTypes.to_int(collection.size()), vc, separator
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -1955,11 +1955,11 @@ public final class XUtilsCollection
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return AbstractArrayStorage.appendTo(
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), Jadoth.to_int(collection.size()), vc, separator
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), JadothTypes.to_int(collection.size()), vc, separator
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -1978,11 +1978,11 @@ public final class XUtilsCollection
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return AbstractArrayStorage.appendTo(
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), Jadoth.to_int(collection.size()), vc, appender
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), JadothTypes.to_int(collection.size()), vc, appender
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -2005,11 +2005,11 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.appendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection),
-				Jadoth.to_int(collection.size()), vc, appender, separator
+				JadothTypes.to_int(collection.size()), vc, appender, separator
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -2032,11 +2032,11 @@ public final class XUtilsCollection
 		{
 			return AbstractArrayStorage.appendTo(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection),
-				Jadoth.to_int(collection.size()), vc, appender, separator
+				JadothTypes.to_int(collection.size()), vc, appender, separator
 			);
 		}
 
-		if(Jadoth.to_int(collection.size()) == 0)
+		if(JadothTypes.to_int(collection.size()) == 0)
 		{
 			return vc;
 		}
@@ -2079,8 +2079,8 @@ public final class XUtilsCollection
 		{
 			return ((AbstractExtendedCollection<E>)target).internalCountingAddAll(
 				elements,
-				Jadoth.to_int(offset),
-				Jadoth.to_int(length)
+				JadothTypes.to_int(offset),
+				JadothTypes.to_int(length)
 			);
 		}
 
@@ -2090,9 +2090,9 @@ public final class XUtilsCollection
 			return 0;
 		}
 
-		final int bound = Jadoth.to_int(offset + length);
+		final int bound = JadothTypes.to_int(offset + length);
 		int addCount = 0;
-		for(int i = Jadoth.to_int(offset); i != bound; i += d)
+		for(int i = JadothTypes.to_int(offset); i != bound; i += d)
 		{
 			if(target.add(elements[i]))
 			{
@@ -2152,9 +2152,9 @@ public final class XUtilsCollection
 			return 0;
 		}
 
-		final int bound = Jadoth.to_int(offset + length);
+		final int bound = JadothTypes.to_int(offset + length);
 		int addCount = 0;
-		for(int i = Jadoth.to_int(offset); i != bound; i += d)
+		for(int i = JadothTypes.to_int(offset); i != bound; i += d)
 		{
 			if(target.put(elements[i]))
 			{
@@ -2178,7 +2178,7 @@ public final class XUtilsCollection
 
 	public static <E, S extends E> E[] toArray(final XGettingCollection<S> collection, final Class<E> arrayComponentType)
 	{
-		final E[] array = JadothArrays.newArray(arrayComponentType, Jadoth.to_int(collection.size()));
+		final E[] array = JadothArrays.newArray(arrayComponentType, JadothTypes.to_int(collection.size()));
 		JadothArrays.copyTo(collection, array);
 
 		return array;

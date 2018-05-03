@@ -3,9 +3,9 @@ package net.jadoth.collections.old;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.util.JadothTypes;
 
 public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 {
@@ -111,7 +111,7 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	@Override
 	public int size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

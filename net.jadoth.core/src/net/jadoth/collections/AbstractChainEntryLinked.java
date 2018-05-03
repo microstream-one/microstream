@@ -3,10 +3,10 @@ package net.jadoth.collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.types.HashCollection;
 import net.jadoth.collections.types.HashCollection.Analysis;
+import net.jadoth.util.JadothTypes;
 
 
 /**
@@ -67,7 +67,7 @@ extends AbstractChainEntry<E, K, V, EN>
 					longestEntryChainLength = chainLength;
 				}
 			}
-			result.add(X.keyValue(e.getKey(), e.getValue()[0]));
+			result.add(X.KeyValue(e.getKey(), e.getValue()[0]));
 		}
 
 		// sort by chain length
@@ -79,7 +79,7 @@ extends AbstractChainEntry<E, K, V, EN>
 
 		return new HashCollection.Analysis<>(
 			hashCollection,
-			Jadoth.to_int(hashCollection.size()),
+			JadothTypes.to_int(hashCollection.size()),
 			hashCollection.hashDensity(),
 			slots.length,
 			shortestEntryChainLength,

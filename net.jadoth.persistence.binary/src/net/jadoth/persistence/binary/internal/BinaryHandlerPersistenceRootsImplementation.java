@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;

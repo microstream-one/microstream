@@ -6,7 +6,6 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -15,6 +14,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 public final class CompositeList<E> implements XGettingList<E>
 {
@@ -89,7 +89,7 @@ public final class CompositeList<E> implements XGettingList<E>
 			}
 			i -= lists[c].size();
 		}
-		throw new IndexExceededException(index, Jadoth.to_int(this.size()));
+		throw new IndexExceededException(index, JadothTypes.to_int(this.size()));
 	}
 
 	@Override
@@ -198,7 +198,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		final XGettingList<E>[] lists = subject.lists;
 
-		final BulkList<S> buffer = new BulkList<>(Jadoth.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
+		final BulkList<S> buffer = new BulkList<>(JadothTypes.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
 		for(int c = 0; c < subject.count; c++)
 		{
 			buffer.addAll(lists[c]);

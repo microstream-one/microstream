@@ -6,7 +6,6 @@ import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.JadothSort;
 import net.jadoth.collections.SubListView;
@@ -20,6 +19,7 @@ import net.jadoth.collections.types.XPuttingList;
 import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 /**
  * @author Thomas Muenz
@@ -692,7 +692,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

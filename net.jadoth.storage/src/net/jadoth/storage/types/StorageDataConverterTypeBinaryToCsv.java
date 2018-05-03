@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.util.chars.MemoryCharConversionUTF8.toSingleByte;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
@@ -27,6 +25,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldC
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.CharConversion_float;
 import net.jadoth.util.chars.EscapeHandler;
 import net.jadoth.util.chars.JadothChars;
@@ -316,10 +315,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private ValueWriter[] createValueWriters(final XGettingSequence<? extends PersistenceTypeDescriptionMember> members)
 		{
-//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(Jadoth.to_int(members.size()));
-//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(Jadoth.to_int(members.size()));
+//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(JadothTypes.to_int(members.size()));
+//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(JadothTypes.to_int(members.size()));
 
-			final int memberCount = Jadoth.to_int(members.size());
+			final int memberCount = JadothTypes.to_int(members.size());
 
 			final ValueWriter[] simpleValueWriters = new ValueWriter[memberCount];
 			final ValueWriter[] otherValueWriters = new ValueWriter[memberCount];
@@ -348,7 +347,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			System.arraycopy(otherValueWriters , 0, valueWriters, s, o);
 
 //			simpleValueWriters.copyTo(valueWriters, 0);
-//			otherValueWriters.copyTo(valueWriters, Jadoth.to_int(simpleValueWriters.size()));
+//			otherValueWriters.copyTo(valueWriters, JadothTypes.to_int(simpleValueWriters.size()));
 			return valueWriters;
 		}
 
@@ -381,7 +380,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members = field.members();
 
-			if(Jadoth.to_int(members.size()) == 1)
+			if(JadothTypes.to_int(members.size()) == 1)
 			{
 				/* char array gets written as a String because anything else would be unnecessary overhead
 				 * in both bytes and CSV parsing logic.
@@ -479,10 +478,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 			;
 
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.typeDescription.members();
-			final LimitList<String> refColumnNames = new LimitList<>(Jadoth.to_int(members.size()));
-			final LimitList<String> prmColumnNames = new LimitList<>(Jadoth.to_int(members.size()));
-			final LimitList<String> refColumnTypes = new LimitList<>(Jadoth.to_int(members.size()));
-			final LimitList<String> prmColumnTypes = new LimitList<>(Jadoth.to_int(members.size()));
+			final LimitList<String> refColumnNames = new LimitList<>(JadothTypes.to_int(members.size()));
+			final LimitList<String> prmColumnNames = new LimitList<>(JadothTypes.to_int(members.size()));
+			final LimitList<String> refColumnTypes = new LimitList<>(JadothTypes.to_int(members.size()));
+			final LimitList<String> prmColumnTypes = new LimitList<>(JadothTypes.to_int(members.size()));
 
 			// write column names (including oid column with custom name)
 			for(final PersistenceTypeDescriptionMember column : members)
@@ -599,7 +598,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void reset() throws IOException
 		{
-			closeSilent(this.fileChannel);
+			JadothFiles.closeSilent(this.fileChannel);
 			this.typeId       =   -1;
 			this.typeDescription  = null;
 			this.valueWriters = null;

@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.X;
 import net.jadoth.collections.ConstHashTable;
@@ -24,9 +24,9 @@ public interface StorageIdRangeAnalysis
 	{
 		return new StorageIdRangeAnalysis.Implementation(
 			ConstHashTable.New(
-				X.keyValue(Swizzle.IdType.TID, highestTid),
-				X.keyValue(Swizzle.IdType.OID, highestOid),
-				X.keyValue(Swizzle.IdType.CID, highestCid)
+				X.KeyValue(Swizzle.IdType.TID, highestTid),
+				X.KeyValue(Swizzle.IdType.OID, highestOid),
+				X.KeyValue(Swizzle.IdType.CID, highestCid)
 			)
 		);
 	}

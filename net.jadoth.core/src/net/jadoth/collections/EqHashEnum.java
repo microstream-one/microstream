@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.old.AbstractBridgeXSet;
@@ -26,6 +25,7 @@ import net.jadoth.hash.JadothHash;
 import net.jadoth.math.JadothMath;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 
@@ -880,7 +880,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
 		this.consolidate();
-		if(this.size != Jadoth.to_int(samples.size()))
+		if(this.size != JadothTypes.to_int(samples.size()))
 		{
 			return false;
 		}

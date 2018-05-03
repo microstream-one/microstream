@@ -1,12 +1,12 @@
 package net.jadoth.cql;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.XIterable;
 import net.jadoth.collections.types.XSequence;
-import java.util.function.Consumer;
 
 public interface CqlTransfer<I, R extends XIterable<I>> extends CqlIteration<I, I, R>
 {

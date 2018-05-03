@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractGenericBinaryHandler<T>

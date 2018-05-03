@@ -1,7 +1,7 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.coalesce;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.coalesce;
+import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
 

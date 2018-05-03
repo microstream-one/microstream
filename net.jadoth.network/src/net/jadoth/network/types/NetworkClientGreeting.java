@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 import static net.jadoth.util.bytes.JadothBytes.parseByteOrder;
 
 import java.nio.ByteOrder;

@@ -1,6 +1,6 @@
 package net.jadoth.config;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingList;

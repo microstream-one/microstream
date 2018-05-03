@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.util.JadothTypes;
 
 public final class OldCollections
 {
@@ -438,7 +438,7 @@ public final class OldCollections
 
 	public static final <K, V> LinkedHashMap<K, V> OldLinkedHashMap(final XGettingMap<K, V> map)
 	{
-		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(Jadoth.to_int(map.size()));
+		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(JadothTypes.to_int(map.size()));
 		map.iterate(e -> lhm.put(e.key(), e.value()));
 		return lhm;
 	}

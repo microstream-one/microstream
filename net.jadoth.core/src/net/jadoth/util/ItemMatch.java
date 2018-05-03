@@ -651,7 +651,7 @@ public class ItemMatch<T>
 		{
 			if(s2tMapping[s] >= 0)
 			{
-				matchT[s2tMapping[s]] = matchS[s] = X.keyValue(source[s], target[s2tMapping[s]]);
+				matchT[s2tMapping[s]] = matchS[s] = X.KeyValue(source[s], target[s2tMapping[s]]);
 			}
 		}
 

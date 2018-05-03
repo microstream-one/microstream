@@ -1,7 +1,8 @@
 package net.jadoth.persistence.types;
 
 import static java.lang.System.identityHashCode;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.math.JadothMath;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectManager;

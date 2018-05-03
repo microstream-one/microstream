@@ -1,9 +1,8 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
-
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.functional.Aggregator;
 
 public class AggregateSearch<E> implements Aggregator<E, E>
@@ -39,7 +38,7 @@ public class AggregateSearch<E> implements Aggregator<E, E>
 		if(this.predicate.test(element))
 		{
 			this.found = element;
-			throw BREAK;
+			throw X.BREAK();
 		}
 	}
 

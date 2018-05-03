@@ -38,7 +38,7 @@ public class MainTestListHelpers
 //			System.out.println(i);
 //		}
 
-		final Map<String, Integer> siMap = OldCollections.OldHashMap(X.keyValue("hallo", 1), X.keyValue("bla", 2));
+		final Map<String, Integer> siMap = OldCollections.OldHashMap(X.KeyValue("hallo", 1), X.KeyValue("bla", 2));
 		System.out.println(siMap);
 
 	}

@@ -1,13 +1,12 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Function;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XAddingMap;
 import net.jadoth.collections.types.XCollection;
 import net.jadoth.collections.types.XGettingCollection;
@@ -18,6 +17,7 @@ import net.jadoth.concurrent.ThreadSafe;
 import net.jadoth.functional.AvgInteger;
 import net.jadoth.functional.AvgIntegerNonNull;
 import net.jadoth.functional.SumInteger;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 /**
@@ -119,7 +119,7 @@ public final class JadothCollections
 		{
 			// fastest way: just iterate over storage array
 			final E[] elements = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)xCollection);
-			for(int i = 0, size = Jadoth.to_int(xCollection.size()); i < size; i++)
+			for(int i = 0, size = JadothTypes.to_int(xCollection.size()); i < size; i++)
 			{
 				linkedList.add(elements[i]);
 			}

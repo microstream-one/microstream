@@ -2,11 +2,11 @@ package net.jadoth.collections.old;
 
 import java.util.Collection;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothPredicates;
+import net.jadoth.util.JadothTypes;
 
 public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<E>
 {
@@ -68,9 +68,9 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
-		final int oldSize = Jadoth.to_int(this.subject.size());
+		final int oldSize = JadothTypes.to_int(this.subject.size());
 		((XList<E>)this.subject).removeBy(e -> !c.contains(e));
-		return oldSize - Jadoth.to_int(this.subject.size()) > 0;
+		return oldSize - JadothTypes.to_int(this.subject.size()) > 0;
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package net.jadoth.util;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.KeyValue;
@@ -17,7 +16,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectRemaining(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> remaining = new BulkList<>(Jadoth.to_int(input.size()));
+		final BulkList<T> remaining = new BulkList<>(JadothTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
@@ -31,7 +30,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectUnmatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> unmatched = new BulkList<>(Jadoth.to_int(input.size()));
+		final BulkList<T> unmatched = new BulkList<>(JadothTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
@@ -48,7 +47,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectMatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> matched = new BulkList<>(Jadoth.to_int(input.size()));
+		final BulkList<T> matched = new BulkList<>(JadothTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override

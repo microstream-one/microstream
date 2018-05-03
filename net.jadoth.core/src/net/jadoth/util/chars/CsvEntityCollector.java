@@ -1,13 +1,13 @@
 package net.jadoth.util.chars;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.csv.CsvRowCollector;
+import net.jadoth.util.JadothTypes;
 
 public final class CsvEntityCollector<T> implements CsvRowCollector
 {
@@ -70,7 +70,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 		}
 		catch(final RuntimeException e)
 		{
-			throw new RuntimeException("Exception while parsing row " + Jadoth.to_int(this.rows.size()), e);
+			throw new RuntimeException("Exception while parsing row " + JadothTypes.to_int(this.rows.size()), e);
 		}
 		this.rows.add(entity);
 		this.row.clear();

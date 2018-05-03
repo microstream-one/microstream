@@ -1,6 +1,7 @@
 package net.jadoth.test.sorting;
 
 import static net.jadoth.test.sorting.SortValue.compare;
+
 import net.jadoth.collections.JadothSort;
 
 

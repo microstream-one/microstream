@@ -1,11 +1,11 @@
 package net.jadoth.util.chars;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.csv.CsvRowAssembler;
+import net.jadoth.util.JadothTypes;
 
 public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 {
@@ -15,7 +15,7 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 
 	public default VarString assemble(final XGettingCollection<T> entities)
 	{
-		return this.assembleInto(this.createCollector(Jadoth.to_int(entities.size())), this.columnHeader(), entities);
+		return this.assembleInto(this.createCollector(JadothTypes.to_int(entities.size())), this.columnHeader(), entities);
 	}
 
 	public VarString assembleInto(

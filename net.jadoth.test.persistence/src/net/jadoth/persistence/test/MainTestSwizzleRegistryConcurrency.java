@@ -1,9 +1,10 @@
 package net.jadoth.persistence.test;
 
 import static net.jadoth.math.JadothMath.random;
-import net.jadoth.Jadoth;
+
 import net.jadoth.concurrent.JadothThreads;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
+import net.jadoth.util.JadothTypes;
 
 @SuppressWarnings("deprecation")
 public class MainTestSwizzleRegistryConcurrency
@@ -77,7 +78,7 @@ public class MainTestSwizzleRegistryConcurrency
 			@Override public void run() {
 				while(true)
 				{
-					System.err.println(Jadoth.to_int(reg.size()));
+					System.err.println(JadothTypes.to_int(reg.size()));
 					JadothThreads.sleep(DELAY<<2);
 				}
 			}

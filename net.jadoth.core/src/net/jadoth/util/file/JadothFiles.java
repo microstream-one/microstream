@@ -1,5 +1,6 @@
 package net.jadoth.util.file;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.functional.JadothPredicates;
 import net.jadoth.util.chars.JadothChars;
 import net.jadoth.util.chars.VarString;
@@ -305,7 +305,7 @@ public final class JadothFiles
 				}
 				finally
 				{
-					Jadoth.closeSilent(sourceChannel);
+					JadothFiles.closeSilent(sourceChannel);
 				}
 			}
 		}
@@ -315,7 +315,7 @@ public final class JadothFiles
 		}
 		finally
 		{
-			Jadoth.closeSilent(channel);
+			JadothFiles.closeSilent(channel);
 		}
 	}
 
@@ -332,5 +332,22 @@ public final class JadothFiles
 	{
 		// static only
 		throw new UnsupportedOperationException();
+	}
+	
+
+	public static void closeSilent(final Closeable closable)
+	{
+		if(closable == null)
+		{
+			return;
+		}
+		try
+		{
+			closable.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
 	}
 }

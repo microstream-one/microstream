@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 

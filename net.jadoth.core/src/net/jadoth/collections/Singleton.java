@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.old.OldSet;
@@ -21,6 +20,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 
@@ -878,7 +878,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(Singleton.this.size());
+			return JadothTypes.to_int(Singleton.this.size());
 		}
 
 		@Override

@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.X;
 import net.jadoth.collections.functions.KamikazeArrayAdder;
 import net.jadoth.collections.old.AbstractBridgeXList;
@@ -26,6 +25,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Composition;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -389,7 +389,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				JadothTypes.to_int(elements.size())
 			);
 		}
 
@@ -452,11 +452,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray(
-				(AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				(AbstractSimpleArrayCollection<?>)elements), 0, JadothTypes.to_int(elements.size())
 			);
 		}
 
-		this.ensureFreeCapacity(Jadoth.to_int(elements.size())); // prevents Kamikaze later on :D
+		this.ensureFreeCapacity(JadothTypes.to_int(elements.size())); // prevents Kamikaze later on :D
 		final int oldSize;
 		return (this.size = elements.iterate(
 			new KamikazeArrayAdder<E>(this.data, oldSize = this.size)).yield()
@@ -735,7 +735,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof LimitList<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof LimitList<?>) || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -754,7 +754,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		final Equalator<? super E>            equalator
 	)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}

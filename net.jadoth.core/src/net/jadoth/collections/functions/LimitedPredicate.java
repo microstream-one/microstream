@@ -1,9 +1,10 @@
 package net.jadoth.collections.functions;
 
-import static net.jadoth.Jadoth.BREAK;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Predicate;
+
+import net.jadoth.X;
 
 
 public final class LimitedPredicate<E> implements Predicate<E>
@@ -53,7 +54,7 @@ public final class LimitedPredicate<E> implements Predicate<E>
 			this.limit--;
 			return true;
 		}
-		throw BREAK;
+		throw X.BREAK();
 	}
 
 }

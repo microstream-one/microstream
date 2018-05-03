@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
@@ -19,6 +18,7 @@ import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothEqualators;
 import net.jadoth.util.Equalator;
+import net.jadoth.util.JadothTypes;
 
 public class MappedList<E, S> implements XGettingList<E>
 {
@@ -183,7 +183,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	public <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
 		final int length = indices.length;
-		final int size = Jadoth.to_int(this.subject.size());
+		final int size = JadothTypes.to_int(this.subject.size());
 
 		// validate all indices before copying the first element
 		for(int i = 0; i < length; i++)
@@ -221,7 +221,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return JadothTypes.to_int(this.subject.size());
 	}
 
 	@Override

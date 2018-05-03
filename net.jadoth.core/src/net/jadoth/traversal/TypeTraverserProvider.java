@@ -1,6 +1,6 @@
 package net.jadoth.traversal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.KeyValue;

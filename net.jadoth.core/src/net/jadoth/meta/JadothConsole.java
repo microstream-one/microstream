@@ -1,6 +1,5 @@
 package net.jadoth.meta;
 
-import static net.jadoth.Jadoth.BREAK;
 import static net.jadoth.util.time.JadothTime.now;
 
 import java.text.DecimalFormat;
@@ -9,6 +8,7 @@ import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
@@ -117,7 +117,7 @@ public final class JadothConsole
 				{
 					if(--this.lim <= 0)
 					{
-						throw BREAK;
+						throw X.BREAK();
 					}
 					vc.add(e);
 					if(sepp != null)
@@ -187,7 +187,7 @@ public final class JadothConsole
 				{
 					if(--this.lim <= 0)
 					{
-						throw BREAK;
+						throw X.BREAK();
 					}
 					vs.add(e.key());
 					if(mapper != null)

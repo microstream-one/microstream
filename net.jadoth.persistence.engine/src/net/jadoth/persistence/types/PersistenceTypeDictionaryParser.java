@@ -1,6 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
@@ -10,6 +9,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
 import net.jadoth.reflect.JadothReflect;
+import net.jadoth.util.JadothTypes;
 import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionaryParser
@@ -480,7 +480,7 @@ public interface PersistenceTypeDictionaryParser
 			if(!this.members.isEmpty())
 			{
 				vc.lf();
-				for(int i = 0; i < Jadoth.to_int(this.members.size()); i++)
+				for(int i = 0; i < JadothTypes.to_int(this.members.size()); i++)
 				{
 					vc.tab().add(this.members.at(i)).add(';').lf();
 				}

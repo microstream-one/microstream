@@ -1,12 +1,11 @@
 package net.jadoth.experimental.proxy;
 
-import static net.jadoth.Jadoth.mutex;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 import net.jadoth.util.aspects.AspectWrapper;
+import net.jadoth.util.aspects.LockedAspectWrapper;
 
 public class MainTestProxy
 {
@@ -54,6 +53,31 @@ public class MainTestProxy
 		System.out.println();
 	}
 
+	
+	/**
+	 * Generic mutex aspect via proxy instance. With implicit (hidden) mutex object.
+	 *
+	 * @param <T>
+	 * @param subject
+	 * @return
+	 */
+	public static final <T> T mutex(final T subject)
+	{
+		return LockedAspectWrapper.wrapLocked(subject);
+	}
+
+	/**
+	 * Generic mutex aspect via proxy instance. With explicit mutex object.
+	 *
+	 * @param <T>
+	 * @param subject
+	 * @param mutex
+	 * @return
+	 */
+	public static final <T> T mutex(final T subject, final Object mutex)
+	{
+		return LockedAspectWrapper.wrapLocked(subject, mutex);
+	}
 
 
 	public static final <T> T addDebugging(final T subject)
