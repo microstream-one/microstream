@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 {

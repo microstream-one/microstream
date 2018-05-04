@@ -1,5 +1,6 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.JadothChars;
 import net.jadoth.collections.BulkList;
 import net.jadoth.memory.Memory;
 

@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 import java.io.PrintStream;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.binary.internal.BinaryFileSource;
 import net.jadoth.persistence.binary.types.Binary;
@@ -12,7 +13,6 @@ import net.jadoth.persistence.binary.types.BinaryChunkPrinter;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.swizzling.types.SwizzleIdSet;
-import net.jadoth.util.chars.VarString;
 
 public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 {

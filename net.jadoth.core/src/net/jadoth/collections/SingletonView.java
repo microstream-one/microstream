@@ -10,9 +10,9 @@ import java.util.function.Predicate;
 import net.jadoth.collections.Singleton.OldSingleton;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public class SingletonView<E> implements XReferencing<E>
 {

@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.JadothReflect;
@@ -13,7 +14,6 @@ import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.Equalator;
 
 
 public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>

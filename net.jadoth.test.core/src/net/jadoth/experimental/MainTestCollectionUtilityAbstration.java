@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.functions.IsSame;
+import net.jadoth.functional.IsSame;
 import net.jadoth.math.JadothMath;
 
 public class MainTestCollectionUtilityAbstration

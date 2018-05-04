@@ -1,8 +1,8 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.memory.Memory;
-import net.jadoth.util.Immutable;
-import net.jadoth.util.Stateless;
+import net.jadoth.typing.Immutable;
+import net.jadoth.typing.Stateless;
 
 
 public interface BufferSizeProvider

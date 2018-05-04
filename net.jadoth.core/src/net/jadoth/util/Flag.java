@@ -2,15 +2,15 @@ package net.jadoth.util;
 
 public interface Flag
 {
+	public Flag set(boolean state);
+
+	public boolean isSet();
+	
 	public boolean on();
 
 	public boolean off();
 
 	public boolean toggle();
-
-	public Flag set(boolean state);
-
-	public boolean isSet();
 
 	
 
@@ -46,6 +46,26 @@ public interface Flag
 		////////////
 
 		@Override
+		public final Simple set(final boolean state)
+		{
+			if(state)
+			{
+				this.on();
+			}
+			else
+			{
+				this.off();
+			}
+			return this;
+		}
+
+		@Override
+		public final boolean isSet()
+		{
+			return this.state;
+		}
+
+		@Override
 		public final boolean on()
 		{
 			final boolean current = this.state;
@@ -67,27 +87,6 @@ public interface Flag
 			return !(this.state = !this.state); // extremely lol syntax
 		}
 
-		@Override
-		public final Simple set(final boolean state)
-		{
-			if(state)
-			{
-				this.on();
-			}
-			else
-			{
-				this.off();
-			}
-			return this;
-		}
-
-		@Override
-		public final boolean isSet()
-		{
-			return this.state;
-		}
-
 	}
 
 }
-

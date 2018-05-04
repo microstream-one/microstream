@@ -1,6 +1,7 @@
 package net.jadoth.util.chars;
 
-
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.VarString;
 
 public class MainTestDoubleCollectPerformance
 {

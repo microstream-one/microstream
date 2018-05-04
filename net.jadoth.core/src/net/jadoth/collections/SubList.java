@@ -10,8 +10,8 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSettingList;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
 
 
 public final class SubList<E> extends SubListAccessor<E> implements XList<E>

@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.jadoth.branching.AbstractBranchingThrow;
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.ArrayView;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstHashEnum;
@@ -16,7 +19,6 @@ import net.jadoth.collections.Constant;
 import net.jadoth.collections.Empty;
 import net.jadoth.collections.EmptyTable;
 import net.jadoth.collections.HashEnum;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.Singleton;
 import net.jadoth.collections.SynchCollection;
 import net.jadoth.collections.SynchList;
@@ -31,14 +33,12 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.concurrent.ThreadSafe;
+import net.jadoth.concurrency.ThreadSafe;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.WrapperRuntimeException;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.typing._longKeyValue;
 import net.jadoth.util.UtilStackTrace;
-import net.jadoth.util._longKeyValue;
-import net.jadoth.util.branching.AbstractBranchingThrow;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
 
 /**
  * Central class for general utility methods regarding collections, arrays and some basic general functionality that is
@@ -979,6 +979,7 @@ public final class X
 			: new WrapperRuntimeException(e)
 		;
 	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////

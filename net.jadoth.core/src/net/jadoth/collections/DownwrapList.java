@@ -23,6 +23,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XInputtingList;
 import net.jadoth.collections.types.XInsertingList;
+import net.jadoth.collections.types.XJoinable;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XPrependingList;
 import net.jadoth.collections.types.XPreputtingSequence;
@@ -33,9 +34,9 @@ import net.jadoth.collections.types.XPuttingList;
 import net.jadoth.collections.types.XRemovingCollection;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.collections.types.XSortableSequence;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Clearable;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.Clearable;
 
 
 /**

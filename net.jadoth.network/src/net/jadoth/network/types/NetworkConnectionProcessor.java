@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 
 public interface NetworkConnectionProcessor extends Consumer<SocketChannel>
 {

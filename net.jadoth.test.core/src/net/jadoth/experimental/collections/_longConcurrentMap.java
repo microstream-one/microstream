@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.interfaces.Sized;
-import net.jadoth.util.Clearable;
-import net.jadoth.util.VMUtils;
-import net.jadoth.util._longKeyValue;
+import net.jadoth.typing.Clearable;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.typing._longKeyValue;
+import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 
@@ -36,7 +36,7 @@ public final class _longConcurrentMap implements Clearable, Sized
 	// (18.02.2012)XXX: check all "return 0L;" if it is a problem
 
 
-	private static final Unsafe unsafe = (Unsafe)VMUtils.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)XVM.getSystemInstance();
 	private static final long FIELD_ADDRESS_modLevel = unsafe.objectFieldOffset(getDeclaredField(_longConcurrentMap.class, "modLevel"));
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(_longConcurrentMap.class, "size"));
 	private static final long FIELD_ADDRESS_link = unsafe.objectFieldOffset(getDeclaredField(_longEntry.class, "link"));

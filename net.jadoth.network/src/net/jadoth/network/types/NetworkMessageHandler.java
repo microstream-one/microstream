@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 
 
 

@@ -1,12 +1,12 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.KeyValue;
 
 
 public interface StorageEntityTypeExportStatistics

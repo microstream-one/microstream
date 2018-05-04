@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.hash.HashEqualator;
+import net.jadoth.hashing.HashEqualator;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;

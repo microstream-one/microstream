@@ -23,9 +23,9 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.Equalator;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.

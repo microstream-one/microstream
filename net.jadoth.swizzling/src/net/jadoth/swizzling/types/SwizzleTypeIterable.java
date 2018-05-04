@@ -2,7 +2,7 @@ package net.jadoth.swizzling.types;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 public interface SwizzleTypeIterable
 {

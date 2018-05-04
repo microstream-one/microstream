@@ -5,20 +5,20 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.functions.AggregateMax;
-import net.jadoth.collections.functions.IsCustomEqual;
-import net.jadoth.collections.functions.IsGreater;
-import net.jadoth.collections.functions.IsSmaller;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
+import net.jadoth.functional.AggregateMax;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.functional.IsCustomEqual;
+import net.jadoth.functional.IsGreater;
+import net.jadoth.functional.IsSmaller;
+import net.jadoth.typing.JadothTypes;
 
 public final class XUtilsArrayCollection
 {

@@ -1,7 +1,7 @@
 package net.jadoth.test.util;
 
 import net.jadoth.X;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  * @author Thomas Muenz

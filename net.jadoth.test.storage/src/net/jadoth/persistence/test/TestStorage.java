@@ -14,7 +14,6 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
 import net.jadoth.functional.JadothFunctional;
 import net.jadoth.meta.JadothDebug;
 import net.jadoth.reference.Reference;
@@ -30,6 +29,7 @@ import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
 import net.jadoth.storage.types.StorageFileProvider;
+import net.jadoth.util.cql.CQL;
 
 public class TestStorage extends TestComponentProvider
 {

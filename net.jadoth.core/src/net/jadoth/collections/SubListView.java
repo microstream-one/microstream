@@ -12,10 +12,10 @@ import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 public class SubListView<E> implements XGettingList<E>

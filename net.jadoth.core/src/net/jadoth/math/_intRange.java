@@ -34,11 +34,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.functional._intProcedure;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 
 /**
  *

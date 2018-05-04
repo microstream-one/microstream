@@ -1,7 +1,7 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.chars.JadothStrings;
 import net.jadoth.reference.LazyReferencing;
-import net.jadoth.util.chars.JadothStrings;
 
 
 /**

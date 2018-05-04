@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.util.chars.VarString.New;
+import static net.jadoth.chars.VarString.New;
 
 public interface PersistenceTypeDictionaryExporter
 {

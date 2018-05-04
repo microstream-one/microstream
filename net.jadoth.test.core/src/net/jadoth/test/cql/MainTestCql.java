@@ -1,23 +1,23 @@
 package net.jadoth.test.cql;
 
-import static net.jadoth.cql.CQL.not;
+import static net.jadoth.util.cql.CQL.not;
 
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
-import net.jadoth.cql.CqlAggregation;
-import net.jadoth.cql.CqlProjection;
-import net.jadoth.cql.CqlQuery;
-import net.jadoth.cql.CqlSelection;
-import net.jadoth.cql.CqlTransfer;
 import net.jadoth.meta.JadothDebug;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.util.cql.CQL;
+import net.jadoth.util.cql.CqlAggregation;
+import net.jadoth.util.cql.CqlProjection;
+import net.jadoth.util.cql.CqlQuery;
+import net.jadoth.util.cql.CqlSelection;
+import net.jadoth.util.cql.CqlTransfer;
 
 public class MainTestCql
 {

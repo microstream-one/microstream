@@ -18,11 +18,11 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 

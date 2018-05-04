@@ -10,8 +10,8 @@ import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
 
 public class SubView<E> implements XGettingSequence<E>
 {

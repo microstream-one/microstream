@@ -3,8 +3,8 @@ package net.jadoth.test.collections;
 import static net.jadoth.math.JadothMath.sequence;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.Equalator;
 
 public class MainTestEqualatorAsPredicate
 {

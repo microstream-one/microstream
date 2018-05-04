@@ -1,6 +1,6 @@
 package net.jadoth.meta;
 
-import static net.jadoth.util.time.JadothTime.now;
+import static net.jadoth.time.JadothTime.now;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +14,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.jadoth.X;
-import net.jadoth.collections.KeyValue;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.concurrent.JadothThreads;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
-
+import net.jadoth.concurrency.JadothThreads;
+import net.jadoth.file.JadothFiles;
+import net.jadoth.typing.KeyValue;
 
 
 /**

@@ -17,9 +17,9 @@ import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XReference;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 

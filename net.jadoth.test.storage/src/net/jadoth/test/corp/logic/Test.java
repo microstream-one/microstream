@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.function.Function;
 
 import net.jadoth.X;
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
@@ -37,9 +39,7 @@ import net.jadoth.test.corp.model.PrivateCustomer;
 import net.jadoth.test.corp.model.Product;
 import net.jadoth.test.corp.model.Street;
 import net.jadoth.test.corp.model.Vendor;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.time.JadothTime;
 
 public class Test
 {

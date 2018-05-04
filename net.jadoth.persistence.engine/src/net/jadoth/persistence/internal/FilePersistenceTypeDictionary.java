@@ -5,12 +5,12 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 import java.io.IOException;
 
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
-import net.jadoth.util.file.JadothFiles;
 
 public final class FilePersistenceTypeDictionary
 implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer

@@ -1,8 +1,8 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.typing.KeyValue;
 
 
 public interface PersistenceRoots

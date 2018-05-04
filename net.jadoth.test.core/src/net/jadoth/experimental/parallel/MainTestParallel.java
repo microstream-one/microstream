@@ -2,7 +2,7 @@ package net.jadoth.experimental.parallel;
 
 import java.util.Arrays;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.math.JadothMath;
 
 public class MainTestParallel

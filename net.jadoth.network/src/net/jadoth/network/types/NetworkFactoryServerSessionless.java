@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import net.jadoth.util.MissingAssemblyPartException;
+import net.jadoth.exceptions.MissingFoundationPartException;
 
 
 public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
@@ -111,7 +111,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 
 		protected synchronized NetworkConnectionProcessor provideConnectionProcessor()
 		{
-			throw new MissingAssemblyPartException(NetworkConnectionProcessor.class);
+			throw new MissingFoundationPartException(NetworkConnectionProcessor.class);
 		}
 
 		@Override

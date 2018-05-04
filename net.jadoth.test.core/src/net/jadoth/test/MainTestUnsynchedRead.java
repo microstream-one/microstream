@@ -2,7 +2,7 @@ package net.jadoth.test;
 
 import java.util.ArrayList;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 
 public class MainTestUnsynchedRead
 {

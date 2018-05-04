@@ -7,7 +7,7 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.util.StoreEager;
 import net.jadoth.test.corp.model.Address;
 import net.jadoth.test.corp.model.Person;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.time.JadothTime;
 
 
 public class MainTestStorageMandatoryFields

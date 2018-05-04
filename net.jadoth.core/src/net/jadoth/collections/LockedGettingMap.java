@@ -12,8 +12,10 @@ import java.util.function.Predicate;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
-import net.jadoth.concurrent.Synchronized;
-import net.jadoth.util.Equalator;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.KeyValue;
 
 public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchronized
 {

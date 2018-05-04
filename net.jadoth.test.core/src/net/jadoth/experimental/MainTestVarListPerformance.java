@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import net.jadoth.collections.VarList;
 import net.jadoth.memory.Memory;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public class MainTestVarListPerformance
 {

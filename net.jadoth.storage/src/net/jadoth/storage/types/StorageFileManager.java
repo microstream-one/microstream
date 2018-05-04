@@ -16,6 +16,7 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.BufferSizeProvider;
@@ -24,8 +25,7 @@ import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.typing.JadothTypes;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel

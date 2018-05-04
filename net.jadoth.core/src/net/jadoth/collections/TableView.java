@@ -12,9 +12,11 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 public final class TableView<K, V> implements XGettingTable<K, V>
 {

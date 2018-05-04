@@ -2,11 +2,12 @@ package net.jadoth.util;
 
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.collections.XIterable;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.typing.Composition;
 
 public interface Substituter<T>
 {
@@ -14,7 +15,7 @@ public interface Substituter<T>
 
 
 
-	public interface Removing<T> extends Substituter<T>, net.jadoth.util.Clearable
+	public interface Removing<T> extends Substituter<T>, net.jadoth.typing.Clearable
 	{
 		@Override
 		public void clear();

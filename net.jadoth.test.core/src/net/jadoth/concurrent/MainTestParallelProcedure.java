@@ -2,7 +2,7 @@ package net.jadoth.concurrent;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 import net.jadoth.math.JadothMath;
 
 public class MainTestParallelProcedure

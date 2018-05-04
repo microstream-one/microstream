@@ -15,27 +15,27 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.functions.AggregateMax;
-import net.jadoth.collections.functions.AggregateMin;
-import net.jadoth.collections.functions.IsCustomEqual;
-import net.jadoth.collections.functions.IsGreater;
-import net.jadoth.collections.functions.IsNull;
-import net.jadoth.collections.functions.IsSame;
-import net.jadoth.collections.functions.IsSmaller;
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XMap;
+import net.jadoth.equality.Equalator;
+import net.jadoth.functional.AggregateMax;
+import net.jadoth.functional.AggregateMin;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IsCustomEqual;
+import net.jadoth.functional.IsGreater;
+import net.jadoth.functional.IsNull;
+import net.jadoth.functional.IsSame;
+import net.jadoth.functional.IsSmaller;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.hash.HashEqualator;
+import net.jadoth.hashing.HashEqualator;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 
 
 /**

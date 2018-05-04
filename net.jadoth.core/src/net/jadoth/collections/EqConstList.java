@@ -9,18 +9,18 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.functions.IsCustomEqual;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.functional.IsCustomEqual;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 

@@ -4,9 +4,9 @@ import static net.jadoth.X.notNull;
 
 import java.io.File;
 
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.util.file.JadothFiles;
 
 public abstract class AbstractProviderByFile
 {

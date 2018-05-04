@@ -2,13 +2,14 @@ package net.jadoth.collections;
 
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 /**
  * Primitive (read: fast) synchronized pseudo map implementation that maps long id values to weakly referenced objects.

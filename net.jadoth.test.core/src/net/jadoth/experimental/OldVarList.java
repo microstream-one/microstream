@@ -4,10 +4,10 @@ import static net.jadoth.math.JadothMath.positive;
 
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 
 public final class OldVarList<E>
 {

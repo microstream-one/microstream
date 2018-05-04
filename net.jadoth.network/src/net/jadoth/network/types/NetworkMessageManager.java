@@ -4,7 +4,7 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.MiniMap;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 
 public interface NetworkMessageManager<S extends NetworkSession<?>> extends Suspendable

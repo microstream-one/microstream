@@ -24,7 +24,6 @@ import net.jadoth.collections.BinaryHandlerHashEnum;
 import net.jadoth.collections.BinaryHandlerHashTable;
 import net.jadoth.collections.BinaryHandlerLimitList;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.Dispatcher;
@@ -75,9 +74,10 @@ import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.VMUtils;
+import net.jadoth.util.XVM;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Unsafe;
 //CHECKSTYLE.ON: IllegalImport
@@ -88,7 +88,7 @@ public final class BinaryPersistence extends Persistence
 	// constants        //
 	/////////////////////
 
-	static final Unsafe VM = (Unsafe)VMUtils.getSystemInstance();
+	static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
 
 	static final int
 		LENGTH_LONG = Memory.byteSize_long()              ,

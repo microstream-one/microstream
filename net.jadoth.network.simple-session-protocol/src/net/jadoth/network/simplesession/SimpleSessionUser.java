@@ -1,6 +1,6 @@
 package net.jadoth.network.simplesession;
 
-import net.jadoth.util.chars.Named;
+import net.jadoth.typing.Named;
 
 public interface SimpleSessionUser extends Named
 {

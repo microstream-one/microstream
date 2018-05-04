@@ -3,6 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import java.util.HashSet;
 
 import net.jadoth.X;
+import net.jadoth.chars.JadothStrings;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
@@ -11,7 +12,6 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.util.chars.JadothStrings;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>

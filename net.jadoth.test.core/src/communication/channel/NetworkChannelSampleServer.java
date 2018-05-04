@@ -1,6 +1,6 @@
 package communication.channel;
 
-import static net.jadoth.concurrent.JadothThreads.start;
+import static net.jadoth.concurrency.JadothThreads.start;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

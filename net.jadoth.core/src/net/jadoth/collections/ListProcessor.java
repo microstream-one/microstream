@@ -11,9 +11,9 @@ import net.jadoth.collections.old.AbstractOldRemovingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XProcessingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 public final class ListProcessor<E> implements XProcessingList<E>
 {

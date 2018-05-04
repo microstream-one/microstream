@@ -13,18 +13,18 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.functions.IsCustomEqual;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.util.VMUtils;
-import net.jadoth.util.chars.JadothChars;
+import net.jadoth.chars.JadothChars;
+import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 public class MainReadObjectHeader
@@ -10,7 +10,7 @@ public class MainReadObjectHeader
 	static final long OFFSET_CLASS  = 8L;
 
 	static final Object o = new Object();
-	static final Unsafe vm = (Unsafe)VMUtils.getSystemInstance();
+	static final Unsafe vm = (Unsafe)XVM.getSystemInstance();
 
 	public static void main(final String[] args) throws Throwable
 	{

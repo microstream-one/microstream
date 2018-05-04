@@ -2,8 +2,9 @@ package net.jadoth.collections;
 
 import static java.lang.System.identityHashCode;
 
-import net.jadoth.collections.types.IdentityEqualityLogic;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.math.JadothMath;
+import net.jadoth.typing.KeyValue;
 
 
 /**
@@ -159,7 +160,7 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 		{
 			for(Entry<K, V> e = slots[i]; e != null; e = e.link)
 			{
-				array[a++] = new KeyValue.Implementation<>(e.key, e.value);
+				array[a++] = KeyValue.New(e.key, e.value);
 			}
 		}
 

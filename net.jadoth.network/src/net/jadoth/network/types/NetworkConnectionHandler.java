@@ -2,7 +2,7 @@ package net.jadoth.network.types;
 
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 
 /**
  * Type for handling a newly established connection, where handling can be for example

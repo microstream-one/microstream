@@ -3,7 +3,7 @@ package net.jadoth.persistence.types;
 import static java.lang.System.identityHashCode;
 
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.VMUtils;
+import net.jadoth.util.XVM;
 
 
 public interface ServerConnection
@@ -148,7 +148,7 @@ public interface ServerConnection
 			final Object response = this.registerAndSend(request, Thread.currentThread()).waitForResponse(timeout);
 			if(response instanceof Throwable)
 			{
-				VMUtils.throwUnchecked((Throwable)response); // low-level Throwable throwing, no other way.
+				XVM.throwUnchecked((Throwable)response); // low-level Throwable throwing, no other way.
 			}
 			return (T)response;
 		}

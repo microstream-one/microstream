@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.exceptions.IORuntimeException;
 import net.jadoth.meta.JadothDebug;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 
 public interface NetworkMessageListener<S extends NetworkSession<?>> extends Runnable, Deactivateable

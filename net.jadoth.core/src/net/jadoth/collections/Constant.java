@@ -17,9 +17,9 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XReferencing;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 

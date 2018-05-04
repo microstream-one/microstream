@@ -6,7 +6,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<E>
 {

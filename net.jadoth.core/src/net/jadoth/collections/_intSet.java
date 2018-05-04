@@ -1,10 +1,10 @@
 package net.jadoth.collections;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional._intProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.Composition;
 
 
 /**

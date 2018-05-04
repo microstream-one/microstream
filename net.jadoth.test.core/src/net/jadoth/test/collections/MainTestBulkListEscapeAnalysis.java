@@ -1,11 +1,11 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.concurrent.ThreadedInstantiating.threaded;
+import static net.jadoth.concurrency.ThreadedInstantiating.threaded;
 
 import java.util.ArrayList;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.concurrent.Threaded;
+import net.jadoth.concurrency.Threaded;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.memory.Instantiator;
 

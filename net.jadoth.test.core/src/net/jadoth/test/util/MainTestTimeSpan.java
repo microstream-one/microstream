@@ -1,7 +1,7 @@
 package net.jadoth.test.util;
 
-import net.jadoth.util.time.JadothTime;
-import net.jadoth.util.time.TimeSpan;
+import net.jadoth.time.JadothTime;
+import net.jadoth.time.TimeSpan;
 
 
 

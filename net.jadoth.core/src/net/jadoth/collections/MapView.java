@@ -11,8 +11,10 @@ import java.util.function.Predicate;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 public final class MapView<K, V> implements XGettingMap<K, V>
 {

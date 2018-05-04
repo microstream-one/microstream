@@ -10,14 +10,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 

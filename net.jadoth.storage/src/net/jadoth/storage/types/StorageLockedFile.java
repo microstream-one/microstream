@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.file.JadothFiles;
 
 
 public interface StorageLockedFile extends StorageFile

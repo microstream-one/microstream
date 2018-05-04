@@ -1,8 +1,8 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.util.AbstractInstanceDispatcher;
-import net.jadoth.util.MissingAssemblyPartException;
 
 
 
@@ -63,12 +63,12 @@ public interface SwizzleFoundation
 
 		protected SwizzleObjectIdProvider createObjectIdProvider()
 		{
-			throw new MissingAssemblyPartException(SwizzleObjectIdProvider.class);
+			throw new MissingFoundationPartException(SwizzleObjectIdProvider.class);
 		}
 
 		protected SwizzleTypeIdProvider createTypeIdProvider()
 		{
-			throw new MissingAssemblyPartException(SwizzleTypeIdProvider.class);
+			throw new MissingFoundationPartException(SwizzleTypeIdProvider.class);
 		}
 
 

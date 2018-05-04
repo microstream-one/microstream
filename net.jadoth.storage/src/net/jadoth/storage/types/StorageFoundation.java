@@ -1,9 +1,9 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
 import net.jadoth.util.AbstractInstanceDispatcher;
-import net.jadoth.util.MissingAssemblyPartException;
 
 public interface StorageFoundation
 {
@@ -192,7 +192,7 @@ public interface StorageFoundation
 
 		protected StorageRootTypeIdProvider createRootTypeIdProvider()
 		{
-			throw new MissingAssemblyPartException(StorageRootTypeIdProvider.class);
+			throw new MissingFoundationPartException(StorageRootTypeIdProvider.class);
 		}
 
 		protected StorageTimestampProvider createTimestampProvider()

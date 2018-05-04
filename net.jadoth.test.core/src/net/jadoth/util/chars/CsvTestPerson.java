@@ -4,10 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.jadoth.X;
-import net.jadoth.csv.CSV;
-import net.jadoth.csv.CsvAssembler;
-import net.jadoth.csv.CsvRowAssembler;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.chars.VarString;
+import net.jadoth.time.JadothTime;
+import net.jadoth.util.csv.CSV;
+import net.jadoth.util.csv.CsvAssembler;
+import net.jadoth.util.csv.CsvRowAssembler;
 
 class CsvTestPerson
 {

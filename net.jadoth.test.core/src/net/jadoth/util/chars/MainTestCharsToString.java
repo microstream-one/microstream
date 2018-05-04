@@ -1,5 +1,6 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.math.JadothMath;
 
 

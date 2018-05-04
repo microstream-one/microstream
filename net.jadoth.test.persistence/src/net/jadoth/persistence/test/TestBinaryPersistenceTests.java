@@ -2,6 +2,7 @@ package net.jadoth.persistence.test;
 
 import java.util.Arrays;
 
+import net.jadoth.chars.JadothStrings;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.meta.JadothDebug;
 import net.jadoth.persistence.binary.types.Binary;
@@ -14,7 +15,6 @@ import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.util.chars.JadothStrings;
 
 public class TestBinaryPersistenceTests extends TestComponentProvider
 {

@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 /* (12.11.2015 TM)TODO: LockManager concept

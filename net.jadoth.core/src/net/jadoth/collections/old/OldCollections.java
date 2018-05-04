@@ -13,10 +13,10 @@ import java.util.RandomAccess;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 /**
  * Some utility functionality for the old, misdesigned, bugged JDK collections that is so obvious but still

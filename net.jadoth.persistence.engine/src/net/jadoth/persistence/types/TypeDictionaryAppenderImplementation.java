@@ -2,8 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.math.JadothMath.notNegative;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.util.chars.VarString;
 
 final class TypeDictionaryAppenderImplementation
 extends PersistenceTypeDictionary.Symbols

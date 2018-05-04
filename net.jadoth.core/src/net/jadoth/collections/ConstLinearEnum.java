@@ -9,13 +9,13 @@ import java.util.function.Predicate;
 
 import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldGettingSet;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableEnum;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 

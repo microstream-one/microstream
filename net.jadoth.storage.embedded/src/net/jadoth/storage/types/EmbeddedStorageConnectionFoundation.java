@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryLoader;
@@ -29,7 +30,6 @@ import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.MissingAssemblyPartException;
 
 public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFoundation
 {
@@ -153,7 +153,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 		protected StorageManager createStorageManager()
 		{
-			throw new MissingAssemblyPartException(StorageManager.class);
+			throw new MissingFoundationPartException(StorageManager.class);
 		}
 
 

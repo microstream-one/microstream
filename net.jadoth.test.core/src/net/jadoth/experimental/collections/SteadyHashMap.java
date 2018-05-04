@@ -11,9 +11,9 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.collections.KeyValue;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.VMUtils;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 
@@ -34,7 +34,7 @@ import sun.misc.Unsafe;
  */
 public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)VMUtils.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)XVM.getSystemInstance();
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(SteadyHashMap.class, "size"));
 
 	// stolen from AtomicReferenceArray

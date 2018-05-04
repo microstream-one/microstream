@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 public interface StorageHousekeepingController
 {

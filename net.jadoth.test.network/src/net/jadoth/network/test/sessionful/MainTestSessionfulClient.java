@@ -3,7 +3,7 @@ package net.jadoth.network.test.sessionful;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.network.simplesession.LogicSimpleAuthentication;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 

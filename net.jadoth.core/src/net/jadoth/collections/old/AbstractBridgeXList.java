@@ -6,7 +6,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public abstract class AbstractBridgeXList<E> extends AbstractOldSettingList<E>
 {

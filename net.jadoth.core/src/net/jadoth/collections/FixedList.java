@@ -17,12 +17,12 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 

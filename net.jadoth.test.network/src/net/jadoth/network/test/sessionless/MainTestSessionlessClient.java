@@ -3,8 +3,8 @@ package net.jadoth.network.test.sessionless;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.file.JadothFiles;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
-import net.jadoth.util.file.JadothFiles;
 
 /**
  * Simple test client

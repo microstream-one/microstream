@@ -1,10 +1,10 @@
 package some.app.entitylogging;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.chars.JadothStrings;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.entity.Entity;
 import net.jadoth.entity.EntityLayer;
 import net.jadoth.entity.EntityLayerProvider;
-import net.jadoth.util.chars.JadothStrings;
 
 public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 {

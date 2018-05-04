@@ -12,7 +12,7 @@ import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.reflect.JadothReflect;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.Composition;
+import net.jadoth.typing.Composition;
 
 
 public class Persistence extends Swizzle

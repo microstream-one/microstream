@@ -1,9 +1,9 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.meta.JadothDebug;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util._longKeyValue;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing._longKeyValue;
 
 
 public class MainTest_longConcMapThreaded

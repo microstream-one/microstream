@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.Singleton;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;
@@ -12,7 +13,6 @@ import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.reference.Reference;
-import net.jadoth.util.file.JadothFiles;
 
 public final class EmbeddedStorage
 {

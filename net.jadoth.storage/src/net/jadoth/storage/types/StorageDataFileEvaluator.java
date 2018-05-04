@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
 
 
 /**

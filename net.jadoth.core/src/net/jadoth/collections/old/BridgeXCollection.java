@@ -7,7 +7,7 @@ import net.jadoth.collections.types.XCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public class BridgeXCollection<E> implements OldCollection<E>
 {

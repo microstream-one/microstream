@@ -8,10 +8,10 @@ import java.util.function.Supplier;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.JadothFunctional;
 import net.jadoth.math.FastRandom;
-import net.jadoth.util.Equalator;
 import net.jadoth.util.UtilStackTrace;
 
 /**

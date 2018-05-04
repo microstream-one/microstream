@@ -10,7 +10,7 @@ import net.jadoth.functional._intIndexProcedure;
 import net.jadoth.functional._intPredicate;
 import net.jadoth.functional._intProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
+import net.jadoth.typing.Composition;
 
 
 /**

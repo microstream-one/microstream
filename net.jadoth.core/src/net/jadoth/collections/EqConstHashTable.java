@@ -14,22 +14,24 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.old.OldList;
-import net.jadoth.collections.types.HashCollection;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 
 public final class EqConstHashTable<K, V>
@@ -52,16 +54,16 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		);
 	}
 
 	public static final <K, V> EqConstHashTable<K, V> NewCustom(final int initialHashLength)
 	{
 		return new EqConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		);
 	}
 
@@ -69,8 +71,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		);
 	}
 
@@ -80,9 +82,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		);
 	}
 	public static final <K, V> EqConstHashTable<K, V> New(
@@ -92,7 +94,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<K, V>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 
@@ -103,9 +105,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 
@@ -122,7 +124,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<K, V>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -134,9 +136,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -155,7 +157,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
 			notNull(hashEqualator)
 		);
@@ -168,7 +170,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -180,8 +182,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -205,8 +207,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(entries);
 	}
@@ -233,8 +235,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
@@ -248,8 +250,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		final EqConstHashTable<K1, V1> newMap = new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.<K1>hashEqualityValue()
+			Hashing.hashDensity(hashDensity),
+			Hashing.<K1>hashEqualityValue()
 		);
 		entries.iterate(new Consumer<KeyValue<K, V>>()
 		{
@@ -434,7 +436,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	final int internalRehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                                          reqCapacity   = JadothHash.padHashLength((int)(this.size / this.hashDensity));
+		final int                                          reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots         = ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity);
 		final int                                          range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super K>                     hashEqualator = this.hashEqualator;
@@ -1144,7 +1146,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return JadothHash.<K, V>wrapAsKeyValue(EqConstHashTable.this.hashEqualator);
+		return Hashing.<K, V>wrapAsKeyValue(EqConstHashTable.this.hashEqualator);
 	}
 
 

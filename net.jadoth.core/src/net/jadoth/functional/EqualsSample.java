@@ -2,7 +2,7 @@ package net.jadoth.functional;
 
 import java.util.function.Predicate;
 
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
 
 final class EqualsSample<T> implements Predicate<T>
 {

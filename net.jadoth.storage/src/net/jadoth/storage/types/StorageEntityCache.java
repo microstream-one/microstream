@@ -16,7 +16,7 @@ import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart

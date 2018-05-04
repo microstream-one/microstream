@@ -1,8 +1,8 @@
 package net.jadoth.experimental.properties;
 
-import static net.jadoth.util.chars.VarString.New;
+import static net.jadoth.chars.VarString.New;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  *

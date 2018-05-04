@@ -1,7 +1,7 @@
 package net.jadoth.test.util;
 
+import net.jadoth.chars.JadothChars;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.JadothChars;
 
 
 
@@ -23,7 +23,7 @@ public class MainTestCharConvertPerformance
 //			chars[i] = ' ';
 //			chars[i] = '~';
 //			chars[i] = '\n';
-//			chars[i] = 'ü';
+//			chars[i] = 'ï¿½';
 		}
 		text.getChars(0, SIZE-1, chars, 0);
 	}

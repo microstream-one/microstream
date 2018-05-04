@@ -5,12 +5,12 @@ import static net.jadoth.X.notNull;
 import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.csv.CSV;
-import net.jadoth.csv.CsvConfiguration;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.util.csv.CSV;
+import net.jadoth.util.csv.CsvConfiguration;
 
 public interface StorageDataConverterCsvConfiguration
 {

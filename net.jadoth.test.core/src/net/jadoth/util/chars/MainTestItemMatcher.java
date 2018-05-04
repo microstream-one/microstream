@@ -6,13 +6,15 @@ import static net.jadoth.math.JadothMath.random;
 import java.util.function.BiConsumer;
 
 import net.jadoth.X;
+import net.jadoth.chars.Levenshtein;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.meta.JadothDebug;
-import net.jadoth.util.ItemMatch;
-import net.jadoth.util.ItemMatchResult;
-import net.jadoth.util.ItemMatcher;
+import net.jadoth.util.matching.ItemMatch;
+import net.jadoth.util.matching.ItemMatchResult;
+import net.jadoth.util.matching.ItemMatcher;
 
 public class MainTestItemMatcher
 {

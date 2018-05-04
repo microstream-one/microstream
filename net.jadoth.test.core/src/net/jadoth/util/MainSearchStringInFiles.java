@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.functional.TriConsumer;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
 
 public class MainSearchStringInFiles
 {

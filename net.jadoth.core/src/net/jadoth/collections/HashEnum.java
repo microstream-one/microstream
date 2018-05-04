@@ -9,23 +9,23 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ChainStorage;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.AbstractBridgeXSet;
-import net.jadoth.collections.types.HashCollection;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
 
 
 public final class HashEnum<E> extends AbstractChainCollection<E, E, E, ChainEntryLinkedStrong<E>>
@@ -44,7 +44,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public static final <E> HashEnum<E> NewCustom(final long initialCapacity)
 	{
 		return new HashEnum<>(
-			JadothHash.padHashLength(X.checkArrayRange(initialCapacity)),
+			Hashing.padHashLength(X.checkArrayRange(initialCapacity)),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -58,8 +58,8 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	{
 		// (14.04.2016)FIXME: properly calculate slot length from desired capacity in regard to hashDensity
 		return new HashEnum<>(
-			JadothHash.padHashLength(X.checkArrayRange(initialCapacity)),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(X.checkArrayRange(initialCapacity)),
+			Hashing.hashDensity(hashDensity)
 		);
 	}
 
@@ -413,7 +413,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 			return this.capacity;
 		}
 
-		final int newCapacity = JadothHash.padHashLength(requiredCapacity);
+		final int newCapacity = Hashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -453,7 +453,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = JadothHash.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 
@@ -592,7 +592,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final HashEqualator<E> hashEquality()
 	{
-		return JadothHash.hashEqualityIdentity();
+		return Hashing.hashEqualityIdentity();
 	}
 
 	@Override

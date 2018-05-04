@@ -7,8 +7,8 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import net.jadoth.file.JadothFiles;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
-import net.jadoth.util.file.JadothFiles;
 
 
 /**

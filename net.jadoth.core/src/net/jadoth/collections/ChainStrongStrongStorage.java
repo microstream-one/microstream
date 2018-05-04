@@ -15,14 +15,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 
 public final class ChainStrongStrongStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>

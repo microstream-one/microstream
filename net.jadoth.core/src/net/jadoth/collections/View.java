@@ -9,8 +9,8 @@ import java.util.function.Predicate;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
 
 public class View<E> implements XGettingCollection<E>
 {

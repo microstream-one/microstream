@@ -11,7 +11,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
 import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 
 @FunctionalInterface

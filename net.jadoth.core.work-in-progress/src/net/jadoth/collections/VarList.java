@@ -9,19 +9,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
+import net.jadoth.branching.ThrowBreak;
 import net.jadoth.collections.old.OldList;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hash.JadothHash;
+import net.jadoth.hashing.Hashing;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.branching.ThrowBreak;
+import net.jadoth.typing.Composition;
 
 
 /**
@@ -676,7 +676,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return JadothHash.hashEqualityIdentity();
+		return Hashing.hashEqualityIdentity();
 	}
 
 	@Override

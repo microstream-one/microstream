@@ -12,26 +12,28 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.old.OldList;
-import net.jadoth.collections.types.HashCollection;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.IdentityEqualator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 
 public final class ConstHashTable<K, V>
@@ -86,7 +88,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength)
 	{
 		return new ConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -95,15 +97,15 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		return new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity)
+			Hashing.hashDensity(hashDensity)
 		);
 	}
 
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength, final float hashDensity)
 	{
 		return new ConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		);
 	}
 	public static final <K, V> ConstHashTable<K, V> New(
@@ -123,8 +125,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		).internalAddEntries(entries);
 	}
 
@@ -152,8 +154,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -166,7 +168,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		final ConstHashTable<KO, VO> newMap = new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity)
+			Hashing.hashDensity(hashDensity)
 		);
 		entries.iterate(e->
 		{
@@ -593,7 +595,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<K> hashEquality()
 	{
-		return JadothHash.hashEqualityIdentity();
+		return Hashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -1005,7 +1007,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return JadothHash.keyValueHashEqualityKeyIdentity();
+		return Hashing.keyValueHashEqualityKeyIdentity();
 	}
 
 

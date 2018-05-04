@@ -1,11 +1,11 @@
 package net.jadoth.network.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerCheckInterval;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerThreadCount;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionProcessorThreadTimeout;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionProcessorsThreadCount;
-import net.jadoth.util.MissingAssemblyPartException;
 
 public interface NetworkFactoryServer
 {
@@ -326,7 +326,7 @@ public interface NetworkFactoryServer
 
 		protected synchronized NetworkConnectionProcessor.Provider<?> provideConnectionProcessorProvider()
 		{
-			throw new MissingAssemblyPartException(NetworkConnectionProcessor.Provider.class);
+			throw new MissingFoundationPartException(NetworkConnectionProcessor.Provider.class);
 		}
 
 		protected synchronized NetworkConnectionProblemHandler.Provider provideProblemHandlerConnectionListening()
@@ -343,7 +343,7 @@ public interface NetworkFactoryServer
 		{
 			if(this.serverSocketChannel == null)
 			{
-				throw new MissingAssemblyPartException(NetworkConnectionSocket.class);
+				throw new MissingFoundationPartException(NetworkConnectionSocket.class);
 			}
 			return this.serverSocketChannel;
 		}

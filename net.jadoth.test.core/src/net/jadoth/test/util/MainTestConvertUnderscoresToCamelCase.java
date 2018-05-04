@@ -1,6 +1,6 @@
 package net.jadoth.test.util;
 
-import net.jadoth.util.chars.JadothChars;
+import net.jadoth.chars.JadothChars;
 
 public class MainTestConvertUnderscoresToCamelCase
 {
@@ -16,18 +16,18 @@ public class MainTestConvertUnderscoresToCamelCase
 			"tab__sum",
 			"tab___sum",
 			"tab_9sum",
-			"tab_üsum",
-			"tab_€sum",
+			"tab_ï¿½sum",
+			"tab_ï¿½sum",
 			"__tab_sum",
 			"tab_sum__",
 			"_tab_sum_",
 			"TAB_SUM",
 			"abc1_23ef",
-			"abc€_abc",
-			"abc€_Abc",
+			"abcï¿½_abc",
+			"abcï¿½_Abc",
 			"abc9_Abc",
 			"abc9_abc",
-			"abc€_€bc",
+			"abcï¿½_ï¿½bc",
 		};
 		for(final String s : strings)
 		{

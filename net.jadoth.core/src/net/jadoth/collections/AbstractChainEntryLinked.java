@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.jadoth.X;
-import net.jadoth.collections.types.HashCollection;
-import net.jadoth.collections.types.HashCollection.Analysis;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.collections.interfaces.HashCollection;
+import net.jadoth.collections.interfaces.HashCollection.Analysis;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.KeyValue;
 
 
 /**

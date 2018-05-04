@@ -2,8 +2,8 @@ package net.jadoth.collections;
 
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.concurrent.Synchronized;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.typing.JadothTypes;
 
 
 public final class LockedAdder<E> implements XAddingCollection<E>, Synchronized

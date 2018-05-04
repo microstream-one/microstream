@@ -1,7 +1,7 @@
 package net.jadoth.experimental.collections;
 import java.util.Arrays;
 
-import net.jadoth.collections.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 public class MainTestConcMap

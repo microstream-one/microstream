@@ -1,8 +1,8 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.collections.KeyValue;
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.meta.JadothDebug;
+import net.jadoth.typing.KeyValue;
 
 
 public class MainTestConcMapThreaded

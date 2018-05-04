@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import net.jadoth.X;
-import net.jadoth.util.VMUtils;
+import net.jadoth.util.XVM;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
@@ -31,7 +31,7 @@ public final class Memory
 	// constants        //
 	/////////////////////
 
-	private static final Unsafe VM = (Unsafe)VMUtils.getSystemInstance();
+	private static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
 
 
 	private static final long

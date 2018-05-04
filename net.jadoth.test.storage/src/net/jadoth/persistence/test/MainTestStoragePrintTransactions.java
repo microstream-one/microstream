@@ -2,8 +2,8 @@ package net.jadoth.persistence.test;
 
 import java.io.File;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
-import net.jadoth.util.chars.VarString;
 
 public class MainTestStoragePrintTransactions
 {

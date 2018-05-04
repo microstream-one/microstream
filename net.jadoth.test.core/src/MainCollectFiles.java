@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.file.JadothFiles;
 
 
 public class MainCollectFiles

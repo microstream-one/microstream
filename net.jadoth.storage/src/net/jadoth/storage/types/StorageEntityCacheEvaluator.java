@@ -2,7 +2,7 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.math.JadothMath.positive;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  * Function type that evaluates if a live entity (entity with cached data) shall be unloaded (its cache cleared).

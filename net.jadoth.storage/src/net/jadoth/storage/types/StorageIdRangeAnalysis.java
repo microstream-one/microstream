@@ -4,11 +4,11 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.X;
 import net.jadoth.collections.ConstHashTable;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.Swizzle.IdType;
+import net.jadoth.typing.KeyValue;
 
 public interface StorageIdRangeAnalysis
 {

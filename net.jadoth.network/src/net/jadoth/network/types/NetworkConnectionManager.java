@@ -3,7 +3,7 @@ package net.jadoth.network.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public interface NetworkConnectionManager extends Suspendable
 {

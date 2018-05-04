@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public class MainTestOldVarList
 {

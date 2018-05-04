@@ -4,11 +4,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.KeyValue;
-import net.jadoth.collections.XIterable;
 import net.jadoth.collections.interfaces.ExtendedMap;
 import net.jadoth.collections.old.OldCollection;
-import net.jadoth.util.ComponentType;
+import net.jadoth.typing.ComponentType;
+import net.jadoth.typing.KeyValue;
 
 
 /**

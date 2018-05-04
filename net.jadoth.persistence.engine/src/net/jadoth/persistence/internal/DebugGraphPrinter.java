@@ -3,13 +3,13 @@ package net.jadoth.persistence.internal;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.VarString;
 import net.jadoth.math.JadothMath;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.util.chars.JadothStrings;
-import net.jadoth.util.chars.VarString;
 
 public class DebugGraphPrinter implements SwizzleFunction
 {

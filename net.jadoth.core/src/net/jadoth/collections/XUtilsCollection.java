@@ -6,32 +6,33 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.functions.AggregateCountingAdd;
-import net.jadoth.collections.functions.AggregateCountingPut;
-import net.jadoth.collections.functions.AggregateMax;
-import net.jadoth.collections.functions.AggregateMin;
-import net.jadoth.collections.functions.AggregateOffsetLength;
-import net.jadoth.collections.functions.IsCustomEqual;
-import net.jadoth.collections.functions.IsGreater;
-import net.jadoth.collections.functions.IsSmaller;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XInsertingList;
+import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XProcessingCollection;
 import net.jadoth.collections.types.XProcessingSequence;
 import net.jadoth.collections.types.XPuttingCollection;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.collections.types.XSortableSequence;
 import net.jadoth.collections.types.XTable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
+import net.jadoth.functional.AggregateCountingAdd;
+import net.jadoth.functional.AggregateCountingPut;
+import net.jadoth.functional.AggregateMax;
+import net.jadoth.functional.AggregateMin;
+import net.jadoth.functional.AggregateOffsetLength;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IsCustomEqual;
+import net.jadoth.functional.IsGreater;
+import net.jadoth.functional.IsSmaller;
 import net.jadoth.functional.JadothFunctional;
 import net.jadoth.math.FastRandom;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 
 public final class XUtilsCollection
 {

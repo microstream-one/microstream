@@ -1,7 +1,7 @@
 package net.jadoth.test.collections;
 
 import net.jadoth.collections.HashEnum;
-import net.jadoth.collections.types.HashCollection;
+import net.jadoth.collections.interfaces.HashCollection;
 
 public class MainTestVarSetAnalysis
 {

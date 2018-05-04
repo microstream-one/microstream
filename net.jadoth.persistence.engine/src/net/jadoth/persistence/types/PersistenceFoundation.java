@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.Dispatcher;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
@@ -10,7 +11,6 @@ import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.MissingAssemblyPartException;
 
 
 /**
@@ -1038,47 +1038,47 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected PersistenceStorer.Creator<M> createStorerCreator()
 		{
-			throw new MissingAssemblyPartException(PersistenceStorer.Creator.class);
+			throw new MissingFoundationPartException(PersistenceStorer.Creator.class);
 		}
 
 		protected PersistenceLoader.Creator<M> createBuilderCreator()
 		{
-			throw new MissingAssemblyPartException(PersistenceLoader.Creator.class);
+			throw new MissingFoundationPartException(PersistenceLoader.Creator.class);
 		}
 
 		protected PersistenceTarget<M> createPersistenceTarget()
 		{
-			throw new MissingAssemblyPartException(PersistenceTarget.class);
+			throw new MissingFoundationPartException(PersistenceTarget.class);
 		}
 
 		protected PersistenceSource<M> createPersistenceSource()
 		{
-			throw new MissingAssemblyPartException(PersistenceSource.class);
+			throw new MissingFoundationPartException(PersistenceSource.class);
 		}
 
 		protected PersistenceTypeHandlerCreatorLookup<M> createTypeHandlerCreatorLookup()
 		{
-			throw new MissingAssemblyPartException(PersistenceTypeHandlerCreatorLookup.class);
+			throw new MissingFoundationPartException(PersistenceTypeHandlerCreatorLookup.class);
 		}
 
 		protected PersistenceTypeDictionaryLoader createTypeDictionaryLoader()
 		{
-			throw new MissingAssemblyPartException(PersistenceTypeDictionaryLoader.class);
+			throw new MissingFoundationPartException(PersistenceTypeDictionaryLoader.class);
 		}
 
 		protected PersistenceTypeDictionaryStorer createTypeDictionaryStorer()
 		{
-			throw new MissingAssemblyPartException(PersistenceTypeDictionaryStorer.class);
+			throw new MissingFoundationPartException(PersistenceTypeDictionaryStorer.class);
 		}
 
 		protected PersistenceTypeHandlerCreator<M> createTypeHandlerCreator()
 		{
-			throw new MissingAssemblyPartException(PersistenceTypeHandlerCreator.class);
+			throw new MissingFoundationPartException(PersistenceTypeHandlerCreator.class);
 		}
 
 		protected PersistenceCustomTypeHandlerRegistry<M> createCustomTypeHandlerRegistry()
 		{
-			throw new MissingAssemblyPartException(PersistenceCustomTypeHandlerRegistry.class);
+			throw new MissingFoundationPartException(PersistenceCustomTypeHandlerRegistry.class);
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorTypeIdMappable()
@@ -1105,7 +1105,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected PersistenceFieldLengthResolver createFieldFixedLengthResolver()
 		{
-			throw new MissingAssemblyPartException(PersistenceFieldLengthResolver.class);
+			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
 		}
 
 		protected BufferSizeProvider createBufferSizeProvider()

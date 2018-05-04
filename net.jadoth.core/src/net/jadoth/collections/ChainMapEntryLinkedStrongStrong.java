@@ -1,6 +1,7 @@
 package net.jadoth.collections;
 
 import net.jadoth.X;
+import net.jadoth.typing.KeyValue;
 
 final class ChainMapEntryLinkedStrongStrong<K, V>
 extends AbstractChainEntryLinkedKV<K, V, ChainMapEntryLinkedStrongStrong<K, V>>

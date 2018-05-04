@@ -4,8 +4,8 @@ package net.jadoth.collections.types;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Processable;
-import net.jadoth.util.Equalator;
 
 /**
  * Curiously, a removing collection has to be a getting collection as well, because some removal procedures

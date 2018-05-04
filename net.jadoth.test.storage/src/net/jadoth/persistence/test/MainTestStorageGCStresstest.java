@@ -1,13 +1,13 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.chars.JadothStrings;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.math.JadothMath;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.util.chars.JadothStrings;
 
 
 /*

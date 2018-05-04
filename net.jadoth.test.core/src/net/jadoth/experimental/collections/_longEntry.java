@@ -1,6 +1,6 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.util._longKeyValue;
+import net.jadoth.typing._longKeyValue;
 
 public class _longEntry implements _longKeyValue
 {

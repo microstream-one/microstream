@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.types;
 
 import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
@@ -11,6 +10,7 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.typing.KeyValue;
 
 public final class BinaryCollectionHandling
 {

@@ -16,9 +16,9 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.collections.types.XReferencing;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 // (02.11.2012 TM)FIXME: Single: consolidate with Singleton<E>
 public class Single<E> implements XList<E>, XEnum<E>, XReference<E>

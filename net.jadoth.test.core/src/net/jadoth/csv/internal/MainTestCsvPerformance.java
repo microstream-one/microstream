@@ -2,11 +2,11 @@ package net.jadoth.csv.internal;
 
 import java.io.File;
 
-import net.jadoth.csv.CsvContent;
-import net.jadoth.util.chars.CsvContentBuilderCharArray;
-import net.jadoth.util.chars.StringTable;
-import net.jadoth.util.chars._charArrayRange;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.StringTable;
+import net.jadoth.chars._charArrayRange;
+import net.jadoth.file.JadothFiles;
+import net.jadoth.util.csv.CsvContent;
+import net.jadoth.util.csv.CsvContentBuilderCharArray;
 
 
 public class MainTestCsvPerformance

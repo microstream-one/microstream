@@ -15,11 +15,13 @@ import net.jadoth.collections.types.XCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
+import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XMap;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.concurrent.Synchronized;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.KeyValue;
 
 public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 {

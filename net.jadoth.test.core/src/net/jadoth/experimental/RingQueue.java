@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import java.util.NoSuchElementException;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 public final class RingQueue<E>
 {

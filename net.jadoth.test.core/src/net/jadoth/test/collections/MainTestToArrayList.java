@@ -8,7 +8,7 @@ import java.util.List;
 import net.jadoth.X;
 import net.jadoth.collections.old.OldCollections;
 import net.jadoth.collections.types.XList;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * @author Thomas Muenz

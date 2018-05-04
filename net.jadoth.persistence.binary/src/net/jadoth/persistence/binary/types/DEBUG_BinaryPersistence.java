@@ -1,13 +1,13 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.util.chars.VarString.New;
+import static net.jadoth.chars.VarString.New;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.memory.Memory;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.chars.VarString;
 
 // CHECKSTYLE.OFF: MagicNumber: just a deprecated debugging class
 

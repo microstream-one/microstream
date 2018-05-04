@@ -5,7 +5,7 @@ import java.util.Collection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public abstract class AbstractBridgeXSet<E> extends AbstractOldGettingSet<E>
 {

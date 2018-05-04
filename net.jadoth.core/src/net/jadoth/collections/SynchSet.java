@@ -10,9 +10,9 @@ import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.concurrent.Synchronized;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 
 

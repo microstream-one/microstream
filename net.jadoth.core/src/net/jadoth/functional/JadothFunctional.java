@@ -6,8 +6,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.functions.AggregateCount;
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
 
 
 public final class JadothFunctional

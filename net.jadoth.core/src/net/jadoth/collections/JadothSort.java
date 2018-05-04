@@ -3,8 +3,8 @@ package net.jadoth.collections;
 import java.util.Comparator;
 
 import net.jadoth.collections.sorting.Sortable;
+import net.jadoth.functional.ComparatorSequence;
 import net.jadoth.math.FastRandom;
-import net.jadoth.util.ComparatorSequence;
 
 
 /**

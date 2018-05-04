@@ -10,13 +10,16 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import net.jadoth.X;
+import net.jadoth.chars.CsvParserCharArray;
+import net.jadoth.chars.EscapeHandler;
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.VarString;
+import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.csv.CsvConfiguration;
-import net.jadoth.csv.CsvRowCollector;
-import net.jadoth.csv.CsvSegmentsParser;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -25,14 +28,11 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.util.VMUtils;
-import net.jadoth.util.chars.CsvParserCharArray;
-import net.jadoth.util.chars.CsvRecordParserCharArray;
-import net.jadoth.util.chars.EscapeHandler;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.chars._charArrayRange;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.util.XVM;
+import net.jadoth.util.csv.CsvConfiguration;
+import net.jadoth.util.csv.CsvRecordParserCharArray;
+import net.jadoth.util.csv.CsvRowCollector;
+import net.jadoth.util.csv.CsvSegmentsParser;
 
 public interface StorageDataConverterTypeCsvToBinary<S>
 {
@@ -1081,7 +1081,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char[]             input  = JadothFiles.readCharsFromFile(
 				this.sourceFile,
 				Charset.forName("UTF-8"),
-				VMUtils::throwUnchecked
+				XVM::throwUnchecked
 			);
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);

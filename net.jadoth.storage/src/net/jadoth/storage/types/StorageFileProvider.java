@@ -8,8 +8,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.VarString;
+import net.jadoth.file.JadothFiles;
 
 public interface StorageFileProvider
 {

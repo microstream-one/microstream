@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
@@ -7,7 +8,6 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
-import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {

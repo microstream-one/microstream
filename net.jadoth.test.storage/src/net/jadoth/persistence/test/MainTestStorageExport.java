@@ -16,8 +16,8 @@ import java.math.BigInteger;
 import net.jadoth.X;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XSequence;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.storage.types.StorageConnection;
-import net.jadoth.util.file.JadothFiles;
 
 
 public class MainTestStorageExport extends TestStorage

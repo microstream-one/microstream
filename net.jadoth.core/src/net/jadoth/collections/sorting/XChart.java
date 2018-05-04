@@ -1,9 +1,9 @@
 package net.jadoth.collections.sorting;
 
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XBasicTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XList;
+import net.jadoth.typing.KeyValue;
 
 
 

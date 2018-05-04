@@ -1,7 +1,7 @@
 package net.jadoth.test.traversal;
 
 import net.jadoth.X;
-import net.jadoth.traversal.ObjectGraphTraverser;
+import net.jadoth.util.traversing.ObjectGraphTraverser;
 
 public class MainTestObjectGraphTraverser
 {

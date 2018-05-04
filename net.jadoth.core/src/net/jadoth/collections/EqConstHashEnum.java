@@ -9,19 +9,19 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.ChainStorage;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.OldSet;
-import net.jadoth.collections.types.HashCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.JadothTypes;
 
 
 public final class EqConstHashEnum<E>
@@ -37,25 +37,25 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		return new EqConstHashEnum<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			JadothHash.<E>hashEqualityValue()
+			Hashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqConstHashEnum<E> New(final int initialCapacity)
 	{
 		return new EqConstHashEnum<>(
-			JadothHash.padHashLength(initialCapacity),
+			Hashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
-			JadothHash.<E>hashEqualityValue()
+			Hashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqConstHashEnum<E> New(final int initialCapacity, final float hashDensity)
 	{
 		return new EqConstHashEnum<>(
-			JadothHash.padHashLength(initialCapacity),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.<E>hashEqualityValue()
+			Hashing.padHashLength(initialCapacity),
+			Hashing.hashDensity(hashDensity),
+			Hashing.<E>hashEqualityValue()
 		);
 	}
 
@@ -77,7 +77,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqConstHashEnum<>(
-			JadothHash.padHashLength(initialCapacity),
+			Hashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
 			hashEqualator
 		);
@@ -98,8 +98,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqConstHashEnum<>(
-			JadothHash.padHashLength(initialCapacity),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialCapacity),
+			Hashing.hashDensity(hashDensity),
 			hashEqualator
 		);
 	}
@@ -111,8 +111,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			JadothHash.padHashLength(JadothTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(JadothTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 		newEnum.internalAddAll(entries);
@@ -124,7 +124,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		final E...  entries
 	)
 	{
-		return New(JadothHash.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
+		return New(Hashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
 	}
 
 	@SafeVarargs
@@ -133,7 +133,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		final E...                     entries
 	)
 	{
-		return New(JadothHash.<E>hashEqualityValue(), hashDensity, entries);
+		return New(Hashing.<E>hashEqualityValue(), hashDensity, entries);
 	}
 
 	@SafeVarargs
@@ -153,8 +153,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			JadothHash.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 		for(final E e : entries)
@@ -287,7 +287,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	final int internalRehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                               reqCapacity   = JadothHash.padHashLength((int)(this.size / this.hashDensity));
+		final int                               reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainEntryLinkedHashedStrong<E>[] slots         = ChainEntryLinkedHashedStrong.<E>array(reqCapacity);
 		final int                               range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super E>          hashEqualator = this.hashEqualator;

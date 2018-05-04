@@ -2,9 +2,9 @@ package net.jadoth.persistence.test;
 
 import static net.jadoth.math.JadothMath.random;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 @SuppressWarnings("deprecation")
 public class MainTestSwizzleRegistryConcurrency

@@ -3,7 +3,7 @@
  */
 
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 
 /**
  * @author Thomas Muenz

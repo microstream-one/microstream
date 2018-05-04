@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.file.JadothFiles;
 
 
 public class MainFilterNames

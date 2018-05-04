@@ -5,16 +5,24 @@ import static net.jadoth.math.JadothMath.positive;
 
 import java.lang.reflect.Field;
 
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.reflect.TypeDescriptor;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>, TypeDescriptor<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>
 {
+	public XGettingEnum<Field> getInstanceFields();
+
+	public XGettingEnum<Field> getInstancePrimitiveFields();
+
+	public XGettingEnum<Field> getInstanceReferenceFields();
+
+	public boolean hasInstanceReferences();
+	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);
 

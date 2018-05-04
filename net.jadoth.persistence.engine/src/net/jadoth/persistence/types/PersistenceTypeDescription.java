@@ -4,13 +4,13 @@ import static net.jadoth.X.notNull;
 
 import java.util.Iterator;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.hash.HashEqualator;
+import net.jadoth.equality.Equalator;
+import net.jadoth.hashing.HashEqualator;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, SwizzleTypeLink<T>
 {

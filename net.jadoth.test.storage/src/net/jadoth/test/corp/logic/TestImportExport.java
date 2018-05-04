@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.StorageConnection;
@@ -16,7 +16,7 @@ import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
 import net.jadoth.storage.types.StorageTypeDictionary;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.util.cql.CQL;
 
 public class TestImportExport
 {

@@ -7,11 +7,11 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.JadothArrays;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
-import net.jadoth.util.VMUtils;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.util.XVM;
 
 
 public interface StorageRequestTaskImportData extends StorageRequestTask
@@ -378,7 +378,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				 * instead of hacking the JVM.
 				 * Also, shouldn't an import be properly interruptible in the first place?
 				 */
-				VMUtils.throwUnchecked(e);
+				XVM.throwUnchecked(e);
 
 				// safety net error, may never be reached if the cheating method call works as intended.
 				throw new Error(e);

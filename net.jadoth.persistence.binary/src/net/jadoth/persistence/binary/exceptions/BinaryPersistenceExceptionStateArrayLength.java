@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.exceptions;
 
-import net.jadoth.util.chars.JadothStrings;
+import net.jadoth.chars.JadothStrings;
 
 public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenceExceptionStateArray
 {

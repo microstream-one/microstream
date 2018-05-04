@@ -2,11 +2,11 @@ package net.jadoth.storage.types;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.collections.KeyValue;
+import net.jadoth.chars.VarString;
 import net.jadoth.memory.Chunks;
 import net.jadoth.meta.JadothDebug;
+import net.jadoth.typing.KeyValue;
 import net.jadoth.util.UtilStackTrace;
-import net.jadoth.util.chars.VarString;
 
 public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 {

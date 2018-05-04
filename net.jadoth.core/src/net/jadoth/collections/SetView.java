@@ -13,8 +13,8 @@ import net.jadoth.collections.old.AbstractOldGettingSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XImmutableSet;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
 
 
 /**

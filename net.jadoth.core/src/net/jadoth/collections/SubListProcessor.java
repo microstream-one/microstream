@@ -10,8 +10,8 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSortableSequence;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * @author Thomas Muenz

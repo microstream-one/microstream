@@ -1,7 +1,7 @@
 package net.jadoth.persistence.exceptions;
 
+import net.jadoth.chars.JadothStrings;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.util.chars.JadothStrings;
 
 
 public class PersistenceExceptionTypeHandlerConsistencyConflictedTypeId

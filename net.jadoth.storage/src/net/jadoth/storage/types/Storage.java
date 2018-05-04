@@ -3,12 +3,12 @@ package net.jadoth.storage.types;
 import java.io.File;
 import java.util.function.Supplier;
 
+import net.jadoth.chars.StringTable;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
-import net.jadoth.util.chars.StringTable;
-import net.jadoth.util.file.JadothFiles;
 
 public final class Storage
 {

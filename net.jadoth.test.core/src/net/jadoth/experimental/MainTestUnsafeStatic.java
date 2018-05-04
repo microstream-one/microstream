@@ -2,12 +2,12 @@ package net.jadoth.experimental;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.util.VMUtils;
+import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeStatic
 {
-	static final Unsafe vm = (Unsafe)VMUtils.getSystemInstance();
+	static final Unsafe vm = (Unsafe)XVM.getSystemInstance();
 
 	public static void main(final String[] args) throws Throwable
 	{

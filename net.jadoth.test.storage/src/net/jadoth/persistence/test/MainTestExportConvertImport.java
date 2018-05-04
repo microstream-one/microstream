@@ -5,9 +5,9 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XSequence;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.functional.JadothFunctional;
 import net.jadoth.storage.types.StorageConnection;
-import net.jadoth.util.file.JadothFiles;
 
 public class MainTestExportConvertImport extends TestStorage
 {

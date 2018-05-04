@@ -4,7 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 
 /* Architectural note:
  * message processor threads can easily die on any exception (that is not handled by the implementation)

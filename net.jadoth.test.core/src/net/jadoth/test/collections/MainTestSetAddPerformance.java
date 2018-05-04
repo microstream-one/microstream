@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * @author Thomas Muenz

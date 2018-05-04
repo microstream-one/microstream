@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.exceptions;
 
-import net.jadoth.util.chars.JadothStrings;
+import net.jadoth.chars.JadothStrings;
 
 
 

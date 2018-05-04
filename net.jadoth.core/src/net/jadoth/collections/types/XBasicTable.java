@@ -1,6 +1,6 @@
 package net.jadoth.collections.types;
 
-import net.jadoth.collections.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 

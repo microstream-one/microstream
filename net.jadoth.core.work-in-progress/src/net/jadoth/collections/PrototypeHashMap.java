@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
+import net.jadoth.typing.Composition;
 
 
 /**

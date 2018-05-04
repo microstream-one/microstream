@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.Date;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.meta.JadothDebug;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.storage.types.DEBUGStorage;

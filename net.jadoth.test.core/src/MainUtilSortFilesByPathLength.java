@@ -1,7 +1,7 @@
 import java.io.File;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
-import net.jadoth.util.chars.VarString;
 
 
 public class MainUtilSortFilesByPathLength

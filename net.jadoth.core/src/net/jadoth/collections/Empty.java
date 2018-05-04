@@ -16,9 +16,9 @@ import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.Stateless;
+import net.jadoth.typing.Stateless;
 import net.jadoth.util.iterables.EmptyListIterator;
 
 

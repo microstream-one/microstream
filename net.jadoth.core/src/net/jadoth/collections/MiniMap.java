@@ -5,7 +5,8 @@ import static java.lang.System.identityHashCode;
 import java.util.function.Consumer;
 
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 
 /**
@@ -323,7 +324,7 @@ public final class MiniMap<K, V> implements Composition
 		{
 			for(Entry<K, V> e = slots[i]; e != null; e = e.link)
 			{
-				array[a++] = new KeyValue.Implementation<>(e.key, e.value);
+				array[a++] = KeyValue.New(e.key, e.value);
 			}
 		}
 

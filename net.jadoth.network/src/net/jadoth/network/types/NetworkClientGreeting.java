@@ -1,12 +1,12 @@
 package net.jadoth.network.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.util.bytes.JadothBytes.parseByteOrder;
+import static net.jadoth.bytes.JadothBytes.parseByteOrder;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
 
 public interface NetworkClientGreeting
 {

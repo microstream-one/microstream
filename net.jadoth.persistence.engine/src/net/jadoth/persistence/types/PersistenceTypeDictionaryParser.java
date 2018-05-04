@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
@@ -9,8 +10,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
 import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.JadothTypes;
 
 public interface PersistenceTypeDictionaryParser
 {

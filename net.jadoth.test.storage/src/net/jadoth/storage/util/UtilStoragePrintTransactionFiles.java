@@ -3,9 +3,9 @@ package net.jadoth.storage.util;
 import java.io.File;
 
 import net.jadoth.X;
-import net.jadoth.cql.CQL;
+import net.jadoth.chars.VarString;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.util.cql.CQL;
 
 
 /**

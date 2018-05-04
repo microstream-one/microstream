@@ -1,8 +1,8 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.math.JadothMath;
 import net.jadoth.reference._intReference;
-import net.jadoth.util.chars.VarString;
 
 
 public interface StorageChannelCountProvider extends _intReference

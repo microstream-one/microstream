@@ -6,11 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import net.jadoth.file.FileException;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceTarget;
-import net.jadoth.util.file.FileException;
-import net.jadoth.util.file.JadothFiles;
 
 public class BinaryFileTarget implements PersistenceTarget<Binary>
 {

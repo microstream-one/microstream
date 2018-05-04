@@ -3,10 +3,10 @@ package net.jadoth.swizzling.types;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.KeyValue;
-import net.jadoth.collections.XIterable;
+import net.jadoth.collections.types.XIterable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidObjectId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidTypeId;
+import net.jadoth.typing.KeyValue;
 
 public class Swizzle
 {

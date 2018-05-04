@@ -14,8 +14,10 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.KeyValue;
 
 // (17.09.2013)FIXME: EmptyTable: implement all FIX-ME
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>

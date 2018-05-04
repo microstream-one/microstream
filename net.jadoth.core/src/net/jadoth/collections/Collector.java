@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XPuttingCollection;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 
 public final class Collector<E> implements XPuttingCollection<E>

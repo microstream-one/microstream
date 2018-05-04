@@ -6,9 +6,9 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Date;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.util.chars.VarString;
 
 public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 {

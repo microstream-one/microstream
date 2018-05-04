@@ -5,7 +5,7 @@ import static net.jadoth.math.JadothMath.range;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * @author Thomas Muenz

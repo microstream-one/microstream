@@ -2,6 +2,8 @@ package net.jadoth.util.chars;
 
 import java.util.Arrays;
 
+import net.jadoth.chars.JadothChars;
+
 
 
 public class MainTestLongestCommonSubstring

@@ -14,7 +14,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.hash.JadothHash;
+import net.jadoth.hashing.Hashing;
 import net.jadoth.reflect.JadothReflect;
 
 public interface PersistenceRootResolver
@@ -204,8 +204,8 @@ public interface PersistenceRootResolver
 				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
 				
 				// arbitrary constant identifiers that decouple constant resolving from class/field names.
-				this.register(entries, "XHashEqualator:hashEqualityValue"   , JadothHash::hashEqualityValue   );
-				this.register(entries, "XHashEqualator:hashEqualityIdentity", JadothHash::hashEqualityIdentity);
+				this.register(entries, "XHashEqualator:hashEqualityValue"   , Hashing::hashEqualityValue   );
+				this.register(entries, "XHashEqualator:hashEqualityIdentity", Hashing::hashEqualityIdentity);
 				this.register(entries, "XEmpty:Collection"                  , X::empty                        );
 				this.register(entries, "XEmpty:Table"                       , X::emptyTable                   );
 				

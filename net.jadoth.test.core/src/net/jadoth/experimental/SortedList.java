@@ -17,9 +17,9 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XPuttingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * @author Thomas Muenz

@@ -10,14 +10,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.XIterable;
-import net.jadoth.collections.XJoinable;
 import net.jadoth.collections.interfaces.CapacityCarrying;
 import net.jadoth.collections.interfaces.ExtendedCollection;
 import net.jadoth.collections.old.OldCollection;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.ToArrayAggregator;
-import net.jadoth.util.Copyable;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.Copyable;
 
 
 /**

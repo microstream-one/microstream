@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionaryAssembler
 {

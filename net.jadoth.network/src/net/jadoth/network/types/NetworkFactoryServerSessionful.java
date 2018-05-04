@@ -1,5 +1,6 @@
 package net.jadoth.network.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.network.types.NetworkMessageListener.Provider;
 import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorMessageListenerCheckInterval;
 import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorMessageListenerThreadCount;
@@ -7,7 +8,6 @@ import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorMes
 import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorMessageProcessorThreadTimeout;
 import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorSessionCheckInterval;
 import net.jadoth.network.types.NetworkSessionServer.Implementation.RegulatorSessionTimeout;
-import net.jadoth.util.MissingAssemblyPartException;
 
 
 
@@ -143,7 +143,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 
 		protected synchronized NetworkMessageProcessor<S> provideMessageProcessor()
 		{
-			throw new MissingAssemblyPartException(NetworkMessageProcessor.class);
+			throw new MissingFoundationPartException(NetworkMessageProcessor.class);
 		}
 
 		protected synchronized NetworkMessageListener.Provider<S> getMessageListenerProvider()

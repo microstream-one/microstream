@@ -7,7 +7,7 @@ import java.util.ListIterator;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 public abstract class AbstractOldGettingList<E> implements OldList<E>

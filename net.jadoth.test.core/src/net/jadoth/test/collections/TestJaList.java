@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
+import net.jadoth.chars.JadothChars;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.JadothFunctional;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 import net.jadoth.util.UtilStackTrace;
-import net.jadoth.util.chars.JadothChars;
 
 /**
  * @author Thomas Muenz

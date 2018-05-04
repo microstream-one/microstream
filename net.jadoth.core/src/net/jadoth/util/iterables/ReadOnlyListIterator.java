@@ -9,7 +9,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 /**
  * Generic (and potentially imperformant!) implementation of a {@link ListIterator}.<br>

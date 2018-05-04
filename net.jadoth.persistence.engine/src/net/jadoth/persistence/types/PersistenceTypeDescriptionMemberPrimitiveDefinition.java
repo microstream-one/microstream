@@ -1,8 +1,8 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.VarString;
 import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.VarString;
 
 
 

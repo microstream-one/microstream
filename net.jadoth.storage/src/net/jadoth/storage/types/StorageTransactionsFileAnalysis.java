@@ -10,12 +10,12 @@ import java.nio.channels.FileLock;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.VarString;
 
 public interface StorageTransactionsFileAnalysis
 {

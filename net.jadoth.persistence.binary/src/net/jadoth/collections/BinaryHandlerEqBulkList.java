@@ -2,8 +2,9 @@ package net.jadoth.collections;
 
 import java.lang.reflect.Field;
 
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.hash.HashEqualator;
+import net.jadoth.hashing.HashEqualator;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
@@ -14,7 +15,6 @@ import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.util.Equalator;
 
 
 /**

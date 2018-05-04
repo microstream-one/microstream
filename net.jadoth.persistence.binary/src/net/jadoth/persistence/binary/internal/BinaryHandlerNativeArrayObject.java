@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.util.JadothTypes.validateArrayType;
-import static net.jadoth.util.JadothTypes.validateNonPrimitiveType;
+import static net.jadoth.typing.JadothTypes.validateArrayType;
+import static net.jadoth.typing.JadothTypes.validateNonPrimitiveType;
 
 import java.lang.reflect.Array;
 

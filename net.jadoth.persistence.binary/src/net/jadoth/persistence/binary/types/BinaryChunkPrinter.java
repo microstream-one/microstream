@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.VarString;
 
 
 public final class BinaryChunkPrinter implements Consumer<Binary>

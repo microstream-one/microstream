@@ -7,7 +7,8 @@ import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 /**
  *

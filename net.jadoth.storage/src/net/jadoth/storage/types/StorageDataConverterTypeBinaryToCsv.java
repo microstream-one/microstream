@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.util.chars.MemoryCharConversionUTF8.toSingleByte;
+import static net.jadoth.chars.MemoryCharConversionUTF8.toSingleByte;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,12 +10,20 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 import net.jadoth.X;
+import net.jadoth.chars.CharConversion_float;
+import net.jadoth.chars.EscapeHandler;
+import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.MemoryCharConversionIntegersUTF8;
+import net.jadoth.chars.MemoryCharConversionUTF8;
+import net.jadoth.chars.MemoryCharConversion_doubleUTF8;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.csv.CsvConfiguration;
+import net.jadoth.file.FileException;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
@@ -25,16 +33,8 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldC
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.CharConversion_float;
-import net.jadoth.util.chars.EscapeHandler;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.MemoryCharConversionIntegersUTF8;
-import net.jadoth.util.chars.MemoryCharConversionUTF8;
-import net.jadoth.util.chars.MemoryCharConversion_doubleUTF8;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.FileException;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.typing.JadothTypes;
+import net.jadoth.util.csv.CsvConfiguration;
 
 
 public interface StorageDataConverterTypeBinaryToCsv

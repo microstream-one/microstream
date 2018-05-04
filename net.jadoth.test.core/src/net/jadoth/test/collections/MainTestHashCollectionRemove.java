@@ -1,7 +1,7 @@
 package net.jadoth.test.collections;
 
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public class MainTestHashCollectionRemove
 {

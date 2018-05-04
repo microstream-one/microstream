@@ -5,6 +5,7 @@ import static net.jadoth.collections.JadothArrays.removeAllFromArray;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.interfaces._intCollecting;
 import net.jadoth.exceptions.IndexBoundsException;
@@ -14,7 +15,6 @@ import net.jadoth.functional._intPredicate;
 import net.jadoth.functional._intProcedure;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
 
 
 /**

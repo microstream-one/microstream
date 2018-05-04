@@ -3,7 +3,7 @@
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 public class MainTestEndinessComparing
 {

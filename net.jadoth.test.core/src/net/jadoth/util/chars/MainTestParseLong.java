@@ -1,5 +1,7 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.JadothChars;
+
 public class MainTestParseLong
 {
 	public static void main(final String[] args)

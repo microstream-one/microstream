@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Chunks;
@@ -19,6 +18,7 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.typing.KeyValue;
 
 
 public interface StorageChannel extends Runnable, StorageHashChannelPart

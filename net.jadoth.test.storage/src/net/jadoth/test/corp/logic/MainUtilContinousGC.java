@@ -2,7 +2,7 @@ package net.jadoth.test.corp.logic;
 
 import static net.jadoth.meta.JadothDebug.debugln;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.math.JadothMath;
 import net.jadoth.storage.types.EmbeddedStorage;
 

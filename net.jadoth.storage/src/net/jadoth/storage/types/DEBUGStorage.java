@@ -4,9 +4,9 @@ import java.io.File;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
+import net.jadoth.file.JadothFiles;
 import net.jadoth.memory.Memory;
 import net.jadoth.meta.JadothDebug;
-import net.jadoth.util.file.JadothFiles;
 
 
 // (22.06.2013) DEBUG class should be removed at some point.

@@ -4,8 +4,8 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.chars.JadothStrings;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.KeyValue;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.types.PersistenceDistrict;
 import net.jadoth.persistence.types.PersistenceLoader;
@@ -14,7 +14,7 @@ import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceSwizzleSupplier;
 import net.jadoth.reference._intReference;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-import net.jadoth.util.chars.JadothStrings;
+import net.jadoth.typing.KeyValue;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 {

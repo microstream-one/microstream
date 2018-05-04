@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XEnum;
@@ -15,9 +16,8 @@ import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.storage.types.StorageRawFileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.time.JadothTime;
+import net.jadoth.typing.JadothTypes;
 
 
 public class MainTestStorage extends TestStorage

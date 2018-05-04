@@ -7,9 +7,9 @@ import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.JadothThreads;
 import net.jadoth.meta.JadothDebug;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.typing.JadothTypes;
 
 public interface NetworkSessionManager<S extends NetworkSession<?>> extends Suspendable
 {
