@@ -3,7 +3,7 @@ package net.jadoth.test.collections;
 import java.util.Comparator;
 
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.typing.XTypes;
 
 /**
@@ -57,7 +57,7 @@ public class MainTestSetAddPerformance
 		for(int k = 0; k < LOOPS; k++)
 		{
 			tStart = System.nanoTime();
-			ints.applies(XFunctional.any());
+			ints.applies(XFunc.any());
 			tStop = System.nanoTime();
 			current = tStop - tStart;
 //			System.out.println("VarSet.newEntry = "+VarSet.newEntry);

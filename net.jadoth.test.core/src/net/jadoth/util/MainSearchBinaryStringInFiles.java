@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.XArrays;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.memory.Memory;
 
 public class MainSearchBinaryStringInFiles

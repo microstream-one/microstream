@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.functional.XFunctional.not;
+import static net.jadoth.functional.XFunc.not;
 
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.exceptions.TypeCastException;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
@@ -41,7 +41,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		final Predicate<Field>... predicates
 	)
 	{
-		return allFields.filterTo(EqHashEnum.<Field>New(), XFunctional.all(predicates)).immure();
+		return allFields.filterTo(EqHashEnum.<Field>New(), XFunc.all(predicates)).immure();
 	}
 
 	protected static long calculateOffsets(

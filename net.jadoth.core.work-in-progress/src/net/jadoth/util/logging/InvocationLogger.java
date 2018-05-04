@@ -3,8 +3,8 @@ package net.jadoth.util.logging;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import net.jadoth.chars.XStrings;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.typing.XTypes;
 
 public interface InvocationLogger
@@ -25,7 +25,7 @@ public interface InvocationLogger
 		{
 			return XTypes.isPrimitiveWrapperType(value)
 				? value.toString()
-				: XStrings.systemString(value)
+				: XChars.systemString(value)
 			;
 		}
 
@@ -43,7 +43,7 @@ public interface InvocationLogger
 		{
 			final VarString vc = VarString.New()
 				.add("->").tab()
-				.add(XStrings.systemString(delegate)).tab()
+				.add(XChars.systemString(delegate)).tab()
 				.add(returnType).tab()
 				.add(methodname).add("()")
 			;
@@ -67,7 +67,7 @@ public interface InvocationLogger
 		{
 			final VarString vc = VarString.New()
 				.add(toLogString(returnValue)).tab()
-				.add(XStrings.systemString(delegate)).tab()
+				.add(XChars.systemString(delegate)).tab()
 				.add(returnType).tab()
 				.add(methodname).add("()")
 			;

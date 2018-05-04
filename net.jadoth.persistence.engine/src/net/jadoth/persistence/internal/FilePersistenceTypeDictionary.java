@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;

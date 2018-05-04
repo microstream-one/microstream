@@ -30,7 +30,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsSmaller;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.math.FastRandom;
 import net.jadoth.typing.XTypes;
 
@@ -73,7 +73,7 @@ public final class XUtilsCollection
 		}
 		else
 		{
-			collection.iterate(XFunctional.wrapWithPredicate(procedure, predicate));
+			collection.iterate(XFunc.wrapWithPredicate(procedure, predicate));
 		}
 		return collection;
 	}

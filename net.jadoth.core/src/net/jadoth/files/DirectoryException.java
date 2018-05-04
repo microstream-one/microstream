@@ -24,64 +24,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.jadoth.file;
+package net.jadoth.files;
 
 import java.io.File;
 
 
-public class FileException extends RuntimeException
+public class DirectoryException extends FileException
 {
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-
-	private final File subject;
-
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public FileException(final File subject)
+	public DirectoryException(final File subject)
 	{
-		super();
-		this.subject = subject;
+		super(subject);
 	}
 
-	public FileException(final File subject, final String message, final Throwable cause)
+	public DirectoryException(final File subject, final String message, final Throwable cause)
 	{
-		super(message, cause);
-		this.subject = subject;
+		super(subject, message, cause);
 	}
 
-	public FileException(final File subject, final String message)
+	public DirectoryException(final File subject, final String message)
 	{
-		super(message);
-		this.subject = subject;
+		super(subject, message);
 	}
 
-	public FileException(final File subject, final Throwable cause)
+	public DirectoryException(final File subject, final Throwable cause)
 	{
-		super(cause);
-		this.subject = subject;
-	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
-
-	public File getSubject()
-	{
-		return this.subject;
+		super(subject, cause);
 	}
 	
-	@Override
-	public String getMessage()
-	{
-		return super.getMessage() + " " + this.subject;
-	}
-
 }

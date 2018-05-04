@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import net.jadoth.X;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.storage.types.StorageConnection;
 
 

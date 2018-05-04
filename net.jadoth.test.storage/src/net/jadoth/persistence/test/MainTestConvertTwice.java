@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import java.io.File;
 
 import net.jadoth.X;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeBinaryToCsv;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
@@ -31,7 +31,7 @@ public class MainTestConvertTwice extends TestStorage
 			STORAGE.typeDictionary(),
 			X.List(new File(new File(dir, "csv"), filename+".csv")),
 			new File(dir, "bin2"),
-			XFunctional.all()
+			XFunc.all()
 		);
 	}
 }

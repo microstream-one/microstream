@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
@@ -20,7 +20,7 @@ public class MainTestConvertCsvToBin
 			BinaryPersistence.provideTypeDictionaryFromFile(new File("C:/Files/PersistenceTypeDictionary.ptd")),
 			X.List(new File("C:/Files/export/csv/de.emverbund.bonus.stammdaten.Datenstand$Implementation.csv")),
 			new File("C:/Files/export/bin2"),
-			XFunctional.all()
+			XFunc.all()
 		);
 	}
 

@@ -16,7 +16,7 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.BufferSizeProvider;

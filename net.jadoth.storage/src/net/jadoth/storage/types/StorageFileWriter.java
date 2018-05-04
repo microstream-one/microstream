@@ -7,7 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
 
 

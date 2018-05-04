@@ -15,7 +15,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.exceptions.IORuntimeException;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.Substituter;

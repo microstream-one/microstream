@@ -1,6 +1,6 @@
 package some.app.entitylogging;
 
-import net.jadoth.chars.XStrings;
+import net.jadoth.chars.XChars;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.entity.Entity;
 import net.jadoth.entity.EntityLayer;
@@ -45,7 +45,7 @@ public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 	{
 		System.out.println(
 			"Thread \"" + Thread.currentThread().getName()
-			+ "\" " + action + XStrings.systemString(this.$entity())
+			+ "\" " + action + XChars.systemString(this.$entity())
 			+ (methodName != null ? " via #" + methodName: "")
 			+ "."
 		);

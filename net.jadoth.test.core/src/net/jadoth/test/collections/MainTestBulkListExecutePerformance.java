@@ -1,7 +1,7 @@
 package net.jadoth.test.collections;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 
 public class MainTestBulkListExecutePerformance
 {
@@ -26,7 +26,7 @@ public class MainTestBulkListExecutePerformance
 		for(int k = 0; k < RUNS; k++)
 		{
 			tStart = System.nanoTime();
-			intList.iterate(XFunctional::noOp);
+			intList.iterate(XFunc::noOp);
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}

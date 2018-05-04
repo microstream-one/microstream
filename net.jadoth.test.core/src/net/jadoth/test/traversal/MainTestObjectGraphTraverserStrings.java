@@ -1,7 +1,7 @@
 package net.jadoth.test.traversal;
 
 import net.jadoth.X;
-import net.jadoth.chars.XStrings;
+import net.jadoth.chars.XChars;
 import net.jadoth.util.traversing.Deduplicator;
 import net.jadoth.util.traversing.ObjectGraphTraverser;
 
@@ -30,7 +30,7 @@ public class MainTestObjectGraphTraverserStrings
 		final ObjectGraphTraverser stringIdPrinter = ObjectGraphTraverser.Builder()
 			.root(root)
 			.apply(String.class, s ->
-				System.out.println(XStrings.systemString(s) + ": " + s)
+				System.out.println(XChars.systemString(s) + ": " + s)
 			)
 			.buildObjectGraphTraverser()
 		;
@@ -40,7 +40,7 @@ public class MainTestObjectGraphTraverserStrings
 			.mutate(String.class, Deduplicator.New())
 			.mutationListener((p, o, n) ->
 			{
-				System.out.println(XStrings.systemString(p) + "\treplacing "+o+"\t" + XStrings.systemString(o) + "\t-> " + XStrings.systemString(n));
+				System.out.println(XChars.systemString(p) + "\treplacing "+o+"\t" + XChars.systemString(o) + "\t-> " + XChars.systemString(n));
 				return false;
 			})
 			.buildObjectGraphTraverser()

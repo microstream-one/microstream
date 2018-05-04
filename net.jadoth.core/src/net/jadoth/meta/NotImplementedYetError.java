@@ -47,6 +47,4 @@ public class NotImplementedYetError extends Error
 		super(cause);
 	}
 
-
-
 }

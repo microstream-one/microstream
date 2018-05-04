@@ -9,7 +9,7 @@ import net.jadoth.chars.XChars;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.UtilStackTrace;
 
@@ -226,7 +226,7 @@ public class TestJaList
 
 	public TestJaList testIndexOf(final String s)
 	{
-		return this.check("testIndexOf", this.testee.indexBy(XFunctional.isEqualTo(s)), this.matcher.indexOf(s));
+		return this.check("testIndexOf", this.testee.indexBy(XFunc.isEqualTo(s)), this.matcher.indexOf(s));
 	}
 	public TestJaList testLastIndexOf(final String s)
 	{

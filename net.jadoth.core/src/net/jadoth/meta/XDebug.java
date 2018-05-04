@@ -18,7 +18,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrency.XThreads;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.typing.KeyValue;
 
 
@@ -33,9 +33,9 @@ public final class XDebug
 	// constants        //
 	/////////////////////
 
-	private static final transient int    LINE_BUFFER_INITIAL_SIZE = 256             ;
-	private static final transient int    SOURCE_POSITION_PADDING  = 64              ;
-	private static final transient char[] TIME_SEPERATOR           = {'>', ' '}      ;
+	private static final transient int    LINE_BUFFER_INITIAL_SIZE = 256       ;
+	private static final transient int    SOURCE_POSITION_PADDING  = 64        ;
+	private static final transient char[] TIME_SEPERATOR           = {'>', ' '};
 
 
 
@@ -496,8 +496,6 @@ public final class XDebug
 	}
 
 
-
-
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -508,4 +506,5 @@ public final class XDebug
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
 }

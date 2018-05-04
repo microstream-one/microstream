@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.StorageConnection;

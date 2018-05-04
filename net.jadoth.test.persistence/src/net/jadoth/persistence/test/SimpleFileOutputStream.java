@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.file.XFiles.ensureWriteableFile;
+import static net.jadoth.files.XFiles.ensureWriteableFile;
 
 import java.io.File;
 import java.io.FileOutputStream;

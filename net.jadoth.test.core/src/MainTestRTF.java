@@ -9,7 +9,7 @@ import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 
 public class MainTestRTF
 {

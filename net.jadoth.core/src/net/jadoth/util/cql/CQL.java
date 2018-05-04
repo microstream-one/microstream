@@ -24,7 +24,7 @@ import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.AggregateSum;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.functional.To_double;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.typing.XTypes;
@@ -230,13 +230,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? XFunctional.wrapWithPredicateSkipLimit(target, selector, skip, limit)
-				: XFunctional.wrapWithPredicateSkip     (target, selector, skip       )
+				? XFunc.wrapWithPredicateSkipLimit(target, selector, skip, limit)
+				: XFunc.wrapWithPredicateSkip     (target, selector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? XFunctional.wrapWithPredicateLimit(target, selector, limit)
-			: XFunctional.wrapWithPredicate     (target, selector       )
+			? XFunc.wrapWithPredicateLimit(target, selector, limit)
+			: XFunc.wrapWithPredicate     (target, selector       )
 		;
 	}
 
@@ -249,13 +249,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? XFunctional.wrapWithSkipLimit(target, skip, limit)
-				: XFunctional.wrapWithSkip     (target, skip)
+				? XFunc.wrapWithSkipLimit(target, skip, limit)
+				: XFunc.wrapWithSkip     (target, skip)
 			;
 		}
 
 		return isLimit(limit)
-			? XFunctional.wrapWithLimit(target, limit)
+			? XFunc.wrapWithLimit(target, limit)
 			: i -> target.accept(i)
 		;
 	}
@@ -277,13 +277,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? XFunctional.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
-				: XFunctional.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
+				? XFunc.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
+				: XFunc.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? XFunctional.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
-			: XFunctional.wrapWithPredicateFunction     (target, selector, projector       )
+			? XFunc.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
+			: XFunc.wrapWithPredicateFunction     (target, selector, projector       )
 		;
 	}
 
@@ -299,14 +299,14 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? XFunctional.wrapWithFunctionSkipLimit(target, projector, skip, limit)
-				: XFunctional.wrapWithFunctionSkip     (target, projector, skip       )
+				? XFunc.wrapWithFunctionSkipLimit(target, projector, skip, limit)
+				: XFunc.wrapWithFunctionSkip     (target, projector, skip       )
 			;
 		}
 
 		return isLimit(limit)
-			? XFunctional.wrapWithFunctionLimit(target, projector, limit)
-			: XFunctional.wrapWithFunction     (target, projector       )
+			? XFunc.wrapWithFunctionLimit(target, projector, limit)
+			: XFunc.wrapWithFunction     (target, projector       )
 		;
 	}
 

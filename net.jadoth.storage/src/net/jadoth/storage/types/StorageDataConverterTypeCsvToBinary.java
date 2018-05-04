@@ -19,7 +19,7 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;

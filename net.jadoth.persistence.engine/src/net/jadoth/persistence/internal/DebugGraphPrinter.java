@@ -3,8 +3,8 @@ package net.jadoth.persistence.internal;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
-import net.jadoth.chars.XStrings;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
@@ -87,7 +87,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 		}
 
 		final long oid = this.objectManager.ensureObjectId(instance);
-		this.vc.padLeft(Long.toString(oid), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XStrings.systemString(instance));
+		this.vc.padLeft(Long.toString(oid), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XChars.systemString(instance));
 		if(!instance.getClass().isArray())
 		{
 			this.vc.tab(2).add(instance);

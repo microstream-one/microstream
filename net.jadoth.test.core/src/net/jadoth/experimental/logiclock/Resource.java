@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.functional.Action;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 
 /**
  * /!\ WORK IN PROGRESS PROTOTYPE - DO NOT USE /!\
@@ -90,7 +90,7 @@ public abstract class Resource<O>
 
 	public final void execute(final O owner, final Action action) throws LockException
 	{
-		this.execute(owner, action, XFunctional.none()); // actually more like "never" or "no" instead of none.
+		this.execute(owner, action, XFunc.none()); // actually more like "never" or "no" instead of none.
 	}
 
 	public abstract void iterateLocks(Consumer<? super Resource<? super O>> procedure);

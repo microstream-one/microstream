@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 
 
 public class MainFilterNames

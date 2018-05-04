@@ -3,7 +3,7 @@ package net.jadoth.network.test.sessionless;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 
 /**

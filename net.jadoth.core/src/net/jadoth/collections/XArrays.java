@@ -10,7 +10,7 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.UtilStackTrace;
 
@@ -622,7 +622,7 @@ public final class XArrays
 		// case XGettingCollection
 		if(c instanceof XGettingCollection<?>)
 		{
-			return ((XGettingCollection<E>)c).containsSearched(XFunctional.predicate(sample, equalator));
+			return ((XGettingCollection<E>)c).containsSearched(XFunc.predicate(sample, equalator));
 		}
 
 		// case old collection, use slow iterator
@@ -850,7 +850,7 @@ public final class XArrays
 		int currentMoveTargetIndex = start;
 		//if dest is the same as src, skip all to be retained objects
 		while(currentMoveTargetIndex < bound
-			&& !elements.containsSearched(XFunctional.predicate(array[currentMoveTargetIndex], equalator))
+			&& !elements.containsSearched(XFunc.predicate(array[currentMoveTargetIndex], equalator))
 		)
 		{
 			currentMoveTargetIndex++;
@@ -863,13 +863,13 @@ public final class XArrays
 
 		while(seekIndex < bound)
 		{
-			while(seekIndex < bound && elements.containsSearched(XFunctional.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && elements.containsSearched(XFunc.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}
 			currentMoveSourceIndex = seekIndex;
 
-			while(seekIndex < bound && !elements.containsSearched(XFunctional.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && !elements.containsSearched(XFunc.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}

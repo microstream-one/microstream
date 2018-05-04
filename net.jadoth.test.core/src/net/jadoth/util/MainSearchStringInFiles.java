@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional.TriConsumer;
 
 public class MainSearchStringInFiles

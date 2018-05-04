@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import net.jadoth.file.FileException;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.FileException;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceTarget;

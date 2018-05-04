@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.file.XFiles.ensureDirectory;
+import static net.jadoth.files.XFiles.ensureDirectory;
 
 import java.io.File;
 

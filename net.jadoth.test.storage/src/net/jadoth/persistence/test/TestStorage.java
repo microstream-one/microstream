@@ -14,7 +14,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.meta.XDebug;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
@@ -94,7 +94,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles)
 	{
-		return convertBinToCsv(binaryFiles, XFunctional.all());
+		return convertBinToCsv(binaryFiles, XFunc.all());
 	}
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
@@ -129,7 +129,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static void convertCsvToBin(final File... binaryFiles)
 	{
-		convertCsvToBin(X.List(binaryFiles), XFunctional.all());
+		convertCsvToBin(X.List(binaryFiles), XFunc.all());
 	}
 
 	protected static void convertCsvToBin(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)

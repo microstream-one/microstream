@@ -31,7 +31,7 @@ import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsNull;
 import net.jadoth.functional.IsSame;
 import net.jadoth.functional.IsSmaller;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.math.FastRandom;
 import net.jadoth.math.XMath;
@@ -811,7 +811,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, XFunctional.wrapWithPredicate(procedure, predicate));
+		forwardIterate(data, lowOffset, highBound, XFunc.wrapWithPredicate(procedure, predicate));
 	}
 
 	public static final <E> void reverseConditionalIterate(
@@ -822,7 +822,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, XFunctional.wrapWithPredicate(procedure, predicate));
+		reverseIterate(data, highOffset, lowEnd, XFunc.wrapWithPredicate(procedure, predicate));
 	}
 
 
@@ -1306,7 +1306,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, XFunctional.wrapWithPredicate(target, predicate));
+		forwardIterate(data, lowOffset, highBound, XFunc.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -1318,7 +1318,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, XFunctional.wrapWithPredicate(target, predicate));
+		reverseIterate(data, highOffset, lowEnd, XFunc.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -2260,7 +2260,7 @@ public abstract class AbstractArrayStorage
 		{
 			while(i < lastIndex)
 			{
-				if(!samples.containsSearched(XFunctional.predicate(data[++i], equalator)))
+				if(!samples.containsSearched(XFunc.predicate(data[++i], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -2301,7 +2301,7 @@ public abstract class AbstractArrayStorage
 			while(i != endIndex)
 			{
 				// let equalator decide on every element (even multiple nulls)
-				if(!samples.containsSearched(XFunctional.predicate(data[i += d], equalator)))
+				if(!samples.containsSearched(XFunc.predicate(data[i += d], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -3603,7 +3603,7 @@ public abstract class AbstractArrayStorage
 		int replaceCount = 0;
 		for(int i = offset - d; i != endIndex;)
 		{
-			if(samples.containsSearched(XFunctional.predicate(data[i += d], equalator)))
+			if(samples.containsSearched(XFunc.predicate(data[i += d], equalator)))
 			{
 				data[i] = newElement;
 				replaceCount++;

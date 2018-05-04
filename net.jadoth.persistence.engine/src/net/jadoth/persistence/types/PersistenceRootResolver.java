@@ -105,6 +105,21 @@ public interface PersistenceRootResolver
 				continue;
 			}
 			
+			// (04.05.2018 TM)TODO: proper solution for synthetic hacky fields
+			/* (04.05.2018 TM)NOTE:
+			 * Quick and dirty hotfix (out of pure anger) for the synthetic switch table thingy
+			 * when using enum instances as keys in a switch. Apart from the geniuses not having made
+			 * Modifier#isSynthetic public (because hey, why would a user of the JDK want to recognize and filter out
+			 * their hacky stuff right? Morons), it wouldn't be wise to simply filter out ALL synthetic fields, since
+			 * for example ENUM$VALUES can very well be relevant for persistence.
+			 * For now, using the ugly plain string is a quick solution. Let's see when they change something
+			 * that breaks this fix.
+			 */
+			if(field.getName().startsWith("$SWITCH_TABLE"))
+			{
+				continue;
+			}
+			
 			final String rootIdentifier = rootIdentifierDeriver.apply(field);
 			if(rootIdentifier == null)
 			{
@@ -179,6 +194,22 @@ public interface PersistenceRootResolver
 			// methods //
 			////////////
 			
+			/**
+			 * System constants that must be present and may not be replaced by user logic are initially registered.
+			 */
+			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
+			{
+				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
+				
+				// arbitrary constant identifiers that decouple constant resolving from class/field names.
+				this.register(entries, "XHashEqualator:hashEqualityValue"   , Hashing::hashEqualityValue   );
+				this.register(entries, "XHashEqualator:hashEqualityIdentity", Hashing::hashEqualityIdentity);
+				this.register(entries, "XEmpty:Collection"                  , X::empty                     );
+				this.register(entries, "XEmpty:Table"                       , X::emptyTable                );
+				
+				return entries;
+			}
+			
 			@Override
 			public final synchronized Builder registerRoot(final String identifier, final Supplier<?> instanceSupplier)
 			{
@@ -194,22 +225,6 @@ public interface PersistenceRootResolver
 					return;
 				}
 				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
-			}
-			
-			/**
-			 * System constants that must be present and may not be replaced by user logic are initially registered.
-			 */
-			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
-			{
-				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
-				
-				// arbitrary constant identifiers that decouple constant resolving from class/field names.
-				this.register(entries, "XHashEqualator:hashEqualityValue"   , Hashing::hashEqualityValue   );
-				this.register(entries, "XHashEqualator:hashEqualityIdentity", Hashing::hashEqualityIdentity);
-				this.register(entries, "XEmpty:Collection"                  , X::empty                        );
-				this.register(entries, "XEmpty:Table"                       , X::emptyTable                   );
-				
-				return entries;
 			}
 			
 			private void register(

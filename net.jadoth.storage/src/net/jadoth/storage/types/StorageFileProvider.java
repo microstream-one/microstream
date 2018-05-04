@@ -9,7 +9,7 @@ import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 
 public interface StorageFileProvider
 {

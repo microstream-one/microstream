@@ -65,6 +65,12 @@ public final class XReflect
 	 */
 	private static final transient Field ArrayList_elementData = setAccessible(getArrayListElementsField());
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
 	private static Field getArrayListElementsField()
 	{
 		/*
@@ -476,6 +482,11 @@ public final class XReflect
 	{
 		return Modifier.isStatic(field.getModifiers());
 	}
+	
+	public static final boolean isSynthetic(final Field field)
+	{
+		return Modifier.isSynchronized(field.getModifiers());
+	}
 
 	public static final boolean isStaticFinal(final Field field)
 	{
@@ -645,8 +656,6 @@ public final class XReflect
 		return (Class<? extends T>)object.getClass();
 	}
 	
-
-
 	public static char fieldIdentifierDelimiter()
 	{
 		return '#';

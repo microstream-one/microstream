@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.jadoth.chars.StringTable;
 import net.jadoth.chars._charArrayRange;
-import net.jadoth.file.XFiles;
+import net.jadoth.files.XFiles;
 import net.jadoth.util.csv.CsvContent;
 import net.jadoth.util.csv.CsvContentBuilderCharArray;
 

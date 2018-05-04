@@ -1,4 +1,4 @@
-package net.jadoth.file;
+package net.jadoth.files;
 
 import java.io.Closeable;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 
 /**
  * @author Thomas Muenz
@@ -324,7 +324,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		final File                   targetFile
 	)
 	{
-		mergeBinary(sourceFiles, targetFile, XFunctional.all());
+		mergeBinary(sourceFiles, targetFile, XFunc.all());
 	}
 
 

@@ -2,7 +2,7 @@ package net.jadoth.persistence.test;
 
 import java.util.Arrays;
 
-import net.jadoth.chars.XStrings;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
@@ -125,7 +125,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		{
 			Arrays.toString((Object[])object);
 		}
-		return XStrings.valueString(object);
+		return XChars.valueString(object);
 	}
 
 	static void testWriteStateDefs(final BinaryPersistenceFoundation factory)

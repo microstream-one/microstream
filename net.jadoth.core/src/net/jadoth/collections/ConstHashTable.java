@@ -28,7 +28,7 @@ import net.jadoth.equality.IdentityEqualator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.XFunctional;
+import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
@@ -181,7 +181,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		final XGettingCollection<? extends KeyValue<KI, VI>> entries
 	)
 	{
-		return NewProjected(entries, XFunctional.<KO>passThrough(), XFunctional.<VO>passThrough());
+		return NewProjected(entries, XFunc.<KO>passThrough(), XFunc.<VO>passThrough());
 	}
 
 	public static final <KI, VI, KO, VO> ConstHashTable<KO, VO> NewProjected(

@@ -9,7 +9,18 @@ import net.jadoth.X;
 import net.jadoth.equality.Equalator;
 
 
-public final class XFunctional
+/**
+ * Normally, writing "Func" instead of "Functional" is a capital sin of writing clean code.
+ * However, in the sake of shortness for static util method class names AND in light of
+ * "Mathematics", "Sorting" and "Characters" already being shortened to the (albeit more common)
+ * names "Math", "Sort", "Chars" PLUS the unique recognizability of "Func", the shortness trumped
+ * the clarity of completeness here (as well).
+ * Rules are made for people and must be bendable if reasonable reflection (not laziness!)
+ * concludes necessity.
+ * 
+ * @author Thomas Muenz
+ */
+public final class XFunc
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -220,7 +231,7 @@ public final class XFunctional
 
 	public static final Aggregator<Integer, Integer> max(final int initialValue)
 	{
-		return new XFunctional.MaxInteger(initialValue);
+		return new XFunc.MaxInteger(initialValue);
 	}
 
 	public static final <E> AggregateCount<E> count()
@@ -649,7 +660,7 @@ public final class XFunctional
 	// constructors //
 	/////////////////
 	
-	private XFunctional()
+	private XFunc()
 	{
 		// static only
 		throw new UnsupportedOperationException();
