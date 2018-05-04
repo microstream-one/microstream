@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
 import net.jadoth.chars.VarString;
 

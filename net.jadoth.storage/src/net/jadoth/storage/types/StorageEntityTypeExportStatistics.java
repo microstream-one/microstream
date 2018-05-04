@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
@@ -49,7 +49,7 @@ public interface StorageEntityTypeExportStatistics
 		
 		public static final void assembleTableHeader(final VarString vs)
 		{
-			JadothChars.assembleNewLinedTabbed(vs, TABLE_COLUMN_NAMES);
+			XChars.assembleNewLinedTabbed(vs, TABLE_COLUMN_NAMES);
 		}
 		
 		

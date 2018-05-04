@@ -10,7 +10,7 @@ import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public class View<E> implements XGettingCollection<E>
 {
@@ -288,7 +288,7 @@ public class View<E> implements XGettingCollection<E>
 	@Override
 	public long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

@@ -19,10 +19,10 @@ public final class MemoryCharConversionIntegersUTF8
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
 	private static final transient byte[]
-		CHARS_MIN_VALUE_int    = toSingleCharBytes(JadothChars.CHARS_MIN_VALUE_int )  ,
-		CHARS_MIN_VALUE_long   = toSingleCharBytes(JadothChars.CHARS_MIN_VALUE_long)  ,
-		DECIMAL_CHAR_TABLE_10S = toSingleCharBytes(JadothChars.DECIMAL_CHAR_TABLE_10S),
-		DECIMAL_CHAR_TABLE_01S = toSingleCharBytes(JadothChars.DECIMAL_CHAR_TABLE_01S)
+		CHARS_MIN_VALUE_int    = toSingleCharBytes(XChars.CHARS_MIN_VALUE_int )  ,
+		CHARS_MIN_VALUE_long   = toSingleCharBytes(XChars.CHARS_MIN_VALUE_long)  ,
+		DECIMAL_CHAR_TABLE_10S = toSingleCharBytes(XChars.DECIMAL_CHAR_TABLE_10S),
+		DECIMAL_CHAR_TABLE_01S = toSingleCharBytes(XChars.DECIMAL_CHAR_TABLE_01S)
 	;
 
 	// CHECKSTYLE.ON: ConstantName

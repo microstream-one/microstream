@@ -3,7 +3,7 @@ package net.jadoth.test;
 import java.util.Arrays;
 
 import net.jadoth.X;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 
 /**
  * @author Thomas Muenz
@@ -33,7 +33,7 @@ public class MainTestRemoveAllFromArray
 
 	static int remove(final String element, final String[] array)
 	{
-		final int count = JadothArrays.removeAllFromArray(array, 0, array.length, element);
+		final int count = XArrays.removeAllFromArray(array, 0, array.length, element);
 		System.out.print(count+": ");
 		print(array);
 		return count;
@@ -56,7 +56,7 @@ public class MainTestRemoveAllFromArray
 
 	static int remove_X_and_null(final String[] array)
 	{
-		final int count = JadothArrays.removeAllFromArray(X.List("X", null), array, 0, array.length);
+		final int count = XArrays.removeAllFromArray(X.List("X", null), array, 0, array.length);
 		System.out.print(count+": ");
 		print(array);
 		return count;

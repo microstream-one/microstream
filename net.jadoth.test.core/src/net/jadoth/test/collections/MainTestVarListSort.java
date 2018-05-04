@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 /**
  * @author Thomas Muenz
@@ -20,7 +20,7 @@ public class MainTestVarListSort
 		final Integer[] ints = new Integer[SIZE];
 		for(int i = 0; i < SIZE; i++)
 		{
-			ints[i] = JadothMath.random(SIZE);
+			ints[i] = XMath.random(SIZE);
 		}
 		return ints;
 	}

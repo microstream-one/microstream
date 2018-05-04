@@ -2,7 +2,7 @@ package net.jadoth.experimental.checking;
 
 import java.util.function.Function;
 
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.util.UtilStackTrace;
 
 @FunctionalInterface
@@ -12,7 +12,7 @@ public interface Check<T, E extends RuntimeException>
 
 	public default T check(final T instance)
 	{
-		return this.check(instance, JadothFunctional.passThrough());
+		return this.check(instance, XFunctional.passThrough());
 	}
 
 

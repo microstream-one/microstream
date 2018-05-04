@@ -6,8 +6,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.collections.XArrays;
+import net.jadoth.file.XFiles;
 import net.jadoth.memory.Memory;
 
 public class MainSearchBinaryStringInFiles
@@ -93,11 +93,11 @@ public class MainSearchBinaryStringInFiles
 	{
 		try
 		{
-			final byte[] fileContent = JadothFiles.readBytesFromFile(f);
+			final byte[] fileContent = XFiles.readBytesFromFile(f);
 			for(final byte[] s : strings)
 			{
 				int index = 0;
-				while((index = JadothArrays.indexOf(fileContent, s, index)) >= 0)
+				while((index = XArrays.indexOf(fileContent, s, index)) >= 0)
 				{
 					System.out.println(index+"@"+f+" is "+VarString.New().addHexDec(s));
 					index += s.length;

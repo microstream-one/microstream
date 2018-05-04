@@ -1,6 +1,6 @@
 package net.jadoth.chars;
 
-import static net.jadoth.math.JadothMath.notNegative;
+import static net.jadoth.math.XMath.notNegative;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,7 +17,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.memory.Memory;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CSV;
 import net.jadoth.util.csv.CsvConfiguration;
 import net.jadoth.util.csv.CsvContent;
@@ -279,7 +279,7 @@ public interface StringTable
 			super();
 			this.name    = name                 ; // may be null
 			this.columns = EqConstHashEnum.New(columns);
-			validateColumnCount(JadothTypes.to_int(this.columns.size()), rows);
+			validateColumnCount(XTypes.to_int(this.columns.size()), rows);
 			this.types   = ConstList.New(columnTypes);
 			this.rows    = ConstList.New(rows);
 		}

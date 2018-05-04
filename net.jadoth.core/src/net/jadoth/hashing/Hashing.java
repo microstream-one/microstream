@@ -1,7 +1,7 @@
 package net.jadoth.hashing;
 
-import net.jadoth.math.JadothMath;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -142,7 +142,7 @@ public final class Hashing
 
 	public static final int padHashLength(final int minimalHashLength)
 	{
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
 		{
 			// (technical) magic value
 			return Integer.MAX_VALUE;
@@ -193,7 +193,7 @@ public final class Hashing
 
 	public static final <E> HashEqualator<E> deriveHashEquality(final Class<E> type)
 	{
-		return JadothTypes.isValueType(type)
+		return XTypes.isValueType(type)
 			? Hashing.<E>hashEqualityValue()
 			: Hashing.<E>hashEqualityIdentity()
 		;

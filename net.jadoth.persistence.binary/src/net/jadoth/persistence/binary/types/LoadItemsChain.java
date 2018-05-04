@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.collections.JadothArrays.copy;
+import static net.jadoth.collections.XArrays.copy;
 
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.SwizzleIdSet;

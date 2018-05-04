@@ -3,7 +3,7 @@ package net.jadoth.collections.old;
 import java.util.Collection;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingCollection;
 
 public interface OldCollection<E> extends Collection<E>
@@ -13,7 +13,7 @@ public interface OldCollection<E> extends Collection<E>
 	@Override
 	public default <T> T[] toArray(final T[] target)
 	{
-		JadothArrays.copyTo(this.parent(), target);
+		XArrays.copyTo(this.parent(), target);
 		return target;
 	}
 
@@ -24,7 +24,7 @@ public interface OldCollection<E> extends Collection<E>
 
 		final Number[] ns = new Number[5];
 
-		JadothArrays.copyTo(ps, ns);
+		XArrays.copyTo(ps, ns);
 	}
 
 

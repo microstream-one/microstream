@@ -24,12 +24,12 @@ public final class MemoryCharConversion_doubleUTF8
 	;
 
 	private static final transient byte[]
-		CHARS_ZERO              = toSingleCharBytes(JadothChars.CHARS_ZERO             ),
-		CHARS_ONE               = toSingleCharBytes(JadothChars.CHARS_ONE              ),
-		CHARS_NAN               = toSingleCharBytes(JadothChars.CHARS_NAN              ),
-		CHARS_NEGATIVE_INFINITY = toSingleCharBytes(JadothChars.CHARS_NEGATIVE_INFINITY),
-		CHARS_POSITIVE_INFINITY = toSingleCharBytes(JadothChars.CHARS_POSITIVE_INFINITY),
-		CHARS_NORM_THRESH_HIGH  = toSingleCharBytes(JadothChars.CHARS_NORM_THRESH_HIGH )
+		CHARS_ZERO              = toSingleCharBytes(XChars.CHARS_ZERO             ),
+		CHARS_ONE               = toSingleCharBytes(XChars.CHARS_ONE              ),
+		CHARS_NAN               = toSingleCharBytes(XChars.CHARS_NAN              ),
+		CHARS_NEGATIVE_INFINITY = toSingleCharBytes(XChars.CHARS_NEGATIVE_INFINITY),
+		CHARS_POSITIVE_INFINITY = toSingleCharBytes(XChars.CHARS_POSITIVE_INFINITY),
+		CHARS_NORM_THRESH_HIGH  = toSingleCharBytes(XChars.CHARS_NORM_THRESH_HIGH )
 	;
 
 	private static final transient int

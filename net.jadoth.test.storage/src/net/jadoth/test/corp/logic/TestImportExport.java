@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.StorageConnection;
@@ -30,7 +30,7 @@ public class TestImportExport
 		tStart = System.nanoTime();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();

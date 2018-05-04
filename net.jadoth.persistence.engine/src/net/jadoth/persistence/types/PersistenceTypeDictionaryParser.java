@@ -9,8 +9,8 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingMember
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
-import net.jadoth.reflect.JadothReflect;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.XTypes;
 
 public interface PersistenceTypeDictionaryParser
 {
@@ -480,7 +480,7 @@ public interface PersistenceTypeDictionaryParser
 			if(!this.members.isEmpty())
 			{
 				vc.lf();
-				for(int i = 0; i < JadothTypes.to_int(this.members.size()); i++)
+				for(int i = 0; i < XTypes.to_int(this.members.size()); i++)
 				{
 					vc.tab().add(this.members.at(i)).add(';').lf();
 				}
@@ -552,7 +552,7 @@ public interface PersistenceTypeDictionaryParser
 			return PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation.New(
 				this.type,
 				this.name,
-				!JadothReflect.isPrimitiveTypeName(this.type),
+				!XReflect.isPrimitiveTypeName(this.type),
 				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.name, this.type),
 				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.name, this.type)
 			);
@@ -624,7 +624,7 @@ public interface PersistenceTypeDictionaryParser
 					this.type,
 					this.name,
 					this.declrTypeName,
-					!JadothReflect.isPrimitiveTypeName(this.type),
+					!XReflect.isPrimitiveTypeName(this.type),
 					this.resolveMemberMinimumLength(),
 					this.resolveMemberMaximumLength()
 				);

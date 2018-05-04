@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.X;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
@@ -37,7 +37,7 @@ public final class BinaryCollectionHandling
 		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
 	{
 		return elementsPseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.pseudoField(long.class, "capacity")
 			)
@@ -48,7 +48,7 @@ public final class BinaryCollectionHandling
 		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.complex("elements",
 					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")
@@ -61,7 +61,7 @@ public final class BinaryCollectionHandling
 		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.complex("elements",
 					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")

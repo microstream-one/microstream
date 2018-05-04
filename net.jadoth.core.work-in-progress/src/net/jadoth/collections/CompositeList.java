@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public final class CompositeList<E> implements XGettingList<E>
 {
@@ -59,7 +59,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	CompositeList(final XGettingList<E>[] lists, final int offset, final int length)
 	{
 		super();
-		this.lists = JadothArrays.copyRange(lists, offset, length);
+		this.lists = XArrays.copyRange(lists, offset, length);
 		this.count = length;
 	}
 
@@ -89,7 +89,7 @@ public final class CompositeList<E> implements XGettingList<E>
 			}
 			i -= lists[c].size();
 		}
-		throw new IndexExceededException(index, JadothTypes.to_int(this.size()));
+		throw new IndexExceededException(index, XTypes.to_int(this.size()));
 	}
 
 	@Override
@@ -198,7 +198,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		final XGettingList<E>[] lists = subject.lists;
 
-		final BulkList<S> buffer = new BulkList<>(JadothTypes.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
+		final BulkList<S> buffer = new BulkList<>(XTypes.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
 		for(int c = 0; c < subject.count; c++)
 		{
 			buffer.addAll(lists[c]);

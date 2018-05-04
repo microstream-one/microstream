@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.functional.TriConsumer;
 
 public class MainSearchStringInFiles
@@ -42,7 +42,7 @@ public class MainSearchStringInFiles
 
 	static String[] loadIds(final File file, final String separator) throws Exception
 	{
-		final String fileContent = JadothFiles.readStringFromFile(file);
+		final String fileContent = XFiles.readStringFromFile(file);
 
 		final String[] parts = fileContent.split(separator);
 
@@ -106,7 +106,7 @@ public class MainSearchStringInFiles
 	{
 		try
 		{
-			final String fileContent = JadothFiles.readStringFromFile(f);
+			final String fileContent = XFiles.readStringFromFile(f);
 			for(final String s : strings)
 			{
 				final int index = fileContent.indexOf(s);

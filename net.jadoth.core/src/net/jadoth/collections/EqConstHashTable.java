@@ -30,7 +30,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -960,7 +960,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		if(EqConstHashTable.this.size != JadothTypes.to_int(samples.size()))
+		if(EqConstHashTable.this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -1419,7 +1419,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
-			if(EqConstHashTable.this.size != JadothTypes.to_int(samples.size()))
+			if(EqConstHashTable.this.size != XTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -1911,13 +1911,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long size()
 		{
-			return JadothTypes.to_int(EqConstHashTable.this.size());
+			return XTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return JadothTypes.to_int(EqConstHashTable.this.size());
+			return XTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override
@@ -2219,7 +2219,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final int size()
 		{
-			return JadothTypes.to_int(EqConstHashTable.this.size());
+			return XTypes.to_int(EqConstHashTable.this.size());
 		}
 
 		@Override

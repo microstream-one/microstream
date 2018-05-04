@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,7 +24,7 @@ import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.KamikazeArrayAdder;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -143,7 +143,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		super();
 		this.data = newArray(this.size = elements.intSize());
-		JadothArrays.copyTo(elements, this.data);
+		XArrays.copyTo(elements, this.data);
 		this.limit = this.data.length;
 	}
 
@@ -211,7 +211,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index, -length);
+			XArrays.reverseArraycopy(elements, offset, elements , index, -length);
 			this.size -= length;
 			return -length;
 		}
@@ -256,7 +256,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index, -length);
+			XArrays.reverseArraycopy(elements, offset, elements , index, -length);
 			this.size -= length;
 			return -length;
 		}
@@ -388,7 +388,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -451,11 +451,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return this.internalCountingAddAll(AbstractSimpleArrayCollection.internalGetStorageArray(
-				(AbstractSimpleArrayCollection<?>)elements), 0, JadothTypes.to_int(elements.size())
+				(AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
-		this.ensureFreeCapacity(JadothTypes.to_int(elements.size())); // prevents Kamikaze later on :D
+		this.ensureFreeCapacity(XTypes.to_int(elements.size())); // prevents Kamikaze later on :D
 		final int oldSize;
 		return (this.size = elements.iterate(
 			new KamikazeArrayAdder<E>(this.data, oldSize = this.size)).yield()
@@ -734,7 +734,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof LimitList<?>) || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof LimitList<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -744,7 +744,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((LimitList<?>)samples).data, 0, this.size, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((LimitList<?>)samples).data, 0, this.size, (Equalator<Object>)equalator);
 	}
 
 	@Override
@@ -753,7 +753,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		final Equalator<? super E>            equalator
 	)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -1039,7 +1039,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final LimitList<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.size, comparator);
+		XSort.mergesort(this.data, 0, this.size, comparator);
 		return this;
 	}
 
@@ -1538,7 +1538,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final long nullRemove()
 	{
 		final int removeCount;
-		this.size -= removeCount = JadothArrays.removeAllFromArray(this.data, 0, this.size, null);
+		this.size -= removeCount = XArrays.removeAllFromArray(this.data, 0, this.size, null);
 		return removeCount;
 	}
 
@@ -1882,7 +1882,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 

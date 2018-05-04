@@ -7,7 +7,7 @@ import net.jadoth.collections.MiniMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedTypeId;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeRegistry;
@@ -78,7 +78,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
 		{
 			// standard registry does not consider actual objects
-			return this.lookupTypeHandler(JadothReflect.getClass(instance));
+			return this.lookupTypeHandler(XReflect.getClass(instance));
 		}
 
 		@Override

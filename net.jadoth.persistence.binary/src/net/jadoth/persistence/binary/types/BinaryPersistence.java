@@ -74,7 +74,7 @@ import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 import net.jadoth.util.XVM;
@@ -1634,7 +1634,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
 	{
-		final int[] fieldOffsets = new int[JadothTypes.to_int(fields.size())];
+		final int[] fieldOffsets = new int[XTypes.to_int(fields.size())];
 		fields.iterateIndexed(new IndexProcedure<Field>()
 		{
 			@Override

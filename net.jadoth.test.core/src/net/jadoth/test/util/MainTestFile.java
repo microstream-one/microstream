@@ -1,6 +1,6 @@
 package net.jadoth.test.util;
 
-import static net.jadoth.file.JadothFiles.buildFile;
+import static net.jadoth.file.XFiles.buildFile;
 
 import java.io.File;
 

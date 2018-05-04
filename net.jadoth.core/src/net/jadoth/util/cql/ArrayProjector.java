@@ -3,7 +3,7 @@ package net.jadoth.util.cql;
 import java.util.function.Function;
 
 import net.jadoth.X;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 
 public interface ArrayProjector<T> extends Function<T, Object[]>
 {
@@ -21,7 +21,7 @@ public interface ArrayProjector<T> extends Function<T, Object[]>
 		{
 			nonNulls[i] = fieldProjectors[i] != null
 				? fieldProjectors[i]
-				: JadothFunctional.toNull()
+				: XFunctional.toNull()
 			;
 		}
 		

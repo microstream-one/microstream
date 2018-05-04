@@ -21,7 +21,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public final class EqConstHashEnum<E>
@@ -111,7 +111,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			Hashing.padHashLength(JadothTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			Hashing.padHashLength(XTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
 			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
@@ -715,7 +715,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(this.size != JadothTypes.to_int(samples.size()))
+		if(this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}

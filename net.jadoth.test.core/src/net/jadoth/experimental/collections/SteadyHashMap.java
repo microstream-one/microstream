@@ -1,5 +1,5 @@
 package net.jadoth.experimental.collections;
-import static net.jadoth.reflect.JadothReflect.getDeclaredField;
+import static net.jadoth.reflect.XReflect.getDeclaredField;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,8 +10,8 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.collections.XArrays;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
@@ -338,9 +338,9 @@ public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.20
 		}
 
 		@SuppressWarnings("rawtypes")
-		final KeyValue[] kv = new KeyValue[JadothTypes.to_int(buffer.size())];
+		final KeyValue[] kv = new KeyValue[XTypes.to_int(buffer.size())];
 
-		JadothArrays.copyTo(buffer, kv);
+		XArrays.copyTo(buffer, kv);
 
 		return kv;
 	}

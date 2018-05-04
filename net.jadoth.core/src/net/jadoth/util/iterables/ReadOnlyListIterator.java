@@ -9,7 +9,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 /**
  * Generic (and potentially imperformant!) implementation of a {@link ListIterator}.<br>
@@ -52,9 +52,9 @@ public class ReadOnlyListIterator<E> implements ListIterator<E>
 	{
 		super();
 		this.subject = list;
-		if(index < 0 || index >= JadothTypes.to_int(list.size()))
+		if(index < 0 || index >= XTypes.to_int(list.size()))
 		{
-			throw new IndexBoundsException(JadothTypes.to_int(list.size()), index);
+			throw new IndexBoundsException(XTypes.to_int(list.size()), index);
 		}
 		this.index = index;
 	}
@@ -74,14 +74,14 @@ public class ReadOnlyListIterator<E> implements ListIterator<E>
 	@Override
 	public boolean hasNext()
 	{
-		return this.index < JadothTypes.to_int(this.subject.size()); // list size could have changed meanwhile
+		return this.index < XTypes.to_int(this.subject.size()); // list size could have changed meanwhile
 	}
 
 	@Override
 	public boolean hasPrevious()
 	{
 		// list size could have changed meanwhile
-		return this.index > 0 && this.index <= JadothTypes.to_int(this.subject.size());
+		return this.index > 0 && this.index <= XTypes.to_int(this.subject.size());
 	}
 
 	@Override

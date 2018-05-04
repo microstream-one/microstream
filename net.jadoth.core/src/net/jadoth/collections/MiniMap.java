@@ -4,7 +4,7 @@ import static java.lang.System.identityHashCode;
 
 import java.util.function.Consumer;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 
@@ -62,7 +62,7 @@ public final class MiniMap<K, V> implements Composition
 	{
 		super();
 		this.size = 0;
-		this.modulo = (this.slots = new Entry[JadothMath.pow2BoundMaxed(initialCapacity)]).length - 1;
+		this.modulo = (this.slots = new Entry[XMath.pow2BoundMaxed(initialCapacity)]).length - 1;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,7 +72,7 @@ public final class MiniMap<K, V> implements Composition
 		final Entry<K, V>[] slots;
 		final int modulo;
 		this.size = 0;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(initialCapacity)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(initialCapacity)]).length - 1;
 		for(int i = 0; i < data.length; i++)
 		{
 			final KeyValue<? extends K, ? extends V> entry;
@@ -99,7 +99,7 @@ public final class MiniMap<K, V> implements Composition
 		super();
 		final Entry<K, V>[] slots;
 		final int modulo;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(this.size = size)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(this.size = size)]).length - 1;
 		for(int i = 0; i < source.length; i++)
 		{
 			// iterate through all entries and assign them to the new storage
@@ -118,7 +118,7 @@ public final class MiniMap<K, V> implements Composition
 		super();
 		final Entry<K, V>[] slots;
 		final int modulo;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(this.size = size)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(this.size = size)]).length - 1;
 		for(int i = 0; i < source.length; i++)
 		{
 			// iterate through all entries and assign them to the new storage
@@ -182,7 +182,7 @@ public final class MiniMap<K, V> implements Composition
 
 	private void increaseStorage()
 	{
-		if(JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slots.length))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slots.length))
 		{
 			return;
 		}
@@ -289,9 +289,9 @@ public final class MiniMap<K, V> implements Composition
 
 	public void optimize()
 	{
-		if(JadothMath.pow2BoundMaxed(this.size) < this.modulo)
+		if(XMath.pow2BoundMaxed(this.size) < this.modulo)
 		{
-			this.rebuildStorage(JadothMath.pow2BoundMaxed(this.size));
+			this.rebuildStorage(XMath.pow2BoundMaxed(this.size));
 		}
 	}
 

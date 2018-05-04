@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.concurrency.Synchronized;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 import net.jadoth.util.iterables.SynchronizedListIterator;
 
@@ -938,7 +938,7 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	@Override
 	public final synchronized long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

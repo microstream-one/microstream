@@ -7,7 +7,7 @@ import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 
@@ -36,7 +36,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 
 	public static final <T> HashMapIdObject<T> New(final int initialSlotLength)
 	{
-		return new HashMapIdObject<>(JadothMath.pow2BoundCapped(initialSlotLength));
+		return new HashMapIdObject<>(XMath.pow2BoundCapped(initialSlotLength));
 	}
 
 
@@ -307,7 +307,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 	@Override
 	public final long optimize()
 	{
-		this.rebuild(JadothMath.pow2BoundCapped(this.size));
+		this.rebuild(XMath.pow2BoundCapped(this.size));
 		return this.size;
 	}
 

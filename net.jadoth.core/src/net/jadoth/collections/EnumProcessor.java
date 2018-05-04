@@ -13,7 +13,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XProcessingEnum;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public final class EnumProcessor<E> implements XProcessingEnum<E>
@@ -395,7 +395,7 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	@Override
 	public final long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

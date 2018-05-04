@@ -3,7 +3,7 @@ package net.jadoth.util.aspects;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 
 public class AspectWrapper<T> implements java.lang.reflect.InvocationHandler
@@ -49,7 +49,7 @@ public class AspectWrapper<T> implements java.lang.reflect.InvocationHandler
 		{
 			return ((AspectWrapper<?>)this.subject).getProxyInterfaces();
 		}
-		return JadothReflect.getClassHierarchyInterfaces(this.subject.getClass());
+		return XReflect.getClassHierarchyInterfaces(this.subject.getClass());
 	}
 
 	@SuppressWarnings("unchecked")

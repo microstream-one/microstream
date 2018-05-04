@@ -2,7 +2,7 @@ package net.jadoth.bytes;
 
 import java.nio.ByteOrder;
 
-public final class JadothBytes
+public final class XBytes
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
@@ -34,7 +34,7 @@ public final class JadothBytes
 
 
 
-	private JadothBytes()
+	private XBytes()
 	{
 		// static only
 		throw new UnsupportedOperationException();

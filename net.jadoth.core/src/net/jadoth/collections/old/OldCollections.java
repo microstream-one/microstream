@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 /**
@@ -466,7 +466,7 @@ public final class OldCollections
 
 	public static final <K, V> LinkedHashMap<K, V> OldLinkedHashMap(final XGettingMap<K, V> map)
 	{
-		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(JadothTypes.to_int(map.size()));
+		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(XTypes.to_int(map.size()));
 		map.iterate(e -> lhm.put(e.key(), e.value()));
 		return lhm;
 	}

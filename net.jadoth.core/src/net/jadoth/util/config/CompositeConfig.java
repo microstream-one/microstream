@@ -15,7 +15,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.exceptions.IORuntimeException;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.Substituter;
@@ -85,7 +85,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = JadothFiles.readCharsFromFile(file);
+				input = XFiles.readCharsFromFile(file);
 			}
 			catch(final IOException e)
 			{
@@ -301,7 +301,7 @@ public class CompositeConfig
 
 		try
 		{
-			JadothFiles.writeStringToFile(file, vs.toString());
+			XFiles.writeStringToFile(file, vs.toString());
 		}
 		catch(final IOException e)
 		{

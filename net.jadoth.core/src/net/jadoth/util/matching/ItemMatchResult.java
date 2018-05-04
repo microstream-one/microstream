@@ -4,8 +4,8 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothFunctional;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.functional.XFunctional;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -17,7 +17,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectRemaining(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> remaining = new BulkList<>(JadothTypes.to_int(input.size()));
+		final BulkList<T> remaining = new BulkList<>(XTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
@@ -31,7 +31,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectUnmatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> unmatched = new BulkList<>(JadothTypes.to_int(input.size()));
+		final BulkList<T> unmatched = new BulkList<>(XTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
@@ -48,7 +48,7 @@ public class ItemMatchResult<T>
 
 	static <T> ConstList<T> collectMatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
 	{
-		final BulkList<T> matched = new BulkList<>(JadothTypes.to_int(input.size()));
+		final BulkList<T> matched = new BulkList<>(XTypes.to_int(input.size()));
 		input.iterateIndexed(new IndexProcedure<T>()
 		{
 			@Override
@@ -182,7 +182,7 @@ public class ItemMatchResult<T>
 		{
 			this.sourceMatches = this.matchesInSourceOrder.filterTo(
 				new BulkList<KeyValue<T, T>>(this.matchCount),
-				JadothFunctional.notNull()
+				XFunctional.notNull()
 			).immure();
 		}
 		return this.sourceMatches;
@@ -194,7 +194,7 @@ public class ItemMatchResult<T>
 		{
 			this.targetMatches = this.matchesInTargetOrder.filterTo(
 				new BulkList<KeyValue<T, T>>(this.matchCount),
-				JadothFunctional.notNull()
+				XFunctional.notNull()
 			).immure();
 		}
 		return this.targetMatches;

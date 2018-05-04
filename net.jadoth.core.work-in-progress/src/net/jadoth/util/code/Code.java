@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.code.Field.FinalField;
 
 public abstract class Code
@@ -164,7 +164,7 @@ public abstract class Code
 	{
 		return Code.deriveGetterNameFromFieldName(
 			field.getName(),
-			usePrefix_is_forBoolean && JadothTypes.isBoolean(field.getType())
+			usePrefix_is_forBoolean && XTypes.isBoolean(field.getType())
 		);
 	}
 
@@ -188,7 +188,7 @@ public abstract class Code
 	 */
 	public static String deriveGetterNameFromFieldName(final String fieldName, final boolean usePrefix_is)
 	{
-		return JadothChars.createMedialCapitalsString(
+		return XChars.createMedialCapitalsString(
 			usePrefix_is
 			? CODE_CONVENTION_ISGETTER_PREFIX
 			: CODE_CONVENTION_GETTER_PREFIX,
@@ -204,7 +204,7 @@ public abstract class Code
 	 */
 	public static String deriveSetterNameFromFieldName(final String fieldName)
 	{
-		return JadothChars.createMedialCapitalsString(CODE_CONVENTION_SETTER_PREFIX, fieldName);
+		return XChars.createMedialCapitalsString(CODE_CONVENTION_SETTER_PREFIX, fieldName);
 	}
 	
 	/**

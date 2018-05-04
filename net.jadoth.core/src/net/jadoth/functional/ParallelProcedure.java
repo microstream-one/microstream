@@ -2,13 +2,13 @@ package net.jadoth.functional;
 
 import static net.jadoth.X.coalesce;
 import static net.jadoth.X.notNull;
-import static net.jadoth.concurrency.JadothThreads.start;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.concurrency.XThreads.start;
+import static net.jadoth.math.XMath.positive;
 
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public interface ParallelProcedure<E> extends Consumer<E>
@@ -267,7 +267,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			 * the timeout, the max thread number will probably be needed soon, anyway.
 			 * The intention is to build up max threads quickly and remove them slowly over time.
 			 */
-			if(JadothTypes.to_int(this.threads.size()) < this.threadCountProvider.maxThreadCount())
+			if(XTypes.to_int(this.threads.size()) < this.threadCountProvider.maxThreadCount())
 			{
 				this.threads.add(start(this.createWorkerThread()));
 			}
@@ -275,7 +275,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 		private WorkerThread createWorkerThread()
 		{
-			return new WorkerThread(JadothTypes.to_int(this.threads.size()));
+			return new WorkerThread(XTypes.to_int(this.threads.size()));
 		}
 
 		private boolean isTimedOut()
@@ -285,12 +285,12 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 		private boolean isOversized()
 		{
-			return this.threadCountProvider.maxThreadCount() < JadothTypes.to_int(this.threads.size());
+			return this.threadCountProvider.maxThreadCount() < XTypes.to_int(this.threads.size());
 		}
 
 		private void checkThreadTimeout()
 		{
-			if((this.isTimedOut() || this.isOversized()) && JadothTypes.to_int(this.threads.size()) > 0)
+			if((this.isTimedOut() || this.isOversized()) && XTypes.to_int(this.threads.size()) > 0)
 			{
 				this.touch();                    // touch here to make threads shutdown one by one over time
 				this.threads.last().interrupt(); // intentionally no pick() because thread gets removed explicitely
@@ -302,7 +302,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			synchronized(this.threads)
 			{
 				// don't disturb worker threads via this, but synchronize thread cache
-				return JadothTypes.to_int(this.threads.size());
+				return XTypes.to_int(this.threads.size());
 			}
 		}
 

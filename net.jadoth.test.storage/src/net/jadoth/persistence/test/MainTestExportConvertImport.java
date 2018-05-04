@@ -5,8 +5,8 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.file.JadothFiles;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.file.XFiles;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.storage.types.StorageConnection;
 
 public class MainTestExportConvertImport extends TestStorage
@@ -25,7 +25,7 @@ public class MainTestExportConvertImport extends TestStorage
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
 			"dat"
 		);
 		final File csvDir = convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));
@@ -34,7 +34,7 @@ public class MainTestExportConvertImport extends TestStorage
 			STORAGE.typeDictionary(),
 			X.List(csvDir.listFiles()),
 			new File(csvDir.getParent(), "bin2"),
-			JadothFunctional.all()
+			XFunctional.all()
 		);
 
 		STORAGE.truncateData();

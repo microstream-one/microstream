@@ -2,7 +2,7 @@ package net.jadoth.util;
 
 import java.util.Arrays;
 
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 
 public class MainTestArrayCombine
 {
@@ -14,6 +14,6 @@ public class MainTestArrayCombine
 			{"F", "G", "H", "I"}
 		};
 
-		System.out.println(Arrays.toString(JadothArrays.combine(stringsstrings)));
+		System.out.println(Arrays.toString(XArrays.combine(stringsstrings)));
 	}
 }

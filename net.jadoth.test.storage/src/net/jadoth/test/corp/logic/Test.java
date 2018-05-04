@@ -12,13 +12,13 @@ import java.util.HashSet;
 import java.util.function.Function;
 
 import net.jadoth.X;
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XTable;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.test.corp.model.Address;
 import net.jadoth.test.corp.model.BusinessYear;
@@ -39,7 +39,7 @@ import net.jadoth.test.corp.model.PrivateCustomer;
 import net.jadoth.test.corp.model.Product;
 import net.jadoth.test.corp.model.Street;
 import net.jadoth.test.corp.model.Vendor;
-import net.jadoth.time.JadothTime;
+import net.jadoth.time.XTime;
 
 public class Test
 {
@@ -261,7 +261,7 @@ public class Test
 
 	public static void print(final Object object)
 	{
-		System.out.println(TIME_FORMAT.format(JadothTime.now())+": "+object);
+		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
 	}
 
 	public static File provideTimestampedDirectory(final File directory, final String prefix)
@@ -530,18 +530,18 @@ final class Generator
 	static double generatePrice()
 	{
 		// price range [0.99; 9,999.99]
-		return JadothMath.round2(JadothMath.random(10000) + 0.99);
+		return XMath.round2(XMath.random(10000) + 0.99);
 	}
 
 	static int randomOrderItemAmount()
 	{
-		return 1 + JadothMath.random(20);
+		return 1 + XMath.random(20);
 	}
 
 
 	static <T> T random(final T[] elements)
 	{
-		return elements[JadothMath.random(elements.length)];
+		return elements[XMath.random(elements.length)];
 	}
 
 	final PostalAddress supplyPostAddress()
@@ -610,7 +610,7 @@ final class Generator
 		final City[] allCity = this.allCity;
 		for(int i = 0; i < allCity.length; i++)
 		{
-			allCity[i] = Test.City(JadothChars.toString(i));
+			allCity[i] = Test.City(XChars.toString(i));
 		}
 	}
 
@@ -621,7 +621,7 @@ final class Generator
 		for(int i = 0; i < allStreet.length; i++)
 		{
 			final City city = random(allCity);
-			final Street street = allStreet[i] = Test.Street(city, JadothChars.toString(i));
+			final Street street = allStreet[i] = Test.Street(city, XChars.toString(i));
 			city.registerStreet(street);
 		}
 	}
@@ -634,7 +634,7 @@ final class Generator
 		for(int i = 0; i < allPostalAddress.length; i++)
 		{
 			final Street street = random(allStreet);
-			allPostalAddress[i] = Test.PostalAddress(street, JadothChars.toString(i));
+			allPostalAddress[i] = Test.PostalAddress(street, XChars.toString(i));
 		}
 	}
 
@@ -658,7 +658,7 @@ final class Generator
 
 		for(int i = 0; i < allProduct.length; i++)
 		{
-			final String number = JadothChars.toString(i);
+			final String number = XChars.toString(i);
 			final Vendor vendor = this.supplyVendor();
 			final Product product = allProduct[i] = Test.Product("product "+number, vendor, generatePrice());
 			vendor.registerProduct(product);
@@ -671,7 +671,7 @@ final class Generator
 
 		for(int i = 0; i < allPerson.length; i++)
 		{
-			final String number = JadothChars.toString(i);
+			final String number = XChars.toString(i);
 			final Person person = allPerson[i] = Test.Person('p'+number, "firstname"+number,"lastname"+number, null);
 			person.setAddress(this.createAddress(person, number));
 			person.address().postalAddress().street().registerContact(person);
@@ -684,7 +684,7 @@ final class Generator
 
 		for(int i = 0; i < allCorporation.length; i++)
 		{
-			final String number = JadothChars.toString(i);
+			final String number = XChars.toString(i);
 			final Corporation corporation = allCorporation[i] = Test.Corporation(
 				'c'+number,
 				"corp-"+number,
@@ -730,7 +730,7 @@ final class Generator
 
 		for(int i = 0; i < allOrder.length; i++)
 		{
-			final String number = JadothChars.toString(i);
+			final String number = XChars.toString(i);
 			final Customer customer = random(allCustomer);
 
 			final OrderItem initialOrderItem = this.supplyOrderItem();
@@ -775,7 +775,7 @@ final class Generator
 		{
 			final Product product = random(allProduct);
 			final int amount = randomOrderItemAmount();
-			final double totalPrice = JadothMath.round2(amount * product.price());
+			final double totalPrice = XMath.round2(amount * product.price());
 			allOrderItem[i] = Test.OrderItem(product, amount, totalPrice);
 		}
 	}

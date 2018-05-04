@@ -13,7 +13,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.equality.Equalator;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -48,7 +48,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	private static int padHashLength(final int minimalHashLength)
 	{
 		// check for technical limit
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
 		{
 			return Integer.MAX_VALUE;
 		}

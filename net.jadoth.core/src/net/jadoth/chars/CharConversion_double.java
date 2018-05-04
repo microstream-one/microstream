@@ -58,13 +58,13 @@ public final class CharConversion_double
 		// head method with a bunch of special case handling
 		if(Double.isNaN(value))
 		{
-			return JadothChars.put(JadothChars.CHARS_NAN, target, offset);
+			return XChars.put(XChars.CHARS_NAN, target, offset);
 		}
 		if(value < DOUBLE_ZERO)
 		{
 			if(value == Double.NEGATIVE_INFINITY)
 			{
-				return JadothChars.put(JadothChars.CHARS_NEGATIVE_INFINITY, target, offset);
+				return XChars.put(XChars.CHARS_NEGATIVE_INFINITY, target, offset);
 			}
 			target[offset] = '-';
 			return put_doublePositive(-value, target, offset + 1);
@@ -72,16 +72,16 @@ public final class CharConversion_double
 		if(value == DOUBLE_ZERO)
 		{
 			// this case is so common that is pays off to handle it specifically
-			return JadothChars.put(JadothChars.CHARS_ZERO, target, offset);
+			return XChars.put(XChars.CHARS_ZERO, target, offset);
 		}
 		if(value == DOUBLE_ONE)
 		{
 			// this case is so common that is pays off to handle it specifically
-			return JadothChars.put(JadothChars.CHARS_ONE, target, offset);
+			return XChars.put(XChars.CHARS_ONE, target, offset);
 		}
 		if(value == Double.POSITIVE_INFINITY)
 		{
-			return JadothChars.put(JadothChars.CHARS_POSITIVE_INFINITY, target, offset);
+			return XChars.put(XChars.CHARS_POSITIVE_INFINITY, target, offset);
 		}
 		return put_doublePositive(value, target, offset);
 	}
@@ -131,8 +131,8 @@ public final class CharConversion_double
 		if(exponent == 7)
 		{
 			// what do you know: special case inside a special case
-			System.arraycopy(JadothChars.CHARS_NORM_THRESH_HIGH, 0, target, offset, JadothChars.CHARS_NORM_THRESH_HIGH.length);
-			return offset + JadothChars.CHARS_NORM_THRESH_HIGH.length;
+			System.arraycopy(XChars.CHARS_NORM_THRESH_HIGH, 0, target, offset, XChars.CHARS_NORM_THRESH_HIGH.length);
+			return offset + XChars.CHARS_NORM_THRESH_HIGH.length;
 		}
 		
 		final int e = Math.max(exponent, 1) + 1;
@@ -156,7 +156,7 @@ public final class CharConversion_double
 		// check for extremely annoying special corner case that requires strict algorithm
 		if(intedValue == Double.POSITIVE_INFINITY || intedValue == Double.NEGATIVE_INFINITY)
 		{
-			return JadothChars.put(Double.toString(value), target, offset);
+			return XChars.put(Double.toString(value), target, offset);
 		}
 
 		target[offset] = '0'; // overflow handling digit, gets replaced by decimal point
@@ -228,7 +228,7 @@ public final class CharConversion_double
 		// check for extremely annoying special corner case that requires strict algorithm
 		if(intedValue == Double.POSITIVE_INFINITY || intedValue == Double.NEGATIVE_INFINITY)
 		{
-			return JadothChars.put(Double.toString(value), target, offset);
+			return XChars.put(Double.toString(value), target, offset);
 		}
 
 		int i = put_doubleAndCleanup(intedValue, target, offset + 1);

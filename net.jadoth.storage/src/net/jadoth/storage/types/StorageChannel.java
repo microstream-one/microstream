@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.math.JadothMath.notNegative;
+import static net.jadoth.math.XMath.notNegative;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

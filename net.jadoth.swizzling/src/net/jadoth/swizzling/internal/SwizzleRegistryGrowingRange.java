@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import net.jadoth.collections.HashMapIdId;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidTypeId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyObject;
@@ -100,10 +100,10 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 
 	private static int padCapacity(final int desiredSlotLength)
 	{
-		if(JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(desiredSlotLength))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(desiredSlotLength))
 		{
 			// (16.04.2016)TODO: why isn't this max integer? See general purpose hash collections
-			return JadothMath.highestPowerOf2Integer();
+			return XMath.highestPowerOf2Integer();
 		}
 		int slotCount = MINIMUM_SLOT_LENGTH;
 		while(slotCount < desiredSlotLength)
@@ -305,7 +305,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		 * - it is mathematically impossible that rebuilding would require another increase
 		 * - recalculating modulo every time when inserting is inefficent here, but more efficient for single puts.
 		 */
-		if(JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slotsPerOid.length))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slotsPerOid.length))
 		{
 			this.capacity = Integer.MAX_VALUE; // disable special case after running into it once (cool 8-) )
 			return;
@@ -1259,7 +1259,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		System.out.println("empty\t" + analysis[0]);
 		for(int i = 1; i < analysis.length; i++)
 		{
-			System.out.println(JadothMath.pow(2, i - 1) + "\t" + analysis[i]);
+			System.out.println(XMath.pow(2, i - 1) + "\t" + analysis[i]);
 		}
 		System.out.println("----");
 	}
@@ -1273,7 +1273,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		{
 			if(slots[s] != null)
 			{
-				bucketsPow2Lenghts[JadothMath.log2pow2(slots[s].length) + 1]++;
+				bucketsPow2Lenghts[XMath.log2pow2(slots[s].length) + 1]++;
 			}
 			else
 			{

@@ -3,9 +3,9 @@ package net.jadoth.persistence.internal;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.chars.VarString;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -59,7 +59,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 		super();
 		this.objectManager = notNull(objectManager);
 		this.typeHandlerManager   = notNull(typeManager  );
-		this.oidsSlots     = new DebugGraphPrinter.Entry[JadothMath.pow2BoundCapped(hashRange)];
+		this.oidsSlots     = new DebugGraphPrinter.Entry[XMath.pow2BoundCapped(hashRange)];
 		this.oidsModulo    = this.oidsSlots.length - 1;
 	}
 
@@ -87,7 +87,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 		}
 
 		final long oid = this.objectManager.ensureObjectId(instance);
-		this.vc.padLeft(Long.toString(oid), MAX_LITERAL_LENGTH_LONG, '0').blank().add(JadothStrings.systemString(instance));
+		this.vc.padLeft(Long.toString(oid), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XStrings.systemString(instance));
 		if(!instance.getClass().isArray())
 		{
 			this.vc.tab(2).add(instance);

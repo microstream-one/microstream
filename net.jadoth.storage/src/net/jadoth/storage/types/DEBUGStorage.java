@@ -4,9 +4,9 @@ import java.io.File;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.memory.Memory;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 
 
 // (22.06.2013) DEBUG class should be removed at some point.
@@ -18,7 +18,7 @@ public final class DEBUGStorage
 	{
 		if(ENABLED)
 		{
-			JadothDebug.debugln(s, 2);
+			XDebug.debugln(s, 2);
 		}
 
 	}
@@ -43,7 +43,7 @@ public final class DEBUGStorage
 		final File... channelDirectories
 	)
 	{
-		JadothFiles.ensureWriteableFile(targetFile);
+		XFiles.ensureWriteableFile(targetFile);
 
 		final XList<File> sourceFiles = X.List();
 		for(final File file : channelDirectories)
@@ -51,7 +51,7 @@ public final class DEBUGStorage
 			sourceFiles.addAll(file.listFiles());
 		}
 
-		JadothFiles.mergeBinary(sourceFiles, targetFile, f -> f.getPath().endsWith(fileSuffix));
+		XFiles.mergeBinary(sourceFiles, targetFile, f -> f.getPath().endsWith(fileSuffix));
 	}
 
 

@@ -1,9 +1,9 @@
 package net.jadoth.test.util;
 
-import static net.jadoth.concurrency.JadothThreads.sleep;
-import static net.jadoth.concurrency.JadothThreads.start;
+import static net.jadoth.concurrency.XThreads.sleep;
+import static net.jadoth.concurrency.XThreads.start;
 import static net.jadoth.concurrency.ThreadedInstantiating.threaded;
-import static net.jadoth.math.JadothMath.random;
+import static net.jadoth.math.XMath.random;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.LimitList;

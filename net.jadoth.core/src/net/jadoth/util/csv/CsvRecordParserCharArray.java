@@ -1,7 +1,7 @@
 package net.jadoth.util.csv;
 
 import net.jadoth.chars.EscapeHandler;
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.functional._charRangeProcedure;
 
@@ -45,7 +45,7 @@ public interface CsvRecordParserCharArray
 				{
 					return true;
 				}
-				if(JadothChars.isNonWhitespace(input[i]))
+				if(XChars.isNonWhitespace(input[i]))
 				{
 					return false;
 				}
@@ -68,7 +68,7 @@ public interface CsvRecordParserCharArray
 			// skip any number and combination of whitespaces, simple and full comments
 			while(i < iBound)
 			{
-				if(JadothChars.isWhitespace(input[i]))
+				if(XChars.isWhitespace(input[i]))
 				{
 					i++;
 				}
@@ -122,7 +122,7 @@ public interface CsvRecordParserCharArray
 				}
 
 				// skip all non-control white spaces before, between and after comments
-				if(JadothChars.isWhitespace(input[i]))
+				if(XChars.isWhitespace(input[i]))
 				{
 					// case whitespace, skip and continue
 					i++;

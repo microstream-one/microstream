@@ -2,7 +2,7 @@ package net.jadoth.test.sorting;
 
 import static net.jadoth.test.sorting.SortValue.compare;
 
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 
 
 
@@ -49,7 +49,7 @@ public class MainTestSorting
 
 //			Arrays.sort(values, compare);
 //			JaSort.mergesort(values, compare);
-			JadothSort.sort(values, compare);
+			XSort.sort(values, compare);
 //			JaSort.sort(values, 0, SIZE, compare);
 //			JaSort.parallelSort(values, compare);
 //			Arrays.sort(values, 1, 998, compare);

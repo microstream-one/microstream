@@ -28,11 +28,11 @@ import net.jadoth.equality.IdentityEqualator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -181,7 +181,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		final XGettingCollection<? extends KeyValue<KI, VI>> entries
 	)
 	{
-		return NewProjected(entries, JadothFunctional.<KO>passThrough(), JadothFunctional.<VO>passThrough());
+		return NewProjected(entries, XFunctional.<KO>passThrough(), XFunctional.<VO>passThrough());
 	}
 
 	public static final <KI, VI, KO, VO> ConstHashTable<KO, VO> NewProjected(
@@ -430,7 +430,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		 * Should this VM implementation detail ever change (which is extremely doubtful as it moreless ruins
 		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
-		return JadothTypes.to_int(this.size());
+		return XTypes.to_int(this.size());
 	}
 
 	@Override
@@ -821,7 +821,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		if(ConstHashTable.this.size != JadothTypes.to_int(samples.size()))
+		if(ConstHashTable.this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -1273,7 +1273,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
-			if(ConstHashTable.this.size != JadothTypes.to_int(samples.size()))
+			if(ConstHashTable.this.size != XTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -1771,13 +1771,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long size()
 		{
-			return JadothTypes.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return JadothTypes.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override
@@ -2079,7 +2079,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final int size()
 		{
-			return JadothTypes.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override

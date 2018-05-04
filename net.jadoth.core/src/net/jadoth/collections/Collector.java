@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XPuttingCollection;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public final class Collector<E> implements XPuttingCollection<E>
@@ -129,7 +129,7 @@ public final class Collector<E> implements XPuttingCollection<E>
 	@Override
 	public boolean isFull()
 	{
-		return JadothTypes.to_int(this.subject.size()) >= this.subject.maximumCapacity();
+		return XTypes.to_int(this.subject.size()) >= this.subject.maximumCapacity();
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public final class SubList<E> extends SubListAccessor<E> implements XList<E>
@@ -119,7 +119,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> addAll(final XGettingCollection<? extends E> elements)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).inputAll(this.startIndex + this.length, elements);
 		this.increment(((XList<E>)this.list).size() - oldListSize);
 		return this;
@@ -128,7 +128,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> addAll(final E[] elements, final int offset, final int length)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).inputAll(this.getEndIndex(), elements, offset, length);
 		this.increment(((XList<E>)this.list).size() - oldListSize);
 		return this;
@@ -302,7 +302,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	public final long insertAll(final long index, final E... elements)
 	{
 		this.checkIndex(index);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 
 		if(this.d > 0)
 		{
@@ -310,18 +310,18 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 		}
 		else
 		{
-			((XList<E>)this.list).insertAll(this.startIndex - index, JadothArrays.toReversed(elements));
+			((XList<E>)this.list).insertAll(this.startIndex - index, XArrays.toReversed(elements));
 		}
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
 	public final long insertAll(final long index, final E[] elements, final int offset, final int length)
 	{
 		this.checkIndex(index);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 
 		if(this.d > 0)
 		{
@@ -329,21 +329,21 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 		}
 		else
 		{
-			((XList<E>)this.list).insertAll(this.startIndex - index, JadothArrays.toReversed(elements, offset, length));
+			((XList<E>)this.list).insertAll(this.startIndex - index, XArrays.toReversed(elements, offset, length));
 		}
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
 	public final long insertAll(final long index, final XGettingCollection<? extends E> elements)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).insertAll(this.startIndex + index * this.d, elements);
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
@@ -370,7 +370,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	public final long inputAll(final long index, final E... elements)
 	{
 		this.checkIndex(index);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 
 		if(this.d > 0)
 		{
@@ -378,18 +378,18 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 		}
 		else
 		{
-			((XList<E>)this.list).inputAll(this.startIndex - index, JadothArrays.toReversed(elements));
+			((XList<E>)this.list).inputAll(this.startIndex - index, XArrays.toReversed(elements));
 		}
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
 	public final long inputAll(final long index, final E[] elements, final int offset, final int length)
 	{
 		this.checkIndex(index);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 
 		if(this.d > 0)
 		{
@@ -397,21 +397,21 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 		}
 		else
 		{
-			((XList<E>)this.list).inputAll(this.startIndex - index, JadothArrays.toReversed(elements, offset, length));
+			((XList<E>)this.list).inputAll(this.startIndex - index, XArrays.toReversed(elements, offset, length));
 		}
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
 	public final long inputAll(final long index, final XGettingCollection<? extends E> elements)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).inputAll(this.startIndex + index * this.d, elements);
 		final long increase;
 		this.increment(increase = ((XList<E>)this.list).size() - oldListSize);
-		return JadothTypes.to_int(increase);
+		return XTypes.to_int(increase);
 	}
 
 	@Override
@@ -423,9 +423,9 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final <P extends Consumer<? super E>> P process(final P procedure)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		XUtilsCollection.rngProcess((XProcessingList<E>)this.list, this.startIndex, this.length, procedure);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return procedure;
 	}
 
@@ -434,27 +434,27 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRemoveDuplicates((XProcessingList<E>)this.list, this.startIndex, this.length, equalator);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
 	public final E retrieve(final E element)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		final E e = XUtilsCollection.rngRetrieve((XProcessingList<E>)this.list, this.startIndex, this.length, element);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return e;
 	}
 
 	@Override
 	public final E retrieveBy(final Predicate<? super E> predicate)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		final E e = XUtilsCollection.rngRetrieve(
 			(XProcessingList<E>)this.list, this.startIndex, this.length, predicate
 		);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return e;
 	}
 
@@ -474,8 +474,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRemove((XProcessingList<E>)this.list, this.startIndex, this.length, element);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -483,8 +483,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRemoveAll((XProcessingList<E>)this.list, this.startIndex, this.length, elements);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -492,8 +492,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRemoveDuplicates((XProcessingList<E>)this.list, this.startIndex, this.length);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -501,8 +501,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRetainAll((XProcessingList<E>)this.list, this.startIndex, this.length, elements);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -510,8 +510,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngReduce((XProcessingList<E>)this.list, this.startIndex, this.length, predicate);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -559,9 +559,9 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final <C extends Consumer<? super E>> C moveTo(final C target, final Predicate<? super E> predicate)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		XUtilsCollection.rngMoveTo((XProcessingList<E>)this.list, this.startIndex, this.length, target, predicate);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return target;
 	}
 
@@ -578,9 +578,9 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final <C extends Consumer<? super E>> C moveSelection(final C target, final long... indices)
 	{
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).moveSelection(target, this.shiftIndices(indices));
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return target;
 	}
 
@@ -621,9 +621,9 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	public final SubList<E> removeRange(final long startIndex, final long length)
 	{
 		this.checkVector(startIndex, length);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).removeRange(this.startIndex + startIndex * this.d, length * this.d);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return this;
 	}
 
@@ -631,9 +631,9 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	public final SubList<E> retainRange(final long startIndex, final long length)
 	{
 		this.checkVector(startIndex, length);
-		final int oldListSize = JadothTypes.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XList<E>)this.list).retainRange(this.startIndex + startIndex * this.d, length * this.d);
-		this.decrement(oldListSize - JadothTypes.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return this;
 	}
 
@@ -642,8 +642,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		((XList<E>)this.list).removeSelection(this.shiftIndices(indices));
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -663,8 +663,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	{
 		final long removeCount, oldListSize = ((XList<E>)this.list).size();
 		XUtilsCollection.rngRemoveNull((XProcessingList<E>)this.list, this.startIndex, this.length);
-		this.decrement(removeCount = oldListSize - JadothTypes.to_int(this.list.size()));
-		return JadothTypes.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override

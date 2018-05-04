@@ -8,8 +8,8 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.exceptions.IORuntimeException;
-import net.jadoth.meta.JadothDebug;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.meta.XDebug;
+import net.jadoth.typing.XTypes;
 
 
 public interface NetworkMessageListener<S extends NetworkSession<?>> extends Runnable, Deactivateable
@@ -152,7 +152,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 		 */
 		protected boolean evaluateSessionException(final S session, final Exception e)
 		{
-			JadothDebug.debugln("Error in session " + session + ": " + e);
+			XDebug.debugln("Error in session " + session + ": " + e);
 			e.printStackTrace();
 			// simply kick out erroneous session in basic implementation and swallow exception
 			return true;
@@ -201,9 +201,9 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 		public synchronized int register(final S session, final int threshold)
 		{
 			// ignore closed sessions here to speed up registration. Closed sessions will be removed in next iteration.
-			if(JadothTypes.to_int(this.sessions.size()) >= threshold)
+			if(XTypes.to_int(this.sessions.size()) >= threshold)
 			{
-				return JadothTypes.to_int(this.sessions.size());
+				return XTypes.to_int(this.sessions.size());
 			}
 			this.sessions.add(session);
 			return 0;

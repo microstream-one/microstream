@@ -8,12 +8,8 @@ import java.lang.reflect.Method;
  * @author Thomas Muenz
  *
  */
-public final class JadothThreads
+public final class XThreads
 {
-	  //////////////////////
-	 //   Thread Utils   //
-	//////////////////////
-
 	public static final <T extends Thread> T start(final T thread)
 	{
 		thread.start();
@@ -55,7 +51,7 @@ public final class JadothThreads
 			@Override
 			public void run()
 			{
-				JadothThreads.sleep(millis);
+				XThreads.sleep(millis);
 				action.run();
 			}
 		}.start();
@@ -201,7 +197,7 @@ public final class JadothThreads
 
 
 
-	private JadothThreads()
+	private XThreads()
 	{
 		// static only
 		throw new UnsupportedOperationException();

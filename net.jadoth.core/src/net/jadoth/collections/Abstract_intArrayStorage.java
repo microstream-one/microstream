@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -14,7 +14,7 @@ import net.jadoth.functional._intIndexProcedure;
 import net.jadoth.functional._intPredicate;
 import net.jadoth.functional._intProcedure;
 import net.jadoth.math.FastRandom;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -1356,7 +1356,7 @@ public abstract class Abstract_intArrayStorage
 		finally
 		{
 			//even if predicate throws an execption, the remove markers have to be cleared
-			removeCount = JadothArrays.removeAllFromArray(data, 0, i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1454,7 +1454,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1560,7 +1560,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1711,7 +1711,7 @@ public abstract class Abstract_intArrayStorage
 		finally
 		{
 			//can't return until remove markers are cleared, so do this in any case
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1812,7 +1812,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1870,7 +1870,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1994,7 +1994,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2184,7 +2184,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, min, ++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, min, ++max, removeMarker);
 		}
 		return removeCount;
 	}
@@ -3541,7 +3541,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		final int endIndex = offset + length - d;
 
-		final Random r = JadothMath.random();
+		final Random r = XMath.random();
 		for(int i = offset - d, j; i != endIndex;)
 		{
 			final int t = data[i += d];

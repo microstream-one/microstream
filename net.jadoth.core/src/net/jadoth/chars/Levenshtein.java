@@ -45,8 +45,8 @@ public final class Levenshtein
 		// (30.07.2011)TODO maybe weight prefix and suffix matches exponentially or so. Maybe with maxLen again.
 		return
 			(max(
-				JadothChars.commonSubstringLength(c1, c2) - 1, JadothChars.commonPrefixLength(c1, c2),
-				JadothChars.commonSuffixLength(c1, c2)
+				XChars.commonSubstringLength(c1, c2) - 1, XChars.commonPrefixLength(c1, c2),
+				XChars.commonSuffixLength(c1, c2)
 			) / minLen
 			 + Levenshtein.similarity(c1, c2)
 			) / 2.0D

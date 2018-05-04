@@ -9,7 +9,7 @@ import net.jadoth.X;
 import net.jadoth.equality.Equalator;
 
 
-public final class JadothFunctional
+public final class XFunctional
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -220,7 +220,7 @@ public final class JadothFunctional
 
 	public static final Aggregator<Integer, Integer> max(final int initialValue)
 	{
-		return new JadothFunctional.MaxInteger(initialValue);
+		return new XFunctional.MaxInteger(initialValue);
 	}
 
 	public static final <E> AggregateCount<E> count()
@@ -649,7 +649,7 @@ public final class JadothFunctional
 	// constructors //
 	/////////////////
 	
-	private JadothFunctional()
+	private XFunctional()
 	{
 		// static only
 		throw new UnsupportedOperationException();

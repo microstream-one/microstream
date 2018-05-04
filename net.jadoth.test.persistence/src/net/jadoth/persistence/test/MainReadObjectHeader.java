@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
@@ -58,6 +58,6 @@ public class MainReadObjectHeader
 	}
 	static void printPadded(final String bits, final String label)
 	{
-		System.out.println(JadothChars.padLeft0(bits, 64)+" "+label);
+		System.out.println(XChars.padLeft0(bits, 64)+" "+label);
 	}
 }

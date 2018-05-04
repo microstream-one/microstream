@@ -3,7 +3,7 @@ package net.jadoth.concurrent;
 import java.util.function.Consumer;
 
 import net.jadoth.functional.ParallelProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestParallelProcedure
 {
@@ -33,7 +33,7 @@ public class MainTestParallelProcedure
 			{
 				procedure.accept(Integer.toString(r));
 			}
-			Thread.sleep(1000 + JadothMath.random(5000));
+			Thread.sleep(1000 + XMath.random(5000));
 			System.gc();
 //			break;
 		}

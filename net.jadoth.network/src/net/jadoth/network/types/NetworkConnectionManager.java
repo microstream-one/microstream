@@ -3,7 +3,7 @@ package net.jadoth.network.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public interface NetworkConnectionManager extends Suspendable
 {
@@ -67,7 +67,7 @@ public interface NetworkConnectionManager extends Suspendable
 
 		private void startListener()
 		{
-			final ListenerThread thread = new ListenerThread(JadothTypes.to_int(this.listeners.size()) + 1);
+			final ListenerThread thread = new ListenerThread(XTypes.to_int(this.listeners.size()) + 1);
 			this.listeners.add(thread);
 			thread.start();
 		}
@@ -90,7 +90,7 @@ public interface NetworkConnectionManager extends Suspendable
 
 		private void increaseListeners(final int desiredListenerCount)
 		{
-			while(JadothTypes.to_int(this.listeners.size()) < desiredListenerCount)
+			while(XTypes.to_int(this.listeners.size()) < desiredListenerCount)
 			{
 				this.startListener();
 			}
@@ -98,7 +98,7 @@ public interface NetworkConnectionManager extends Suspendable
 
 		private void decreaseListeners(final int desiredListenerCount)
 		{
-			while(JadothTypes.to_int(this.listeners.size()) > desiredListenerCount)
+			while(XTypes.to_int(this.listeners.size()) > desiredListenerCount)
 			{
 				this.stopListener();
 			}
@@ -111,7 +111,7 @@ public interface NetworkConnectionManager extends Suspendable
 			{
 				return;
 			}
-			else if(desiredListenerCount > JadothTypes.to_int(this.listeners.size()))
+			else if(desiredListenerCount > XTypes.to_int(this.listeners.size()))
 			{
 				this.increaseListeners(desiredListenerCount);
 			}

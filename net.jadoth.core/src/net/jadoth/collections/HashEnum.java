@@ -23,9 +23,9 @@ import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public final class HashEnum<E> extends AbstractChainCollection<E, E, E, ChainEntryLinkedStrong<E>>
@@ -301,7 +301,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
 		this.optimize();
-		return JadothTypes.to_int(this.size());
+		return XTypes.to_int(this.size());
 	}
 
 	@Override
@@ -351,7 +351,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)(minimalCapacity / this.hashDensity);
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -383,7 +383,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)((this.size + requiredFreeCapacity) / this.hashDensity);
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -403,7 +403,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final long optimize()
 	{
 		final int requiredCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
 		{
 			// (technical) magic value
 			if(this.slots.length != Integer.MAX_VALUE)
@@ -806,7 +806,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
 		this.consolidate();
-		if(this.size != JadothTypes.to_int(samples.size()))
+		if(this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -896,7 +896,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final HashEnum<E> addAll(final E[] elements, final int srcIndex, final int srcLength)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 		{
 			return this;
 		}
@@ -944,7 +944,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final HashEnum<E> putAll(final E[] elements, final int srcIndex, final int srcLength)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 		{
 			return this;
 		}

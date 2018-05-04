@@ -15,7 +15,7 @@ import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.AbstractSimpleArrayCollection;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.ListView;
 import net.jadoth.collections.SubList;
 import net.jadoth.collections.SubListView;
@@ -25,7 +25,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.
@@ -113,7 +113,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])JadothReflect.accessArray(this.subject);
+		return (E[])XReflect.accessArray(this.subject);
 	}
 
 	@Override
@@ -1075,7 +1075,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public XArrayList<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.internalGetStorageArray(), 0, this.subject.size(), comparator);
+		XSort.mergesort(this.internalGetStorageArray(), 0, this.subject.size(), comparator);
 		return this;
 	}
 

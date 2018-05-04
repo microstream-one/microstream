@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import java.util.HashSet;
 
 import net.jadoth.X;
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
@@ -135,7 +135,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Missing element collection helper instance for " + JadothStrings.systemString(instance)
+				"Missing element collection helper instance for " + XStrings.systemString(instance)
 			);
 		}
 		
@@ -143,7 +143,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + JadothStrings.systemString(instance)
+				"Inconsistent element collection helper instance for " + XStrings.systemString(instance)
 			);
 		}
 		
@@ -164,7 +164,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			if(!castedInstance.add(element))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException("Element hashing insistency in " + JadothStrings.systemString(castedInstance));
+				throw new RuntimeException("Element hashing insistency in " + XStrings.systemString(castedInstance));
 			}
 		}
 	}

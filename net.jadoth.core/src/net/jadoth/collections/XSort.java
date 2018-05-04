@@ -10,7 +10,7 @@ import net.jadoth.math.FastRandom;
 /**
  * @author Thomas Muenz
  */
-public final class JadothSort
+public final class XSort
 {
 	/*
 	 * Implementing high-peformance low-level sorting algorithms has a few special cases as far as
@@ -1379,7 +1379,7 @@ public final class JadothSort
 		}
 
 		// phase 2: sort distinct values(note that quicksort is stable for distinct values)
-		JadothSort.simpleQuicksort(target, distinctsLowBound, targetLast);
+		XSort.simpleQuicksort(target, distinctsLowBound, targetLast);
 
 		// phase 3: copy source values according to sortation of distinct values(distincts get flushed correctly)
 		for(int targetIndex = -1; distinctsLowBound <= targetLast; distinctsLowBound++)
@@ -1466,7 +1466,7 @@ public final class JadothSort
 		}
 
 		// phase 2: sort distinct values(note that sorting stability is irrelevant for distinct values)
-		JadothSort.simpleQuicksort(target, distinctsLowBound, targetLast, comparator);
+		XSort.simpleQuicksort(target, distinctsLowBound, targetLast, comparator);
 
 		// phase 3: copy source values according to sortation of distinct values(distincts get flushed correctly)
 		for(int targetIndex = start - 1; distinctsLowBound <= targetLast; distinctsLowBound++)
@@ -2370,7 +2370,7 @@ public final class JadothSort
 	// constructors //
 	/////////////////
 
-	private JadothSort()
+	private XSort()
 	{
 		// static only
 		throw new UnsupportedOperationException();

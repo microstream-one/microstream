@@ -3,7 +3,7 @@
  */
 package net.jadoth.entitydatamapping.test;
 
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 
 
@@ -27,11 +27,11 @@ public class MainTestAssignmentMethods
 		
 		mapper.printClause("Init");
 		
-		mapper.assignDataField(JadothReflect.getAnyField(TestEntity.class, stringValue), false);
+		mapper.assignDataField(XReflect.getAnyField(TestEntity.class, stringValue), false);
 		mapper.printClause("assignDataField /false");
 		
 		mapper.clearAssignments();
-		mapper.assignDataField(JadothReflect.getAnyField(TestEntity.class, stringValue), true);
+		mapper.assignDataField(XReflect.getAnyField(TestEntity.class, stringValue), true);
 		mapper.printClause("assignDataField /true");
 				
 		mapper.clearAssignments();

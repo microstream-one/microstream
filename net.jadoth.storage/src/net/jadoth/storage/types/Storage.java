@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import net.jadoth.chars.StringTable;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
@@ -294,7 +294,7 @@ public final class Storage
 	public static XGettingTable<String, String> readRefactoringMappings(final File file)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = JadothFiles.readStringFromFile(
+		final String fileContent = XFiles.readStringFromFile(
 			file,
 			Persistence.standardCharset(),
 			RuntimeException::new

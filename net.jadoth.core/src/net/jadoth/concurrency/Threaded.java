@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import net.jadoth.collections.interfaces.ConsolidatableCollection;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.memory.Instantiator;
 import net.jadoth.reference.Referencing;
 
@@ -88,9 +88,9 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	private static <E> Entry<E>[] createSlots(final int minimumLength)
 	{
 		// escape condition for highest int value that can be reached by leftshifting 1.
-		if(JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(minimumLength))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(minimumLength))
 		{
-			return new Entry[JadothMath.highestPowerOf2Integer()]; // technical magic number
+			return new Entry[XMath.highestPowerOf2Integer()]; // technical magic number
 		}
 
 		int slotCount = 1; // in this case small memory need is preferable to good low-grow performance.

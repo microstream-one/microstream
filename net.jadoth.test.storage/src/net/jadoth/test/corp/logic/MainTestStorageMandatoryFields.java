@@ -7,7 +7,7 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.util.StoreEager;
 import net.jadoth.test.corp.model.Address;
 import net.jadoth.test.corp.model.Person;
-import net.jadoth.time.JadothTime;
+import net.jadoth.time.XTime;
 
 
 public class MainTestStorageMandatoryFields
@@ -61,8 +61,8 @@ public class MainTestStorageMandatoryFields
 	static XList<Person> createTestData()
 	{
 		final Address a = new Address(null, null, null);
-		final Person p1 = new Person(JadothTime.now().toString(), "p1", "GenericGuy1", a);
-		final Person p2 = new Person(JadothTime.now().toString(), "p2", "GenericGuy2", a);
+		final Person p1 = new Person(XTime.now().toString(), "p1", "GenericGuy1", a);
+		final Person p2 = new Person(XTime.now().toString(), "p2", "GenericGuy2", a);
 		
 		return X.List(p1, p2);
 	}

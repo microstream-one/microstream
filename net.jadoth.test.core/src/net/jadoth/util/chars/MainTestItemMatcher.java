@@ -1,7 +1,7 @@
 package net.jadoth.util.chars;
 
-import static net.jadoth.collections.JadothArrays.shuffle;
-import static net.jadoth.math.JadothMath.random;
+import static net.jadoth.collections.XArrays.shuffle;
+import static net.jadoth.math.XMath.random;
 
 import java.util.function.BiConsumer;
 
@@ -11,7 +11,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 import net.jadoth.util.matching.ItemMatch;
 import net.jadoth.util.matching.ItemMatchResult;
 import net.jadoth.util.matching.ItemMatcher;
@@ -62,8 +62,8 @@ public class MainTestItemMatcher
 		final ItemMatch<String> match = STRING_MATCHER_FACTORY.match(src, trg);
 
 		System.out.println("INPUT:");
-		JadothDebug.printCollection(src, null, "\t", null, null);
-		JadothDebug.printCollection(trg, null, "\t", null, null);
+		XDebug.printCollection(src, null, "\t", null, null);
+		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
 		System.out.println(ItemMatcher.Static.assembleMappingSchemeVertical(match, VarString.New(), joiner));
@@ -127,8 +127,8 @@ public class MainTestItemMatcher
 
 
 		System.out.println("INPUT:");
-		JadothDebug.printCollection(src, null, "\t", null, null);
-		JadothDebug.printCollection(trg, null, "\t", null, null);
+		XDebug.printCollection(src, null, "\t", null, null);
+		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
 		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(match.getResult(), VarString.New(), joiner));

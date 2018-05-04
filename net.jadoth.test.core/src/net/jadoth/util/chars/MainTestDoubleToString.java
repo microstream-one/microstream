@@ -1,7 +1,7 @@
 package net.jadoth.util.chars;
 
-import net.jadoth.chars.JadothChars;
-import net.jadoth.math.JadothMath;
+import net.jadoth.chars.XChars;
+import net.jadoth.math.XMath;
 
 
 
@@ -194,10 +194,10 @@ public class MainTestDoubleToString
 		{
 			test(Math.random() * 1_000_000);
 			test(Math.random() * 5_000);
-			test(JadothMath.round(Math.random(), 3));
-			test(JadothMath.round(Math.random(), 6));
-			test(JadothMath.round(Math.random(), 8));
-			test(JadothMath.round(Math.random(), 9));
+			test(XMath.round(Math.random(), 3));
+			test(XMath.round(Math.random(), 6));
+			test(XMath.round(Math.random(), 8));
+			test(XMath.round(Math.random(), 9));
 			test(Math.random() * 5E200);
 			test(Math.random() / 100);
 			test(Math.random() / 1000);
@@ -208,7 +208,7 @@ public class MainTestDoubleToString
 	private static String toString(final double value)
 	{
 		final char[] buffer;
-		return new String(buffer = new char[JadothChars.maxCharCount_double()], 0, JadothChars.put(value, buffer, 0));
+		return new String(buffer = new char[XChars.maxCharCount_double()], 0, XChars.put(value, buffer, 0));
 	}
 
 

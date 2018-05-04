@@ -23,7 +23,7 @@ public final class CharConversion_float
 	{
 		// pure algorithm method intentionally without array bounds check. Use VarString etc. for that.
 
-		return JadothChars.put(Float.toString(value), target, offset);
+		return XChars.put(Float.toString(value), target, offset);
 	}
 
 

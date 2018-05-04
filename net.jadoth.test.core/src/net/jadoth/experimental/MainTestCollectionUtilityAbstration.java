@@ -3,14 +3,14 @@ package net.jadoth.experimental;
 import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.BulkList;
 import net.jadoth.functional.IsSame;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestCollectionUtilityAbstration
 {
 	static final int RUNS = 1000;
 	static final int RUNS2 = 10000;
 	static final int SIZE = 1000;
-	static final Integer[] INTS = JadothMath.sequence((Integer)(SIZE-1));
+	static final Integer[] INTS = XMath.sequence((Integer)(SIZE-1));
 
 	static final BulkList<Object> HEAP = new BulkList<>(RUNS);
 

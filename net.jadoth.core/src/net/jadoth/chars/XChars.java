@@ -29,7 +29,7 @@ import net.jadoth.memory.Memory;
  *
  * @author Thomas Muenz
  */
-public final class JadothChars
+public final class XChars
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -670,7 +670,7 @@ public final class JadothChars
 		int i = offset;
 		while(i < bound)
 		{
-			i = JadothChars.put(subject, chars, i);
+			i = XChars.put(subject, chars, i);
 		}
 	}
 
@@ -1230,7 +1230,7 @@ public final class JadothChars
 
 	public static final VarString convertUnderscoresToCamelCase(final VarString vs, final String s)
 	{
-		if(JadothChars.hasNoContent(s) || s.indexOf('_') < 0)
+		if(XChars.hasNoContent(s) || s.indexOf('_') < 0)
 		{
 			return vs.add(s);
 		}
@@ -1674,8 +1674,8 @@ public final class JadothChars
 
 		// negative values are covered implicitely via >>> operator
 		// CHECKSTYLE.OFF: MagicNumber: HexDec arithmetic
-		target[offset    ] = JadothChars.toHexadecimal(value >>> 4 & 0b1111);
-		target[offset + 1] = JadothChars.toHexadecimal(value       & 0b1111);
+		target[offset    ] = XChars.toHexadecimal(value >>> 4 & 0b1111);
+		target[offset + 1] = XChars.toHexadecimal(value       & 0b1111);
 		// CHECKSTYLE.ON: MagicNumber
 		return offset + 2;
 	}
@@ -1997,7 +1997,7 @@ public final class JadothChars
 
 		final int bound = lowerOffset + length;
 		int low = lowerOffset;
-		while(low < bound && JadothChars.isWhitespace(input[low]))
+		while(low < bound && XChars.isWhitespace(input[low]))
 		{
 			low++;
 		}
@@ -2008,7 +2008,7 @@ public final class JadothChars
 		}
 
 		int upper = lowerOffset + length - 1;
-		while(JadothChars.isWhitespace(input[upper]))
+		while(XChars.isWhitespace(input[upper]))
 		{
 			upper--;
 		}
@@ -2404,7 +2404,7 @@ public final class JadothChars
 	}
 
 
-	private JadothChars()
+	private XChars()
 	{
 		// static only
 		throw new UnsupportedOperationException();

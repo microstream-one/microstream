@@ -9,7 +9,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XPrependingEnum;
 import net.jadoth.collections.types.XPrependingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface PersistenceTypeAnalyzer
@@ -36,9 +36,9 @@ public interface PersistenceTypeAnalyzer
 		)
 		{
 
-			JadothReflect.collectTypedFields(collection, entityType, field ->
+			XReflect.collectTypedFields(collection, entityType, field ->
 				{
-					if(!JadothReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
+					if(!XReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
 					{
 						return false;
 					}
@@ -101,7 +101,7 @@ public interface PersistenceTypeAnalyzer
 			 * This is meant by design and not an error. If it turns out to cause problems, it has to be fixed
 			 * and commented in here accordingly.
 			 */
-			if(JadothReflect.isAbstract(type))
+			if(XReflect.isAbstract(type))
 			{
 				return persistableFields; // handle abstract types as having no fields at all / stateless types.
 			}

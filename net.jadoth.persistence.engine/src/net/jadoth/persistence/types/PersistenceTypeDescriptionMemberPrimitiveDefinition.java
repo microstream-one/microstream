@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.memory.Memory;
 
@@ -90,39 +90,39 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 			// trim string just in case, will be very fast / won't create a new instance if unnecessary
 			final String trimmed = primitiveDefinition.trim();
 
-			if(JadothChars.equals(trimmed, DEFINITION_byte, 0))
+			if(XChars.equals(trimmed, DEFINITION_byte, 0))
 			{
 				return byte.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_boolean, 0))
+			if(XChars.equals(trimmed, DEFINITION_boolean, 0))
 			{
 				return boolean.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_short, 0))
+			if(XChars.equals(trimmed, DEFINITION_short, 0))
 			{
 				return short.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_char, 0))
+			if(XChars.equals(trimmed, DEFINITION_char, 0))
 			{
 				return char.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_int, 0))
+			if(XChars.equals(trimmed, DEFINITION_int, 0))
 			{
 				return int.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_float, 0))
+			if(XChars.equals(trimmed, DEFINITION_float, 0))
 			{
 				return float.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_long, 0))
+			if(XChars.equals(trimmed, DEFINITION_long, 0))
 			{
 				return long.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_double, 0))
+			if(XChars.equals(trimmed, DEFINITION_double, 0))
 			{
 				return double.class;
 			}
-			if(JadothChars.equals(trimmed, DEFINITION_void, 0))
+			if(XChars.equals(trimmed, DEFINITION_void, 0))
 			{
 				return void.class;
 			}

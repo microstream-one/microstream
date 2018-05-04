@@ -1,6 +1,6 @@
 package net.jadoth.persistence.exceptions;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
 
@@ -90,7 +90,7 @@ public class PersistenceExceptionTypeHandlerConsistencyWrongHandler extends Pers
 	@Override
 	public String getMessage()
 	{
-		return "Wrong handler for type: \"" + this.type + "\": " + JadothStrings.systemString(this.typeHandler)
+		return "Wrong handler for type: \"" + this.type + "\": " + XStrings.systemString(this.typeHandler)
 			+ " with type \"" + this.typeHandler.type() + "\"."
 			+ (super.getMessage() != null ? " Details: " + super.getMessage() : "")
 		;

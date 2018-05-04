@@ -9,7 +9,7 @@ import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 
@@ -47,7 +47,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public HashMapObjectId(final int slotSize)
 	{
 		super();
-		final int cappedSlotSize = JadothMath.pow2BoundCapped(slotSize);
+		final int cappedSlotSize = XMath.pow2BoundCapped(slotSize);
 		this.slots = new Entry[cappedSlotSize];
 		this.modulo = cappedSlotSize - 1;
 	}
@@ -284,7 +284,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public long optimize()
 	{
 		final int newCapacity;
-		if((newCapacity = JadothMath.pow2BoundCapped(this.size)) != this.slots.length)
+		if((newCapacity = XMath.pow2BoundCapped(this.size)) != this.slots.length)
 		{
 			this.rebuild(newCapacity);
 		}

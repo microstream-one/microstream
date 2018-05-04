@@ -15,7 +15,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 public class SubListView<E> implements XGettingList<E>
@@ -66,7 +66,7 @@ public class SubListView<E> implements XGettingList<E>
 		{
 			size = toIndex - fromIndex + 1;
 			length = size;
-			if(fromIndex < 0 || toIndex >= JadothTypes.to_int(list.size()))
+			if(fromIndex < 0 || toIndex >= XTypes.to_int(list.size()))
 			{
 				throw new IndexOutOfBoundsException(this.exceptionStringRange(fromIndex, size));
 			}
@@ -75,7 +75,7 @@ public class SubListView<E> implements XGettingList<E>
 		{
 			size = fromIndex - toIndex + 1;
 			length = -size;
-			if(toIndex < 0 || fromIndex >= JadothTypes.to_int(list.size()))
+			if(toIndex < 0 || fromIndex >= XTypes.to_int(list.size()))
 			{
 				throw new IndexOutOfBoundsException(this.exceptionStringRange(toIndex, size));
 			}
@@ -184,7 +184,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.size || !(samples instanceof SubList<?>))
+		if(samples == null || XTypes.to_int(samples.size()) != this.size || !(samples instanceof SubList<?>))
 		{
 			return false;
 		}
@@ -425,7 +425,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public long maximumCapacity()
 	{
-		return this.list.maximumCapacity() - JadothTypes.to_int(this.list.size()) + this.size; // complicated ^^
+		return this.list.maximumCapacity() - XTypes.to_int(this.list.size()) + this.size; // complicated ^^
 	}
 
 	@Override

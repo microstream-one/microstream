@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import net.jadoth.X;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.storage.types.StorageConnection;
 
 
@@ -68,7 +68,7 @@ public class MainTestStorageExport extends TestStorage
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File("C:/Files/export/bin")),
+			XFiles.ensureDirectory(new File("C:/Files/export/bin")),
 			"dat"
 		);
 		convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));

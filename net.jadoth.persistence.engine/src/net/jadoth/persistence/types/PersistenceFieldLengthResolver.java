@@ -3,7 +3,7 @@ package net.jadoth.persistence.types;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 
 
@@ -30,11 +30,11 @@ public interface PersistenceFieldLengthResolver
 			return this.variableLengthTypeMinimumLength(declaringTypeName, memberName, typeName);
 		}
 
-		if(JadothReflect.isPrimitiveTypeName(typeName))
+		if(XReflect.isPrimitiveTypeName(typeName))
 		{
 			try
 			{
-				return this.resolveMinimumLengthFromPrimitiveType(JadothReflect.classForName(typeName));
+				return this.resolveMinimumLengthFromPrimitiveType(XReflect.classForName(typeName));
 			}
 			catch(LinkageError | ClassNotFoundException e)
 			{
@@ -61,11 +61,11 @@ public interface PersistenceFieldLengthResolver
 			return this.variableLengthTypeMaximumLength(declaringTypeName, memberName, typeName);
 		}
 
-		if(JadothReflect.isPrimitiveTypeName(typeName))
+		if(XReflect.isPrimitiveTypeName(typeName))
 		{
 			try
 			{
-				return this.resolveMaximumLengthFromPrimitiveType(JadothReflect.classForName(typeName));
+				return this.resolveMaximumLengthFromPrimitiveType(XReflect.classForName(typeName));
 			}
 			catch(LinkageError | ClassNotFoundException e)
 			{

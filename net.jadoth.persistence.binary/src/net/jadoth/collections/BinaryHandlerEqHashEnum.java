@@ -13,7 +13,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -37,7 +37,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Memory.byteSize_float()        // offset for one float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = JadothReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
+	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
 
 
 

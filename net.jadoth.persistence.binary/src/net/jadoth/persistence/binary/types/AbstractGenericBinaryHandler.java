@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.functional.JadothFunctional.not;
+import static net.jadoth.functional.XFunctional.not;
 
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.exceptions.TypeCastException;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
@@ -20,12 +20,12 @@ import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
@@ -41,7 +41,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		final Predicate<Field>... predicates
 	)
 	{
-		return allFields.filterTo(EqHashEnum.<Field>New(), JadothFunctional.all(predicates)).immure();
+		return allFields.filterTo(EqHashEnum.<Field>New(), XFunctional.all(predicates)).immure();
 	}
 
 	protected static long calculateOffsets(
@@ -168,9 +168,9 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		Memory.ensureClassInitialized(type);
 
-		this.allFields    =  filter(allFields, not(JadothReflect::isStatic)                                 );
-		this.refFields    =  filter(allFields, not(JadothReflect::isStatic), not(JadothReflect::isPrimitive));
-		this.prmFields    =  filter(allFields, not(JadothReflect::isStatic),     JadothReflect::isPrimitive );
+		this.allFields    =  filter(allFields, not(XReflect::isStatic)                                 );
+		this.refFields    =  filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
+		this.prmFields    =  filter(allFields, not(XReflect::isStatic),     XReflect::isPrimitive );
 		final Field[]
 			allFieldsDeclOrder = this.allFields.toArray(Field.class),
 			refFieldsDeclOrder = this.refFields.toArray(Field.class),
@@ -205,10 +205,10 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		// references are always stored at beginning
 		this.refBinStartOffset = BinaryPersistence.entityBinaryPosition(0);
 		this.refBinBoundOffset = BinaryPersistence.entityBinaryPosition(
-			BinaryPersistence.referenceBinaryLength(JadothTypes.to_int(this.refFields.size()))
+			BinaryPersistence.referenceBinaryLength(XTypes.to_int(this.refFields.size()))
 		);
 
-		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(JadothTypes.to_int(allFields.size()));
+		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(XTypes.to_int(allFields.size()));
 		createTypeDescriptionMembers(allFieldsPersOrder, lengthResolver, members);
 
 		/* (21.10.2014 TM)XXX: binary handler declaration order or persistent order?

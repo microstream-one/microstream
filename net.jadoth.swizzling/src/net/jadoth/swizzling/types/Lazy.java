@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.reference.LazyReferencing;
 
 
@@ -295,7 +295,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	{
 		return this.subject == null
 			? "(" + this.objectId + ")"
-			: this.objectId + " " + JadothStrings.systemString(this.subject)
+			: this.objectId + " " + XStrings.systemString(this.subject)
 		;
 	}
 

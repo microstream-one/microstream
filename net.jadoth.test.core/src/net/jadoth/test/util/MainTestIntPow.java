@@ -5,7 +5,7 @@ package net.jadoth.test.util;
 
 import java.text.DecimalFormat;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 /**
  * @author Thomas Muenz
@@ -31,7 +31,7 @@ public class MainTestIntPow
 				tStart = System.nanoTime();
 				for(int i = 0; i < COUNT; i++)
 				{
-					JadothMath.pow(10, EXPONENT);
+					XMath.pow(10, EXPONENT);
 				}
 				tStop = System.nanoTime();
 				System.out.println("Elapsed Time: " + new DecimalFormat("00,000,000,000").format(tStop - tStart));

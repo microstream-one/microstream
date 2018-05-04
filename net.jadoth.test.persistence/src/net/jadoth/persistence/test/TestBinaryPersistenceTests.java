@@ -2,9 +2,9 @@ package net.jadoth.persistence.test;
 
 import java.util.Arrays;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.DebugGraphPrinter;
@@ -24,7 +24,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testPersist(final PersistenceManager<Binary> persistenceManager)
 	{
-		JadothDebug.debugln("Persisting...");
+		XDebug.debugln("Persisting...");
 //		new TestPerson(5);
 		for(int i = 1; i --> 0;)
 		{
@@ -94,7 +94,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static Object testBuilding(final PersistenceManager<Binary> persistenceManager)
 	{
-		JadothDebug.debugln("Loading...");
+		XDebug.debugln("Loading...");
 		final Object loaded = persistenceManager.get(1100000000000070001L);
 		System.out.println(loaded);
 //		System.out.println(Arrays.toString((int[])loaded));
@@ -103,7 +103,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 //		objRegistry.iterate(System_out_println);
 //
-		JadothDebug.debugln("printing arrays:");
+		XDebug.debugln("printing arrays:");
 //		System.out.println("---");
 //		System.out.println("orignl: "+Arrays.toString(TestBinaryObjects.indices));
 //		System.out.println("loaded: "+Arrays.toString((int[])((Object[])loaded)[0]));
@@ -125,7 +125,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		{
 			Arrays.toString((Object[])object);
 		}
-		return JadothStrings.valueString(object);
+		return XStrings.valueString(object);
 	}
 
 	static void testWriteStateDefs(final BinaryPersistenceFoundation factory)
@@ -136,7 +136,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 	static void testReadStateDefs(final BinaryPersistenceFoundation factory)
 	{
 		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideDictionary();
-		JadothDebug.debugln('\n'+typeDictionary.toString());
+		XDebug.debugln('\n'+typeDictionary.toString());
 	}
 
 	static void resetRegistries(final BinaryPersistenceFoundation factory)

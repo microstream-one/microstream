@@ -15,7 +15,7 @@ import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 public final class TableView<K, V> implements XGettingTable<K, V>
@@ -349,7 +349,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	@Override
 	public final long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

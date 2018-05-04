@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.Singleton;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;
@@ -106,7 +106,7 @@ public final class EmbeddedStorage
 	
 	public static EmbeddedStorageFoundation createFoundation(final File directory)
 	{
-		JadothFiles.ensureDirectory(directory);
+		XFiles.ensureDirectory(directory);
 
 		return createFoundation(
 			Storage.FileProvider(directory),
@@ -119,7 +119,7 @@ public final class EmbeddedStorage
 		final PersistenceRootResolver rootResolver
 	)
 	{
-		JadothFiles.ensureDirectory(directory);
+		XFiles.ensureDirectory(directory);
 
 		return createFoundation(
 			Storage.FileProvider(directory),
@@ -137,7 +137,7 @@ public final class EmbeddedStorage
 		final StorageEntityCacheEvaluator   entityCacheEvaluator
 	)
 	{
-		JadothFiles.ensureDirectory(directory);
+		XFiles.ensureDirectory(directory);
 
 		return createFoundation(
 			Storage.Configuration(

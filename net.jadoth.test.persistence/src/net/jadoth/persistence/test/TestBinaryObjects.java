@@ -1,10 +1,10 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
 
 import java.util.Arrays;
 
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 
 public class TestBinaryObjects
 {
@@ -23,7 +23,7 @@ public class TestBinaryObjects
 //			0,
 //			objects = new Object[orig_objects.length]
 //		);
-		JadothDebug.debugln(
+		XDebug.debugln(
 			"Test Arrays:\n"
 			+Arrays.toString(orig_objects)+"\n"
 			+Arrays.toString(indices)+"\n"

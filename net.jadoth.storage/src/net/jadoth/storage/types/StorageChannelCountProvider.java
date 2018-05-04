@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.reference._intReference;
 
 
@@ -47,7 +47,7 @@ public interface StorageChannelCountProvider extends _intReference
 				// (16.04.2016)EXCP: properly typed exception
 				throw new IllegalArgumentException("Insane channel counts are not supported");
 			}
-			this.channelCount = JadothMath.positive(channelCount);
+			this.channelCount = XMath.positive(channelCount);
 		}
 
 

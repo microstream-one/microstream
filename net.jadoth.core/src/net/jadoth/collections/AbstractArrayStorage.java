@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -31,11 +31,11 @@ import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsNull;
 import net.jadoth.functional.IsSame;
 import net.jadoth.functional.IsSmaller;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.math.FastRandom;
-import net.jadoth.math.JadothMath;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -811,7 +811,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, JadothFunctional.wrapWithPredicate(procedure, predicate));
+		forwardIterate(data, lowOffset, highBound, XFunctional.wrapWithPredicate(procedure, predicate));
 	}
 
 	public static final <E> void reverseConditionalIterate(
@@ -822,7 +822,7 @@ public abstract class AbstractArrayStorage
 		final Consumer<? super E> procedure
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, JadothFunctional.wrapWithPredicate(procedure, predicate));
+		reverseIterate(data, highOffset, lowEnd, XFunctional.wrapWithPredicate(procedure, predicate));
 	}
 
 
@@ -1082,13 +1082,13 @@ public abstract class AbstractArrayStorage
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			// directly check array against array without predicate function or method calls
-			return JadothArrays.uncheckedContainsAll(
+			return XArrays.uncheckedContainsAll(
 				data,
 				0,
 				size,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -1111,13 +1111,13 @@ public abstract class AbstractArrayStorage
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			// directly check array against array without predicate function or method calls
-			return JadothArrays.uncheckedContainsAll(
+			return XArrays.uncheckedContainsAll(
 				data,
 				length >= 0 ? offset          : offset + length + 1,
 				length >= 0 ? offset + length : offset + 1,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -1143,13 +1143,13 @@ public abstract class AbstractArrayStorage
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			// directly check array against array without predicate function or method calls
-			return JadothArrays.uncheckedContainsAll(
+			return XArrays.uncheckedContainsAll(
 				data,
 				0,
 				size,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size()),
+				XTypes.to_int(elements.size()),
 				equalator
 			);
 		}
@@ -1306,7 +1306,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		forwardIterate(data, lowOffset, highBound, JadothFunctional.wrapWithPredicate(target, predicate));
+		forwardIterate(data, lowOffset, highBound, XFunctional.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -1318,7 +1318,7 @@ public abstract class AbstractArrayStorage
 		final Predicate<? super E> predicate
 	)
 	{
-		reverseIterate(data, highOffset, lowEnd, JadothFunctional.wrapWithPredicate(target, predicate));
+		reverseIterate(data, highOffset, lowEnd, XFunctional.wrapWithPredicate(target, predicate));
 		return target;
 	}
 
@@ -1458,7 +1458,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			da:
 			for(int di = 0; di < size; di++)
 			{
@@ -1504,7 +1504,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			da:
 			for(int di = 0; di < size; di++)
 			{
@@ -1553,7 +1553,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			ch:
 			for(int i = 0; i < size; i++)
 			{
@@ -1615,7 +1615,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			da:
 			for(int di = offset; di != bound; di += d)
 			{
@@ -1670,7 +1670,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			da:
 			for(int di = offset; di != bound; di += d)
 			{
@@ -1728,7 +1728,7 @@ public abstract class AbstractArrayStorage
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)samples
 			);
-			final int arrayLength = JadothTypes.to_int(samples.size());
+			final int arrayLength = XTypes.to_int(samples.size());
 			ar:
 			for(int i = 0; i < arrayLength; i++)
 			{
@@ -2052,7 +2052,7 @@ public abstract class AbstractArrayStorage
 		}
 
 		// shut up FindBugs ..
-		return JadothArrays.removeAllFromArray(null, data, start, bound);
+		return XArrays.removeAllFromArray(null, data, start, bound);
 	}
 
 	// reducing //
@@ -2085,7 +2085,7 @@ public abstract class AbstractArrayStorage
 		finally
 		{
 			//even if predicate throws an execption, the remove markers have to be cleared
-			removeCount = JadothArrays.removeAllFromArray(data, 0, size, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, size, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2143,7 +2143,7 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		if(JadothTypes.to_int(elements.size()) == 0)
+		if(XTypes.to_int(elements.size()) == 0)
 		{
 			// effectively clear the array, return size as remove count.
 			for(int i = size; i-- > 0;)
@@ -2172,7 +2172,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2243,7 +2243,7 @@ public abstract class AbstractArrayStorage
 		final E removeMarker
 	)
 	{
-		if(JadothTypes.to_int(samples.size()) == 0)
+		if(XTypes.to_int(samples.size()) == 0)
 		{
 			// effectively clear the array, return size as remove count.
 			for(int i = size; i-- > 0;)
@@ -2260,7 +2260,7 @@ public abstract class AbstractArrayStorage
 		{
 			while(i < lastIndex)
 			{
-				if(!samples.containsSearched(JadothFunctional.predicate(data[++i], equalator)))
+				if(!samples.containsSearched(XFunctional.predicate(data[++i], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -2272,7 +2272,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2301,7 +2301,7 @@ public abstract class AbstractArrayStorage
 			while(i != endIndex)
 			{
 				// let equalator decide on every element (even multiple nulls)
-				if(!samples.containsSearched(JadothFunctional.predicate(data[i += d], equalator)))
+				if(!samples.containsSearched(XFunctional.predicate(data[i += d], equalator)))
 				{
 					data[i] = removeMarker;
 				}
@@ -2436,7 +2436,7 @@ public abstract class AbstractArrayStorage
 		finally
 		{
 			//can't return until remove markers are cleared, so do this in any case
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2545,7 +2545,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2628,7 +2628,7 @@ public abstract class AbstractArrayStorage
 			throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 		}
 
-		if(JadothTypes.to_int(samples.size()) == 0)
+		if(XTypes.to_int(samples.size()) == 0)
 		{
 			return 0;
 		}
@@ -2805,7 +2805,7 @@ public abstract class AbstractArrayStorage
 		}
 
 		// actual moving
-		final int removeCount = JadothArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
+		final int removeCount = XArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
 
 		return removeCount;
 	}
@@ -3517,7 +3517,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			replaceCount = JadothArrays.replaceAllInArray(data, 0, size, marker, newElement);
+			replaceCount = XArrays.replaceAllInArray(data, 0, size, marker, newElement);
 		}
 		return replaceCount;
 	}
@@ -3578,7 +3578,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			replaceCount = JadothArrays.replaceAllInArray(data, 0, size, marker, newElement);
+			replaceCount = XArrays.replaceAllInArray(data, 0, size, marker, newElement);
 		}
 		return replaceCount;
 	}
@@ -3603,7 +3603,7 @@ public abstract class AbstractArrayStorage
 		int replaceCount = 0;
 		for(int i = offset - d; i != endIndex;)
 		{
-			if(samples.containsSearched(JadothFunctional.predicate(data[i += d], equalator)))
+			if(samples.containsSearched(XFunctional.predicate(data[i += d], equalator)))
 			{
 				data[i] = newElement;
 				replaceCount++;
@@ -4379,11 +4379,11 @@ public abstract class AbstractArrayStorage
 		validateRange0toUpperBound(size, offset, length);
 		if(length >= 0)
 		{
-			JadothSort.quicksort(data, offset, offset + length, comparator);
+			XSort.quicksort(data, offset, offset + length, comparator);
 		}
 		else
 		{
-			JadothSort.quicksort(data, offset + length + 1, offset + 1, comparator);
+			XSort.quicksort(data, offset + length + 1, offset + 1, comparator);
 		}
 	}
 
@@ -4402,7 +4402,7 @@ public abstract class AbstractArrayStorage
 			{
 				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 			}
-			JadothSort.mergesort(data, offset, endIndex + 1, comparator);
+			XSort.mergesort(data, offset, endIndex + 1, comparator);
 		}
 		else if(length < 0)
 		{
@@ -4410,7 +4410,7 @@ public abstract class AbstractArrayStorage
 			{
 				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 			}
-			JadothSort.mergesort(data, endIndex, offset + 1, comparator);
+			XSort.mergesort(data, endIndex, offset + 1, comparator);
 		}
 		else if(offset < 0 || offset >= size)
 		{
@@ -4434,7 +4434,7 @@ public abstract class AbstractArrayStorage
 			{
 				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 			}
-			JadothSort.mergesort(data, offset, endIndex + 1, comparator);
+			XSort.mergesort(data, offset, endIndex + 1, comparator);
 		}
 		else if(length < 0)
 		{
@@ -4442,7 +4442,7 @@ public abstract class AbstractArrayStorage
 			{
 				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 			}
-			JadothSort.mergesort(data, endIndex, offset + 1, comparator);
+			XSort.mergesort(data, endIndex, offset + 1, comparator);
 		}
 		else if(offset < 0 || offset >= size)
 		{
@@ -4474,7 +4474,7 @@ public abstract class AbstractArrayStorage
 		}
 		final int endIndex = offset + length - d;
 
-		final Random r = JadothMath.random();
+		final Random r = XMath.random();
 		for(int i = offset - d, j; i != endIndex;)
 		{
 			final E t = data[i += d];
@@ -4623,7 +4623,7 @@ public abstract class AbstractArrayStorage
 	{
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return JadothArrays.equals(
+			return XArrays.equals(
 				data,
 				0,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection),
@@ -4653,14 +4653,14 @@ public abstract class AbstractArrayStorage
 		final Equalator<? super E>            equalator
 	)
 	{
-		if(size != JadothTypes.to_int(samples.size()))
+		if(size != XTypes.to_int(samples.size()))
 		{
 			return false; // content can only be equal if sizes are equal
 		}
 
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return JadothArrays.equals(
+			return XArrays.equals(
 				data,
 				0,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
@@ -4738,14 +4738,14 @@ public abstract class AbstractArrayStorage
 		final Equalator<? super E> equalator
 	)
 	{
-		if(size != JadothTypes.to_int(sequence.size()))
+		if(size != XTypes.to_int(sequence.size()))
 		{
 			return false; // content can only be equal if sizes are equal
 		}
 
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return JadothArrays.equals(
+			return XArrays.equals(
 				data,
 				offset,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
@@ -4758,7 +4758,7 @@ public abstract class AbstractArrayStorage
 		final int d; // bi-directional index movement
 		if((d = checkIterationDirection(size, offset, length)) == 0)
 		{
-			return JadothTypes.to_int(sequence.size()) == 0;
+			return XTypes.to_int(sequence.size()) == 0;
 		}
 
 		if(d < 0)

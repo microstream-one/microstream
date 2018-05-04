@@ -1,16 +1,7 @@
 package net.jadoth.chars;
 
-public class JadothStrings
+public class XStrings
 {
-	
-	
-	
-	private JadothStrings()
-	{
-		// static only
-		throw new UnsupportedOperationException();
-	}
-
 	/**
 	 * Utility method that replicates the JVM's intrinsic system string as defined in {@link Object#toString()}.
 	 * (It's funny how much functionality is missing in the JDK API).
@@ -56,6 +47,18 @@ public class JadothStrings
 	public static String valueString(final Object value)
 	{
 		return value == null ? null : value.toString();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	private XStrings()
+	{
+		// static only
+		throw new UnsupportedOperationException();
 	}
 	
 }

@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public final class JadothTime
+public final class XTime
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -143,7 +143,7 @@ public final class JadothTime
 		return Calendar.getInstance().get(Calendar.YEAR);
 	}
 
-	private JadothTime()
+	private XTime()
 	{
 		// static only
 		throw new UnsupportedOperationException();

@@ -8,7 +8,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XEnum;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageConnection;
@@ -16,8 +16,8 @@ import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.storage.types.StorageRawFileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.time.JadothTime;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.time.XTime;
+import net.jadoth.typing.XTypes;
 
 
 public class MainTestStorage extends TestStorage
@@ -60,7 +60,7 @@ public class MainTestStorage extends TestStorage
 
 	static void createBigGraph(final int p6size, final StorageConnection connection)
 	{
-		JadothDebug.debugln("big graph initialization ("+p6size+")");
+		XDebug.debugln("big graph initialization ("+p6size+")");
 		final Integer[][][][][][] ints0 = new Integer[p6size][p6size][p6size][p6size][p6size][p6size];
 		for(int i0 = 0; i0 < ints0.length; i0++)
 		{
@@ -87,9 +87,9 @@ public class MainTestStorage extends TestStorage
 			}
 		}
 		ROOT.set(Lazy.Reference(ints0));
-		JadothDebug.debugln("store big graph ...");
+		XDebug.debugln("store big graph ...");
 		connection.store(ROOT);
-		JadothDebug.debugln("store big graph done");
+		XDebug.debugln("store big graph done");
 	}
 
 
@@ -98,7 +98,7 @@ public class MainTestStorage extends TestStorage
 //		JadothThreads.sleep(2000);
 		for(int i = 1000; i --> 0;)
 		{
-			JadothDebug.debugln("round "+i);
+			XDebug.debugln("round "+i);
 
 			// do one round of explicitely issued house keeping
 			connection.store(instance);
@@ -123,15 +123,15 @@ public class MainTestStorage extends TestStorage
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		JadothDebug.debugln("GC#1");
+		XDebug.debugln("GC#1");
 		connection.issueFullGarbageCollection();
-		JadothDebug.debugln("GC#2");
+		XDebug.debugln("GC#2");
 		connection.issueFullGarbageCollection();
-		JadothDebug.debugln("cache check");
+		XDebug.debugln("cache check");
 		connection.issueFullCacheCheck();
-		JadothDebug.debugln("file check");
+		XDebug.debugln("file check");
 		connection.issueFullFileCheck();
-		JadothDebug.debugln("Done cleanup");
+		XDebug.debugln("Done cleanup");
 	}
 
 	static void oldTestStuff()
@@ -287,7 +287,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<Integer> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothDebug.debugln("initial storing root...");
+		XDebug.debugln("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		createIntegers(ints, 100_000);
@@ -318,7 +318,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothDebug.debugln("initial storing root...");
+		XDebug.debugln("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		for(int i = 0; i < 100; i++)
@@ -359,7 +359,7 @@ public class MainTestStorage extends TestStorage
 
 	static BulkList<Integer> createIntegers(final BulkList<Integer> ints, final int size)
 	{
-		final int first = 5001 + JadothTypes.to_int(ints.size());
+		final int first = 5001 + XTypes.to_int(ints.size());
 		final int bound = first + size;
 		for(int i = first; i < bound; i++)
 		{
@@ -438,8 +438,8 @@ public class MainTestStorage extends TestStorage
 	{
 		return X.List(
 			X.List(
-				new Person("Alice", "A", null, JadothTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
-				new Person("Bob"  , "B", null, JadothTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
+				new Person("Alice", "A", null, XTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
+				new Person("Bob"  , "B", null, XTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
 				),
 				new Date[][][]{
 				{
@@ -488,7 +488,7 @@ public class MainTestStorage extends TestStorage
 		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
-		JadothDebug.debugln(s.toString());
+		XDebug.debugln(s.toString());
 	}
 
 }

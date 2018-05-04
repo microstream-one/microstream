@@ -3,8 +3,8 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.Date;
 
-import net.jadoth.concurrency.JadothThreads;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.StorageConnection;
@@ -95,7 +95,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -258,7 +258,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 	{
 		final File dir = new File("c:/Files");
 		System.out.println("Resetting "+dir);
-		JadothDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir, false);
 		System.out.println("done");
 	}
 

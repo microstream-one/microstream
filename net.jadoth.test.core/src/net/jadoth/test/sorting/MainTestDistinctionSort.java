@@ -1,6 +1,6 @@
 package net.jadoth.test.sorting;
 
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 
 public class MainTestDistinctionSort
 {
@@ -31,7 +31,7 @@ public class MainTestDistinctionSort
 		{
 			final int[] values = Sort.fewUnique(SIZE, THRESHOLD);
 //			Sort.print("input :", values);
-			JadothSort.bufferDistinctsort(values, new int[values.length]);
+			XSort.bufferDistinctsort(values, new int[values.length]);
 //			JaSort.bufferDistinctSortOld(values, new int[values.length], values.length);
 //			JaSort.bufferDistinctSort(values, new int[values.length], values.length);
 //			JaSort.bufferDistinctSort(values, new int[values.length]);

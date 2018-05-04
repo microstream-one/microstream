@@ -3,7 +3,7 @@ package net.jadoth.network.test.sessionless;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 
 /**
@@ -36,7 +36,7 @@ public class MainTestSessionlessClient
 				System.out.println(System.currentTimeMillis()+" Server said: "+answer);
 			}
 			finally {
-				JadothFiles.closeSilent(channel);
+				XFiles.closeSilent(channel);
 				System.gc();
 			}
 		}

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
 import java.lang.reflect.Field;
 

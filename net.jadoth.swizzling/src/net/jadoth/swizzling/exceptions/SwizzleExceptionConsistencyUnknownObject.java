@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.exceptions;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 
 
 
@@ -75,7 +75,7 @@ public class SwizzleExceptionConsistencyUnknownObject extends SwizzleExceptionCo
 	@Override
 	public String getMessage()
 	{
-		return "Unknown object: " + JadothStrings.systemString(this.object)
+		return "Unknown object: " + XStrings.systemString(this.object)
 			+ (super.getMessage() != null ? " Details: " + super.getMessage() : "")
 		;
 	}

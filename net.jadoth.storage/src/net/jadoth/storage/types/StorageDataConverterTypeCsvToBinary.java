@@ -12,14 +12,14 @@ import java.util.Iterator;
 import net.jadoth.X;
 import net.jadoth.chars.CsvParserCharArray;
 import net.jadoth.chars.EscapeHandler;
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -257,7 +257,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_byte(JadothChars.parse_byteDecimal(data, offset, j - offset + 1));
+			this.write_byte(XChars.parse_byteDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -282,14 +282,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 			final int literalLength = j - offset + 1;
 			if(literalLength == this.literalTrue.length
-			&& JadothChars.equals(data, offset, this.literalTrue, 0, this.literalTrue.length)
+			&& XChars.equals(data, offset, this.literalTrue, 0, this.literalTrue.length)
 			)
 			{
 				this.write_boolean(true);
 				return i;
 			}
 			if(literalLength == this.literalFalse.length
-			&& JadothChars.equals(data, offset, this.literalFalse, 0, this.literalFalse.length)
+			&& XChars.equals(data, offset, this.literalFalse, 0, this.literalFalse.length)
 			)
 			{
 				this.write_boolean(false);
@@ -318,7 +318,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_short(JadothChars.parse_shortDecimal(data, offset, j - offset + 1));
+			this.write_short(XChars.parse_shortDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -408,7 +408,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_int(JadothChars.parse_intDecimal(data, offset, j - offset + 1));
+			this.write_int(XChars.parse_intDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -430,7 +430,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_float(JadothChars.parse_float(data, offset, j - offset + 1));
+			this.write_float(XChars.parse_float(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -452,7 +452,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_long(JadothChars.parse_longDecimal(data, offset, j - offset + 1));
+			this.write_long(XChars.parse_longDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -474,7 +474,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_double(JadothChars.parse_double(data, offset, j - offset + 1));
+			this.write_double(XChars.parse_double(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -620,7 +620,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_byte(JadothChars.parse_byteDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_byte(XChars.parse_byteDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -668,12 +668,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
 
 				// parse literal. A little more complex for boolean literals.
-				if(i - elementStart == lengthTrue && JadothChars.equals(data, elementStart, literalTrue, 0, lengthTrue))
+				if(i - elementStart == lengthTrue && XChars.equals(data, elementStart, literalTrue, 0, lengthTrue))
 				{
 					this.write_boolean(true);
 				}
 				else if(i - elementStart == lengthFalse
-					&& JadothChars.equals(data, elementStart, literalFalse, 0, lengthFalse)
+					&& XChars.equals(data, elementStart, literalFalse, 0, lengthFalse)
 				)
 				{
 					this.write_boolean(false);
@@ -725,7 +725,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_short(JadothChars.parse_shortDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_short(XChars.parse_shortDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -763,7 +763,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_int(JadothChars.parse_intDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_int(XChars.parse_intDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -801,7 +801,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_float(JadothChars.parse_float(data, currentElementStart, i - currentElementStart));
+				this.write_float(XChars.parse_float(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -839,7 +839,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_long(JadothChars.parse_longDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_long(XChars.parse_longDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -877,7 +877,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_double(JadothChars.parse_double(data, currentElementStart, i - currentElementStart));
+				this.write_double(XChars.parse_double(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -1047,8 +1047,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final StorageLockedFile currentTargetFile;
 			try
 			{
-				JadothFiles.ensureDirectory(targetFile.getParentFile());
-				currentTargetFile = StorageLockedFile.openLockedFile(JadothFiles.ensureWriteableFile(targetFile));
+				XFiles.ensureDirectory(targetFile.getParentFile());
+				currentTargetFile = StorageLockedFile.openLockedFile(XFiles.ensureWriteableFile(targetFile));
 			}
 			catch(final Exception e)
 			{
@@ -1078,7 +1078,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void parseCurrentFile()
 		{
-			final char[]             input  = JadothFiles.readCharsFromFile(
+			final char[]             input  = XFiles.readCharsFromFile(
 				this.sourceFile,
 				Charset.forName("UTF-8"),
 				XVM::throwUnchecked
@@ -1093,7 +1093,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushBuffer();
 
 			StorageFile.closeSilent(this.targetFile);
-			JadothFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
+			XFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;
 			this.targetFile            = null;
@@ -1539,7 +1539,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				JadothFiles.closeSilent(this.targetFileChannel);
+				XFiles.closeSilent(this.targetFileChannel);
 				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally
@@ -1677,7 +1677,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			final String typeName = tableName != null
 				? tableName
-				: JadothFiles.getSuffixlessFileName(this.sourceFile)
+				: XFiles.getSuffixlessFileName(this.sourceFile)
 			;
 			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
 			{

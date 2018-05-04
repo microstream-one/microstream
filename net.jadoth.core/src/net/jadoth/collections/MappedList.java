@@ -17,7 +17,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public class MappedList<E, S> implements XGettingList<E>
 {
@@ -182,7 +182,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	public <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
 		final int length = indices.length;
-		final int size = JadothTypes.to_int(this.subject.size());
+		final int size = XTypes.to_int(this.subject.size());
 
 		// validate all indices before copying the first element
 		for(int i = 0; i < length; i++)
@@ -220,7 +220,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

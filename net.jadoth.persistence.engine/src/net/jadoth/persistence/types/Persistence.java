@@ -8,9 +8,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.interfaces.ChainStorage;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.typing.Composition;
 
@@ -88,7 +88,7 @@ public class Persistence extends Swizzle
 	public static Class<?>[] unanalyzableTypes()
 	{
 		// why permanently occupy additional memory with fields and instances for constant values?
-		return JadothArrays.add(
+		return XArrays.add(
 			notIdMappableTypes(),
 			Composition.class,
 			Collection.class
@@ -113,12 +113,12 @@ public class Persistence extends Swizzle
 
 	public static boolean isNotPersistable(final Class<?> type)
 	{
-		return JadothReflect.isOfAnyType(type, unanalyzableTypes());
+		return XReflect.isOfAnyType(type, unanalyzableTypes());
 	}
 
 	public static boolean isNotTypeIdMappable(final Class<?> type)
 	{
-		return JadothReflect.isOfAnyType(type, notIdMappableTypes());
+		return XReflect.isOfAnyType(type, notIdMappableTypes());
 	}
 
 	public static final PersistenceTypeEvaluator defaultTypeEvaluatorTypeIdMappable()
@@ -138,7 +138,7 @@ public class Persistence extends Swizzle
 	public static final PersistenceFieldEvaluator defaultFieldEvaluator()
 	{
 		return (entityType, field) ->
-			!JadothReflect.isTransient(field)
+			!XReflect.isTransient(field)
 		;
 	}
 	

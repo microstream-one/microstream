@@ -20,7 +20,7 @@ import net.jadoth.collections.types.XSettingList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -480,7 +480,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayAccessor<?>) || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayAccessor<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -490,7 +490,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(
+		return XArrays.equals(
 			this.data                       ,
 			0                               ,
 			((ArrayAccessor<?>)samples).data,
@@ -503,7 +503,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -797,7 +797,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public ArrayAccessor<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.size, comparator);
+		XSort.mergesort(this.data, 0, this.size, comparator);
 		return this;
 	}
 
@@ -1045,7 +1045,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 

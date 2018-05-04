@@ -1,6 +1,6 @@
 package net.jadoth.test;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 
@@ -13,7 +13,7 @@ public class MainTestIntegerToString
 	static final int[] ints;
 	static {
 //		ints = JaMath.sequence(SIZE);
-		ints = JadothMath.randoming(SIZE, 1_000_000_000, 2_000_000_000);
+		ints = XMath.randoming(SIZE, 1_000_000_000, 2_000_000_000);
 //		ints = JaMath.randoming(SIZE, 100);
 //		ints = JaMath.randoming(SIZE, 100_000, 1_000_000);
 	}

@@ -7,9 +7,9 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.XUtilsCollection;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.storage.exceptions.StorageExceptionExportFailed;
-import net.jadoth.time.JadothTime;
+import net.jadoth.time.XTime;
 
 public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 {
@@ -43,7 +43,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		{
 			super(timestamp, channelCount);
 			this.channelResults = new StorageRawFileStatistics.ChannelStatistics[channelCount];
-			this.creationTime = JadothTime.now();
+			this.creationTime = XTime.now();
 		}
 
 
@@ -160,7 +160,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			{
 				try
 				{
-					this.channel = JadothFiles.createWritingFileChannel(this.file);
+					this.channel = XFiles.createWritingFileChannel(this.file);
 				}
 				catch(final IOException e)
 				{

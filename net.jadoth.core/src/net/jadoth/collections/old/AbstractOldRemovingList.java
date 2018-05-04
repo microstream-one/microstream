@@ -5,8 +5,8 @@ import java.util.Collection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.functional.JadothFunctional;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.functional.XFunctional;
+import net.jadoth.typing.XTypes;
 
 public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<E>
 {
@@ -41,7 +41,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 	@Override
 	public boolean remove(final Object o)
 	{
-		return ((XProcessingList<E>)this.subject).removeBy(JadothFunctional.isEqualTo((E)o)) > 0;
+		return ((XProcessingList<E>)this.subject).removeBy(XFunctional.isEqualTo((E)o)) > 0;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 		// even xcollections have to be handled that way because of the missing type info (argh)
 		for(final Object o : c)
 		{
-			removeCount += list.removeBy(JadothFunctional.isEqualTo((E)o));
+			removeCount += list.removeBy(XFunctional.isEqualTo((E)o));
 		}
 		return removeCount > 0;
 	}
@@ -68,9 +68,9 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
-		final int oldSize = JadothTypes.to_int(this.subject.size());
+		final int oldSize = XTypes.to_int(this.subject.size());
 		((XList<E>)this.subject).removeBy(e -> !c.contains(e));
-		return oldSize - JadothTypes.to_int(this.subject.size()) > 0;
+		return oldSize - XTypes.to_int(this.subject.size()) > 0;
 	}
 
 	@Override

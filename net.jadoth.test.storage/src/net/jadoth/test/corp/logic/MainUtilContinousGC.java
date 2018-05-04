@@ -1,9 +1,9 @@
 package net.jadoth.test.corp.logic;
 
-import static net.jadoth.meta.JadothDebug.debugln;
+import static net.jadoth.meta.XDebug.debugln;
 
-import net.jadoth.concurrency.JadothThreads;
-import net.jadoth.math.JadothMath;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.math.XMath;
 import net.jadoth.storage.types.EmbeddedStorage;
 
 public class MainUtilContinousGC extends MainTestStorageExample
@@ -16,7 +16,7 @@ public class MainUtilContinousGC extends MainTestStorageExample
 		for(int i = 0; i < RUNS; i++)
 		{
 			// (24.06.2015 TM)TODO: adjust times according to entity count and housekeeping budgets
-			JadothThreads.sleep((2 + JadothMath.random(4)) * 1000);
+			XThreads.sleep((2 + XMath.random(4)) * 1000);
 			debugln(i+" storing ...");
 			STORAGE.store(cc);
 			debugln(i+" done.");

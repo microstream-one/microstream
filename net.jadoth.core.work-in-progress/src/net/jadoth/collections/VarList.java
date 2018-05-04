@@ -20,7 +20,7 @@ import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.Hashing;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 
 
@@ -84,7 +84,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final static <E> VarList<E> NewCustom(final int segmentLength)
 	{
 		final VarList<E> newInstance = new VarList<>(
-			JadothMath.positive(segmentLength)
+			XMath.positive(segmentLength)
 		);
 		newInstance.initializeEmpty();
 
@@ -397,7 +397,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final VarList<E> addAll(final E[] elements, final int offset, final int length)
 	{
 		final int bound = offset + length;
-		JadothArrays.checkBounds(elements, offset, bound);
+		XArrays.checkBounds(elements, offset, bound);
 
 		for(int i = offset; i < bound; i++)
 		{
@@ -452,7 +452,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final VarList<E> prependAll(final E[] elements, final int offset, final int length)
 	{
 		final int bound = offset + length;
-		JadothArrays.checkBounds(elements, offset, bound);
+		XArrays.checkBounds(elements, offset, bound);
 
 		for(int i = offset; i < bound; i++)
 		{
@@ -1615,8 +1615,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		 * See below for thoughts about a direct implementation without redundant copying.
 		 */
 		final E[] buffer2 = newArray(this.intSize());
-		JadothArrays.copyTo(this, buffer2);
-		JadothSort.sort(buffer2, comparator);
+		XArrays.copyTo(this, buffer2);
+		XSort.sort(buffer2, comparator);
 		this.truncate();
 		this.addAll(buffer2);
 

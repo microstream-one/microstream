@@ -44,7 +44,7 @@ import net.jadoth.collections.types.XPrependingSequence;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.exceptions.IllegalAccessRuntimeException;
 import net.jadoth.exceptions.NoSuchFieldRuntimeException;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -53,7 +53,7 @@ import net.jadoth.typing.JadothTypes;
  * @author Thomas Muenz
  *
  */
-public final class JadothReflect
+public final class XReflect
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -166,7 +166,7 @@ public final class JadothReflect
 			return false;
 		}
 
-		final Class<?>[] interfaces = JadothReflect.getClassHierarchyInterfaces(c);
+		final Class<?>[] interfaces = XReflect.getClassHierarchyInterfaces(c);
 		for(final Class<?> i : interfaces)
 		{
 			if(isInterfaceOfType(i, interfaceClass))
@@ -196,7 +196,7 @@ public final class JadothReflect
 
 		final Class<?>[] allInterfaces = new Class<?>[interfaceCount];
 		int allInterfacesIndex = 0;
-		for(int i = JadothTypes.to_int(hierarchy.size()); i-- > 0;)
+		for(int i = XTypes.to_int(hierarchy.size()); i-- > 0;)
 		{
 			final Class<?>[] currentClassInterfaces = hierarchy.at(i);
 			for(int j = 0; j < currentClassInterfaces.length; j++)
@@ -333,7 +333,7 @@ public final class JadothReflect
 		final Predicate<Field> predicate
 	)
 	{
-		JadothReflect.reverseIterateAllClassFields(type, field ->
+		XReflect.reverseIterateAllClassFields(type, field ->
 		{
 			if(predicate.test(field))
 			{
@@ -349,7 +349,7 @@ public final class JadothReflect
 		final Class<?> type
 	)
 	{
-		JadothReflect.reverseIterateAllClassFields(type, field ->
+		XReflect.reverseIterateAllClassFields(type, field ->
 			collection.prepend(field)
 		);
 		
@@ -684,7 +684,7 @@ public final class JadothReflect
 	// constructors //
 	/////////////////
 	
-	private JadothReflect()
+	private XReflect()
 	{
 		// static only
 		throw new UnsupportedOperationException();

@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;
@@ -32,7 +32,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 		}
 		try
 		{
-			return JadothFiles.readStringFromFile(file, Persistence.standardCharset());
+			return XFiles.readStringFromFile(file, Persistence.standardCharset());
 		}
 		catch(final IOException e)
 		{
@@ -44,7 +44,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 	{
 		try
 		{
-			JadothFiles.writeStringToFile(file, typeDictionaryString, Persistence.standardCharset());
+			XFiles.writeStringToFile(file, typeDictionaryString, Persistence.standardCharset());
 		}
 		catch(final Exception t)
 		{

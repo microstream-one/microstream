@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.memory.Chunks;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.meta.XDebug;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.UtilStackTrace;
 
@@ -85,7 +85,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 				}
 			}
 
-			JadothDebug.debugln(vs.toString(), 1);
+			XDebug.debugln(vs.toString(), 1);
 		}
 
 		@Override

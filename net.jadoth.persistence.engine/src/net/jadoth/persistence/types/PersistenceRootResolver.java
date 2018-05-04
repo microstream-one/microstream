@@ -15,7 +15,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.Hashing;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 public interface PersistenceRootResolver
 {
@@ -59,7 +59,7 @@ public interface PersistenceRootResolver
 	
 	public static XGettingTable<String, Supplier<?>> deriveRoots(final Class<?>... types)
 	{
-		return deriveRoots(JadothReflect::deriveFieldIdentifier, types);
+		return deriveRoots(XReflect::deriveFieldIdentifier, types);
 	}
 	
 	public static XGettingTable<String, Supplier<?>> deriveRoots(
@@ -100,7 +100,7 @@ public interface PersistenceRootResolver
 			 * - field MUST be static, otherwise no instance can be safely retrieved in a static way.
 			 * - field MUST be a reference field, because registering primitives is neither possible nor reasonable.
 			 */
-			if(!JadothReflect.isStatic(field) || !JadothReflect.isReference(field))
+			if(!XReflect.isStatic(field) || !XReflect.isReference(field))
 			{
 				continue;
 			}
@@ -120,7 +120,7 @@ public interface PersistenceRootResolver
 			 * Lambda line break for debuggability.
 			 */
 			roots.add(rootIdentifier, () ->
-				JadothReflect.getFieldValue(field, null)
+				XReflect.getFieldValue(field, null)
 			);
 		}
 	}

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.math.JadothMath.notNegative;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.notNegative;
+import static net.jadoth.math.XMath.positive;
 
 import java.io.File;
 

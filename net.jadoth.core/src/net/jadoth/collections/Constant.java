@@ -19,7 +19,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 
@@ -393,7 +393,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		final Equalator<? super E>            equalator
 	)
 	{
-		return JadothTypes.to_int(samples.size()) == 1 && equalator.equal(this.element, samples.get());
+		return XTypes.to_int(samples.size()) == 1 && equalator.equal(this.element, samples.get());
 	}
 
 	@Override
@@ -675,7 +675,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int size()
 		{
-			return JadothTypes.to_int(Constant.this.size());
+			return XTypes.to_int(Constant.this.size());
 		}
 
 		@Override

@@ -72,7 +72,7 @@ final class Indexer<E> implements IndexProcedure<E>
 
 	public final int[] sortAndYield()
 	{
-		JadothSort.sort(this.index, 0, this.size);
+		XSort.sort(this.index, 0, this.size);
 		return this.yield();
 	}
 

@@ -13,7 +13,7 @@ import net.jadoth.exceptions.NumberRangeException;
  * @author Thomas Muenz
  *
  */
-public final class JadothMath
+public final class XMath
 {
 	// CHECKSTYLE.OFF: MagicNumber: all magic numbers are intentional in this class
 
@@ -1415,7 +1415,7 @@ public final class JadothMath
 	// constructors //
 	/////////////////
 	
-	private JadothMath()
+	private XMath()
 	{
 		// static only
 		throw new UnsupportedOperationException();

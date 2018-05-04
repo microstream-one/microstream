@@ -6,7 +6,7 @@ import java.util.Map;
 import net.jadoth.X;
 import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.interfaces.HashCollection.Analysis;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -72,7 +72,7 @@ extends AbstractChainEntry<E, K, V, EN>
 		}
 
 		// sort by chain length
-		JadothSort.valueSort(
+		XSort.valueSort(
 			result.internalGetStorageArray(),
 			(kv1, kv2) -> kv1.key().intValue() - kv2.key().intValue()
 		);
@@ -80,7 +80,7 @@ extends AbstractChainEntry<E, K, V, EN>
 
 		return new HashCollection.Analysis<>(
 			hashCollection,
-			JadothTypes.to_int(hashCollection.size()),
+			XTypes.to_int(hashCollection.size()),
 			hashCollection.hashDensity(),
 			slots.length,
 			shortestEntryChainLength,

@@ -1,7 +1,7 @@
 package net.jadoth.util;
 
 import net.jadoth.memory.Memory;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 public final class VolatileFlag
 {
@@ -12,7 +12,7 @@ public final class VolatileFlag
 	// CHECKSTYLE.OFF: ConstantName: field names are intentionally unchanged
 
 	private static final long FIELD_OFFSET_state = Memory.objectFieldOffset(
-		JadothReflect.getInstanceFieldOfType(VolatileFlag.class, int.class)
+		XReflect.getInstanceFieldOfType(VolatileFlag.class, int.class)
 	);
 
 	// CHECKSTYLE.ON: ConstantName

@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import net.jadoth.collections.interfaces._intCollecting;
 import net.jadoth.exceptions.ArrayCapacityException;
@@ -9,7 +9,7 @@ import net.jadoth.functional._intFunction;
 import net.jadoth.functional._intIndexProcedure;
 import net.jadoth.functional._intPredicate;
 import net.jadoth.functional._intProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 
 
@@ -73,7 +73,7 @@ public final class _intList implements _intCollecting, Composition
 	{
 		super();
 		this.size = 0;
-		this.data = new int[JadothMath.pow2BoundMaxed(initialCapacity)];
+		this.data = new int[XMath.pow2BoundMaxed(initialCapacity)];
 	}
 
 	/**
@@ -111,7 +111,7 @@ public final class _intList implements _intCollecting, Composition
 		System.arraycopy(
 			elements,
 			0,
-			this.data = new int[JadothMath.pow2BoundMaxed(this.size = elements.length)],
+			this.data = new int[XMath.pow2BoundMaxed(this.size = elements.length)],
 			0,
 			this.size
 		);
@@ -136,7 +136,7 @@ public final class _intList implements _intCollecting, Composition
 		System.arraycopy(
 			src,
 			srcStart,
-			this.data = new int[JadothMath.pow2BoundMaxed(initialCapacity >= srcLength ? initialCapacity : srcLength)],
+			this.data = new int[XMath.pow2BoundMaxed(initialCapacity >= srcLength ? initialCapacity : srcLength)],
 			0,
 			this.size = srcLength
 		);
@@ -223,7 +223,7 @@ public final class _intList implements _intCollecting, Composition
 		// required and reachable capacity increase
 		final int newSize = this.size + elementsSize;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -284,7 +284,7 @@ public final class _intList implements _intCollecting, Composition
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -325,7 +325,7 @@ public final class _intList implements _intCollecting, Composition
 		{
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index + length, length);
-			JadothArrays.reverseArraycopy(elements, offset, this.data, index, length);
+			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
 		}
@@ -340,7 +340,7 @@ public final class _intList implements _intCollecting, Composition
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -369,7 +369,7 @@ public final class _intList implements _intCollecting, Composition
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
 		System.arraycopy(this.data, index, data, index + length, length);
-		JadothArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
 		this.size = newSize;
 		return length;
 	}
@@ -822,7 +822,7 @@ public final class _intList implements _intCollecting, Composition
 
 	public _intList sort()
 	{
-		JadothSort.sort(this.data, 0, this.size);
+		XSort.sort(this.data, 0, this.size);
 		return this;
 	}
 
@@ -899,7 +899,7 @@ public final class _intList implements _intCollecting, Composition
 	public int optimize()
 	{
 		final int requiredCapacity;
-		if((requiredCapacity = JadothMath.pow2BoundMaxed(this.size)) != this.data.length)
+		if((requiredCapacity = XMath.pow2BoundMaxed(this.size)) != this.data.length)
 		{
 			System.arraycopy(this.data, 0, this.data = new int[requiredCapacity], 0, this.size);
 		}
@@ -923,7 +923,7 @@ public final class _intList implements _intCollecting, Composition
 		// calculate new capacity
 		final int newSize = this.size + requiredFreeCapacity;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -948,7 +948,7 @@ public final class _intList implements _intCollecting, Composition
 	{
 		if(minCapacity > this.data.length)
 		{
-			final int[] data = new int[JadothMath.pow2BoundMaxed(minCapacity)];
+			final int[] data = new int[XMath.pow2BoundMaxed(minCapacity)];
 			System.arraycopy(this.data, 0, data, 0, this.size);
 			this.data = data;
 		}
@@ -1577,7 +1577,7 @@ public final class _intList implements _intCollecting, Composition
 		public Factory(final int initialCapacity)
 		{
 			super();
-			this.initialCapacity = JadothMath.pow2BoundMaxed(initialCapacity);
+			this.initialCapacity = XMath.pow2BoundMaxed(initialCapacity);
 		}
 
 		public int getInitialCapacity()

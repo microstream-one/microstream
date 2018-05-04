@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.exceptions;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 
 public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenceExceptionStateArray
 {
@@ -88,7 +88,7 @@ public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenc
 	@Override
 	public String getMessage()
 	{
-		return "Array length mismatch for array " + JadothStrings.systemString(this.actualArray) + ": actual length = "
+		return "Array length mismatch for array " + XStrings.systemString(this.actualArray) + ": actual length = "
 			+ this.actualArray.length + ", passed length = " + this.passedLength + "."
 			+ (super.getMessage() != null ? " Details: " + super.getMessage() : "")
 		;

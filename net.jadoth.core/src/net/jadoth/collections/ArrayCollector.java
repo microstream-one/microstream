@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
@@ -22,7 +22,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -190,7 +190,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 		final int oldSize = this.size;
@@ -244,7 +244,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				JadothTypes.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -311,7 +311,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
+			XArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
 			this.size -= length;
 			return -length;
 		}
@@ -356,7 +356,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
+			XArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
 			this.size -= length;
 			return -length;
 		}
@@ -672,7 +672,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayCollector<?>) || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayCollector<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -682,7 +682,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(
+		return XArrays.equals(
 			this.data,
 			0,
 			((ArrayCollector<?>)samples).data,
@@ -694,7 +694,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -980,7 +980,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.size, comparator);
+		XSort.mergesort(this.data, 0, this.size, comparator);
 		return this;
 	}
 
@@ -1606,7 +1606,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	public long nullRemove()
 	{
 		final int removeCount;
-		this.size -= removeCount = JadothArrays.removeAllFromArray(this.data, 0, this.size, null);
+		this.size -= removeCount = XArrays.removeAllFromArray(this.data, 0, this.size, null);
 		return removeCount;
 	}
 
@@ -1957,7 +1957,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 	@Override

@@ -10,8 +10,8 @@ import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 /**
@@ -49,7 +49,7 @@ public final class WeakHashMap_longObject<T> implements Sized, OptimizableCollec
 	public WeakHashMap_longObject(int slotSize)
 	{
 		super();
-		slotSize = JadothMath.pow2BoundCapped(slotSize);
+		slotSize = XMath.pow2BoundCapped(slotSize);
 		this.slots = new Entry[slotSize];
 		this.modulo = slotSize - 1;
 	}
@@ -94,7 +94,7 @@ public final class WeakHashMap_longObject<T> implements Sized, OptimizableCollec
 			}
 		}
 
-		final int newCapacity = JadothMath.pow2BoundCapped(c);
+		final int newCapacity = XMath.pow2BoundCapped(c);
 		final Entry<T>[] newSlots;
 		final int newSlotCountMinusOne;
 		if(newCapacity == this.slots.length)
@@ -189,7 +189,7 @@ public final class WeakHashMap_longObject<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = JadothTypes.to_int(list.size());
+		this.size = XTypes.to_int(list.size());
 		return list;
 	}
 
@@ -206,7 +206,7 @@ public final class WeakHashMap_longObject<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = JadothTypes.to_int(list.size());
+		this.size = XTypes.to_int(list.size());
 		return list;
 	}
 

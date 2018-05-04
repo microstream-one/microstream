@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import net.jadoth.chars.StringTable;
 import net.jadoth.chars._charArrayRange;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.csv.CsvContent;
 import net.jadoth.util.csv.CsvContentBuilderCharArray;
@@ -55,7 +55,7 @@ public class MainTestCsvFunctionality
 		System.out.println("||||||||||||||||||||");
 		System.out.println(xcsv);
 		System.out.println("||||||||||||||||||||");
-		final char[] input = JadothFiles.readCharsFromFile(xcsv);
+		final char[] input = XFiles.readCharsFromFile(xcsv);
 
 		for(int i = 1; i --> 0;)
 		{

@@ -2,7 +2,7 @@ package net.jadoth.test;
 
 import java.util.Arrays;
 
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 
 /**
  * @author Thomas Muenz
@@ -18,7 +18,7 @@ public class MainTestShuffleArray
 	{
 		String[] strings = {"A", "B", "C", "D", "E", "F"};
 
-		JadothArrays.shuffle(strings, 0, strings.length-1);
+		XArrays.shuffle(strings, 0, strings.length-1);
 		System.out.println(Arrays.toString(strings));
 
 	}

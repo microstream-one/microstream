@@ -42,7 +42,7 @@ import net.jadoth.entitydatamapping.exceptions.EntitySetDataException;
 import net.jadoth.exceptions.NoSuchFieldRuntimeException;
 import net.jadoth.exceptions.NoSuchMethodRuntimeException;
 import net.jadoth.reflect.Label;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.code.Code;
 
 
@@ -929,7 +929,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 					// (15.12.2009 TM)NOTE: Fix: if type is boolean, try again without "is" special case (getXXX)
 					booleanSpecialCase:
 					{
-						if(!JadothTypes.isBoolean(field.getType())) break booleanSpecialCase;
+						if(!XTypes.isBoolean(field.getType())) break booleanSpecialCase;
 
 						getterName = Code.deriveGetterNameFromField(field, false);
 						getter = getCachedGetter(getterName);

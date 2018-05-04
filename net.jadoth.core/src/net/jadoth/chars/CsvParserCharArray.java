@@ -134,7 +134,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			{
 				return i + 1; // skip value separator
 			}
-			if(JadothChars.isNonWhitespace(input[i]) || input[i] == recordSeparator || input[i] == terminator)
+			if(XChars.isNonWhitespace(input[i]) || input[i] == recordSeparator || input[i] == terminator)
 			{
 				return i;
 			}
@@ -162,7 +162,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			i++;
 		}
 		int lastLiteralIndex = i - 1;
-		while(JadothChars.isWhitespace(input[lastLiteralIndex]))
+		while(XChars.isWhitespace(input[lastLiteralIndex]))
 		{
 			lastLiteralIndex--;
 		}
@@ -263,7 +263,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 				valueCollector.accept(null, 0, 0);
 				i++; // skip separator
 			}
-			else if(JadothChars.isWhitespace(input[i]))
+			else if(XChars.isWhitespace(input[i]))
 			{
 				i++; // skip unimportant whitespace
 			}
@@ -369,7 +369,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			{
 				return iStart;
 			}
-			if(JadothChars.isWhitespace(input[i]))
+			if(XChars.isWhitespace(input[i]))
 			{
 				break;
 			}
@@ -570,7 +570,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		{
 			literalBuilder.clear();
 			final char segmentStarter = config.segmentStarter();
-			while(i < iBound && JadothChars.isNonWhitespace(input[i]) && input[i] != segmentStarter)
+			while(i < iBound && XChars.isNonWhitespace(input[i]) && input[i] != segmentStarter)
 			{
 				i++;
 			}
@@ -753,7 +753,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			i++;
 
 			// skip all discardable whitespaces after the column type line
-			while(i < iBound && input[i] != valueSeparator && JadothChars.isWhitespace(input[i]))
+			while(i < iBound && input[i] != valueSeparator && XChars.isWhitespace(input[i]))
 			{
 				i++;
 			}

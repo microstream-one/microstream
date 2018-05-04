@@ -3,7 +3,7 @@ package net.jadoth.test.collections;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 
 /**
  * @author Thomas Muenz
@@ -55,7 +55,7 @@ public class MainTestFastListComparator
 		for(int i = 10; i --> 0;)
 		{
 			tStart = System.nanoTime();
-			indexOfLast = ints.indexBy(JadothFunctional.isEqualTo(LAST));
+			indexOfLast = ints.indexBy(XFunctional.isEqualTo(LAST));
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}

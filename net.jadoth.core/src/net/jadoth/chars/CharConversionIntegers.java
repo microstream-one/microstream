@@ -89,8 +89,8 @@ final class CharConversionIntegers
 
 	private static int put2Chars(final int doubleDigitValue, final char[] target, final int offset)
 	{
-		target[offset    ] = JadothChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue];
-		target[offset + 1] = JadothChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue];
+		target[offset    ] = XChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue];
+		target[offset + 1] = XChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue];
 		return offset + 2;
 	}
 
@@ -99,8 +99,8 @@ final class CharConversionIntegers
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			System.arraycopy(JadothChars.CHARS_MIN_VALUE_long, 0, target, offset, JadothChars.MAX_CHAR_COUNT_long);
-			return offset + JadothChars.MAX_CHAR_COUNT_long;
+			System.arraycopy(XChars.CHARS_MIN_VALUE_long, 0, target, offset, XChars.MAX_CHAR_COUNT_long);
+			return offset + XChars.MAX_CHAR_COUNT_long;
 		}
 		return put_longPositive(-value, target, putMinus(target, offset)); // standard negative case normalization
 	}
@@ -110,8 +110,8 @@ final class CharConversionIntegers
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			System.arraycopy(JadothChars.CHARS_MIN_VALUE_int, 0, target, offset, JadothChars.MAX_CHAR_COUNT_int);
-			return offset + JadothChars.MAX_CHAR_COUNT_int;
+			System.arraycopy(XChars.CHARS_MIN_VALUE_int, 0, target, offset, XChars.MAX_CHAR_COUNT_int);
+			return offset + XChars.MAX_CHAR_COUNT_int;
 		}
 		return put_intPositive(-value, target, putMinus(target, offset)); // standard negative case normalization
 	}

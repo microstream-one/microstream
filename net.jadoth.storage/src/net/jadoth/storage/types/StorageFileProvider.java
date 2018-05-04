@@ -9,7 +9,7 @@ import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 
 public interface StorageFileProvider
 {
@@ -131,7 +131,7 @@ public interface StorageFileProvider
 			}
 			catch(final IOException e)
 			{
-				JadothFiles.closeSilent(channel);
+				XFiles.closeSilent(channel);
 				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
 			}
 		}
@@ -186,7 +186,7 @@ public interface StorageFileProvider
 
 		public final File provideChannelDirectory(final File parentDirectory, final int hashIndex)
 		{
-			return JadothFiles.ensureDirectory(
+			return XFiles.ensureDirectory(
 				new File(parentDirectory, this.channelDirectoryBaseName + hashIndex)
 			);
 		}

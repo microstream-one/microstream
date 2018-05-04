@@ -94,7 +94,7 @@ public interface CopyHandler
 		public void copy(final Field fieldToCopy, final Object source, final Object target)
 			throws IllegalAccessRuntimeException
 		{
-			JadothReflect.setFieldValue(fieldToCopy, target, JadothReflect.getFieldValue(fieldToCopy, source));
+			XReflect.setFieldValue(fieldToCopy, target, XReflect.getFieldValue(fieldToCopy, source));
 		}
 
 	}

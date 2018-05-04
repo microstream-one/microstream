@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import net.jadoth.collections.VarList;
 import net.jadoth.memory.Memory;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public class MainTestVarListPerformance
 {
@@ -27,7 +27,7 @@ public class MainTestVarListPerformance
 				list.add(null);
 			}
 			final long tStop = System.nanoTime();
-			System.out.println(JadothTypes.to_int(list.size())+" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+			System.out.println(XTypes.to_int(list.size())+" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 			System.out.flush();
 			System.gc();
 			final VarList<String>  list2 = VarList.New();
@@ -35,7 +35,7 @@ public class MainTestVarListPerformance
 			{
 				list2.add(null);
 			}
-			System.out.println(JadothTypes.to_int(list2.size()));
+			System.out.println(XTypes.to_int(list2.size()));
 			System.gc();
 		}
 	}

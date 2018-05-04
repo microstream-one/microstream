@@ -21,7 +21,7 @@ import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -469,19 +469,19 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstList<?>) || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstList<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((ConstList<? extends E>)samples).data, 0, this.data.length, equalator);
+		return XArrays.equals(this.data, 0, ((ConstList<? extends E>)samples).data, 0, this.data.length, equalator);
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -709,7 +709,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

@@ -20,7 +20,7 @@ import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -421,7 +421,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof EqConstList<?>) || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof EqConstList<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -431,13 +431,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((EqConstList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((EqConstList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -664,7 +664,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

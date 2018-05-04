@@ -1,6 +1,6 @@
 package net.jadoth.functional;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public final class MainTestFunc
 {
@@ -24,9 +24,9 @@ public final class MainTestFunc
 		for(int i = 0; i < SIZE; i++)
 		{
 //			obs[i] = JadothFunctional.all();
-			obs[i] = JadothFunctional.passThrough();
+			obs[i] = XFunctional.passThrough();
 		}
 		final long tStop = System.nanoTime();
-		System.out.println(new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart) + " " + obs[JadothMath.random(SIZE)]);
+		System.out.println(new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart) + " " + obs[XMath.random(SIZE)]);
 	}
 }

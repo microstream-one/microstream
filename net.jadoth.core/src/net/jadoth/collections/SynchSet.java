@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.collections.types.XSet;
 import net.jadoth.concurrency.Synchronized;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 
 
@@ -522,7 +522,7 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	@Override
 	public synchronized long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

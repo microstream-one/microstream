@@ -4,7 +4,7 @@
 package net.jadoth.entitydatamapping.test;
 
 
-import static net.jadoth.reflect.JadothReflect.getAnyField;
+import static net.jadoth.reflect.XReflect.getAnyField;
 
 import net.jadoth.util.code.Code;
 

@@ -3,15 +3,15 @@ package net.jadoth.persistence.binary.types;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.reflect.JadothReflect;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.XTypes;
 
 
 @FunctionalInterface
@@ -98,7 +98,7 @@ public interface BinaryReferenceTraverser
 		;
 
 		static final int
-			REFERENCE_LENGTH   = JadothTypes.to_int(BinaryPersistence.oidLength()),
+			REFERENCE_LENGTH   = XTypes.to_int(BinaryPersistence.oidLength()),
 			REFERENCE_LENGTH_2 = REFERENCE_LENGTH * C2,
 			REFERENCE_LENGTH_3 = REFERENCE_LENGTH * C3,
 			REFERENCE_LENGTH_4 = REFERENCE_LENGTH * C4,
@@ -504,7 +504,7 @@ public interface BinaryReferenceTraverser
 
 		static final int primitiveByteLength(final String typeName)
 		{
-			final Class<?> primitiveType = JadothReflect.primitiveType(typeName);
+			final Class<?> primitiveType = XReflect.primitiveType(typeName);
 			return primitiveType == null
 				? 0
 				: Memory.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class
@@ -590,7 +590,7 @@ public interface BinaryReferenceTraverser
 			{
 				return Static.EMPTY;
 			}
-			return JadothArrays.subArray(traversers, 0, i + 1);
+			return XArrays.subArray(traversers, 0, i + 1);
 		}
 
 	}

@@ -10,7 +10,7 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.math.FastRandom;
 import net.jadoth.util.UtilStackTrace;
 
@@ -23,7 +23,7 @@ import net.jadoth.util.UtilStackTrace;
  * 
  * @author Thomas Muenz
  */
-public final class JadothArrays
+public final class XArrays
 {
 	public static final void validateRange0toUpperBound(final int upperBound, final int offset, final int length)
 	{
@@ -622,7 +622,7 @@ public final class JadothArrays
 		// case XGettingCollection
 		if(c instanceof XGettingCollection<?>)
 		{
-			return ((XGettingCollection<E>)c).containsSearched(JadothFunctional.predicate(sample, equalator));
+			return ((XGettingCollection<E>)c).containsSearched(XFunctional.predicate(sample, equalator));
 		}
 
 		// case old collection, use slow iterator
@@ -850,7 +850,7 @@ public final class JadothArrays
 		int currentMoveTargetIndex = start;
 		//if dest is the same as src, skip all to be retained objects
 		while(currentMoveTargetIndex < bound
-			&& !elements.containsSearched(JadothFunctional.predicate(array[currentMoveTargetIndex], equalator))
+			&& !elements.containsSearched(XFunctional.predicate(array[currentMoveTargetIndex], equalator))
 		)
 		{
 			currentMoveTargetIndex++;
@@ -863,13 +863,13 @@ public final class JadothArrays
 
 		while(seekIndex < bound)
 		{
-			while(seekIndex < bound && elements.containsSearched(JadothFunctional.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && elements.containsSearched(XFunctional.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}
 			currentMoveSourceIndex = seekIndex;
 
-			while(seekIndex < bound && !elements.containsSearched(JadothFunctional.predicate(array[seekIndex], equalator)))
+			while(seekIndex < bound && !elements.containsSearched(XFunctional.predicate(array[seekIndex], equalator)))
 			{
 				seekIndex++;
 			}
@@ -911,14 +911,14 @@ public final class JadothArrays
 	public static final <T> T[] toReversed(final T[] array, final int offset, final int length)
 	{
 		return length < 0
-			? JadothArrays.reverseArraycopy(
+			? XArrays.reverseArraycopy(
 				array,
 				offset,
 				X.ArrayOfSameType(array, -length),
 				0,
 				-length
 				)
-				: JadothArrays.reverseArraycopy(
+				: XArrays.reverseArraycopy(
 					array,
 					offset + length - 1,
 					X.ArrayOfSameType(array, length),
@@ -1026,7 +1026,7 @@ public final class JadothArrays
 
 	/**
 	 * Convenience method, calling either {@link System#arraycopy(Object, int, Object, int, int)} for
-	 * {@code length >= 0} or {@link JadothArrays#reverseArraycopy(Object[], int, Object[], int, int)} for {@code length < 0}
+	 * {@code length >= 0} or {@link XArrays#reverseArraycopy(Object[], int, Object[], int, int)} for {@code length < 0}
 	 * and returns {@code dest}.<br>
 	 * If length is known to be positive and performance badly matters or negative length shall be treated as an error,
 	 * use {@link System#arraycopy(Object, int, Object, int, int)} directly. Otherwise, this method is a convenient
@@ -1051,7 +1051,7 @@ public final class JadothArrays
 	{
 		if(length < 0)
 		{
-			return JadothArrays.reverseArraycopy(src, srcPos, dest, destPos, -length);
+			return XArrays.reverseArraycopy(src, srcPos, dest, destPos, -length);
 		}
 		System.arraycopy(src, srcPos, dest, destPos, length);
 		return dest;
@@ -1669,7 +1669,7 @@ public final class JadothArrays
 	// constructors //
 	/////////////////
 
-	private JadothArrays()
+	private XArrays()
 	{
 		// static only
 		throw new UnsupportedOperationException();

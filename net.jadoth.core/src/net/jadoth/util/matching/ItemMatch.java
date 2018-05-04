@@ -1,6 +1,6 @@
 package net.jadoth.util.matching;
 
-import static net.jadoth.collections.JadothArrays.fill;
+import static net.jadoth.collections.XArrays.fill;
 
 import net.jadoth.X;
 import net.jadoth.equality.Equalator;

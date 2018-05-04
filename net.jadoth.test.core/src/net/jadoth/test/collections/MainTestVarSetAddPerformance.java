@@ -1,10 +1,10 @@
 package net.jadoth.test.collections;
 
 import static net.jadoth.X.box;
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
 
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestVarSetAddPerformance
 {
@@ -22,7 +22,7 @@ public class MainTestVarSetAddPerformance
 		final Integer[] ints = MainTestVarSetAddPerformance.ints;
 		for(int i = 0; i < SIZE; i++)
 		{
-			ints[i] = JadothMath.random(Integer.MAX_VALUE);
+			ints[i] = XMath.random(Integer.MAX_VALUE);
 		}
 		long tStart;
 		long tStop;

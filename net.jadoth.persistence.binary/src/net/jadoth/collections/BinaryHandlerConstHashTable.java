@@ -11,7 +11,7 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -38,8 +38,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_KEYS   = JadothReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Keys.class)  ,
-		FIELD_VALUES = JadothReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Values.class)
+		FIELD_KEYS   = XReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Keys.class)  ,
+		FIELD_VALUES = XReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Values.class)
 	;
 
 

@@ -2,7 +2,7 @@ package net.jadoth.network.test.sessionless;
 
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 import net.jadoth.network.types.NetworkConnectionProcessor;
 import net.jadoth.network.types.NetworkFactoryServerSessionless;
@@ -34,7 +34,7 @@ public class MainTestSessionlessServer
 		}
 		finally
 		{
-			JadothFiles.closeSilent(connection); // close channel after every message in simple example
+			XFiles.closeSilent(connection); // close channel after every message in simple example
 			System.gc();                         // suggest gc to keep example's memory usage constant
 		}
 	}

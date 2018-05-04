@@ -7,7 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
 
 
@@ -189,7 +189,7 @@ public interface StorageFileWriter
 				+ "_@" + System.currentTimeMillis() + ".bak"
 			;
 //			JadothConsole.debugln("Creating truncation bak file: " + bakFileName);
-			JadothFiles.ensureDirectory(dirBak);
+			XFiles.ensureDirectory(dirBak);
 			try
 			{
 				Files.copy(
@@ -221,7 +221,7 @@ public interface StorageFileWriter
 			@Override
 			public StorageFileWriter provideWriter(final int channelIndex)
 			{
-				final File dir = JadothFiles.ensureDirectory(
+				final File dir = XFiles.ensureDirectory(
 					new File(this.parentDirectory, this.directoryPrefix + channelIndex)
 				);
 				return new Gravedigger(dir.toPath());

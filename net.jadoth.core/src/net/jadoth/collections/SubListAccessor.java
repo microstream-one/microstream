@@ -107,7 +107,7 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 		}
 		else
 		{
-			((XSettingList<E>)this.list).setAll(this.startIndex - offset, JadothArrays.toReversed(elements));
+			((XSettingList<E>)this.list).setAll(this.startIndex - offset, XArrays.toReversed(elements));
 		}
 		return this;
 	}

@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -313,7 +313,7 @@ public final class SetView<E> implements XGettingSet<E>
 	@Override
 	public long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

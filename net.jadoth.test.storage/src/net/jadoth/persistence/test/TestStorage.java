@@ -14,8 +14,8 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.functional.JadothFunctional;
-import net.jadoth.meta.JadothDebug;
+import net.jadoth.functional.XFunctional;
+import net.jadoth.meta.XDebug;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -72,7 +72,7 @@ public class TestStorage extends TestComponentProvider
 	static void deleteOutput(final File dir)
 	{
 		System.out.println("Resetting " + dir);
-		JadothDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir, false);
 		System.out.println("done");
 	}
 
@@ -94,7 +94,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles)
 	{
-		return convertBinToCsv(binaryFiles, JadothFunctional.all());
+		return convertBinToCsv(binaryFiles, XFunctional.all());
 	}
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
@@ -129,7 +129,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static void convertCsvToBin(final File... binaryFiles)
 	{
-		convertCsvToBin(X.List(binaryFiles), JadothFunctional.all());
+		convertCsvToBin(X.List(binaryFiles), XFunctional.all());
 	}
 
 	protected static void convertCsvToBin(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
@@ -395,15 +395,15 @@ public class TestStorage extends TestComponentProvider
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		JadothDebug.debugln("GC#1");
+		XDebug.debugln("GC#1");
 		connection.issueFullGarbageCollection();
-		JadothDebug.debugln("GC#2");
+		XDebug.debugln("GC#2");
 		connection.issueFullGarbageCollection();
-		JadothDebug.debugln("cache check");
+		XDebug.debugln("cache check");
 		connection.issueFullCacheCheck();
-		JadothDebug.debugln("file check");
+		XDebug.debugln("file check");
 		connection.issueFullFileCheck();
-		JadothDebug.debugln("Done cleanup");
+		XDebug.debugln("Done cleanup");
 	}
 
 	static void testContinuousHouseKeeping()
@@ -412,7 +412,7 @@ public class TestStorage extends TestComponentProvider
 
 		for(int i = 0; i < 100; i++)
 		{
-			JadothDebug.debugln("Continuous Call #" + i);
+			XDebug.debugln("Continuous Call #" + i);
 			connection.store(ROOT);
 			storageCleanup(connection);
 		}

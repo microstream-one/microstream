@@ -4,7 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.types.PersistenceDistrict;
@@ -264,9 +264,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 				// (21.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Conflicting helper registration: "
-					+ JadothStrings.systemString(subject) + " already has helper instance "
-					+ JadothStrings.systemString(existingEntry.value()) + " associated with it. Not "
-					+ JadothStrings.systemString(helper)
+					+ XStrings.systemString(subject) + " already has helper instance "
+					+ XStrings.systemString(existingEntry.value()) + " associated with it. Not "
+					+ XStrings.systemString(helper)
 				);
 			}
 		}

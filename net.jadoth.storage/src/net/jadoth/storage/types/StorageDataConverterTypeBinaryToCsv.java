@@ -12,7 +12,7 @@ import java.nio.channels.FileChannel;
 import net.jadoth.X;
 import net.jadoth.chars.CharConversion_float;
 import net.jadoth.chars.EscapeHandler;
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.MemoryCharConversionIntegersUTF8;
 import net.jadoth.chars.MemoryCharConversionUTF8;
 import net.jadoth.chars.MemoryCharConversion_doubleUTF8;
@@ -23,7 +23,7 @@ import net.jadoth.collections.LimitList;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.file.FileException;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
@@ -33,7 +33,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldC
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CsvConfiguration;
 
 
@@ -152,7 +152,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			try
 			{
-				return JadothFiles.createWritingFileChannel(file);
+				return XFiles.createWritingFileChannel(file);
 			}
 			catch(FileException | IOException e)
 			{
@@ -187,7 +187,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private final int                                     literalByteLengthFalse;
 
 		// workaround helper buffer. See use site comments for explanation
-		private final char[]                                  decimalBuffer = new char[JadothChars.maxCharCount_double()];
+		private final char[]                                  decimalBuffer = new char[XChars.maxCharCount_double()];
 
 		private final StorageEntityTypeConversionFileProvider fileProvider          ;
 		private final PersistenceTypeDictionary               typeDictionary        ;
@@ -318,7 +318,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 //			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(JadothTypes.to_int(members.size()));
 //			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(JadothTypes.to_int(members.size()));
 
-			final int memberCount = JadothTypes.to_int(members.size());
+			final int memberCount = XTypes.to_int(members.size());
 
 			final ValueWriter[] simpleValueWriters = new ValueWriter[memberCount];
 			final ValueWriter[] otherValueWriters = new ValueWriter[memberCount];
@@ -354,8 +354,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void openChannel() throws IOException
 		{
 			final File file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			JadothFiles.ensureDirectory(file.getParentFile());
-			this.fileChannel = JadothFiles.createWritingFileChannel(file);
+			XFiles.ensureDirectory(file.getParentFile());
+			this.fileChannel = XFiles.createWritingFileChannel(file);
 		}
 
 		private ValueWriter deriveOtherValueWriter(final PersistenceTypeDescriptionMember field)
@@ -380,7 +380,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members = field.members();
 
-			if(JadothTypes.to_int(members.size()) == 1)
+			if(XTypes.to_int(members.size()) == 1)
 			{
 				/* char array gets written as a String because anything else would be unnecessary overhead
 				 * in both bytes and CSV parsing logic.
@@ -478,10 +478,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 			;
 
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.typeDescription.members();
-			final LimitList<String> refColumnNames = new LimitList<>(JadothTypes.to_int(members.size()));
-			final LimitList<String> prmColumnNames = new LimitList<>(JadothTypes.to_int(members.size()));
-			final LimitList<String> refColumnTypes = new LimitList<>(JadothTypes.to_int(members.size()));
-			final LimitList<String> prmColumnTypes = new LimitList<>(JadothTypes.to_int(members.size()));
+			final LimitList<String> refColumnNames = new LimitList<>(XTypes.to_int(members.size()));
+			final LimitList<String> prmColumnNames = new LimitList<>(XTypes.to_int(members.size()));
+			final LimitList<String> refColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
+			final LimitList<String> prmColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
 
 			// write column names (including oid column with custom name)
 			for(final PersistenceTypeDescriptionMember column : members)
@@ -546,7 +546,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				return;
 			}
 
-			try(FileChannel inputChannel = JadothFiles.createReadingFileChannel(this.currentSourceFile = file))
+			try(FileChannel inputChannel = XFiles.createReadingFileChannel(this.currentSourceFile = file))
 			{
 				try
 				{
@@ -598,7 +598,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void reset() throws IOException
 		{
-			JadothFiles.closeSilent(this.fileChannel);
+			XFiles.closeSilent(this.fileChannel);
 			this.typeId       =   -1;
 			this.typeDescription  = null;
 			this.valueWriters = null;

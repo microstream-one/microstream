@@ -12,7 +12,7 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -40,9 +40,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_EQUALATOR = JadothReflect.getInstanceFieldOfType(EqConstHashTable.class, HashEqualator.class)          ,
-		FIELD_KEYS      = JadothReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Keys.class)  ,
-		FIELD_VALUES    = JadothReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Values.class)
+		FIELD_EQUALATOR = XReflect.getInstanceFieldOfType(EqConstHashTable.class, HashEqualator.class)          ,
+		FIELD_KEYS      = XReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Keys.class)  ,
+		FIELD_VALUES    = XReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Values.class)
 	;
 
 

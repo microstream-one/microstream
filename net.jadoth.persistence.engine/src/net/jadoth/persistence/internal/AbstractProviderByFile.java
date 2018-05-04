@@ -4,7 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.io.File;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.Persistence;
 
@@ -16,7 +16,7 @@ public abstract class AbstractProviderByFile
 	
 	public static final void write(final File file, final String value) throws PersistenceExceptionTransfer
 	{
-		JadothFiles.writeStringToFile(file, value, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
+		XFiles.writeStringToFile(file, value, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
 	}
 
 
@@ -51,7 +51,7 @@ public abstract class AbstractProviderByFile
 
 	protected String read()
 	{
-		return JadothFiles.readStringFromFile(this.file, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
+		return XFiles.readStringFromFile(this.file, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
 	}
 
 }

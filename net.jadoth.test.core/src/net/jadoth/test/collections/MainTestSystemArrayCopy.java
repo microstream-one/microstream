@@ -1,6 +1,6 @@
 package net.jadoth.test.collections;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestSystemArrayCopy
 {
@@ -9,7 +9,7 @@ public class MainTestSystemArrayCopy
 
 	public static void main(final String[] args)
 	{
-		final int[] src = JadothMath.sequence(1,SIZE);
+		final int[] src = XMath.sequence(1,SIZE);
 		final int[] dest = new int[SIZE];
 		final int range = 2;
 		final int length = SIZE-range;

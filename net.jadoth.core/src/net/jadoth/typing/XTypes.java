@@ -40,7 +40,7 @@ import net.jadoth.util.UtilStackTrace;
  *
  * @author Thomas Muenz
  */
-public final class JadothTypes
+public final class XTypes
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Class Type Classifiers //
@@ -408,7 +408,7 @@ public final class JadothTypes
 	// constructors //
 	/////////////////
 	
-	private JadothTypes()
+	private XTypes()
 	{
 		// static only
 		throw new UnsupportedOperationException();

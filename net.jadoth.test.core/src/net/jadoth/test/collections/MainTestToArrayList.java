@@ -1,6 +1,6 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 import net.jadoth.X;
 import net.jadoth.collections.old.OldCollections;
 import net.jadoth.collections.types.XList;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -25,7 +25,7 @@ public class MainTestToArrayList
 	public static void main(final String[] args)
 	{
 		final XList<Integer> ints = X.List(intArray);
-		System.out.println(JadothTypes.to_int(ints.size()));
+		System.out.println(XTypes.to_int(ints.size()));
 		System.out.println();
 
 		long tStart;

@@ -1,6 +1,6 @@
 package net.jadoth.meta;
 
-import static net.jadoth.time.JadothTime.now;
+import static net.jadoth.time.XTime.now;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.concurrency.JadothThreads;
-import net.jadoth.file.JadothFiles;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.file.XFiles;
 import net.jadoth.typing.KeyValue;
 
 
@@ -27,7 +27,7 @@ import net.jadoth.typing.KeyValue;
  * 
  * @author Thomas Muenz
  */
-public final class JadothDebug
+public final class XDebug
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -69,7 +69,7 @@ public final class JadothDebug
 	public static final void debugln(final String s, final int stackTraceCut)
 	{
 		// index 1 is always safely this method call itself, index 2 is always safely the calling context
-		final StackTraceElement e = JadothThreads.getStackTraceElement(2 + stackTraceCut);
+		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
 
 		System.out.println(
 			VarString.New(LINE_BUFFER_INITIAL_SIZE)
@@ -487,7 +487,7 @@ public final class JadothDebug
 		final String subjectPath    = subject.getAbsolutePath();
 		final File   targetFile     = new File(targetRoot, subjectPath.substring(sourceRootPath.length()));
 
-		JadothFiles.ensureDirectoryAndFile(targetFile);
+		XFiles.ensureDirectoryAndFile(targetFile);
 
 		final Path sourcePath      = subject.toPath();
 		final Path destinationPath = targetFile.toPath();
@@ -503,7 +503,7 @@ public final class JadothDebug
 	// constructors //
 	/////////////////
 
-	private JadothDebug()
+	private XDebug()
 	{
 		// static only
 		throw new UnsupportedOperationException();

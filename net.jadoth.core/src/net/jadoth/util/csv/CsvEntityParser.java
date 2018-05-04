@@ -5,7 +5,7 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public interface CsvEntityParser<T>
 {
@@ -88,7 +88,7 @@ public interface CsvEntityParser<T>
 
 		protected void validateRow(final BulkList<String> row)
 		{
-			if(JadothTypes.to_int(row.size()) == this.columnCount())
+			if(XTypes.to_int(row.size()) == this.columnCount())
 			{
 				return;
 			}

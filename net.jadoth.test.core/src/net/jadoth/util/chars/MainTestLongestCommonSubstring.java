@@ -2,7 +2,7 @@ package net.jadoth.util.chars;
 
 import java.util.Arrays;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 
 
 
@@ -20,13 +20,13 @@ public class MainTestLongestCommonSubstring
 
 	static void test(final String s1, final String s2, final char[] c1, final char[] c2)
 	{
-		System.out.println(JadothChars.longestCommonSubstring(s1, s2));
-		System.out.println(JadothChars.longestCommonPrefix(s1, s2));
-		System.out.println(JadothChars.longestCommonSuffix(s1, s2));
+		System.out.println(XChars.longestCommonSubstring(s1, s2));
+		System.out.println(XChars.longestCommonPrefix(s1, s2));
+		System.out.println(XChars.longestCommonSuffix(s1, s2));
 
-		System.out.println(Arrays.toString(JadothChars.longestCommonSubstring(c1, c2)));
-		System.out.println(Arrays.toString(JadothChars.longestCommonPrefix(c1, c2)));
-		System.out.println(Arrays.toString(JadothChars.longestCommonSuffix(c1, c2)));
+		System.out.println(Arrays.toString(XChars.longestCommonSubstring(c1, c2)));
+		System.out.println(Arrays.toString(XChars.longestCommonPrefix(c1, c2)));
+		System.out.println(Arrays.toString(XChars.longestCommonSuffix(c1, c2)));
 	}
 
 

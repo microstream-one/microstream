@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional._byteProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.memory.Memory;
 
 
@@ -71,7 +71,7 @@ public final class VarByte implements Externalizable
 	private static final int boundPow2(final int n)
 	{
 		//if desired capacity is not boundable by shifting, max capacity is required
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(n))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(n))
 		{
 			return Integer.MAX_VALUE;
 		}
@@ -343,7 +343,7 @@ public final class VarByte implements Externalizable
 		// calculate new capacity
 		final int newSize = this.size + requiredFreeCapacity;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -749,7 +749,7 @@ public final class VarByte implements Externalizable
 	public void trimToSize()
 	{
 		final int size = this.size;
-		if(size << 1 > this.data.length || JadothMath.isGreaterThanHighestPowerOf2Integer(size))
+		if(size << 1 > this.data.length || XMath.isGreaterThanHighestPowerOf2Integer(size))
 		{
 			return; //not shrinkable, abort
 		}

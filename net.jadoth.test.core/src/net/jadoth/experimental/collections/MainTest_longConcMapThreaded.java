@@ -1,8 +1,8 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.concurrency.JadothThreads;
-import net.jadoth.meta.JadothDebug;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.meta.XDebug;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing._longKeyValue;
 
 
@@ -38,7 +38,7 @@ public class MainTest_longConcMapThreaded
 //		{
 //			System.out.println(i+"\t"+KEYS[i]);
 //		}
-		JadothThreads.sleep(ADD_COUNT*10);
+		XThreads.sleep(ADD_COUNT*10);
 
 
 		// singlethreaded test
@@ -50,15 +50,15 @@ public class MainTest_longConcMapThreaded
 
 		System.out.println("add() check");
 		_longKeyValue[] array;
-		JadothDebug.printArray(array = map.toArray(), "{", ",", "}", PRINT_LIMIT);
-		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+JadothTypes.to_int(map.size())+" == "+actualArraySize(array));
+		XDebug.printArray(array = map.toArray(), "{", ",", "}", PRINT_LIMIT);
+		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+XTypes.to_int(map.size())+" == "+actualArraySize(array));
 
 
 
 		// removing //
 
 
-		JadothThreads.sleep(ADD_COUNT*10);
+		XThreads.sleep(ADD_COUNT*10);
 		System.out.println("removing...");
 
 		for(int i = THREAD_COUNT; i --> 0;)
@@ -75,13 +75,13 @@ public class MainTest_longConcMapThreaded
 			}.start();
 		}
 
-		JadothThreads.sleep(ADD_COUNT*10);
+		XThreads.sleep(ADD_COUNT*10);
 
 		System.out.println("remove() check");
 
 		_longKeyValue[] array2;
-		JadothDebug.printArray(array2 = map.toArray(), "{", ",", "}", PRINT_LIMIT);
-		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+JadothTypes.to_int(map.size())+" == "+actualArraySize(array2));
+		XDebug.printArray(array2 = map.toArray(), "{", ",", "}", PRINT_LIMIT);
+		System.out.println(THREAD_COUNT*ADD_COUNT+" -> "+THREAD_COUNT + " == "+XTypes.to_int(map.size())+" == "+actualArraySize(array2));
 	}
 
 	static int actualArraySize(final Object[] array)

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 public interface PersistenceTypeResolver
 {
@@ -26,7 +26,7 @@ public interface PersistenceTypeResolver
 		{
 			try
 			{
-				return JadothReflect.classForName(typeName);
+				return XReflect.classForName(typeName);
 			}
 			catch(final ClassNotFoundException e)
 			{
@@ -42,7 +42,7 @@ public interface PersistenceTypeResolver
 		{
 			try
 			{
-				return JadothReflect.classForName(typeName);
+				return XReflect.classForName(typeName);
 			}
 			catch(final ClassNotFoundException e)
 			{

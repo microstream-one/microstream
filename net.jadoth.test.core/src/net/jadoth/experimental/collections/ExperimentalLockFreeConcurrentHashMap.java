@@ -1,5 +1,5 @@
 package net.jadoth.experimental.collections;
-import static net.jadoth.reflect.JadothReflect.getDeclaredField;
+import static net.jadoth.reflect.XReflect.getDeclaredField;
 
 import java.util.Arrays;
 import java.util.Collection;

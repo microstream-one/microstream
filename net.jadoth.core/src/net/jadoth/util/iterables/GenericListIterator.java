@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 /**
  * Generic (and potentially imperformant!) implementation of a {@link ListIterator}.<br>
@@ -74,7 +74,7 @@ public class GenericListIterator<E> implements ListIterator<E>
 		 */
 		if(index < 0 || index >= list.size())
 		{
-			throw new IndexBoundsException(JadothTypes.to_int(list.size()), index);
+			throw new IndexBoundsException(XTypes.to_int(list.size()), index);
 		}
 		this.index = index;
 		this.lastReturnedIndex = -1;
@@ -95,14 +95,14 @@ public class GenericListIterator<E> implements ListIterator<E>
 	@Override
 	public boolean hasNext()
 	{
-		return this.index < JadothTypes.to_int(this.list.size()); // list size could have changed meanwhile
+		return this.index < XTypes.to_int(this.list.size()); // list size could have changed meanwhile
 	}
 
 	@Override
 	public boolean hasPrevious()
 	{
 		// list size could have changed meanwhile
-		return this.index > 0 && this.index <= JadothTypes.to_int(this.list.size());
+		return this.index > 0 && this.index <= XTypes.to_int(this.list.size());
 	}
 
 	@Override

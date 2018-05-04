@@ -2,7 +2,7 @@ package net.jadoth.test;
 
 import java.util.ArrayList;
 
-import net.jadoth.concurrency.JadothThreads;
+import net.jadoth.concurrency.XThreads;
 
 public class MainTestUnsynchedRead
 {
@@ -30,13 +30,13 @@ public class MainTestUnsynchedRead
 				while(true)
 				{
 					print();
-					JadothThreads.sleep(100);
+					XThreads.sleep(100);
 				}
 			}
 		}.start();
 
 
-		JadothThreads.sleep(1000);
+		XThreads.sleep(1000);
 
 
 		for(int t = 10; t --> 0;)
@@ -46,7 +46,7 @@ public class MainTestUnsynchedRead
 				while(true)
 				{
 					increase(t1);
-					JadothThreads.sleep(10);
+					XThreads.sleep(10);
 				}
 				}
 			}.start();

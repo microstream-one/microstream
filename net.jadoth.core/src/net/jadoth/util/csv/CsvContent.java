@@ -5,7 +5,7 @@ import net.jadoth.chars.StringTable;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -47,7 +47,7 @@ public interface CsvContent
 			final CsvConfiguration                        configuration
 		)
 		{
-			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(JadothTypes.to_int(segments.size()));
+			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(XTypes.to_int(segments.size()));
 			for(final StringTable table : segments)
 			{
 				translated.add(X.KeyValue(table.name(), table));

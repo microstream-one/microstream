@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
 import net.jadoth.concurrency.Synchronized;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 
 
@@ -484,7 +484,7 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 	@Override
 	public final synchronized long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

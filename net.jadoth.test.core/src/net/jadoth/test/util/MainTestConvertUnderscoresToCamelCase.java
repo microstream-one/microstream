@@ -1,6 +1,6 @@
 package net.jadoth.test.util;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 
 public class MainTestConvertUnderscoresToCamelCase
 {
@@ -31,7 +31,7 @@ public class MainTestConvertUnderscoresToCamelCase
 		};
 		for(final String s : strings)
 		{
-			System.out.println(s+"\t->\t"+JadothChars.convertUnderscoresToCamelCase(s));
+			System.out.println(s+"\t->\t"+XChars.convertUnderscoresToCamelCase(s));
 		}
 	}
 }

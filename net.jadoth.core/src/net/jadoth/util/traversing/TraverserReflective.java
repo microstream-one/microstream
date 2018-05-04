@@ -3,7 +3,7 @@ package net.jadoth.util.traversing;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.HashEnum;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 public final class TraverserReflective<T> implements TypeTraverser<T>
 {
@@ -41,7 +41,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 	// central debugging method, should be inlined by JIT.
 	private static void storeToField(final Field field, final Object instance, final Object value)
 	{
-		JadothReflect.setFieldValue(field, instance, value);
+		XReflect.setFieldValue(field, instance, value);
 	}
 	
 	@Override
@@ -55,7 +55,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		
 		for(int i = 0; i < length; i++)
 		{
-			enqueuer.enqueue(JadothReflect.getFieldValue(fields[i], instance));
+			enqueuer.enqueue(XReflect.getFieldValue(fields[i], instance));
 		}
 	}
 	
@@ -74,7 +74,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current;
-				if(acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance))
+				if(acceptor.acceptReference(current = XReflect.getFieldValue(fields[i], instance), instance))
 				{
 					enqueuer.enqueue(current);
 				}
@@ -102,7 +102,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				enqueuer.enqueue(current = JadothReflect.getFieldValue(fields[i], instance));
+				enqueuer.enqueue(current = XReflect.getFieldValue(fields[i], instance));
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
 					if(mutationListener != null)
@@ -140,7 +140,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				if(acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance))
+				if(acceptor.acceptReference(current = XReflect.getFieldValue(fields[i], instance), instance))
 				{
 					enqueuer.enqueue(current);
 				}
@@ -178,7 +178,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		{
 			for(int i = 0; i < length; i++)
 			{
-				acceptor.acceptReference(JadothReflect.getFieldValue(fields[i], instance), instance);
+				acceptor.acceptReference(XReflect.getFieldValue(fields[i], instance), instance);
 			}
 		}
 		catch(final AbstractTraversalSkipSignal s)
@@ -201,7 +201,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		{
 			for(int i = 0; i < length; i++)
 			{
-				final Object current = JadothReflect.getFieldValue(fields[i], instance), returned;
+				final Object current = XReflect.getFieldValue(fields[i], instance), returned;
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
 					if(mutationListener != null)
@@ -235,7 +235,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 			for(int i = 0; i < length; i++)
 			{
 				final Object current, returned;
-				acceptor.acceptReference(current = JadothReflect.getFieldValue(fields[i], instance), instance);
+				acceptor.acceptReference(current = XReflect.getFieldValue(fields[i], instance), instance);
 				if((returned = mutator.mutateReference(current, instance)) != current)
 				{
 					if(mutationListener != null)
@@ -266,7 +266,7 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		return new TraverserReflective.Creator(
 			fieldSelector != null
 			? fieldSelector
-			: TraversalFieldSelector.New(JadothReflect::isReference)
+			: TraversalFieldSelector.New(XReflect::isReference)
 		);
 	}
 	
@@ -300,8 +300,8 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		private final Field[] collectFields(final Class<?> type)
 		{
 			final HashEnum<Field> selectedFields = HashEnum.New();
-			JadothReflect.collectTypedFields(selectedFields, type, field ->
-				JadothReflect.isInstanceField(field)
+			XReflect.collectTypedFields(selectedFields, type, field ->
+				XReflect.isInstanceField(field)
 				&& this.fieldSelector.test(type, field))
 			;
 			

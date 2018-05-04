@@ -1,7 +1,7 @@
 package net.jadoth.util.chars;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 
@@ -32,7 +32,7 @@ public class MainTestCharsToString
 //		ints = JaMath.sequence(SIZE);
 //		ints = JaMath.randoming(SIZE, 1_000_000_000, 2_000_000_000);
 //		ints = JaMath.randoming(SIZE, 100);
-		ints = JadothMath.randoming(SIZE, 10);
+		ints = XMath.randoming(SIZE, 10);
 //		ints = JaMath.randoming(SIZE, 100_000, 1_000_000);
 	}
 

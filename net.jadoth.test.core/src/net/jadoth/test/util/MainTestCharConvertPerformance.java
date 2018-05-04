@@ -1,7 +1,7 @@
 package net.jadoth.test.util;
 
-import net.jadoth.chars.JadothChars;
-import net.jadoth.math.JadothMath;
+import net.jadoth.chars.XChars;
+import net.jadoth.math.XMath;
 
 
 
@@ -18,8 +18,8 @@ public class MainTestCharConvertPerformance
 	static{
 		for(int i = 0; i < SIZE; i++)
 		{
-			chars[i] = (char)(JadothMath.random(94)+32); // common text characters
-			chars[i] = (char)(JadothMath.random(127)); // lower ASCII characters
+			chars[i] = (char)(XMath.random(94)+32); // common text characters
+			chars[i] = (char)(XMath.random(127)); // lower ASCII characters
 //			chars[i] = ' ';
 //			chars[i] = '~';
 //			chars[i] = '\n';
@@ -43,7 +43,7 @@ public class MainTestCharConvertPerformance
 			{
 				for(i = 0; i < SIZE; i++)
 				{
-					s = JadothChars.string(chars[i]);
+					s = XChars.string(chars[i]);
 //					s = String.valueOf(chars[i]);
 				}
 			}

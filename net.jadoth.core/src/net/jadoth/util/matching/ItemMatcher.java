@@ -3,12 +3,12 @@ package net.jadoth.util.matching;
 import java.text.DecimalFormat;
 import java.util.function.BiConsumer;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.typing.KeyValue;
 
 
@@ -55,7 +55,7 @@ import net.jadoth.typing.KeyValue;
  * <li>someMiscAddress</li>
  * </ul>
  * When using a case insensitive modified Levenshtein {@link Similator}
- * (see {@link JadothChars#levenshteinSubstringSimilarity}) the algorithm produces the following associations:
+ * (see {@link XChars#levenshteinSubstringSimilarity}) the algorithm produces the following associations:
  * <pre>
  * firstname       < - 1.00-> Firstname
  * lastname        <-0.75-> Name
@@ -138,7 +138,7 @@ public interface ItemMatcher<E>
 		static final double DEFAULT_SINGLETON_PRECEDENCE_BONUS = 1.25D;
 		static final double DEFAULT_NOISE_FACTOR               = 0.50;
 
-		static final DecimalFormat SIM_FORMAT = JadothChars.createDecimalFormatter("0.00", java.util.Locale.ENGLISH);
+		static final DecimalFormat SIM_FORMAT = XChars.createDecimalFormatter("0.00", java.util.Locale.ENGLISH);
 
 
 
@@ -198,10 +198,10 @@ public interface ItemMatcher<E>
 			vc
 			.add(title).lf()
 			.add("[candidateCount = " + Math.min(im.sourceCandidateCount, im.targetCandidateCount) + "]")
-			.add("[totalSimilarity = " + JadothMath.round3(im.getTotalSimilarity()) + "]")
+			.add("[totalSimilarity = " + XMath.round3(im.getTotalSimilarity()) + "]")
 			.lf()
 			.add("[matchCount = " + mc + "]")
-			.add("[averageSimilarity = " + (mc == 0 ? 0 : JadothMath.round3(im.getTotalSimilarity() / mc)) + "]")
+			.add("[averageSimilarity = " + (mc == 0 ? 0 : XMath.round3(im.getTotalSimilarity() / mc)) + "]")
 			.lf()
 			;
 

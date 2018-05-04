@@ -1,22 +1,22 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.math.JadothMath.log2pow2;
-import static net.jadoth.math.JadothMath.notNegative;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.log2pow2;
+import static net.jadoth.math.XMath.notNegative;
+import static net.jadoth.math.XMath.positive;
 
 import java.nio.ByteBuffer;
 
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -244,7 +244,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			final int newModulo;
 			final StorageEntity.Implementation[] newSlots =
-				JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.oidHashTable.length)
+				XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.oidHashTable.length)
 				? new StorageEntity.Implementation[newModulo = Integer.MAX_VALUE] // perfect hash range special case
 				: new StorageEntity.Implementation[(newModulo = (this.oidModulo + 1 << 1) - 1) + 1] // 1111 :D
 			;
@@ -280,7 +280,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			// if the hash table is unnecessary large, shrink it
-			final int                            newModulo = JadothMath.pow2BoundMaxed((int)this.oidSize) - 1;
+			final int                            newModulo = XMath.pow2BoundMaxed((int)this.oidSize) - 1;
 			final StorageEntity.Implementation[] newSlots  = new StorageEntity.Implementation[newModulo + 1];
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
@@ -1064,7 +1064,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				entity.updateStorageInformation(
 					X.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
-					JadothTypes.to_int(storageBackset + adr)
+					XTypes.to_int(storageBackset + adr)
 				);
 			}
 		}

@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.functional.JadothFunctional;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.functional.XFunctional;
+import net.jadoth.typing.XTypes;
 
 public abstract class AbstractBridgeXSet<E> extends AbstractOldGettingSet<E>
 {
@@ -73,7 +73,7 @@ public abstract class AbstractBridgeXSet<E> extends AbstractOldGettingSet<E>
 		// even xcollections have to be handled that way because of the missing type info (argh)
 		for(final Object o : c)
 		{
-			removeCount += list.removeBy(JadothFunctional.isEqualTo((E)o));
+			removeCount += list.removeBy(XFunctional.isEqualTo((E)o));
 		}
 		return removeCount > 0;
 	}
@@ -81,9 +81,9 @@ public abstract class AbstractBridgeXSet<E> extends AbstractOldGettingSet<E>
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
-		final int oldSize = JadothTypes.to_int(this.subject.size());
+		final int oldSize = XTypes.to_int(this.subject.size());
 		((XSet<E>)this.subject).removeBy(e -> !c.contains(e));
-		return oldSize - JadothTypes.to_int(this.subject.size()) > 0;
+		return oldSize - XTypes.to_int(this.subject.size()) > 0;
 	}
 
 }

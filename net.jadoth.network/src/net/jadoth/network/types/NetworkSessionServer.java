@@ -1,7 +1,7 @@
 package net.jadoth.network.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
 public interface NetworkSessionServer extends NetworkConnectionServer
 {

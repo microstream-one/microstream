@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.storage.exceptions.StorageException;
 
 
@@ -395,7 +395,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			return this.getClass().getSimpleName() + " " + this.file.file()
 				+ " (" + this.fileDataLength + " / " + this.fileTotalLength
-				+ ", " + JadothMath.fractionToPercent(this.dataFillRatio()) + ")"
+				+ ", " + XMath.fractionToPercent(this.dataFillRatio()) + ")"
 			;
 		}
 

@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import static java.lang.System.identityHashCode;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.util.XVM;
 
 
@@ -24,7 +24,7 @@ public interface ServerConnection
 		// constants        //
 		/////////////////////
 
-		private static final int HASH_LIMIT = JadothMath.highestPowerOf2Integer();
+		private static final int HASH_LIMIT = XMath.highestPowerOf2Integer();
 
 		// (15.04.2016 TM)NOTE: no idea why this is so static. Old code.
 		private static final int RESPONSE_ENTRY_ARRAY_LENGTH = 32;

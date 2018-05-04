@@ -9,11 +9,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.jadoth.X;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional._charProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -93,7 +93,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	private static int calculateNewCapacity(final int capacity, final int minimumCapacity)
 	{
 		// handle max int value special case
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(minimumCapacity))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(minimumCapacity))
 		{
 			return Integer.MAX_VALUE;
 		}
@@ -173,7 +173,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	private void internalAdd(final String s)
 	{
 		this.ensureFreeCapacity(s.length());
-		this.size = JadothChars.put(s, this.data, this.size);
+		this.size = XChars.put(s, this.data, this.size);
 	}
 
 	public final void add(final char[] chars, final int offset, final int length)
@@ -193,19 +193,19 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	private void internalAddNull()
 	{
 		this.ensureFreeCapacity(LITERAL_LENGTH_NULL);
-		this.size = JadothChars.putNull(this.data, this.size);
+		this.size = XChars.putNull(this.data, this.size);
 	}
 
 	private void internalAddTrue()
 	{
 		this.ensureFreeCapacity(LITERAL_LENGTH_TRUE);
-		this.size = JadothChars.putTrue(this.data, this.size);
+		this.size = XChars.putTrue(this.data, this.size);
 	}
 
 	private void internalAddFalse()
 	{
 		this.ensureFreeCapacity(LITERAL_LENGTH_FALSE);
-		this.size = JadothChars.putFalse(this.data, this.size);
+		this.size = XChars.putFalse(this.data, this.size);
 	}
 
 	private void internalAddObject(final Object object)
@@ -340,8 +340,8 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString add(final byte value)
 	{
-		this.ensureFreeCapacity(JadothChars.maxCharCount_byte());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_byte());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
@@ -360,37 +360,37 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString add(final short value)
 	{
-		this.ensureFreeCapacity(JadothChars.maxCharCount_short());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_short());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
 	public final VarString add(final int value)
 	{
 		// around 6 times faster than using Integer#toString() and requires no GC runs at all
-		this.ensureFreeCapacity(JadothChars.maxCharCount_int());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_int());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
 	public final VarString add(final float value)
 	{
-		this.ensureFreeCapacity(JadothChars.maxCharCount_float());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_float());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
 	public final VarString add(final long value)
 	{
-		this.ensureFreeCapacity(JadothChars.maxCharCount_long());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_long());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
 	public final VarString add(final double value)
 	{
-		this.ensureFreeCapacity(JadothChars.maxCharCount_double());
-		this.size = JadothChars.put(value, this.data, this.size);
+		this.ensureFreeCapacity(XChars.maxCharCount_double());
+		this.size = XChars.put(value, this.data, this.size);
 		return this;
 	}
 
@@ -448,7 +448,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	public final VarString addHexDec(final byte value)
 	{
 		this.ensureFreeCapacity(LITERAL_LENGTH_HEX_DEC_BYTE);
-		this.size = JadothChars.putHexDec(value, this.data, this.size);
+		this.size = XChars.putHexDec(value, this.data, this.size);
 		return this;
 	}
 
@@ -459,7 +459,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		final char[] data = this.data;
 		for(int i = 0; i < bytes.length; i++)
 		{
-			size = JadothChars.putHexDec(bytes[i], data, size);
+			size = XChars.putHexDec(bytes[i], data, size);
 		}
 		this.size = size;
 		return this;
@@ -569,7 +569,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString reverse()
 	{
-		JadothChars.uncheckedReverse(this.data, this.size);
+		XChars.uncheckedReverse(this.data, this.size);
 		return this;
 	}
 
@@ -587,95 +587,95 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final int indexOf(final char c)
 	{
-		return JadothChars.uncheckedIndexOf(this.data, this.size, 0, c);
+		return XChars.uncheckedIndexOf(this.data, this.size, 0, c);
 	}
 
 	public final int indexOf(final char c, final int offset)
 	{
 		this.validateIndex(offset);
-		return JadothChars.uncheckedIndexOf(this.data, this.size, offset, c);
+		return XChars.uncheckedIndexOf(this.data, this.size, offset, c);
 	}
 
 	public final int indexOf(final char[] chars)
 	{
-		return JadothChars.uncheckedIndexOf(this.data, this.size, chars);
+		return XChars.uncheckedIndexOf(this.data, this.size, chars);
 	}
 
 	public final int indexOf(final char[] chars, final int offset)
 	{
 		this.validateIndex(offset);
-		return JadothChars.indexOf(chars, offset, this.size - offset, chars);
+		return XChars.indexOf(chars, offset, this.size - offset, chars);
 	}
 
 	public final int indexOf(final String s)
 	{
-		return JadothChars.indexOf(this.data, 0, this.size, JadothChars.getChars(s), 0, s.length(), 0);
+		return XChars.indexOf(this.data, 0, this.size, XChars.getChars(s), 0, s.length(), 0);
 	}
 
 	public final int indexOf(final String s, final int offset)
 	{
-		return JadothChars.indexOf(this.data, 0, this.size, JadothChars.getChars(s), 0, s.length(), offset);
+		return XChars.indexOf(this.data, 0, this.size, XChars.getChars(s), 0, s.length(), offset);
 	}
 
 	public final int indexOf(final VarString vc)
 	{
-		return JadothChars.indexOf(this.data, this.size, vc.data, vc.size, 0);
+		return XChars.indexOf(this.data, this.size, vc.data, vc.size, 0);
 	}
 
 	public final int indexOf(final VarString vc, final int offset)
 	{
-		return JadothChars.indexOf(this.data, this.size, vc.data, vc.size, offset);
+		return XChars.indexOf(this.data, this.size, vc.data, vc.size, offset);
 	}
 
 	public final boolean contains(final char c)
 	{
-		return JadothChars.uncheckedContains(this.data, this.size, 0, c);
+		return XChars.uncheckedContains(this.data, this.size, 0, c);
 	}
 
 	public final boolean contains(final char[] chars)
 	{
-		return JadothChars.uncheckedIndexOf(this.data, this.size, chars) != -1;
+		return XChars.uncheckedIndexOf(this.data, this.size, chars) != -1;
 	}
 
 	public final boolean contains(final String s)
 	{
-		return JadothChars.uncheckedIndexOf(this.data, this.size, JadothChars.getChars(s)) != -1;
+		return XChars.uncheckedIndexOf(this.data, this.size, XChars.getChars(s)) != -1;
 	}
 
 	public final boolean contains(final VarString vc)
 	{
-		return JadothChars.indexOf(this.data, this.size, vc.data, vc.size, 0) != -1;
+		return XChars.indexOf(this.data, this.size, vc.data, vc.size, 0) != -1;
 	}
 
 	public final int lastIndexOf(final char c)
 	{
-		return JadothChars.uncheckedLastIndexOf(this.data, this.size, c);
+		return XChars.uncheckedLastIndexOf(this.data, this.size, c);
 	}
 
 	public final int lastIndexOf(final char c, final int offset)
 	{
 		this.validateIndex(offset);
-		return JadothChars.uncheckedLastIndexOf(this.data, offset, c);
+		return XChars.uncheckedLastIndexOf(this.data, offset, c);
 	}
 
 	public final int count(final char c)
 	{
-		return JadothChars.count(this.data, 0, this.size, c);
+		return XChars.count(this.data, 0, this.size, c);
 	}
 
 	public final int count(final char[] chars)
 	{
-		return JadothChars.count(this.data, 0, this.size, chars, 0, chars.length);
+		return XChars.count(this.data, 0, this.size, chars, 0, chars.length);
 	}
 
 	public final int count(final String s)
 	{
-		return JadothChars.count(this.data, 0, this.size, JadothChars.getChars(s), 0, s.length());
+		return XChars.count(this.data, 0, this.size, XChars.getChars(s), 0, s.length());
 	}
 
 	public final int count(final VarString vc)
 	{
-		return JadothChars.count(this.data, 0, this.size, vc.data, 0, vc.size);
+		return XChars.count(this.data, 0, this.size, vc.data, 0, vc.size);
 	}
 
 	public final VarString deleteAt(final int index)
@@ -799,7 +799,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final void iterate(final _charProcedure iterator)
 	{
-		JadothChars.iterate(this.data, 0, this.size, iterator);
+		XChars.iterate(this.data, 0, this.size, iterator);
 	}
 
 	public final VarString list(final String separator, final XGettingCollection<?> listElements)
@@ -809,7 +809,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		for(final Object e : listElements)
 		{
 			this.internalAddObject(e);
@@ -820,14 +820,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final Object... listElements)
 	{
-		if(JadothArrays.hasNoContent(listElements))
+		if(XArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		for(final Object e : listElements)
 		{
 			this.internalAddObject(e);
@@ -838,14 +838,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final String... listElements)
 	{
-		if(JadothArrays.hasNoContent(listElements))
+		if(XArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		for(final String e : listElements)
 		{
 			if(e == null)
@@ -863,14 +863,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final VarString... listElements)
 	{
-		if(JadothArrays.hasNoContent(listElements))
+		if(XArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		for(final VarString e : listElements)
 		{
 			if(e == null)
@@ -888,14 +888,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString list(final String separator, final Appendable... listElements)
 	{
-		if(JadothArrays.hasNoContent(listElements))
+		if(XArrays.hasNoContent(listElements))
 		{
 			return this;
 		}
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		for(final Appendable e : listElements)
 		{
 			if(e == null)
@@ -918,16 +918,16 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_boolean() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_boolean() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 		int size = this.size;
 		for(final boolean e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, e
-				? JadothChars.putTrue(data, size)
-				: JadothChars.putFalse(data, size)
+			size = XChars.put(sepChars, data, e
+				? XChars.putTrue(data, size)
+				: XChars.putFalse(data, size)
 			);
 		}
 		this.size = size;
@@ -941,15 +941,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_byte() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_byte() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final byte e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -962,15 +962,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_short() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_short() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final short e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -983,15 +983,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_int() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_int() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final int e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -1004,15 +1004,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_long() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_long() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final long e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -1025,15 +1025,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_float() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_float() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final float e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -1046,15 +1046,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		this.ensureFreeCapacity(listElements.length * (JadothChars.maxCharCount_double() + separator.length()));
+		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_double() + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final double e : listElements)
 		{
-			size = JadothChars.put(sepChars, data, JadothChars.put(e, data, size));
+			size = XChars.put(sepChars, data, XChars.put(e, data, size));
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -1069,14 +1069,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (1 + separator.length()));
 
-		final char[] sepChars = JadothChars.getChars(separator);
+		final char[] sepChars = XChars.getChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
 		for(final char e : listElements)
 		{
 			data[size] = e;
-			size = JadothChars.put(sepChars, data, size + 1);
+			size = XChars.put(sepChars, data, size + 1);
 		}
 		this.size = size;
 		return this.deleteLast(sepChars.length);
@@ -1182,14 +1182,14 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		this.ensureFreeCapacity(amount);
 
 		// actual work
-		JadothChars.uncheckedRepeat(this.data, this.size, amount, c);
+		XChars.uncheckedRepeat(this.data, this.size, amount, c);
 		this.size += amount;
 		return this;
 	}
 
 	public final VarString repeat(final int amount, final String string)
 	{
-		this.repeat(amount, JadothChars.getChars(string));
+		this.repeat(amount, XChars.getChars(string));
 
 		return this;
 	}
@@ -1209,7 +1209,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		this.ensureFreeCapacity(amount * chars.length);
 
 		// actual work
-		JadothChars.uncheckedRepeat(this.data, this.size, amount, chars);
+		XChars.uncheckedRepeat(this.data, this.size, amount, chars);
 		this.size += amount * chars.length;
 		return this;
 	}
@@ -1229,8 +1229,8 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		}
 
 		this.validateRange(index, charsLength);
-		JadothChars.validateRange(chars, charsOffset, charsLength);
-		return JadothChars.uncheckedEquals(this.data, index, chars, charsOffset, charsLength);
+		XChars.validateRange(chars, charsOffset, charsLength);
+		return XChars.uncheckedEquals(this.data, index, chars, charsOffset, charsLength);
 	}
 
 	public final boolean endsWith(final char c)
@@ -1246,7 +1246,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final boolean endsWith(final String string)
 	{
-		return this.endsWith(JadothChars.getChars(string));
+		return this.endsWith(XChars.getChars(string));
 	}
 
 	private static int calculatePaddingCount(final String s, final int totalLength)
@@ -1266,41 +1266,41 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString replaceFirst(final char sample, final char replacement)
 	{
-		JadothChars.uncheckedReplaceFirst(this.data, 0, this.size, sample, replacement);
+		XChars.uncheckedReplaceFirst(this.data, 0, this.size, sample, replacement);
 		return this;
 	}
 
 	public final VarString replaceFirst(final char sample, final char replacement, final int offset)
 	{
 		this.validateIndex(offset);
-		JadothChars.uncheckedReplaceFirst(this.data, offset, this.size - offset, sample, replacement);
+		XChars.uncheckedReplaceFirst(this.data, offset, this.size - offset, sample, replacement);
 		return this;
 	}
 
 	public final VarString replaceFirst(final char sample, final char replacement, final int offset, final int length)
 	{
 		this.validateRange(offset, length);
-		JadothChars.uncheckedReplaceFirst(this.data, offset, length, sample, replacement);
+		XChars.uncheckedReplaceFirst(this.data, offset, length, sample, replacement);
 		return this;
 	}
 
 	public final VarString replaceAll(final char sample, final char replacement)
 	{
-		JadothChars.uncheckedReplaceAll(this.data, 0, this.size, sample, replacement);
+		XChars.uncheckedReplaceAll(this.data, 0, this.size, sample, replacement);
 		return this;
 	}
 
 	public final VarString replaceAll(final char sample, final char replacement, final int offset)
 	{
 		this.validateIndex(offset);
-		JadothChars.uncheckedReplaceAll(this.data, offset, this.size - offset, sample, replacement);
+		XChars.uncheckedReplaceAll(this.data, offset, this.size - offset, sample, replacement);
 		return this;
 	}
 
 	public final VarString replaceAll(final char sample, final char replacement, final int offset, final int length)
 	{
 		this.validateRange(offset, length);
-		JadothChars.uncheckedReplaceAll(this.data, offset, length, sample, replacement);
+		XChars.uncheckedReplaceAll(this.data, offset, length, sample, replacement);
 		return this;
 	}
 

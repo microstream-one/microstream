@@ -1,6 +1,6 @@
 package net.jadoth.chars;
 
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 
 
 
@@ -27,7 +27,7 @@ public interface _charArrayRange
 	{
 		return new Implementation(
 			array,
-			JadothArrays.validateArrayIndex(array.length, offset),
+			XArrays.validateArrayIndex(array.length, offset),
 			array.length
 		);
 	}
@@ -36,8 +36,8 @@ public interface _charArrayRange
 	{
 		return new Implementation(
 			array,
-			JadothArrays.validateArrayIndex(array.length, offset),
-			JadothArrays.validateArrayIndex(array.length, bound - 1) + 1 // nasty
+			XArrays.validateArrayIndex(array.length, offset),
+			XArrays.validateArrayIndex(array.length, bound - 1) + 1 // nasty
 		);
 	}
 
@@ -110,7 +110,7 @@ public interface _charArrayRange
 		{
 			return new Mutable(
 				array,
-				JadothArrays.validateArrayIndex(array.length, offset),
+				XArrays.validateArrayIndex(array.length, offset),
 				array.length
 			);
 		}
@@ -119,8 +119,8 @@ public interface _charArrayRange
 		{
 			return new Mutable(
 				array,
-				JadothArrays.validateArrayIndex(array.length, offset),
-				JadothArrays.validateArrayIndex(array.length, bound)
+				XArrays.validateArrayIndex(array.length, offset),
+				XArrays.validateArrayIndex(array.length, bound)
 			);
 		}
 
@@ -155,12 +155,12 @@ public interface _charArrayRange
 
 		protected final void internalSetStart(final int start)
 		{
-			this.start = JadothArrays.validateArrayIndex(this.array.length, start);
+			this.start = XArrays.validateArrayIndex(this.array.length, start);
 		}
 
 		protected final void internalSetBound(final int bound)
 		{
-			this.bound = JadothArrays.validateArrayIndex(this.array.length, bound);
+			this.bound = XArrays.validateArrayIndex(this.array.length, bound);
 		}
 
 		public Mutable setStart(final int start)

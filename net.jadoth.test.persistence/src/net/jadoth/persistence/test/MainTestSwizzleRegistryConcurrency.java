@@ -1,10 +1,10 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.math.JadothMath.random;
+import static net.jadoth.math.XMath.random;
 
-import net.jadoth.concurrency.JadothThreads;
+import net.jadoth.concurrency.XThreads;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 @SuppressWarnings("deprecation")
 public class MainTestSwizzleRegistryConcurrency
@@ -57,7 +57,7 @@ public class MainTestSwizzleRegistryConcurrency
 					final int index = random(COUNT);
 					System.err.println("Registering "+oids[index]);
 					reg.registerObject(oids[index], objects[index]);
-					JadothThreads.sleep(DELAY<<3);
+					XThreads.sleep(DELAY<<3);
 				}
 			}
 		}.start();
@@ -69,7 +69,7 @@ public class MainTestSwizzleRegistryConcurrency
 					final int index = random(COUNT);
 					System.err.println("Removing "+oids[index]);
 					reg.removeById(oids[index]);
-					JadothThreads.sleep(DELAY<<3);
+					XThreads.sleep(DELAY<<3);
 				}
 			}
 		}.start();
@@ -78,8 +78,8 @@ public class MainTestSwizzleRegistryConcurrency
 			@Override public void run() {
 				while(true)
 				{
-					System.err.println(JadothTypes.to_int(reg.size()));
-					JadothThreads.sleep(DELAY<<2);
+					System.err.println(XTypes.to_int(reg.size()));
+					XThreads.sleep(DELAY<<2);
 				}
 			}
 		}.start();

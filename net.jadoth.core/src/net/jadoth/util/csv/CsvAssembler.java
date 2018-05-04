@@ -2,7 +2,7 @@ package net.jadoth.util.csv;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.chars.JadothChars;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
 import net.jadoth.functional._charProcedure;
 
@@ -218,7 +218,7 @@ public interface CsvAssembler
 			if(value != null)
 			{
 				this.vs.add(this.delimiter);
-				JadothChars.iterate(value, this.assembler);
+				XChars.iterate(value, this.assembler);
 				this.vs.add(this.delimiter);
 			}
 			this.separate();

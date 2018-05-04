@@ -19,7 +19,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 
@@ -877,7 +877,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final int size()
 		{
-			return JadothTypes.to_int(Singleton.this.size());
+			return XTypes.to_int(Singleton.this.size());
 		}
 
 		@Override

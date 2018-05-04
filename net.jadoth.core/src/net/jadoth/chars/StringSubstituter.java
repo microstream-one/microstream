@@ -124,12 +124,12 @@ public final class StringSubstituter implements StringStamper
 
 	public final synchronized String substitute(final char[] chars, final int offset, final int length)
 	{
-		JadothChars.validateRange(chars, offset, length);
+		XChars.validateRange(chars, offset, length);
 		if(length == 0)
 		{
 			return this.substitute("");
 		}
-		final int hash = JadothChars.internalHashCode(chars, offset, length);
+		final int hash = XChars.internalHashCode(chars, offset, length);
 		for(Entry e = this.slots[this.range & hash]; e != null; e = e.link)
 		{
 			if(e.hash == hash && e.item.length() == length && equals(Memory.accessChars(e.item), chars, offset, length))

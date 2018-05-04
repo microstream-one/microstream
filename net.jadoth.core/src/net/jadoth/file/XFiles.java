@@ -11,15 +11,15 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.chars.JadothChars;
 import net.jadoth.chars.VarString;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.chars.XChars;
+import net.jadoth.functional.XFunctional;
 
 /**
  * @author Thomas Muenz
  *
  */
-public final class JadothFiles
+public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 {
 	public static final File ensureDirectory(final File directory) throws DirectoryException
 	{
@@ -94,14 +94,14 @@ public final class JadothFiles
 
 	public static String packageStringToFolderPathString(final String packageString)
 	{
-		return JadothChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
+		return XChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
 	}
 
 
 	public static final char[] readCharsFromFile(final File file) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return JadothChars.getChars(readStringFromFile(file));
+		return XChars.getChars(readStringFromFile(file));
 	}
 
 	public static final char[] readCharsFromFile(final File file, final Consumer<? super IOException> exceptionHandler)
@@ -130,13 +130,13 @@ public final class JadothFiles
 			return null;
 		}
 
-		return JadothChars.getChars(content);
+		return XChars.getChars(content);
 	}
 
 	public static final char[] readCharsFromFile(final File file, final Charset charset) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return JadothChars.getChars(readStringFromFile(file, charset));
+		return XChars.getChars(readStringFromFile(file, charset));
 	}
 
 
@@ -149,7 +149,7 @@ public final class JadothFiles
 	{
 		try(final FileInputStream fis = new FileInputStream(file))
 		{
-			return JadothChars.readStringFromInputStream(fis, charset);
+			return XChars.readStringFromInputStream(fis, charset);
 		}
 	}
 	
@@ -174,7 +174,7 @@ public final class JadothFiles
 	{
 		try(final FileInputStream fis = new FileInputStream(file))
 		{
-			return JadothChars.readAllBytesFromInputStream(fis).toByteArray();
+			return XChars.readAllBytesFromInputStream(fis).toByteArray();
 		}
 	}
 
@@ -305,7 +305,7 @@ public final class JadothFiles
 				}
 				finally
 				{
-					JadothFiles.closeSilent(sourceChannel);
+					XFiles.closeSilent(sourceChannel);
 				}
 			}
 		}
@@ -315,7 +315,7 @@ public final class JadothFiles
 		}
 		finally
 		{
-			JadothFiles.closeSilent(channel);
+			XFiles.closeSilent(channel);
 		}
 	}
 
@@ -324,11 +324,11 @@ public final class JadothFiles
 		final File                   targetFile
 	)
 	{
-		mergeBinary(sourceFiles, targetFile, JadothFunctional.all());
+		mergeBinary(sourceFiles, targetFile, XFunctional.all());
 	}
 
 
-	private JadothFiles()
+	private XFiles()
 	{
 		// static only
 		throw new UnsupportedOperationException();

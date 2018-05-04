@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public class SingletonView<E> implements XReferencing<E>
 {
@@ -413,7 +413,7 @@ public class SingletonView<E> implements XReferencing<E>
 	@Override
 	public long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

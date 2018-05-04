@@ -15,7 +15,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -456,20 +456,20 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((ConstLinearEnum<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((ConstLinearEnum<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || JadothTypes.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -692,7 +692,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

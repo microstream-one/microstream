@@ -19,7 +19,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -42,7 +42,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	
 	public static final PersistenceTypeDescriptionMemberField declaredField(final Class<?> clazz, final String fieldName)
 	{
-		final Field field = JadothReflect.getDeclaredField(clazz, fieldName);
+		final Field field = XReflect.getDeclaredField(clazz, fieldName);
 		return declaredField(field, new BinaryFieldLengthResolver.Implementation());
 	}
 	

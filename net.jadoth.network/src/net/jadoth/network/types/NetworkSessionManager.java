@@ -7,9 +7,9 @@ import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.concurrency.JadothThreads;
-import net.jadoth.meta.JadothDebug;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.meta.XDebug;
+import net.jadoth.typing.XTypes;
 
 public interface NetworkSessionManager<S extends NetworkSession<?>> extends Suspendable
 {
@@ -87,7 +87,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		protected void synchCheckTimeout(final S session)
 		{
-			JadothDebug.debugln("Checking session " + session + " with " + this.regulatorSessionTimeout.sessionTimeout());
+			XDebug.debugln("Checking session " + session + " with " + this.regulatorSessionTimeout.sessionTimeout());
 			try
 			{
 				if(!session.isTimedOut(this.regulatorSessionTimeout.sessionTimeout()))
@@ -114,7 +114,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		protected void iterateSessions(final Consumer<? super S> procedure)
 		{
-			JadothDebug.debugln("" + JadothTypes.to_int(this.sessions.size()));
+			XDebug.debugln("" + XTypes.to_int(this.sessions.size()));
 			this.sessions.iterate(procedure);
 		}
 
@@ -131,11 +131,11 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		@Override
 		public void removeSession(final S session)
 		{
-			JadothDebug.debugln("Removing session " + session);
+			XDebug.debugln("Removing session " + session);
 			this.messageManager.remove(session);
-			JadothDebug.debugln(Thread.currentThread() + " Session manager removing session " + session);
+			XDebug.debugln(Thread.currentThread() + " Session manager removing session " + session);
 			this.sessionsPerConnection.removeFor(session.channel());
-			JadothDebug.debugln(Thread.currentThread() + " Registered sessions now " + this.sessionsPerConnection.size());
+			XDebug.debugln(Thread.currentThread() + " Registered sessions now " + this.sessionsPerConnection.size());
 		}
 
 		/**
@@ -145,9 +145,9 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		 */
 		protected void registerSession(final S session)
 		{
-			JadothDebug.debugln("Thread " + Thread.currentThread() + " registering session " + session);
+			XDebug.debugln("Thread " + Thread.currentThread() + " registering session " + session);
 			this.sessionsPerConnection.put(session.channel(), session);
-			JadothDebug.debugln("Thread " + Thread.currentThread() + " now registered sessions: \n" + this.sessionsPerConnection);
+			XDebug.debugln("Thread " + Thread.currentThread() + " now registered sessions: \n" + this.sessionsPerConnection);
 			this.messageManager.register(session);
 		}
 
@@ -181,7 +181,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 			}
 			this.active = true;
 			this.messageManager.activate();
-			this.sessionController = JadothThreads.start(
+			this.sessionController = XThreads.start(
 				new SessionManagerTimeoutThread(this, this.regulatorSessionCheckInterval)
 			);
 			return true;
@@ -222,7 +222,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 				try
 				{
 					Thread.sleep(this.sessionCheckInterval.checkInterval());
-					JadothDebug.debugln("Checking sessions...");
+					XDebug.debugln("Checking sessions...");
 					sm.synchCheckSessionTimeouts();
 				}
 				catch(final InterruptedException e)

@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 
 
 public interface StorageLockedFile extends StorageFile
@@ -53,7 +53,7 @@ public interface StorageLockedFile extends StorageFile
 		}
 		catch(final Exception e)
 		{
-			JadothFiles.closeSilent(channel);
+			XFiles.closeSilent(channel);
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}

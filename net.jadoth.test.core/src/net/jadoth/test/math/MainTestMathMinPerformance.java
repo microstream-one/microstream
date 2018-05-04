@@ -1,12 +1,12 @@
 package net.jadoth.test.math;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestMathMinPerformance
 {
 	public static void main(final String[] args)
 	{
-		final int[] ints = JadothMath.randoming(1_000_000);
+		final int[] ints = XMath.randoming(1_000_000);
 
 		for(int r = 1000; r --> 0;)
 		{

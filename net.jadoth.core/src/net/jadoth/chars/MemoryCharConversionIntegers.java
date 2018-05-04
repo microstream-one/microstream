@@ -36,10 +36,10 @@ public final class MemoryCharConversionIntegers
 	static final transient int
 		BYTE_SIZE_CHAR       = Memory.byteSize_char()                           ,
 		BYTE_SIZE_DOUBLECHAR = 2 * BYTE_SIZE_CHAR                               ,
-		MAX_BYTE_COUNT_byte  = BYTE_SIZE_CHAR * JadothChars.MAX_CHAR_COUNT_byte ,
-		MAX_BYTE_COUNT_short = BYTE_SIZE_CHAR * JadothChars.MAX_CHAR_COUNT_short,
-		MAX_BYTE_COUNT_int   = BYTE_SIZE_CHAR * JadothChars.MAX_CHAR_COUNT_int  ,
-		MAX_BYTE_COUNT_long  = BYTE_SIZE_CHAR * JadothChars.MAX_CHAR_COUNT_long
+		MAX_BYTE_COUNT_byte  = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_byte ,
+		MAX_BYTE_COUNT_short = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_short,
+		MAX_BYTE_COUNT_int   = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_int  ,
+		MAX_BYTE_COUNT_long  = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_long
 	;
 
 	// CHECKSTYLE.ON: ConstantName
@@ -104,8 +104,8 @@ public final class MemoryCharConversionIntegers
 
 	private static long put2Chars(final int doubleDigitValue, final long address)
 	{
-		Memory.set_char(address                 , JadothChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue]);
-		Memory.set_char(address + BYTE_SIZE_CHAR, JadothChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue]);
+		Memory.set_char(address                 , XChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue]);
+		Memory.set_char(address + BYTE_SIZE_CHAR, XChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue]);
 		return address + BYTE_SIZE_DOUBLECHAR;
 	}
 
@@ -114,7 +114,7 @@ public final class MemoryCharConversionIntegers
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			Memory.copyArray(JadothChars.CHARS_MIN_VALUE_long, address);
+			Memory.copyArray(XChars.CHARS_MIN_VALUE_long, address);
 			return address + MAX_BYTE_COUNT_long;
 		}
 		return put_longPositive(-value, putMinus(address)); // standard negative case normalization
@@ -125,7 +125,7 @@ public final class MemoryCharConversionIntegers
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			Memory.copyArray(JadothChars.CHARS_MIN_VALUE_int, address);
+			Memory.copyArray(XChars.CHARS_MIN_VALUE_int, address);
 			return address + MAX_BYTE_COUNT_int;
 		}
 		return put_intPositive(-value, putMinus(address)); // standard negative case normalization

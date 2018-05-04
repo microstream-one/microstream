@@ -1,14 +1,14 @@
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.file.JadothFiles;
+import net.jadoth.file.XFiles;
 
 
 public class MainFilterNames
 {
 	public static void main(final String[] args) throws IOException
 	{
-		final String content = JadothFiles.readStringFromFile(new File("D:/_HumanLegacy/HuLe Docs/_Ideen allgemein/Namen.txt"));
+		final String content = XFiles.readStringFromFile(new File("D:/_HumanLegacy/HuLe Docs/_Ideen allgemein/Namen.txt"));
 		
 		final String[] lines = content.split("\\n");
 		

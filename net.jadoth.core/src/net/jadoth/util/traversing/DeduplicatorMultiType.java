@@ -2,7 +2,7 @@ package net.jadoth.util.traversing;
 
 import java.util.function.Function;
 
-import net.jadoth.chars.JadothStrings;
+import net.jadoth.chars.XStrings;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingMap;
@@ -67,7 +67,7 @@ public final class DeduplicatorMultiType implements Function<Object, Object>
 	@Override
 	public final Object apply(final Object instance)
 	{
-		System.out.println(JadothStrings.systemString(instance));
+		System.out.println(XStrings.systemString(instance));
 		
 		final EqHashEnum<Object> typeRegistry = this.registry.get(instance.getClass());
 		if(typeRegistry == null)

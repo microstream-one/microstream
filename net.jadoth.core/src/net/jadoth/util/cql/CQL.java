@@ -15,7 +15,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.LimitList;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.sorting.Sortable;
@@ -24,10 +24,10 @@ import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.AggregateSum;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.JadothFunctional;
+import net.jadoth.functional.XFunctional;
 import net.jadoth.functional.To_double;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 
@@ -210,7 +210,7 @@ public final class CQL
 	{
 		// best effort to choose a suitable generic buffer type
 		return source instanceof Sized
-			? new LimitList<>(JadothTypes.to_int(((Sized)source).size()))
+			? new LimitList<>(XTypes.to_int(((Sized)source).size()))
 			: new BulkList<>()
 		;
 	}
@@ -230,13 +230,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothFunctional.wrapWithPredicateSkipLimit(target, selector, skip, limit)
-				: JadothFunctional.wrapWithPredicateSkip     (target, selector, skip       )
+				? XFunctional.wrapWithPredicateSkipLimit(target, selector, skip, limit)
+				: XFunctional.wrapWithPredicateSkip     (target, selector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? JadothFunctional.wrapWithPredicateLimit(target, selector, limit)
-			: JadothFunctional.wrapWithPredicate     (target, selector       )
+			? XFunctional.wrapWithPredicateLimit(target, selector, limit)
+			: XFunctional.wrapWithPredicate     (target, selector       )
 		;
 	}
 
@@ -249,13 +249,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothFunctional.wrapWithSkipLimit(target, skip, limit)
-				: JadothFunctional.wrapWithSkip     (target, skip)
+				? XFunctional.wrapWithSkipLimit(target, skip, limit)
+				: XFunctional.wrapWithSkip     (target, skip)
 			;
 		}
 
 		return isLimit(limit)
-			? JadothFunctional.wrapWithLimit(target, limit)
+			? XFunctional.wrapWithLimit(target, limit)
 			: i -> target.accept(i)
 		;
 	}
@@ -277,13 +277,13 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothFunctional.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
-				: JadothFunctional.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
+				? XFunctional.wrapWithPredicateFunctionSkipLimit(target, selector, projector, skip, limit)
+				: XFunctional.wrapWithPredicateFunctionSkip     (target, selector, projector, skip       )
 			;
 		}
 		return isLimit(limit)
-			? JadothFunctional.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
-			: JadothFunctional.wrapWithPredicateFunction     (target, selector, projector       )
+			? XFunctional.wrapWithPredicateFunctionLimit(target, selector, projector, limit)
+			: XFunctional.wrapWithPredicateFunction     (target, selector, projector       )
 		;
 	}
 
@@ -299,14 +299,14 @@ public final class CQL
 		if(isSkip(skip))
 		{
 			return isLimit(limit)
-				? JadothFunctional.wrapWithFunctionSkipLimit(target, projector, skip, limit)
-				: JadothFunctional.wrapWithFunctionSkip     (target, projector, skip       )
+				? XFunctional.wrapWithFunctionSkipLimit(target, projector, skip, limit)
+				: XFunctional.wrapWithFunctionSkip     (target, projector, skip       )
 			;
 		}
 
 		return isLimit(limit)
-			? JadothFunctional.wrapWithFunctionLimit(target, projector, limit)
-			: JadothFunctional.wrapWithFunction     (target, projector       )
+			? XFunctional.wrapWithFunctionLimit(target, projector, limit)
+			: XFunctional.wrapWithFunction     (target, projector       )
 		;
 	}
 
@@ -479,7 +479,7 @@ public final class CQL
 	@SafeVarargs
 	public static final <E> Comparator<? super E> chain(final Comparator<? super E>... comparators)
 	{
-		return JadothSort.chain(comparators);
+		return XSort.chain(comparators);
 	}
 	
 

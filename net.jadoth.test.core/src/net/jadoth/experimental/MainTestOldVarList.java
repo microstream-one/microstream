@@ -1,20 +1,20 @@
 package net.jadoth.experimental;
 
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
-import net.jadoth.math.JadothMath;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.XTypes;
 
 public class MainTestOldVarList
 {
 	static final int RUNS = 100;
 	static final int SIZE = 1000*1000;
-	static final Integer[] INTS = JadothMath.sequence((Integer)(SIZE-1));
+	static final Integer[] INTS = XMath.sequence((Integer)(SIZE-1));
 //	static final int[] INTS = JaMath.sequence(SIZE-1);
 
 
@@ -225,12 +225,12 @@ public class MainTestOldVarList
 
 	static void checkEach(final String name, final OldVarList<Integer> segs, final BulkList<Integer> bulk)
 	{
-		if(JadothTypes.to_int(bulk.size()) != segs.size)
+		if(XTypes.to_int(bulk.size()) != segs.size)
 		{
 			System.out.println(false+"\t"+name);
 			return;
 		}
-		for(int i = 0, size = JadothTypes.to_int(bulk.size()); i < size; i++)
+		for(int i = 0, size = XTypes.to_int(bulk.size()); i < size; i++)
 		{
 			if(!bulk.at(i).equals(segs.get(i)))
 			{

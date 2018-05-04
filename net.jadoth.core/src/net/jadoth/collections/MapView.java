@@ -13,7 +13,7 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 
 public final class MapView<K, V> implements XGettingMap<K, V>
@@ -51,7 +51,7 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 	@Override
 	public long size()
 	{
-		return JadothTypes.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

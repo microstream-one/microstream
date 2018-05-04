@@ -2,7 +2,7 @@ package net.jadoth.util.pooling;
 
 import static net.jadoth.X.notNull;
 import static net.jadoth.collections.XUtilsCollection.rngProcess;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
@@ -15,7 +15,7 @@ import net.jadoth.concurrency.ThreadedInstantiating;
 import net.jadoth.exceptions.ExceptionCreator;
 import net.jadoth.memory.Instantiator;
 import net.jadoth.typing.Immutable;
-import net.jadoth.typing.JadothTypes;
+import net.jadoth.typing.XTypes;
 
 public class ThreadedPool<E> implements Pool<E>
 {
@@ -117,7 +117,7 @@ public class ThreadedPool<E> implements Pool<E>
 	{
 		synchronized(this.pool)
 		{
-			return JadothTypes.to_int(this.pool.size()) + JadothTypes.to_int(this.used.size());
+			return XTypes.to_int(this.pool.size()) + XTypes.to_int(this.used.size());
 		}
 	}
 
@@ -126,7 +126,7 @@ public class ThreadedPool<E> implements Pool<E>
 	{
 		synchronized(this.pool)
 		{
-			return JadothTypes.to_int(this.pool.size());
+			return XTypes.to_int(this.pool.size());
 		}
 	}
 
@@ -136,7 +136,7 @@ public class ThreadedPool<E> implements Pool<E>
 		synchronized(this.pool)
 		{
 			// (20.07.2012 TM)FIXME: Shouldn't that accumulate all sizes of the thread local enums?
-			return JadothTypes.to_int(this.used.size());
+			return XTypes.to_int(this.used.size());
 		}
 	}
 
@@ -296,7 +296,7 @@ public class ThreadedPool<E> implements Pool<E>
 		final int decrementAmount = this.controller.calculateCloseCount(
 			this.maxCount,
 			this.totalCount,
-			JadothTypes.to_int(this.pool.size()),
+			XTypes.to_int(this.pool.size()),
 			this.lastGetTime,
 			this.lastReturnTime,
 			this.lastCloseTime
