@@ -10,6 +10,9 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.reflect.XReflect;
+import net.jadoth.reflect.XReflect.validateArrayType;
+import net.jadoth.reflect.XReflect.validateNonPrimitiveType;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -40,9 +43,9 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 	public BinaryHandlerNativeArrayObject(final Class<A> arrayType, final long typeId)
 	{
-		super(typeId, validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
+		super(typeId, XReflect.validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
 		this.arrayType     = arrayType;
-		this.componentType = validateNonPrimitiveType(arrayType.getComponentType());
+		this.componentType = XReflect.validateNonPrimitiveType(arrayType.getComponentType());
 	}
 
 

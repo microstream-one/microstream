@@ -45,6 +45,7 @@ import net.jadoth.collections.types.XReference;
 import net.jadoth.exceptions.IllegalAccessRuntimeException;
 import net.jadoth.exceptions.NoSuchFieldRuntimeException;
 import net.jadoth.typing.XTypes;
+import net.jadoth.util.UtilStackTrace;
 
 
 /**
@@ -685,6 +686,70 @@ public final class XReflect
 	public static String getFieldIdentifierFieldName(final String fieldIdentifier)
 	{
 		return fieldIdentifier.substring(getFieldIdentifierDelimiterIndex(fieldIdentifier) + 1);
+	}
+
+	public static <A> Class<A> validateInterfaceType(final Class<A> type)
+	{
+		if(!type.isInterface())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(
+				new IllegalArgumentException("Not an interface type:" + type)
+			);
+		}
+		return type;
+	}
+
+	public static <A> Class<A> validateNonInterfaceType(final Class<A> type)
+	{
+		if(type.isInterface())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException("Interface type:" + type));
+		}
+		return type;
+	}
+
+	public static <A> Class<A> validateNonArrayType(final Class<A> type)
+	{
+		if(type.isArray())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(
+				new IllegalArgumentException("Array type:" + type)
+			);
+		}
+		return type;
+	}
+
+	public static <A> Class<A> validateArrayType(final Class<A> arrayType)
+	{
+		if(!arrayType.isArray())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(
+				new IllegalArgumentException("Not an array type:" + arrayType)
+			);
+		}
+		return arrayType;
+	}
+
+	public static <A> Class<A> validatePrimitiveType(final Class<A> primitiveType)
+	{
+		if(!primitiveType.isPrimitive())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(
+				new IllegalArgumentException("Not a primitive type:" + primitiveType)
+			);
+		}
+		return primitiveType;
+	}
+
+	public static <A> Class<A> validateNonPrimitiveType(final Class<A> primitiveType)
+	{
+		if(primitiveType.isPrimitive())
+		{
+			throw UtilStackTrace.cutStacktraceByOne(
+				new IllegalArgumentException("Primitive type:" + primitiveType)
+			);
+		}
+		return primitiveType;
 	}
 	
 
