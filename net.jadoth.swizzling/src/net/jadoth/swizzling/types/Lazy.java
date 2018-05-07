@@ -84,7 +84,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	static <T> Lazy<T> register(final Lazy<T> lazyReference)
 	{
-//		JadothConsole.debugln("Registering " + Jadoth.systemString(lazyReference) + " " + lazyReference.objectId);
+//		XDebug.debugln("Registering " + XChars.systemString(lazyReference) + " " + lazyReference.objectId);
 		LazyReferenceManager.get().register(lazyReference);
 		return lazyReference;
 	}
@@ -229,7 +229,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	private void internalClear()
 	{
-//		JadothConsole.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
+//		XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
 		this.subject = null;
 		this.touch();
 	}
@@ -273,7 +273,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	final synchronized void clearIfTimedout(final long millisecondThreshold)
 	{
-//		JadothConsole.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
+//		XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
 
 		// time check implicitely covers already cleared reference. May of course not clear if there is no loader (yet).
 		if(this.lastTouched >= millisecondThreshold || this.loader == null)
@@ -281,7 +281,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 			return;
 		}
 
-//		JadothConsole.debugln("timeout-clearing " + this.objectId + ": " + Jadoth.systemString(this.subject));
+//		XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
 		this.internalClear();
 	}
 

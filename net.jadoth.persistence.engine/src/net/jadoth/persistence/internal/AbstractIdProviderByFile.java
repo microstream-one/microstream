@@ -34,7 +34,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 //		}
 //		try
 //		{
-//			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
+//			return Long.parseLong(XFiles.readStringFromFile(file, standardCharset()));
 //		}
 //		catch(final Exception e)
 //		{

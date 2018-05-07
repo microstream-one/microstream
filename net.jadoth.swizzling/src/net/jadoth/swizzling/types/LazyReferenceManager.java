@@ -313,7 +313,7 @@ public interface LazyReferenceManager
 		@Override
 		public synchronized void register(final LazyReferencing<?> lazyReference)
 		{
-//			JadothConsole.debugln(this + " registering " + lazyReference.peek());
+//			XDebug.debugln(this + " registering " + lazyReference.peek());
 			// uniqueness of references is guaranteed by calling this method only exactely once per reference instance
 			this.tail = this.tail.nextLazyManagerEntry = new Entry(lazyReference);
 		}
@@ -425,7 +425,7 @@ public interface LazyReferenceManager
 					}
 				}
 				// either parent has been garbage collected or stopped, so terminate.
-//				JadothConsole.debugln(Thread.currentThread().getName() + " terminating.");
+//				XDebug.debugln(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 

@@ -172,7 +172,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			// content of item begins after instance header
 			buildItem.entityContentAddress = BinaryPersistence.entityDataAddress(address);
 
-//			JadothConsole.debugln("Item @ " + address + ":\n" +
+//			XDebug.debugln("Item @ " + address + ":\n" +
 //				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
 //				"TID=" + BinaryPersistence.getEntityTypeId(address) + "\n" +
 //				"OID=" + BinaryPersistence.getEntityObjectId(address) + "\n" +
@@ -202,7 +202,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			 * district-specific handler implementation.
 			 */
 
-//			JadothConsole.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
+//			XDebug.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
 
 			entry.handler.iteratePersistedReferences(entry, this);
 		}
@@ -280,7 +280,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 					continue;
 				}
 				// MARKER: BinaryBuilder#buildInstance()
-//				JadothConsole.debugln("building instance " + entry.oid + " of type " + entry.handler.typeName());
+//				XDebug.debugln("building instance " + entry.oid + " of type " + entry.handler.typeName());
 				// all buildItems that have a handler must be complete and valid to be updated.
 				/* (10.09.2015 TM)TODO: already existing instance gets updated (error for a DB situation)
 				 * Why does the global instance have to be updated?

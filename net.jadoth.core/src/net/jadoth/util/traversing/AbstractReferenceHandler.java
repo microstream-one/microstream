@@ -73,8 +73,8 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		this.enqueueSegment = this.head = createIterationSegment();
 		this.lastHead = createIterationSegment();
 		setNextSegment(this.enqueueSegment, this.lastHead);
-//		JadothConsole.debugln("terminating segment is " + Jadoth.systemString(this.lastHead));
-//		JadothConsole.debugln("first enqueue segment is " + Jadoth.systemString(this.enqueueSegment));
+//		XDebug.debugln("terminating segment is " + XChars.systemString(this.lastHead));
+//		XDebug.debugln("first enqueue segment is " + XChars.systemString(this.enqueueSegment));
 		this.enqueueIndex = -1;
 		this.dequeueIndex = SEGMENT_SIZE;
 	}
@@ -122,7 +122,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			this.addEnqueuingSegment();
 		}
-//		JadothConsole.debugln("enqueuing to " + Jadoth.systemString(this.enqueueSegment) + "[" + this.enqueueIndex + "] = " + instance);
+//		XDebug.debugln("enqueuing to " + XChars.systemString(this.enqueueSegment) + "[" + this.enqueueIndex + "] = " + instance);
 		this.enqueueSegment[this.enqueueIndex] = instance;
 	}
 	
@@ -135,14 +135,14 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 			this.lastHead     = this.head   ;
 			this.head         = newSegment  ;
 			this.dequeueIndex = SEGMENT_SIZE; // must be SIZE because of the pre-check preincrement!
-//			JadothConsole.debugln("switch to enqueue mode. enqueueIndex = " + 0);
+//			XDebug.debugln("switch to enqueue mode. enqueueIndex = " + 0);
 		}
 		else
 		{
 			setNextSegment(this.enqueueSegment, newSegment);
 		}
 		setNextSegment(newSegment, this.lastHead);
-//		JadothConsole.debugln(
+//		XDebug.debugln(
 //			"(" + Integer.toHexString(System.identityHashCode(this.enqueueSegment)) + ") - " +
 //			"(" + Integer.toHexString(System.identityHashCode(newSegment)) + ") - " +
 //			"(" + Integer.toHexString(System.identityHashCode(this.lastHead)) + ")"
@@ -181,8 +181,8 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		final Object next = this.head[this.dequeueIndex];
 		this.head[this.dequeueIndex] = null;
 		
-//		JadothConsole.debugln(
-//			"dequeuing from " + Jadoth.systemString(this.head) + "[" + this.dequeueIndex + "] = " + Jadoth.systemString(next)
+//		XDebug.debugln(
+//			"dequeuing from " + XChars.systemString(this.head) + "[" + this.dequeueIndex + "] = " + XChars.systemString(next)
 //		);
 		return next;
 	}
@@ -196,13 +196,13 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 			this.lastHead       =         null; // reset mode helper reference (effectively dequeue mode)
 			this.enqueueIndex   = SEGMENT_SIZE; // hint to enqueuing logic. SIZE because of the pre-check preincrement!
 			this.enqueueSegment =         null;
-//			JadothConsole.debugln("switch to dequeue mode. dequeueIndex = " + this.dequeueIndex);
+//			XDebug.debugln("switch to dequeue mode. dequeueIndex = " + this.dequeueIndex);
 		}
 		else
 		{
 			// already in dequeuing mode, hence simply advance to the next linked segment
 			this.advanceHeadSegment(getNextSegment(this.head));
-//			JadothConsole.debugln("next dequeue segment. dequeueIndex = " + this.dequeueIndex);
+//			XDebug.debugln("next dequeue segment. dequeueIndex = " + this.dequeueIndex);
 		}
 	}
 	
@@ -374,7 +374,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	
 	final <T> void handleNode(final T instance, final TypeTraverser<T> traverser)
 	{
-//		JadothConsole.debugln("Traversing NODE " + Jadoth.systemString(instance) + " via " + Jadoth.systemString(traverser));
+//		XDebug.debugln("Traversing NODE " + XChars.systemString(instance) + " via " + XChars.systemString(traverser));
 		traverser.traverseReferences(instance, this);
 	}
 	

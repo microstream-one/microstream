@@ -23,7 +23,7 @@ public class MainTestRemoveAllFromArray
 
 //		remove_X_then_null(array1);
 
-//		int count = Jadoth.removeAllFromArray("X", array, 6, 15, array, 6, 15);
+//		int count = XArrays.removeAllFromArray("X", array, 6, 15, array, 6, 15);
 //		System.out.print(count+": ");
 //		print(array);
 

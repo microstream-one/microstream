@@ -578,7 +578,7 @@ public final class Memory
 				continue;
 			}
 			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			JadothConsole.debugln(fieldOffset + "\t" + declaredFields[i]);
+//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
 			if(fieldOffset >= maxInstanceFieldOffset)
 			{
 				maxInstanceField = declaredFields[i];

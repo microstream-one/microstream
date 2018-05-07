@@ -315,7 +315,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 
 	private void synchRebuild(final int slotLength)
 	{
-//		JadothConsole.debugln("rebuilding to length " + slotLength);
+//		XDebug.debugln("rebuilding to length " + slotLength);
 		final Entry[][] newSlotsPerOid = new Entry[slotLength][];
 		final Entry[][] newSlotsPerRef = new Entry[slotLength][];
 
@@ -325,7 +325,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		this.slotsPerOid = newSlotsPerOid;
 		this.slotsPerRef = newSlotsPerRef;
 		this.modulo      = slotLength - 1;
-//		JadothConsole.debugln(" * done. new capacity = " + this.capacity);
+//		XDebug.debugln(" * done. new capacity = " + this.capacity);
 	}
 
 
@@ -874,7 +874,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		{
 			throw new SwizzleExceptionNullTypeId();
 		}
-//		JadothConsole.debugln(Jadoth.systemString(this) + " registering " + tid + " <-> " + type);
+//		XDebug.debugln(XChars.systemString(this) + " registering " + tid + " <-> " + type);
 		return this.synchronizedPut(tid, Swizzle.classTypeId(), type);
 	}
 

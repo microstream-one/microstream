@@ -94,7 +94,7 @@ public class MainTestJDKCollectionBug
 		 * implementation all the time will kill application performance in no time.
 		 * (And then people will argue that java is inherently slow, of course ^^)
 		 *
-		 * This distinction (among many other features) is what jadoth.collections ("Collections 2.0") do.
+		 * This distinction (among many other features) is what XCollections do.
 		 */
 
 	}

@@ -9,12 +9,11 @@ public class MainTestParallelProcedure
 {
 	private static final ParallelProcedure.LogicProvider<String, Consumer<Object>> provider =
 		new ParallelProcedure.LogicProvider.SingletonLogic<>(
-//			Jadoth.System_out_println
 			new Consumer<Object>() {
 				@Override public void accept(final Object e) {
-//					JaThreads.sleep(10);
+//					XThreads.sleep(10);
 					System.out.println(Thread.currentThread()+":\t"+e);
-//					JaThreads.sleep(10);
+//					XThreads.sleep(10);
 //					if(e == null) throw new NullPointerException();
 				}
 			}

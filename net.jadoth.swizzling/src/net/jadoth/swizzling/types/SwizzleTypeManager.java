@@ -125,7 +125,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 			{
 				return tid;
 			}
-//			JadothConsole.debugln("not yet contained type id for " + type);
+//			XDebug.debugln("not yet contained type id for " + type);
 			return this.internalEnsureTypeId(type);
 		}
 

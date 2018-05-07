@@ -93,7 +93,7 @@ public interface BinaryMessageProcessor<M, S extends NetworkSession<M>> extends 
 		public void accept(final S session)
 		{
 			final Object message = this.readRequest(session);
-//			JadothConsole.debugln("Received message " + message);
+//			XDebug.debugln("Received message " + message);
 			this.receiveMessage(message, session);
 		}
 

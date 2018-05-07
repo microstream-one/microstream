@@ -25,7 +25,7 @@ public class MainSearchBinaryStringInFiles
 	{
 //		searchStringsInFiles(
 //			DIRECT,
-//			Jadoth.array(new File("D:/Bonus25/storage/graveyard3/channel_3_663.dat")),
+//			X.array(new File("D:/Bonus25/storage/graveyard3/channel_3_663.dat")),
 //			Memory.toByteArray(1000000000039080311L)
 //		);
 

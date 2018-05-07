@@ -68,8 +68,8 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		@Override
 		public Object lookupObject(final long oid)
 		{
-//			JadothConsole.debugln(Jadoth.systemString(this) + " looking up \n" + oid
-//				+ " -> " + Jadoth.systemString(this.swizzleRegistry.lookupObject(oid))
+//			XDebug.debugln(XChars.systemString(this) + " looking up \n" + oid
+//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
 //			);
 
 			return this.swizzleRegistry.lookupObject(oid);
@@ -112,8 +112,8 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 				}
 			}
 
-//			JadothConsole.debugln(Jadoth.systemString(this) + " assigned \n" + oid
-//				+ " -> " + Jadoth.systemString(this.swizzleRegistry.lookupObject(oid))
+//			XDebug.debugln(XChars.systemString(this) + " assigned \n" + oid
+//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
 //			);
 			return oid;
 		}

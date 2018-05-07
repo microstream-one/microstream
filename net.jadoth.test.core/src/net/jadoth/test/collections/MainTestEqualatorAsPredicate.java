@@ -24,7 +24,6 @@ public class MainTestEqualatorAsPredicate
 			found = false;
 			long tStart, tStop;
 			tStart = System.nanoTime();
-//			found = ints.contains(lastValue, Jadoth.equals);
 			found = ints.containsSearched(XFunc.isEqual(lastValue, Equalator.value())); // about as fast as equalator
 			tStop = System.nanoTime();
 			System.out.print(found);

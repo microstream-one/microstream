@@ -167,7 +167,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			this.commit();
 			final Object instance = this.internalGetFirst();
 			this.clearBuildItems();
-			// JadothConsole.debugln("Returning instance.");
+			// XDebug.debugln("Returning instance.");
 			return instance;
 		}
 

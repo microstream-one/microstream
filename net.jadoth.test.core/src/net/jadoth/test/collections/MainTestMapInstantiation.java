@@ -16,13 +16,6 @@ public class MainTestMapInstantiation
 			tStart = System.nanoTime();
 			for(int i = 0; i < size; i++)
 			{
-//				array[i] = new HashMap<Object, Object>();
-//				array[i] = Jadoth.<Object,Object>ValueMap();
-//				array[i] = VarMap.New2(
-//					(MapHashLogic<Object,Object>)JaHash.STRONG_STRONG_VALUETYPE,
-//					4,
-//					0.75f
-//				);
 				array[i] = HashTable.New();
 			}
 			tStop = System.nanoTime();

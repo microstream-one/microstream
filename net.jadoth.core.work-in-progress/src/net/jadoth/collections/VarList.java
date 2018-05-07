@@ -1626,7 +1626,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 //		final E[] buffer = newArray(this.segmentLength);
 //		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 //		{
-//			JadothSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
+//			XSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
 //		}
 //
 //		// once every segment is sorted in itself, a complete already-sorted check becomes trivial, so it is done.

@@ -12,11 +12,11 @@ import java.nio.channels.FileChannel;
 import net.jadoth.X;
 import net.jadoth.chars.CharConversion_float;
 import net.jadoth.chars.EscapeHandler;
-import net.jadoth.chars.XChars;
 import net.jadoth.chars.MemoryCharConversionIntegersUTF8;
 import net.jadoth.chars.MemoryCharConversionUTF8;
 import net.jadoth.chars.MemoryCharConversion_doubleUTF8;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.LimitList;
@@ -315,8 +315,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private ValueWriter[] createValueWriters(final XGettingSequence<? extends PersistenceTypeDescriptionMember> members)
 		{
-//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(JadothTypes.to_int(members.size()));
-//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(JadothTypes.to_int(members.size()));
+//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(XTypes.to_int(members.size()));
+//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(XTypes.to_int(members.size()));
 
 			final int memberCount = XTypes.to_int(members.size());
 
@@ -347,7 +347,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			System.arraycopy(otherValueWriters , 0, valueWriters, s, o);
 
 //			simpleValueWriters.copyTo(valueWriters, 0);
-//			otherValueWriters.copyTo(valueWriters, JadothTypes.to_int(simpleValueWriters.size()));
+//			otherValueWriters.copyTo(valueWriters, XTypes.to_int(simpleValueWriters.size()));
 			return valueWriters;
 		}
 

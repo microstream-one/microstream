@@ -649,7 +649,7 @@ public interface StorageFileManager
 		@Override
 		public final void rollbackWrite()
 		{
-//			JadothConsole.debugln(
+//			XDebug.debugln(
 //				this.channelIndex()
 //				+ " rolling back write: truncating "
 //				+ this.headFile.file().getName()
@@ -1269,7 +1269,7 @@ public interface StorageFileManager
 		{
 			if(lastFileLength != lastFile.file().length())
 			{
-//				JadothConsole.debugln(
+//				XDebug.debugln(
 //					this.channelIndex()
 //					+ " last file initialization truncating "
 //					+ lastFile.file().getName()

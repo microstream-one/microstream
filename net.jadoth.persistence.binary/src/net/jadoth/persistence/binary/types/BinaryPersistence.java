@@ -74,8 +74,8 @@ import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 import net.jadoth.util.XVM;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
@@ -644,7 +644,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerEqConstHashTable   .class,
 
 			BinaryHandlerSubstituterImplementation.class
-			/* (29.10.2013 TM)TODO: more jadoth native handlers
+			/* (29.10.2013 TM)TODO: more framework native handlers
 			 * - VarString
 			 * - VarByte
 			 * - _intList etc.

@@ -168,7 +168,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return strings;
 
 
-//		return Jadoth.array(
+//		return X.array(
 //			"a",
 //			"b",
 //			"c",
@@ -189,7 +189,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return longs;
 		
 //		return strings;
-//		return JadothTime.now();
+//		return XTime.now();
 //		return 5;
 //		return new int[]{1,2,3};
 //		return new Object[]{5,6};
@@ -201,7 +201,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return TestBinaryObjects.createTestPersons();
 //		return stupidArrayList("Tick", "Trick", "Track");
 
-//		return Jadoth.array(
+//		return X.array(
 //			 "hallo"
 //			,TestBinaryObjects.indices
 //			,TestBinaryObjects.objects

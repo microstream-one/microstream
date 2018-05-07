@@ -1990,7 +1990,7 @@ public final class XChars
 		{
 			if(length < 0)
 			{
-				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JadothChars#trimToString() negative length
+				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME XChars#trimToString() negative length
 			}
 			return ""; // prefer efficiency over referential uniqueness
 		}

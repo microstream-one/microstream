@@ -59,7 +59,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 
 			// (25.04.2018 TM)FIXME: actually requires a FullStorer#store call now
 			connection.store(ref.get()[XMath.random(size)]);
-//			connection.storeFull(ref.get()[JadothMath.random(size)]);
+//			connection.storeFull(ref.get()[XMath.random(size)]);
 			DEBUGStorage.println("stored #"+i);
 
 			ref.clear();

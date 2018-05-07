@@ -1407,7 +1407,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 //	@Override
 //	public final int hashCode()
 //	{
-//		return JadothChars.hashCode(this.data, 0, this.size);
+//		return XChars.hashCode(this.data, 0, this.size);
 //	}
 //
 //	@Override
@@ -1416,7 +1416,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 //		return this == other
 //			|| other instanceof VarString
 //			&& this.size == ((VarString)other).size
-//			&& JadothChars.equals(this.data, 0, ((VarString)other).data, 0, this.size)
+//			&& XChars.equals(this.data, 0, ((VarString)other).data, 0, this.size)
 //		;
 //	}
 

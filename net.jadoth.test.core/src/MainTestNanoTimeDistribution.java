@@ -14,7 +14,7 @@ public class MainTestNanoTimeDistribution
 //		System.out.println(avg = avg+(int)System.nanoTime() >>> 2);
 //		System.out.println(System.nanoTime());
 
-//		final Random rnd = JadothMath.random();
+//		final Random rnd = XMath.random();
 
 		for(int k = 20; k --> 0;)
 		{

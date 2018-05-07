@@ -23,7 +23,7 @@ public final class MainTestFunc
 		final long tStart = System.nanoTime();
 		for(int i = 0; i < SIZE; i++)
 		{
-//			obs[i] = JadothFunctional.all();
+//			obs[i] = XFunc.all();
 			obs[i] = XFunc.passThrough();
 		}
 		final long tStop = System.nanoTime();

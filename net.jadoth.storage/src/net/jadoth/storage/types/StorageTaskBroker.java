@@ -165,7 +165,7 @@ public interface StorageTaskBroker
 			// notifiy waiting threads via current head
 			synchronized(currentHead)
 			{
-//				JadothConsole.debugln(Thread.currentThread() + " notifying all");
+//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}
@@ -175,7 +175,7 @@ public interface StorageTaskBroker
 			final StorageTask currentHead = this.enqueueTask(task);
 			synchronized(currentHead)
 			{
-//				JadothConsole.debugln(Thread.currentThread() + " notifying all");
+//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}

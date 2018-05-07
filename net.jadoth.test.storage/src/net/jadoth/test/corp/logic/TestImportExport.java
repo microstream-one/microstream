@@ -49,7 +49,7 @@ public class TestImportExport
 //			storage.typeDictionary(),
 //			X.List(csvDir.listFiles()),
 //			new File(csvDir.getParent(), "bin2"),
-//			JadothPredicates.all()
+//			XFunc.all()
 //		);
 //		tStop = System.nanoTime();
 //		System.out.println("csv2bin done. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));

@@ -179,13 +179,13 @@ public class MainTestQuicksortObjects
 //			tStart = System.nanoTime();
 			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
 //			tStop = System.nanoTime();
-//			System.out.println(JadothSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+//			System.out.println(XSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 //			JaSort.swapCount = 0;
 //			tStart = System.nanoTime();
 			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
 //			tStop = System.nanoTime();
-//			System.out.println(JadothSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+//			System.out.println(XSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
 	}
 

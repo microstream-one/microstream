@@ -103,7 +103,7 @@ public interface LoadItemsChain
 
 		private void internalPutNewLoadItem(final long oid)
 		{
-//			JadothConsole.debugln("load " + oid);
+//			XDebug.debugln("load " + oid);
 
 			this.hashSlots[(int)(oid & this.hashRange)] = this.enqueueEntry(oid, this.hashSlots[(int)(oid & this.hashRange)]);
 			if(++this.size >= this.hashRange)

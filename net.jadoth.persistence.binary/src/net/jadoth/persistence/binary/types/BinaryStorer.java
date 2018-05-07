@@ -446,7 +446,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		protected final void storeItem(final Item item)
 		{
-//			JadothConsole.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
+//			XDebug.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
 		

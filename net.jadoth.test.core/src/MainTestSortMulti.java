@@ -73,7 +73,7 @@ public class MainTestSortMulti
 	 * <p>
 	 * Example:
 	 * <pre>
-	 * return JadothSort.evaluateComparisons(
+	 * return XSort.evaluateComparisons(
 	 *     entity1.valueA().compareTo(entity2.valueA()),
 	 *     entity1.valueB().compareTo(entity2.valueB()),
 	 *     entity1.valueC().compareTo(entity2.valueC())

@@ -39,8 +39,8 @@ import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 public final class HashTable<K, V>
@@ -3892,10 +3892,10 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 //			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
 //			@SuppressWarnings("unchecked")
 //			final V[] copy = (V[])values.copyTo(
-//				new Object[Jadoth.checkArrayRange(valuesLength)],
+//				new Object[X.checkArrayRange(valuesLength)],
 //				0                                               ,
 //				offset                                          ,
-//				Jadoth.checkArrayRange(valuesLength)
+//				X.checkArrayRange(valuesLength)
 //			);
 //
 //			HashTable.this.chain.valuesSet(valuesOffset, copy);

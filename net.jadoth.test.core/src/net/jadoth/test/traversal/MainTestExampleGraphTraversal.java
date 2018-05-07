@@ -11,15 +11,15 @@ public class MainTestExampleGraphTraversal
 
 
 //		// 1.) print the system string of every instance in the graph
-//		ObjectGraphTraverser.traverseGraph(corp, e -> System.out.println(Jadoth.systemString(e)));
+//		ObjectGraphTraverser.traverseGraph(corp, e -> System.out.println(XChars.systemString(e)));
 //
 //		// 2.) print all strings contained in the graph (~= graph querying)
 //		ObjectGraphTraverser.traverseGraph(corp, String.class::isInstance, System.out::println);
 //
 //		// 3.) print the system string of every instance in the graph except certain types
 //		ObjectGraphTraverser.traverseGraph(corp,
-//			JadothPredicates.notIsInstanceOf(String.class, Number.class, Iterable.class),
-//			e -> System.out.println(Jadoth.systemString(e))
+//			XFunc.notIsInstanceOf(String.class, Number.class, Iterable.class),
+//			e -> System.out.println(XChars.systemString(e))
 //		);
 //
 //		// 4.) collect all instances contained in the graph (once)
@@ -126,7 +126,7 @@ public class MainTestExampleGraphTraversal
 //				.buildObjectGraphTraverser()
 //			;
 //			final long tStart = System.nanoTime();
-//			lastCount = traverser.traverse(root, JadothAggregates.count()).yield();
+//			lastCount = traverser.traverse(root, XFunc.count()).yield();
 //			final long tStop = System.nanoTime();
 //			lastTime = tStop - tStart;
 //			System.out.println(new java.text.DecimalFormat("00,000,000,000").format(lastTime)+" for "+lastCount+" instances. "+lastTime / lastCount + " ns per instance.");

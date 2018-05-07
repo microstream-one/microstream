@@ -183,8 +183,8 @@ public class Swizzle
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
 
-	static final long TID_net_jadoth_swizzling_types_Swizzling = 10000L;
-	static final long TID_net_jadoth_collections_VarList       = 10005L;
+	static final long TID_X_swizzling_types_Swizzling = 10000L;
+	static final long TID_X_collections_VarList       = 10005L;
 
 	// CHECKSTYLE.ON: ConstantName
 
@@ -340,11 +340,9 @@ public class Swizzle
 		NATIVE_TYPES.add(StringBuilder[].class, TID_ARRAY_StringBuilder);
 		NATIVE_TYPES.add(Enum[]         .class, TID_ARRAY_Enum         );
 
-		// jadoth types //
+		// framework types //
 
-		NATIVE_TYPES.add(net.jadoth.swizzling.types.Lazy.class, TID_net_jadoth_swizzling_types_Swizzling);
-
-//		NATIVE_TYPES.add(net.jadoth.collections.VarList.class, TID_net_jadoth_collections_VarList);
+		NATIVE_TYPES.add(net.jadoth.swizzling.types.Lazy.class, TID_X_swizzling_types_Swizzling);
 	}
 
 

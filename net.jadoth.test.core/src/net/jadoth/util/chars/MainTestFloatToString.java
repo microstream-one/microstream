@@ -116,7 +116,7 @@ public class MainTestFloatToString
 //	private static String toString(final double value)
 //	{
 //		final char[] buffer;
-//		return new String(buffer = new char[JadothChars.maxCharCount_double()], 0, JadothChars.put(value, buffer, 0));
+//		return new String(buffer = new char[XChars.maxCharCount_double()], 0, XChars.put(value, buffer, 0));
 //	}
 
 }

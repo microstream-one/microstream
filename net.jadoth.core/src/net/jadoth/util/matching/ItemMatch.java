@@ -240,7 +240,7 @@ public class ItemMatch<T>
 		}
 
 //		final String debug_Title = "Linked " + s + "/" + t + ": "
-//			+ JadothMath.round2(similarity(this.quantifiers[s][t]))
+//			+ XMath.round2(similarity(this.quantifiers[s][t]))
 //			+ " " + this.source[s] + " <-> " + this.target[t]
 //		;
 

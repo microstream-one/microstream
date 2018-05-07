@@ -43,7 +43,7 @@ public class MainTestParseIntegerPerformance
 			for(int i = 0; i < SIZE; i++)
 			{
 				Long.parseLong(STRINGS[i]);
-//				JadothChars.parse_longDecimal(CHARS[i]);
+//				XChars.parse_longDecimal(CHARS[i]);
 			}
 			final long tStop = System.nanoTime();
 			totalCount++;

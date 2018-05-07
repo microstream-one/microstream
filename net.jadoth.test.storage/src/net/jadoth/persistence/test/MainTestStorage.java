@@ -95,7 +95,7 @@ public class MainTestStorage extends TestStorage
 
 	static void testContinuousHouseKeeping(final StorageConnection connection, final Object instance)
 	{
-//		JadothThreads.sleep(2000);
+//		XThreads.sleep(2000);
 		for(int i = 1000; i --> 0;)
 		{
 			XDebug.debugln("round "+i);
@@ -110,13 +110,13 @@ public class MainTestStorage extends TestStorage
 //			}
 //			else if(Math.random() < 0.2)
 //			{
-//				JadothConsole.debugln("long");
-//				JadothThreads.sleep(16_000);
+//				XDebug.debugln("long");
+//				XThreads.sleep(16_000);
 //			}
 //			else
 //			{
-//				JadothConsole.debugln("short");
-//				JadothThreads.sleep(100 + (int)(200d*Math.random()));
+//				XDebug.debugln("short");
+//				XThreads.sleep(100 + (int)(200d*Math.random()));
 //			}
 		}
 	}
@@ -148,8 +148,8 @@ public class MainTestStorage extends TestStorage
 		// simple storing test
 //		ROOT.set(EqConstHashTable.New(keyValue("A", "One"), keyValue("B", "Two"), keyValue("C", "Schnitzel")));
 //		ROOT.set(X.List(
-//			new Person("Alice", "A", null, JadothTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
-//			new Person("Bob", "B", null, JadothTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
+//			new Person("Alice", "A", null, XTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
+//			new Person("Bob", "B", null, XTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
 //		));
 //		ROOT.set(X.List(
 //			complexStuff,
@@ -169,7 +169,7 @@ public class MainTestStorage extends TestStorage
 //			public File provideExportFile(final StorageEntityTypeHandler entityType)
 //			{
 //				return new File(
-//					JadothFiles.ensureDirectory(new File("c:/Files/export/")),
+//					XFiles.ensureDirectory(new File("c:/Files/export/")),
 //					entityType.typeName()+".bin"
 //				);
 //			}
@@ -296,7 +296,7 @@ public class MainTestStorage extends TestStorage
 //			ints.clear();
 //			createIntegers(ints, 10000);
 //			Thread.sleep(987);
-//			JadothConsole.debugln("storing ints #"+i);
+//			XDebug.debugln("storing ints #"+i);
 			final long tStart = System.nanoTime();
 			storageConnection.store(ints);
 			final long tStop = System.nanoTime();

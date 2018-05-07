@@ -9,8 +9,8 @@ public class MainListFiles
 	public static void main(final String[] args) throws Exception
 	{
 		searchStringsInFiles(
-			new File("D:/workspaces/jadoth").listFiles(),
-			file -> file.getName().matches("Jadoth.*\\.java"),
+			new File("D:/workspaces/stuff").listFiles(),
+			file -> file.getName().matches("Stuff.*\\.java"),
 			file -> System.out.println(file.getName())
 		);
 	}

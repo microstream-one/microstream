@@ -38,8 +38,8 @@ import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 /* (12.07.2012 TM)FIXME: complete EqHashTable implementation
@@ -4047,14 +4047,14 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			// (23.01.2017 TM)NOTE: copyTo() removed. No time for a replacement, atm.
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME EqHashTable.Values#set()
-
+			
 //			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
 //			@SuppressWarnings("unchecked")
 //			final V[] copy = (V[])values.copyTo(
-//				new Object[Jadoth.checkArrayRange(valuesLength)],
+//				new Object[X.checkArrayRange(valuesLength)],
 //				0                                               ,
 //				offset                                          ,
-//				Jadoth.checkArrayRange(valuesLength)
+//				X.checkArrayRange(valuesLength)
 //			);
 //			EqHashTable.this.chain.valuesSet(valuesOffset, copy);
 //

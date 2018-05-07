@@ -306,7 +306,7 @@ public class ThreadedPool<E> implements Pool<E>
 			// avoid acquiring a lock if there is no need to
 			return;
 		}
-//		JadothConsole.debugln("DEBUG\n" +
+//		XDebug.debugln("DEBUG\n" +
 //			"max:     " + this.maxCount + "\n" +
 //			"total:   " + this.totalCount + "\n" +
 //			"pool:    " + this.pool.size() + "\n" +

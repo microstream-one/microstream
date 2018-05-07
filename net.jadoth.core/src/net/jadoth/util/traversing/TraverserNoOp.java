@@ -8,7 +8,7 @@ public final class TraverserNoOp<T> implements TypeTraverser<T>
 	
 	public static <T> TraverserNoOp<T> New(final Class<T> type)
 	{
-//		JadothConsole.debugln("NoOp traverser for " + type);
+//		XDebug.debugln("NoOp traverser for " + type);
 		
 		return new TraverserNoOp<>(type);
 	}

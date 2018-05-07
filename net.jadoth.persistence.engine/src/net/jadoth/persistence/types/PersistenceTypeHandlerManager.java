@@ -225,7 +225,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		{
-//			JadothConsole.debugln("ensureTypeHandler(" + type + ")");
+//			XDebug.debugln("ensureTypeHandler(" + type + ")");
 			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
 			{
@@ -372,7 +372,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			if(this.initialized)
 			{
-//				JadothConsole.debugln("already initialized");
+//				XDebug.debugln("already initialized");
 				return;
 			}
 
@@ -423,7 +423,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
-//			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
+//			XDebug.debugln("initializing " + XChars.systemString(this.typeHandlerRegistry));
 
 			final PersistenceTypeDictionary typeDictionary =
 				this.typeDictionaryManager.provideDictionary()

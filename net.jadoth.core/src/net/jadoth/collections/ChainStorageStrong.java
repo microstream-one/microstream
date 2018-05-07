@@ -4978,7 +4978,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainStorageStrong#rngShuffle()
 //		EN entry;
 //		EN entry = this.head;
-//		int length = JadothTypes.to_int(this.parent.size());
+//		int length = XTypes.to_int(this.parent.size());
 //
 //		final FastRandom random = new FastRandom();
 //		for(EN s1, s2; length > 0; entry = entry.next, length--)

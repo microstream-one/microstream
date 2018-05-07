@@ -56,13 +56,6 @@ public abstract class AbstractBridgeXSet<E> extends AbstractOldGettingSet<E>
 		((XSet<E>)this.subject).clear();
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean remove(final Object o)
-//	{
-//		return ((XSet<E>)this.subject).remove((E)o, Jadoth.equals) > 0;
-//	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeAll(final Collection<?> c)
