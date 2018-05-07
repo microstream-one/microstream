@@ -42,62 +42,61 @@ import net.jadoth.exceptions.NumberRangeException;
 public final class XTypes
 {
 	///////////////////////////////////////////////////////////////////////////
-	// Class Type Classifiers //
-	///////////////////////////
+	// static methods //
+	///////////////////
 
-	public static boolean isBoolean(final Class<?> c)
+	public static boolean isBooleanType(final Class<?> c)
 	{
 		return c == boolean.class || c == Boolean.class;
 	}
 
-	public static boolean isByte(final Class<?> c)
+	public static boolean isByteType(final Class<?> c)
 	{
 		return c == byte.class || c == Byte.class;
 	}
 
-	public static boolean isShort(final Class<?> c)
+	public static boolean isShortType(final Class<?> c)
 	{
 		return c == short.class || c == Short.class;
 	}
 
-	public static boolean isInteger(final Class<?> c)
+	public static boolean isIntegerType(final Class<?> c)
 	{
 		return c == int.class || c == Integer.class;
 	}
 
-	public static boolean isLong(final Class<?> c)
+	public static boolean isLongType(final Class<?> c)
 	{
 		return c == long.class || c == Long.class;
 	}
 
-	public static boolean isFloat(final Class<?> c)
+	public static boolean isFloatType(final Class<?> c)
 	{
 		return c == float.class || c == Float.class;
 	}
 
-	public static boolean isDouble(final Class<?> c)
+	public static boolean isDoubleType(final Class<?> c)
 	{
 		return c == double.class || c == Double.class;
 	}
 
-	public static boolean isCharacter(final Class<?> c)
+	public static boolean isCharacterType(final Class<?> c)
 	{
 		return c == char.class || c == Character.class;
 	}
 
-	//just for conformity in use along with the other ones
-	public static boolean isString(final Class<?> c)
+	// just for conformity in use along with the other ones
+	public static boolean isStringType(final Class<?> c)
 	{
 		return c == String.class;
 	}
+	
+	public static boolean isCharSequenceType(final Class<?> c)
+	{
+		return CharSequence.class.isAssignableFrom(c);
+	}
 
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// Class Category Classifiers //
-	///////////////////////////////
-
-	public static boolean isNaturalNumber(final Class<?> c)
+	public static boolean isNaturalNumberType(final Class<?> c)
 	{
 		return c == byte.class
 			|| c == Byte.class
@@ -113,7 +112,7 @@ public final class XTypes
 		;
 	}
 
-	public static boolean isDecimal(final Class<?> c)
+	public static boolean isDecimalType(final Class<?> c)
 	{
 		return c == float.class
 			|| c == Float.class
@@ -123,28 +122,19 @@ public final class XTypes
 		;
 	}
 
-	public static boolean isNumber(final Class<?> c)
+	public static boolean isNumberType(final Class<?> c)
 	{
 		return c == byte.class
-			|| c == Byte.class
 			|| c == short.class
-			|| c == Short.class
 			|| c == int.class
-			|| c == Integer.class
 			|| c == long.class
-			|| c == Long.class
 			|| c == float.class
-			|| c == Float.class
 			|| c == double.class
-			|| c == Double.class
-			|| c == BigInteger.class
-			|| c == AtomicInteger.class
-			|| c == AtomicLong.class
-			|| c == BigDecimal.class
+			|| Number.class.isAssignableFrom(c)
 		;
 	}
 
-	public static boolean isLiteral(final Class<?> c)
+	public static boolean isLiteralType(final Class<?> c)
 	{
 		return c == String.class || c == char.class || c == Character.class;
 	}
@@ -168,26 +158,22 @@ public final class XTypes
 		;
 	}
 
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// Object Category Classifiers //
-	////////////////////////////////
-
+	
+	
 	public static boolean isNaturalNumber(final Object o)
 	{
-		// NOT Float and Double
-		return o instanceof Byte
+		// NOT Float or Double
+		return o instanceof Integer
 			|| o instanceof Short
-			|| o instanceof Integer
 			|| o instanceof Long
+			|| o instanceof Byte
 			|| o instanceof BigInteger
 			|| o instanceof AtomicInteger
 			|| o instanceof AtomicLong
 		;
 	}
 
-	//just for conformity in use along with the other ones
+	// just for conformity in use along with the other ones
 	public static boolean isNumber(final Object o)
 	{
 		return o instanceof Number;
@@ -203,7 +189,7 @@ public final class XTypes
 		return o instanceof String || o instanceof Character;
 	}
 
-	//just for conformity in use along with the other ones
+	// just for conformity in use along with the other ones
 	public static boolean isBoolean(final Object o)
 	{
 		return o instanceof Boolean;
@@ -220,14 +206,14 @@ public final class XTypes
 	{
 		// all value types, ordered in common use probability
 		return o instanceof String
-			|| isPrimitiveWrapperType(o)
+			|| isPrimitiveWrapper(o)
 			|| o instanceof BigInteger
 			|| o instanceof BigDecimal
 			|| o instanceof ValueType
 		;
 	}
 
-	public static boolean isPrimitiveWrapperType(final Object o)
+	public static boolean isPrimitiveWrapper(final Object o)
 	{
 		// all primitive wrapper types, ordered in common use probability
 		return o instanceof Integer
@@ -241,6 +227,8 @@ public final class XTypes
 		;
 	}
 
+	
+	
 	public static final int to_int(final long value) throws NumberRangeException
 	{
 		if(value > Integer.MAX_VALUE)
@@ -284,6 +272,8 @@ public final class XTypes
 	{
 		return to_int(value.longValue());
 	}
+	
+	
 	
 	public static final Byte asByte(final Number value)
 	{

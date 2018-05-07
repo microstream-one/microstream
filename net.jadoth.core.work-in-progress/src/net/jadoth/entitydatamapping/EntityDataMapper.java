@@ -929,7 +929,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 					// (15.12.2009 TM)NOTE: Fix: if type is boolean, try again without "is" special case (getXXX)
 					booleanSpecialCase:
 					{
-						if(!XTypes.isBoolean(field.getType())) break booleanSpecialCase;
+						if(!XTypes.isBooleanType(field.getType())) break booleanSpecialCase;
 
 						getterName = Code.deriveGetterNameFromField(field, false);
 						getter = getCachedGetter(getterName);

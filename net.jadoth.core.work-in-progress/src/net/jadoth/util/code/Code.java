@@ -164,7 +164,7 @@ public abstract class Code
 	{
 		return Code.deriveGetterNameFromFieldName(
 			field.getName(),
-			usePrefix_is_forBoolean && XTypes.isBoolean(field.getType())
+			usePrefix_is_forBoolean && XTypes.isBooleanType(field.getType())
 		);
 	}
 

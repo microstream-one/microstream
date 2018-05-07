@@ -23,7 +23,7 @@ public interface InvocationLogger
 	{
 		private static String toLogString(final Object value)
 		{
-			return XTypes.isPrimitiveWrapperType(value)
+			return XTypes.isPrimitiveWrapper(value)
 				? value.toString()
 				: XChars.systemString(value)
 			;
