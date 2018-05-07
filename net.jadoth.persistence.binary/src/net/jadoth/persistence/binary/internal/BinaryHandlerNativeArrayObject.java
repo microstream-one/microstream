@@ -1,8 +1,5 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.typing.XTypes.validateArrayType;
-import static net.jadoth.typing.XTypes.validateNonPrimitiveType;
-
 import java.lang.reflect.Array;
 
 import net.jadoth.X;
@@ -11,8 +8,6 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.reflect.XReflect.validateArrayType;
-import net.jadoth.reflect.XReflect.validateNonPrimitiveType;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
