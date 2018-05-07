@@ -6,7 +6,7 @@ public class MainTestExampleGraphTraversal
 	{
 		// example graph of n entities (~ 3*n instances including value types)
 //		final ClientCorporation corp = Test.generateModelData(5_000);
-		final Object corp = null;
+//		final Object corp = null;
 
 
 
@@ -102,7 +102,7 @@ public class MainTestExampleGraphTraversal
 //		final Object root = Test.generateModelData(amount);
 //		final Object root = generateSimpleModel(amount);
 //		final Object root = generateStringArray(amount);
-		final Object root = null;
+//		final Object root = null;
 
 
 		// always at least 2 warmup runs
@@ -112,8 +112,8 @@ public class MainTestExampleGraphTraversal
 
 		System.out.println(runCount + " runs: " + warmupCount + " warm-up, " + measureCount + " measuring.");
 
-		final long lastTime   = 0;
-		final long lastCount  = 0;
+//		final long lastTime   = 0;
+//		final long lastCount  = 0;
 		final long lastXTime  = 0;
 		final long lastXCount = 0;
 		for(int i = runCount; i --> 0;)
