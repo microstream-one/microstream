@@ -10,11 +10,14 @@ public final class BinaryHandlerNativeString extends AbstractBinaryHandlerNative
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeString(final long typeId)
+	public BinaryHandlerNativeString()
 	{
-		super(typeId, String.class, pseudoFields(
-			chars("value")
-		));
+		super(
+			String.class,
+			pseudoFields(
+				chars("value")
+			)
+		);
 	}
 
 

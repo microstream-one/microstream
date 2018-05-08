@@ -22,11 +22,14 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerDate(final long typeId)
+	public BinaryHandlerDate()
 	{
-		super(typeId, Date.class, pseudoFields(
-			pseudoField(long.class, "timestamp")
-		));
+		super(
+			Date.class,
+			pseudoFields(
+				pseudoField(long.class, "timestamp")
+			)
+		);
 	}
 
 

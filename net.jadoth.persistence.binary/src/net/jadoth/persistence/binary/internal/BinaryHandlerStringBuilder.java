@@ -14,9 +14,9 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerStringBuilder(final long typeId)
+	public BinaryHandlerStringBuilder()
 	{
-		super(typeId, StringBuilder.class);
+		super(StringBuilder.class);
 	}
 
 

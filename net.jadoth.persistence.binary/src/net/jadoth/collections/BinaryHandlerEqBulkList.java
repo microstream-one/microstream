@@ -58,11 +58,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqBulkList(final long typeId)
+	public BinaryHandlerEqBulkList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator")

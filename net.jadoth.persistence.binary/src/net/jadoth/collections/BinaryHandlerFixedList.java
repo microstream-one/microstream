@@ -46,11 +46,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerFixedList(final long typeId)
+	public BinaryHandlerFixedList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);

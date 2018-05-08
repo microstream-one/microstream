@@ -12,12 +12,11 @@ extends AbstractBinaryHandlerNativeCustomValue<T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeCustomValueVariableLength(
-		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
-		super(typeId, type, pseudoFields);
+		super(type, pseudoFields);
 	}
 	
 	

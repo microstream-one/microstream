@@ -38,10 +38,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerArrayList(final long typeId)
+	public BinaryHandlerArrayList()
 	{
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);

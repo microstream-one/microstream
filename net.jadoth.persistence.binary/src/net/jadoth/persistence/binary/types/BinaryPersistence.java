@@ -67,6 +67,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
+import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
 import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
@@ -543,7 +544,10 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		// funny thing in this method: primitive generics typing :D
-		return new BinaryHandlerPrimitive<>(type, typeLookup.lookupTypeId(type));
+		return PersistenceTypeHandler.initializeTypeId(
+			new BinaryHandlerPrimitive<>(type),
+			typeLookup.lookupTypeId(type)
+		);
 	}
 
 	public static final <D extends PersistenceTypeDictionary> D createDefaultTypeDictionary(
@@ -563,7 +567,10 @@ public final class BinaryPersistence extends Persistence
 			primitiveTypeDescription(double.class , typeLookup),
 
 			// implementation of class type handler doesn't matter here as it is only used to create the type desc.
-			new BinaryHandlerNativeClass(null, typeLookup.lookupTypeId(Class.class))
+			PersistenceTypeHandler.initializeTypeId(
+				new BinaryHandlerNativeClass(null),
+				typeLookup.lookupTypeId(Class.class)
+			)
 		));
 		createDefaultCustomTypeHandlerRegistry().updateTypeDictionary(typeDictionary, typeLookup);
 		return typeDictionary;

@@ -33,12 +33,11 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeArray(
-		final long typeId,
-		final Class<A> arrayType,
+		final Class<A>                                                                  arrayType   ,
 		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
-		super(typeId, arrayType, pseudoFields);
+		super(arrayType, pseudoFields);
 	}
 
 

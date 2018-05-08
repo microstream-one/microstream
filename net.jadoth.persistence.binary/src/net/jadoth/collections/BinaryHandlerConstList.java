@@ -46,11 +46,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerConstList(final long typeId)
+	public BinaryHandlerConstList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);

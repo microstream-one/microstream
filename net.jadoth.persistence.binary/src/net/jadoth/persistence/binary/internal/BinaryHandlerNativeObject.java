@@ -8,9 +8,9 @@ public final class BinaryHandlerNativeObject extends AbstractBinaryHandlerStatel
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeObject(final long tid)
+	public BinaryHandlerNativeObject()
 	{
-		super(tid, Object.class);
+		super(Object.class);
 	}
 
 

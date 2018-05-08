@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeFloat extends AbstractBinaryHandlerNativeC
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeFloat(final long tid)
+	public BinaryHandlerNativeFloat()
 	{
-		super(tid, Float.class, defineValueType(float.class));
+		super(Float.class, defineValueType(float.class));
 	}
 
 

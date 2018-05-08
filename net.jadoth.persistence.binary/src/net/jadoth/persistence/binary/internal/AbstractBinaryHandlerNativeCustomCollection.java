@@ -12,12 +12,11 @@ extends AbstractBinaryHandlerNativeCustom<T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeCustomCollection(
-		final long                                                                    typeId      ,
 		final Class<T>                                                                type        ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
-		super(typeId, type, pseudoFields);
+		super(type, pseudoFields);
 	}
 	
 	

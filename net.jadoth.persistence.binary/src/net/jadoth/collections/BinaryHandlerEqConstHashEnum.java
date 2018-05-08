@@ -68,15 +68,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqConstHashEnum(final long typeId)
+	public BinaryHandlerEqConstHashEnum()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.elementsPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
-				pseudoField(float.class, "hashDensity")
+				pseudoField(float.class        , "hashDensity"  )
 			)
 		);
 	}

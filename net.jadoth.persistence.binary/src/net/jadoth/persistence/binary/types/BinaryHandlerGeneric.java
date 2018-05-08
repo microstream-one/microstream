@@ -23,15 +23,14 @@ public final class BinaryHandlerGeneric<T> extends AbstractGenericBinaryHandler<
 	/////////////////////
 
 	protected BinaryHandlerGeneric(
-		final Class<T>                                    type                   ,
-		final long                                        tid                    ,
-		final BinaryInstantiator<T>                       instantiator           ,
-		final XGettingEnum<Field>                         allFields              ,
-		final PersistenceFieldLengthResolver              lengthResolver         ,
+		final Class<T>                              type                   ,
+		final BinaryInstantiator<T>                 instantiator           ,
+		final XGettingEnum<Field>                   allFields              ,
+		final PersistenceFieldLengthResolver        lengthResolver         ,
 		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
-		super(type, tid, allFields, lengthResolver, mandatoryFieldEvaluator);
+		super(type, allFields, lengthResolver, mandatoryFieldEvaluator);
 		this.instantiator = notNull(instantiator);
 	}
 

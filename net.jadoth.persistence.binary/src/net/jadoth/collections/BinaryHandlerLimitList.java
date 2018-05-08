@@ -47,11 +47,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerLimitList(final long typeId)
+	public BinaryHandlerLimitList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);

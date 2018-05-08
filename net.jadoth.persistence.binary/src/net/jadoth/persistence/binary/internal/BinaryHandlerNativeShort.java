@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeShort extends AbstractBinaryHandlerNativeC
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeShort(final long tid)
+	public BinaryHandlerNativeShort()
 	{
-		super(tid, Short.class, defineValueType(short.class));
+		super(Short.class, defineValueType(short.class));
 	}
 
 

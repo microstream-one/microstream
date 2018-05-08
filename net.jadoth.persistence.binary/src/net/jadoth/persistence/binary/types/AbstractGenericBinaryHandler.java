@@ -157,13 +157,12 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 
 	protected AbstractGenericBinaryHandler(
 		final Class<T>                                    type                   ,
-		final long                                        tid                    ,
 		final XGettingEnum<Field>                         allFields              ,
 		final PersistenceFieldLengthResolver              lengthResolver         ,
 		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
-		super(type, tid);
+		super(type);
 
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		Memory.ensureClassInitialized(type);

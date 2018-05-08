@@ -74,11 +74,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqHashTable(final long typeId)
+	public BinaryHandlerEqHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),

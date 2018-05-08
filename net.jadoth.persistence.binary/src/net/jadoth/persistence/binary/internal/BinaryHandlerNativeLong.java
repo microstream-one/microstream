@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeLong extends AbstractBinaryHandlerNativeCu
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeLong(final long tid)
+	public BinaryHandlerNativeLong()
 	{
-		super(tid, Long.class, defineValueType(long.class));
+		super(Long.class, defineValueType(long.class));
 	}
 
 

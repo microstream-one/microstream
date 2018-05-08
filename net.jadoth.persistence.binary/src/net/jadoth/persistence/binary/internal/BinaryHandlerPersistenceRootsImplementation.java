@@ -53,7 +53,13 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		@Override
 		public final BinaryHandlerPersistenceRootsImplementation createTypeHandler(final long typeId)
 		{
-			return new BinaryHandlerPersistenceRootsImplementation(typeId, this.resolver, this.globalRegistry);
+			return PersistenceTypeHandler.initializeTypeId(
+				new BinaryHandlerPersistenceRootsImplementation(
+					this.resolver,
+					this.globalRegistry
+				),
+				typeId
+			);
 		}
 
 	}
@@ -88,13 +94,11 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	/////////////////////
 
 	BinaryHandlerPersistenceRootsImplementation(
-		final long                    typeId        ,
 		final PersistenceRootResolver resolver      ,
 		final SwizzleRegistry         globalRegistry
 	)
 	{
 		super(
-			typeId,
 			PersistenceRoots.Implementation.class,
 			pseudoFields( // instances first to easy ref-only loading in storage
 				complex("instances",

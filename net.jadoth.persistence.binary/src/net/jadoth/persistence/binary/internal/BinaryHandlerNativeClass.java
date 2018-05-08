@@ -39,16 +39,19 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	// constructors     //
 	/////////////////////
 
-	BinaryHandlerNativeClass(final long typeId)
+	BinaryHandlerNativeClass()
 	{
-		this(null, typeId); // only needed for automated reflective use when initializing the default type dictionary
+		this(null); // only needed for automated reflective use when initializing the default type dictionary
 	}
 
-	public BinaryHandlerNativeClass(final PersistenceTypeHandlerLookup<Binary> typeLookup, final long typeId)
+	public BinaryHandlerNativeClass(final PersistenceTypeHandlerLookup<Binary> typeLookup)
 	{
-		super(typeId, typeWorkaround(), pseudoFields(
-			chars("name")
-		));
+		super(
+			typeWorkaround(),
+			pseudoFields(
+				chars("name")
+			)
+		);
 		this.typeLookup = typeLookup;
 	}
 
@@ -141,7 +144,10 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 		)
 			throws PersistenceExceptionTypeNotPersistable
 		{
-			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerNativeClass(this.typeLookup, typeId);
+			return (PersistenceTypeHandler<Binary, T>)PersistenceTypeHandler.initializeTypeId(
+				new BinaryHandlerNativeClass(this.typeLookup),
+				typeId
+			);
 		}
 	}
 

@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
@@ -13,9 +12,9 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerStateless(final long tid, final Class<T> type)
+	public AbstractBinaryHandlerStateless(final Class<T> type)
 	{
-		super(tid, type, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
+		super(type, X.empty());
 	}
 
 

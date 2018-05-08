@@ -71,11 +71,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 	// methods //
 	////////////
 
-	public BinaryHandlerConstHashTable(final long typeId)
+	public BinaryHandlerConstHashTable()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			AbstractBinaryHandlerNative.pseudoFields(
 				pseudoField(ConstHashTable.Keys.class, "keys"),

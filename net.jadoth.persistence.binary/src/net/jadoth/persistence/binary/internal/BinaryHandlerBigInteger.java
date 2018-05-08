@@ -12,11 +12,14 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerBigInteger(final long tid)
+	public BinaryHandlerBigInteger()
 	{
-		super(tid, BigInteger.class, pseudoFields(
-			bytes("value")
-		));
+		super(
+			BigInteger.class,
+			pseudoFields(
+				bytes("value")
+			)
+		);
 	}
 
 

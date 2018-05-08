@@ -14,9 +14,12 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerNativeCustomVa
 
 	public BinaryHandlerFile(final long typeId)
 	{
-		super(typeId, File.class, pseudoFields(
-			chars("path")
-		));
+		super(
+			File.class,
+			pseudoFields(
+				chars("path")
+			)
+		);
 	}
 
 

@@ -174,11 +174,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerEqHashEnum(final long typeId)
+	public BinaryHandlerEqHashEnum()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			pseudoFields()
 		);

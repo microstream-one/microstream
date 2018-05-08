@@ -74,7 +74,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			if(type.isPrimitive())
 			{
 				// primitive special cases
-				return new BinaryHandlerPrimitive<>(type, typeId);
+				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerPrimitive<>(type), typeId);
 			}
 			if(type.isArray())
 			{
@@ -83,7 +83,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				{
 					throw new RuntimeException(); // (01.04.2013)EXCP: proper exception
 				}
-				return new BinaryHandlerNativeArrayObject<>(type, typeId);
+				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerNativeArrayObject<>(type),typeId);
 			}
 
 			final HashEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions = HashEnum.New();
@@ -95,7 +95,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			if(persistableFields.isEmpty())
 			{
 				// required for a) sparing unnecessary overhead and b) validation reasons
-				return new BinaryHandlerStateless<>(type, typeId);
+				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerStateless<>(type), typeId);
 			}
 			
 			if(type.isEnum())
@@ -105,30 +105,34 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			}
 
 			// default implementation simply always uses a blank memory instantiator
-			return new BinaryHandlerGeneric<>(
-				type,
-				typeId,
-				BinaryPersistence.blankMemoryInstantiator(type),
-				persistableFields,
-				this.lengthResolver,
-				this.mandatoryFieldEvaluator
+			return PersistenceTypeHandler.initializeTypeId(
+				new BinaryHandlerGeneric<>(
+					type,
+					BinaryPersistence.blankMemoryInstantiator(type),
+					persistableFields,
+					this.lengthResolver,
+					this.mandatoryFieldEvaluator
+				),
+				typeId
 			);
 		}
 		
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
 			final Class<?>                       type          ,
-			final long                           tid           ,
+			final long                           typeId        ,
 			final XGettingEnum<Field>            allFields     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
-			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
-				(Class<E>)type     ,
-				tid                ,
-				allFields          ,
-				this.lengthResolver,
-				this.mandatoryFieldEvaluator
+			return (PersistenceTypeHandler<Binary, T>)PersistenceTypeHandler.initializeTypeId(
+				new BinaryHandlerEnum<>(
+					(Class<E>)type     ,
+					allFields          ,
+					this.lengthResolver,
+					this.mandatoryFieldEvaluator
+				),
+				typeId
 			);
 		}
 

@@ -11,9 +11,9 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_byte(final long typeId)
+	public BinaryHandlerNativeArray_byte()
 	{
-		super(typeId, byte[].class, defineElementsType(byte.class));
+		super(byte[].class, defineElementsType(byte.class));
 	}
 
 

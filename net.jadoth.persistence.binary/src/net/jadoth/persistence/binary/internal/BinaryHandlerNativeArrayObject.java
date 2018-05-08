@@ -36,9 +36,12 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArrayObject(final Class<A> arrayType, final long typeId)
+	public BinaryHandlerNativeArrayObject(final Class<A> arrayType)
 	{
-		super(typeId, XReflect.validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
+		super(
+			XReflect.validateArrayType(arrayType),
+			defineElementsType(arrayType.getComponentType())
+		);
 		this.arrayType     = arrayType;
 		this.componentType = XReflect.validateNonPrimitiveType(arrayType.getComponentType());
 	}

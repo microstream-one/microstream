@@ -26,9 +26,9 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerPrimitive(final Class<T> type, final long typeId)
+	public BinaryHandlerPrimitive(final Class<T> type)
 	{
-		super(type, typeId);
+		super(type);
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
 

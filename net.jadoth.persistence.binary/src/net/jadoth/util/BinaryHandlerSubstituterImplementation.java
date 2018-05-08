@@ -32,11 +32,10 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerSubstituterImplementation(final long typeId)
+	public BinaryHandlerSubstituterImplementation()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryHandlerEqHashEnum.pseudoFields()
 		);

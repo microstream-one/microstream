@@ -12,16 +12,13 @@ extends AbstractBinaryHandlerNativeCustom<T>
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeCustomValue(
-		final long                                                         typeId,
 		final Class<T>                                                     type  ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
-		super(typeId, type, fields);
+		super(type, fields);
 	}
 	
-	
-	// damn git
 	
 	
 	///////////////////////////////////////////////////////////////////////////

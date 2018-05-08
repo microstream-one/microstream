@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCustom<Void>
@@ -11,9 +10,9 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCu
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeVoid(final long tid)
+	public BinaryHandlerNativeVoid()
 	{
-		super(tid, Void.class, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
+		super(Void.class, X.empty());
 	}
 
 

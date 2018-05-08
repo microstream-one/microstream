@@ -14,9 +14,9 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerStringBuffer(final long typeId)
+	public BinaryHandlerStringBuffer()
 	{
-		super(typeId, StringBuffer.class);
+		super(StringBuffer.class);
 	}
 
 

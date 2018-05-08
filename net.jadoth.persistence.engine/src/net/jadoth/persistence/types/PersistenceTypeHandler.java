@@ -1,7 +1,6 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
-import static net.jadoth.math.XMath.positive;
 
 import java.lang.reflect.Field;
 
@@ -10,6 +9,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -60,43 +60,25 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 	 * Maybe solve by a PersistenceDomain-specific Builder? Wouldn't even have to have a new interface, just a class
 	 */
 
-//	public void staticUpdate(M medium, SwizzleBuilder builder);
-//	public void staticStore (M medium, PersistenceStorer<M> persister);
-
 	public void validateFields(XGettingSequence<Field> fieldDescriptions);
-
-//	public void validateTypeDefinition(PersistenceTypeDescription typeDescription);
-
-//	public PersistenceTypeDescription<T> typeDescription();
-
-//	public XGettingEnum<Field> getAllFields();
-
-//	public XGettingEnum<Field> getStaticFinalFields();
-//	public XGettingEnum<Field> getStaticFinalReferenceFields();
-//	public XGettingEnum<Field> getStaticFinalPrimitiveFields();
-//
-//	public XGettingEnum<Field> getStaticMutableFields();
-//	public XGettingEnum<Field> getStaticMutableReferenceFields();
-//	public XGettingEnum<Field> getStaticMutablePrimitiveFields();
-//
-//	public XGettingEnum<Field> getStaticAllFields();
-//	public XGettingEnum<Field> getStaticAllReferenceFields();
-//	public XGettingEnum<Field> getStaticAllPrimitiveFields();
+	
+	public void initializeTypeId(long typeId);
+	
+	public static <M, T, H extends PersistenceTypeHandler<M, T>> H initializeTypeId(final H handler, final long typeId)
+	{
+		handler.initializeTypeId(typeId);
+		return handler;
+	}
 
 
-
-//	public static <T> PersistenceTypeDescription<T> getTypeDefinition(final PersistenceTypeHandler<?, T> input)
-//	{
-//		return input.typeDescription();
-//	}
-
+	
 	public interface Creator<M, T>
 	{
 		public PersistenceTypeHandler<M, T> createTypeHandler(long typeId);
 	}
 
-
-
+	
+	
 	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -105,19 +87,19 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 
 		// basic type swizzling //
 		private final Class<T> type;
-		private final long     tid ;
-
+		
+		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
+		private long           typeId = Swizzle.nullId();
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final Class<T> type, final long tid)
+		protected AbstractImplementation(final Class<T> type)
 		{
 			super();
-			this.tid  = positive(tid );
-			this.type =  notNull(type);
+			this.type = notNull(type);
 		}
 
 
@@ -158,13 +140,38 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription
 		@Override
 		public final long typeId()
 		{
-			return this.tid;
+			return this.typeId;
 		}
 
 		@Override
 		public final String typeName()
 		{
 			return this.type.getName();
+		}
+		
+		@Override
+		public synchronized void initializeTypeId(final long typeId)
+		{
+			/* note:
+			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.
+			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
+			 * everything is fine.
+			 */
+			if(this.typeId != 0)
+			{
+				if(this.typeId == typeId)
+				{
+					// consistent no-op, abort
+					return;
+				}
+				
+				// (26.04.2017 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
+				);
+			}
+			
+			this.typeId = typeId;
 		}
 
 	}

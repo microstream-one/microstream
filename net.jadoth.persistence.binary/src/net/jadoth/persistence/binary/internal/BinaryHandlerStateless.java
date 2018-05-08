@@ -12,9 +12,9 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStateless(final Class<T> type, final long typeId)
+	public BinaryHandlerStateless(final Class<T> type)
 	{
-		super(type, typeId);
+		super(type);
 	}
 	
 	

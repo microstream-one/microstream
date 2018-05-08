@@ -10,9 +10,9 @@ public final class BinaryHandlerNativeDouble extends AbstractBinaryHandlerNative
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeDouble(final long tid)
+	public BinaryHandlerNativeDouble()
 	{
-		super(tid, Double.class, defineValueType(double.class));
+		super(Double.class, defineValueType(double.class));
 	}
 
 

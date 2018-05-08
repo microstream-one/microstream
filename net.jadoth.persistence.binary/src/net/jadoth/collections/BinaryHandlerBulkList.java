@@ -47,11 +47,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerBulkList(final long typeId)
+	public BinaryHandlerBulkList()
 	{
 		// binary layout definition
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);

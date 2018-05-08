@@ -11,9 +11,9 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerNativeArray_boolean(final long typeId)
+	public BinaryHandlerNativeArray_boolean()
 	{
-		super(typeId, boolean[].class, defineElementsType(boolean.class));
+		super(boolean[].class, defineElementsType(boolean.class));
 	}
 
 

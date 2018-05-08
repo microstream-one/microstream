@@ -51,10 +51,9 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashSet(final long typeId)
+	public BinaryHandlerHashSet()
 	{
 		super(
-			typeId,
 			typeWorkaround(),
 			BinaryCollectionHandling.elementsPseudoFields(
 				pseudoField(float.class, "loadFactor")
