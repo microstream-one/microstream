@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.util.logging.InvocationLogger;
 import net.jadoth.util.logging.LoggingAspect;
 
@@ -15,7 +15,7 @@ public class InvocationLogging
 	protected static final boolean LOGGING_ENABLED   = false;
 	protected static final InvocationLogging LOGGING = new InvocationLogging();
 
-	protected static final Dispatcher dispatcher = new Dispatcher(){
+	protected static final InstanceDispatcherLogic dispatcher = new InstanceDispatcherLogic(){
 		@Override public <T> T apply(final T subject) {
 			return dispatch(subject);
 		}

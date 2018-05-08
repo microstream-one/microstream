@@ -26,7 +26,7 @@ import net.jadoth.collections.BinaryHandlerLimitList;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
@@ -1896,7 +1896,7 @@ public final class BinaryPersistence extends Persistence
 		return factory(null);
 	}
 
-	public static BinaryPersistenceFoundation factory(final Dispatcher dispatcher)
+	public static BinaryPersistenceFoundation factory(final InstanceDispatcherLogic dispatcher)
 	{
 		final BinaryPersistenceFoundation.Implementation factory =
 			new BinaryPersistenceFoundation.Implementation()

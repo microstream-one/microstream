@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.binary.internal.BinaryTypeDictionaryProviderDefaulting;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
@@ -46,7 +46,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	/////////////////////
 
 	@Override
-	public BinaryPersistenceFoundation setInstanceDispatcher(Dispatcher instanceDispatcher);
+	public BinaryPersistenceFoundation setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
 	@Override
 	public BinaryPersistenceFoundation setObjectManager(SwizzleObjectManager objectManager);
@@ -200,7 +200,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		public BinaryPersistenceFoundation.Implementation setInstanceDispatcher(final Dispatcher instanceDispatcher)
+		public BinaryPersistenceFoundation.Implementation setInstanceDispatcher(final InstanceDispatcherLogic instanceDispatcher)
 		{
 			super.setInstanceDispatcher(instanceDispatcher);
 			return this;
