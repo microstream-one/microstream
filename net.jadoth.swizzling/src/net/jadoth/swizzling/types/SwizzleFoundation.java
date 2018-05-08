@@ -1,14 +1,14 @@
 package net.jadoth.swizzling.types;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.functional.Dispatcher;
-import net.jadoth.util.AbstractInstanceDispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
+import net.jadoth.util.InstanceDispatcher;
 
 
 
 public interface SwizzleFoundation
 {
-	public Dispatcher getInstanceDispatcher(); // (14.04.2013)XXX: move dispatching aspect to separate super type
+	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
 
 	public SwizzleObjectIdProvider getObjectIdProvider();
@@ -25,7 +25,7 @@ public interface SwizzleFoundation
 
 
 
-	public class Implementation extends AbstractInstanceDispatcher implements SwizzleFoundation
+	public class Implementation extends InstanceDispatcher.Implementation implements SwizzleFoundation
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -78,9 +78,9 @@ public interface SwizzleFoundation
 		////////////
 
 		@Override
-		public Dispatcher getInstanceDispatcher()
+		public InstanceDispatcherLogic getInstanceDispatcherLogic()
 		{
-			return this.internalGetDispatcher();
+			return this.getInstanceDispatcherLogic();
 		}
 
 		@Override

@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import net.jadoth.chars.EscapeHandler;
 import net.jadoth.chars.VarString;
 import net.jadoth.typing.Immutable;
-import net.jadoth.util.AbstractInstanceDispatcher;
+import net.jadoth.util.InstanceDispatcher;
 
 public interface CsvConfiguration
 {
@@ -495,9 +495,9 @@ public interface CsvConfiguration
 
 		public CsvConfiguration createConfiguration();
 
+		
 
-
-		public final class Implementation extends AbstractInstanceDispatcher implements Builder
+		public final class Implementation extends InstanceDispatcher.Implementation implements Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -762,56 +762,56 @@ public interface CsvConfiguration
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setSegmentStarter(final char segmentStarter)
+			public Builder.Implementation setSegmentStarter(final char segmentStarter)
 			{
 				this.internalSetSegmentStarter(segmentStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setSegmentTerminator(final char segmentTerminator)
+			public Builder.Implementation setSegmentTerminator(final char segmentTerminator)
 			{
 				this.internalSetSegmentTerminator(segmentTerminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setHeaderStarter(final char headerStarter)
+			public Builder.Implementation setHeaderStarter(final char headerStarter)
 			{
 				this.internalSetHeaderStarter(headerStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setHeaderTerminator(final char headerTerminator)
+			public Builder.Implementation setHeaderTerminator(final char headerTerminator)
 			{
 				this.internalSetHeaderTerminator(headerTerminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentSignal(final char commentSignal)
+			public Builder.Implementation setCommentSignal(final char commentSignal)
 			{
 				this.internalSetCommentSignal(commentSignal);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentSimpleStarter(final char commentSimpleStarter)
+			public Builder.Implementation setCommentSimpleStarter(final char commentSimpleStarter)
 			{
 				this.internalSetCommentSimpleStarter(commentSimpleStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentFullStarter(final char commentFullStarter)
+			public Builder.Implementation setCommentFullStarter(final char commentFullStarter)
 			{
 				this.internalSetCommentFullStarter(commentFullStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation.Implementation setCommentFullTerminator(final String commentFullTerminator)
+			public Builder.Implementation setCommentFullTerminator(final String commentFullTerminator)
 			{
 				this.internalSetCommentFullTerminator(commentFullTerminator);
 				return this;

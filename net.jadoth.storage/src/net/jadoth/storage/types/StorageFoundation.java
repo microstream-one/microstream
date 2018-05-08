@@ -3,7 +3,7 @@ package net.jadoth.storage.types;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
-import net.jadoth.util.AbstractInstanceDispatcher;
+import net.jadoth.util.InstanceDispatcher;
 
 public interface StorageFoundation
 {
@@ -95,7 +95,7 @@ public interface StorageFoundation
 
 
 
-	public class Implementation extends AbstractInstanceDispatcher implements StorageFoundation, Unpersistable
+	public class Implementation extends InstanceDispatcher.Implementation implements StorageFoundation, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

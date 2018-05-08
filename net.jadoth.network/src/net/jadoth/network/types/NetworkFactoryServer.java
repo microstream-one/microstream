@@ -1,7 +1,7 @@
 package net.jadoth.network.types;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerCheckInterval;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerThreadCount;
 import net.jadoth.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionProcessorThreadTimeout;
@@ -29,7 +29,7 @@ public interface NetworkFactoryServer
 		// constants        //
 		/////////////////////
 
-		private static final Dispatcher NO_OP = new Dispatcher()
+		private static final InstanceDispatcherLogic NO_OP = new InstanceDispatcherLogic()
 		{
 			@Override
 			public <T> T apply(final T subject)
@@ -44,7 +44,7 @@ public interface NetworkFactoryServer
 		// instance fields  //
 		/////////////////////
 
-		private final Dispatcher instanceDispatcher = NO_OP;
+		private final InstanceDispatcherLogic instanceDispatcher = NO_OP;
 
 		private int valThreadContrlConListns = RegulatorConnectionListenerThreadCount   .DEFAULT_THREAD_COUNT;
 		private int valCheckIntrvalConListns = RegulatorConnectionListenerCheckInterval .DEFAULT_INTERVAL    ;

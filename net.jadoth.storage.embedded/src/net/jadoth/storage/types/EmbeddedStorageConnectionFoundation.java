@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryLoader;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -46,7 +46,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	/////////////////////
 
 	@Override
-	public EmbeddedStorageConnectionFoundation setInstanceDispatcher(Dispatcher instanceDispatcher);
+	public EmbeddedStorageConnectionFoundation setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
 	@Override
 	public EmbeddedStorageConnectionFoundation setObjectManager(SwizzleObjectManager objectManager);
@@ -225,7 +225,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 		@Override
 		public EmbeddedStorageConnectionFoundation.Implementation setInstanceDispatcher(
-			final Dispatcher instanceDispatcher
+			final InstanceDispatcherLogic instanceDispatcher
 		)
 		{
 			super.setInstanceDispatcher(instanceDispatcher);

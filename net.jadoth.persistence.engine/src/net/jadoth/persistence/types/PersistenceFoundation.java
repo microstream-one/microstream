@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.functional.Dispatcher;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
 import net.jadoth.swizzling.types.Swizzle;
@@ -103,7 +103,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
 
-	public PersistenceFoundation<M> setInstanceDispatcher(Dispatcher instanceDispatcher);
+	public PersistenceFoundation<M> setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
 	public PersistenceFoundation<M> setObjectManager(SwizzleObjectManager objectManager);
 
@@ -589,10 +589,10 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setInstanceDispatcher(
-			final Dispatcher instanceDispatcher
+			final InstanceDispatcherLogic instanceDispatcher
 		)
 		{
-			super.internalSetDispatcher(instanceDispatcher);
+			super.setInstanceDispatcherLogic(instanceDispatcher);
 			return this;
 		}
 
