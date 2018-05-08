@@ -495,7 +495,7 @@ public interface CsvConfiguration
 
 		public CsvConfiguration createConfiguration();
 
-		
+
 
 		public final class Implementation extends InstanceDispatcher.Implementation implements Builder
 		{
