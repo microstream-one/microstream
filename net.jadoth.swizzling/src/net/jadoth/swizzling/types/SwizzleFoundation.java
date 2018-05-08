@@ -8,7 +8,7 @@ import net.jadoth.util.InstanceDispatcher;
 
 public interface SwizzleFoundation
 {
-	public InstanceDispatcherLogic getInstanceDispatcher(); // (14.04.2013)XXX: move dispatching aspect to separate super type
+	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
 
 	public SwizzleObjectIdProvider getObjectIdProvider();
@@ -78,7 +78,7 @@ public interface SwizzleFoundation
 		////////////
 
 		@Override
-		public InstanceDispatcherLogic getInstanceDispatcher()
+		public InstanceDispatcherLogic getInstanceDispatcherLogic()
 		{
 			return this.getInstanceDispatcherLogic();
 		}
