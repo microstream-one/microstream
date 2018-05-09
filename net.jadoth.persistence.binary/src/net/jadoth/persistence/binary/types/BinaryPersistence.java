@@ -63,8 +63,8 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionBuilder;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -538,7 +538,7 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-	private static <T> PersistenceTypeDescription<?> primitiveTypeDescription(
+	private static <T> PersistenceTypeDefinition<?> primitiveTypeDescription(
 		final Class<T>            type,
 		final SwizzleTypeIdLookup typeLookup
 	)
@@ -1998,9 +1998,9 @@ public final class BinaryPersistence extends Persistence
 		return new BinaryFieldLengthResolver.Implementation();
 	}
 	
-	public static final PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
+	public static final PersistenceTypeDefinitionBuilder createTypeDescriptionBuilder()
 	{
-		return PersistenceTypeDescriptionBuilder.New(PersistenceTypeResolver.Failing());
+		return PersistenceTypeDefinitionBuilder.New(PersistenceTypeResolver.Failing());
 	}
 
 	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)

@@ -13,7 +13,7 @@ import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDescription<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>
 {
 	public XGettingEnum<Field> getInstanceFields();
 

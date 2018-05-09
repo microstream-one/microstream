@@ -9,20 +9,21 @@ public interface SwizzleTypeIdentity extends SwizzleTypeIdOwner
 	public String typeName();
 
 
-
-	public static final class Static
+	public static int hashCode(final SwizzleTypeIdentity typeIdentity)
 	{
-		public static final boolean equals(
-			final SwizzleTypeIdentity ti1,
-			final SwizzleTypeIdentity ti2
-		)
-		{
-			return ti1 == ti2
-				|| ti1 != null && ti2 != null
-				&& ti1.typeId() == ti2.typeId()
-				&& ti1.typeName().equals(ti2.typeName())
-			;
-		}
+		return Long.hashCode(typeIdentity.typeId()) & typeIdentity.typeName().hashCode();
+	}
+
+	public static boolean equals(
+		final SwizzleTypeIdentity ti1,
+		final SwizzleTypeIdentity ti2
+	)
+	{
+		return ti1 == ti2
+			|| ti1 != null && ti2 != null
+			&& ti1.typeId() == ti2.typeId()
+			&& ti1.typeName().equals(ti2.typeName())
+		;
 	}
 
 }

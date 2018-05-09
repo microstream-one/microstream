@@ -2,17 +2,14 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import java.util.Iterator;
-
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.equality.Equalator;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
-public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, SwizzleTypeLink<T>
+public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
 {
 	@Override
 	public long   typeId();
@@ -34,6 +31,7 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
 	 */
 
+	@Override
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
 	public boolean hasPersistedReferences();
@@ -103,33 +101,33 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
 
-	public static final HashEqualator<PersistenceTypeDescription<?>> EQUAL_TYPE =
-		new HashEqualator<PersistenceTypeDescription<?>>()
+	public static final HashEqualator<PersistenceTypeDefinition<?>> EQUAL_TYPE =
+		new HashEqualator<PersistenceTypeDefinition<?>>()
 		{
 			@Override
-			public int hash(final PersistenceTypeDescription<?> typeDescription)
+			public int hash(final PersistenceTypeDefinition<?> typeDescription)
 			{
-				return PersistenceTypeDescription.hashCode(typeDescription);
+				return PersistenceTypeDefinition.hashCode(typeDescription);
 			}
 
 			@Override
-			public boolean equal(final PersistenceTypeDescription<?> td1, final PersistenceTypeDescription<?> td2)
+			public boolean equal(final PersistenceTypeDefinition<?> td1, final PersistenceTypeDefinition<?> td2)
 			{
-				return PersistenceTypeDescription.equalType(td1, td2);
+				return PersistenceTypeDefinition.equalType(td1, td2);
 			}
 		}
 	;
 
 
 
-	public static int hashCode(final PersistenceTypeDescription <?>typeDescription)
+	public static int hashCode(final PersistenceTypeDefinition <?>typeDescription)
 	{
 		return Long.hashCode(typeDescription.typeId()) & typeDescription.typeName().hashCode();
 	}
 
 	public static boolean equalType(
-		final PersistenceTypeDescription <?>td1,
-		final PersistenceTypeDescription <?>td2
+		final PersistenceTypeDefinition <?>td1,
+		final PersistenceTypeDefinition <?>td2
 	)
 	{
 		if(td1 == td2)
@@ -144,12 +142,13 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		{
 			return false;
 		}
-		return SwizzleTypeIdentity.Static.equals(td1, td2);
+		
+		return SwizzleTypeIdentity.equals(td1, td2);
 	}
 
 	public static boolean equalDescription(
-		final PersistenceTypeDescription <?>td1,
-		final PersistenceTypeDescription <?>td2
+		final PersistenceTypeDefinition <?>td1,
+		final PersistenceTypeDefinition <?>td2
 	)
 	{
 		if(td1 == td2)
@@ -164,52 +163,27 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 		{
 			return false;
 		}
-		return SwizzleTypeIdentity.Static.equals(td1, td2)
-			&& equalMembers(td1, td2, PersistenceTypeDescriptionMember::isEqual)
+		
+		return SwizzleTypeIdentity.equals(td1, td2)
+			&& PersistenceTypeDescriptionMember.equalMembers(td1.members(), td2.members())
 		;
 	}
 
-	public static boolean equalMembers(
-		final PersistenceTypeDescription <?>                 td1      ,
-		final PersistenceTypeDescription <?>                 td2      ,
-		final Equalator<PersistenceTypeDescriptionMember> equalator
-	)
-	{
-		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
-		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = td1.members().iterator();
-		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = td2.members().iterator();
-
-		// intentionally OR to give equalator a chance to handle size mismatches as well (indicated by null)
-		while(it1.hasNext() || it2.hasNext())
-		{
-			final PersistenceTypeDescriptionMember member1 = it1.hasNext() ? it1.next() : null;
-			final PersistenceTypeDescriptionMember member2 = it2.hasNext() ? it2.next() : null;
-
-			if(!equalator.equal(member1, member2))
-			{
-				return false;
-			}
-		}
-
-		// neither member-member mismatch nor size mismatch, so members must be in order and equal
-		return true;
-	}
-
 	
 	
-	public static <T> PersistenceTypeDescription<T> New(
+	public static <T> PersistenceTypeDefinition<T> New(
 		final long                                                         typeId  ,
 		final String                                                       typeName,
 		final Class<T>                                                     type    ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return new PersistenceTypeDescription.Implementation<>(typeId, typeName, type, members);
+		return new PersistenceTypeDefinition.Implementation<>(typeId, typeName, type, members);
 	}
 
 
 
-	public final class Implementation<T> implements PersistenceTypeDescription<T>
+	public final class Implementation<T> implements PersistenceTypeDefinition<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -242,8 +216,8 @@ public interface PersistenceTypeDescription<T> extends SwizzleTypeIdentity, Swiz
 			this.type           =         type     ; // may be null for obsolete type description or external process
 			this.members        = members.immure() ; // same instance if already immutable
 			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
-			this.isPrimitive    = PersistenceTypeDescription      .determineIsPrimitive   (members);
-			this.variableLength = PersistenceTypeDescription      .determineVariableLength(members);
+			this.isPrimitive    = PersistenceTypeDefinition      .determineIsPrimitive   (members);
+			this.variableLength = PersistenceTypeDefinition      .determineVariableLength(members);
 		}
 
 		

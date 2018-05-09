@@ -80,7 +80,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceTypeResolver getTypeResolver();
 	
-	public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder();
+	public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder();
 
 	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 
@@ -153,7 +153,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setTypeResolver(PersistenceTypeResolver typeResolver);
 	
-	public PersistenceFoundation<M> setTypeDescriptionBuilder(PersistenceTypeDescriptionBuilder typeDescriptionBuilder);
+	public PersistenceFoundation<M> setTypeDescriptionBuilder(PersistenceTypeDefinitionBuilder typeDescriptionBuilder);
 
 	/* (29.10.2013 TM)TODO: rename to "TypeEvaluatorAnalyzable" & keep comment
 	 * rationale (keep as documentation afterwards)
@@ -242,7 +242,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
 		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
 		private PersistenceTypeResolver                 typeResolver               ;
-		private PersistenceTypeDescriptionBuilder       typeDescriptionBuilder     ;
+		private PersistenceTypeDefinitionBuilder       typeDescriptionBuilder     ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
 		private BufferSizeProvider                      bufferSizeProvider         ;
@@ -512,7 +512,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
-		public PersistenceTypeDescriptionBuilder getTypeDescriptionBuilder()
+		public PersistenceTypeDefinitionBuilder getTypeDescriptionBuilder()
 		{
 			if(this.typeDescriptionBuilder == null)
 			{
@@ -825,7 +825,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setTypeDescriptionBuilder(
-			final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+			final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
 		)
 		{
 			this.typeDescriptionBuilder = typeDescriptionBuilder;
@@ -1091,9 +1091,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return PersistenceTypeResolver.Failing();
 		}
 		
-		protected PersistenceTypeDescriptionBuilder createTypeDescriptionBuilder()
+		protected PersistenceTypeDefinitionBuilder createTypeDescriptionBuilder()
 		{
-			return PersistenceTypeDescriptionBuilder.New(
+			return PersistenceTypeDefinitionBuilder.New(
 				this.getTypeResolver()
 			);
 		}

@@ -5,7 +5,7 @@ import java.io.File;
 import net.jadoth.chars.VarString;
 import net.jadoth.persistence.internal.AbstractIdProviderByFile;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -66,7 +66,7 @@ public final class StorageBackupHelper
 	static long highestTypeId(final PersistenceTypeDictionary typeDictionary)
 	{
 		long highestTypeId = 0;
-		for(final PersistenceTypeDescription<?> td : typeDictionary.types())
+		for(final PersistenceTypeDefinition<?> td : typeDictionary.types())
 		{
 			if(td.typeId() >= highestTypeId)
 			{

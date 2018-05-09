@@ -85,10 +85,10 @@ public interface PersistenceTypeDictionaryParser
 		// parser methods //
 
 		private static void parseTypes(
-			final BulkList<PersistenceTypeDescription<?>> types                 ,
+			final BulkList<PersistenceTypeDefinition<?>> types                 ,
 			final char[]                                  input                 ,
 			final PersistenceFieldLengthResolver          lengthResolver        ,
-			final PersistenceTypeDescriptionBuilder      typeDescriptionBuilder
+			final PersistenceTypeDefinitionBuilder      typeDescriptionBuilder
 		)
 		{
 			// (04.04.2017 TM)TODO: OGS-3 Cache TypeBuilder instances, evaluate for obsolete types.
@@ -100,7 +100,7 @@ public interface PersistenceTypeDictionaryParser
 				typeEntry.reset();
 				i = parseType(input, i, typeEntry, lengthResolver);
 				
-				final PersistenceTypeDescription<?> typeDescription = typeDescriptionBuilder.build(
+				final PersistenceTypeDefinition<?> typeDescription = typeDescriptionBuilder.build(
 					typeEntry.tid             ,
 					typeEntry.typeName        ,
 					null                      ,
@@ -396,7 +396,7 @@ public interface PersistenceTypeDictionaryParser
 		/////////////////////
 
 		final PersistenceFieldLengthResolver     lengthResolver        ;
-		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder;
+		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder;
 
 
 
@@ -406,7 +406,7 @@ public interface PersistenceTypeDictionaryParser
 
 		public Implementation(
 			final PersistenceFieldLengthResolver     lengthResolver        ,
-			final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+			final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
 		)
 		{
 			super();
@@ -423,7 +423,7 @@ public interface PersistenceTypeDictionaryParser
 		@Override
 		public PersistenceTypeDictionary parse(final String input) throws PersistenceExceptionParser
 		{
-			final BulkList<PersistenceTypeDescription<?>> types = BulkList.New();
+			final BulkList<PersistenceTypeDefinition<?>> types = BulkList.New();
 			
 			try
 			{

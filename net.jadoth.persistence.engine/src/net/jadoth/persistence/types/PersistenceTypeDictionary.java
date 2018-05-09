@@ -11,30 +11,30 @@ import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingEnum<PersistenceTypeDescription<?>> types();
+	public XGettingEnum<PersistenceTypeDefinition<?>> types();
 	
-	public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes();
+	public XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes();
 
-	public boolean registerType(PersistenceTypeDescription<?> typeDescription);
+	public boolean registerType(PersistenceTypeDefinition<?> typeDescription);
 
-	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions);
-
-	@Override
-	public PersistenceTypeDescription<?> lookupTypeByName(String typeName);
+	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions);
 
 	@Override
-	public PersistenceTypeDescription<?> lookupTypeById(long typeId);
+	public PersistenceTypeDefinition<?> lookupTypeByName(String typeName);
+
+	@Override
+	public PersistenceTypeDefinition<?> lookupTypeById(long typeId);
 
 	public long determineHighestTypeId();
 
-	public void setTypeDescriptionRegistrationCallback(PersistenceTypeDescriptionRegistrationCallback callback);
+	public void setTypeDescriptionRegistrationCallback(PersistenceTypeDefinitionRegistrationCallback callback);
 
-	public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback();
+	public PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback();
 
 
 	public static <D extends PersistenceTypeDictionary> D initializeRegisteredTypes(
 		final D                                                        typeDictionary  ,
-		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 	)
 	{
 		typeDictionary.registerTypes(typeDescriptions);
@@ -47,7 +47,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	}
 
 	public static PersistenceTypeDictionary New(
-		final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 	)
 	{
 		return PersistenceTypeDictionary.initializeRegisteredTypes(
@@ -176,11 +176,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
 		
-		private final EqHashEnum<PersistenceTypeDescription<?>> types;
+		private final EqHashEnum<PersistenceTypeDefinition<?>> types;
 
-		private final EqHashTable<Long  , PersistenceTypeDescription<?>> typesPerTypeId   = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDescription<?>> typesPerTypeName = EqHashTable.New();
-		private       PersistenceTypeDescriptionRegistrationCallback     callback        ;
+		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> typesPerTypeId   = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDefinition<?>> typesPerTypeName = EqHashTable.New();
+		private       PersistenceTypeDefinitionRegistrationCallback     callback        ;
 
 
 
@@ -191,7 +191,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		public Implementation()
 		{
 			super();
-			this.types = EqHashEnum.New(PersistenceTypeDescription.EQUAL_TYPE);
+			this.types = EqHashEnum.New(PersistenceTypeDefinition.EQUAL_TYPE);
 		}
 
 
@@ -200,7 +200,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// declared methods //
 		/////////////////////
 
-		final void internalRegisterType(final PersistenceTypeDescription<?> typeDescription)
+		final void internalRegisterType(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			this.typesPerTypeId.put(typeDescription.typeId(), typeDescription);
 			this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
@@ -213,7 +213,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		// (06.12.2014)TODO: rename "2"
-		final boolean internalRegisterType2(final PersistenceTypeDescription<?> typeDescription)
+		final boolean internalRegisterType2(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			if(!this.types.add(typeDescription))
 			{
@@ -235,31 +235,31 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		////////////
 
 		@Override
-		public void setTypeDescriptionRegistrationCallback(final PersistenceTypeDescriptionRegistrationCallback callback)
+		public void setTypeDescriptionRegistrationCallback(final PersistenceTypeDefinitionRegistrationCallback callback)
 		{
 			this.callback = callback;
 		}
 
 		@Override
-		public PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback()
 		{
 			return this.callback;
 		}
 
 		@Override
-		public XGettingEnum<PersistenceTypeDescription<?>> types()
+		public XGettingEnum<PersistenceTypeDefinition<?>> types()
 		{
 			return this.types;
 		}
 		
 		@Override
-		public XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		public XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes()
 		{
 			return this.typesPerTypeName;
 		}
 
 		@Override
-		public final synchronized boolean registerType(final PersistenceTypeDescription<?> typeDescription)
+		public final synchronized boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			if(this.internalRegisterType2(typeDescription))
 			{
@@ -271,12 +271,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		@Override
 		public synchronized boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			final long oldSize = this.types.size();
 
-			for(final PersistenceTypeDescription<?> td : typeDescriptions)
+			for(final PersistenceTypeDefinition<?> td : typeDescriptions)
 			{
 				this.internalRegisterType2(td);
 			}
@@ -290,13 +290,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
+		public PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
 			return this.typesPerTypeName.get(typeName);
 		}
 
 		@Override
-		public PersistenceTypeDescription<?> lookupTypeById(final long typeId)
+		public PersistenceTypeDefinition<?> lookupTypeById(final long typeId)
 		{
 			return this.typesPerTypeId.get(typeId);
 		}
@@ -306,7 +306,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			long maxTypeId = -1;
 
-			for(final PersistenceTypeDescription<?> type : this.types)
+			for(final PersistenceTypeDefinition<?> type : this.types)
 			{
 				if(type.typeId() >= maxTypeId)
 				{
@@ -322,7 +322,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			final VarString vc = VarString.New();
 
-			for(final PersistenceTypeDescription<?> type : this.types)
+			for(final PersistenceTypeDefinition<?> type : this.types)
 			{
 				vc.add(type).lf();
 			}

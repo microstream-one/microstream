@@ -4,10 +4,10 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
-public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<T>
+public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T>
 {
 	public long simpleReferenceCount();
 
@@ -37,7 +37,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// static methods    //
 		/////////////////////
 
-		static long calculateMinimumEntityLength(final PersistenceTypeDescription<?> typeDescription)
+		static long calculateMinimumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			long minimumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -50,7 +50,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 			return minimumEntityLength;
 		}
 
-		static long calculateMaximumEntityLength(final PersistenceTypeDescription<?> typeDescription)
+		static long calculateMaximumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			long maximumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -74,7 +74,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDescription<T> typeDescription     ;
+		private final PersistenceTypeDefinition<T> typeDescription     ;
 		private final BinaryReferenceTraverser[]    referenceTraversers ;
 		private final int                           simpleReferenceCount;
 		private final long                          simpleReferenceRange;
@@ -90,7 +90,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDescription<
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceTypeDescription<T> typeDescription)
+		public Implementation(final PersistenceTypeDefinition<T> typeDescription)
 		{
 			super();
 //			if(typeDescription.typeName().contains("Root"))

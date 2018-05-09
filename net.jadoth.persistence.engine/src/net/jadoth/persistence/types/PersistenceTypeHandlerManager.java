@@ -167,14 +167,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			final PersistenceTypeDescription<?> registeredTd =
+			final PersistenceTypeDefinition<?> registeredTd =
 				this.typeDictionaryManager.provideDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
 			{
 				return; // type not yet registered, hence it can't be invalid
 			}
-			if(!SwizzleTypeIdentity.Static.equals(registeredTd, typeHandler))
+			if(!SwizzleTypeIdentity.equals(registeredTd, typeHandler))
 			{
 				// (07.04.2013)TODO proper exception
 				throw new PersistenceExceptionTypeConsistency("Swizzle inconsistency for " + typeHandler.typeName());
@@ -201,11 +201,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			};
 
 
-			if(!PersistenceTypeDescription.equalMembers(registeredTd, typeHandler, memberValidator))
+			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.members(), typeHandler.members(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013)TODO proper exception
-				throw new PersistenceExceptionTypeConsistency("member inconsistency for " + typeHandler.typeName());
+				throw new PersistenceExceptionTypeConsistency("Member inconsistency for " + typeHandler.typeName());
 			}
 		}
 
@@ -428,7 +428,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionary typeDictionary =
 				this.typeDictionaryManager.provideDictionary()
 			;
-			final XGettingSequence<PersistenceTypeDescription<?>> liveTypeDescriptions =
+			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
 				typeDictionary.liveTypes().values()
 			;
 

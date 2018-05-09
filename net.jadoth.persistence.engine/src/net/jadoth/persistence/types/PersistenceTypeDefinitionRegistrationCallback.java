@@ -1,8 +1,8 @@
 package net.jadoth.persistence.types;
 
 @FunctionalInterface
-public interface PersistenceTypeDescriptionRegistrationCallback
+public interface PersistenceTypeDefinitionRegistrationCallback
 {
-	public void registerTypeDescription(PersistenceTypeDescription<?> typeDescription);
+	public void registerTypeDescription(PersistenceTypeDefinition<?> typeDefinition);
 		
 }

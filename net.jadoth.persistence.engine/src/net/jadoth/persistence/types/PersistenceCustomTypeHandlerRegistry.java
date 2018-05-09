@@ -166,7 +166,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			final SwizzleTypeIdLookup typeLookup
 		)
 		{
-			final BulkList<PersistenceTypeDescription<?>> typeDescs = this.mapping.iterate(
+			final BulkList<PersistenceTypeDefinition<?>> typeDescs = this.mapping.iterate(
 				new TypeDescriptionBuilder<M>(typeLookup)
 			).yield();
 			typeDictionary.registerTypes(typeDescs);
@@ -177,7 +177,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		static final class TypeDescriptionBuilder<M>
 		implements Aggregator<
 			KeyValue<Class<?>, PersistenceTypeHandler.Creator<M, ?>>,
-			BulkList<PersistenceTypeDescription<?>>
+			BulkList<PersistenceTypeDefinition<?>>
 		>
 		{
 			///////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			/////////////////////
 
 			private final SwizzleTypeIdLookup                     typeLookup      ;
-			private final BulkList<PersistenceTypeDescription<?>> typeDescriptions = BulkList.New();
+			private final BulkList<PersistenceTypeDefinition<?>> typeDescriptions = BulkList.New();
 
 
 
@@ -225,7 +225,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			}
 
 			@Override
-			public BulkList<PersistenceTypeDescription<?>> yield()
+			public BulkList<PersistenceTypeDefinition<?>> yield()
 			{
 				return SwizzleTypeIdOwner.sortByTypeIdAscending(this.typeDescriptions);
 			}

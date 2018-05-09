@@ -7,12 +7,12 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionRegistrationCallback;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationCallback;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 
 
-public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDescriptionRegistrationCallback
+public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationCallback
 {
 	public <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(P procedure);
 
@@ -54,7 +54,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// declared methods //
 		/////////////////////
 
-		final void deriveHandler(final PersistenceTypeDescription<?> typeDescription)
+		final void deriveHandler(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
@@ -93,7 +93,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerType(final PersistenceTypeDescription<?> typeDescription)
+		public final boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
@@ -103,7 +103,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 		@Override
 		public final boolean registerTypes(
-			final XGettingCollection<? extends PersistenceTypeDescription<?>> typeDescriptions
+			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			synchronized(this.registry)
@@ -117,9 +117,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDescription<?> typeDesc : typeDictionary.types())
+				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.types())
 				{
-					if(PersistenceTypeDescription.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
+					if(PersistenceTypeDefinition.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
 						continue;
 					}
@@ -165,25 +165,25 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingEnum<PersistenceTypeDescription<?>> types()
+		public final XGettingEnum<PersistenceTypeDefinition<?>> types()
 		{
 			return this.dictionary.types();
 		}
 		
 		@Override
-		public final XGettingTable<String, PersistenceTypeDescription<?>> liveTypes()
+		public final XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes()
 		{
 			return this.dictionary.liveTypes();
 		}
 
 		@Override
-		public final PersistenceTypeDescription<?> lookupTypeByName(final String typeName)
+		public final PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
 			return this.dictionary.lookupTypeByName(typeName);
 		}
 
 		@Override
-		public final PersistenceTypeDescription<?> lookupTypeById(final long typeId)
+		public final PersistenceTypeDefinition<?> lookupTypeById(final long typeId)
 		{
 			return this.dictionary.lookupTypeById(typeId);
 		}
@@ -196,7 +196,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 		@Override
 		public final void setTypeDescriptionRegistrationCallback(
-			final PersistenceTypeDescriptionRegistrationCallback callback
+			final PersistenceTypeDefinitionRegistrationCallback callback
 		)
 		{
 			// as a storage type dictionary is a registration callback itself, this method is only valid for this
@@ -204,13 +204,13 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				// (06.12.2014)EXCP: proper exception
 				throw new RuntimeException(
-					"Inconsistent " + PersistenceTypeDescriptionRegistrationCallback.class.getSimpleName()
+					"Inconsistent " + PersistenceTypeDefinitionRegistrationCallback.class.getSimpleName()
 				);
 			}
 		}
 
 		@Override
-		public final PersistenceTypeDescriptionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public final PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback()
 		{
 			return this;
 		}
@@ -231,7 +231,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDescription<?> td : typeDictionary.types())
+				for(final PersistenceTypeDefinition<?> td : typeDictionary.types())
 				{
 					this.deriveHandler(td);
 				}
@@ -243,7 +243,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 		@Override
-		public void registerTypeDescription(final PersistenceTypeDescription<?> typeDescription)
+		public void registerTypeDescription(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			this.deriveHandler(typeDescription);
 		}

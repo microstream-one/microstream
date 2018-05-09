@@ -6,9 +6,9 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 
 @FunctionalInterface
-public interface PersistenceTypeDescriptionBuilder
+public interface PersistenceTypeDefinitionBuilder
 {
-	public <T> PersistenceTypeDescription<T> build(
+	public <T> PersistenceTypeDefinition<T> build(
 		long                                                         typeId  ,
 		String                                                       typeName,
 		Class<T>                                                     type    ,
@@ -17,14 +17,14 @@ public interface PersistenceTypeDescriptionBuilder
 	
 	
 	
-	public static PersistenceTypeDescriptionBuilder New(final PersistenceTypeResolver typeResolver)
+	public static PersistenceTypeDefinitionBuilder New(final PersistenceTypeResolver typeResolver)
 	{
 		return new TypeResolving(
 			notNull(typeResolver)
 		);
 	}
 	
-	public final class TypeResolving implements PersistenceTypeDescriptionBuilder
+	public final class TypeResolving implements PersistenceTypeDefinitionBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -51,7 +51,7 @@ public interface PersistenceTypeDescriptionBuilder
 		////////////
 
 		@Override
-		public <T> PersistenceTypeDescription<T> build(
+		public <T> PersistenceTypeDefinition<T> build(
 			final long                                                         typeId  ,
 			final String                                                       typeName,
 			final Class<T>                                                     type    ,
@@ -67,7 +67,7 @@ public interface PersistenceTypeDescriptionBuilder
 				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
 			}
 			
-			return PersistenceTypeDescription.New(typeId, typeName, effectiveType, members.immure());
+			return PersistenceTypeDefinition.New(typeId, typeName, effectiveType, members.immure());
 			
 		}
 		

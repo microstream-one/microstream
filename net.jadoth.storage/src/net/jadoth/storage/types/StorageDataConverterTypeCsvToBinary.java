@@ -23,7 +23,7 @@ import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescription;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
@@ -137,7 +137,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		      StorageLockedFile                       targetFile                     ;
 		      FileChannel                             targetFileChannel              ;
 		      long                                    targetFileActualLength         ;
-		      PersistenceTypeDescription<?>           currentType                    ;
+		      PersistenceTypeDefinition<?>           currentType                    ;
 		      long                                    currentTypeEntityInitLength    ;
 		      ValueHandler[]                          valueHandler                   ;
 

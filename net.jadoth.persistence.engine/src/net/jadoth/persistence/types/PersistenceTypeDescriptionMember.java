@@ -1,6 +1,10 @@
 package net.jadoth.persistence.types;
 
+import java.util.Iterator;
 import java.util.function.Consumer;
+
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.equality.Equalator;
 
 
 public interface PersistenceTypeDescriptionMember
@@ -89,6 +93,47 @@ public interface PersistenceTypeDescriptionMember
 			}
 		}
 		return false;
+	}
+	
+	public static boolean determineIsPrimitive(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		return members.size() == 1 && members.get().isPrimitiveDefinition();
+	}
+	
+	public static boolean equalMembers(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
+	)
+	{
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::isEqual);
+	}
+	
+	public static boolean equalMembers(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1 ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2 ,
+		final Equalator<PersistenceTypeDescriptionMember>                  equalator
+	)
+	{
+		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
+		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = members1.iterator();
+		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = members2.iterator();
+
+		// intentionally OR to give equalator a chance to handle size mismatches as well (indicated by null)
+		while(it1.hasNext() || it2.hasNext())
+		{
+			final PersistenceTypeDescriptionMember member1 = it1.hasNext() ? it1.next() : null;
+			final PersistenceTypeDescriptionMember member2 = it2.hasNext() ? it2.next() : null;
+
+			if(!equalator.equal(member1, member2))
+			{
+				return false;
+			}
+		}
+
+		// neither member-member mismatch nor size mismatch, so members must be in order and equal
+		return true;
 	}
 
 

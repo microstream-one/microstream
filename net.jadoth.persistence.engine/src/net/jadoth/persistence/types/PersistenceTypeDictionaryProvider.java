@@ -15,7 +15,7 @@ public interface PersistenceTypeDictionaryProvider
 	public static PersistenceTypeDictionaryProvider NewFromFile(
 		final File                              file                  ,
 		final PersistenceFieldLengthResolver    lengthResolver        ,
-		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
 	)
 	{
 		return new Implementation(
@@ -27,7 +27,7 @@ public interface PersistenceTypeDictionaryProvider
 	public static PersistenceTypeDictionary provideDictionary(
 		final File                              file                  ,
 		final PersistenceFieldLengthResolver    lengthResolver        ,
-		final PersistenceTypeDescriptionBuilder typeDescriptionBuilder
+		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
 	)
 	{
 		final PersistenceTypeDictionaryProvider typeDictProvider =
