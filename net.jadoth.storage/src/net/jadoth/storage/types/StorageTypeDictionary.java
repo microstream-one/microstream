@@ -243,7 +243,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 		@Override
-		public void registerTypeDescription(final PersistenceTypeDefinition<?> typeDescription)
+		public void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			this.deriveHandler(typeDescription);
 		}

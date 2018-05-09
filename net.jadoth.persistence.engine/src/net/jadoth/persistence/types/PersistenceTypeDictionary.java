@@ -208,7 +208,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			// callback gets set externally, can be null as well, so check for it.
 			if(this.callback != null)
 			{
-				this.callback.registerTypeDescription(typeDescription);
+				this.callback.registerTypeDefinition(typeDescription);
 			}
 		}
 
