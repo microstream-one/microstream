@@ -17,7 +17,7 @@ public class MainTestStorageExample
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			EmbeddedStorage.root().set(Test.generateModelData(1_000_000));
+			EmbeddedStorage.root().set(Test.generateModelData(100_000));
 			Test.print("STORAGE: storing ...");
 			STORAGE.store(EmbeddedStorage.root());
 			Test.print("STORAGE: storing completed.");

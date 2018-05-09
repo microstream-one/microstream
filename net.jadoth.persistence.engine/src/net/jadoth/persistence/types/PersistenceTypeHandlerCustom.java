@@ -1,7 +1,5 @@
 package net.jadoth.persistence.types;
 
-import java.lang.reflect.Constructor;
-
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
@@ -63,17 +61,25 @@ public interface PersistenceTypeHandlerCustom<M, T> extends PersistenceTypeHandl
 		final Long typeId
 	)
 	{
+		final PersistenceTypeHandlerCustom<M, T> handler;
 		try
 		{
-			final Constructor<? extends PersistenceTypeHandlerCustom<M, T>> constructor =
-				typeHandlerClass.getConstructor(long.class)
-			;
-			return constructor.newInstance(typeId); // potential NPE intentional at this place (for now)
+			handler = typeHandlerClass.newInstance();
+			
+//			final Constructor<? extends PersistenceTypeHandlerCustom<M, T>> constructor =
+//				typeHandlerClass.getConstructor(long.class)
+//			;
+//			return constructor.newInstance(typeId); // potential NPE intentional at this place (for now)
 		}
 		catch(final ReflectiveOperationException e)
 		{
-			throw new RuntimeException(e); // (30.03.2013)EXCP: proper exception
+			// (30.03.2013)EXCP: proper exception
+			throw new RuntimeException(e);
 		}
+		
+		handler.initializeTypeId(typeId);
+		
+		return handler;
 	}
 
 
