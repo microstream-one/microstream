@@ -93,22 +93,22 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
+		public final boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerType(typeDescription);
+				return this.dictionary.registerDefinitionEntry(typeDescription);
 			}
 		}
 
 		@Override
-		public final boolean registerTypes(
+		public final boolean registerDefinitionEntries(
 			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerTypes(typeDescriptions);
+				return this.dictionary.registerDefinitionEntries(typeDescriptions);
 			}
 		}
 
@@ -117,7 +117,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.types())
+				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypes())
 				{
 					if(PersistenceTypeDefinition.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
@@ -165,9 +165,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingEnum<PersistenceTypeDefinition<?>> types()
+		public final XGettingEnum<PersistenceTypeDefinition<?>> allTypes()
 		{
-			return this.dictionary.types();
+			return this.dictionary.allTypes();
 		}
 		
 		@Override
@@ -231,7 +231,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDefinition<?> td : typeDictionary.types())
+				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes())
 				{
 					this.deriveHandler(td);
 				}

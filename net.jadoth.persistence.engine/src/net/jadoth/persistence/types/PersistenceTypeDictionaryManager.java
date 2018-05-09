@@ -127,7 +127,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.internalValidateTypeDescription(typeDescription);
-			if(this.cachedTypeDictionary().registerType(typeDescription))
+			if(this.cachedTypeDictionary().registerDefinitionEntry(typeDescription))
 			{
 				this.markChanged();
 			}
@@ -142,7 +142,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.validateTypeDescriptions(typeDictionary.types());
+				this.validateTypeDescriptions(typeDictionary.allTypes());
 			}
 			return this;
 		}
@@ -163,7 +163,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.addTypeDescriptions(typeDictionary.types());
+				this.addTypeDescriptions(typeDictionary.allTypes());
 			}
 			return this;
 		}
@@ -174,7 +174,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			typeDescriptions.iterate(this::internalValidateTypeDescription);
-			if(this.cachedTypeDictionary().registerTypes(typeDescriptions))
+			if(this.cachedTypeDictionary().registerDefinitionEntries(typeDescriptions))
 			{
 				this.markChanged();
 			}

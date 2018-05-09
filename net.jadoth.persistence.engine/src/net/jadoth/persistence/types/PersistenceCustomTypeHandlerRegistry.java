@@ -169,7 +169,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			final BulkList<PersistenceTypeDefinition<?>> typeDescs = this.mapping.iterate(
 				new TypeDescriptionBuilder<M>(typeLookup)
 			).yield();
-			typeDictionary.registerTypes(typeDescs);
+			typeDictionary.registerDefinitionEntries(typeDescs);
 			return typeDictionary;
 		}
 

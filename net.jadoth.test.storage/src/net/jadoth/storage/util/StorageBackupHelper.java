@@ -66,7 +66,7 @@ public final class StorageBackupHelper
 	static long highestTypeId(final PersistenceTypeDictionary typeDictionary)
 	{
 		long highestTypeId = 0;
-		for(final PersistenceTypeDefinition<?> td : typeDictionary.types())
+		for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes())
 		{
 			if(td.typeId() >= highestTypeId)
 			{

@@ -11,13 +11,13 @@ import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingEnum<PersistenceTypeDefinition<?>> types();
+	public XGettingEnum<PersistenceTypeDefinition<?>> allTypes();
 	
 	public XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes();
 
-	public boolean registerType(PersistenceTypeDefinition<?> typeDescription);
+	public boolean registerDefinitionEntry(PersistenceTypeDefinition<?> typeDefinition);
 
-	public boolean registerTypes(XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions);
+	public boolean registerDefinitionEntries(XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDefinitions);
 
 	@Override
 	public PersistenceTypeDefinition<?> lookupTypeByName(String typeName);
@@ -37,7 +37,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 	)
 	{
-		typeDictionary.registerTypes(typeDescriptions);
+		typeDictionary.registerDefinitionEntries(typeDescriptions);
 		return typeDictionary;
 	}
 
@@ -178,8 +178,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		
 		private final EqHashEnum<PersistenceTypeDefinition<?>> types;
 
-		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> typesPerTypeId   = EqHashTable.New();
-		private final EqHashTable<String, PersistenceTypeDefinition<?>> typesPerTypeName = EqHashTable.New();
+		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> allTypesPerTypeId  = EqHashTable.New();
+		private final EqHashTable<String, PersistenceTypeDefinition<?>> latestTypesPerName = EqHashTable.New();
 		private       PersistenceTypeDefinitionRegistrationCallback     callback        ;
 
 
@@ -202,8 +202,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		final void internalRegisterType(final PersistenceTypeDefinition<?> typeDescription)
 		{
-			this.typesPerTypeId.put(typeDescription.typeId(), typeDescription);
-			this.typesPerTypeName.put(typeDescription.typeName(), typeDescription);
+			this.allTypesPerTypeId.put(typeDescription.typeId(), typeDescription);
+			this.latestTypesPerName.put(typeDescription.typeName(), typeDescription);
 
 			// callback gets set externally, can be null as well, so check for it.
 			if(this.callback != null)
@@ -247,7 +247,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public XGettingEnum<PersistenceTypeDefinition<?>> types()
+		public XGettingEnum<PersistenceTypeDefinition<?>> allTypes()
 		{
 			return this.types;
 		}
@@ -255,11 +255,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes()
 		{
-			return this.typesPerTypeName;
+			return this.latestTypesPerName;
 		}
 
 		@Override
-		public final synchronized boolean registerType(final PersistenceTypeDefinition<?> typeDescription)
+		public final synchronized boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			if(this.internalRegisterType2(typeDescription))
 			{
@@ -270,7 +270,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public synchronized boolean registerTypes(
+		public synchronized boolean registerDefinitionEntries(
 			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
@@ -292,13 +292,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
-			return this.typesPerTypeName.get(typeName);
+			return this.latestTypesPerName.get(typeName);
 		}
 
 		@Override
 		public PersistenceTypeDefinition<?> lookupTypeById(final long typeId)
 		{
-			return this.typesPerTypeId.get(typeId);
+			return this.allTypesPerTypeId.get(typeId);
 		}
 
 		@Override

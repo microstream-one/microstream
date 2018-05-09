@@ -36,7 +36,7 @@ public final class BinaryTypeDictionaryProviderDefaulting implements Persistence
 	{
 		// intended to auto-populate a default type dictionary for an initial empty type dictionary source
 		PersistenceTypeDictionary typeDictionary = this.delegate.provideDictionary();
-		if(typeDictionary.types().isEmpty())
+		if(typeDictionary.allTypes().isEmpty())
 		{
 			typeDictionary = BinaryPersistence.createDefaultTypeDictionary(
 				typeDictionary,
