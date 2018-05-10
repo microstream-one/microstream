@@ -2,7 +2,6 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.hashing.HashEqualator;
@@ -183,7 +182,9 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 
 
 
-	public final class Implementation<T> implements PersistenceTypeDefinition<T>
+	public final class Implementation<T>
+	extends PersistenceTypeDictionaryEntry.AbstractImplementation
+	implements PersistenceTypeDefinition<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -272,25 +273,6 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		public final boolean hasVaryingPersistedLengthInstances()
 		{
 			return this.variableLength;
-		}
-
-		@Override
-		public final String toString()
-		{
-			final VarString vc = VarString.New();
-			
-			vc.add(this.typeId).blank().add(this.typeName).blank().add('{');
-			if(!this.members.isEmpty())
-			{
-				vc.lf();
-				for(final PersistenceTypeDescriptionMember member : this.members)
-				{
-					vc.tab().add(member).add(';').lf();
-				}
-			}
-			vc.add('}');
-			
-			return vc.toString();
 		}
 
 	}
