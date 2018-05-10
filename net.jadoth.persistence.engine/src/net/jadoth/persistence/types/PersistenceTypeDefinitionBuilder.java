@@ -67,7 +67,7 @@ public interface PersistenceTypeDefinitionBuilder
 				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
 			}
 			
-			return PersistenceTypeDefinition.New(typeId, typeName, effectiveType, members.immure());
+			return PersistenceTypeDefinition.New(typeName, effectiveType, typeId, members.immure());
 			
 		}
 		

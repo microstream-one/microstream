@@ -76,6 +76,11 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 * @return
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
+	
+	public default String toTypeString()
+	{
+		return this.getClass().getName() + "<" + this.type().getName() + ">(TID " + this.typeId() + ")";
+	}
 
 
 
@@ -171,9 +176,9 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	
 	
 	public static <T> PersistenceTypeDefinition<T> New(
-		final long                                                         typeId  ,
 		final String                                                       typeName,
 		final Class<T>                                                     type    ,
+		final long                                                         typeId  ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
@@ -274,6 +279,13 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		{
 			return this.variableLength;
 		}
+		
+		@Override
+		public final String toString()
+		{
+			return this.toTypeString();
+		}
+		
 
 	}
 	

@@ -51,9 +51,15 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 		{
 			super();
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public final String toString()
+		public String toString()
 		{
 			final VarString vc = VarString.New();
 			
