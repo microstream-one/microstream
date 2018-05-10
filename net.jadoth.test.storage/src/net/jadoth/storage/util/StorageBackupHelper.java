@@ -5,7 +5,6 @@ import java.io.File;
 import net.jadoth.chars.VarString;
 import net.jadoth.persistence.internal.AbstractIdProviderByFile;
 import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
-import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -49,7 +48,7 @@ public final class StorageBackupHelper
 		final PersistenceTypeDictionary           typeDictionary      = connectionFoundation.getTypeDictionaryManager().provideDictionary();
 
 		final long   nextObjectId   = connectionFoundation.getObjectIdProvider().currentObjectId() + 1;
-		final long   nextTypeId     = highestTypeId(typeDictionary) + 1;
+		final long   nextTypeId     = typeDictionary.determineHighestTypeId() + 1;
 		final String typeDictString = dictionaryAssembler.appendTypeDictionary(VarString.New(), typeDictionary).toString();
 
 		// arbitrary file names, preferably the same that were used for creating the EmbeddedStorageConnectionFoundation instance.
@@ -61,19 +60,6 @@ public final class StorageBackupHelper
 		FilePersistenceTypeDictionary.writeTypeDictionary(fileTDc, typeDictString);
 		AbstractIdProviderByFile     .writeId            (fileTid, nextTypeId    );
 		AbstractIdProviderByFile     .writeId            (fileOid, nextObjectId  );
-	}
-
-	static long highestTypeId(final PersistenceTypeDictionary typeDictionary)
-	{
-		long highestTypeId = 0;
-		for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes())
-		{
-			if(td.typeId() >= highestTypeId)
-			{
-				highestTypeId = td.typeId();
-			}
-		}
-		return highestTypeId;
 	}
 
 

@@ -1,17 +1,15 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
-import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
-	public XGettingEnum<PersistenceTypeDefinition<?>> allTypes();
+	public XGettingTable<Long, PersistenceTypeDefinition<?>> allTypes();
 	
 	public XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes();
 
@@ -176,8 +174,6 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
 		
-		private final EqHashEnum<PersistenceTypeDefinition<?>> types;
-
 		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> allTypesPerTypeId  = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDefinition<?>> latestTypesPerName = EqHashTable.New();
 		private       PersistenceTypeDefinitionRegistrationCallback     callback        ;
@@ -191,7 +187,6 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		public Implementation()
 		{
 			super();
-			this.types = EqHashEnum.New(PersistenceTypeDefinition.EQUAL_TYPE);
 		}
 
 
@@ -200,9 +195,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// declared methods //
 		/////////////////////
 
-		final void internalRegisterType(final PersistenceTypeDefinition<?> typeDescription)
+		final boolean internalRegisterType(final PersistenceTypeDefinition<?> typeDescription)
 		{
-			this.allTypesPerTypeId.put(typeDescription.typeId(), typeDescription);
+			final boolean newEntry = this.allTypesPerTypeId.put(typeDescription.typeId(), typeDescription);
 			this.latestTypesPerName.put(typeDescription.typeName(), typeDescription);
 
 			// callback gets set externally, can be null as well, so check for it.
@@ -210,22 +205,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			{
 				this.callback.registerTypeDefinition(typeDescription);
 			}
-		}
-
-		// (06.12.2014)TODO: rename "2"
-		final boolean internalRegisterType2(final PersistenceTypeDefinition<?> typeDescription)
-		{
-			if(!this.types.add(typeDescription))
-			{
-				return false;
-			}
-			this.internalRegisterType(typeDescription);
-			return true;
+			
+			return newEntry;
 		}
 
 		private void internalSort()
 		{
-			SwizzleTypeIdOwner.sortByTypeIdAscending(this.types);
+			this.allTypesPerTypeId.keys().sort(XSort::compare);
 		}
 
 
@@ -247,9 +233,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public XGettingEnum<PersistenceTypeDefinition<?>> allTypes()
+		public XGettingTable<Long, PersistenceTypeDefinition<?>> allTypes()
 		{
-			return this.types;
+			return this.allTypesPerTypeId;
 		}
 		
 		@Override
@@ -261,7 +247,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public final synchronized boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDescription)
 		{
-			if(this.internalRegisterType2(typeDescription))
+			if(this.internalRegisterType(typeDescription))
 			{
 				this.internalSort();
 				return true;
@@ -274,14 +260,14 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
-			final long oldSize = this.types.size();
+			final long oldSize = this.allTypesPerTypeId.size();
 
 			for(final PersistenceTypeDefinition<?> td : typeDescriptions)
 			{
-				this.internalRegisterType2(td);
+				this.internalRegisterType(td);
 			}
 
-			if(this.types.size() != oldSize)
+			if(this.allTypesPerTypeId.size() != oldSize)
 			{
 				this.internalSort();
 				return true;
@@ -306,11 +292,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			long maxTypeId = -1;
 
-			for(final PersistenceTypeDefinition<?> type : this.types)
+			for(final Long typeId : this.allTypesPerTypeId.keys())
 			{
-				if(type.typeId() >= maxTypeId)
+				if(typeId >= maxTypeId)
 				{
-					maxTypeId = type.typeId();
+					maxTypeId = typeId;
 				}
 			}
 
@@ -322,7 +308,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			final VarString vc = VarString.New();
 
-			for(final PersistenceTypeDefinition<?> type : this.types)
+			for(final PersistenceTypeDefinition<?> type : this.allTypesPerTypeId.values())
 			{
 				vc.add(type).lf();
 			}

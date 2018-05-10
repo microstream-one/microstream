@@ -142,7 +142,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.validateTypeDescriptions(typeDictionary.allTypes());
+				this.validateTypeDescriptions(typeDictionary.allTypes().values());
 			}
 			return this;
 		}
@@ -163,7 +163,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.addTypeDescriptions(typeDictionary.allTypes());
+				this.addTypeDescriptions(typeDictionary.allTypes().values());
 			}
 			return this;
 		}

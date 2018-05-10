@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -117,7 +116,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypes())
+				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypes().values())
 				{
 					if(PersistenceTypeDefinition.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
@@ -165,7 +164,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final XGettingEnum<PersistenceTypeDefinition<?>> allTypes()
+		public XGettingTable<Long, PersistenceTypeDefinition<?>> allTypes()
 		{
 			return this.dictionary.allTypes();
 		}
@@ -231,7 +230,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes())
+				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
 				{
 					this.deriveHandler(td);
 				}

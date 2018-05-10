@@ -22,7 +22,7 @@ public interface PersistenceTypeLineage<T>
 	
 	
 
-	public boolean initializeRuntimeTypeDefinition(PersistenceTypeDefinition<T> runtimeDefinition);
+	public boolean setRuntimeTypeDefinition(PersistenceTypeDefinition<T> runtimeDefinition);
 	
 	
 	
@@ -43,10 +43,10 @@ public interface PersistenceTypeLineage<T>
 		// instance fields //
 		////////////////////
 
-		final String                                          typeName             ;
-		final Class<T>                                        runtimeType          ;
-		final EqHashTable<Long, PersistenceTypeDefinition<T>> entries              ;
-		      PersistenceTypeDefinition<T>                    runtimeDefinition   ; // initialized effectively final
+		final String                                          typeName         ;
+		final Class<T>                                        runtimeType      ;
+		final EqHashTable<Long, PersistenceTypeDefinition<T>> entries          ;
+		      PersistenceTypeDefinition<T>                    runtimeDefinition; // initialized effectively final
 
 
 
@@ -103,7 +103,7 @@ public interface PersistenceTypeLineage<T>
 		
 		private void validate(final PersistenceTypeDefinition<T> typeDefinition)
 		{
-			if(isValid(typeDefinition))
+			if(this.isValid(typeDefinition))
 			{
 				return;
 			}
@@ -114,7 +114,25 @@ public interface PersistenceTypeLineage<T>
 		
 		private boolean isValid(final PersistenceTypeDefinition<T> typeDefinition)
 		{
-			return this.typeName.equals(typeDefinition.typeName()) && this.runtimeType == typeDefinition.type();
+			if(!this.typeName.equals(typeDefinition.typeName()))
+			{
+				return false;
+			}
+			if(this.runtimeType != typeDefinition.type())
+			{
+				return false;
+			}
+			
+			final PersistenceTypeDefinition<T> alreadyRegistered = this.entries.get(typeDefinition.typeId());
+			if(alreadyRegistered == null)
+			{
+				return true;
+			}
+			
+			return PersistenceTypeDescriptionMember.equalMembers(
+				typeDefinition.members(),
+				alreadyRegistered.members()
+			);
 		}
 		
 		@Override
@@ -128,21 +146,25 @@ public interface PersistenceTypeLineage<T>
 		{
 			synchronized(this.entries)
 			{
-				if(this.entries.add(typeDefinition.typeId(), typeDefinition))
+				// the passed (and already validated) instance gets set in any way, ...
+				if(this.entries.put(typeDefinition.typeId(), typeDefinition))
 				{
+					// ... but the return value is only rue to indicate an actual additional entry.
 					this.entries.keys().sort(Long::compare);
 					return true;
 				}
+				
+				// the definition was already there, only the instance has been replaced.
 				return false;
 			}
 		}
 				
 		@Override
-		public final boolean initializeRuntimeTypeDefinition(final PersistenceTypeDefinition<T> runtimeDefinition)
+		public final boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition<T> runtimeDefinition)
 		{
 			synchronized(this.entries)
 			{
-				// true indicates no-op, actual non-viability causes exceptions
+				// false indicates no-op, actual non-viability causes exceptions
 				if(!this.checkViability(runtimeDefinition))
 				{
 					return false;
@@ -168,21 +190,19 @@ public interface PersistenceTypeLineage<T>
 					return false;
 				}
 				
-				// conflicting call/usage
+				// conflicting call/usage (runtime types and thus definitions are assumed to be immutable for now)
 				// (26.09.2017 TM)EXCP: proper exception
 				throw new RuntimeException("Runtime definition already initialized");
 			}
 			
-			final Long                         typeId     = runtimeDefinition.typeId();
-			final PersistenceTypeDefinition<T> latest     = this.latest();
-			final PersistenceTypeDefinition<T> equivalent = this.entries.get(typeId);
-			if(equivalent != null && equivalent != latest)
+			if(this.isValid(runtimeDefinition))
 			{
-				// (28.09.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Invalid runtime definition for type id: " + typeId);
+				return true;
 			}
-						
-			return true;
+			
+			throw new RuntimeException(
+				"Invalid runtime definition for " + this.typeName() + " with type id: " + runtimeDefinition.typeId()
+			);
 		}
 		
 	}
