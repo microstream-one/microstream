@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -168,7 +169,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			final PersistenceTypeDefinition<?> registeredTd =
-				this.typeDictionaryManager.provideDictionary().lookupTypeByName(typeHandler.typeName())
+				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
 			{
@@ -426,31 +427,31 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 //			XDebug.debugln("initializing " + XChars.systemString(this.typeHandlerRegistry));
 
 			final PersistenceTypeDictionary typeDictionary =
-				this.typeDictionaryManager.provideDictionary()
+				this.typeDictionaryManager.provideTypeDictionary()
 			;
-			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
-				typeDictionary.liveTypes().values()
-			;
+			
+			
+			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = typeDictionary.iterateRuntimeDefinitions(
+				BulkList.New()
+			);
 
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 
 			// validate all type mappings before registering anything
-			typeRegistry.validatePossibleTypeMappings(liveTypeDescriptions);
+			typeRegistry.validatePossibleTypeMappings(runtimeTypes);
 
 			// register type identities (typeId<->type) first to make all types available for type handler creation
-			liveTypeDescriptions.iterate(e ->
+			runtimeTypes.iterate(e ->
 				typeRegistry.registerType(e.typeId(), e.type())
 			);
 
 
-			/* (05.05.2015 TM)TODO: /!\ type refactoring:
-			 * siehe OGS-3
-			 */
+			// (11.05.2018 TM)TODO: OGS-3
 
 			this.update(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
-			liveTypeDescriptions.iterate(e ->
+			runtimeTypes.iterate(e ->
 				this.ensureTypeHandler(e.type())
 			);
 

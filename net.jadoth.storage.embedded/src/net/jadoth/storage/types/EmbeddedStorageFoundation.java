@@ -344,7 +344,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();
 			std
-			.initialize(ecf.getTypeDictionaryProvider().provideDictionary())
+			.initialize(ecf.getTypeDictionaryProvider().provideTypeDictionary())
 			.setTypeDescriptionRegistrationCallback(std)
 			;
 

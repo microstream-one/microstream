@@ -42,7 +42,7 @@ public interface PersistenceTypeDictionaryAssembler
 		@Override
 		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)
 		{
-			for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
+			for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypeDefinitions().values())
 			{
 				this.appendTypeDescription(vc, td);
 			}

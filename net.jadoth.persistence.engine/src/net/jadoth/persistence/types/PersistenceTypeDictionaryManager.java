@@ -74,7 +74,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary == null)
 			{
-				this.cachedTypeDictionary = this.typeDictionaryProvider.provideDictionary();
+				this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
 				this.markChanged();
 			}
 			return this.cachedTypeDictionary;
@@ -116,7 +116,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		////////////
 
 		@Override
-		public final PersistenceTypeDictionary provideDictionary()
+		public final PersistenceTypeDictionary provideTypeDictionary()
 		{
 			return this.cachedTypeDictionary();
 		}
@@ -142,7 +142,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.validateTypeDescriptions(typeDictionary.allTypes().values());
+				this.validateTypeDescriptions(typeDictionary.allTypeDefinitions().values());
 			}
 			return this;
 		}
@@ -163,7 +163,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		{
 			if(this.cachedTypeDictionary() != typeDictionary)
 			{
-				this.addTypeDescriptions(typeDictionary.allTypes().values());
+				this.addTypeDescriptions(typeDictionary.allTypeDefinitions().values());
 			}
 			return this;
 		}

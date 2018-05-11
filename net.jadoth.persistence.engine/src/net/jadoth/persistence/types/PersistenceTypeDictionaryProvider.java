@@ -2,69 +2,26 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import java.io.File;
-
-import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
+import net.jadoth.collections.types.XGettingSequence;
 
 
 public interface PersistenceTypeDictionaryProvider
 {
-	public PersistenceTypeDictionary provideDictionary();
+	public PersistenceTypeDictionary provideTypeDictionary();
 
-
-	public static PersistenceTypeDictionaryProvider NewFromFile(
-		final File                              file                  ,
-		final PersistenceFieldLengthResolver    lengthResolver        ,
-		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
+	
+	
+	public static PersistenceTypeDictionaryProvider.Implementation New(
+		final PersistenceTypeDictionaryLoader  loader ,
+		final PersistenceTypeDictionaryParser  parser ,
+		final PersistenceTypeDictionaryBuilder builder
 	)
 	{
-		return new Implementation(
-			new PersistenceTypeDictionaryParser.Implementation(lengthResolver, typeDescriptionBuilder),
-			new FilePersistenceTypeDictionary(file)
+		return new PersistenceTypeDictionaryProvider.Implementation(
+			notNull(loader) ,
+			notNull(parser) ,
+			notNull(builder)
 		);
-	}
-
-	public static PersistenceTypeDictionary provideDictionary(
-		final File                              file                  ,
-		final PersistenceFieldLengthResolver    lengthResolver        ,
-		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
-	)
-	{
-		final PersistenceTypeDictionaryProvider typeDictProvider =
-			PersistenceTypeDictionaryProvider.NewFromFile(file, lengthResolver, typeDescriptionBuilder)
-		;
-		final PersistenceTypeDictionary ptd = typeDictProvider.provideDictionary();
-
-		return ptd;
-	}
-
-
-	public final class Caching implements PersistenceTypeDictionaryProvider
-	{
-		private final     PersistenceTypeDictionaryProvider delegate        ;
-		private transient PersistenceTypeDictionary         cachedDictionary;
-
-
-		public Caching(final PersistenceTypeDictionaryProvider delegate)
-		{
-			super();
-			this.delegate = delegate;
-		}
-
-		@Override
-		public final PersistenceTypeDictionary provideDictionary()
-		{
-			synchronized(this.delegate)
-			{
-				if(this.cachedDictionary == null)
-				{
-					this.cachedDictionary = this.delegate.provideDictionary();
-				}
-				return this.cachedDictionary;
-			}
-		}
-
-
 	}
 
 	public final class Implementation implements PersistenceTypeDictionaryProvider
@@ -73,8 +30,9 @@ public interface PersistenceTypeDictionaryProvider
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDictionaryParser parser;
-		private final PersistenceTypeDictionaryLoader loader;
+		private final PersistenceTypeDictionaryLoader  loader ;
+		private final PersistenceTypeDictionaryParser  parser ;
+		private final PersistenceTypeDictionaryBuilder builder;
 
 
 
@@ -82,33 +40,101 @@ public interface PersistenceTypeDictionaryProvider
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final PersistenceTypeDictionaryParser parser,
-			final PersistenceTypeDictionaryLoader loader
+		Implementation(
+			final PersistenceTypeDictionaryLoader  loader ,
+			final PersistenceTypeDictionaryParser  parser ,
+			final PersistenceTypeDictionaryBuilder builder
 		)
 		{
 			super();
-			this.parser = notNull(parser);
-			this.loader = notNull(loader);
+			this.loader  = loader ;
+			this.parser  = parser ;
+			this.builder = builder;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
+		// override methods //
+		/////////////////////
+
+		@Override
+		public PersistenceTypeDictionary provideTypeDictionary()
+		{
+			final String typeDictionaryString =
+				this.loader.loadTypeDictionary()
+			;
+			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries =
+				this.parser.parseTypeDictionaryEntries(typeDictionaryString)
+			;
+			final PersistenceTypeDictionary typeDictionary =
+				this.builder.buildTypeDictionary(entries)
+			;
+			
+			return typeDictionary;
+		}
+
+	}
+	
+	
+	
+	public static PersistenceTypeDictionaryProvider.Caching Caching(
+		final PersistenceTypeDictionaryProvider typeDictionaryImporter
+	)
+	{
+		return new Caching(
+			notNull(typeDictionaryImporter)
+		);
+	}
+	
+	public final class Caching implements PersistenceTypeDictionaryProvider
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final     PersistenceTypeDictionaryProvider delegate        ;
+		private transient PersistenceTypeDictionary         cachedDictionary;
+
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Caching(final PersistenceTypeDictionaryProvider delegate)
+		{
+			super();
+			this.delegate = delegate;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 
 		@Override
-		public PersistenceTypeDictionary provideDictionary()
+		public final PersistenceTypeDictionary provideTypeDictionary()
 		{
-			final String typeDictionaryString = this.loader.loadTypeDictionary();
-			if(typeDictionaryString == null)
+			synchronized(this.delegate)
 			{
-				return PersistenceTypeDictionary.New();
+				if(this.cachedDictionary == null)
+				{
+					this.cachedDictionary = this.delegate.provideTypeDictionary();
+				}
+				return this.cachedDictionary;
 			}
-			return this.parser.parse(typeDictionaryString);
 		}
-
+		
+		public final void clear()
+		{
+			synchronized(this.delegate)
+			{
+				this.cachedDictionary = null;
+			}
+		}
+		
 	}
 
 }

@@ -32,11 +32,11 @@ public final class BinaryTypeDictionaryProviderDefaulting implements Persistence
 	/////////////////////
 
 	@Override
-	public final PersistenceTypeDictionary provideDictionary()
+	public final PersistenceTypeDictionary provideTypeDictionary()
 	{
 		// intended to auto-populate a default type dictionary for an initial empty type dictionary source
-		PersistenceTypeDictionary typeDictionary = this.delegate.provideDictionary();
-		if(typeDictionary.allTypes().isEmpty())
+		PersistenceTypeDictionary typeDictionary = this.delegate.provideTypeDictionary();
+		if(typeDictionary.isEmpty())
 		{
 			typeDictionary = BinaryPersistence.createDefaultTypeDictionary(
 				typeDictionary,

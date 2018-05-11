@@ -9,6 +9,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsiste
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationCallback;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 
 public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationCallback
@@ -116,7 +117,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypes().values())
+				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypeDefinitions().values())
 				{
 					if(PersistenceTypeDefinition.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
@@ -164,17 +165,11 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public XGettingTable<Long, PersistenceTypeDefinition<?>> allTypes()
+		public XGettingTable<Long, PersistenceTypeDefinition<?>> allTypeDefinitions()
 		{
-			return this.dictionary.allTypes();
+			return this.dictionary.allTypeDefinitions();
 		}
 		
-		@Override
-		public final XGettingTable<String, PersistenceTypeDefinition<?>> liveTypes()
-		{
-			return this.dictionary.liveTypes();
-		}
-
 		@Override
 		public final PersistenceTypeDefinition<?> lookupTypeByName(final String typeName)
 		{
@@ -230,7 +225,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// (06.12.2014)EXCP: proper exception
 					throw new RuntimeException("type dictionary already initialized.");
 				}
-				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypes().values())
+				
+				for(final PersistenceTypeDefinition<?> td : typeDictionary.allTypeDefinitions().values())
 				{
 					this.deriveHandler(td);
 				}
@@ -240,11 +236,46 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			}
 		}
 
-
 		@Override
 		public void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			this.deriveHandler(typeDescription);
+		}
+
+		@Override
+		public XGettingTable<String, PersistenceTypeLineage<?>> typeLineages()
+		{
+			return this.dictionary.typeLineages();
+		}
+
+		@Override
+		public boolean isEmpty()
+		{
+			return this.registry.isEmpty();
+		}
+
+		@Override
+		public <T> PersistenceTypeLineage<T> ensureTypeLineage(final Class<T> type)
+		{
+			return this.dictionary.ensureTypeLineage(type);
+		}
+
+		@Override
+		public PersistenceTypeLineage<?> ensureTypeLineage(final String typeName)
+		{
+			return this.dictionary.ensureTypeLineage(typeName);
+		}
+
+		@Override
+		public <T> PersistenceTypeLineage<T> lookupTypeLineage(final Class<T> type)
+		{
+			return this.dictionary.lookupTypeLineage(type);
+		}
+
+		@Override
+		public PersistenceTypeLineage<?> lookupTypeLineage(final String typeName)
+		{
+			return this.dictionary.lookupTypeLineage(typeName);
 		}
 
 	}

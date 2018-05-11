@@ -2,9 +2,11 @@ package net.jadoth.persistence.types;
 
 public interface PersistenceTypeLineageCreator
 {
-	public <T> PersistenceTypeLineage<T> createTypeLineage(String typeName, Class<T> type);
+	public <T> PersistenceTypeLineage<T> createTypeLineage(Class<T> type);
 	
+	public PersistenceTypeLineage<?> createTypeLineage(String typeName);
 	
+		
 	
 	public static PersistenceTypeLineageCreator.Implementation New()
 	{
@@ -28,10 +30,24 @@ public interface PersistenceTypeLineageCreator
 		// methods //
 		////////////
 		
-		@Override
-		public <T> PersistenceTypeLineage<T> createTypeLineage(final String typeName, final Class<T> type)
+		private <T> PersistenceTypeLineage<T> createTypeLineage(final String typeName, final Class<T> type)
 		{
 			return PersistenceTypeLineage.New(typeName, type);
+		}
+		
+		@Override
+		public final <T> PersistenceTypeLineage<T> createTypeLineage(final Class<T> type)
+		{
+			return this.createTypeLineage(type.getName(), type);
+		}
+		
+		@Override
+		public final PersistenceTypeLineage<?> createTypeLineage(final String typeName)
+		{
+			// type dictionary entries do not necessarily have to be resolvable to the current type model.
+			final Class<?> type = Persistence.resolveTypeOptional(typeName);
+			
+			return this.createTypeLineage(typeName, type);
 		}
 				
 	}

@@ -1000,8 +1000,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				new PersistenceTypeDictionaryParser.Implementation(
-					this.getFieldFixedLengthResolver(),
-					this.getTypeDescriptionBuilder()
+					this.getFieldFixedLengthResolver()
 				)
 			;
 			return newTypeDictionaryParser;

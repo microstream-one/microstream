@@ -154,7 +154,7 @@ public interface PersistenceTypeLineage<T>
 					return true;
 				}
 				
-				// the definition was already there, only the instance has been replaced.
+				// the definition was already there (and in order), only the instance has been replaced.
 				return false;
 			}
 		}

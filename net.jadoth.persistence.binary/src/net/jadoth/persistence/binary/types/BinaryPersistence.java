@@ -2018,7 +2018,7 @@ public final class BinaryPersistence extends Persistence
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
 		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
-		return dp.provideDictionary();
+		return dp.provideTypeDictionary();
 	}
 
 }

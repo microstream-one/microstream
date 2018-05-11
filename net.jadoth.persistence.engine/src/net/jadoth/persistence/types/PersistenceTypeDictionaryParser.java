@@ -1,7 +1,9 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.chars.VarString;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingComplexTypeDefinition;
@@ -10,13 +12,24 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.typing.XTypes;
+import net.jadoth.util.Substituter;
 
 public interface PersistenceTypeDictionaryParser
 {
-	public PersistenceTypeDictionary parse(final String input) throws PersistenceExceptionParser;
+	public XGettingSequence<? extends PersistenceTypeDictionaryEntry> parseTypeDictionaryEntries(String input)
+		throws PersistenceExceptionParser
+	;
 
 
+	
+	public static PersistenceTypeDictionaryParser.Implementation New(
+		final PersistenceFieldLengthResolver lengthResolver
+	)
+	{
+		return new PersistenceTypeDictionaryParser.Implementation(
+			notNull(lengthResolver)
+		);
+	}
 
 	public final class Implementation
 	extends PersistenceTypeDictionary.Symbols
@@ -85,44 +98,34 @@ public interface PersistenceTypeDictionaryParser
 		// parser methods //
 
 		private static void parseTypes(
-			final BulkList<PersistenceTypeDefinition<?>> types                 ,
-			final char[]                                  input                 ,
-			final PersistenceFieldLengthResolver          lengthResolver        ,
-			final PersistenceTypeDefinitionBuilder      typeDescriptionBuilder
+			final char[]                                   input         ,
+			final PersistenceFieldLengthResolver           lengthResolver,
+			final BulkList<PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			// (04.04.2017 TM)TODO: OGS-3 Cache TypeBuilder instances, evaluate for obsolete types.
-			// (04.04.2017 TM)TODO: OGS-3 what about types not resolvable to runtime classes? Always desired here? Modularize?
-
-			final TypeEntry typeEntry = new TypeEntry();
+			final Substituter<String> stringSubstitutor = Substituter.New();
+			
 			for(int i = 0; (i = skipWhiteSpacesEoFSafe(input, i)) < input.length;)
 			{
-				typeEntry.reset();
+				final TypeEntry typeEntry = new TypeEntry(stringSubstitutor);
 				i = parseType(input, i, typeEntry, lengthResolver);
-				
-				final PersistenceTypeDefinition<?> typeDescription = typeDescriptionBuilder.build(
-					typeEntry.tid             ,
-					typeEntry.typeName        ,
-					null                      ,
-					typeEntry.members.immure()
-				);
-				types.add(typeDescription);
+				entries.add(typeEntry);
 			}
 		}
-
+			
 		private static int parseType(
 			final char[]                         input         ,
 			final int                            i             ,
-			final TypeEntry                      typeBuilder   ,
+			final TypeEntry                          typeEntry     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
 			int p = i;
-			p = parseTypeId     (input, p, typeBuilder);
+			p = parseTypeId     (input, p, typeEntry);
 			p = skipWhiteSpaces (input, p);
-			p = parseTypeName   (input, p, typeBuilder);
+			p = parseTypeName   (input, p, typeEntry);
 			p = skipWhiteSpaces (input, p);
-			p = parseTypeMembers(input, p, typeBuilder, lengthResolver);
+			p = parseTypeMembers(input, p, typeEntry, lengthResolver);
 			return p;
 		}
 
@@ -137,7 +140,7 @@ public interface PersistenceTypeDictionaryParser
 			{
 				throw new PersistenceExceptionParserMissingTypeId(i);
 			}
-			typeBuilder.tid = Long.parseLong(new String(input, i, p - i));
+			typeBuilder.setTid(Long.parseLong(new String(input, i, p - i)));
 			return p;
 		}
 
@@ -152,7 +155,7 @@ public interface PersistenceTypeDictionaryParser
 			{
 				throw new PersistenceExceptionParserMissingType(i);
 			}
-			typeBuilder.typeName = new String(input, i, p - i);
+			typeBuilder.setTypeName(new String(input, i, p - i));
 			if(input[p = skipWhiteSpaces(input, p)] != TYPE_START)
 			{
 				throw new PersistenceExceptionParserMissingTypeBody(p);
@@ -163,15 +166,15 @@ public interface PersistenceTypeDictionaryParser
 		private static int parseTypeMembers(
 			final char[]                         input         ,
 			      int                            i             ,
-			final TypeEntry                      typeBuilder   ,
+			final TypeEntry           typeEntry     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
-			final TypeMemberBuilder member = new TypeMemberBuilder(lengthResolver);
+			final TypeMemberBuilder member = new TypeMemberBuilder(lengthResolver, typeEntry.stringSubstitutor);
 			while(input[i = skipWhiteSpaces(input, i)] != TYPE_END)
 			{
 				i = parseTypeMember(input, i, member.reset());
-				typeBuilder.members.add(member.buildTypeMember());
+				typeEntry.members.add(member.buildTypeMember());
 			}
 			return i + 1;
 		}
@@ -198,7 +201,7 @@ public interface PersistenceTypeDictionaryParser
 			{
 				p++;
 			}
-			member.type = new String(input, i, p - i);
+			member.setTypeName(new String(input, i, p - i));
 			return p;
 		}
 
@@ -210,7 +213,7 @@ public interface PersistenceTypeDictionaryParser
 			}
 
 			final int p = skipWhiteSpaces(input, i + 9);
-			member.type = KEYWORD_PRIMITIVE;
+			member.setTypeName(KEYWORD_PRIMITIVE);
 
 			int p2 = p;
 			while(input[p2] != MEMBER_TERMINATOR && input[p2] != TYPE_END)
@@ -233,7 +236,7 @@ public interface PersistenceTypeDictionaryParser
 				p++;
 			}
 
-			member.name = new String(input, i, p - i);
+			member.setFieldName(new String(input, i, p - i));
 
 			return parseMemberTermination(input, p);
 		}
@@ -280,19 +283,18 @@ public interface PersistenceTypeDictionaryParser
 			// check for declaring type name, parse actual field name externally
 			if(input[skipWhiteSpaces(input, p)] == MEMBER_FIELD_DECL_TYPE_SEPERATOR)
 			{
-				member.declrTypeName = new String(input, i, p - i);
+				member.setDeclaringTypeName(new String(input, i, p - i));
 				p = skipWhiteSpaces(input, skipWhiteSpaces(input, p) + 1); // skip white spaces, separator, whitespaces
 				return parseMemberName(input, p, member);
 			}
 
 			// otherwise must be pseudo field name, set member name
-			member.name = new String(input, i, p - i);
+			member.setFieldName(new String(input, i, p - i));
 
 
 			// check for terminator
 			return parseMemberTermination(input, p);
 		}
-
 
 		private static int parseMemberVariableLength(
 			final char[]                input ,
@@ -324,14 +326,17 @@ public interface PersistenceTypeDictionaryParser
 				return i;
 			}
 
-			member.type = TYPE_COMPLEX;
+			member.setTypeName(TYPE_COMPLEX);
 			member.isComplex = true;
 
 			int p;
 			p = skipWhiteSpaces       (input, i + LITERAL_LENGTH_TYPE_COMPLEX);
 			p = parseComplexMemberName(input, p, member);
 
-			final NestedMemberBuilder nestedMemberBuilder = new NestedMemberBuilder(member.lengthResolver);
+			final NestedMemberBuilder nestedMemberBuilder = new NestedMemberBuilder(
+				member.lengthResolver   ,
+				member.stringSubstitutor
+			);
 
 			while(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_END)
 			{
@@ -353,7 +358,7 @@ public interface PersistenceTypeDictionaryParser
 			{
 				p++;
 			}
-			member.name = new String(input, i, p - i);
+			member.setFieldName(new String(input, i, p - i));
 			if(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_START)
 			{
 				throw new PersistenceExceptionParserMissingComplexTypeDefinition(p);
@@ -395,8 +400,7 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields  //
 		/////////////////////
 
-		final PersistenceFieldLengthResolver     lengthResolver        ;
-		final PersistenceTypeDefinitionBuilder typeDescriptionBuilder;
+		final PersistenceFieldLengthResolver lengthResolver;
 
 
 
@@ -404,30 +408,32 @@ public interface PersistenceTypeDictionaryParser
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final PersistenceFieldLengthResolver     lengthResolver        ,
-			final PersistenceTypeDefinitionBuilder typeDescriptionBuilder
-		)
+		Implementation(final PersistenceFieldLengthResolver lengthResolver)
 		{
 			super();
-			this.lengthResolver         = lengthResolver        ;
-			this.typeDescriptionBuilder = typeDescriptionBuilder;
+			this.lengthResolver = lengthResolver;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
+		// override methods //
+		/////////////////////
 
 		@Override
-		public PersistenceTypeDictionary parse(final String input) throws PersistenceExceptionParser
+		public XGettingSequence<? extends PersistenceTypeDictionaryEntry> parseTypeDictionaryEntries(final String input) throws PersistenceExceptionParser
 		{
-			final BulkList<PersistenceTypeDefinition<?>> types = BulkList.New();
+			if(input == null)
+			{
+				return null;
+			}
+			
+			// no unique TypeId constraint here in order to collect all entries, even if with inconsistencies.
+			final BulkList<PersistenceTypeDictionaryEntry> entries = BulkList.New();
 			
 			try
 			{
-				parseTypes(types, input.toCharArray(), this.lengthResolver, this.typeDescriptionBuilder);
+				parseTypes(input.toCharArray(), this.lengthResolver, entries);
 			}
 			catch(final ArrayIndexOutOfBoundsException e)
 			{
@@ -442,89 +448,145 @@ public interface PersistenceTypeDictionaryParser
 				throw new PersistenceExceptionParser(-1, e);
 			}
 			
-			return PersistenceTypeDictionary.New(types);
+			return entries;
 		}
 
 		// CHECKSTYLE.ON: FinalParameters
 	}
 
 
-	final class TypeEntry
+	final class TypeEntry extends  PersistenceTypeDictionaryEntry.AbstractImplementation
 	{
-		      long                                       tid     ;
-		      String                                     typeName;
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private long                                     tid     ;
+		private String                                   typeName;
 		final BulkList<PersistenceTypeDescriptionMember> members  = new BulkList<>();
+		
+		final Substituter<String>                        stringSubstitutor;
 
-		TypeEntry()
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		TypeEntry(final Substituter<String> stringSubstitutor)
 		{
 			super();
+			this.stringSubstitutor = stringSubstitutor;
 		}
 		
-		void reset()
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+				
+		@Override
+		public String typeName()
 		{
-			this.tid = 0;
-			this.typeName = null;
-			this.members.clear();
+			return this.typeName;
+		}
+		
+		@Override
+		public long typeId()
+		{
+			return this.tid;
+		}
+		
+		@Override
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		{
+			return this.members;
+		}
+		
+		void setTypeName(final String typeName)
+		{
+			this.typeName = this.stringSubstitutor.substitute(typeName);
+		}
+				
+		void setTid(final long tid)
+		{
+			this.tid = tid;
 		}
 
-		@Override
-		public String toString()
-		{
-			final VarString vc = VarString.New();
-			vc
-			.add(this.tid)
-			.blank()
-			.add(this.typeName)
-			.blank()
-			.add('{');
-			if(!this.members.isEmpty())
-			{
-				vc.lf();
-				for(int i = 0; i < XTypes.to_int(this.members.size()); i++)
-				{
-					vc.tab().add(this.members.at(i)).add(';').lf();
-				}
-			}
-			vc.add('}');
-			return vc.toString();
-		}
 	}
 
+	
+	
 	abstract class AbstractMemberBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		boolean isVariableLength, isComplex;
-		String declrTypeName, type, name;
+		boolean                                                     isVariableLength, isComplex;
+		private String                                              declrTypeName, typeName, fieldName;
 		final BulkList<PersistenceTypeDescriptionMemberPseudoField> nestedMembers = new BulkList<>();
 		final PersistenceFieldLengthResolver                        lengthResolver;
+		final Substituter<String>                                   stringSubstitutor;
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors     //
 		/////////////////////
 
-		public AbstractMemberBuilder(final PersistenceFieldLengthResolver lengthResolver)
+		public AbstractMemberBuilder(
+			final PersistenceFieldLengthResolver lengthResolver   ,
+			final Substituter<String>            stringSubstitutor
+		)
 		{
 			super();
-			this.lengthResolver = lengthResolver;
+			this.lengthResolver    = lengthResolver   ;
+			this.stringSubstitutor = stringSubstitutor;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
+		final void setDeclaringTypeName(final String declrTypeName)
+		{
+			this.declrTypeName = this.stringSubstitutor.substitute(declrTypeName);
+		}
+		
+		final void setTypeName(final String typeName)
+		{
+			this.typeName = this.stringSubstitutor.substitute(typeName);
+		}
+		
+		final void setFieldName(final String fieldName)
+		{
+			this.fieldName = this.stringSubstitutor.substitute(fieldName);
+		}
+		
+		final String declaringTypeName()
+		{
+			return this.declrTypeName;
+		}
+		
+		final String typeName()
+		{
+			return this.typeName;
+		}
+		
+		final String fieldName()
+		{
+			return this.fieldName;
+		}
+		
 		AbstractMemberBuilder reset()
 		{
 			this.declrTypeName    = null ;
 			this.isVariableLength = false;
 			this.isComplex        = false;
-			this.type             = null ;
-			this.name             = null ;
+			this.typeName         = null ;
+			this.fieldName        = null ;
 			this.nestedMembers.clear();
 			return this;
 		}
@@ -535,26 +597,26 @@ public interface PersistenceTypeDictionaryParser
 			{
 				return this.isComplex
 					? new PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation(
-						this.name,
+						this.fieldName,
 						this.nestedMembers,
-						this.lengthResolver.resolveComplexMemberMinimumLength(this.name, this.type, this.nestedMembers),
-						this.lengthResolver.resolveComplexMemberMaximumLength(this.name, this.type, this.nestedMembers)
+						this.lengthResolver.resolveComplexMemberMinimumLength(this.fieldName, this.typeName, this.nestedMembers),
+						this.lengthResolver.resolveComplexMemberMaximumLength(this.fieldName, this.typeName, this.nestedMembers)
 					)
 					: PersistenceTypeDescriptionMemberPseudoFieldVariableLength.New(
-						this.type,
-						this.name,
-						this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.name, this.type),
-						this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.name, this.type)
+						this.typeName,
+						this.fieldName,
+						this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
+						this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
 					)
 				;
 			}
 
 			return PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation.New(
-				this.type,
-				this.name,
-				!XReflect.isPrimitiveTypeName(this.type),
-				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.name, this.type),
-				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.name, this.type)
+				this.typeName,
+				this.fieldName,
+				!XReflect.isPrimitiveTypeName(this.typeName),
+				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
+				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
 			);
 		}
 
@@ -564,6 +626,8 @@ public interface PersistenceTypeDictionaryParser
 
 	}
 
+	
+	
 	final class TypeMemberBuilder extends AbstractMemberBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -578,9 +642,12 @@ public interface PersistenceTypeDictionaryParser
 		// constructors     //
 		/////////////////////
 
-		public TypeMemberBuilder(final PersistenceFieldLengthResolver lengthResolver)
+		public TypeMemberBuilder(
+			final PersistenceFieldLengthResolver lengthResolver   ,
+			final Substituter<String>            stringSubstitutor
+		)
 		{
-			super(lengthResolver);
+			super(lengthResolver, stringSubstitutor);
 		}
 
 
@@ -618,13 +685,13 @@ public interface PersistenceTypeDictionaryParser
 				);
 			}
 
-			if(this.declrTypeName != null)
+			if(this.declaringTypeName() != null)
 			{
 				return new PersistenceTypeDescriptionMemberField.Implementation(
-					this.type,
-					this.name,
-					this.declrTypeName,
-					!XReflect.isPrimitiveTypeName(this.type),
+					this.typeName(),
+					this.fieldName(),
+					this.declaringTypeName(),
+					!XReflect.isPrimitiveTypeName(this.typeName()),
 					this.resolveMemberMinimumLength(),
 					this.resolveMemberMaximumLength()
 				);
@@ -636,15 +703,14 @@ public interface PersistenceTypeDictionaryParser
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
+		// override methods //
+		/////////////////////
 
 		@Override
 		final TypeMemberBuilder reset()
 		{
 			super.reset();
 			this.primitiveDefinition   = null;
-			this.declrTypeName         = null;
 			return this;
 		}
 
@@ -655,7 +721,12 @@ public interface PersistenceTypeDictionaryParser
 			{
 				return this.resolveMinimumPrimitiveLength();
 			}
-			return this.lengthResolver.resolveMinimumLengthFromDictionary(this.declrTypeName, this.name, this.type);
+			
+			return this.lengthResolver.resolveMinimumLengthFromDictionary(
+				this.declaringTypeName(),
+				this.fieldName()        ,
+				this.typeName()
+			);
 		}
 
 		@Override
@@ -665,7 +736,12 @@ public interface PersistenceTypeDictionaryParser
 			{
 				return this.resolveMaximumPrimitiveLength();
 			}
-			return this.lengthResolver.resolveMaximumLengthFromDictionary(this.declrTypeName, this.name, this.type);
+			
+			return this.lengthResolver.resolveMaximumLengthFromDictionary(
+				this.declaringTypeName(),
+				this.fieldName()        ,
+				this.typeName()
+			);
 		}
 
 	}
@@ -676,11 +752,16 @@ public interface PersistenceTypeDictionaryParser
 		// constructors     //
 		/////////////////////
 
-		public NestedMemberBuilder(final PersistenceFieldLengthResolver lengthResolver)
+		public NestedMemberBuilder(
+			final PersistenceFieldLengthResolver lengthResolver   ,
+			final Substituter<String>            stringSubstitutor
+		)
 		{
-			super(lengthResolver);
+			super(lengthResolver, stringSubstitutor);
 		}
 
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -695,16 +776,23 @@ public interface PersistenceTypeDictionaryParser
 		@Override
 		final long resolveMemberMinimumLength()
 		{
-			return this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.name, this.type);
+			return this.lengthResolver.resolveMinimumLengthFromDictionary(
+				null            ,
+				this.fieldName(),
+				this.typeName()
+			);
 		}
 
 		@Override
 		final long resolveMemberMaximumLength()
 		{
-			return this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.name, this.type);
+			return this.lengthResolver.resolveMaximumLengthFromDictionary(
+				null            ,
+				this.fieldName(),
+				this.typeName()
+			);
 		}
 
 	}
-
 
 }
