@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.functional.InstanceDispatcherLogic;
-import net.jadoth.persistence.binary.internal.BinaryTypeDictionaryProviderDefaulting;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -21,7 +20,6 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -145,6 +143,10 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public PersistenceManager<Binary> createPersistenceManager();
 
 
+	public static BinaryPersistenceFoundation.Implementation New()
+	{
+		return new BinaryPersistenceFoundation.Implementation();
+	}
 
 	public class Implementation
 	extends PersistenceFoundation.AbstractImplementation<Binary>

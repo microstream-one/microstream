@@ -2002,7 +2002,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		return PersistenceTypeDefinitionBuilder.New(PersistenceTypeResolver.Failing());
 	}
-
+	
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
 		final BinaryPersistenceFoundation f = BinaryPersistenceFoundation.New()
