@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
@@ -39,9 +41,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		return typeDictionary;
 	}
 
-	public static PersistenceTypeDictionary New()
+	public static PersistenceTypeDictionary New(final PersistenceTypeLineageCreator typeLineageCreator)
 	{
-		return new PersistenceTypeDictionary.Implementation();
+		return new PersistenceTypeDictionary.Implementation(
+			notNull(typeLineageCreator)
+		);
 	}
 
 	public static PersistenceTypeDictionary New(
@@ -49,7 +53,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	)
 	{
 		return PersistenceTypeDictionary.initializeRegisteredTypes(
-			New(),
+			New((PersistenceTypeLineageCreator)null),
 			typeDescriptions
 		);
 	}
@@ -64,8 +68,14 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			case Symbols.TYPE_BYTES:
 			case Symbols.TYPE_CHARS:
-			case Symbols.TYPE_COMPLEX: return true;
-			default: return false;
+			case Symbols.TYPE_COMPLEX:
+			{
+					return true;
+			}
+			default:
+			{
+				return false;
+			}
 		}
 	}
 
@@ -78,9 +88,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	}
 
 	public static VarString fullQualifiedFieldName(
-		final VarString vc,
-		final String  declaringTypeName,
-		final String  fieldName
+		final VarString vc               ,
+		final String    declaringTypeName,
+		final String    fieldName
 	)
 	{
 		return vc.add(declaringTypeName).add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR).add(fieldName);
@@ -173,6 +183,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		/////////////////////
 
 		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
+
+		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
+		private final PersistenceTypeLineageCreator                     typeLineageCreator  ;
+		private final EqHashTable<String, PersistenceTypeLineage<?>>    typeLineages         = EqHashTable.New();
 		
 		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> allTypesPerTypeId  = EqHashTable.New();
 		private final EqHashTable<String, PersistenceTypeDefinition<?>> latestTypesPerName = EqHashTable.New();
@@ -184,9 +198,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// constructors     //
 		/////////////////////
 
-		public Implementation()
+		Implementation(final PersistenceTypeLineageCreator typeLineageCreator)
 		{
 			super();
+			this.typeLineageCreator = typeLineageCreator;
 		}
 
 

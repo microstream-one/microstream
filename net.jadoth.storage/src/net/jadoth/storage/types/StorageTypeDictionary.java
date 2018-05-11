@@ -33,7 +33,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// instance fields  //
 		/////////////////////
 
-		private final HashMapIdObject<StorageEntityTypeHandler<?>> registry   = HashMapIdObject.New();
+		private final HashMapIdObject<StorageEntityTypeHandler<?>> registry = HashMapIdObject.New();
 		private       PersistenceTypeDictionary                    dictionary;
 
 		
