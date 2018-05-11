@@ -26,8 +26,8 @@ import net.jadoth.collections.BinaryHandlerLimitList;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
-import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
@@ -61,12 +61,12 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeVoid;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
 import net.jadoth.persistence.types.PersistenceTypeResolver;
@@ -2003,22 +2003,14 @@ public final class BinaryPersistence extends Persistence
 		return PersistenceTypeDefinitionBuilder.New(PersistenceTypeResolver.Failing());
 	}
 
-	public static PersistenceTypeDictionaryProvider createTypeDictionaryProviderFromFile(final File dictionaryFile)
-	{
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider =
-			PersistenceTypeDictionaryProvider.NewFromFile(
-				dictionaryFile                ,
-				createFieldLengthResolver()   ,
-				createTypeDescriptionBuilder()
-			)
-		;
-		return typeDictionaryProvider;
-	}
-
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
-		final PersistenceTypeDictionaryProvider dp = createTypeDictionaryProviderFromFile(dictionaryFile);
-		return dp.provideTypeDictionary();
+		final BinaryPersistenceFoundation f = BinaryPersistenceFoundation.New()
+			.setTypeDictionaryLoader(
+				PersistenceTypeDictionaryFileHandler.New(dictionaryFile)
+			)
+		;
+		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
 
 }

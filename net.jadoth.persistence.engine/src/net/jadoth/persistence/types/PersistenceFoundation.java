@@ -979,7 +979,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			final PersistenceTypeDictionaryProvider newTypeDictionaryProvider =
 				new PersistenceTypeDictionaryProvider.Implementation(
 					this.getTypeDictionaryParser(),
-					this.getTypeDictionaryLoader()
+					this.getTypeDictionaryLoader(),
+					TODO
 				)
 			;
 			return new PersistenceTypeDictionaryProvider.Caching(newTypeDictionaryProvider);
