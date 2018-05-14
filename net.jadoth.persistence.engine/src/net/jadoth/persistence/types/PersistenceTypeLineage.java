@@ -6,6 +6,7 @@ import static net.jadoth.X.notNull;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
+
 public interface PersistenceTypeLineage<T>
 {
 	public String typeName();

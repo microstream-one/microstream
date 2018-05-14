@@ -123,6 +123,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				// must pass manager instance itself to get a chance to cache new dictionary entry
 				handler = this.typeHandlerProvider.provideTypeHandler(this, type);
+				// (14.05.2018 TM)FIXME: why is the register() call left for the provider to do instead of being done here?
 			}
 			return handler;
 		}
@@ -296,7 +297,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.validateTypeHandler(typeHandler);
 			if(this.typeHandlerRegistry.register(typeHandler))
 			{
-				this.typeDictionaryManager.addTypeDescription(typeHandler);
+				// a (up to date) handler is always the runtime type definition
+				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
 				return true;
 			}
 			return false;
@@ -430,6 +432,16 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.typeDictionaryManager.provideTypeDictionary()
 			;
 			
+			/* (14.05.2018 TM)FIXME: OGS-3 Paradigm shift!
+			 * "runtime" does no longer mean "all type definitions that are resolvable to a runtime class",
+			 * BUT:
+			 * "runtime" now means "the type definition corresponding to the runtime version of the type".
+			 * 
+			 * So what has to be done here is:
+			 * - iterate all definitions
+			 * - check if the runtime type is not null
+			 * - for all those derive a handler, validate, register runtime type defininition, etc.
+			 */
 			
 			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = typeDictionary.iterateRuntimeDefinitions(
 				BulkList.New()
@@ -472,7 +484,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
 		{
-			this.typeDictionaryManager.validateTypeDescriptions(typeDictionary);
+			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 
 			// update the highest type id first after validation has been passed successfully to guarantee consistency
 			if(this.currentTypeId() < highestTypeId)
@@ -482,8 +494,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 
 			// finally add the type descriptions
-			this.typeDictionaryManager.addTypeDescriptions(typeDictionary);
+			this.typeDictionaryManager.registerTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 		}
+		
 
 		@Override
 		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)

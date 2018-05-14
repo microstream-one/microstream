@@ -59,6 +59,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 			this.typeManager
 		);
 
+		// (14.05.2018 TM)FIXME: why is the register() call done here instead of in the ensureHandler logic inside the manager?
 		typeHandlerManager.register(typeHandler);
 
 		/* must ensure type handlers for all field types as well to keep type definitions consistent

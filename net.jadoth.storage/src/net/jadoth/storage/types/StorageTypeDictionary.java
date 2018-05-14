@@ -93,11 +93,11 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDescription)
+		public final boolean registerDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinitionEntry(typeDescription);
+				return this.dictionary.registerDefinition(typeDescription);
 			}
 		}
 
@@ -108,7 +108,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinitionEntries(typeDescriptions);
+				return this.dictionary.registerDefinitions(typeDescriptions);
 			}
 		}
 

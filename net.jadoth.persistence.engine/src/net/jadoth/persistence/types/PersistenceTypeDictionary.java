@@ -19,9 +19,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	
 	public boolean isEmpty();
 
-	public boolean registerDefinitionEntry(PersistenceTypeDefinition<?> typeDefinition);
+	public boolean registerDefinition(PersistenceTypeDefinition<?> typeDefinition);
 
-	public boolean registerDefinitionEntries(XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+	public boolean registerDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+
+	public boolean registerRuntimeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+
+	public boolean registerRuntimeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
 
 	@Override
 	public PersistenceTypeDefinition<?> lookupTypeByName(String typeName);
@@ -80,7 +84,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 	)
 	{
-		typeDictionary.registerDefinitionEntries(typeDescriptions);
+		typeDictionary.registerDefinitions(typeDescriptions);
 		return typeDictionary;
 	}
 
@@ -260,7 +264,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized boolean registerDefinitionEntry(final PersistenceTypeDefinition<?> typeDescription)
+		public final synchronized boolean registerDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			if(this.synchRegisterType(typeDescription))
 			{
@@ -271,8 +275,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public final synchronized boolean registerDefinitionEntries(
-			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
+		public final synchronized boolean registerDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
 			final long oldSize = this.allTypesPerTypeId.size();
@@ -289,6 +293,24 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			}
 			
 			return false;
+		}
+		
+		@Override
+		public final synchronized boolean registerRuntimeDefinition(
+			final PersistenceTypeDefinition<?> typeDefinition
+		)
+		{
+			// FIXME PersistenceTypeDictionary.Implementation#registerRuntimeDefinition()
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		@Override
+		public final synchronized boolean registerRuntimeDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
+		)
+		{
+			// FIXME PersistenceTypeDictionary.Implementation#registerRuntimeDefinitions()
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 
 		@Override
