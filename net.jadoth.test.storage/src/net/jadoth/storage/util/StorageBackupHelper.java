@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.persistence.internal.AbstractIdProviderByFile;
-import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -57,9 +57,9 @@ public final class StorageBackupHelper
 		final File fileTDc = new File(targetDirectory, "MyPersistenceTypeDictionary.ptd");
 
 		// write current metadata's state to the specified files (= "metadata backup")
-		FilePersistenceTypeDictionary.writeTypeDictionary(fileTDc, typeDictString);
-		AbstractIdProviderByFile     .writeId            (fileTid, nextTypeId    );
-		AbstractIdProviderByFile     .writeId            (fileOid, nextObjectId  );
+		PersistenceTypeDictionaryFileHandler.writeTypeDictionary(fileTDc, typeDictString);
+		AbstractIdProviderByFile            .writeId            (fileTid, nextTypeId    );
+		AbstractIdProviderByFile            .writeId            (fileOid, nextObjectId  );
 	}
 
 

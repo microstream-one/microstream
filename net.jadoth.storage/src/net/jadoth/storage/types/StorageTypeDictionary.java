@@ -3,7 +3,6 @@ package net.jadoth.storage.types;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
-import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -54,13 +53,13 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// declared methods //
 		/////////////////////
 
-		final void deriveHandler(final PersistenceTypeDefinition<?> typeDescription)
+		final void deriveHandler(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
 				this.registry.put(
-					typeDescription.typeId(),
-					new StorageEntityTypeHandler.Implementation<>(typeDescription)
+					typeDefinition.typeId(),
+					new StorageEntityTypeHandler.Implementation<>(typeDefinition)
 				);
 			}
 		}
@@ -93,22 +92,40 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerDefinition(final PersistenceTypeDefinition<?> typeDescription)
+		public final boolean registerDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinition(typeDescription);
+				return this.dictionary.registerDefinition(typeDefinition);
 			}
 		}
 
 		@Override
-		public final boolean registerDefinitionEntries(
-			final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
+		public boolean registerRuntimeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		{
+			synchronized(this.registry)
+			{
+				return this.dictionary.registerRuntimeDefinition(typeDefinition);
+			}
+		}
+
+		@Override
+		public boolean registerRuntimeDefinitions(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
+		{
+			synchronized(this.registry)
+			{
+				return this.dictionary.registerRuntimeDefinitions(typeDefinitions);
+			}
+		}
+
+		@Override
+		public final boolean registerDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinitions(typeDescriptions);
+				return this.dictionary.registerDefinitions(typeDefinitions);
 			}
 		}
 
@@ -237,9 +254,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
+		public void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
-			this.deriveHandler(typeDescription);
+			this.deriveHandler(typeDefinition);
 		}
 
 		@Override

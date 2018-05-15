@@ -8,9 +8,9 @@ import java.io.File;
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FilePersistenceTypeDictionary;
 import net.jadoth.persistence.internal.FileSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFoundation;
 
@@ -51,7 +51,7 @@ public class TestComponentProvider extends InvocationLogging
 
 	private transient FileSwizzleIdProvider         swizzleIdProvider  = null;
 	private transient BinaryFileStorage             persistenceStorage = null;
-	private transient FilePersistenceTypeDictionary dictionaryStorage  = null;
+	private transient PersistenceTypeDictionaryFileHandler dictionaryStorage  = null;
 
 
 
@@ -127,12 +127,12 @@ public class TestComponentProvider extends InvocationLogging
 		return this.persistenceStorage;
 	}
 
-	final FilePersistenceTypeDictionary dictionaryStorage()
+	final PersistenceTypeDictionaryFileHandler dictionaryStorage()
 	{
 		if(this.dictionaryStorage == null)
 		{
 			this.dictionaryStorage = dispatch(
-				new FilePersistenceTypeDictionary(new File(this.directory, this.filenameTypeDictionary))
+				PersistenceTypeDictionaryFileHandler.New(new File(this.directory, this.filenameTypeDictionary))
 			);
 		}
 		return this.dictionaryStorage;
