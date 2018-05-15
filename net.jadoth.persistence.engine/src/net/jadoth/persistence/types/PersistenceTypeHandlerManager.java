@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -292,10 +291,10 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final boolean register(final PersistenceTypeHandler<M, ?> typeHandler)
+		public final boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			this.validateTypeHandler(typeHandler);
-			if(this.typeHandlerRegistry.register(typeHandler))
+			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
 				// a (up to date) handler is always the runtime type definition
 				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
@@ -351,14 +350,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public final void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
@@ -426,38 +425,22 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
-//			XDebug.debugln("initializing " + XChars.systemString(this.typeHandlerRegistry));
-
-			final PersistenceTypeDictionary typeDictionary =
-				this.typeDictionaryManager.provideTypeDictionary()
-			;
-			
-			/* (14.05.2018 TM)FIXME: OGS-3 Paradigm shift!
-			 * "runtime" does no longer mean "all type definitions that are resolvable to a runtime class",
-			 * BUT:
-			 * "runtime" now means "the type definition corresponding to the runtime version of the type".
-			 * 
-			 * So what has to be done here is:
-			 * - iterate all definitions
-			 * - check if the runtime type is not null
-			 * - for all those derive a handler, validate, register runtime type defininition, etc.
-			 */
-			
-			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = typeDictionary.iterateRuntimeDefinitions(
-				BulkList.New()
-			);
+			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary()	;
+						
+			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = BulkList.New();
+			typeDictionary.iterateLatestTypes(td ->
+			{
+				if(td.type() != null)
+				{
+					runtimeTypes.add(td);
+				}
+			});
 
 			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
 
-			// validate all type mappings before registering anything
-			typeRegistry.validatePossibleTypeMappings(runtimeTypes);
-
-			// register type identities (typeId<->type) first to make all types available for type handler creation
-			runtimeTypes.iterate(e ->
-				typeRegistry.registerType(e.typeId(), e.type())
-			);
-
-
+			// register all runtime types (with validity check)
+			typeRegistry.registerTypes(runtimeTypes);
+			
 			// (11.05.2018 TM)TODO: OGS-3
 
 			this.update(typeDictionary);

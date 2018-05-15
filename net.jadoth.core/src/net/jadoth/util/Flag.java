@@ -1,18 +1,31 @@
 package net.jadoth.util;
 
+
+/**
+ * A wrapper for a mutable boolean type and convenience setting and getting methods.
+ * 
+ * @author Thomas Muenz
+ */
 public interface Flag
 {
-	public Flag set(boolean state);
-
-	public boolean isSet();
+	public boolean set(boolean state);
 	
 	public boolean on();
 
 	public boolean off();
+	
+	public boolean isOn();
+	
+	public boolean isOff();
 
 	public boolean toggle();
 
 	
+	
+	public static Flag New()
+	{
+		return New(false);
+	}
 
 	public static Flag New(final boolean state)
 	{
@@ -46,23 +59,28 @@ public interface Flag
 		////////////
 
 		@Override
-		public final Simple set(final boolean state)
+		public final boolean set(final boolean state)
 		{
 			if(state)
 			{
 				this.on();
+				return false;
 			}
-			else
-			{
-				this.off();
-			}
-			return this;
+			
+			this.off();
+			return true;
 		}
 
 		@Override
-		public final boolean isSet()
+		public final boolean isOn()
 		{
 			return this.state;
+		}
+
+		@Override
+		public final boolean isOff()
+		{
+			return !this.state;
 		}
 
 		@Override
@@ -84,7 +102,7 @@ public interface Flag
 		@Override
 		public final boolean toggle()
 		{
-			return !(this.state = !this.state); // extremely lol syntax
+			return !(this.state = !this.state); // extremely funny syntax
 		}
 
 	}

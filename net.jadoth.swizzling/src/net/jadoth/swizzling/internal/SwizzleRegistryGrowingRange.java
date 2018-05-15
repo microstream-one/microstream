@@ -6,7 +6,6 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdId;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.XMath;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -850,17 +849,17 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public synchronized void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public synchronized void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
-		mappings.iterate(this.typeExistsValidator);
+		mappings.forEach(this.typeExistsValidator);
 	}
 
 	@Override
-	public synchronized void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public synchronized void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
-		mappings.iterate(this.typePossibleValidator);
+		mappings.forEach(this.typePossibleValidator);
 	}
 
 	@Override

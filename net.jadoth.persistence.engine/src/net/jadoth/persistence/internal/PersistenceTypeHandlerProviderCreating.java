@@ -2,7 +2,6 @@ package net.jadoth.persistence.internal;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
@@ -60,7 +59,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		);
 
 		// (14.05.2018 TM)FIXME: why is the register() call done here instead of in the ensureHandler logic inside the manager?
-		typeHandlerManager.register(typeHandler);
+		typeHandlerManager.registerTypeHandler(typeHandler);
 
 		/* must ensure type handlers for all field types as well to keep type definitions consistent
 		 * if some field's type is "too abstract" to be persisted, is has to be registered to an
@@ -160,14 +159,14 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		this.typeManager.validateExistingTypeMappings(mappings);
 	}
 
 	@Override
-	public final void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		this.typeManager.validatePossibleTypeMappings(mappings);

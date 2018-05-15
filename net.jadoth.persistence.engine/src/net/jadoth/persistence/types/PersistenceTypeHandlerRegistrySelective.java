@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyWrongHandler;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownObject;
@@ -81,9 +80,9 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public boolean register(final PersistenceTypeHandler<M, ?> type)
+		public boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> type)
 		{
-			return this.handlerRegistry.register(type);
+			return this.handlerRegistry.registerTypeHandler(type);
 		}
 
 		@Override
@@ -151,14 +150,14 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validatePossibleTypeMappings(mappings);

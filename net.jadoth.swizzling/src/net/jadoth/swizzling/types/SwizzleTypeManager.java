@@ -1,7 +1,7 @@
 package net.jadoth.swizzling.types;
 
 import static net.jadoth.X.notNull;
-import net.jadoth.collections.types.XGettingSequence;
+
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownTid;
 
@@ -104,14 +104,14 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validatePossibleTypeMappings(mappings);

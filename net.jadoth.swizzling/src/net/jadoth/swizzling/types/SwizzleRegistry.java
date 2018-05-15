@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdId;
 import net.jadoth.collections.interfaces.Sized;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.typing.Clearable;
 import net.jadoth.typing.KeyValue;
@@ -56,7 +55,7 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public <T> Class<T> lookupType(long tid);
 
 	@Override
-	public void validateExistingTypeMappings(XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency;
 
 	@Override

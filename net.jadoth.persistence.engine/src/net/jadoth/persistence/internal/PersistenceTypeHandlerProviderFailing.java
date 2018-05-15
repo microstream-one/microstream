@@ -1,6 +1,5 @@
 package net.jadoth.persistence.internal;
 
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -96,7 +95,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
@@ -106,7 +105,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead

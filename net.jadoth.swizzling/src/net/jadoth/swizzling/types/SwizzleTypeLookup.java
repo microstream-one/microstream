@@ -1,6 +1,5 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 
 
@@ -13,10 +12,10 @@ public interface SwizzleTypeLookup extends SwizzleTypeIdLookup
 
 	public void validateTypeMapping(long typeId, Class<?> type);
 
-	public void validateExistingTypeMappings(XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency;
 
-	public void validatePossibleTypeMappings(XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+	public void validatePossibleTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
 		throws SwizzleExceptionConsistency;
 
 }
