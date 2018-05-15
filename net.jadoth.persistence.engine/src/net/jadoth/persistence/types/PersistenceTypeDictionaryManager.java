@@ -131,7 +131,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			this.validateTypeDefinition(typeDefinition);
-			final boolean hasChanged = this.cachedTypeDictionary().registerDefinition(typeDefinition);
+			final boolean hasChanged = this.cachedTypeDictionary().registerTypeDefinition(typeDefinition);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -147,7 +147,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
-			final boolean hasChanged = this.cachedTypeDictionary().registerDefinitions(typeDefinitions);
+			final boolean hasChanged = this.cachedTypeDictionary().registerTypeDefinitions(typeDefinitions);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -163,7 +163,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinition(typeDefinition);
-			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeDefinition(typeDefinition);
+			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeTypeDefinition(typeDefinition);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -180,7 +180,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
-			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeDefinitions(typeDefinitions);
+			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeTypeDefinitions(typeDefinitions);
 			if(hasChanged)
 			{
 				this.markChanged();

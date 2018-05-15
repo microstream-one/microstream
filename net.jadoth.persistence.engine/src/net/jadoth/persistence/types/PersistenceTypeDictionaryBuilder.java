@@ -63,7 +63,7 @@ public interface PersistenceTypeDictionaryBuilder
 
 		// collected type definitions are bulk-registered for efficiency reasons (only sort once)
 		final PersistenceTypeDictionary typeDictionary = typeDictionaryCreator.createTypeDictionary();
-		typeDictionary.registerDefinitions(typeDefs);
+		typeDictionary.registerTypeDefinitions(typeDefs);
 				
 		return typeDictionary;
 	}

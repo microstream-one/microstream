@@ -19,13 +19,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	
 	public boolean isEmpty();
 
-	public boolean registerDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public boolean registerTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
 
-	public boolean registerDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+	public boolean registerTypeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
 
-	public boolean registerRuntimeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public boolean registerRuntimeTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
 
-	public boolean registerRuntimeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
 
 	@Override
 	public PersistenceTypeDefinition<?> lookupTypeByName(String typeName);
@@ -35,9 +35,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public long determineHighestTypeId();
 
-	public void setTypeDescriptionRegistrationCallback(PersistenceTypeDefinitionRegistrationCallback callback);
+	public void setTypeDescriptionRegistrationObserver(PersistenceTypeDefinitionRegistrationObserver observer);
 
-	public PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback();
+	public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver();
 	
 	public <T> PersistenceTypeLineage<T> ensureTypeLineage(Class<T> type);
 	
@@ -84,7 +84,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
 	)
 	{
-		typeDictionary.registerDefinitions(typeDescriptions);
+		typeDictionary.registerTypeDefinitions(typeDescriptions);
 		return typeDictionary;
 	}
 
@@ -119,7 +119,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		private final EqHashTable<String, PersistenceTypeLineage<?>>    typeLineages       = EqHashTable.New();
 		
 		private final EqHashTable<Long  , PersistenceTypeDefinition<?>> allTypesPerTypeId  = EqHashTable.New();
-		private       PersistenceTypeDefinitionRegistrationCallback     registrationCallback        ;
+		private       PersistenceTypeDefinitionRegistrationObserver     registrationObserver;
 
 
 
@@ -213,9 +213,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			this.allTypesPerTypeId.put(typeDefinition.typeId(), typeDefinition);
 
 			// callback gets set externally, can be null as well, so check for it.
-			if(this.registrationCallback != null)
+			if(this.registrationObserver != null)
 			{
-				this.registrationCallback.registerTypeDefinition(typeDefinition);
+				this.registrationObserver.observeTypeDefinitionRegistration(typeDefinition);
 			}
 			
 			return true;
@@ -238,17 +238,17 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		////////////
 
 		@Override
-		public final synchronized void setTypeDescriptionRegistrationCallback(
-			final PersistenceTypeDefinitionRegistrationCallback registrationCallback
+		public final synchronized void setTypeDescriptionRegistrationObserver(
+			final PersistenceTypeDefinitionRegistrationObserver registrationObserver
 		)
 		{
-			this.registrationCallback = registrationCallback;
+			this.registrationObserver = registrationObserver;
 		}
 
 		@Override
-		public final synchronized PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public final synchronized PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver()
 		{
-			return this.registrationCallback;
+			return this.registrationObserver;
 		}
 
 		@Override
@@ -264,7 +264,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized boolean registerDefinition(final PersistenceTypeDefinition<?> typeDescription)
+		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
 		{
 			if(this.synchRegisterType(typeDescription))
 			{
@@ -275,7 +275,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 		@Override
-		public final synchronized boolean registerDefinitions(
+		public final synchronized boolean registerTypeDefinitions(
 			final Iterable<? extends PersistenceTypeDefinition<?>> typeDescriptions
 		)
 		{
@@ -296,7 +296,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized boolean registerRuntimeDefinition(
+		public final synchronized boolean registerRuntimeTypeDefinition(
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
@@ -305,7 +305,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized boolean registerRuntimeDefinitions(
+		public final synchronized boolean registerRuntimeTypeDefinitions(
 			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{

@@ -555,7 +555,7 @@ public final class BinaryPersistence extends Persistence
 		final SwizzleTypeIdLookup typeLookup
 	)
 	{
-		typeDictionary.registerDefinitions(X.List(
+		typeDictionary.registerTypeDefinitions(X.List(
 			// type handlers for primitives have to be added seperately here as special cases
 			primitiveTypeDescription(byte.class   , typeLookup),
 			primitiveTypeDescription(boolean.class, typeLookup),

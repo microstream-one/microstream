@@ -6,12 +6,12 @@ import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
-import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationCallback;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationObserver;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 
-public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationCallback
+public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationObserver
 {
 	public <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(P procedure);
 
@@ -92,40 +92,40 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final boolean registerDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		public final boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinition(typeDefinition);
+				return this.dictionary.registerTypeDefinition(typeDefinition);
 			}
 		}
 
 		@Override
-		public boolean registerRuntimeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		public boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerRuntimeDefinition(typeDefinition);
+				return this.dictionary.registerRuntimeTypeDefinition(typeDefinition);
 			}
 		}
 
 		@Override
-		public boolean registerRuntimeDefinitions(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
+		public boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerRuntimeDefinitions(typeDefinitions);
+				return this.dictionary.registerRuntimeTypeDefinitions(typeDefinitions);
 			}
 		}
 
 		@Override
-		public final boolean registerDefinitions(
+		public final boolean registerTypeDefinitions(
 			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
 			synchronized(this.registry)
 			{
-				return this.dictionary.registerDefinitions(typeDefinitions);
+				return this.dictionary.registerTypeDefinitions(typeDefinitions);
 			}
 		}
 
@@ -206,22 +206,22 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final void setTypeDescriptionRegistrationCallback(
-			final PersistenceTypeDefinitionRegistrationCallback callback
+		public final void setTypeDescriptionRegistrationObserver(
+			final PersistenceTypeDefinitionRegistrationObserver observer
 		)
 		{
 			// as a storage type dictionary is a registration callback itself, this method is only valid for this
-			if(callback != this)
+			if(observer != this)
 			{
 				// (06.12.2014)EXCP: proper exception
 				throw new RuntimeException(
-					"Inconsistent " + PersistenceTypeDefinitionRegistrationCallback.class.getSimpleName()
+					"Inconsistent " + PersistenceTypeDefinitionRegistrationObserver.class.getSimpleName()
 				);
 			}
 		}
 
 		@Override
-		public final PersistenceTypeDefinitionRegistrationCallback getTypeDescriptionRegistrationCallback()
+		public final PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver()
 		{
 			return this;
 		}
@@ -254,7 +254,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public void registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		public void observeTypeDefinitionRegistration(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			this.deriveHandler(typeDefinition);
 		}
