@@ -6,14 +6,12 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
 import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
 
-public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerCreator<M>
+public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
 {
 	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerClass(
 		Class<? extends PersistenceTypeHandlerCustom<M, T>> typeHandlerClass
@@ -128,36 +126,6 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 				this.addMapping(thc);
 			}
 			return this;
-		}
-
-		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
-		private <T> PersistenceTypeHandler.Creator<M, T> lookupCreator(final Class<T> type)
-		{
-			return (PersistenceTypeHandler.Creator<M, T>)this.mapping.get(type);
-		}
-
-		@Override
-		public <T> PersistenceTypeHandler<M, T> createTypeHandler(
-			final Class<T>                      type,
-			final long                          typeId,
-			final SwizzleTypeManager            typeManager
-		)
-			throws PersistenceExceptionTypeNotPersistable
-		{
-			final PersistenceTypeHandler.Creator<M, T> typeHandlerCreator = this.lookupCreator(type);
-			if(typeHandlerCreator == null)
-			{
-				throw new RuntimeException(); // (30.03.2013)EXCP: proper exception
-			}
-
-			final PersistenceTypeHandler<M, T> typeHandler = typeHandlerCreator.createTypeHandler(typeId);
-			if(typeHandler.type() != type)
-			{
-				// just in case
-				throw new RuntimeException(); // (18.10.2013 TM)EXCP: proper exception
-			}
-
-			return typeHandler;
 		}
 
 		@Override
