@@ -81,10 +81,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public static <D extends PersistenceTypeDictionary> D registerTypes(
 		final D                                                          typeDictionary  ,
-		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDescriptions
+		final XGettingCollection<? extends PersistenceTypeDefinition<?>> typeDefinitions
 	)
 	{
-		typeDictionary.registerTypeDefinitions(typeDescriptions);
+		typeDictionary.registerTypeDefinitions(typeDefinitions);
 		return typeDictionary;
 	}
 
@@ -264,9 +264,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDescription)
+		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
 		{
-			if(this.synchRegisterType(typeDescription))
+			if(this.synchRegisterType(typeDefinition))
 			{
 				this.internalSort();
 				return true;
@@ -276,12 +276,12 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 		@Override
 		public final synchronized boolean registerTypeDefinitions(
-			final Iterable<? extends PersistenceTypeDefinition<?>> typeDescriptions
+			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
 			final long oldSize = this.allTypesPerTypeId.size();
 
-			for(final PersistenceTypeDefinition<?> td : typeDescriptions)
+			for(final PersistenceTypeDefinition<?> td : typeDefinitions)
 			{
 				this.synchRegisterType(td);
 			}
@@ -300,8 +300,10 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
-			// FIXME PersistenceTypeDictionary.Implementation#registerRuntimeDefinition()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			final boolean returnValue = this.registerTypeDefinition(typeDefinition);
+			this.synchSetRuntimeTypeDefinition(typeDefinition);
+			
+			return returnValue;
 		}
 		
 		@Override
@@ -309,8 +311,20 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
 		)
 		{
-			// FIXME PersistenceTypeDictionary.Implementation#registerRuntimeDefinitions()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			final boolean returnValue = this.registerTypeDefinitions(typeDefinitions);
+			
+			for(final PersistenceTypeDefinition<?> td : typeDefinitions)
+			{
+				this.synchSetRuntimeTypeDefinition(td);
+			}
+			
+			return returnValue;
+		}
+		
+		private <T> void synchSetRuntimeTypeDefinition(final PersistenceTypeDefinition<T> td)
+		{
+			final PersistenceTypeLineage<T> lineage = this.lookupTypeLineage(td.type());
+			lineage.setRuntimeTypeDefinition(td);
 		}
 
 		@Override
