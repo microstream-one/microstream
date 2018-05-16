@@ -30,8 +30,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	// getters          //
 	/////////////////////
 
-	public PersistenceTypeSovereignty getTypeSovereignty();
-
 	public SwizzleRegistry getSwizzleRegistry();
 
 	public SwizzleObjectManager getObjectManager();
@@ -104,8 +102,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	///////////////////////////////////////////////////////////////////////////
 	// setters          //
 	/////////////////////
-
-	public PersistenceFoundation<M> setTypeSovereignty(PersistenceTypeSovereignty typeSovereignty);
 
 	public PersistenceFoundation<M> setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
 
@@ -225,8 +221,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		// instance fields  //
 		/////////////////////
 
-		private PersistenceTypeSovereignty              typeSovereignty             = PersistenceTypeSovereignty.MASTER;
-
 		// first level assembly parts (used directly to build manager instance) \\
 		private SwizzleRegistry                         swizzleRegistry            ;
 		private SwizzleObjectManager                    objectManager              ;
@@ -278,12 +272,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.typeLineageCreator = this.dispatch(this.createTypeLineageCreator());
 			}
 			return this.typeLineageCreator;
-		}
-
-		@Override
-		public PersistenceTypeSovereignty getTypeSovereignty()
-		{
-			return this.typeSovereignty;
 		}
 
 		@Override
@@ -389,16 +377,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		@Override
 		public SwizzleTypeManager getTypeManager()
 		{
-			/* this is tricky!
-			 * (a type slave may not use an actual sovereign typeId-assigning creating master manager,
-			 * but only a type-retrieving manager, which is the TypeHandlerManager assembled with the
-			 * appropriate type handler provider)
-			 */
-			if(this.typeSovereignty == PersistenceTypeSovereignty.SLAVE)
-			{
-				return this.getTypeHandlerManager();
-			}
-
 			if(this.typeManager == null)
 			{
 				this.typeManager = this.dispatch(this.createTypeManager());
@@ -624,15 +602,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		///////////////////////////////////////////////////////////////////////////
 		// setters          //
 		/////////////////////
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeSovereignty(
-			final PersistenceTypeSovereignty typeSovereignty
-		)
-		{
-			this.typeSovereignty = typeSovereignty;
-			return this;
-		}
 
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setInstanceDispatcher(

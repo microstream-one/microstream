@@ -17,7 +17,4 @@ public interface PersistenceTypeHandlerProvider<M> extends SwizzleTypeManager
 		long typeId
 	);
 
-	@Deprecated
-	public PersistenceTypeSovereignty typeSovereignty();
-
 }

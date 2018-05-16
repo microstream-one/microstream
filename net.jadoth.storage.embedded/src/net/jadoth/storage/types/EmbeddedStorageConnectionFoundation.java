@@ -24,7 +24,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
@@ -65,9 +64,6 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 	@Override
 	public EmbeddedStorageConnectionFoundation setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
-
-	@Override
-	public EmbeddedStorageConnectionFoundation setTypeSovereignty(PersistenceTypeSovereignty typeSovereignty);
 
 	@Override
 	public EmbeddedStorageConnectionFoundation setTypeDictionaryManager(
@@ -211,15 +207,6 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		)
 		{
 			super.setTypeDictionaryManager(typeDictionaryManager);
-			return this;
-		}
-
-		@Override
-		public EmbeddedStorageConnectionFoundation.Implementation setTypeSovereignty(
-			final PersistenceTypeSovereignty typeSovereignty
-		)
-		{
-			super.setTypeSovereignty(typeSovereignty);
 			return this;
 		}
 

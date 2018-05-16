@@ -5,7 +5,6 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
@@ -38,12 +37,6 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	)
 	{
 		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
-	}
-
-	@Override
-	public PersistenceTypeSovereignty typeSovereignty()
-	{
-		return PersistenceTypeSovereignty.INACTIVE;
 	}
 
 	@Override

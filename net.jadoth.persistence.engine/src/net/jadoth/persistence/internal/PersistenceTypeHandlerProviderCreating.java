@@ -8,7 +8,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
@@ -41,8 +40,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// declared methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	protected final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
 		final PersistenceTypeHandlerManager<M> typeHandlerManager,
@@ -80,18 +79,6 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		});
 
 		return typeHandler;
-	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-	@Override
-	public final PersistenceTypeSovereignty typeSovereignty()
-	{
-		return PersistenceTypeSovereignty.MASTER;
 	}
 
 	@Override

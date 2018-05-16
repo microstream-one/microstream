@@ -25,7 +25,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeSovereignty;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
@@ -86,9 +85,6 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 	@Override
 	public BinaryPersistenceFoundation setPersistenceSource(PersistenceSource<Binary> source);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeSovereignty(PersistenceTypeSovereignty typeSovereignty);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
@@ -191,15 +187,6 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		)
 		{
 			super.setTypeDictionaryManager(typeDictionaryManager);
-			return this;
-		}
-
-		@Override
-		public BinaryPersistenceFoundation.Implementation setTypeSovereignty(
-			final PersistenceTypeSovereignty typeSovereignty
-		)
-		{
-			super.setTypeSovereignty(typeSovereignty);
 			return this;
 		}
 
