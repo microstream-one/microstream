@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -19,7 +19,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	/////////////////////
 
 	private final SwizzleTypeManager                     typeManager             ;
-	private final PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup;
+	private final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup;
 
 
 
@@ -29,7 +29,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 
 	public PersistenceTypeHandlerProviderCreating(
 		final SwizzleTypeManager                     typeManager             ,
-		final PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
 	)
 	{
 		super();
@@ -50,7 +50,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandlerCreator<M> creator     = this.typeHandlerCreatorLookup.lookupCreator(type);
+		final PersistenceTypeHandlerCreator<M> creator     = this.typeHandlerCreatorLookup.ensureTypeHandler(type);
 		final PersistenceTypeHandler<M, T>     typeHandler = creator.createTypeHandler(
 			type,
 			typeId,

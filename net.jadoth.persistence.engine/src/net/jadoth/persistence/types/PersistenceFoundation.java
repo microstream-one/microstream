@@ -50,7 +50,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public SwizzleTypeManager getTypeManager();
 
-	public PersistenceTypeHandlerCreatorLookup<M> getTypeHandlerCreatorLookup();
+	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerCreatorLookup();
 
 	public PersistenceTypeHandlerRegistry<M> getTypeHandlerRegistry();
 
@@ -121,7 +121,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setTypeManager(SwizzleTypeManager typeManager);
 
-	public PersistenceFoundation<M> setTypeHandlerCreatorLookup(PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup);
+	public PersistenceFoundation<M> setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup);
 	
 	public PersistenceFoundation<M> setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
 
@@ -233,7 +233,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
 		private SwizzleTypeManager                      typeManager                ;
-		private PersistenceTypeHandlerCreatorLookup<M>  typeHandlerCreatorLookup   ;
+		private PersistenceTypeHandlerEnsurer<M>  typeHandlerCreatorLookup   ;
 		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
 		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
 		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
@@ -385,7 +385,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public PersistenceTypeHandlerCreatorLookup<M> getTypeHandlerCreatorLookup()
+		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerCreatorLookup()
 		{
 			if(this.typeHandlerCreatorLookup == null)
 			{
@@ -632,7 +632,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerCreatorLookup<M> typeHandlerCreatorLookup
+			final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
 		)
 		{
 			this.typeHandlerCreatorLookup = typeHandlerCreatorLookup;
@@ -1119,9 +1119,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			throw new MissingFoundationPartException(PersistenceSource.class);
 		}
 
-		protected PersistenceTypeHandlerCreatorLookup<M> createTypeHandlerCreatorLookup()
+		protected PersistenceTypeHandlerEnsurer<M> createTypeHandlerCreatorLookup()
 		{
-			throw new MissingFoundationPartException(PersistenceTypeHandlerCreatorLookup.class);
+			throw new MissingFoundationPartException(PersistenceTypeHandlerEnsurer.class);
 		}
 
 		protected PersistenceTypeDictionaryLoader createTypeDictionaryLoader()

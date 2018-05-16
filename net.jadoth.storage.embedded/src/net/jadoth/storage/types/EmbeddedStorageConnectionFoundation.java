@@ -20,7 +20,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryParser;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -102,7 +102,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 	@Override
 	public EmbeddedStorageConnectionFoundation setTypeHandlerCreatorLookup(
-		PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup
+		PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup
 	);
 
 	@Override
@@ -282,7 +282,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 		@Override
 		public EmbeddedStorageConnectionFoundation.Implementation setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup
+			final PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup
 		)
 		{
 			super.setTypeHandlerCreatorLookup(typeHandlerCreatorLookup);

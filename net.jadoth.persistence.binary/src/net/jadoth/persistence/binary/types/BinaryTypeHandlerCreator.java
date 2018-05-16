@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
+import net.jadoth.persistence.binary.internal.BinaryHandlerNativeClass;
 import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -65,9 +66,9 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 		@Override
 		public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-			final Class<T>                      type              ,
-			final long                          typeId            ,
-			final SwizzleTypeManager            typeManager
+			final Class<T>           type       ,
+			final long               typeId     ,
+			final SwizzleTypeManager typeManager
 		)
 			throws PersistenceExceptionTypeNotPersistable
 		{
@@ -84,6 +85,10 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 					throw new RuntimeException(); // (01.04.2013)EXCP: proper exception
 				}
 				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerNativeArrayObject<>(type),typeId);
+			}
+			if(type == Class.class)
+			{
+				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerNativeClass(), typeId);
 			}
 
 			final HashEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions = HashEnum.New();

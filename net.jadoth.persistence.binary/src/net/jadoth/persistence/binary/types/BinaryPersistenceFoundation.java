@@ -21,7 +21,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreatorLookup;
+import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
@@ -108,7 +108,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
 
 	@Override
-	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup);
+	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup);
 	
 	@Override
 	public BinaryPersistenceFoundation setTypeHandlerCreator(PersistenceTypeHandlerCreator<Binary> typeHandlerCreator);
@@ -252,7 +252,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerCreatorLookup<Binary> typeHandlerCreatorLookup
+			final PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup
 		)
 		{
 			super.setTypeHandlerCreatorLookup(typeHandlerCreatorLookup);
@@ -431,14 +431,14 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		protected BinaryTypeHandlerCreatorLookup createTypeHandlerCreatorLookup()
+		protected BinaryTypeHandlerEnsurer createTypeHandlerCreatorLookup()
 		{
 			/* note:
 			 * registry is enough for native class type handler,
 			 * type manager would cause initializer loop.
 			 * Maybe the typing should be a little strengthened for this case
 			 */
-			return new BinaryTypeHandlerCreatorLookup.Implementation(
+			return new BinaryTypeHandlerEnsurer.Implementation(
 				this.getTypeHandlerCreator(),
 				this.getCustomTypeHandlerRegistry(),
 				this.getTypeHandlerRegistry()

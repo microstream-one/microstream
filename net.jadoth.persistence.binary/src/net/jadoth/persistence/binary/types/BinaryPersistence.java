@@ -568,7 +568,7 @@ public final class BinaryPersistence extends Persistence
 
 			// implementation of class type handler doesn't matter here as it is only used to create the type desc.
 			PersistenceTypeHandler.initializeTypeId(
-				new BinaryHandlerNativeClass(null),
+				new BinaryHandlerNativeClass(),
 				typeLookup.lookupTypeId(Class.class)
 			)
 		));

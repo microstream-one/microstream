@@ -1,16 +1,11 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.X.notNull;
-
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.binary.types.BinaryTypeHandlerCreator;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<Class<?>>
 {
@@ -24,27 +19,14 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 		// no idea how to get ".class" to work otherwise
 		return (Class)Class.class;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
-
-	private final PersistenceTypeHandlerLookup<Binary> typeLookup;
-
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	BinaryHandlerNativeClass()
-	{
-		this(null); // only needed for automated reflective use when initializing the default type dictionary
-	}
-
-	public BinaryHandlerNativeClass(final PersistenceTypeHandlerLookup<Binary> typeLookup)
+	public BinaryHandlerNativeClass()
 	{
 		super(
 			typeWorkaround(),
@@ -52,7 +34,6 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 				chars("name")
 			)
 		);
-		this.typeLookup = typeLookup;
 	}
 
 
@@ -70,11 +51,22 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	@Override
 	public Class<?> create(final Binary bytes)
 	{
-		/*
-		 * Classes get registered before instance data is processed,
-		 * hence it is enough to lookup the class by its oid, which is this class instance's tid.
-		 */
-		return this.typeLookup.lookupType(BinaryPersistence.getBuildItemObjectId(bytes));
+		// as an entity, a class/type is identified by its unique name, not by a TypeId.
+		final String typeName = BinaryPersistence.buildString(bytes);
+		
+		try
+		{
+			return XReflect.classForName(typeName);
+		}
+		catch(final ReflectiveOperationException e)
+		{
+			final long typeId = BinaryPersistence.getBuildItemObjectId(bytes);
+			
+			// (16.05.2018 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeConsistency(
+				"Type cannot be resolved: " + typeName + " (TypeId " + typeId + ")"
+			);
+		}
 	}
 
 	@Override
@@ -105,50 +97,6 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 	public boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
-	}
-
-
-
-	public static final class Creator implements BinaryTypeHandlerCreator
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
-
-		private final PersistenceTypeHandlerLookup<Binary> typeLookup;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
-
-		public Creator(final PersistenceTypeHandlerLookup<Binary> typeLookup)
-		{
-			super();
-			this.typeLookup = notNull(typeLookup);
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
-		@SuppressWarnings("unchecked") // necessary to cheat the type system because of too high abstraction
-		@Override
-		public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-			final Class<T>           type       ,
-			final long               typeId     ,
-			final SwizzleTypeManager typeManager
-		)
-			throws PersistenceExceptionTypeNotPersistable
-		{
-			return (PersistenceTypeHandler<Binary, T>)PersistenceTypeHandler.initializeTypeId(
-				new BinaryHandlerNativeClass(this.typeLookup),
-				typeId
-			);
-		}
 	}
 
 }
