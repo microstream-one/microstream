@@ -92,9 +92,9 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		}
 
 		@Override
-		public void validateTypeMapping(final long typeId, final Class<?> type)
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.typeRegistry.validateTypeMapping(typeId, type);
+			this.typeRegistry.validateExistingTypeMapping(typeId, type);
 		}
 
 		@Override

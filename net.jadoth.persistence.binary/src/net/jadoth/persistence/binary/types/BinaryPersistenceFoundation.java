@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.functional.InstanceDispatcherLogic;
-import net.jadoth.persistence.binary.internal.BinaryTypeDictionaryProviderDefaulting;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -431,21 +430,6 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		protected BinaryTypeHandlerEnsurer createTypeHandlerCreatorLookup()
-		{
-			/* note:
-			 * registry is enough for native class type handler,
-			 * type manager would cause initializer loop.
-			 * Maybe the typing should be a little strengthened for this case
-			 */
-			return new BinaryTypeHandlerEnsurer.Implementation(
-				this.getTypeHandlerCreator(),
-				this.getCustomTypeHandlerRegistry(),
-				this.getTypeHandlerRegistry()
-			);
-		}
-
-		@Override
 		protected PersistenceTypeHandlerCreator<Binary> createTypeHandlerCreator()
 		{
 			return new BinaryTypeHandlerCreator.Implementation(
@@ -458,15 +442,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		@Override
 		protected PersistenceCustomTypeHandlerRegistry<Binary> createCustomTypeHandlerRegistry()
 		{
-			// (18.10.2013 TM)FIXME: PersistenceRootResolver plug in here somewhere
 			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry();
-		}
-
-		@Override
-		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
-		{
-			// pretty cool usage of factory architecture :D, hooking in a binary-level default mechanism
-			return new BinaryTypeDictionaryProviderDefaulting(super.createTypeDictionaryProvider());
 		}
 
 		@Override

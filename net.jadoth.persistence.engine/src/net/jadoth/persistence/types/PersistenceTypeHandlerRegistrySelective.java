@@ -74,9 +74,9 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public void validateTypeMapping(final long typeId, final Class<?> type)
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.handlerRegistry.validateTypeMapping(typeId, type);
+			this.handlerRegistry.validateExistingTypeMapping(typeId, type);
 		}
 
 		@Override
@@ -164,9 +164,10 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.handlerRegistry.iterateTypeHandlers(procedure);
+			this.handlerRegistry.iterateTypeHandlers(iterator);
+			return iterator;
 		}
 
 	}

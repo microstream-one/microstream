@@ -10,13 +10,12 @@ import net.jadoth.collections.types.XPrependingEnum;
 import net.jadoth.collections.types.XPrependingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface PersistenceTypeAnalyzer
 {
 	public XGettingEnum<Field> collectPersistableFields(
 		Class<?>                                               type             ,
-		SwizzleTypeManager                                     typeManager      ,
+//		SwizzleTypeManager                                     typeManager      ,
 		XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 	);
 
@@ -31,8 +30,8 @@ public interface PersistenceTypeAnalyzer
 		public static final void collectPersistableInstanceFields(
 			final XPrependingSequence<Field> collection   ,
 			final Class<?>                   entityType   ,
-			final PersistenceFieldEvaluator  isPersistable,
-			final SwizzleTypeManager         typeManager
+			final PersistenceFieldEvaluator  isPersistable
+//			final SwizzleTypeManager         typeManager
 		)
 		{
 
@@ -42,7 +41,7 @@ public interface PersistenceTypeAnalyzer
 					{
 						return false;
 					}
-					typeManager.ensureTypeId(field.getType());
+//					typeManager.ensureTypeId(field.getType());
 					return true;
 				}
 			);
@@ -82,13 +81,14 @@ public interface PersistenceTypeAnalyzer
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(
 			final Class<?>                                               type             ,
-			final SwizzleTypeManager                                     typeManager      ,
+//			final SwizzleTypeManager                                     typeManager      ,
 			final XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 		)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 
-			/* tricky:
+			/*
+			 * tricky:
 			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
 			 * because there will (can!) never be actual instances of exactely (only) that type encountered
 			 * that would have to be persistet.
@@ -114,8 +114,8 @@ public interface PersistenceTypeAnalyzer
 			collectPersistableInstanceFields(
 				persistableFields ,
 				type              ,
-				this.fieldSelector,
-				typeManager
+				this.fieldSelector
+//				typeManager
 			);
 
 			return persistableFields;

@@ -79,7 +79,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validateTypeMapping(final long typeId, final Class<?> type)
+	public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.

@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
+import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
@@ -93,7 +94,9 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		protected BinaryPersistenceRootsProvider createRootsProvider()
 		{
-			return new BinaryPersistenceRootsProvider.Implementation();
+			return BinaryPersistenceRootsProvider.New(
+				this.provideRootResolver()
+			);
 		}
 
 
@@ -110,8 +113,9 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		protected EmbeddedStorageRootTypeIdProvider createRootTypeIdProvider()
 		{
+			// the genericness of this :D
 			return EmbeddedStorageRootTypeIdProvider.New(
-				this.getRootsProvider().provideRootsClass()
+				this.getRootsProvider().provideRoots().getClass() /* #provideRoots is assumed to cache the instance */
 			);
 		}
 
@@ -325,14 +329,11 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			ecf.setStorageManager(stm);
 
 			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
-
-			final PersistenceRootResolver rootResolver = this.provideRootResolver();
 			
 			// register special case type handler for roots instance
 			prp.registerRootsTypeHandlerCreator(
 				ecf.getCustomTypeHandlerRegistry(),
-				ecf.getSwizzleRegistry(),
-				rootResolver
+				ecf.getSwizzleRegistry()
 			);
 
 			// (04.05.2015)TODO: /!\ Entry point for improved type description validation
@@ -351,8 +352,11 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			// resolve root types to root type ids after types have been initialized
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 
-			// finally bundle everything together in the actual instance
-			return new EmbeddedStorageManager.Implementation(stm.configuration(), ecf, prp.provideRoots(rootResolver));
+			// the roots instance to be used
+			final PersistenceRoots roots = prp.provideRoots();
+				
+			// everything bundled together in the actual manager instance
+			return new EmbeddedStorageManager.Implementation(stm.configuration(), ecf, roots);
 		}
 
 	}

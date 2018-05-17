@@ -50,7 +50,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public SwizzleTypeManager getTypeManager();
 
-	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerCreatorLookup();
+	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
 
 	public PersistenceTypeHandlerRegistry<M> getTypeHandlerRegistry();
 
@@ -233,7 +233,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
 		private SwizzleTypeManager                      typeManager                ;
-		private PersistenceTypeHandlerEnsurer<M>  typeHandlerCreatorLookup   ;
+		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
 		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
 		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
 		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
@@ -385,13 +385,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerCreatorLookup()
+		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer()
 		{
-			if(this.typeHandlerCreatorLookup == null)
+			if(this.typeHandlerEnsurer == null)
 			{
-				this.typeHandlerCreatorLookup = this.dispatch(this.createTypeHandlerCreatorLookup());
+				this.typeHandlerEnsurer = this.dispatch(this.createTypeHandlerEnsurer());
 			}
-			return this.typeHandlerCreatorLookup;
+			return this.typeHandlerEnsurer;
 		}
 
 		@Override
@@ -635,7 +635,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
 		)
 		{
-			this.typeHandlerCreatorLookup = typeHandlerCreatorLookup;
+			this.typeHandlerEnsurer = typeHandlerCreatorLookup;
 			return this;
 		}
 		
@@ -994,9 +994,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected PersistenceTypeHandlerProvider<M> createTypeHandlerProvider()
 		{
-			return new PersistenceTypeHandlerProviderCreating<>(
+			return PersistenceTypeHandlerProviderCreating.New(
 				this.getTypeManager(),
-				this.getTypeHandlerCreatorLookup()
+				this.getTypeHandlerEnsurer()
 			);
 
 			/* default implementation creates a type handler provider master
@@ -1119,9 +1119,12 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			throw new MissingFoundationPartException(PersistenceSource.class);
 		}
 
-		protected PersistenceTypeHandlerEnsurer<M> createTypeHandlerCreatorLookup()
+		protected PersistenceTypeHandlerEnsurer<M> createTypeHandlerEnsurer()
 		{
-			throw new MissingFoundationPartException(PersistenceTypeHandlerEnsurer.class);
+			return PersistenceTypeHandlerEnsurer.New(
+				this.getCustomTypeHandlerRegistry(),
+				this.getTypeHandlerCreator()
+			);
 		}
 
 		protected PersistenceTypeDictionaryLoader createTypeDictionaryLoader()

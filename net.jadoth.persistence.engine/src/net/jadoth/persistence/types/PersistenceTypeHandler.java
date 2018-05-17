@@ -62,19 +62,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 
 	public void validateFields(XGettingSequence<Field> fieldDescriptions);
 	
-	public void initializeTypeId(long typeId);
+	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
 	
+	@SuppressWarnings("unchecked") // implementations are required to return a self-typed instance, normally "this".
 	public static <M, T, H extends PersistenceTypeHandler<M, T>> H initializeTypeId(final H handler, final long typeId)
 	{
-		handler.initializeTypeId(typeId);
-		return handler;
-	}
-
-
-	
-	public interface Creator<M, T>
-	{
-		public PersistenceTypeHandler<M, T> createTypeHandler(long typeId);
+		return (H)handler.initializeTypeId(typeId);
 	}
 
 	
@@ -150,7 +143,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 		}
 		
 		@Override
-		public synchronized void initializeTypeId(final long typeId)
+		public synchronized PersistenceTypeHandler<M, T> initializeTypeId(final long typeId)
 		{
 			/* note:
 			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.
@@ -162,7 +155,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 				if(this.typeId == typeId)
 				{
 					// consistent no-op, abort
-					return;
+					return this;
 				}
 				
 				// (26.04.2017 TM)EXCP: proper exception
@@ -172,6 +165,9 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			}
 			
 			this.typeId = typeId;
+			
+			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
+			return this;
 		}
 
 	}

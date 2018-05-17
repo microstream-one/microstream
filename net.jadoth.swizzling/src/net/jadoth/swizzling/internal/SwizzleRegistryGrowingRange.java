@@ -1105,7 +1105,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public void validateTypeMapping(final long typeId, final Class<?> type)
+	public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 	{
 		this.validateExistingMapping(type, typeId);
 	}

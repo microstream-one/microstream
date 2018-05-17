@@ -4,138 +4,107 @@ import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
-import net.jadoth.persistence.binary.internal.BinaryHandlerNativeClass;
-import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
-import net.jadoth.persistence.binary.internal.BinaryHandlerStateless;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
+
 
 public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
 {
 	@Override
-	public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-		Class<T>           type       ,
-		long               typeId     ,
-		SwizzleTypeManager typeManager
-	) throws PersistenceExceptionTypeNotPersistable;
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
 
 
-
-	public class Implementation implements BinaryTypeHandlerCreator
+	
+	public static BinaryTypeHandlerCreator New(
+		final PersistenceTypeAnalyzer               typeAnalyzer           ,
+		final PersistenceFieldLengthResolver        lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+	)
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		return new BinaryTypeHandlerCreator.Implementation(
+			notNull(typeAnalyzer)           ,
+			notNull(lengthResolver)         ,
+			notNull(mandatoryFieldEvaluator)
+		);
+	}
 
-		private final PersistenceTypeAnalyzer                     typeAnalyzer           ;
-		private final PersistenceFieldLengthResolver              lengthResolver         ;
-		private final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator;
-
-
-
+	public class Implementation
+	extends PersistenceTypeHandlerCreator.AbstractImplementation<Binary>
+	implements BinaryTypeHandlerCreator
+	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final PersistenceTypeAnalyzer                     typeAnalyzer           ,
-			final PersistenceFieldLengthResolver              lengthResolver         ,
+		Implementation(
+			final PersistenceTypeAnalyzer               typeAnalyzer           ,
+			final PersistenceFieldLengthResolver        lengthResolver         ,
 			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 		)
 		{
-			super();
-			this.typeAnalyzer            = notNull(typeAnalyzer)           ;
-			this.lengthResolver          = notNull(lengthResolver)         ; // must be provided, may not be null
-			this.mandatoryFieldEvaluator = notNull(mandatoryFieldEvaluator);
+			super(typeAnalyzer, lengthResolver, mandatoryFieldEvaluator);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
 		@Override
-		public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(
-			final Class<T>           type       ,
-			final long               typeId     ,
-			final SwizzleTypeManager typeManager
-		)
-			throws PersistenceExceptionTypeNotPersistable
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(final Class<T> type)
 		{
-			if(type.isPrimitive())
-			{
-				// primitive special cases
-				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerPrimitive<>(type), typeId);
-			}
-			if(type.isArray())
-			{
-				// array special cases
-				if(type.getComponentType().isPrimitive())
-				{
-					throw new RuntimeException(); // (01.04.2013)EXCP: proper exception
-				}
-				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerNativeArrayObject<>(type),typeId);
-			}
-			if(type == Class.class)
-			{
-				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerNativeClass(), typeId);
-			}
-
-			final HashEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions = HashEnum.New();
-
-			final XGettingEnum<Field> persistableFields =
-				this.typeAnalyzer.collectPersistableFields(type, typeManager, fieldDescriptions)
-			;
-
-			if(persistableFields.isEmpty())
-			{
-				// required for a) sparing unnecessary overhead and b) validation reasons
-				return PersistenceTypeHandler.initializeTypeId(new BinaryHandlerStateless<>(type), typeId);
-			}
-			
+			// array types can never change and therefore can never have obsolete types.
+			return new BinaryHandlerNativeArrayObject<>(type);
+		}
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerReflective(
+			final Class<T>            type             ,
+			final XGettingEnum<Field> persistableFields
+		)
+		{
 			if(type.isEnum())
 			{
-				// (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
-//				return this.createEnumHandler(type, typeId, persistableFields, this.lengthResolver);
+				/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
+				 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
+				 * makes sense in the first place. The whole enum concept (the identity of an instance depending
+				 *  on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
+				 * Use enums for logic, if you must, but keep them out of proper entity graphs.
+				 */
+//				return this.createEnumHandler(type, persistableFields);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
-			return PersistenceTypeHandler.initializeTypeId(
-				new BinaryHandlerGeneric<>(
-					type,
-					BinaryPersistence.blankMemoryInstantiator(type),
-					persistableFields,
-					this.lengthResolver,
-					this.mandatoryFieldEvaluator
-				),
-				typeId
+			return new BinaryHandlerGeneric<>(
+				type                                           ,
+				BinaryPersistence.blankMemoryInstantiator(type),
+				persistableFields                              ,
+				this.lengthResolver()                          ,
+				this.mandatoryFieldEvaluator()
 			);
 		}
 		
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
-			final Class<?>                       type          ,
-			final long                           typeId        ,
-			final XGettingEnum<Field>            allFields     ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final Class<?>            type     ,
+			final long                typeId   ,
+			final XGettingEnum<Field> allFields
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)PersistenceTypeHandler.initializeTypeId(
 				new BinaryHandlerEnum<>(
-					(Class<E>)type     ,
-					allFields          ,
-					this.lengthResolver,
-					this.mandatoryFieldEvaluator
+					(Class<E>)type                ,
+					allFields                     ,
+					this.lengthResolver()         ,
+					this.mandatoryFieldEvaluator()
 				),
 				typeId
 			);

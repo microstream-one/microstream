@@ -163,6 +163,8 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	)
 	{
 		super(type);
+		
+		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
 
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		Memory.ensureClassInitialized(type);

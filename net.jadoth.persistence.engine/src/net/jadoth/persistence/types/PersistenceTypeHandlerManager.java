@@ -285,9 +285,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final void validateTypeMapping(final long typeId, final Class<?> type)
+		public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.typeHandlerRegistry.validateTypeMapping(typeId, type);
+			this.typeHandlerRegistry.validateExistingTypeMapping(typeId, type);
 		}
 
 		@Override
@@ -364,9 +364,10 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.typeHandlerRegistry.iterateTypeHandlers(procedure);
+			this.typeHandlerRegistry.iterateTypeHandlers(iterator);
+			return iterator;
 		}
 
 		@Override

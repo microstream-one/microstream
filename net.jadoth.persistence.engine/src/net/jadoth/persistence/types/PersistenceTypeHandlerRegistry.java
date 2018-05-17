@@ -88,9 +88,9 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		}
 
 		@Override
-		public void validateTypeMapping(final long typeId, final Class<?> type)
+		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
-			this.typeRegistry.validateTypeMapping(typeId, type);
+			this.typeRegistry.validateExistingTypeMapping(typeId, type);
 		}
 
 		@Override
@@ -149,9 +149,10 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		}
 
 		@Override
-		public void iterateTypeHandlers(final Consumer<? super PersistenceTypeHandler<M, ?>> procedure)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.handlersByType.iterateValues(procedure);
+			this.handlersByType.iterateValues(iterator);
+			return iterator;
 		}
 
 		@Override

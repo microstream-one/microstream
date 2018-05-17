@@ -42,6 +42,7 @@ public interface PersistenceRoots
 		}
 		
 		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
@@ -72,7 +73,8 @@ public interface PersistenceRoots
 		@Override
 		public final XGettingTable<String, Object> entries()
 		{
-			/* intentionally make internal collection publicly available
+			/*
+			 * intentionally make internal collection publicly available
 			 * as this implementation is actually just a typed wrapper for it.
 			 */
 			return this.roots;

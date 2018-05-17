@@ -4,7 +4,6 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
@@ -15,26 +14,43 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 public final class PersistenceTypeHandlerProviderCreating<M> implements PersistenceTypeHandlerProvider<M>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <M> PersistenceTypeHandlerProviderCreating<M> New(
+		final SwizzleTypeManager               typeManager       ,
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
+	)
+	{
+		return new PersistenceTypeHandlerProviderCreating<>(
+			notNull(typeManager)       ,
+			notNull(typeHandlerEnsurer)
+		);
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
 
-	private final SwizzleTypeManager                     typeManager             ;
-	private final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup;
+	private final SwizzleTypeManager               typeManager       ;
+	private final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;
 
-
+		
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public PersistenceTypeHandlerProviderCreating(
-		final SwizzleTypeManager                     typeManager             ,
-		final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
+	PersistenceTypeHandlerProviderCreating(
+		final SwizzleTypeManager               typeManager       ,
+		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
 	)
 	{
 		super();
-		this.typeManager              = notNull(typeManager)             ;
-		this.typeHandlerCreatorLookup = notNull(typeHandlerCreatorLookup);
+		this.typeManager        = typeManager       ;
+		this.typeHandlerEnsurer = typeHandlerEnsurer;
 	}
 
 
@@ -50,13 +66,9 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandlerCreator<M> creator     = this.typeHandlerCreatorLookup.ensureTypeHandler(type);
-		final PersistenceTypeHandler<M, T>     typeHandler = creator.createTypeHandler(
-			type,
-			typeId,
-			this.typeManager
-		);
-
+		final PersistenceTypeHandler<M, T> protoTypeHandler = this.ensureTypeHandler(type);
+		final PersistenceTypeHandler<M, T> typeHandler      = protoTypeHandler.initializeTypeId(typeId);
+		
 		// (14.05.2018 TM)FIXME: why is the register() call done here instead of in the ensureHandler logic inside the manager?
 		typeHandlerManager.registerTypeHandler(typeHandler);
 
@@ -87,19 +99,21 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		final Class<T>                         type
 	)
 	{
-		// create type<->tid mapping in advance.
+		// type<->tid mapping is created in advance.
 		final long typeId = this.typeManager.ensureTypeId(type);
+		
 		return this.provideTypeHandler(typeHandlerManager, type, typeId);
 	}
 
 	@Override
 	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
 		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final long typeId
+		final long                             typeId
 	)
 	{
-		// lookup type or throw exception.
+		// either the type can be found or an exception is thrown
 		final Class<T> type = this.typeManager.ensureType(typeId);
+		
 		return this.provideTypeHandler(typeHandlerManager, type, typeId);
 	}
 
@@ -140,9 +154,9 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final void validateTypeMapping(final long typeId, final Class<?> type)
+	public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
 	{
-		this.typeManager.validateTypeMapping(typeId, type);
+		this.typeManager.validateExistingTypeMapping(typeId, type);
 	}
 
 	@Override
@@ -164,5 +178,17 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	{
 		this.typeManager.updateCurrentHighestTypeId(highestTypeId);
 	}
+	
+	final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable
+	{
+		return this.typeHandlerEnsurer.ensureTypeHandler(type);
+	}
+	
+//	@Override
+//	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+//	{
+//		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
+//	}
 
 }
