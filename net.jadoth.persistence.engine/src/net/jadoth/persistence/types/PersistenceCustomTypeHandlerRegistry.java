@@ -1,57 +1,60 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.X.notNull;
+import java.util.function.Consumer;
 
-import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.Aggregator;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleTypeIdLookup;
-import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
-import net.jadoth.typing.KeyValue;
 
 public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
 {
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerClass(
-		Class<? extends PersistenceTypeHandlerCustom<M, T>> typeHandlerClass
+	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
+		PersistenceTypeHandler<M, ?> typeHandlerInitializer
 	);
 
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerClass(
-		Class<T> type, Class<? extends PersistenceTypeHandlerCustom<M, T>> typeHandlerClass
+	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
+		Class<T>                     type            ,
+		PersistenceTypeHandler<M, ?> typeHandlerInitializer
 	);
 
-	public PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerClasses(
-		XGettingCollection<Class<? extends PersistenceTypeHandlerCustom<M, ?>>> typeHandlerClasses
+	public PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlers(
+		XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
 	);
-
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerCreator(
-		PersistenceTypeHandler.Creator<M, T> typeHandlerCreator
-	);
-
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerCreator(
-		Class<T> type, PersistenceTypeHandler.Creator<M, T> typeHandlerCreator
-	);
+	
+	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
 
 	public boolean knowsType(Class<?> type);
-
-	public <D extends PersistenceTypeDictionary> D updateTypeDictionary(D typeDictionary, SwizzleTypeIdLookup typeLookup);
-
-
+		
+	
+	
+	public static <M> PersistenceCustomTypeHandlerRegistry.Implementation<M> New()
+	{
+		return new PersistenceCustomTypeHandlerRegistry.Implementation<>();
+	}
 
 	public final class Implementation<M> implements PersistenceCustomTypeHandlerRegistry<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
+		
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping = HashTable.New();
 
-		private final HashTable<Class<?>, PersistenceTypeHandler.Creator<M, ?>> mapping = HashTable.New();
-
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation()
+		{
+			super();
+		}
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
+		// override methods //
+		/////////////////////
 
 		@Override
 		public boolean knowsType(final Class<?> type)
@@ -60,144 +63,56 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		}
 
 		@Override
-		public final <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerClass(
-			final Class<T>                                            type,
-			final Class<? extends PersistenceTypeHandlerCustom<M, T>> typeHandlerClass
+		public final <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
+			final Class<T>                     type                  ,
+			final PersistenceTypeHandler<M, ?> typeHandlerInitializer
 		)
 		{
-			this.registerTypeHandlerCreator(
-				type,
-				new PersistenceTypeHandlerCustom.Creator.ReflectiveImplementation<>(typeHandlerClass)
+			this.mapping.put(type, typeHandlerInitializer);
+			return this;
+		}
+
+		@Override
+		public <T> PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandler(
+			final PersistenceTypeHandler<M, ?> typeHandlerInitializer
+		)
+		{
+			this.registerTypeHandler(
+				typeHandlerInitializer.type(),
+				typeHandlerInitializer
 			);
 			return this;
 		}
 
 		@Override
-		public final <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerCreator(
-			final Class<T>                             type              ,
-			final PersistenceTypeHandler.Creator<M, T> typeHandlerCreator
+		public synchronized PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandlers(
+			final XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
 		)
 		{
-			this.mapping.put(type, typeHandlerCreator);
-			return this;
-		}
-
-		@Override
-		public <T> PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandlerClass(
-			final Class<? extends PersistenceTypeHandlerCustom<M, T>> typeHandlerClass
-		)
-		{
-			this.registerTypeHandlerClass(
-				PersistenceTypeHandlerCustom.instantiateBlankCustomTypeHandler(typeHandlerClass).type(),
-				typeHandlerClass
-			);
-			return this;
-		}
-
-		@Override
-		public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlerCreator(
-			final PersistenceTypeHandler.Creator<M, T> typeHandlerCreator
-		)
-		{
-			this.registerTypeHandlerCreator(
-				PersistenceTypeHandlerCustom.getHandledType(typeHandlerCreator),
-				typeHandlerCreator
-			);
-			return this;
-		}
-
-		private <T> void addMapping(final Class<? extends PersistenceTypeHandlerCustom<M, ?>> thc)
-		{
-			// no idea why a "?" is not directly a viable type for an unspecified T, so specify a fake one
-			@SuppressWarnings("unchecked")
-			final PersistenceTypeHandlerCustom.Creator<M, ?> c = PersistenceTypeHandlerCustom.createReflectiveCreator(
-				(Class<? extends PersistenceTypeHandlerCustom<M, T>>)thc
-			);
-			this.mapping.add(PersistenceTypeHandlerCustom.getHandledType(c), c);
-		}
-
-		@Override
-		public PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandlerClasses(
-			final XGettingCollection<Class<? extends PersistenceTypeHandlerCustom<M, ?>>> typeHandlerClasses
-		)
-		{
-			for(final Class<? extends PersistenceTypeHandlerCustom<M, ?>> thc : typeHandlerClasses)
+			for(final PersistenceTypeHandler<M, ?> tdi : typeHandlerInitializers)
 			{
-				this.addMapping(thc);
+				this.registerTypeHandler(tdi);
 			}
 			return this;
 		}
 
-		@Override
-		public <D extends PersistenceTypeDictionary> D updateTypeDictionary(
-			final D                   typeDictionary,
-			final SwizzleTypeIdLookup typeLookup
-		)
+		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
+		private <T> PersistenceTypeHandler<M, T> internalLookupTypeHandler(final Class<T> type)
 		{
-			final BulkList<PersistenceTypeDefinition<?>> typeDescs = this.mapping.iterate(
-				new TypeDescriptionBuilder<M>(typeLookup)
-			).yield();
-			typeDictionary.registerTypeDefinitions(typeDescs);
-			return typeDictionary;
+			return (PersistenceTypeHandler<M, T>)this.mapping.get(type);
 		}
 
-
-		static final class TypeDescriptionBuilder<M>
-		implements Aggregator<
-			KeyValue<Class<?>, PersistenceTypeHandler.Creator<M, ?>>,
-			BulkList<PersistenceTypeDefinition<?>>
-		>
+		@Override
+		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
 		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
-
-			private final SwizzleTypeIdLookup                     typeLookup      ;
-			private final BulkList<PersistenceTypeDefinition<?>> typeDescriptions = BulkList.New();
-
-
-
-			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
-
-			public TypeDescriptionBuilder(final SwizzleTypeIdLookup typeLookup)
-			{
-				super();
-				this.typeLookup = notNull(typeLookup);
-			}
-
-			@Override
-			public void accept(final KeyValue<Class<?>, PersistenceTypeHandler.Creator<M, ?>> element)
-			{
-				final long typeId = this.typeLookup.lookupTypeId(element.key());
-
-				/* if no typeId known by the local typeLookup, abort without exception.
-				 * Rationale: there may be custom type handlers for native types but no defined native type Id for them.
-				 * E.g. collection handlers.
-				 * The intention is, that the description for those handlers is added later on not as a native type
-				 * but as a dynamically encountered type (but with a native handler)
-				 *
-				 * Danger / potential downside: inconsistent type lookups for other cases (meaning not initializing
-				 * custom native handlers but normal dynamically analyzed types later on) is not recognized here
-				 * but swallowed. If this is a problem, another solution has to be found, maybe better seperation of the
-				 * two concerns.
-				 */
-				if(typeId == Swizzle.nullId())
-				{
-					return; // type not known, abort
-				}
-				this.typeDescriptions.add(
-					element.value().createTypeHandler(typeId)
-				);
-			}
-
-			@Override
-			public BulkList<PersistenceTypeDefinition<?>> yield()
-			{
-				return SwizzleTypeIdOwner.sortByTypeIdAscending(this.typeDescriptions);
-			}
-
+			return this.internalLookupTypeHandler(type);
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		{
+			this.mapping.values().iterate(iterator);
+			return iterator;
 		}
 
 	}

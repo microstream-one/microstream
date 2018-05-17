@@ -226,7 +226,10 @@ public class Swizzle
 			public long lookupTypeId(final Class<?> type)
 			{
 				final Long nativeTypeId = NATIVE_TYPES.get(type);
-				return nativeTypeId == null ? Swizzle.nullId() : nativeTypeId.longValue();
+				return nativeTypeId == null
+					? Swizzle.nullId()
+					: nativeTypeId.longValue()
+				;
 			}
 		};
 	}
