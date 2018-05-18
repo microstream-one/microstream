@@ -45,13 +45,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	{
 		this.update(typeDictionary, 0);
 	}
-
-
-
-	/*
-	 * (02.04.2013 TM)TODO: type slave alternative to request type id at master
-	 * (and refresh type dictionary in the process)
-	 */
+	
 	@Override
 	public long ensureTypeId(Class<?> type);
 
@@ -423,7 +417,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
-			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary()	;
+			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 						
 			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = BulkList.New();
 			typeDictionary.iterateLatestTypes(td ->
@@ -441,8 +435,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// (11.05.2018 TM)TODO: OGS-3
 
-			// (18.05.2018 TM)FIXME: this updating does all the validating and registering again. Redundant? Remove or comment.
-			this.update(typeDictionary);
+			this.internalUpdateCurrentHighestTypeId(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
 			runtimeTypes.iterate(e ->
@@ -464,33 +457,42 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.typeHandlerProvider.updateCurrentHighestTypeId(highestTypeId);
 		}
 
-		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
+		
+		final void internalUpdateCurrentHighestTypeId(final PersistenceTypeDictionary typeDictionary)
 		{
-			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary.allTypeDefinitions().values());
-
+			this.internalUpdateCurrentHighestTypeId(typeDictionary.determineHighestTypeId());
+		}
+		
+		final void internalUpdateCurrentHighestTypeId(
+			final PersistenceTypeDictionary typeDictionary,
+			final long                      highestTypeId
+		)
+		{
+			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
+			this.updateCurrentHighestTypeId(effectiveHighestTypeId);
+		}
+		
+		final void internalUpdateCurrentHighestTypeId(final long highestTypeId)
+		{
 			// update the highest type id first after validation has been passed successfully to guarantee consistency
 			if(this.currentTypeId() < highestTypeId)
 			{
 				// only update if new value is actually higher. No reason to throw an exception otherwise.
 				this.updateCurrentHighestTypeId(highestTypeId);
 			}
-
-			// finally add the type descriptions
-			this.typeDictionaryManager.registerTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 		}
+		
 		
 
 		@Override
 		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
 		{
-			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
-			this.internalUpdate(typeDictionary, effectiveHighestTypeId);
+			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 
-			/*
-			 * inlining the max() call changes the second argument from 0 to something like 43466428.
-			 * Unbelievably giant bug somewhere in the eclipse compiler or (more probable) the JVM.
-			 */
-//			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
+			this.internalUpdateCurrentHighestTypeId(typeDictionary, highestTypeId);
+
+			// finally add the type descriptions
+			this.typeDictionaryManager.registerTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 		}
 
 	}

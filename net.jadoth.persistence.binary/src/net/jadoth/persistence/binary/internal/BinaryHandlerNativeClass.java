@@ -56,6 +56,13 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 		
 		try
 		{
+			/* (18.05.2018 TM)FIXME: Changed TypeId of persisted class
+			 * What about the case that a class instance gets persisted (i.e. just its full qualified name)
+			 * with a certain TypeId as its ObjectId and then the TypeId for the class changes?
+			 * Should class instances even be stored with the TypeId representing the type as their ObjectId?
+			 * Isn't the class instance itself a mere instance that represents the type and should therefore
+			 * have a normal ObjectId assigned?
+			 */
 			return XReflect.classForName(typeName);
 		}
 		catch(final ReflectiveOperationException e)
