@@ -3,7 +3,6 @@ package net.jadoth.persistence.internal;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
@@ -21,20 +20,14 @@ import net.jadoth.swizzling.types.SwizzleTypeLink;
 public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceTypeHandlerProvider<M>
 {
 	@Override
-	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final Class<T> type
-	)
+	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		throw new PersistenceExceptionTypeNotPersistable(type);
 	}
 
 	@Override
-	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final long typeId
-	)
+	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(final long typeId)
 	{
 		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 	}

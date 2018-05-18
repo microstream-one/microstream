@@ -64,12 +64,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 	
 	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
 	
-	@SuppressWarnings("unchecked") // implementations are required to return a self-typed instance, normally "this".
-	public static <M, T, H extends PersistenceTypeHandler<M, T>> H initializeTypeId(final H handler, final long typeId)
-	{
-		return (H)handler.initializeTypeId(typeId);
-	}
-
 	
 	
 	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>

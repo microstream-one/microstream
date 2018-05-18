@@ -13,19 +13,18 @@ public interface SwizzleTypeRegistry extends SwizzleTypeLookup
 		// validate all type mappings before registering anything
 		this.validatePossibleTypeMappings(types);
 		
-		
-		final Flag flag = Flag.New();
+		final Flag hasChanged = Flag.New();
 		
 		// register type identities (typeId<->type) first to make all types available for type handler creation
 		types.forEach(e ->
 		{
-			if(this.registerType(e.typeId(), e.type()) && flag.isOff())
+			if(this.registerType(e.typeId(), e.type()) && hasChanged.isOff())
 			{
-				flag.on();
+				hasChanged.on();
 			}
 		});
 		
-		return flag.isOn();
+		return hasChanged.isOn();
 	}
 	
 	

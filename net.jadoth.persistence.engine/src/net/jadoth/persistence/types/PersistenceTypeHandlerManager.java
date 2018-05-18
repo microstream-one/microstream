@@ -121,10 +121,39 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
 				// must pass manager instance itself to get a chance to cache new dictionary entry
-				handler = this.typeHandlerProvider.provideTypeHandler(this, type);
-				// (14.05.2018 TM)FIXME: why is the register() call left for the provider to do instead of being done here?
+				handler = this.typeHandlerProvider.provideTypeHandler(type);
+				this.internalRegisterTypeHandler(handler);
 			}
+			
 			return handler;
+		}
+		
+		/*
+		 * Logic moved from calling it externally in the TypeHandlerProvider to be called internally, where it belongs.
+		 */
+		private <T> void internalRegisterTypeHandler(final PersistenceTypeHandler<M, T> typeHandler)
+		{
+			this.registerTypeHandler(typeHandler);
+
+			/*
+			 * Must ensure type handlers for all field types as well to keep type definitions consistent.
+			 * If some field's type is "too abstract" to be persisted, is has to be registered to an
+			 * apropriate type handler (No-op, etc.) manually beforehand.
+			 *
+			 * creating new type handlers in the process will eventually end up here again for the new types
+			 * until all reachable types are ensured to have type handlers registered.
+			 */
+			typeHandler.getInstanceReferenceFields().iterate(e ->
+			{
+				try
+				{
+					this.ensureTypeHandler(e.getType());
+				}
+				catch(final RuntimeException t)
+				{
+					throw t; // debug hook
+				}
+			});
 		}
 
 		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
@@ -133,6 +162,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				throw new PersistenceExceptionTypeNotPersistable(type);
 			}
+			
 			synchronized(this.typeHandlerRegistry)
 			{
 				if(type.getSuperclass() != null)
@@ -160,7 +190,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) == null)
 				{
 					// must pass manager instance itself to get a chance to cache new dictionary entry
-					handler = this.typeHandlerProvider.provideTypeHandler(this, tid);
+					handler = this.typeHandlerProvider.provideTypeHandler(tid);
+					this.internalRegisterTypeHandler(handler);
 				}
 				return handler;
 			}
@@ -410,6 +441,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// (11.05.2018 TM)TODO: OGS-3
 
+			// (18.05.2018 TM)FIXME: this updating does all the validating and registering again. Redundant? Remove or comment.
 			this.update(typeDictionary);
 
 			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)

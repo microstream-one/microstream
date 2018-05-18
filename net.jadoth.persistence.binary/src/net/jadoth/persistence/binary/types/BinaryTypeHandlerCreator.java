@@ -91,22 +91,18 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.mandatoryFieldEvaluator()
 			);
 		}
-		
+
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
 			final Class<?>            type     ,
-			final long                typeId   ,
 			final XGettingEnum<Field> allFields
 		)
 		{
-			return (PersistenceTypeHandler<Binary, T>)PersistenceTypeHandler.initializeTypeId(
-				new BinaryHandlerEnum<>(
-					(Class<E>)type                ,
-					allFields                     ,
-					this.lengthResolver()         ,
-					this.mandatoryFieldEvaluator()
-				),
-				typeId
+			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
+				(Class<E>)type                ,
+				allFields                     ,
+				this.lengthResolver()         ,
+				this.mandatoryFieldEvaluator()
 			);
 		}
 

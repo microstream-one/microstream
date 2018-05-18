@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
-import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
@@ -60,61 +59,33 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	////////////
 
 	protected final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final Class<T>                         type              ,
-		final long                             typeId
+		final Class<T> type  ,
+		final long     typeId
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		final PersistenceTypeHandler<M, T> protoTypeHandler = this.ensureTypeHandler(type);
 		final PersistenceTypeHandler<M, T> typeHandler      = protoTypeHandler.initializeTypeId(typeId);
-		
-		// (14.05.2018 TM)FIXME: why is the register() call done here instead of in the ensureHandler logic inside the manager?
-		typeHandlerManager.registerTypeHandler(typeHandler);
-
-		/* must ensure type handlers for all field types as well to keep type definitions consistent
-		 * if some field's type is "too abstract" to be persisted, is has to be registered to an
-		 * apropriate type handler (No-op, etc.) manually beforehand.
-		 *
-		 * creating new type handlers in the process will eventually end up here again for the new types
-		 */
-		typeHandler.getInstanceReferenceFields().iterate(e ->
-		{
-			try
-			{
-				typeHandlerManager.ensureTypeHandler(e.getType());
-			}
-			catch(final Throwable t)
-			{
-				throw t; // debug hook
-			}
-		});
 
 		return typeHandler;
 	}
 
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final Class<T>                         type
-	)
+	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(final Class<T> type)
 	{
 		// type<->tid mapping is created in advance.
 		final long typeId = this.typeManager.ensureTypeId(type);
 		
-		return this.provideTypeHandler(typeHandlerManager, type, typeId);
+		return this.provideTypeHandler(type, typeId);
 	}
 
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final long                             typeId
-	)
+	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(final long typeId)
 	{
 		// either the type can be found or an exception is thrown
 		final Class<T> type = this.typeManager.ensureType(typeId);
 		
-		return this.provideTypeHandler(typeHandlerManager, type, typeId);
+		return this.provideTypeHandler(type, typeId);
 	}
 
 	@Override
