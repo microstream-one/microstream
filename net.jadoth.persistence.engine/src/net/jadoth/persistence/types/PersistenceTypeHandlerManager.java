@@ -390,40 +390,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.initialize();
 		}
 
-
-//		private XGettingSequence<PersistenceTypeDescription<?>> resolveTypeDefinitions(
-//			final PersistenceTypeDictionary         typeDictionary
-//		)
-//		{
-//			final XGettingEnum<PersistenceTypeDescription<?>> typeDescriptions = typeDictionary.types();
-//			final HashEnum<PersistenceTypeDescription<?>> typeDefinitions  =
-//				HashEnum.NewCustom(typeDescriptions.size())
-//			;
-//			final HashTable<PersistenceTypeDescription<?>, Exception> problems =
-//				HashTable.NewCustom(typeDescriptions.intSize())
-//			;
-//
-//			this.typeDefinitionResolver.resolveTypeDefinitions(
-//				typeDescriptions,
-//				td ->
-//					typeDefinitions.add(td),
-//				(td, ex) ->
-//					problems.add(td, ex)
-//			);
-//
-//			if(!problems.isEmpty())
-//			{
-//				final String message = PersistenceTypeDescriptionResolver.assembleResolveExceptions(
-//					problems,
-//					VarString.New()
-//				)
-//				.toString();
-//				throw new RuntimeException(message);
-//			}
-//
-//			return typeDefinitions;
-//		}
-
 		private void internalInitialize()
 		{
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary()	;
@@ -490,7 +456,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 			/*
 			 * inlining the max() call changes the second argument from 0 to something like 43466428.
-			 * Unbelievable giant JDK bug!
+			 * Unbelievably giant bug somewhere in the eclipse compiler or (more probable) the JVM.
 			 */
 //			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
 		}

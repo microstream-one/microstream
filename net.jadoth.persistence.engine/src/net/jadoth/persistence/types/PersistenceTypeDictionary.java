@@ -112,8 +112,6 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		// instance fields  //
 		/////////////////////
 
-		// (05.04.2017 TM)FIXME: OGS-3: distinct between all types and live types
-
 		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
 		private final PersistenceTypeLineageCreator                     typeLineageCreator;
 		private final EqHashTable<String, PersistenceTypeLineage<?>>    typeLineages       = EqHashTable.New();
