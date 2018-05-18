@@ -2,6 +2,8 @@ package net.jadoth.persistence.internal;
 
 import static net.jadoth.X.notNull;
 
+import java.util.function.Consumer;
+
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
@@ -150,16 +152,17 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		this.typeManager.updateCurrentHighestTypeId(highestTypeId);
 	}
 	
-	final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+	@Override
+	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		return this.typeHandlerEnsurer.ensureTypeHandler(type);
 	}
 	
-//	@Override
-//	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
-//	{
-//		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
-//	}
+	@Override
+	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+	{
+		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
+	}
 
 }

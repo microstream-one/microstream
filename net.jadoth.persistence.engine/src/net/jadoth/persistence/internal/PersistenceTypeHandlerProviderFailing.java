@@ -1,5 +1,7 @@
 package net.jadoth.persistence.internal;
 
+import java.util.function.Consumer;
+
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -102,6 +104,25 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 
 	@Override
 	public void updateCurrentHighestTypeId(final long highestTypeId)
+	{
+		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable
+	{
+		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
+		 * this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.

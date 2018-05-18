@@ -11,7 +11,7 @@ public interface PersistenceTypeLineage<T>
 {
 	public String typeName();
 	
-	public Class<T> runtimeType();
+	public Class<T> type();
 	
 	public XGettingTable<Long, PersistenceTypeDefinition<T>> entries();
 	
@@ -82,7 +82,7 @@ public interface PersistenceTypeLineage<T>
 		}
 
 		@Override
-		public final Class<T> runtimeType()
+		public final Class<T> type()
 		{
 			return this.runtimeType;
 		}
