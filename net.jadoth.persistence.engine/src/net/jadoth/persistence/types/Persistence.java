@@ -127,6 +127,16 @@ public class Persistence extends Swizzle
 			!isNotTypeIdMappable(type)
 		;
 	}
+	
+	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorFailing()
+	{
+		return PersistenceTypeMismatchValidator.Failing();
+	}
+	
+	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorNoOp()
+	{
+		return PersistenceTypeMismatchValidator.NoOp();
+	}
 
 	public static final PersistenceTypeEvaluator defaultTypeEvaluatorPersistable()
 	{

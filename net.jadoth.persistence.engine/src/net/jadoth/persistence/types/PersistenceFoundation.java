@@ -81,6 +81,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
 
 	public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable();
+	
+	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
 
 	public PersistenceTypeResolver getTypeResolver();
 	
@@ -158,6 +160,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
 
 	public PersistenceFoundation<M> setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
+	
+	public PersistenceFoundation<M> setTypeMismatchValidator(PersistenceTypeMismatchValidator<M> typeMismatchValidator);
 
 	public PersistenceFoundation<M> setTypeResolver(PersistenceTypeResolver typeResolver);
 	
@@ -250,6 +254,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
 		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
+		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
 		private PersistenceTypeResolver                 typeResolver               ;
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
@@ -524,6 +529,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.typeEvaluatorTypeIdMappable = this.dispatch(this.createTypeEvaluatorTypeIdMappable());
 			}
 			return this.typeEvaluatorTypeIdMappable;
+		}
+		
+		@Override
+		public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator()
+		{
+			if(this.typeMismatchValidator == null)
+			{
+				this.typeMismatchValidator = this.dispatch(this.createTypeMismatchValidator());
+			}
+			return this.typeMismatchValidator;
 		}
 
 		@Override
@@ -860,6 +875,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
+		public PersistenceFoundation.AbstractImplementation<M> setTypeMismatchValidator(
+			final PersistenceTypeMismatchValidator<M> typeMismatchValidator
+		)
+		{
+			this.typeMismatchValidator = typeMismatchValidator;
+			return this;
+		}
+
+		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setTypeResolver(
 			final PersistenceTypeResolver typeResolver
 		)
@@ -968,11 +992,12 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceTypeHandlerManager<M> createTypeHandlerManager()
 		{
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
-				new PersistenceTypeHandlerManager.Implementation<>(
+				PersistenceTypeHandlerManager.New(
 					this.getTypeHandlerRegistry(),
 					this.getTypeHandlerProvider(),
 					this.getTypeDictionaryManager(),
-					this.getTypeEvaluatorTypeIdMappable()
+					this.getTypeEvaluatorTypeIdMappable(),
+					this.getTypeMismatchValidator()
 				)
 			;
 			return newTypeHandlerManager;
@@ -1158,6 +1183,11 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		protected PersistenceTypeEvaluator createTypeEvaluatorTypeIdMappable()
 		{
 			return Persistence.defaultTypeEvaluatorTypeIdMappable();
+		}
+		
+		protected PersistenceTypeMismatchValidator<M> createTypeMismatchValidator()
+		{
+			return Persistence.typeMismatchValidatorFailing();
 		}
 
 		protected PersistenceTypeResolver createTypeResolver()

@@ -128,7 +128,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 
 				// register new bidirectional assignment
 				// note: basic type<->tid registration already happened above if necessary
-				this.putMapping( typeHandler);
+				this.putMapping(typeHandler);
 				return true;
 			}
 		}

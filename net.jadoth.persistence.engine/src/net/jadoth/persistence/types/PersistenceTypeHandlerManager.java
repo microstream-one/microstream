@@ -468,56 +468,107 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
-			final PersistenceTypeDictionaryManager    tdm                 = this.typeDictionaryManager;
-			final PersistenceTypeDictionary           typeDictionary      = tdm.provideTypeDictionary();
+			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
+			
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<M, ?>> existingTypeHandlers = HashEnum.New();
+			
+			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
+			if(typeDictionary.isEmpty())
+			{
+				this.initializeBlank(typeDictionary, newTypeHandlers);
+			}
+			else
+			{
+				this.initializeFromDictionary(typeDictionary, existingTypeHandlers, newTypeHandlers);
+			}
+
+			this.initializeNewTypeHandlers(typeDictionary, existingTypeHandlers, newTypeHandlers);
+		}
+		
+		private void initializeBlank(
+			final PersistenceTypeDictionary              typeDictionary ,
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
+		)
+		{
+			this.typeHandlerProvider.iterateTypeHandlers(newTypeHandlers);
+		}
+		
+		private void initializeFromDictionary(
+			final PersistenceTypeDictionary              typeDictionary         ,
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers,
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
+			
+		)
+		{
 			final HashEnum<PersistenceTypeLineage<?>> runtimeTypeLineages = HashEnum.New();
 			
 			this.filterRuntimeTypeLineages(typeDictionary, runtimeTypeLineages);
-
 			
 			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeHandler<M, ?>> matches = HashTable.New();
-			final HashEnum<PersistenceTypeHandler<M, ?>>                                misfits = HashEnum.New();
 
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
 			for(final PersistenceTypeLineage<?> typeLineage : runtimeTypeLineages)
 			{
-				this.deriveTypeHandler(typeLineage, matches, misfits);
+				this.deriveTypeHandler(typeLineage, matches, newTypeHandlers);
 			}
 			
 			// pass all misfits and the typeDictionary to a PersistenceTypeMismatchEvaluator
-			this.typeMismatchValidator.validateTypeMismatches(typeDictionary, misfits);
+			this.typeMismatchValidator.validateTypeMismatches(typeDictionary, newTypeHandlers);
 			
 			// internally update the current hightest type id (you don't say...)
 			this.internalUpdateCurrentHighestTypeId(typeDictionary);
 			
-			
 			// initialize all matches to the associated TypeId
-			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers = HashEnum.New();
 			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeHandler<M, ?>> match : matches)
 			{
 				final long typeId = match.key().typeId();
 				final PersistenceTypeHandler<M, ?> ith = match.value().initializeTypeId(typeId);
 				initializedTypeHandlers.add(ith);
 			}
+
+		}
+		
+		private void initializeNewTypeHandlers(
+			final PersistenceTypeDictionary                        typeDictionary      ,
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> existingTypeHandlers,
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers
+		)
+		{
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers = HashEnum.New(existingTypeHandlers);
 			
 			// assign new TypeIds to all misfits
-			for(final PersistenceTypeHandler<M, ?> misfit : misfits)
+			for(final PersistenceTypeHandler<M, ?> newTypeHandler : newTypeHandlers)
 			{
 				// must be the TypeHandlerProvider's ensureTypeId in order to circumvent implicit handler creation.
-				final long newTypeId = this.typeHandlerProvider.ensureTypeId(misfit.type());
-				final PersistenceTypeHandler<M, ?> ith = misfit.initializeTypeId(newTypeId);
+				final long newTypeId = this.typeHandlerProvider.ensureTypeId(newTypeHandler.type());
+				final PersistenceTypeHandler<M, ?> ith = newTypeHandler.initializeTypeId(newTypeId);
 				initializedTypeHandlers.add(ith);
 			}
 			
 			// register the current Type<->TypeId mapping
 			this.typeHandlerRegistry.registerTypes(initializedTypeHandlers);
 			
-			// (18.05.2018 TM)TODO: OGS-3: set initialized handlers as runtime definitions for all runtimeTypeLineage
+			// set initialized handlers as runtime definitions for all runtimeTypeLineage
+			for(final PersistenceTypeHandler<M, ?> th : initializedTypeHandlers)
+			{
+				setRuntimeTypeDefinition(typeDictionary, th);
+			}
 			
-			// recursive registratio: initialized handlers themselves plus all handlers required for their field types
+			// recursive registration: initialized handlers themselves plus all handlers required for their field types
 			this.internalRegisterTypeHandlers(initializedTypeHandlers);
-
+			
 			this.initialized = true;
+		}
+		
+		private <T> void setRuntimeTypeDefinition(
+			final PersistenceTypeDictionary    typeDictionary,
+			final PersistenceTypeHandler<M, T> typeHandler
+		)
+		{
+			// typeLineage might not exist, yet, in case of blank initialization.
+			final PersistenceTypeLineage<T> typeLineage = typeDictionary.ensureTypeLineage(typeHandler.type());
+			typeLineage.setRuntimeTypeDefinition(typeHandler);
 		}
 		
 		private void filterRuntimeTypeLineages(
