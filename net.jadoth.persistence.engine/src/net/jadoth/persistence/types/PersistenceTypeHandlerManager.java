@@ -8,6 +8,7 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
@@ -574,6 +575,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		)
 		{
 			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(typeLineage.type());
+			
+			// (22.05.2018 TM)FIXME: /!\ DEBUG
+			if(handler.typeName().contains("Product"))
+			{
+				XDebug.debugln(handler.typeName());
+			}
 			
 			for(final PersistenceTypeDefinition<?> typeDefinition : typeLineage.entries().values())
 			{

@@ -99,10 +99,10 @@ public class TestImportExport
 		final Predicate<? super File> filter
 	)
 	{
-		final File dir = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
+		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(dir, "csv"),
+			new StorageEntityTypeConversionFileProvider.Implementation(directory, "csv"),
 			typeDictionary,
 			null,
 			4096,
@@ -121,10 +121,10 @@ public class TestImportExport
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception while converting file "+file, e);
+				throw new RuntimeException("Exception while converting file " + file, e);
 			}
 		}
-		return dir;
+		return directory;
 	}
 
 	static File convertCsvToBin(

@@ -58,19 +58,8 @@ public interface StorageEntityTypeConversionFileProvider
 		@Override
 		public File provideConversionFile(final PersistenceTypeDefinition<?> typeDescription, final File sourceFile)
 		{
-			/* don't bother with including a type id.
-			 * TypeId mapping is the type dictionary's concern, not that of an export file.
-			 * Also it messes up sorting files by name.
-			 */
-			return new File(this.directory, typeDescription.typeName() + this.cachedFileSuffix);
-
-//			final VarString vs = VarString.New()
-//			.padLeft(Long.toString(entityType.typeId()), XChars.maxCharCount_long() - 1, '0')
-//			.add('_')
-//			.add(entityType.typeName())
-//			.add(this.cachedFileSuffix)
-//			;
-//			return new File(this.directory, vs.toString());
+			// TypeId must be included since only that is the unique identifier of a type.
+			return new File(this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix);
 		}
 
 	}

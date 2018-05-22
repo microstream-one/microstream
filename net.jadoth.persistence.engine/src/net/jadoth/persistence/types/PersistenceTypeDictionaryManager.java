@@ -83,22 +83,20 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		}
 
 		@Override
-		public synchronized PersistenceTypeDictionaryManager validateTypeDefinition(final PersistenceTypeDefinition<?> td)
+		public synchronized PersistenceTypeDictionaryManager validateTypeDefinition(
+			final PersistenceTypeDefinition<?> typeDefinition
+		)
 		{
-			final PersistenceTypeDictionary    dictionary    = this.cachedTypeDictionary();
-			final PersistenceTypeDefinition<?> currentByTid  = dictionary.lookupTypeById  (td.typeId()  );
-			final PersistenceTypeDefinition<?> currentByName = dictionary.lookupTypeByName(td.typeName());
+			final PersistenceTypeDictionary dictionary = this.cachedTypeDictionary();
+			
+			// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
+			final PersistenceTypeDefinition<?> registered = dictionary.lookupTypeById(typeDefinition.typeId());
 
-			if(currentByTid != currentByName)
-			{
-				throw new RuntimeException("Invalid type definition: " + td); // (05.04.2013 TM)EXCP: proper exception
-			}
-			// (31.07.2014 TM)NOTE: existing definition may not be altered, consistency must be preserved
-			// (31.07.2014 TM)TODO: maybe modularize logic to make existing type definition alterable
-			if(currentByTid != null && !PersistenceTypeDefinition.equalDescription(currentByTid, td))
+			// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
+			if(registered != null && !PersistenceTypeDefinition.equalDescription(registered, typeDefinition))
 			{
 				// (31.07.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Type Definition mismatch: " + td);
+				throw new RuntimeException("Type Definition mismatch: " + typeDefinition);
 			}
 			
 			return this;
