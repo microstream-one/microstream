@@ -476,20 +476,17 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
 			if(typeDictionary.isEmpty())
 			{
-				this.initializeBlank(typeDictionary, newTypeHandlers);
+				this.initializeBlank(newTypeHandlers);
 			}
 			else
 			{
 				this.initializeFromDictionary(typeDictionary, existingTypeHandlers, newTypeHandlers);
 			}
 
-			this.initializeNewTypeHandlers(typeDictionary, existingTypeHandlers, newTypeHandlers);
+			this.initializeNewTypeHandlers(existingTypeHandlers, newTypeHandlers);
 		}
 		
-		private void initializeBlank(
-			final PersistenceTypeDictionary              typeDictionary ,
-			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
-		)
+		private void initializeBlank(final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers)
 		{
 			this.typeHandlerProvider.iterateTypeHandlers(newTypeHandlers);
 		}
@@ -498,7 +495,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionary              typeDictionary         ,
 			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers,
 			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
-			
 		)
 		{
 			final HashEnum<PersistenceTypeLineage<?>> runtimeTypeLineages = HashEnum.New();
@@ -526,11 +522,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				final PersistenceTypeHandler<M, ?> ith = match.value().initializeTypeId(typeId);
 				initializedTypeHandlers.add(ith);
 			}
-
 		}
 		
 		private void initializeNewTypeHandlers(
-			final PersistenceTypeDictionary                        typeDictionary      ,
 			final XGettingCollection<PersistenceTypeHandler<M, ?>> existingTypeHandlers,
 			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers
 		)
@@ -549,28 +543,16 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// register the current Type<->TypeId mapping
 			this.typeHandlerRegistry.registerTypes(initializedTypeHandlers);
 			
-			// set initialized handlers as runtime definitions for all runtimeTypeLineage
-			for(final PersistenceTypeHandler<M, ?> th : initializedTypeHandlers)
-			{
-				setRuntimeTypeDefinition(typeDictionary, th);
-			}
+			// set initialized handlers as runtime definitions
+			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
+			
 			
 			// recursive registration: initialized handlers themselves plus all handlers required for their field types
 			this.internalRegisterTypeHandlers(initializedTypeHandlers);
 			
 			this.initialized = true;
 		}
-		
-		private <T> void setRuntimeTypeDefinition(
-			final PersistenceTypeDictionary    typeDictionary,
-			final PersistenceTypeHandler<M, T> typeHandler
-		)
-		{
-			// typeLineage might not exist, yet, in case of blank initialization.
-			final PersistenceTypeLineage<T> typeLineage = typeDictionary.ensureTypeLineage(typeHandler.type());
-			typeLineage.setRuntimeTypeDefinition(typeHandler);
-		}
-		
+				
 		private void filterRuntimeTypeLineages(
 			final PersistenceTypeDictionary           typeDictionary     ,
 			final HashEnum<PersistenceTypeLineage<?>> runtimeTypeLineages
