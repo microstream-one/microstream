@@ -8,7 +8,6 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
@@ -438,7 +437,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.initialize();
 		}
 		
-		// (18.05.2018 TM)NOTE: old version before OGS-3
+		// (18.05.2018 TM)NOTE: old version befpre legacy type handling
 //		private void internalInitialize()
 //		{
 //			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
@@ -546,8 +545,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// set initialized handlers as runtime definitions
 			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
-			
-			
+						
 			// recursive registration: initialized handlers themselves plus all handlers required for their field types
 			this.internalRegisterTypeHandlers(initializedTypeHandlers);
 			
@@ -575,13 +573,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		)
 		{
 			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(typeLineage.type());
-			
-			// (22.05.2018 TM)FIXME: /!\ DEBUG
-			if(handler.typeName().contains("Product"))
-			{
-				XDebug.debugln(handler.typeName());
-			}
-			
+						
 			for(final PersistenceTypeDefinition<?> typeDefinition : typeLineage.entries().values())
 			{
 				// exact match including field order

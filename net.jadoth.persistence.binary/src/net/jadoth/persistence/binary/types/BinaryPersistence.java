@@ -615,7 +615,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerEqConstHashTable(),
 
 			new BinaryHandlerSubstituterImplementation()
-			/* (29.10.2013 TM)TODO: more jadoth native handlers
+			/* (29.10.2013 TM)TODO: more framework native handlers
 			 * - VarString
 			 * - VarByte
 			 * - _intList etc.

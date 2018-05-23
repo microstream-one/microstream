@@ -155,6 +155,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			final Entry buildItem = this.district.createBuildItem(this, objectId, typeId);
 			if(buildItem.handler == null)
 			{
+				// (23.05.2018 TM)FIXME: OGS-3: must ensure a legacy type mapper on demand
+				
 				// at this point, a handler must definitely be present
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 			}
