@@ -1300,11 +1300,14 @@ public interface StorageFileManager
 			if(length < 0)
 			{
 				this.headFile.registerGap(X.checkArrayRange(-length));
-				return true; // gap appended successfully
+				
+				// gap appended successfully. No entity to be registered, so return success.
+				return true;
 			}
 			if(availableItemLength < BinaryPersistence.entityHeaderLength())
 			{
-				return false; // incomplete entity header, cannot register
+				// incomplete entity header, cannot register, so return failure and wait for reload.
+				return false;
 			}
 
 //			System.out.println(
