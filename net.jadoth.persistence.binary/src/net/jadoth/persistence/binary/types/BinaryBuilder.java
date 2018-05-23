@@ -129,15 +129,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				? entry.districtInstance
 				: (entry.districtInstance = this.district.optionalRegisterObject(
 					entry.oid,
-					entry.handler.typeId(),
 					entry.localInstance
 				))
 			;
-		}
-
-		protected Object registerTypeIdForObjectId(final long oid, final long tid)
-		{
-			return this.district.registerTypeIdForObjectId(oid, tid);
 		}
 
 		protected PersistenceTypeHandler<Binary, Object> lookupTypeHandler(final long oid, final long tid)
@@ -287,7 +281,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				/* (10.09.2015 TM)TODO: already existing instance gets updated (error for a DB situation)
 				 * Why does the global instance have to be updated?
 				 * Isn't this a bug?
-				 * If the process memory is almost the most current and the DB is only a receiving storer of
+				 * If the data in memory is the most current and the DB is only a receiving storer of
 				 * information, how can there ever be a situation where an already existing instance has to be
 				 * (or even MAY be!) updated?
 				 * The persistence layer is NOT a data modification reverting tool, it is a persistence layer.
@@ -305,7 +299,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				 * building time, the already present instance gets updated, which is wrong. So the code below must
 				 * be changed
 				 *
-				 * However: constants MUST be updated on the initial load of a database if they containt mutable fields.
+				 * However: constants MUST be updated on the initial load of a database if they contain mutable fields.
 				 * So maybe a persistence layer must use two different concepts:
 				 * - one for initially loading (updating existing instances)
 				 * - one for normal loading after initialization (never updating existing instances)
@@ -368,9 +362,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		@Override
 		public final Entry createBuildItem(
-			final long oid,
+			final long                                   oid        ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final Object instance
+			final Object                                 instance
 		)
 		{
 			return new Entry(oid, instance, typeHandler);

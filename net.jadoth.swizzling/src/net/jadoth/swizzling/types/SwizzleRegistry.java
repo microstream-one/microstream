@@ -2,7 +2,6 @@ package net.jadoth.swizzling.types;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.HashMapIdId;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.typing.Clearable;
@@ -18,7 +17,7 @@ import net.jadoth.typing.KeyValue;
  * @author Thomas Muenz
  */
 public interface SwizzleRegistry
-extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTypeIterable, SwizzleIdCache
+extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTypeIterable //, SwizzleIdCache
 {
 	/* funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
@@ -62,25 +61,23 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public boolean registerType(long tid, Class<?> type);
 
 	@Override
-	public boolean registerObject(long oid, long tid, Object object);
-
 	public boolean registerObject(long oid, Object object);
 
 	@Override
-	public Object optionalRegisterObject(long oid, long tid, Object object);
-
 	public Object optionalRegisterObject(long oid, Object object);
 
 	@Override
 	public void iterateTypes(Consumer<KeyValue<Long, Class<?>>> iterator);
 
-	@Override
-	public long lookupTypeIdForObjectId(long oid);
+//	@Override
+//	public long lookupTypeIdForObjectId(long oid);
 
-	@Override
-	public Object registerTypeIdForObjectId(long oid, long tid);
+//	@Override
+//	public Object registerTypeIdForObjectId(long oid, long tid);
+	
+	public Object registerObjectId(long oid);
 
-	public HashMapIdId clearOrphanEntries();
+	public void clearOrphanEntries();
 
 	public void shrink();
 
