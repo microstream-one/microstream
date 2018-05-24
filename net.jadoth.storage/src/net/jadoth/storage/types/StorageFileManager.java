@@ -927,7 +927,7 @@ public interface StorageFileManager
 					this.entityCache.registerPendingStoreUpdate();
 
 					// handle files (read, parse, register items) and ensure transactions file
-					idRangeAnalysis = this.initializesForExistingFiles(
+					idRangeAnalysis = this.initializeForExistingFiles(
 						taskTimestamp                  ,
 						storageInventory               ,
 						consistentStoreTimestamp       ,
@@ -959,7 +959,7 @@ public interface StorageFileManager
 			}
 		}
 
-		private StorageIdRangeAnalysis initializesForExistingFiles(
+		private StorageIdRangeAnalysis initializeForExistingFiles(
 			final long                  taskTimestamp                  ,
 			final StorageInventory      storageInventory               ,
 			final long                  consistentStoreTimestamp       ,
@@ -982,7 +982,7 @@ public interface StorageFileManager
 			this.registerItems(files, lastFile, lastFileLength);
 
 			// validate entities (only the latest versions)
-			final StorageIdRangeAnalysis maxOid = this.validateEntities(oldTypes);
+			final StorageIdRangeAnalysis idRangeAnalysis = this.validateEntities(oldTypes);
 
 			// ensure transactions file before handling last file as truncation needs to write in it
 			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
@@ -993,7 +993,7 @@ public interface StorageFileManager
 			// check if last file is oversized and should be retired right away (to avoid necessary dummy-store)
 			this.checkForNewFile();
 
-			return maxOid;
+			return idRangeAnalysis;
 		}
 
 		private long determineLastFileLength(

@@ -504,22 +504,22 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				while(type != null)
 				{
-					final StorageIdRangeAnalysis maxTypeOid = type.validateEntities(oldTypes);
+					final StorageIdRangeAnalysis idRangeAnalysis = type.validateEntities(oldTypes);
 					type = type.hashNext;
 
-					final Long typeMaxTid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.TID);
+					final Long typeMaxTid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
 					if(typeMaxTid != null && typeMaxTid >= maxTid)
 					{
 						maxTid = typeMaxTid;
 					}
 
-					final Long typeMaxOid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.OID);
+					final Long typeMaxOid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 					if(typeMaxOid != null && typeMaxOid >= maxOid)
 					{
 						maxOid = typeMaxOid;
 					}
 
-					final Long typeMaxCid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.CID);
+					final Long typeMaxCid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
 					if(typeMaxCid != null && typeMaxCid >= maxCid)
 					{
 						maxCid = typeMaxCid;
