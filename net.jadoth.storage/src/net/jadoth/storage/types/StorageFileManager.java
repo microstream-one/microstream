@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -23,6 +24,7 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
+import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
 import net.jadoth.typing.XTypes;
@@ -560,6 +562,27 @@ public interface StorageFileManager
 		{
 			this.registerStorageHeadFile(StorageDataFile.Implementation.New(this, file));
 		}
+		
+		private StorageDataFile.Implementation initializeHeadFile_NEWOGS3(final StorageInventoryFile file)
+		{
+			final StorageDataFile.Implementation storageFile = StorageDataFile.Implementation.New(this, file);
+			storageFile.next = storageFile.prev = storageFile;
+			
+			return this.headFile = storageFile;
+		}
+		
+		private void registerHeadFile_NEWOGS3(final StorageInventoryFile file)
+		{
+			final StorageDataFile.Implementation storageFile = StorageDataFile.Implementation.New(this, file);
+			
+			// joined in chain after current head file and before the current first
+			storageFile.next = this.headFile.next;
+			storageFile.prev = this.headFile;
+			this.headFile.next.prev = storageFile;
+			this.headFile.next = storageFile;
+			
+			this.headFile = storageFile;
+		}
 
 		private void registerStorageHeadFile(final StorageDataFile.Implementation storageFile)
 		{
@@ -577,8 +600,7 @@ public interface StorageFileManager
 				this.headFile.next = storageFile;
 			}
 
-			// in the end the file is set as current head in any case
-			this.headFile = storageFile;
+
 		}
 
 
@@ -879,10 +901,11 @@ public interface StorageFileManager
 				);
 			}
 
-			/* at this point it is guaranteed that all transactions entries and existing files
-			 * are viable in terms of file lengths. Viable means exact same length for any non-last file and
-			 * actual file length equal to or greater than logged length for last file (i.e. there can be one
-			 * uncommitted write at the end which can be safely truncated later on).
+			/*
+			 * At this point it is guaranteed that all transactions entries and existing files are viable in
+			 * terms of file lengths. Viable means exact same length for any non-last file and actual file
+			 * length equal to or greater than logged length for last file (i.e. there can be one uncommitted
+			 * write at the end which can be safely truncated later on).
 			 */
 
 			// return required information about uber special case
@@ -959,6 +982,7 @@ public interface StorageFileManager
 			}
 		}
 
+		// (24.05.2018 TM)NOTE: old before OGS-3
 		private StorageIdRangeAnalysis initializeForExistingFiles(
 			final long                  taskTimestamp                  ,
 			final StorageInventory      storageInventory               ,
@@ -967,7 +991,7 @@ public interface StorageFileManager
 			final long                  unregisteredEmptyLastFileNumber
 		)
 		{
-			// local variables for readabiligy, debugging and (paranoid) consistency guarantee
+			// local variables for readability, debugging and (paranoid) consistency guarantee
 			final XGettingSequence<StorageInventoryFile> files    = storageInventory.dataFiles();
 			final StorageInventoryFile                   lastFile = files.peek();
 
@@ -1031,6 +1055,7 @@ public interface StorageFileManager
 			}
 		}
 
+		// (24.05.2018 TM)NOTE: old before OGS-3
 		private void registerItems(
 			final XGettingSequence<StorageInventoryFile> files         ,
 			final StorageInventoryFile                   lastFile      ,
@@ -1066,9 +1091,332 @@ public interface StorageFileManager
 			}
 		}
 
+		// (24.05.2018 TM)NOTE: old before OGS-3
 		private StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
 		{
 			return this.entityCache.validateEntities(oldTypes);
+		}
+		
+		private StorageIdAnalysis initializeForExistingFiles_NEWOGS3(
+			final long             taskTimestamp                  ,
+			final StorageInventory storageInventory               ,
+			final long             consistentStoreTimestamp       ,
+			final long             unregisteredEmptyLastFileNumber,
+			final int              bufferCapacity
+		)
+		{
+			/*
+			 * The data files and all entities in them get initialized in reverse order.
+			 * The reason is that for every entity, only the latest, most current version counts.
+			 * Reversing the order makes this trivial to implement: for every OID (i.e. entry), only the first
+			 * occurance counts and defines type, length and position in the storage. All further occurances
+			 * (meaning EARLIER versions) of an already encountered Entity/OID are simply ignored.
+			 */
+			
+			// local variables for readability, debugging and (paranoid) consistency guarantee
+			final XGettingSequence<StorageInventoryFile> files    = storageInventory.dataFiles().toReversed();
+			final StorageInventoryFile                   lastFile = files.poll();
+
+			// validate and determine length of last file before any file is processed to recognize errors early
+			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
+				? 0
+				: this.determineLastFileLength(consistentStoreTimestamp, storageInventory)
+			;
+//			DEBUGStorage.println(this.channelIndex + " determined last file length as " + lastFileLength);
+
+			// register items (gaps and entities, with latest version of each entity replacing all previous)
+			this.registerItems_NEWOGS3(files, lastFile, lastFileLength, bufferCapacity);
+
+			// validate entities (only the latest versions)
+			final StorageIdAnalysis idRangeAnalysis = this.validateEntities_NEWOGS3();
+
+			// ensure transactions file before handling last file as truncation needs to write in it
+			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
+
+			// special-case handle the last file
+			this.handleLastFile(lastFile, lastFileLength);
+
+			// check if last file is oversized and should be retired right away (to avoid necessary dummy-store)
+			this.checkForNewFile();
+
+			return idRangeAnalysis;
+		}
+		
+		
+		static final class EntityIndexer
+		implements StorageDataFileItemIterator.BufferProvider, ItemProcessor
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+
+			private final ByteBuffer                     buffer       ;
+			private final long                           bufferAddress;
+			              StorageDataFile.Implementation headFile     ;
+			              long                           fileOffset   ;
+			              long[]                         entityOffsets;
+			              int                            entityCount  ;
+			      
+			final FileScanSegment head = new FileScanSegment(0, 0, null, 0);
+
+			EntityIndexer(final int bufferCapacity)
+			{
+				super();
+				this.buffer = ByteBuffer.allocateDirect(
+					Math.max(bufferCapacity, Memory.defaultBufferSize())
+				);
+				this.bufferAddress = Memory.directByteBufferAddress(this.buffer);
+				
+				// maximum number of entities in the buffer, so that entityCount can never overflow.
+				this.entityOffsets = new long[this.buffer.capacity() / BinaryPersistence.entityHeaderLength()];
+				
+				this.reset();
+			}
+			
+			private void reset()
+			{
+				this.head.prev = this.head.next = this.head;
+				this.fileOffset = 0;
+				this.entityCount = -1; // because of pre-incremental logic. See other comments.
+			}
+
+			@Override
+			public final ByteBuffer provideInitialBuffer()
+			{
+				return this.buffer;
+			}
+
+			@Override
+			public final ByteBuffer provideBuffer(final ByteBuffer byteBuffer, final long nextEntityLength)
+			{
+				// any call to provide a new buffer means that the current data has to be archived in a segment
+				this.addSegment();
+				
+				// always return standard buffer, logic only reads headers, not content. Clear buffer for next batch.
+				this.buffer.clear();
+
+				/* if only one entity header fits int he buffer, limit the buffer to one header right away
+				 * to avoid filling a giant buffer with an incomplete giant entity and then just read the header.
+				 * This is not noticable in normal situations (tiny to large entities), but allows the initialization
+				 * to skip huge parts of pure content data if the database contains giant entities.
+				 */
+				if(nextEntityLength > this.buffer.capacity())
+				{
+					this.buffer.limit(BinaryPersistence.entityHeaderLength());
+				}
+
+				return this.buffer;
+			}
+			
+			private void addSegment()
+			{
+				final FileScanSegment newFileSegment = new FileScanSegment(
+					this.fileOffset    ,
+					this.buffer.limit(),
+					this.entityOffsets ,
+					this.entityCount + 1 // to compensate the pre-increment logic
+				);
+				
+				// prepending to the head in a circular list means adding to the "end".
+				newFileSegment.prev        = this.head.prev;
+				newFileSegment.next        = this.head     ;
+				this.head.prev.next = newFileSegment       ;
+				this.head.prev      = newFileSegment       ;
+				
+				this.fileOffset    += this.buffer.limit();
+				this.entityOffsets =  new long[this.entityOffsets.length];
+				this.entityCount   =  -1; // because pre-increment is faster than post-increment.
+			}
+
+			@Override
+			public boolean accept(final long address, final long availableItemLength)
+			{
+				final long length = BinaryPersistence.getEntityLength(address);
+				
+				// case 1: the item is a comment (negative length). Register and then skip it.
+				if(length < 0)
+				{
+					this.headFile.registerGap(X.checkArrayRange(-length));
+					
+					// gap appended successfully. No entity to be registered, so return success.
+					return true;
+				}
+				
+				// case 2: incomplete entity header. Return failure and wait for reload.
+				if(availableItemLength < BinaryPersistence.entityHeaderLength())
+				{
+					return false;
+				}
+				
+				// case 3: valid entity (at least a header) present. Register its relative offset and return success.
+				// accessing arrays via pre-incremented indices is faster than post-increment and here it really matters.
+				this.entityOffsets[++this.entityCount] = address - this.bufferAddress;
+				return true;
+			}
+			
+			final void reverseRegisterEntities()
+			{
+				// reverse register indexed entities in the current buffer
+				registerEntities(this.bufferAddress, this.entityOffsets, this.entityCount);
+
+				// repeat the same for all archived segments, but with refilling the buffer
+				for(FileScanSegment segment = this.head.prev; segment != this.head; segment = segment.prev)
+				{
+					this.buffer.limit(segment.dataLength);
+					this.refillBuffer(segment.fileOffset);
+					registerEntities(this.bufferAddress, segment.entityOffsets, segment.entityCount);
+				}
+				
+				this.head.prev = this.head.next = this.head;
+				this.entityCount = -1;
+				
+				
+				// reset state for use with the next file
+				this.reset();
+				
+				// FIXME StorageFileManager.Implementation.EntityIndexer#reverseRegisterEntities()
+				throw new net.jadoth.meta.NotImplementedYetError();
+			}
+			
+			private void refillBuffer(final long fileOffset)
+			{
+				final FileChannel fileChannel = this.headFile.fileChannel();
+				
+				try
+				{
+					fileChannel.position(fileOffset);
+					do
+					{
+						fileChannel.read(this.buffer);
+					}
+					while(this.buffer.hasRemaining());
+				}
+				catch(final Exception e)
+				{
+					throw new StorageException("Exception while readinig from file " + this.headFile, e);
+				}
+			}
+			
+			private static void registerEntities(
+				final long   bufferAddress,
+				final long[] entityOffsets,
+				final int    entityCount
+			)
+			{
+				for(int i = entityCount; i --> 0;)
+				{
+					final long entityAddress = bufferAddress + entityOffsets[i];
+					registerEntity(
+						BinaryPersistence.getEntityLength  (entityAddress),
+						BinaryPersistence.getEntityTypeId  (entityAddress),
+						BinaryPersistence.getEntityObjectId(entityAddress)
+					);
+				}
+			}
+			
+			private static void registerEntity(final long length, final long typeId, final long objectId)
+			{
+				// FIXME StorageFileManager.Implementation.EntityIndexer#registerEntity()
+				throw new net.jadoth.meta.NotImplementedYetError();
+			}
+			
+			
+		}
+		
+		
+		static final class FileScanSegment
+		{
+			FileScanSegment prev, next;
+			final long   fileOffset   ;
+			final int    dataLength   ;
+			final long[] entityOffsets;
+			final int    entityCount  ;
+			      
+			 FileScanSegment(
+				 final long   fileOffset   ,
+				 final int    dataLength   ,
+				 final long[] entityOffsets,
+				 final int    entityCount
+			)
+			{
+				super();
+				this.fileOffset    = fileOffset   ;
+				this.dataLength    = dataLength   ;
+				this.entityOffsets = entityOffsets;
+				this.entityCount   = entityCount  ;
+			}
+			      
+			      
+		}
+		
+		private void registerItems_NEWOGS3(
+			final XGettingSequence<StorageInventoryFile> reversedFiles ,
+			final StorageInventoryFile                   lastFile      ,
+			final long                                   lastFileLength,
+			final int                                    bufferCapacity
+		)
+		{
+			final EntityIndexer entityIndexer = new EntityIndexer(bufferCapacity);
+			
+			// (16.06.2014 TM)NOTE: tests showed no significant difference in performance above page sized buffer
+			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
+				entityIndexer,
+				entityIndexer
+			);
+			
+			// special case handling for last file
+			final StorageDataFile.Implementation actualHeadFile = this.initializeHeadFile_NEWOGS3(lastFile);
+			entityIndexer.headFile = this.headFile;
+			indexFileEntities(iterator, lastFile, lastFileLength);
+			entityIndexer.reverseRegisterEntities();
+			
+			// special case iteration: first element in reversed files (= last file) is skipped
+			final Iterator<StorageInventoryFile> revFileIterator = reversedFiles.iterator();
+			for(StorageInventoryFile file = revFileIterator.next(); revFileIterator.hasNext();)
+			{
+				file = revFileIterator.next();
+				this.registerHeadFile_NEWOGS3(file);
+				entityIndexer.headFile = this.headFile;
+				indexFileEntities(iterator, file, file.file().length());
+				entityIndexer.reverseRegisterEntities();
+			}
+			
+			// restore actual head file since the reversed file iteration leaves the first file as the head file
+			this.headFile = actualHeadFile;
+		}
+		
+		private void indexFileEntities(
+			final StorageDataFileItemIterator iterator,
+			final StorageInventoryFile        file    ,
+			final long                        length
+		)
+		{
+			try
+			{
+				iterator.iterateStoredItems(file.fileChannel(), 0, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException("Exception while initializing storage file " + file.file(), e);
+			}
+		}
+		
+		private void registerEntities(
+			final EntityIndexer bufferProvider,
+			final StorageInventoryFile  file
+		)
+		{
+			if(bufferProvider.head.next == bufferProvider.head)
+			{
+				
+			}
+		}
+		
+		private StorageIdAnalysis validateEntities_NEWOGS3()
+		{
+			// FIXME StorageFileManager.Implementation#validateEntities_NEWOGS3()
+			throw new net.jadoth.meta.NotImplementedYetError();
+//			return this.entityCache.validateEntities(oldTypes);
 		}
 
 		private void initializeForNoFiles(final long taskTimestamp, final StorageInventory storageInventory)
