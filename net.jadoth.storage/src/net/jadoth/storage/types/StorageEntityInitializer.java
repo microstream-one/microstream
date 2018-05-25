@@ -1,6 +1,8 @@
 package net.jadoth.storage.types;
 
-public interface StorageEntityInitializer<F extends StorageDataFile<?>>
+public interface StorageEntityInitializer
 {
-	public void initializeEntity(F file, long entityMemoryAddress, long entityStoragePosition);
+	public boolean initialRegisterEntityCachable(long address, int filePosition);
+	
+	public boolean initialRegisterEntityUncachable(long address, int filePosition);
 }

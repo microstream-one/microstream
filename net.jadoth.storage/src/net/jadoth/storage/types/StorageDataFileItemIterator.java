@@ -25,10 +25,10 @@ public interface StorageDataFileItemIterator
 		 * Otherwise, the processor processes the entity (e.g. only register header values) and returns {@literal true}.
 		 *
 		 * @param address the address at which the entity data is located (starting with the entity header).
-		 * @param availableItemLength the available entity data, potentially less then the actual entity length.
+		 * @param remaninigBufferedData the remaining entity data in the buffer, potentially less then the actual entity length.
 		 * @return {@literal true} if the entity has been processed, {@literal false} (impliying recall) otherwise.
 		 */
-		public boolean accept(long address, long availableItemLength);
+		public boolean accept(long address, long remaninigBufferedData);
 	}
 
 	@FunctionalInterface

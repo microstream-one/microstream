@@ -39,7 +39,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 
-	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
+	public final class Implementation
+	implements StorageEntityCache<StorageEntity.Implementation>, StorageEntityInitializer, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -623,6 +624,79 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				);
 			}
 
+		}
+		
+		@Override
+		public final boolean initialRegisterEntityCachable(final long entityAddress, final int filePosition)
+		{
+			/*
+			 * Initialization only registers the first occurance in the reversed initialization,
+			 * meaning only the most current version of every entity (identified by its ObjectId).
+			 * All earlier versions are simply ignored, hence the "return false".
+			 */
+			if(this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress)) != null)
+			{
+//				DEBUGStorage.println("Entity alredy registered: " + BinaryPersistence.getEntityObjectId(entityAddress));
+				return false;
+			}
+			
+			final StorageEntity.Implementation entity = this.initialCreateEntity(entityAddress, filePosition);
+
+			// cache fully available (=small) entities in advance to avoid numerous inefficient disc reads later on.
+			if(!this.entityCacheEvaluator.clearEntityCache(this.cacheSize(), entity.lastTouched, entity))
+			{
+//				DEBUGStorage.println(this.channelIndex + " initial-caching data for " + entity);
+				entity.putCacheData(entityAddress, entity.length);
+				this.modifyUsedCacheSize(entity.length);
+			}
+
+			return true;
+		}
+		
+		@Override
+		public final boolean initialRegisterEntityUncachable(final long entityAddress, final int filePosition)
+		{
+			/*
+			 * Initialization only registers the first occurance in the reversed initialization,
+			 * meaning only the most current version of every entity (identified by its ObjectId).
+			 * All earlier versions are simply ignored, hence the "return false".
+			 */
+			if(this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress)) != null)
+			{
+//				DEBUGStorage.println("Entity alredy registered: " + BinaryPersistence.getEntityObjectId(entityAddress));
+				return false;
+			}
+			
+			this.initialCreateEntity(entityAddress, filePosition);
+			
+			return true;
+		}
+		
+
+		
+		private StorageEntity.Implementation initialCreateEntity(final long entityAddress, final int filePosition)
+		{
+			final StorageEntity.Implementation entity = this.createEntity(
+				BinaryPersistence.getEntityObjectId(entityAddress),
+				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
+			);
+			
+			/*
+			 * note:
+			 * intentionally no markEntityForChangedData here, as entities are initially not
+			 * guaranteed to be reachable. They might be unreachable (= junk) entities that
+			 * only exist because the storage file has not yet been cleaned up and might reference already
+			 * deleted entities. This would cause false positive zombie OID encounters.
+			 */
+			entity.updateStorageInformation(
+				XTypes.to_int(BinaryPersistence.getEntityLength(entityAddress)),
+				this.fileManager.currentStorageFile(),
+				filePosition
+			);
+
+			// head file content length is increased batch-wise in the calling context.
+			
+			return entity;
 		}
 
 		private void resetExistingEntityForUpdate(final StorageEntity.Implementation entry)
