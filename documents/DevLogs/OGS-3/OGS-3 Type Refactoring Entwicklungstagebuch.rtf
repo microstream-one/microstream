@@ -1,0 +1,1032 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 OGS-3 Type Refactoring Entwicklungstagebuch:\par
+\b0\par
+2017-08-30\par
+Komplexe Sache. Es gibt:\par
+- Type<->TypeId Mapping\par
+- Type<->TypeHandler Mapping\par
+- TypeHandlers, die potenziell ihre eigene TypeId mitbringen\par
+- oder Typehandlers, die f\'fcr eine vorgegebene TypeId initialisiert werden m\'fcssen. \par
+- Die latest TypeDescription aus dem Dictionary muss Member-m\'e4\'dfig abgeglichen werden mit dem RunTime TypeHandler, ggf. muss dabei eine neue Id vom TypeManager vergeben und im Mapping eingetragen werden.\par
+- Das alles muss untereinander validiert werden, damit nicht vorschnell zeug eingetragen wird, obwohl sich sp\'e4ter rausstellt, dass es einen Konflikt gibt.\par
+- und schlie\'dflich muss der nach all dem initialisierte TypeHandler im TypeManager registriert werden\par
+\par
+Daf\'fcr braucht man alle m\'f6glichen Ebenen von Indirektion. Handler. HandlerInitializer. HandlerInitializerLookup. HandlererProvider. HandlerEnsurer. Wrapper f\'fcr den Initializer eines Handlers, damit nach dem Initialisen der callback zum TypeHandlerManager gemacht werden kann ...\par
+\par
+Das Hirn l\'e4uft auf Hochtouren, aber es dauert leider Stunden, das alles unter einen Hut zu bringen.\par
+\par
+\par
+2017-08-31\par
+\par
+TypeDictionary soll einerseis aus fertigen immutable PersistenceTypeDescriptionLineage instanzen bestehen, andererseits soll es neue eintr\'e4ge hinzugef\'fcgt bekommen k\'f6nnen.\par
+Eigentlich einzig sinnvolle L\'f6sung:\par
+TypeDictionary vor dem einlesen erzeugen und die Eintr\'e4ge aus der Datei dort reingestrieren, wie sp\'e4ter zur Laufzeit auch.\par
+\par
+\par
+2018-09-01\par
+Ablauf:\par
+... umgeschrieben, siehe 09-04\par
+\par
+2018-09-04\par
+\par
+Ablauf:\par
+- Dictionary Datei parsen zu Entry Zwischeninstanzen\par
+- Zwischeninstanzen gruppieren nach TypeName\par
+- Dictionary Instanz erzeugen\par
+- Lineage Instanz von Dictionary Instanz holen / sicherstellen. Falls neu erzeugen, RuntimeHandler feststellen, falls m\'f6glich.\par
+\cf1 /!\\ Verbinden: PersistenceTypeDescriptionLineageProvider <-> PersistenceTypeDescriptionInitializerLookup\cf0\par
+- f\'fcr alle Zwischeninstanzen PersistenceTypeDescription instanzen erzeugen und bei Dictionary registrieren\par
+- vorhandene RuntimeHandler valideren mit members der typeid-latest Zwischeninstanz und je nach ergebnis initialisieren mit derselben oder einer neuen TypeId.\par
+\cf2 /!\\ gekl\'e4rt: man kann die latest TypeId nicht schon aus den sortierten Zwischeninstanzen rauslesen und beim Handler Instanzieren mitgeben, weil der Vergleich der Members  eine Handler Instanz braucht. Man muss nachtr\'e4glich bedingt initialisieren.\cf0\par
+/!\\ RuntimeHandler darf erst in den dictionaryEntries der Lineage registriert werden, wenn ein die Gleichheit von Dictionary-basierter und RuntimeHandler-basierter aktueller Description gesichert ist. D.h. NACH erfolgreichreichem TypeRefactoring. Nicht vorher.\par
+\par
+Nachdem der Runtimehandler seine ID bekommen hat, muss er noch beim TypeManager und beim TypeHandlerManager registriert werden.\par
+Das kann aber nicht im builder passieren, weil dort nur noch mit Descriptions gearbeitet wird, nicht mit Handlers.\par
+Es w\'e4re eine Art Wrapper-Initializer n\'f6tig mit einem callback zum TypeHandlerManager.\par
+\par
+Evtl. m\'fcssen die Handler selbst eine R\'fcckreferenz zum TypeHandlerManager haben und in ihrem initialize() sich beim TypeHandlerManager registrieren.\par
+Wobei dann bl\'f6d ist, dass Handler Instanzen nicht mehr allgemein verwendbar sind.\par
+\par
+\par
+\par
+\par
+2017-09-05\par
+\par
+Implementierung.\par
+\par
+\par
+2017-09-06\par
+\par
+Compilerfehler beheben, veraltete Implementierungen l\'f6schen.\par
+\par
+Foundation Implementierung anpassen.\par
+\par
+Muss nun in PersistenceTypeDescriptionLineageProvider rein:\par
+final PersistenceRuntimeTypeDescriptionProvider  runtimeTypeDescriptionProvider;\par
+\par
+\par
+\par
+\par
+2017-09-25\par
+\par
+PersistenceTypeDescriptionLineageProvider muss f\'fcr die Instanzierung einer lineage die aktuelle runtime TypeDescription (d.h. einen TypeHandler) vom  PersistenceRuntimeTypeDescriptionProvider holen.\par
+Der TypeHandler kann dabei aber noch nicht beim TypeHandlerManager registriert werden, weil die TypeId noch nicht feststeht.\par
+Also muss mit dem Liefern der runtime TypeDescription (TypeHandler) auch irgendwie ein TypeHandlerManager Registrierungscallback vermerkt werden.\par
+Wenn die ganze TypeId Initialisiererei dann abgeschlossen ist, muss der callback ausgef\'fchrt werden und die Handler beim Manager registrieren.\par
+\par
+ODER es gibt einen TypeDescription Initializer und der f\'fcr die TypeHandler kennt den Manager und registriert den Handler nach erfolgreicher Initialisierung.\par
+Das w\'fcrde aber hei\'dfen, dass nicht eine TypeDescription direkt zur\'fcckgegeben werden dard, sondern ein Initializer. Das w\'e4re dann der "Wrapper" von oben.\par
+\par
+\par
+\par
+2017-09-26\par
+\par
+Es gibt vier Aspekte f\'fcr Type Descriptions:\par
+1.) Type Name. Das ist die Identit\'e4t einer Type Lineage und dient zur Aufl\'f6sung zu einem Runtime type.\par
+2.) Aufbau der Felder. Wird von Dictionary UND vom Runtime Type vorgegeben.\par
+3.) TypeId. Wird vom Dictionary vorgegeben f\'fcr in Name&Feldaufbau matchende Runtime Type Descriptions.\par
+4.) Runtime TypeDescriptions k\'f6nnen TypeHandlers sein. Diese m\'fcssen f\'fcr ihre TypeId initialisiert und DANACH beim TypeManager registriert werden.\par
+\par
+Das erfordert zwangsl\'e4ufig ein Callback-Indirektion: Erst wird die TypeDescription/TypeHandler Instanz geholt bzw. erzeugt, dann wird sie f\'fcr ihre TypeId initialisiert und DANN muss sie beim TypeHandler registriert werden.\par
+Das geht nur \'fcber eine Art R\'fcckverbindung zum TypeManager.\par
+Wenn man nicht dumm herumcasten will (if TypeDescription instanceof TypeHandler), dann muss das in irgendeiner Form eine Wrapperinstanz mit R\'fcckreferenz auf den TypeManager sein.\par
+Also muss der TypeDescription Lookup einen TypeDescriptionInitializer zur\'fcckgeben.\par
+Dieser\par
+- kennt den Typename\par
+- kennt den Feldaufbau\par
+- kennt NICHT die TypeId\par
+- gibt f\'fcr eine \'fcbergebene TypeId eine fertige TypeDescription zur\'fcck.\par
+- kennt eine R\'fcckreferenz auf was auch immer informiert werden muss nach der Initialisierung.\par
+\par
+Diese Indirekion ist nur beim Dictionary builden n\'f6tig, weil dabei existierende TypeId laut TypeName zugeordnet werden m\'fcssen. Wenn zur Laufzeit ein neuer Typ analysiert und eine neue Description/Handler erzeugt wird, bekommt die immer automatisch die n\'e4chste TypeId vom TypeIdManager.\par
+\par
+Das hei\'dft, dass die ganze Initializer-ei nicht in der fertigen TypeDictionary Instanz oder in der TypeLineage enthalten sein muss/darf, sondern nur im TypeDictionaryBuilder.\par
+Wahrscheinlich muss es daf\'fcr eine erhebliche Hilfsstruktur geben, in der alles zwischengelagert wird, aber das ist dann halt so.\par
+\par
+Das hei\'dft auch, dass alle TypeDescription Instanzen, die ein TypeDictionary bzw. eine TypeLineage bekommt, fertig sind. Die Logik kann dementsprechend vereinfacht werden.\par
+\par
+Der Initializer ist aber nur f\'fcr die Runtime TypeDescription n\'f6tig. Alle anderen k\'f6nne direkt aus dem TypeDictionary heraus final instanziert werden.\par
+\par
+Damit haut das auch endlich hin, dass TypeDescriptions ihre TypeLineage per final Feld kennen m\'fcssen.\par
+\par
+\par
+\par
+2017-09-27\par
+\par
+Viel von der LineageBuilder Logik kann / sollte direkt in Lineage selbst rein. Muss eh mutable sein, weil sie zur Laufzeit erweiterbar sein muss.\par
+\par
+TypeChangeCallback bauen\par
+\par
+Gemeinsamen Supertyp "PersistenceTypeStructure" f\'fcr PersistenceTypeDescriptionInitializer und PersistenceTypeDescription bauen.\par
+Benamungen verbessern:\par
+PersistenceTypeDescription -> PersistenceTypeDefinition\par
+PersistenceTypeStructure -> PersistenceTypeDescription\par
+\par
+TypeChangeCallback erweitern um validation\par
+\par
+\par
+Es m\'fcssen erst alle Typen im Dictionary im SwizzleTypeManager typeId-ensured werden, bevor die erste TypeDefinition initialisiert werden kann, sonst fehlt das Type<->TypeId Mapping und der TypeManager vergibt lauter neue TypeIds.\par
+Genauer gesagt m\'fcssen alle Types ohne Konflikt mit der Runtime vorab schon mal registriert werden, danach kann ruminitialisiert werden.\par
+\par
+Irgendwie bei\'dft sich da die Katze in den Schwanz:\par
+Bevor man Typen initialisieren kann, m\'fcssen alle Typen registriert werden, damit die TypeIds nicht neu vergeben werden. Damit man typeIds registrieren kann, muss man aber wissen, welche Typen sich ge\'e4ndert haben, d.h. die Typen m\'fcssen vorher analysiert/initialisiert werden werden.\par
+Hmpf.\par
+Wahrscheinlich ist die L\'f6sung eine weitere Zweiteilung, und kommt auch die neue Differenzierung zwischen PersistenceTypeDefinition und PersistenceTypeDescription ins Spiel:\par
+- Die Typanalyse muss erst mal nur wissen, welche Typen Unpersistable sind. Damit wird dann eine PersistenceTypeDescription erzeugt, noch v\'f6llig unabh\'e4ngig von TypeIds.\par
+- Mit Hilfe der TypeDescriptions kann dann entschieden werden, welche TypeIds aus dem Dictionary noch aktuell sind und beim TypeManager registriert werden k\'f6nnen und welche veraltete sind und eine neue TypeId brauchen.\par
+- Wenn dann alle TypeIds feststehen, kann man die Initialisierung f\'fcr alle abschlie\'dfen.\par
+\par
+Hei\'dft konkret:\par
+1.) Das Type Analysieren muss komplett losgel\'f6st von TypeIds werden und erst mal nur TypeDescriptions erzeugen.\par
+2.) Es m\'fcssen erst alle TypeDescriptions gesammelt werden, basierend darauf dann TypeIds registriert oder neu vergeben werden.\par
+3.) Dann k\'f6nnen erst alle TypeDefinitions bzw. TypeHandlers initialisiert werden.\par
+\par
+\par
+Eigentlich brauchen die TypeDefinitions keine R\'fcckreferenze auf ihre Lineage. Umgekehrt nat\'fcrlich schon, die Lineage muss alle Definitions kennen, aber nicht zur\'fcck.\par
+Das w\'e4re eine nette convenience Referenz gewesen, aber eigentlich braucht man sie nie und sie verkompliziert nur die Initialisierung und macht Mehrfachverwendung von stateless/threadsafe.\par
+\par
+BinaryTypeHandlerEnsurerLookup rausrefactoren: Den CustomHandlerRegistry Lookup kann der normale Ensurer auch mitmachen, daf\'fcr muss nicht eine zus\'e4tzliche Indirektion rein.\par
+Damit sieht das langsam mal ordentlich aus  ...\par
+\par
+Aufr\'e4umen, alte Klassen l\'f6schen, Methoden vereinfachen.\par
+Dadurch kommen tats\'e4chlich mal einige TODOs weg.\par
+\par
+\par
+\par
+2017-09-28\par
+\par
+TypeDictionary Building so umbauen, dass erst ein komplettes Dictionary mit gef\'fcllten lineages ohne Initialisierungen gebaut wird und danach kann dann eine initialisierungslogik dr\'fcberlaufen und TypeId abchecken usw.\par
+TypeDictionary LookupTable rebuildung anpassen. Sinnlose Sortierung auslagern.\par
+\par
+Jetzt w\'e4r ich dann endlich mal an dem Punkt, wo im TypeHandlerManager die Type Validierung durch die neue, komplexere Logik ersetzt wird.\par
+\par
+\par
+\par
+2017-09-29 \par
+\par
+\cf2 v TODO: es muss noch eine Validierung geben, ob eine TypeId doppelt im Dictionary steht (\'fcber verschiedene TypeNames hinweg)\cf0\par
+\par
+\cf1 TODO: es muss storage-seitig eine Validierung w\'e4hrend der Initialisierung geben, die erkennt, wenn es f\'fcr eine TypeDefinition keinen Runtime Type gibt, aber Entities.\par
+Das kann eine ziemlich winzige Sache sein: Beim StorageEntityType anlegen f\'fcr das erste begegnete Entity im handler checken, ob type == null ist. Wenn ja, Exception, Initialisierung abbrechen.\par
+\cf0\par
+Neue Implementierungen teilweise aufger\'e4umt und kommentiert.\par
+\par
+TypeHandlerManager  Typvalidierung:\par
+v alle TypeLineages durchlaufen und wo type != null ist, einen runtime TypeHandler (noch uninitialisiert / ohne TypeId) ableiten.\par
+- TypeHandler mit latest TypeDefinition abgleichen: Wenn gleiche Struktur, dann ersetzen. Ansonsten wurde ein TypeChange festgestellt.\par
+- Alle TypeChanges validieren lassen, bevor irgendwas an TypeIds registriert wird.\par
+- F\'fcr alle passenden TypeHandlers bestehende TypeId f\'fcr den Type registrieren.\par
+- F\'fcr TypeHandlers mit TypeChange neue TypeId reservieren und damit initialisieren.\par
+- TypeDictionary darf erst NACH der Storage Initialisierung (und ggf. Type Conversion von Entities) rausgeschrieben werden.\par
+\par
+\par
+Interessante Frage:\par
+Sollte die TypeDictionary Datei nach der Registrierung aller TypeDefinitions f\'fcr die aktuellen Runtime Typen \'fcberschrieben werden [d\'fcrfen|m\'fcssen?], auch wenn die existierenden Entities in der DB noch nicht konvertiert worden sind?\par
+Vorteile:\par
+- Sobald die Typ-Checks und TypeId-Vergaben einmal erfolgreich aktualisiert worden sind, kann/sollte man diese Beschreibungen auch gleich rauspersistieren.\par
+- Die TypeDefinition Initialisierung w\'e4re in sich abgeschlossen und vollst\'e4ndig, ohne darauf angewiesen zu sein, dass ein \'e4u\'dferer Kontext ihre Arbeit (Type Dictionary Datei aktualisieren) irgendwann fertigstellt.\par
+Nachteil:\par
+Wenn zwischen Schreiben der TD-Datei und dem Konvertieren der Entities abgebrochen wird, haben die Entities beim n\'e4chsten Start einen veralteten Typ, was nicht sein darf.\par
+D.h. es m\'fcsste einen allgemeinen Automatismus geben, der Entities jeglicher veralteter Typen (auch schon 2-3 Generation zur\'fcck) auf die aktuelle Struktur konvertiert.\par
+Das w\'e4re vielleicht eh gar nicht schlecht. Macht die Datenbank sehr viel robuster gegen \'c4nderungen, anstatt nur die letzte \'c4nderung kompensieren zu k\'f6nnen.\par
+Fazit: Der "Nachteil" ist also gar kein Nachteil, sondern nur zus\'e4tzlicher Aufwand, der daf\'fcr aber mehrere zus\'e4tzliche Vorteile bringt.\par
+\par
+Das hei\'dft dann aber als Konsequenz auch, dass beim Typabgleich \'fcberhaupt kein Refactoringplan erstellt werden muss, sondern der muss allein beim Storage Initialisieren on demand gemacht werden, wannimmer die Initialisierung ein Entity sieht, das einer veralteten TypeDefinition angeh\'f6rt.\par
+Die Initialisierung muss also einen "TypeConverterProvider" kennen, der seinerseits das komplette TypeDictionary mit TypeLineages kennt und auf Anfrage passende TypeConverter erzeugt und zur\'fcckgibt.\par
+\par
+Damit es dann noch trotzdem einen ordentlichen Callback f\'fcr z.B. einen User-Review geben kann, m\'fcsste erst die Initialisierung komplett durchgemacht werden, alle betroffenen Typen gesammelt werden, dann zentral f\'fcr jeden ein TypeConversion Plan erzeugt werden und alle erzeugten TypeConversion Pl\'e4ne dann dem Callback \'fcbergeben werden.\par
+Der Callback gibt seinerseits wieder TypeConversion Pl\'e4ne zur\'fcck. Normalerweise genau dieselben oder ver\'e4nderte, falls der User das Mapping umgestellt hat.\par
+Aus den effektiven TypeConversion Pl\'e4nen werden dann die tats\'e4chlichen TypeConverter erzeugt und am Ende der Initialisierung angewendet.\par
+Erst wenn die alle durchgelaufen sind (d.h. es gibt garantiert kein Entity mehr, das einem veralteten Typ angeh\'f6rt), ist die Initialisierung abgeschlossen.\par
+Wenn die Initialisierung auf kein Entity eines veralteten Typs trifft, passiert einfach gar nichts in Sachen TypeConversion.\par
+\par
+\par
+\par
+2017-10-06\par
+\par
+Foundation Klassen an neues TypeHandling anpassen.\par
+\par
+\par
+\par
+\par
+2017-10-09\par
+\par
+Testen.\par
+Exception by TypeValidation untersuchen.\par
+Da hab ich zwischenzeitlich die Validierung von TypeId-Mappings effizienter gemacht, aber daf\'fcr fehlt eine bessere Unterscheidung zwischen ExistingMappings und PossibleMappings.\par
+Einbauen.\par
+\par
+Fehlende Foundation Implementierungen f\'fcr neue Typen (PersistenceTypeLineageBuilder)\par
+\par
+Bugfix: Fehlenden Bounds-Check bei Performanceoptimierung in X-Collections nachtragen.\par
+\par
+\par
+Leeres TypeDictionary bei Storage Initialisierung. Initialisierung abgleichen mit Version vor der Typsystemerweiterung.\par
+\par
+\b PersistenceTypeHandlerManager.initialize()\par
+\b0\par
+\cf2 v PersistenceTypeDictionaryParser vereinfachen, so dass es nur noch einen einzigen Aufruf von PersistenceTypeDictionary#New gibt.\cf0\par
+\par
+BinaryTypeDictionaryProviderDefaulting.provideDictionary\par
+-> BinaryPersistence.createDefaultTypeDictionary()\par
+\par
+Ah, Fehler gefunden:\par
+Es wird eine PersistenceCustomTypeHandlerRegistry Instanz erzeugt, in der alle default Handlers registriert sind, damit ein Lookup (z.B. basierend auf der Dictionary Datei) sie finden kann.\par
+Es gibt aber keine Logik mehr, die die custom Type Handlers initial registriert, falls das Type Dictionary leer ist.\par
+Sollte nat\'fcrlich so gel\'f6st werden, dass es m\'f6glichst nur einmal an einer Stelle instanziert wird.\par
+Also das ist wieder mal knifflig. Es gibt nun ja keine festen TypeIds in diesen Handlern mehr. Flexibler, sauberer, aber auch komplexer.\par
+\par
+D.h. der Ablauf m\'fcsste eigentlich sein:\par
+- Leere SwizzleRegistry wird erzeugt und bef\'fcllt mit JavaConstants, NICHT mit default TypeId-Mappings\par
+- Leeres TypeDictionary wird erzeugt und bef\'fcllt mit Eintr\'e4gen aus der TypeDictionary-Datei (falls vorhanden)\par
+- PersistenceCustomTypeHandlerRegistry mit allen CustomTypeHandlers wird erzeugt\par
+- F\'fcr alle Eintr\'e4ge aus der Datei werden Runtime Type Definitions (= Handlers) ensured (= lookup auf custom handler oder generische Instanzierung).\par
+- je nach match wird die TypeId aus der Datei  in der definition initialisiert oder nach einer default TypeId gesucht oder eine neue vergeben. So oder so wird die damit assoziierte TypeId im TypeManager (= letztendlich SwizzleRegistry) registriert.\par
+- alle default TypeId<->Type Mappings werden durchlaufen und optional registriert (d.h. falls es noch keinen Eintrag f\'fcr den Type gibt, wird die TypeId aus dem Default benutzt)\par
+- alle CustomTypeHandlers werden durchlaufen und falls noch nicht initialisiert entweder mit einer existierenden default-TypeId oder einer neu vergebenen TypeId initialisiert (alle, die mit den dictionary Entries matchen, sind schon initialisiert)\par
+Wichtig ist dabei, dass nicht nochmal neue TypeHandler Instanzen erzeugt werden, sondern dass DIESELBEN instanzen einmalig erzeugt und ab dann immer verwendet/initialisiert werden. Siehe PersistenceCustomTypeHandlerRegistry Instanz.\par
+\par
+\par
+Was ist mit\par
+PersistenceFoundation.getTypeDefinitionInitializerProvider\par
+?\par
+\par
+Da wird in \par
+PersistenceTypeHandlerManager.internalInitialize()\par
+eine neue Instanz von \par
+PersistenceTypeDefinitionInitializerProvider\par
+erzeugt.\par
+Darum wird der Getter in\par
+PersistenceFoundation\par
+nie verwendet.\par
+-> Getter gel\'f6scht. Das ist ein tempor\'e4rer Hilfstyp, ein Werkzeug, kein Bauteil der Persistierungsmaschine.\par
+\par
+\par
+\par
+TypeHandlerProvider (ensuren und registrieren, aber auch bypass-ensuren f\'fcr Initialisierungsfall)\par
+kennt einen TypeHandlerEnsurer (lookup oder create)\par
+und der kennt wiederum die CustomHandlerRegistry (lookup)\par
+\par
+Was ist der unterschied zwischen einem TypeHandlerManager und dem TypeHandlerProvider?\par
+\par
+\par
+\par
+2017-10-10\par
+\par
+\'dcberblick TypeHandler Managing Typen:\par
+\par
+PersistenceTypeHandlerManager\par
+- Top-Level type system Schnittstelle (direkt im storer) zum Ensuren der TypeHandler.\par
+- Kennt PersistenceTypeHandlerRegistry, um nachzuschauen, ob es f\'fcr einen Type schon einen passenden typeHandler gibt.\par
+- Kennt PersistenceTypeHandlerProvider, um einen passenden TypeHandler f\'fcr einen noch unbekannten Type zu erzeugen.\par
+\par
+PersistenceTypeHandlerProvider \par
+- Kennt PersistenceTypeHandlerEnsurer (eigentlich ~Creator + CustomHandler-Lookup), um einen TypeHandler sicherzustellen. Registriert einen sichergestellten TypeHandler beim \'fcbergebenen TypeHandlerManager.\par
+- Kennt SwizzleTypeManager, um vor dem TypeHandlerProviden das TypeId<->Type Mapping sicherzustellen.\par
+- Bietet f\'fcr Initialisierungssonderfall auch direkten Zugriff auf den Ensurer, um zu Initialisierungszwecken einen TypeHandler ohne TypeId und ohne Registrierung beim TypeHandlerManager sicherzustellen.\par
+\par
+PersistenceTypeHandlerEnsurer\par
+- kennt PersistenceCustomTypeHandlerRegistry f\'fcr Lookup nach vordefinierten Custom Handlers.\par
+- kennt PersistenceTypeHandlerCreator f\'fcr die Erzeugung eines generischen Handlers bei Bedarf.\par
+- macht genau das: lookup oder erzeugung falls n\'f6tig.\par
+\par
+PersistenceCustomTypeHandlerRegistry\par
+- Ist ein Verzeichnis von Type->TypeHandler Mappings\par
+\par
+PersistenceTypeHandlerCreator \par
+- Ist eine Logik zur Erzeugung von generischen TypeHandlers\par
+\par
+\par
+\par
+BinaryTypeHandlerEnsurer entzerren in generischen PersistenceTypeHandlerEnsurer und PersistenceTypeHandlerCreator mit Binary~ Implementierung.\par
+Unn\'f6tige ~Foundation.internalSet~ Methoden wegmachen.\par
+So. Nach dem Cleanup gibt es jetzt nur noch zwei BinaryTypeHandler~ interface: das Ding selbst und einen Creator daf\'fcr. Passt.\par
+\par
+\par
+Jetzt zur\'fcck zum TypeId Initialisierung Ablauf.\par
+TypeHandlerManager#initialize entsprechend erweitern.\par
+\par
+\par
+\par
+2017-10-11\par
+\par
+TypeHandlerManager#initialize fertig erweitern um ensureRegisteredCustomTypeHandler.\par
+Testen. Paar Bugs fixen:\par
+- TypeHandler-Konstruktoren f\'fcr initialie TypeIds \'fcberall rauswerfen.\par
+- Fl\'fcchtigkeitsfehler beim Foundation umbauen.\par
+- Swizzle Constants k\'f6nnen durch die \'c4nderung nun erst registriert werden, wenn alle TypeHandler Registrierungen abgeschlossen sind.\par
+\par
+Testen.\par
+Exception beim StorageEntityCache initialisieren: TypeId not resolvable via type dictionary: 1000021\par
+Irgendwas passt noch nicht. Debuggen.\par
+\par
+TypeDictionary hat leere Tables. Untersuchen/fixen.\par
+\par
+Dabei aufgefallen:\par
+Es muss sowieso ordentlich getrennt werden zwischen TypeDictionaryProvider (l\'e4dt ein noch unvalidiertes TD in das Programm) und TypeDictionaryManager (verwaltet ein g\'fcltiges TD).\par
+TypeDictionaryProvider muss aufgetrennt werden in einen TypeDictionaryImporter und einen reinen TypeDictionaryProvider f\'fcr Instanzierungen.\par
+TypeDictionaryProvider benutzende Typen entsprechend umbauen.\par
+\par
+Dazwischen Frage zu Stand von CK.Gedanken dazu notieren. Statusbesprechung zu TypeRefactoring mit RF.\par
+\par
+Testen.\par
+Wieder bei: TypeDictionary hat leere Tables. Untersuchen/fixen.\par
+Da waren in PersistenceTypeLineage#checkViability die R\'fcckgabewerte vertauscht, darum wurde nie was geaddet.\par
+\par
+Beim Debuggen die Stelle gefunden, wo f\'fcr jede einzelne registrierte TypeDefinition das TypeDictionary neu geschrieben wird.\par
+War bisher nur l\'e4stig, w\'e4re jetzt aber ein Bug: Es kann sein, dass beim Refactoring ein Fehler passiert, dann darf das TypeDictionary nicht mit den neuen Eintr\'e4gen geschrieben werden.\par
+Oder ist das egal, weil (siehe oben) Entities auch von weiter zur\'fcck veralteteten Typen erkannt und refactort werden m\'fcssen?\par
+Hmm...\par
+\par
+\par
+\par
+2017-10-12\par
+\par
+Jup. Das ist besser so. Siehe "TypeConverterProvider" oben.\par
+Also redundantes Rausschreiben erst mal so lassen. Ist zwar schon unsch\'f6n (z.B. wenn zwischen dem ersten und dem letzten Rausschreiben eine Exception kommt, wurde die TypeDictionary Datei effektiv gestutzt/ruiniert), aber das kann als TODO f\'fcr sp\'e4ter stehenbleiben. Ist jetzt nicht wichtig und funktioniert ja im Normalfall.\par
+\par
+Weitertesten.\par
+Jetzt wird das TypeDictionary gef\'fcllt.\par
+Sortierung fehlt noch. Einbauen.\par
+Au\'dferdem toString f\'fcr TypeHandlers implementieren.\par
+\par
+TypeDictionary#toString wirft eine Exception. Gefixt.\par
+\par
+In StorageTypeDictionary fehlt trotzdem noch der Handler f\'fcr PersistenceRoots$Implementation (TID 1000021)\par
+Da wurde durch die Importer Splittung ein neues TypeDictionary mit der Storage verlinkt anstatt das runtime dictionary.\par
+\par
+Doch nochmal recherchieren, warum nach dem fertig initialisierten TypeDictionary nochmal ein Update steht. Eigentlich m\'fcsste da die HighestTypeId Bestimmung reichen.\par
+Jup, das ist bis auf den Highest-Id-Update ein No-Op. Das mach ich jetz raus.\par
+\par
+Highest-Id ist dummerweise immer 0. Untersuchen und fixen.\par
+Da wurde auch wieder vom importierten (anfangs leeren) anstatt vom runtime-initialisierten gelesen. Gefixt. Passt.\par
+\par
+Hurra, die MainTestStorageExample ist durchgelaufen.\par
+Rausgeschriebene Meta-Dateien sehen soweit auch gut aus.\par
+\par
+Jetzt Test mit bestehenden TypeDictionary Eintr\'e4gen beim Initialisieren.\par
+\par
+MatchingTypeDefs und ChangedTypeDefs sind nach Abgleich beide leer. Untersuchen.\par
+\par
+Ach, das imported TypeDict hat leere caching Tables. Seltsam, bei der anderen Instanz mit demselben Code passt es doch auch. Untersuchen.\par
+Dadurch, dass die TypeLineages direkt gef\'fcllt werden, wird die Registrierung \'fcber das TypeDictionary und dessen Cachingtabellen umgangen.\par
+Das passt eh alles nicht, dass die TypeLineage sich die TypeDefs selbst erzeugt. Die soll der TypeDictBuilder erzeugen und dann direkt beim TypeDict registrieren.\par
+Entsprechend umbauen.\par
+Dabei auch Stelle der Aufl\'f6sung zu einer Runtime Klasse umstellen und Methodenaufrufe entsprechend konsolidieren.\par
+\par
+So, damit ist auch in den MatchingTypeDefs was drin. ChangedTypeDefs sind erwartungsgem\'e4\'df leer.\par
+\par
+Exception in TypeLineage: Runtime definition already initialized. Untersuchen.\par
+\par
+\par
+\par
+2017-10-13\par
+\par
+Nochmal laufen lassen von vorne, ohne TypeDictionary File.\par
+Durch \'c4nderung von gestern n\'f6tigen Null-Check nachtragen.\par
+\par
+Exception in TypeLineage: Runtime definition already initialized Untersuchung:\par
+Achja. Wenn die TypeLineages nicht mehr vorab erzeugt werden, sondern alles \'fcber das TypeDictionary l\'e4uft, muss man aber unterscheiden k\'f6nnen zwischen registerTypeEntry und registerRuntimeType.\par
+Das ist jetzt irgendwie doch wieder das gleiche in gr\'fcn. Aber so ist es sauberer.\par
+\par
+Varianten einbauen.\par
+\par
+Dabei aufgefallen: latestTypesPerTypeId Table wird falsch bef\'fcllt. Immer nur nach TypeId putten ergibt keine konsistente Auflistung.\par
+Das muss bei jeder \'c4nderung aus allen TypeLineages neu hergeleitet werden. Das hatte ich schon mal. Mist :[.\par
+\par
+Au\'dferdem aufgefallen:\par
+Im TypeDictionary sollte bei dem niederrangigen registerTypeEntry zuerst in allTypesPerTypeId geaddet werden und wenn das fehlschl\'e4gt, dann gibt es eine Exception.\par
+Beim RuntimeType ist das aber anders, da passt es weiterhin, wie es ist: nachtr\'e4glich Hart putten anstatt adden, weil ja ggf. registrierte Eintr\'e4ge ersetzt werden sollen.\par
+\par
+Aufgefallen: \par
+Beim TypeHandlerManager initialisieren werden die initialisierten TypeDefinitions (in diesem Fall TypeHandlers) beim imported TypeDictionary registriert, was quatsch ist, weil das nach der Methode eh verworfen wird.\par
+Ich glaub bei der TypeDictionary Runtime Instanz werden sie schon automatisch registriert \'fcber den Callback w\'e4hrend der Initialisierung.\par
+Jetzt bin ich verwirrt und schon wieder so extrem m\'fcde, evtl. noch immer vom Blutspenden am Mittwoch. Das mach ich auch nicht nochmal.\par
+\par
+Aufgefallen:\par
+Werden eigentlich auch alle veralteten TypeDictionary Entries in die TypeDictionary Runtime Instanz registriert? Aktuell sehe ich nicht, wo. Das w\'e4re ein Fehler.\par
+Es kann doch nicht sein, dass man an sowas so lang dran sitzt und es immer noch nicht passt.\par
+\par
+\par
+Die PersistenceTypeHandlerManager#internalInitialize ist auch schon viel zu lang. Das ist immer ein Indiz, dass zu viel gewurschelt wird.\par
+Mal aufr\'e4umen.\par
+\par
+\par
+\par
+Jetzt mal wieder das Konzept nach aktuellem Kenntnisstand von vorn gedacht:\par
+\par
+- Persistiertes TypeDictionary wird importiert. Besteht nur aus flachen TypeDefinitions (keine TypeHandler). Potenziell leer. Wegwerfinstanz.\par
+- Ein gibt eine TypeDictionary Instanz zur Laufzeit. Die ist anfangs leer.\par
+- Zu jedem Eintrag im importierten TypeDictionary wird ein TypeHandler f\'fcr den entsprechenden Runtime Type erzeugt, falls m\'f6glich.\par
+- Der TypeHandler muss mit einer Initializer Instanz gewrappt werden, weil die TypeId noch nicht bekannt ist. Welche TypeId es wird, kann erst nach bzw. durch das Matching festgestellt werden.\par
+- Alle erzeugten TypeHandler werden mit dem importierten Eintrag abgeglichen: Wenn die Feld-Struktur gleich ist, kommt der Handler in die "Matching" Collection, wenn nicht in die "Changed" Collection.\par
+- Bei jedem Hinzuf\'fcgen eines "Changed" Eintrags wird ein Callback zur Validierung aufgerufen. Defaultimplementierung: Typedefinition-\'c4nderung erzeugt eine Exception.\par
+- Alle Matching TypeHandlers werden mit der TypeId aus dem importierten Entry initialisiert (TypeId bleibt gleich). Das Initialisieren registriert die gleich bei TypeDictionary Runtime Instanz, TypeRegistry, TypeHandlerRegistry.\par
+- Danach werden komplement\'e4r zu den schon registrierten Typen alle Default Type<->TypeId Mappings aus der Swizzle Klasse in der TypeRegistry ensure-registriert, damit die schon mal alle da sind.\par
+- Dann werden alle Changed initialisiert: Falls es f\'fcr ihren Type aus den Defaults eine TypeId gibt, wird die verwendet. Falls nicht, wird eine neue TypeId zugewiesen. Das Initialisieren registriert auch hier wieder hinten rum alles n\'f6tige.\par
+- Wenn die Changed TypeHandlers fertig initialisiert sind, werden sie bei der Callback Logik registriert.\par
+\cf1 - Dann werden noch alle Default/Custom TypeHandlers komplement\'e4r ensure-registriert. Auch hier wieder mit TypeId soweit schon bekannt oder neu vergebener. Anmerkung: das sind nur die, die nicht im importierten Type Dictionary stehen.\par
+Moment: Das ist Unfug. Die importierten Eintr\'e4ge sind die definitiv relevanten. Registrierte Handler sind erst mal nicht zwangsweise n\'f6tig. Erst, wenn ein Storer beim Speichern darauf st\'f6\'dft. Bis dahin liegen die nur in der CustomRegistry rum.\par
+Bei den Default TypeId Mappings ist es aber was anderes: F\'fcr jeden Typ darin soll es immer einen Eintrag geben. Falls das importierte Dictionary keinen vorgibt, dann default.\par
+\cf3 Aber nochmal Moment: M\'fcssen dann nicht nach dem Defaults registrieren auch f\'fcr jeden dieser Types TypeHandlers erzeugt und registriert werden? Bzw. deren Registrierung w\'fcrde ja ausreichen. Nur alle Default Type m\'fcssen iteriert werden.\par
+Oh Mann. St\'e4ndig ergibt sich irgendwas neues.\par
+\cf0\par
+\par
+\par
+Damit w\'e4re in den Laufzeit Strukturen (TypeRegistry, TypeDictionary, TypeHandlerRegistry) abgedeckt:\par
+- Default TypeId Mappings\par
+- TypeHandlers (generisch erzeugte und gelookupte default/custom) f\'fcr alle importierten TypeDictionary Entries und alle Default TypeId Mappings\par
+\cf1 ! Noch nicht abgedeckt: veraltete Eintr\'e4ge aus den importierten TypeLineages\cf0\par
+\par
+\par
+\par
+\par
+2018-05-08\par
+\par
+Uuund weiter gehts.\par
+Siehe {{\field{\*\fldinst{HYPERLINK https://www.xdevissues.com/browse/OGS-3 }}{\fldrslt{https://www.xdevissues.com/browse/OGS-3\ul0\cf0}}}}\f0\fs28  f\'fcr Probleme mit dem Mergen zwischenzeitlicher \'c4nderungen.\par
+Aber das ist halt so schlimm. Die wichtigsten Teile k\'f6nnen leicht ge-copy&paste-t werden. Teilweise muss sich der Code f\'fcr das bessere Legacy-Type-Mapper (LTM) Konzept eh \'e4ndern.\par
+\par
+Brainstorming zu bisherigen Konzepten und LTM:\par
+\par
+Jede \'c4nderung an einer Klasse soll einen neuen Eintrag im Type Dictionary mit einer neuen TID erzeugen. Das ist wichtig, weil alte Typen erhalten bleiben sollen, um alte St\'e4nde der Datenbank noch verwenden zu k\'f6nnen. Wenn man f\'fcr eine bestimmte TID die Definition der Klasse bei jeder \'c4nderung umschreibt, sind alle St\'e4nde vor der \'c4nderung unbrauchbar. Besser ist, dass jede Typdefinition im Dictionary f\'fcr sich immutable ist: Einmal erzeugt wird sie nie wieder ge\'e4ndert. Wenn sich eine Klasse \'e4ndert, dann ist das eine neue Definition im Dictionary.\par
+Interessant ist noch der Spezialfall, wenn sich eine Klasse durch mehrfache \'c4nderung wieder auf einen fr\'fcher schon definierten Aufbau zur\'fcck\'e4ndert. Soll dann die fr\'fchere Definition inklusive fr\'fcherer TID wiederverwendet werden, oder soll das eine neue, komplett redundante Definition werden? Ich sehe an der ersten Variante kein Problem, au\'dfer dass damit halt nicht mehr gilt, dass immer die h\'f6chste TID einer Typbezeichnung auch automatisch die aktuelle ist. Aber das ist eigentlich kein Problem, wenn man es so sieht: die Klasse wurde tats\'e4chlich auf einen fr\'fcheren Aufbau zur\'fcckge\'e4ndert. Damit wird ganz korrekterweise die fr\'fchere Definition mit der fr\'fcheren TID wieder die aktuelle. Der LTM muss und kann ja eh von jeder Definition zu jeder anderen Definition ummappen, also warum nicht von #17 zur\'fcck auf #6 und bei der n\'e4chsten \'c4nderung eben zu #18.\par
+\par
+Das hei\'dft f\'fcr die im Type Dictionary enthaltenen Eintr\'e4ge:\par
+- Ein full qualified class name kann in beliebig vielen Type Definitions vorkommen.\par
+- Eine TID kann nur h\'f6chstens einer Type Definition zugeordnet werden.\par
+- Alle Type Definitions mit dem gleichen full qualified class name bilden eine Type Definition Familie, oder "TypeLineage", wie ich es damals benannt hatte. Das trifft es nach wie vor am besten.\par
+\par
+Eine TypeLineage wird definiert durch den full qualified class name.\par
+Jeder full qualified class name kann zu h\'f6chstens einer TypeLineage geh\'f6ren.\par
+Eine TypeLineage enth\'e4lt alle TypeDefinitions mit gleichem full qualified class name.\par
+\par
+Wichtig: Was wir auf logischer Ebene als "Umbenennen eines Typs" betrachten, ist auf technischer Ebene tats\'e4chlich ein TypeLineage Wechsel.\par
+Der Typ "com.my.app.customer.Customer" hat mit dem Typ "com.my.app.customer.MyAppCustomer" nichts zu tun. Die geh\'f6ren nicht zusammen. Alle Datens\'e4tze vom Typ "Customer" k\'f6nnen (sehr leicht) f\'fcr den Typ "MyAppCustomer" interpretiert werden, aber technisch sind das zwei unterschiedliche Typen, nicht ein "umbenannter" Typ. Wenn full qualified class names Typen eindeutig identifizieren, dann ist eine \'c4nderung des full qualified class name ein Wechsel auf eine andere Identit\'e4t, nicht eine "Umbenennung". Technisch gesehen kann man einen Typ nicht "umbenennen". Man kann nur einen neuen Typ machen und alle Vorkommen des alten im Source Code refactoren, bzw. bei existierenden Daten in einer Datenbank umschreiben oder - eleganter - mappen.\par
+\par
+Zu einem full qualified class name kann es eine runtime class geben, muss es aber nicht.\par
+\par
+Wenn es keine gibt, aber es gibt Datens\'e4tze mit einer TID f\'fcr den full qualified class name, muss es einen Mapping-Eintrag im Refactoring geben, um den Typ auf eine runtime class mappen zu k\'f6nnen.\par
+Wenn es so einen Eintrag nicht gibt, ist das ein Fehler, der zu einem entsprechenden Abbruch f\'fchrt.\par
+(D.h. Existierende Datens\'e4tze k\'f6nnen nicht interpretiert werden)\par
+Wichtig: das gilt nicht f\'fcr jeden Eintrag im Type Dictionary, denn viele davon k\'f6nnen einfach veraltet und unbenutzt sein. Das gilt nur f\'fcr Typen, die tats\'e4chlich mit mindestens einem Datensatz (in seiner aktuellen/letzten Version) vorkommen.\par
+\par
+\par
+Eine TypeLineage hat eine latestDefinition() und eine runtimeDefinition(). Das ist \'fcblicherweise das selbe, muss es aber nicht sein. Siehe oben.\par
+\par
+\par
+\par
+TODO:\par
+- TypeHandler TID wieder versp\'e4tet initialisierbar machen anstatt konstruktor-initialisiert (copy&paste von altem Branch)\par
+- TypeLineage einbauen (copy&paste von altem Branch)\par
+- OGS Initialisierung so umbauen, dass erst StorageEntityCache#validateEntities bzw. ein Ersatz den tats\'e4chlich aktuellen Type setzt. Vorer gibt es nur Entries mit leerem Type. Irgendwie in einer vorl\'e4ufigen Entry-Kette.\par
+- Unterscheidung zwischen LoadHandler (dort kommt bei Bedarf ein LTM rein) und StoreHandler (das ist immer der Handler f\'fcr den Runtime Type).\par
+\par
+\par
+Versp\'e4tete TypeHandler OID Initialisierung ist soweit umgestellt bzw. vorbereitet, aber die weiteren Schritte sind eine Elendsarbeit.\par
+Entweder ich b\'fcgel einfach blind alles dr\'fcber und k\'fcmmer mich um die hunderte Compilerfehler, aber dann kann ich gleich einen git merge machen, oder ich fiesel dutzende Klassen Methode f\'fcr Methode durch.\par
+\par
+\par
+\par
+2018-05-09\par
+\par
+TypeHandler TID Lazy Initialization Umstellung abgeschlossen und getestet.\par
+Trennung zwischen PersistenceTypeDefinition und PersistenceTypeDescription \'fcbertragen.\par
+TypeLineage und ~Creator \'fcbertragen.\par
+TypeDictionary Erweiterung vorbereiten.\par
+\par
+\par
+\par
+2018-05-10\par
+\par
+Also f\'fcr die Integration des alten Branches sind noch zwei Teile n\'f6tig:\par
+1.) TypeHandler Instanzierung \'fcbertragen.\par
+2.) TypeDictionary mit TypeLineage Erweiterung \'fcbertragen.\par
+Danach kann vom neuen Branch aus weitergemacht werden.\par
+\par
+St\'fcck f\'fcr St\'fcck umsetzen, testen.\par
+\par
+\par
+OMG, ist das eine Fieselei, wenn man das ein halbes Jahr sp\'e4ter nicht mehr im Kopf hat.\par
+z.B. nur eine von dutzenden Stellen:\par
+\par
+TypeDictionaryAppenderImplementation#appendField\par
+benutzt im alten refactoring branch:\par
+PersistenceTypeDictionary.paddedFullQualifiedFieldName\par
+Wie l\'e4uft das im aktuellen?\par
+Recherchieren, angleichen.\par
+-> Die Methode wurde nur in den Appender verschoben, wo sie hingeh\'f6rt, aber den hab ich noch nicht mit \'fcbertragen.\par
+\par
+Irgendwie geht das so nicht.\par
+Ich kann die Klassen nicht einzeln \'fcbertragen, sonst fehlt immer irgendwo irgendwas und ich muss tausend mal branches wechseln, um das gerade zu ziehen.\par
+Ich kann nicht alle Klasse auf einmal \'fcbertragen, weil dann alle zwischenzeitlichen \'c4nderungen weg sind und es tausend Compilerfehler gibt.\par
+Einzig vern\'fcnftiger Weg:\par
+Schritt f\'fcr Schritt erst mal Type Dictionary Erweiterung \'fcbertragen. Wenn das fertig ist, dann TypeHandler Erweiterungen \'fcbertragen.\par
+\par
+\par
+Aktuelles TypeDictionary Konzept:\par
+Es gibt "allTypes", das sind alle TypeDefinitions, die im Dictionary stehen, jede mit eindeutiger TypeId. Also live Types und von diesen verschattete Types mit gleichem Namen.\par
+Und es gibt "liveTypes", das sind die TypeDefinitions f\'fcr alle vorkommenden TypeNames, aber jeweils nur die mit der h\'f6chsten TypeId (die "aktuellsten").\par
+allTypes wird verwendet beim Dictionary rausschreiben (klar) und in der Storage beim StorageTypeHandler erzeugen, weil die Storage ja STHs f\'fcr ALLE Typen (je TypeId) braucht, nicht nur f\'fcr die aktuellen der Anwendung.\par
+\par
+Das neue Konzept ist komplexer: Anstatt einfach nur Typen zu "verschatten", gibt es eine TypeLineage. Siehe oben. Eine je TypeName, usw.\par
+\par
+Eine TypeLineage hat:\par
+- nonNull TypeName\par
+- mayNull Runtime Type\par
+- n TypeDefinitions mit jeweils eindeutiger TypeId\par
+\par
+Ein "latestTypeDefinition" kann es geben, ist aber einfach nur ein spezieller Getter mit entsprechender Logik (TD mit h\'f6chster TypeId)\par
+Es gibt eine "liveTypeDefinition". Das ist eine Referenz auf eine der registrierten, die genau der TypeDefinition entspricht, die aus dem Runtime Type abgeleitet ist.\par
+\par
+\par
+Schritt 1 f\'fcr die Erweiterung:\par
+TypeLineage einbauen und ansonsten alles wie bisher.\par
+Dazu erst mal aktuelle Implementierung der TypeLineage reviewen und verbessern.\par
+TypeDictionary schrittweise erweitern.\par
+\par
+\par
+\par
+\par
+\par
+2018-05-11\par
+\par
+TypeDictionary Parser usw. ist erheblich umgebaut. Wieder einlesen. St\'e4ndig branches wechseln zum vergleichen.\par
+\par
+\par
+Alt:\par
+Es gibt einen Provider, der hat intern einen Loader und einen Parser. Der Loader l\'e4dt den String, der Parser parst und baut gleich das fertige Dictionary.\par
+\par
+Neu:\par
+Es gibt einen Importer, der hat intern einen Loader, Parser und einen Builder. Der Loader l\'e4dt den String, der Parser parst die Entries und der Builder baut aus den Entries das fertige Dictionary.\par
+Der Builder hat f\'fcrs Builden einen TypeDictionaryProvider und einen TypeDefinitionCreator.\par
+TypeDictionaryProvider hat einen TypeLineageCreator.\par
+Der PersistenceTypeHandlerManager verwendet dann schlie\'dflich einen Importer, um ein Dictionary zu erzeugen und l\'e4sst es dann von einem PersistenceTypeDictionaryManager managen.\par
+Da ist dann gerade Baustelle im Refactoring Branch.\par
+\par
+\par
+Vielleicht sollte der "Importer" doch besser wieder "Provider" hei\'dfen und der Provider einfach "Creator". Denn was da alles mit der provideten Dictionary Instanz gemacht wird erfordert eine neue Instanz, nicht eine bestehende.\par
+\par
+Und eigentlich sollte der PersistenceTypeDictionaryManager den Importer (Provider) kennen und on demand aufrufen. Im TypeHandlerManager hat das nix verloren.\par
+Achso ... das war fr\'fcher so, musst aber aufgebrochen werden wegen der Typ-Abgleicherei. Oder mal schauen, wie ich das mach. War ja eben noch Baustelle ...\par
+\par
+\par
+2018-05-14\par
+\par
+Weil die TypeLineages \'fcber das Dictionary gemanaget werden, muss auch das Dictionary eine "registerRuntimeDefinition" Methode haben, glaub ich. Mal checken, wie das im alten branch war.\par
+Jup, das muss sich durchziehen. PersistenceTypeDictionaryManager Implementierung aktualisieren. Aufrufer (PersistenceTypeHandlerManager) anpassen.\par
+\par
+Irgendwie ist der Aufruf von PersistenceTypeHandlerManager#register wirr. Recherchieren. TODOs hinschreiben.\par
+\par
+PersistenceTypeHandlerManager#internalInitialize Konzept\'e4nderung \'fcberlegen, TODO hinmachen.\par
+\par
+\par
+\par
+2018-05-15\par
+\par
+Compilerfehler ausbessern. Seltsam, dass Eclipse manche Methodenvorkommen mitumbenannt hat und manche nicht.\par
+PersistenceFoundation erweitern wo n\'f6tig.\par
+PersistenceTypeHandlerManager#internalInitialize Konzept\'e4nderung implementieren.\par
+Dabei Typemapping Validierung und Registrierung konsolidieren.\par
+Testen, kleinere Fixes. Z.B. #registerRuntimeDefinition(s) Methoden sind noch nicht implementiert. Logik sorgf\'e4ltig durchdenken und nochmal die normalen registerDefinition(s) durchdenken.\par
+Benamungen verbessern. Z.B. "Observer" statt Callback. Hilft auch, Namenskonflikte in den Methoden zu vermeiden (d.h. das ist nicht nur Kosmetik).\par
+\par
+\par
+2018-05-16\par
+\par
+Test und fixes. L\'e4uft durch.\par
+Recherchieren im alten Branch, was das mit dem TypeDefinitionInitializer war. Evtl. ist der gar nicht mehr n\'f6tig oder evtl. doch noch.\par
+\par
+\par
+Also es war so:\par
+Es gibt einen\par
+PersistenceTypeDefinitionInitializer\par
+Der wrappt einen TypeId-uninitialisierten TypeHandler\par
+Mit #initialize(long typeId) wird der TypeHandler f\'fcr die TypeId initialisiert und beim TypeHandlerManager registriert.\par
+\par
+Erzeugt werden TypeDefinitionInitializer Instanzen NUR in PersistenceTypeHandlerManager#createTypeDefinitionInitializer.\par
+Das macht:\par
+latestDictionaryTypeDefinition vergleichen mit als initializer gewrapptem Handler (tdi).\par
+Wenn gleiche Struktur, dann:\par
+matchingTypeDefinitions.add(tdi)\par
+sonst:\par
+typeChangeCallback.validateTypeChange(latestDictionaryTypeDefinition, tdi);\par
+changedTypeDefinitions.add(latestDictionaryTypeDefinition, tdi);\par
+\par
+Aufruferkontext von #createTypeDefinitionInitializer:\par
+Das ist dann schon die offene Baustelle.\par
+Letztendlich war die Idee:\par
+- Matchende tdi mit bestehender TypeId der gematchten Dictionary Definition initialisieren.\par
+- Nicht matchende mit neuer TypeId initialisieren.\par
+\par
+---\par
+Also sinnvoll ist nat\'fcrlich die versp\'e4tete Initialisierung mit einer passenden TypeId, bestehend oder neu.\par
+Aber ob das wirklich so kompliziert gewrappt werden muss, ist jetzt die Frage.\par
+Fr\'fcher war auch die \'dcberlegung, dass eine Nicht-matchen mit der latest Type Definition immer einen neuen Typeintrag mit neuer TypeId erzeugt.\par
+Inzwischen bin ich eher der Meinung, dass eine perfekt matchende alte Type Definition wiederverwendet werden sollte. Ob die Logik in der Javaklasse inzwischen ganz anders ist, kann der storage v\'f6llig egal sein, so wie es das bei bei allen anderen Klassen ja auch ist. Es z\'e4hlt nur Struktur (Feldtypen, Namen, Reihenfolge).\par
+\par
+Au\'dferdem ist das Konzept f\'fcr den Legacy Type Mapper nun leicht anders: F\'fcr den aktuellen Runtime Type gibt es immer einen bestimmten Handler und der gilt. Fertig aus.\par
+Der eigentliche Teil zum Typ\'e4nderung handeln ist ja nur noch beim laden: F\'fcr eine TypeId muss ein passender LoadHandler gefunden werden.\par
+Wenn das der aktuelle ist, super, alles easy. Wenn nicht, muss ein Legacy Mapper erzeugt werden, der alte TypeDefinition der betreffenden TypeId auf den aktuellen Runtime Type mappt.\par
+\par
+Also f\'fcr die Handler sollte eigentlich ausreichen:\par
+- Einmal \'fcber alle TypeDefinitions dr\'fcberlaufen\par
+- F\'fcr alle mit existierendem Runtime Type einen Handler ableiten.\par
+- Schauen, ob eine TypeDefinition in der Lineage exakt auf den Handler passt.\par
+- Wenn ja, dann Handler mit dieser TypeId initialisieren. Wenn nein, dann neue TypeId reservieren und TypeHandler mit dieser TypeId initalisieren.\par
+- In beiden F\'e4llen TypeHandler als Runtime Type in der Lineage setzen.\par
+\par
+Fall 2 plus dieser Punkt ist genau das gleiche, als w\'fcrde die Storage Logik beim Storen auf einen neuen Typ sto\'dfen und diesen registrieren.\par
+Es sollte aber noch einen "PersistenceTypeMismatchEvaluator" geben, dem im Fall 2 Handler und Lineage \'fcbergeben werden.\par
+Damit kann man bei Bedarf eine Exception werfen, damit nicht munter neue Typen definiert werden, wenn der Mismatch eigentlich ein Versehen war.\par
+\par
+Das w\'e4re an dieser Stelle alles. Die Sache mit dem LoadHandler TypeId Lookup ist dann eine andere Baustelle.\par
+\par
+Achja, aber die Sache mit dem "TypeHandlerEnsurer" war noch. Die sollte schon noch umgezogen werden, weil sie besser strukturiert, evtl. sogar n\'f6tig ist.\par
+Also recherchieren:\par
+\par
+PersistenceTypeHandlerProvider\par
+PersistenceTypeHandler<M, T> provideTypeHandler(\par
+\tab PersistenceTypeHandlerManager<M> typeHandlerManager,\par
+\tab Class<T>                         type\par
+)\par
+\par
+|\par
+Ruft intern auf zusammen mit einem "this.typeManager.ensureTypeId(type)" Aufruf.\par
+|\par
+V\par
+\par
+PersistenceTypeHandler<M, T> provideTypeHandler(\par
+\tab PersistenceTypeHandlerManager<M> typeHandlerManager,\par
+\tab Class<T>                         type              ,\par
+\tab long                             typeId\par
+)\par
+\par
+\par
+kennt:\par
+\par
+PersistenceTypeHandlerEnsurer\par
+PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)\par
+\par
+kennt:\par
+PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry;\par
+PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;\par
+\par
+\par
+PersistenceTypeHandlerCreator\par
+PersistenceTypeHandler<M, T> createTypeHandler(Class<T> type);\par
+\par
+kennt:\tab\par
+PersistenceTypeAnalyzer        typeAnalyzer  ;\par
+PersistenceFieldLengthResolver lengthResolver;\par
+\par
+\par
+PersistenceTypeAnalyzer\par
+XGettingEnum<Field> collectPersistableFields(\par
+\tab Class<?>                                               type             ,\par
+\tab XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions\par
+);\par
+\par
+kennt:\par
+PersistenceFieldEvaluator fieldSelector;\par
+PersistenceTypeEvaluator  isPersistable;\par
+\par
+\par
+\par
+\par
+\par
+PersistenceTypeHandlerEnsurer#ensureTypeHandler(Class<T> type) wird aber noch an einer zweiten Stelle aufgerufen, n\'e4mlich bei der Initialisierung des TypeDictionaries und der daraus abgeleiteten TypeHandlers.\par
+\par
+\par
+Nebenbei bleich mal die \'fcberenthusiastische PersistenceTypeSovereignty rausschmeissen.\par
+\par
+\par
+BinaryHandlerNativeClass ist im bisherigen Branch noch ein Sonderfall, aber im alten OGS-3 Branch nicht mehr. Genauer abchecken.\par
+\par
+Also das ist dort ein AbstractBinaryHandlerStateless, weil der name raus ist. Macht Sinn.\par
+Den typeLookup gibts immer noch, der wird auch immer noch verwendet, um die ObjectId zu einer Class Instanz aufzul\'f6sen.\par
+Aber die Initialisierung dieses Felds ist einfach auskommentiert. Das ist immer null. Lol. Super.\par
+\par
+Aber mal nachgedacht: Diese \'c4nderung ist nicht richtig. Man kann einen als Datum persistierten Typ selbst nicht einfach nur \'fcber seine TypeId identifizieren. Die entsprechende Klasse k\'f6nnte es inzwischen ja gar nicht mehr geben.\par
+Was man braucht, ist der Typename. Selbst, wenn es die zugeh\'f6rige Klasse nicht mehr gibt, ist das die "fachliche", datenm\'e4\'dfige Identit\'e4t des Typs.\par
+Wenn man den Typnamen hat, DANN braucht man den typeLookup nicht mehr, denn dann kann man einfach ein Class.forName aufrufen.\par
+Interessant ist, was passieren kann/soll/darf, wenn der Typname nicht mehr aufl\'f6sbar ist. Oder wenn der aufgel\'f6ste Type inzwischen eine andere TID hat.\par
+Hmm...\par
+\par
+Das Anpassen kollidiert mit der TypeEnsurer Sache. Also erst das anpassen.\par
+\par
+Das ist ein verflixtes Zeug mit dem TypeEnsurer. Das neue ist besser, aber da sind so viele Unstimmigkeit abzugleichen.\par
+Z.B. im alten ist PersistenceCustomTypeHandlerRegistry ein PersistenceTypeHandlerCreator, was wirr ist. Also erst mal pr\'fcfen, wie das im neuen ist. Branch wechseln ...\par
+\par
+Die PersistenceCustomTypeHandlerRegistry ist auch komplett umgebaut.\par
+Das war damals echt schon ganz sch\'f6n viel Zeug an \'c4nderungen ... ^^.\par
+\par
+\par
+\par
+\par
+2018-05-17\par
+\par
+TypeHandlerEnsurer Migration weitermachen. Schritt f\'fcr Schritt.\par
+Zuerst mal weiter in PersistenceCustomTypeHandlerRegistry reinschauen.\par
+Das verwendet nicht mehr TypeHandler Klassen, sondern TypeHandler Instanzen. Das ist besser, weil die TypeHandler Beschaffung damit nicht "magic" per Reflection passiert, sondern per IDE nachvollzogen werden kann.\par
+Aber das "initialize" sollte dann eine Instanz zur\'fcckgeben, um dem TypeHandler Implementierer eine Chance zu geben, eine neue Instanz zu erzeugen, falls eine Implementierung mutable state hat und es im selben Prozess mehr als eine Instanz davon geben muss.\par
+\par
+BinaryTypeDictionaryProviderDefaulting recherchieren: Neues Registry Konzept verursacht dort Compilerfehler.\par
+Im neuen scheint es die Klasse insgesamt gar nicht mehr zu geben.\par
+\par
+Wird aktuell verwendet in BinaryPersistenceFoundation#createTypeDictionaryProvider: wrapper f\'fcr super-Implementierung.\par
+Letztendlich macht die Implementierung einfach nur den Aufruf BinaryPersistence.createDefaultTypeDictionary().\par
+Mal checken ...\par
+\par
+Im alten OGS-3 Branch ist es eigentlich ganz einfach:\par
+createTypeHandlerEnsurer\par
+-> getCustomTypeHandlerRegistry\par
+-> PersistenceFoundation#createCustomTypeHandlerRegistry (exception)\par
+-> BinaryPersistenceFoundation#createCustomTypeHandlerRegistry (exception)\par
+    return BinaryPersistence.createDefaultCustomTypeHandlerRegistry();\par
+\par
+So bau ich das im aktuellen auch. Der Rest fliegt raus.\par
+\par
+BinaryPersistenceRootsProvider nachziehen.\par
+Das unsch\'f6ne (potenziell gef\'e4hrliche) "provideRootsClass" kann auch raus laut altem OGS-3 Branch.\par
+Hm. Im aktuellen Branch wird da noch ein PersistenceRootResolver ben\'f6tigt. Ich glaub aber, das ist nicht veraltet, sondern neuer als der alte OGS-3 Branch. Mal checken.\par
+Dann muss das rootsClass Ding doch wieder sein. Es sei denn, ich w\'fcrde die Root Entries lazy initialisieren ...\par
+Provider umgebaut. Perfekte L\'f6sung. Passt. Next.\par
+\par
+BinaryTypeHandlerCreator nachziehen.\par
+Recherchieren:\par
+- #createTypeHandler d\'fcrfte keine primitiveHandler mehr erzeugen, sondern bei primitive eine exception werfen.\par
+- #createTypeHandler d\'fcrfte f\'fcr BinaryHandlerNativeClass keine Sonderfallbehandlung machen m\'fcssen. Bzw. das d\'fcrfte allgemein kein Sonderfall mehr sein.\par
+- #createTypeHandler braucht f\'fcr collectPersistableFields eine TypeManager Instanz. Wie ist das im alten OGS-3 Branch nun gel\'f6st?\par
+Ergebnis:\par
+Die beiden TypeHandlerCreator sind viel eleganter strukturiert und die TypeManager Referenz ist einfach auskommentiert :-D.\par
+\par
+So, jetzt sollte soweit alles migriert sein. Morgen testen.\par
+\par
+\par
+\par
+\par
+2018-05-18\par
+\par
+Test. Erfolgreich. Passt. Committen.\par
+\par
+Jetzt noch das PersistenceTypeHandlerProvider TODO machen, das mir bei den Arbeiten aufgefallen war.\par
+Das kann tats\'e4chlich vereinfacht werden. Einfach mal die Logik da hinschieben, wo sie hingeh\'f6rt, dann werden die Methodenaufrufe gleich ein St\'fcck einfacher bzw. fast trivial.\par
+Test. Erfolgreich. Passt. Committen.\par
+\par
+Damit kann ich jetzt den ersten eigentlichen Punkt zur Typ\'e4nderung anfangen:\par
+Wenn der vom runtime Type abgeleitete TypeHandler zu keiner existierenden TypeDefinition passt, dann als neue mit neuer TypeId registrieren anstatt Exception werfen.\par
+\par
+\par
+\cf1 TODO:\cf0\par
+\cf1 - siehe FIXME "Changed TypeId of persisted class"\par
+\cf0\par
+\par
+Das wird gleich wieder kniffliger als gedacht: das TypeHandler ableiten macht dies rekursiv f\'fcr alle in ihm definierten Felder. Jeder Aufruf registriert den Handler.\par
+Was f\'fcr die \'c4nderung n\'f6tig ist, ist aber, erst mal nur Handler zu erzeugen, ohne Registrierung und dann zu kucken, mit welcher TypeId aus dem Dictionary die initialisiert werden sollen.\par
+\par
+Was also n\'f6tig ist, ist Folgendes (orientiert am Plan von oben mit Erweiterungen):\par
+- Einmal \'fcber alle TypeDefinitions dr\'fcberlaufen\par
+- F\'fcr alle mit existierendem Runtime Type einen Handler ableiten, ABER:\par
+> noch nicht f\'fcr eine TypeId initialisiern\par
+> noch nicht registrieren\par
+> noch nicht rekursiv Typen der Felder durchlaufen und weitere Handler ensuren\par
+- Schauen, ob eine TypeDefinition in der Lineage exakt auf den Handler passt.\par
+- Wenn ja, dann Handler mit dieser TypeId initialisieren. Wenn nein, dann neue TypeId reservieren und TypeHandler mit dieser TypeId initalisieren.\par
+- In beiden F\'e4llen TypeHandler als Runtime Type in der Lineage setzen.\par
+- Dann TypeHandler registrieren\par
+- Dann TypeHandler Felder rekursiv durchlaufen\par
+\par
+Es sollte aber noch einen "PersistenceTypeMismatchEvaluator" geben, dem im Mismatch Fall Handler und Lineage \'fcbergeben werden.\par
+Damit kann man bei Bedarf eine Exception werfen, damit nicht munter neue Typen definiert werden, wenn der Mismatch eigentlich ein Versehen war.\par
+\par
+Und es sollte noch zwischengesammelt werden:\par
+Alle Handler mit Match und alle Handler ohne Match.\par
+Dem PersistenceTypeMismatchEvaluator werden dann die Liste der Mismatch Handler und das TypeDictionary \'fcbergeben.\par
+Der kann dann eine Exception werfen, bevor irgendwas registriert worden ist.\par
+Dann weiter mit TypeId Initialisierung, Registrierung und rekursivem durchlaufen f\'fcr alle Handler.\par
+\par
+So sollte es passen.\par
+\par
+Gut, dass ich die PersistenceTypeHandlerProvider Entzerrung von oben gemacht hab, denn die macht das deutlich einfacher bzw. w\'e4re nun sowieso n\'f6tig.\par
+Aber vorher sollte ich noch das "Maybe redundant type dictionary update" FIXME untersuchen, sonst st\'f6rt das beim Umbau.\par
+\par
+PersistenceTypeHandlerManager#internalInitialize\par
+\par
+1.) TypeDictionary vom TypeDictionaryManager erzeugen lassen. Ohne irgendwelche Registrierung von irgendwas.\par
+2.) Alle Runtime Types (.class und TypeId der latest TypeDescription) in der TypeRegistry registrieren.\par
+3.) this.update(typeDictionary) aufrufen\par
+4.) F\'fcr jeden Runtime Type einen TypeHandler ensuren (= bei Bedarf erzeugen und registrieren)\par
+\par
+this.update(typeDictionary) macht:\par
+- h\'f6chste TypeId aus dem Dictionary feststellen\par
+- den TypeDictionaryManager alle TypeDefinitions des \'fcbergebenen TypeDictionaries validieren lassen.\par
+=> was im Ablauf oben sinnlos ist, wenn derselbe Manager das Dictionary gerade erst erzeugt hat.\par
+- aktuelle TypeId des Systems updaten, falls n\'f6tig (falls aktuelle kleine als h\'f6chste aus dem Dictionary)\par
+=> Das ist sinnvoll\par
+- im TypeDictionaryManager alle TypeDefinitions des \'fcbergebenen TypeDictionaries registrieren lassen.\par
+=> was im Ablauf oben auich wieder sinnlos ist, weil damit effektiv das cachedTypeDictionary des Managers in sich selbst registriert werden soll (no-op)\par
+Nachgepr\'fcft zur Laufzeit: Ist beide Male PersistenceTypeDictionary#Implementation (id=34), d.h. das dictionary wird bei sich selbst registriert.\par
+\par
+Fazit:\par
+Die Update Methode kann schon Sinn machen, aber im obigen Ablauf reicht eine "updateCurrentTypeId" Methode. Der redundante TypeDictionary Quatsch kann raus.\par
+\par
+Umbauen. Testen. Passt.\par
+\par
+\par
+Jetzt wieder beim Umbau des TypeHandler Erzeugen weitermachen.\par
+\par
+Aha. Nach einer halben Stunde recherchieren, planen und rumprogrammieren stellt sich raus, dass PersistenceTypeHandlerProvider eben doch auch PersistenceTypeHandlerEnsurer implementieren muss, n\'e4mlich genau um so ein "Durchreichen" von uninitialisierten TypeHandlers realisieren zu k\'f6nnen. Also dann doch wieder so.\par
+\par
+TypeHandler Erzeugen weitermachen.\par
+\par
+\par
+\par
+2018-05-21\par
+\par
+So! Weiter gehts.\par
+Von den ~7 TODOs bei der TypeHandler Erzeugung ist nur noch eins \'fcbrig und das ist trivial. Implementieren, testen.\par
+PersistenceTypeMismatchValidator Infrastruktur in der Foundation fehlt noch.\par
+Jetzt testen.\par
+\par
+Bei leerer DB sind im initialize die DefaultHandlers nicht da. Sollten die nicht da sein?\par
+Ansonsten l\'e4uft alles durch ...\par
+Mal untersuchen.\par
+\par
+Jup, ist leer. Die Frage ist, wo der beste Platz f\'fcr die default Initialisierung ist. Im DictionaryProvider? Im TypeHandlerManager?\par
+Die Dictionary-Ebene handelt eigentlich keine Typen. Default zu registrieren ist schon eine ziemlich hochrangige Sache. Die sollte eigentlich der Type(Handler)Manger machen.\par
+Mal einbauen. Sauber umstrukturieren.\par
+Testen.\par
+Komisch: Jetzt fehlt im "blank" Fall das Update des Dictionaries: Kein write in das File (bzw kein File) und auch kein callback-update des Storage-Dictionaries.\par
+Evtl. weil nur die Linaege Instanz aktualisiert wird, ohne dass das Dictionary was davon mitbekommt.\par
+Muss ich morgen untersuchen ...\par
+\par
+\par
+\par
+2018-05-22\par
+\par
+Lieber gleich die initialisierten Handler beim TypeDictionaryManager auf einmal registrieren (dann gibt's auch nur einen Write) und schwups, schon gehts.\par
+Jetzt noch testen, ob es wirklich keinen Fehler gibt, wenn es verschiedene Varianten einer TypeDescription im Dictionary gibt.\par
+Ah: PersistenceTypeDictionaryManager#validateTypeDefinition wirft bei der Verwendung einer \'e4lteren passenden TypeDescription nun einen Fehler, weil currentByTid und currentByName nicht mehr dassselbe sind.\par
+Muss angepasst werden. Durchdenken.\par
+Also dieser Vergleich muss raus, weil der nicht mehr dem neuen Konzept entspricht.\par
+Die sonstige Validierung, also die Members der \'fcbergebenen Definition mit der ge-lookup-ten abgleichen, macht aber schon Sinn, weil in dieser Methode TypeHandlers landen und mit dem Dictionary abgeglichen werden.\par
+Ab\'e4ndern und Kommentierung verbessen.\par
+Wieder testen.\par
+Hehe: Der Exporter nach TypeName wirft jetzt eine Exception, wenn es f\'fcr einen TypeName zwei unterschiedliche Typen gibt. Da muss die TypeId mit rein.\par
+Eingebaut in bin und in csv Filebenamung. Getestet. Passt.\par
+\par
+\par
+2018-05-23\par
+\par
+Gestern getestet:\par
+1.) Neuere Definition ohne Daten, \'e4ltere ist die passende und hat Daten.\par
+Weitere F\'e4lle testen:\par
+2.) \'c4ltere Definition ohne Daten, aktuellere ist die passende und hat Daten.\par
+3.) \'c4ltere Definition mit Daten, aktuellere ist die passende und hat keine Daten. Das muss letzendlich beim Daten laden eine Exception werfen. Die zu beheben ist dann Teil 2 der Arbeit.\par
+\par
+zu 2.)\par
+Typehandling funktioniert wie erwartet. Keine Exception. Export funktioniert. Passt alles.\par
+\par
+zu 3.)\par
+Typehandling funktioniert wie erwartet. Exception in BinaryBuilder#createBuildItem, weil der Handler f\'fcr die TID des geladenen Datensatzes nicht gefunden werden kann.\par
+Das ist wie erwartet. Hier gehts jetzt mit der Implementierung weiter.\par
+\par
+\par
+Ab hier eigentlich Legacy Type Mapping, aufbauend auf erweitertem TypeDefinition Handling (Lineages, usw.)\par
+\par
+\par
+Zun\'e4chst ist mal komisch: warum gibt es extra TID<->OID Eintr\'e4ge in der SwizzleRegistry? Die TID kommt aus dem Datensatz. Das muss ich recherchieren, evtl. kann das rausfliegen. Spart Speicher, Zeit und Komplexit\'e4t ein.\par
+\par
+Evtl. muss das Mapper erzeugen doch nicht erst so sp\'e4t in BinaryBuilder#createBuildItem stattfinden, sondern schon vorher beim Storage Initialisieren:\par
+Es werden ja eh alle Datens\'e4tze registriert und ihre StorageTypeHandler gelookupt. Wenn dort einer fehlt (bzw. warum hat das dann nicht schon dort gekracht?) kann der Handler entsprechend erzeugt werden, mit Callback in die LoadHandler rein.\par
+\par
+Aber zur\'fcck zu der seltsames TID Registrierung...\par
+Das sieht so aus, als k\'f6nnte es raus.\par
+Einfach mal rausl\'f6schen und dann testen.\par
+Sieht gut aus.\par
+Testen. Passt.\par
+Committen.\par
+\par
+Jetzt zur\'fcck zum eigentlichen Type Mapping. Storage Entry Initialisierung durchschauen. Einlesen ...\par
+\par
+Eigentlich k\'f6nnte das alles viel einfacher und effizienter sein, wenn die Entities r\'fcckw\'e4rts registriert werden w\'fcrden:\par
+Es wird automatisch immer die \'e4lteste Version zuerst registriert und die Daten ggf. gecachet. Vorherige Versionen sind automatisch L\'fccken und werden ignoriert.\par
+Problem daran ist: wie iteriert man Entities r\'fcckw\'e4rts, die nur vorw\'e4rts verkettet sind? Pl\'f6d ...\par
+Man k\'f6nnte nat\'fcrlich Storage Dateien auf einmal einlesen und dann den Buffer einmal von vorne durchscannen. Wenn die Dateien riesig werden, wird halt auch der (tempor\'e4re) Buffer riesig. Wenn der zu riesig wird, sollte man halt kleinere Dateien w\'e4hlen. Wobei nat\'fcrlich ein Store schon mal eine Giga-Datei erzeugen kann, deren Einlesen dann den Buffer gigantisch gro\'dfe bzw. zu gro\'df werden lassen w\'fcrde. Evtl. muss doch mit einer maximalen Puffergr\'f6\'dfe eingelesesen werden und im ung\'fcnstigen Fall dann mehrfach von der Platte geladen werden.\par
+\par
+Dann w\'e4re der Ablauf:\par
+- Dateien r\'fcckw\'e4rts iterieren\par
+- Je Datei m\'f6glichst alles auf einmal einlesen.\par
+- Einmal alles vorw\'e4rts iterieren und Offsets merken.\par
+- Danach von hinten nach vorne Entities registrieren. Wenn es ein Entity schon gibt (d.h. SP\'c4TERE, NEUERE Version!), dann ignorieren.\par
+\par
+Vielleicht so machen: Verkettete Liste aus "FileScanSegment":\par
+- Offset im File.\par
+- L\'e4nge (ist normalerweise gleich der Buffersize, oder weniger)\par
+- long[] mit offsets je Entities.\par
+- entityCount als size f\'fcr das growing array.\par
+\par
+Es gibt immer nur einen Buffer mit einer bestimmten Gr\'f6\'dfe (standardm\'e4\'dfig eher gro\'df, sowas wie 10 MB).\par
+Standardm\'e4\'dfig wird ein FileScanSegment angelegt.\par
+Falls die Datei gr\'f6\'dfer ist ODER falls das offsets array voll ist, wird ein weiteres Segment angelegt.\par
+Wenn das Ende der Datei erreicht ist, ist der Buffer noch mit den Daten des letzten Segments gef\'fcllt. Im Idealfall reicht ein Segment f\'fcr die Datei und der Buffer muss nur ein einziges Mal gef\'fcllt werden.\par
+Die Segments werden von hinten nach vorne durchlaufen. Idealerweise gibt es nur eins.\par
+Das long[] array jedes Segments wird von hinten nach vorne durchlaufen.\par
+Jede OID wird nur einmal registriert, d.h. nur die sp\'e4teste/aktuellste Version eines Datensatzes z\'e4hlt.\par
+Dabei wird auch gleich der richtige Type festgestellt, usw. Das macht das ganze nachtr\'e4glich validieren, upaten, usw. trivial. Und wahrscheinlich auch die Performance besser, weil nicht millionen \'fcberfl\'fcssige Entry Updates gemacht werden m\'fcssen.\par
+\par
+Naja, mal genauer recherchieren:\par
+Entfallen w\'fcrde f\'fcr n Vorkommen/Versionen eines Entities\par
+- alle resetExistingEntityForUpdate im Kollisionsfall (n-1 St\'fcck).\par
+- n-1 getType Aufrufe. Einmal muss es trotzdem sein.\par
+- Extra updateStorageInformation Aufrufe (auch n-1).\par
+- Oh, und, besonders interessant: viel sinnloses Cache F\'fcllen von vorherigen Entities. \par
+\par
+\par
+Hm... aber eigentlich ist es so:\par
+Das ist eine tolle Sache, die viel Performance bei der Initialisierung bringen wird, aber f\'fcr das eigentliche Thema Type Mapping bringt das gar nichts.\par
+Denn:\par
+Die Storage hat ihr eigenes Type System. Auch Entities mit runtimem\'e4\'dfig veraltetem Type werden von der Storage ganz normal verarbeitet f\'fcr GC usw.\par
+Erst, wenn die Daten in die Anwendung geladen werden m\'fcssen, gibt es ein Typ-Problem, das gel\'f6st/gemappt werden muss.\par
+\par
+Wobei allerdings auch so ist:\par
+Alle Typprobleme sollten bei der Initialisierung auftauchen und entweder verl\'e4sslich gel\'f6st werden oder einen Fehler mit Abbruch erzeugen.\par
+Wenn man das Ding einfach fehlerlos starten kann, aber nie wei\'df, ob irgendwann sp\'e4ter beim Entities laden noch irgendein alter Typ nicht gemappt ist, ist das mindestens nervig oder sogar vertrauenserodierend.\par
+Das hei\'dft es m\'fcsste trotzdem gleich in der Storage Initialisierung zumindest eine Art TypeCheckCallback geben, der man die TypeId eines tats\'e4chlich existierenden Datensatzes mal zum "beschnuppen", also TypeHandler-validieren, geben kann.\par
+Haha und jetzt schlie\'dft sich der Kreis:\par
+Das sollte nat\'fcrlich nicht f\'fcr jedes veraltete Entity passieren, sondern nur f\'fcr die aktuellen Version. Also w\'e4re die Reihenfolgeumkehr und Type-Lookup Invertierung doch wieder n\'f6tig.\par
+\par
+\par
+\par
+2018-05-24\par
+\par
+Es sollte aber nicht so sein, dass bei der Storage Initialisierung per Callback an die Persistence Ebene kommuniziert wird, denn:\par
+- Das sind Storage Channel Threads. Die sollten auf keinen Fall Zeug aus der Anwendungsebene direkt aufrufen.\par
+- Es sind potenziell mehrere Threads, d.h. es m\'fcsste bei dem Type Handler Mapping dann alles threadsicher sein (vermeidbarerweise/unn\'f6tigerweise)\par
+- Man k\'f6nnte so keine Gesamtliste an problematischen Typen erstellen, weil manche Typen evtl. nur ein einem Channel vorkommen (z.B. wenn es nur eine Instanz des Typen gibt)\par
+\par
+Besser ist:\par
+Alle Channels sammeln beim Initialisieren die TypeIds, die tats\'e4chlich verwendet werden.\par
+Die werden zu einem zentralen Set zusammengesammelt.\par
+Dieses Set gibt die Initialisierung als Ergebnis zur\'fcck.\par
+Dieses Ergebnis kann sich der Anwendungsthread, der die Initialisierung gestartet hat, anschauen und wo n\'f6tig auf der Anwendungsseite (Loader usw.) Type Mappings erzeugen oder einen Fehler werfen.\par
+\par
+Das kann mit der bisherigen, nachgelagerten Validierung auch gemacht werden. Die Initialisierungsumkehr w\'e4re zwar eine tolle Effizienzsteigerung, aber ist daf\'fcr nicht n\'f6tig.\par
+Muss ich mal als extra Issue aufmachen.\par
+\par
+... Hmpf! Oder ist die Umkehr doch n\'f6tig, weil:\par
+Momentan geht die Initialisierung davon aus, dass ein Entity / OID immer dieselbe TID hat. Mit der Typ\'e4nderung ist das nicht mehr der Fall.\par
+Da m\'fcsste ich jetzt eh erheblich dran rumstricken. Type updaten, usw., das zieht dann wieder die \'fcblichen Detailprobleme und Verkomplizierungen nach sich.\par
+Dann kann ich f\'fcr den gleichen Aufwand gleich die bessere Initialisierungsstrategie bauen, die dieses Problem automatisch mitl\'f6st.\par
+\par
+Also ganz sorgf\'e4ltig \'fcberlegt, damit ich Zeug m\'f6glichst nicht mehrfach programmieren muss:\par
+- Storage Files r\'fcckw\'e4rts initialisieren.\par
+- Dabei jedes erste (= sp\'e4teste / aktuellste) vorkommen eines Entities/OID registrieren und TypeHandler setzen. Alle \'e4lteren verwerfen.\par
+- Wenn alles fertig registriert ist, validieren.\par
+- Beim Validieren alle tats\'e4chlich in aktuellen Entities vorkommenden TypeIds zusammensammeln.\par
+- Als ergebnis der Initialisierung die Menge der vorkommenden TypeIds an die aufrufende Logik zur\'fcckgeben, damit die die Typen abgleichen und ggf. Mapper sicherstellen oder eine Exception werfen kann.\par
+\par
+Interessant ist noch folgender Fall:\par
+Ein Entity ist im Graph \'fcberhaupt nicht mehr erreichbar, d.h. logisch "gel\'f6scht", aber die Bytes daf\'fcr liegen noch in den Datenbankdateien.\par
+Die Initialisierung st\'f6\'dft irgendwann darauf, registriert sie, registriert ihre TypeId, gibt sie an die Persistence Ebene weiter.\par
+Diese findet f\'fcr einen Typ, der aus Entwickler sicht "l\'e4ngst gel\'f6scht" ist, wahrscheinlich kein passendes Mapping (falls eins n\'f6tig w\'e4re) und wirft darum evtl. einen Fehler, auch wenn das Entity selbst durch einen Lade-Request niemals abgefragt werden wird, weil es ja eben nicht mehr erreichbar ist. Technisch ist das korrekt, aus Sicht des Entwicklers kann es aber zumindest nervig sein oder als Fehler empfunden werden.\par
+Bei der Initialisierung erst mal eine komplette Garbage Collection laufen lassen ist keine praktikable L\'f6sung.\par
+Besser ist:\par
+Wenn kein Mapping gefunden wird, wird eins implizit angenommen/generiert. Hier k\'f6nnte es noch den Fall geben, dass der ItemMatcher sich nicht sicher ist und r\'fcckfragen muss. Mal sehen, wie das dann gel\'f6st werden kann.\par
+Es k\'f6nnte auch eine M\'f6glichkeit geben, veraltete Typen (bzw. TypeIds) definieren zu k\'f6nnen. F\'fcr die wird dann einfach ein best-effort Mapping erzeugt, das aber letztendlich nie verwendet werden wird. Evtl. k\'f6nnte die R\'fcckfrage auch so eine Option bieten: "Ignore Type" oder so.\par
+Die Zahl der F\'e4lle, die dann immer noch "Probleme" machen (schlimmstenfalls eine unerwartete Nachfrage, wie ein Typ gemappt werden soll, den der Entwickler eigentlich als gel\'f6scht annimmt), sollte dann sehr sehr gering, d.h. zumutbar, sein.\par
+Wer unbedingt will, kann solche "Restf\'e4lle" dann noch mit einer Art Totschlaglogik behandeln. Wobei die dann wieder von unpassend einfachen Annahmen ausgeht und dann schreit jeder, warum da Fehler drin sind.\par
+Naja. Mal sehen, was letztendlich daraus wird.\par
+\par
+\par
+Wieder eindenken in StorageDataFileItemIterator Funktionsweise und wie ich da die ge\'e4nderte Buffer Strategie (ein gro\'dfer, in den m\'f6glichst ein File auf einmal reingeht und der dann geff\'fcllt weiterverwendet werden kann) reinbring.\par
+Mit einer neuen BufferProvider Implementierung, die beim Bufferproviden ein FileScanSegment anlegt, m\'fcsste es klappen.\par
+Mal so implementieren.\par
+\par
+\par
+\par
+\par
+2018-05-25\par
+\par
+Die neue Initialisierung ist gestern fast fertig zum testen geworden. Aber einen fiesen Sonderfall gibt es: Es vermerkt und entsprechend durchgereicht werden, wenn ein Entity mit unvollst\'e4ndigen Daten im Buffer ist.\par
+Mal recherchieren in StorageDataFileItemIterator#processInputFile und #processBufferedEntities.\par
+Erweitern um Flag incompleteLastEntity.\par
+Entityregistrierung anpassen.\par
+Mal OGS-3 updaten und Mail an MK, TS.\par
+\par
+\par
+2018-05-28\par
+\par
+Mal schauen, wo und wie ich die Config durchschleifen muss, damit im FileManager der Maximum File Length Wert f\'fcr den buffer vef\'fcgbar ist.\par
+Ach, nat\'fcrlich: gar nicht, weil der DataFileEvaluator schon die maximumLength zur\'fcckgibt und der ist schon im FileManager, weil das, naja, der FileManager ist. W\'e4r ja auch bl\'f6d, sonst.\par
+Zwischenzeitlich ge\'e4nderte Benamungen angleichen.\par
+Wieso sind die Filewerte in dem Ding long statt int? Aktuell ist int das limit, damit die entity fileposition nur 4 byte braucht.\par
+Und mal ehrlich: Als maximalgr\'f6\'dfe eines einzelnen Files f\'fcr beliebig viele Files sind 2 GB mehr als ausreichend. Aus Housekeepinggr\'fcnden sollten solche files sogar eher 10 MB gro\'df sein. Da ist 2 GB wirklich enorm.\par
+So, alles ge\'e4ndert. Damit muss an den Referenzen zwischen ein Einzelteilen gar nichts ge\'e4ndert werden.\par
+\par
+\par
+}
+ 
