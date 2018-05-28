@@ -70,7 +70,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
-	public StorageIdRangeAnalysis initializeStorage(
+	public StorageIdAnalysis initializeStorage(
 		long                        taskTimestamp                   ,
 		long                        consistentStoreTimestamp        ,
 		StorageInventory            storageInventory                ,
@@ -560,7 +560,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public final StorageIdRangeAnalysis initializeStorage(
+		public final StorageIdAnalysis initializeStorage(
 			final long                        taskTimestamp                   ,
 			final long                        consistentStoreTimestamp        ,
 			final StorageInventory            storageInventory                ,
@@ -568,31 +568,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageTypeDictionary       oldTypes
 		)
 		{
-			// (04.04.2016 TM)NOTE: little performance test for entity iteration per files
-//			final StorageIdRangeAnalysis result = this.fileManager.initializeStorage(
-//				taskTimestamp                   ,
-//				consistentStoreTimestamp        ,
-//				storageInventory                ,
-//				entityInitializingCacheEvaluator,
-//				oldTypes
-//			);
-//			for(int i = 10; i-- > 0;)
-//			{
-//				final long tStart = System.nanoTime();
-//				final long count = this.fileManager.iterateEntities(new Consumer<StorageEntity.Implementation>()
-//				{
-//					long count = 0;
-//					@Override
-//					public void accept(final StorageEntity.Implementation e)
-//					{
-//						this.count++;
-//					}
-//				}).count;
-//				final long tStop = System.nanoTime();
-//				System.out.println(this.channelIndex() + " iterated " + count + ", Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
-//			}
-//			return result;
-
 			return this.fileManager.initializeStorage(
 				taskTimestamp                   ,
 				consistentStoreTimestamp        ,

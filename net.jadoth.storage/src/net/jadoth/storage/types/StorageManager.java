@@ -31,6 +31,8 @@ public interface StorageManager extends StorageController
 		return this.start(null, null); // null implies to use the standard / entityCache's evaluator
 	}
 
+	// (28.05.2018 TM)FIXME: OGS-3: remove all occurances of "oldTypes"
+	// (28.05.2018 TM)TODO: OGS-3: reintroduce entityInitializingCacheEvaluator via detour?
 	@Override
 	public StorageManager start(
 		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
@@ -217,7 +219,7 @@ public interface StorageManager extends StorageController
 			throw new StorageExceptionNotRunning();
 		}
 
-		private StorageIdRangeAnalysis startThreads(final StorageChannelTaskInitialize initializingTask)
+		private StorageIdAnalysis startThreads(final StorageChannelTaskInitialize initializingTask)
 			throws InterruptedException
 		{
 			// (07.07.2016 TM)TODO: StorageThreadStarter instead of hardcoded call
@@ -229,7 +231,7 @@ public interface StorageManager extends StorageController
 				}
 				initializingTask.waitOnCompletion();
 			}
-			return initializingTask.getIdRangeAnalysis();
+			return initializingTask.idAnalysis();
 		}
 
 
@@ -315,11 +317,13 @@ public interface StorageManager extends StorageController
 			);
 			this.createChannels();
 
-			final StorageIdRangeAnalysis idRangeAnalysis = this.startThreads(task);
-			final Long                   maxOid          = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+			final StorageIdAnalysis idAnalysis = this.startThreads(task);
+			final Long              maxOid     = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 
 			// only ObjectId is relevant at this point
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
+			
+			// (28.05.2018 TM)FIXME: OGS-3: idAnalysis.occuringTypeIds() validation / analysis
 
 			this.writeListener.start();
 		}

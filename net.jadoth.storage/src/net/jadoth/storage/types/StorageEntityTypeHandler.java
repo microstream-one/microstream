@@ -210,8 +210,9 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 				return false;
 			}
 
-			// type id does not need to be validated here as the handler always got looked up via it beforehand
-			// object id can be an arbitrary value as far as the handler is concerned, no check here
+			// type id does not need to be validated here as the handler always got looked up via it beforehand.
+			// object id can be an arbitrary value as far as the handler is concerned, no check here.
+			// value validations on a business-logical level are no concern of the storage.
 			return true;
 		}
 
@@ -229,8 +230,9 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 				throw new RuntimeException("Invalid entity length: " + length + " > " + this.maximumEntityLength);
 			}
 
-			// type id does not need to be validated here as the handler always got looked up via it beforehand
-			// object id can be an arbitrary value as far as the handler is concerned, no check here
+			// type id does not need to be validated here as the handler always got looked up via it beforehand.
+			// object id can be an arbitrary value as far as the handler is concerned, no check here.
+			// value validations on a business-logical level are no concern of the storage.
 		}
 
 		@Override
