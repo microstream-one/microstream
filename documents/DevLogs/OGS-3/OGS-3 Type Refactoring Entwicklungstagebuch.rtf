@@ -1008,7 +1008,6 @@ Mal so implementieren.\par
 \par
 \par
 \par
-\par
 2018-05-25\par
 \par
 Die neue Initialisierung ist gestern fast fertig zum testen geworden. Aber einen fiesen Sonderfall gibt es: Es vermerkt und entsprechend durchgereicht werden, wenn ein Entity mit unvollst\'e4ndigen Daten im Buffer ist.\par
@@ -1016,6 +1015,7 @@ Mal recherchieren in StorageDataFileItemIterator#processInputFile und #processBu
 Erweitern um Flag incompleteLastEntity.\par
 Entityregistrierung anpassen.\par
 Mal OGS-3 updaten und Mail an MK, TS.\par
+\par
 \par
 \par
 2018-05-28\par
@@ -1026,6 +1026,16 @@ Zwischenzeitlich ge\'e4nderte Benamungen angleichen.\par
 Wieso sind die Filewerte in dem Ding long statt int? Aktuell ist int das limit, damit die entity fileposition nur 4 byte braucht.\par
 Und mal ehrlich: Als maximalgr\'f6\'dfe eines einzelnen Files f\'fcr beliebig viele Files sind 2 GB mehr als ausreichend. Aus Housekeepinggr\'fcnden sollten solche files sogar eher 10 MB gro\'df sein. Da ist 2 GB wirklich enorm.\par
 So, alles ge\'e4ndert. Damit muss an den Referenzen zwischen ein Einzelteilen gar nichts ge\'e4ndert werden.\par
+\par
+validateEntities() muss noch \'fcbernommen und ggf. angepasst werden.\par
+Ahja, dazu muss das ganze oldTypes Provisorium Zeug raus.\par
+\par
+Nebenbei gleich mal die OccuringTypeIds Sammelei implementiert.\par
+\par
+\cf1 TODO:\par
+Hm. Mit dem neuen Initialisierungskonzept ist eigentlich kein Platz mehr f\'fcr einen StorageEntityCacheEvaluator entityInitializingCacheEvaluator. Evtl muss ich den mit einem kleinen Umweg wieder einbauen.\par
+\cf0\par
+Implementierung nochmal durchdenken und aufr\'e4umen.\par
 \par
 \par
 }

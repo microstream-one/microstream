@@ -8,6 +8,7 @@ import static net.jadoth.math.XMath.positive;
 import java.nio.ByteBuffer;
 
 import net.jadoth.X;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.XMath;
 import net.jadoth.memory.Memory;
@@ -496,31 +497,39 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 		}
 
-		final StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
+		// (28.05.2018 TM)FIXME: remove with OGS-3
+		final StorageIdAnalysis validateEntities(final StorageTypeDictionary oldTypes)
 		{
 			long maxTid = 0, maxOid = 0, maxCid = 0;
+			
+			final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
 
 			// validate all entities via iteration by type. Simplifies debugging and requires less type pointer chasing
 			for(StorageEntityType.Implementation type : this.tidHashTable)
 			{
 				while(type != null)
 				{
-					final StorageIdRangeAnalysis idRangeAnalysis = type.validateEntities(oldTypes);
+					if(!type.isEmpty())
+					{
+						occuringTypeIds.add(type.typeId);
+					}
+					
+					final StorageIdAnalysis idAnalysis = type.validateEntities(oldTypes);
 					type = type.hashNext;
 
-					final Long typeMaxTid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
+					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
 					if(typeMaxTid != null && typeMaxTid >= maxTid)
 					{
 						maxTid = typeMaxTid;
 					}
 
-					final Long typeMaxOid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 					if(typeMaxOid != null && typeMaxOid >= maxOid)
 					{
 						maxOid = typeMaxOid;
 					}
 
-					final Long typeMaxCid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
+					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
 					if(typeMaxCid != null && typeMaxCid >= maxCid)
 					{
 						maxCid = typeMaxCid;
@@ -528,7 +537,49 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 			}
 
-			return StorageIdRangeAnalysis.New(maxTid, maxOid, maxCid);
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid, occuringTypeIds);
+		}
+		
+		final StorageIdAnalysis validateEntities_NEWOGS3()
+		{
+			long maxTid = 0, maxOid = 0, maxCid = 0;
+			
+			final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
+
+			// validate all entities via iteration by type. Simplifies debugging and requires less type pointer chasing
+			for(StorageEntityType.Implementation type : this.tidHashTable)
+			{
+				while(type != null)
+				{
+					if(!type.isEmpty())
+					{
+						occuringTypeIds.add(type.typeId);
+					}
+					
+					final StorageIdAnalysis idAnalysis = type.validateEntities_NEWOGS3();
+					type = type.hashNext;
+
+					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
+					if(typeMaxTid != null && typeMaxTid >= maxTid)
+					{
+						maxTid = typeMaxTid;
+					}
+
+					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+					if(typeMaxOid != null && typeMaxOid >= maxOid)
+					{
+						maxOid = typeMaxOid;
+					}
+
+					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
+					if(typeMaxCid != null && typeMaxCid >= maxCid)
+					{
+						maxCid = typeMaxCid;
+					}
+				}
+			}
+
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid, occuringTypeIds);
 		}
 
 		final StorageEntityType.Implementation validateEntity(

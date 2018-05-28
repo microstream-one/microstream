@@ -13,6 +13,11 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 	public StorageEntityTypeHandler<?> typeHandler();
 
 	public long entityCount();
+	
+	public default boolean isEmpty()
+	{
+		return this.entityCount() == 0;
+	}
 
 	public <T extends Throwable, P extends ThrowingProcedure<? super I, T>> P iterateEntities(P procedure) throws T;
 
@@ -22,12 +27,17 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 	public void iterateEntityReferenceIds(I entity, _longProcedure procedure);
 
-	public default StorageIdRangeAnalysis validateEntities()
+	@Deprecated // (28.05.2018 TM)FIXME: remove with OGS-3
+	public default StorageIdAnalysis validateEntities()
 	{
 		return this.validateEntities(null);
 	}
 
-	public StorageIdRangeAnalysis validateEntities(StorageTypeDictionary oldTypes);
+	@Deprecated // (28.05.2018 TM)FIXME: remove with OGS-3
+	public StorageIdAnalysis validateEntities(StorageTypeDictionary oldTypes);
+
+	// (28.05.2018 TM)FIXME: rename with OGS-3
+	public StorageIdAnalysis validateEntities_NEWOGS3();
 
 
 
@@ -220,7 +230,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		}
 
 		@Override
-		public final StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
+		public final StorageIdAnalysis validateEntities(final StorageTypeDictionary oldTypes)
 		{
 			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
 
@@ -292,7 +302,55 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 				}
 			}
 
-			return StorageIdRangeAnalysis.New(maxTid, maxOid, maxCid);
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid);
+		}
+		
+
+		@Override
+		public StorageIdAnalysis validateEntities_NEWOGS3()
+		{
+			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
+
+			long maxOid = 0, maxCid = 0, maxTid = 0;
+			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
+			{
+				final long entityLength   = entity.length;
+				final long entityObjectId = entity.objectId();
+
+				typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
+
+				final long oid = entity.objectId();
+				if(Swizzle.IdType.OID.isInRange(oid))
+				{
+					if(oid >= maxOid)
+					{
+						maxOid = oid;
+					}
+				}
+				else if(Swizzle.IdType.CID.isInRange(oid))
+				{
+					if(oid >= maxCid)
+					{
+						maxCid = oid;
+					}
+				}
+				else if(Swizzle.IdType.TID.isInRange(oid))
+				{
+					/* note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
+					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
+					 */
+					if(oid >= maxTid)
+					{
+						maxTid = oid;
+					}
+				}
+				else
+				{
+					throw new StorageException("Invalid OID: " + oid);
+				}
+			}
+
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid);
 		}
 
 		@Override
