@@ -666,25 +666,25 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			@Override
 			public final StorageChannel.Implementation[] createChannels(
-				final int                                   channelCount                 ,
-				final StorageInitialDataFileNumberProvider  initialDataFileNumberProvider,
-				final StorageExceptionHandler               exceptionHandler             ,
-				final StorageDataFileEvaluator              fileDissolver                ,
-				final StorageFileProvider                   storageFileProvider          ,
-				final StorageEntityCacheEvaluator           entityCacheEvaluator         ,
-				final StorageTypeDictionary                 typeDictionary               ,
-				final StorageTaskBroker                     taskBroker                   ,
-				final StorageChannelController              channelController            ,
-				final StorageHousekeepingController         housekeepingController       ,
-				final StorageTimestampProvider              timestampProvider            ,
-				final StorageFileReader.Provider            readerProvider               ,
-				final StorageFileWriter.Provider            writerProvider               ,
-				final StorageWriteListener                  writeListener                ,
-				final StorageGCZombieOidHandler             zombieOidHandler             ,
-				final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
-				final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
-				final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-				final long                                  rootTypeId
+				final int                                  channelCount                 ,
+				final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
+				final StorageExceptionHandler              exceptionHandler             ,
+				final StorageDataFileEvaluator             dataFileEvaluator            ,
+				final StorageFileProvider                  storageFileProvider          ,
+				final StorageEntityCacheEvaluator          entityCacheEvaluator         ,
+				final StorageTypeDictionary                typeDictionary               ,
+				final StorageTaskBroker                    taskBroker                   ,
+				final StorageChannelController             channelController            ,
+				final StorageHousekeepingController        housekeepingController       ,
+				final StorageTimestampProvider             timestampProvider            ,
+				final StorageFileReader.Provider           readerProvider               ,
+				final StorageFileWriter.Provider           writerProvider               ,
+				final StorageWriteListener                 writeListener                ,
+				final StorageGCZombieOidHandler            zombieOidHandler             ,
+				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
+				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
+				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
+				final long                                 rootTypeId
 			)
 			{
 				// (14.07.2016 TM)TODO: make configuration dynamic
@@ -728,7 +728,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						initialDataFileNumberProvider   ,
 						timestampProvider               ,
 						storageFileProvider             ,
-						fileDissolver                   ,
+						dataFileEvaluator               ,
 						entityCache                     ,
 						readerProvider.provideReader(i) ,
 						writerProvider.provideWriter(i) ,

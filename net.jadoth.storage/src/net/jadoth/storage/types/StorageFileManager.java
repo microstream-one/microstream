@@ -157,7 +157,7 @@ public interface StorageFileManager
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
-		private final StorageDataFileEvaluator             fileEvaluator                ;
+		private final StorageDataFileEvaluator             dataFileEvaluator                ;
 		private final StorageEntityCache.Implementation    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
@@ -212,7 +212,7 @@ public interface StorageFileManager
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageFileProvider                  storageFileProvider          ,
-			final StorageDataFileEvaluator             fileDissolver                ,
+			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Implementation    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
@@ -224,7 +224,7 @@ public interface StorageFileManager
 			this.channelIndex                  = notNegative(channelIndex)                 ;
 			this.initialDataFileNumberProvider =     notNull(initialDataFileNumberProvider);
 			this.timestampProvider             =     notNull(timestampProvider)            ;
-			this.fileEvaluator                 =     notNull(fileDissolver)                ;
+			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
 			this.storageFileProvider           =     notNull(storageFileProvider)          ;
 			this.entityCache                   =     notNull(entityCache)                  ;
 			this.reader                        =     notNull(reader)                       ;
@@ -401,7 +401,7 @@ public interface StorageFileManager
 
 			final long copyStart                = first.storagePosition                     ;
 			final long targetFileOldTotalLength = headFile.totalLength()                    ;
-			final long maximumFileSize          = this.fileEvaluator.maximumFileSize()      ;
+			final long maximumFileSize          = this.dataFileEvaluator.maximumFileSize()  ;
 			final long freeSpace                = maximumFileSize - targetFileOldTotalLength;
 			      long copyLength               = 0                                         ;
 
@@ -643,7 +643,7 @@ public interface StorageFileManager
 
 		private void checkForNewFile()
 		{
-			if(this.headFile.needsRetirement(this.fileEvaluator))
+			if(this.headFile.needsRetirement(this.dataFileEvaluator))
 			{
 				this.createNextStorageFile();
 			}
@@ -1101,8 +1101,7 @@ public interface StorageFileManager
 			final long             taskTimestamp                  ,
 			final StorageInventory storageInventory               ,
 			final long             consistentStoreTimestamp       ,
-			final long             unregisteredEmptyLastFileNumber,
-			final int              bufferCapacity
+			final long             unregisteredEmptyLastFileNumber
 		)
 		{
 			/*
@@ -1125,7 +1124,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " determined last file length as " + lastFileLength);
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			this.registerItems_NEWOGS3(files, lastFile, lastFileLength, bufferCapacity);
+			this.registerItems_NEWOGS3(files, lastFile, lastFileLength);
 
 			// validate entities (only the latest versions)
 			final StorageIdAnalysis idRangeAnalysis = this.validateEntities_NEWOGS3();
@@ -1399,11 +1398,13 @@ public interface StorageFileManager
 		private void registerItems_NEWOGS3(
 			final XGettingSequence<StorageInventoryFile> reversedFiles ,
 			final StorageInventoryFile                   lastFile      ,
-			final long                                   lastFileLength,
-			final int                                    bufferCapacity
+			final long                                   lastFileLength
 		)
 		{
-			final EntityIndexer entityIndexer = new EntityIndexer(this.entityCache, bufferCapacity);
+			final EntityIndexer entityIndexer = new EntityIndexer(
+				this.entityCache,
+				this.dataFileEvaluator.maximumFileSize()
+			);
 			
 			// (16.06.2014 TM)NOTE: tests showed no significant difference in performance above page sized buffer
 			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
@@ -1787,7 +1788,7 @@ public interface StorageFileManager
 		@Override
 		public final boolean incrementalFileCleanupCheck(final long nanoTimeBudgetBound)
 		{
-			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.fileEvaluator);
+			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
 		@Override
@@ -1827,7 +1828,7 @@ public interface StorageFileManager
 			{
 				return this.internalCheckForCleanup(
 					nanoTimeBudgetBound,
-					coalesce(fileDissolver, this.fileEvaluator)
+					coalesce(fileDissolver, this.dataFileEvaluator)
 				);
 			}
 			finally
