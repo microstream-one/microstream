@@ -19,6 +19,17 @@ import net.jadoth.chars.VarString;
 public interface StorageEntityCacheEvaluator
 {
 	public boolean clearEntityCache(long totalCacheSize, long evaluationTime, StorageEntity entity);
+	
+	public default boolean initiallyCacheEntity(
+		final long          totalCacheSize,
+		final long          evaluationTime,
+		final StorageEntity entity
+	)
+	{
+		// (28.05.2018 TM)TODO: OGS-3: reactivate and test initial entity caching
+		return false; // hehe
+//		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
+	}
 
 
 

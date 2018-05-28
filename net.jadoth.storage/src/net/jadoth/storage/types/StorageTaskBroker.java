@@ -55,19 +55,17 @@ public interface StorageTaskBroker
 		throws InterruptedException;
 
 	public default StorageChannelTaskInitialize issueChannelInitialization(
-		final StorageChannelController    channelController               ,
-		final StorageEntityCacheEvaluator entityInitializingCacheEvaluator
+		final StorageChannelController channelController
 	)
 		throws InterruptedException
 	{
 		// oldTypes dictionary is optional, may be null
-		return this.issueChannelInitialization(channelController, entityInitializingCacheEvaluator, null);
+		return this.issueChannelInitialization(channelController, null);
 	}
 
 	public StorageChannelTaskInitialize issueChannelInitialization(
-		StorageChannelController    channelController               ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+		StorageChannelController channelController,
+		StorageTypeDictionary    oldTypes
 	)
 		throws InterruptedException;
 
@@ -407,19 +405,18 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageChannelTaskInitialize issueChannelInitialization(
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final StorageChannelController channelController,
+			final StorageTypeDictionary    oldTypes
 
 		)
 			throws InterruptedException
 		{
 			final StorageChannelTaskInitialize task = this.taskCreator.createInitializationTask(
-				this.channelCount               ,
-				channelController               ,
-				entityInitializingCacheEvaluator,
+				this.channelCount,
+				channelController,
 				oldTypes
 			);
+			
 			// special case: cannot wait on the task before the channel threads are started
 			this.enqueueTaskAndNotifyAll(task);
 			return task;

@@ -170,7 +170,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// the * 2 is important for simplifying the flush check
 			this.bufferSize                      = Math.max(bufferSize, 2 * Memory.defaultBufferSize())           ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = Memory.directByteBufferAddress(this.byteBuffer)                ;
+			this.byteBufferStartAddress          = Memory.getDirectByteBufferAddress(this.byteBuffer)                ;
 			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + Memory.defaultBufferSize()       ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
@@ -184,9 +184,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
 			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.lengthListHeader());
-			this.addressListHeaderUpdateBuffer   = Memory.directByteBufferAddress(this.listHeaderUpdateBuffer)    ;
+			this.addressListHeaderUpdateBuffer   = Memory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
-			this.addressEntityLengthUpdateBuffer = Memory.directByteBufferAddress(this.entityLengthUpdateBuffer)  ;
+			this.addressEntityLengthUpdateBuffer = Memory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
 		}

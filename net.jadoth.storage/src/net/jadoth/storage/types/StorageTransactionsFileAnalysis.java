@@ -282,7 +282,7 @@ public interface StorageTransactionsFileAnalysis
 			fileChannel.position(startPosition);
 
 			final ByteBuffer buffer  = ByteBuffer.allocateDirect(Memory.defaultBufferSize());
-			final long       address = Memory.directByteBufferAddress(buffer);
+			final long       address = Memory.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part
 			while(currentFilePosition < boundPosition)

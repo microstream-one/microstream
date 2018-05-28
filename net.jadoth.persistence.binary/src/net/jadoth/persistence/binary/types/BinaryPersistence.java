@@ -1898,7 +1898,7 @@ public final class BinaryPersistence extends Persistence
 		 */
 
 		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-		return Memory.get_long(Memory.directByteBufferAddress(lengthBuffer));
+		return Memory.get_long(Memory.getDirectByteBufferAddress(lengthBuffer));
 	}
 
 	public static final void fillBuffer(

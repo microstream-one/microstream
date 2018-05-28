@@ -12,10 +12,9 @@ import net.jadoth.swizzling.types.SwizzleIdSet;
 public interface StorageRequestTaskCreator
 {
 	public StorageChannelTaskInitialize createInitializationTask(
-		int                         channelCount                    ,
-		StorageChannelController    channelController               ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+		int                      channelCount     ,
+		StorageChannelController channelController,
+		StorageTypeDictionary    oldTypes
 	);
 
 	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
@@ -106,17 +105,15 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageChannelTaskInitialize createInitializationTask(
-			final int                         channelCount                    ,
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final int                      channelCount     ,
+			final StorageChannelController channelController,
+			final StorageTypeDictionary    oldTypes
 		)
 		{
 			return new StorageChannelTaskInitialize.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
 				channelController                            ,
-				entityInitializingCacheEvaluator             ,
 				oldTypes
 			);
 		}

@@ -69,7 +69,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private void setCurrent(final ByteBuffer byteBuffer)
 	{
-		this.currentBound = (this.currentAddress = Memory.directByteBufferAddress(this.currentBuffer = byteBuffer))
+		this.currentBound = (this.currentAddress = Memory.getDirectByteBufferAddress(this.currentBuffer = byteBuffer))
 			+ byteBuffer.capacity()
 		;
 		byteBuffer.clear();
@@ -84,13 +84,13 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private void updateCurrentBufferPosition()
 	{
 		this.currentBuffer.position(
-			X.checkArrayRange(this.currentAddress - Memory.directByteBufferAddress(this.currentBuffer))
+			X.checkArrayRange(this.currentAddress - Memory.getDirectByteBufferAddress(this.currentBuffer))
 		).flip();
 	}
 
 	private boolean isEmptyCurrentBuffer()
 	{
-		return this.currentAddress == Memory.directByteBufferAddress(this.currentBuffer);
+		return this.currentAddress == Memory.getDirectByteBufferAddress(this.currentBuffer);
 	}
 
 	private void enlargeBufferCapacity(final int bufferCapacity)
@@ -281,7 +281,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 		for(int i = 0; i < buffersCount; i++)
 		{
-			boundOffsets[i] = Memory.directByteBufferAddress(buffers[i]) + buffers[i].limit(); // already flipped
+			boundOffsets[i] = Memory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(); // already flipped
 		}
 		return boundOffsets;
 	}
@@ -295,7 +295,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 		for(int i = 0; i < buffersCount; i++)
 		{
-			startOffsets[i] = Memory.directByteBufferAddress(buffers[i]);
+			startOffsets[i] = Memory.getDirectByteBufferAddress(buffers[i]);
 		}
 		return startOffsets;
 	}
@@ -325,7 +325,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 			iterator.accept(bytes);
 		}
 
-		final long currentDataAddress = Memory.directByteBufferAddress(this.currentBuffer);
+		final long currentDataAddress = Memory.getDirectByteBufferAddress(this.currentBuffer);
 		final byte[] bytes = new byte[X.checkArrayRange(this.currentAddress - currentDataAddress)];
 		Memory.copyRangeToArray(currentDataAddress, bytes);
 		iterator.accept(bytes);

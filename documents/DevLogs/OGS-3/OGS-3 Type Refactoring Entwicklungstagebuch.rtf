@@ -1032,10 +1032,46 @@ Ahja, dazu muss das ganze oldTypes Provisorium Zeug raus.\par
 \par
 Nebenbei gleich mal die OccuringTypeIds Sammelei implementiert.\par
 \par
-\cf1 TODO:\par
+\cf2 DONE (siehe unten):\par
 Hm. Mit dem neuen Initialisierungskonzept ist eigentlich kein Platz mehr f\'fcr einen StorageEntityCacheEvaluator entityInitializingCacheEvaluator. Evtl muss ich den mit einem kleinen Umweg wieder einbauen.\par
 \cf0\par
 Implementierung nochmal durchdenken und aufr\'e4umen.\par
+\par
+Ich denke, das mit dem Legacy Type Mapping f\'fcr unerreichbare Entities wird am besten so gel\'f6st:\par
+- Wenn man sich \'fcberhaupt nicht auskennt oder sich nicht drum k\'fcmmern will, l\'e4sst man einfach implizit einen generierten Load Handler anlegen, der dann nie verwendet werden wird.\par
+- Wenn man sich sicher ist, dass Entities eines gewissen Typs nicht mehr durch Laden erreichbar sind, dann tr\'e4gt man den Typ in das manuelle Refactoring als gel\'f6scht ein (typename -> [nix]).\par
+- Wenn beides nicht zutrifft, muss man halt um Himmels willen vorher einen Full GC mit Full File Check mit 0% L\'fcckentoleranz aufrufen, dann sind alle unerreichbaren Entities weg.\par
+\par
+Eine dieser drei Varianten muss f\'fcr jeden m\'f6glich bzw. zumutbar sein.\par
+\par
+Code durschauen, aufr\'e4umen, Kommentare verbessern.\par
+Nochmal neue Bufferei und Einleserei durchdenken:\par
+Es gibt drei F\'e4lle:\par
+1.) Entity (irgendeins, potenziell auch das letzte) ist vollst\'e4ndig im Buffer enthalten (Header und Daten bis zum letzten Byte)\par
+2.) Buffer endet mit einem unvollst\'e4ndigen Entity (Header vollst\'e4ndig, aber Daten mit minderstens hinterstem Byte oder mehr fehlend)\par
+3.) Entityl\'e4nge ist gr\'f6\'dfer als der Buffer. Fieser Sonderfall von Fall 2). \par
+4.) Buffer endet mit einem unbrauchbaren Entity (Header unvollst\'e4ndig, gar keine Daten)\par
+\par
+zu 1): Entity wird registriert, Daten k\'f6nnen gecachet werden.\par
+zu 2): Entity wird registriert, Daten k\'f6nnen NICHT gecachet werden. Betrifft nur ganz wenige Entities in der gesamten Datenbank. Sollte nicht merkbar sein.\par
+zu 3): FilePosition wird f\'fcr die n\'e4chste Bufferf\'fcllung auf den Beginn des Entities gesetzt. Buffer wird auf die L\'e4nge des Entityheaders begrenzt und somit nur der Entity Header eingelesen. \par
+zu 4): FilePosition wird f\'fcr die n\'e4chste Bufferf\'fcllung auf den Beginn des Entities gesetzt, damit es komplett eingelesen wird.\par
+\par
+Bl\'f6d ist halt: f\'fcr 2) muss es eine extrea Fallunterscheidung in den Registrierungsmethoden geben. Wenn man das Entity einfach nochmal miteinlesen w\'fcrde, k\'f6nnte die entfallen. Die extrem seltene Zusatzarbeit, die Daten eines einzelnen Entities nochmal einzulesen, w\'fcrde insgesamt nicht ins Gewicht fallen. Es gibt aber so oder so noch Fall 3, der so behandelt werden muss. Also kann man Fall 2) eigentlich doch wieder so lassen. Bl\'f6d.\par
+Nochmal anschauen, ob man das intelligenter fallunterscheiden k\'f6nnte.\par
+\par
+Oh, dabei aufgefallen: L\'f6sung f\'fcr StorageEntityCacheEvaluator:\par
+Einfach eine zweite Methode #initiallyCacheEntity mit default: return !clearEntityCache. Hehe. Fertig. Dann kann man eine Implementierung machen, die das initiale Cachen anders oder gar nicht macht, aber standardm\'e4\'dfig l\'e4uft alles simpel. Passt.\par
+Dann schmeiss ich das in der alten Implementierung auch schnell raus und stell auf das neue um, dann ist der Methodenparameter und der Setter-Grusch schon mal weg.\par
+\par
+OGS-44 und OGS-3 updaten.\par
+\par
+Noch paar kleine Fixes machen und auff\'e4llige Stelle mit TODO markieren.\par
+\par
+\cf1 TODO:\par
+- is it really always buffer limit? what about incomplete entities and as a consequence file position resets?\par
+\cf0\par
+\par
 \par
 \par
 }

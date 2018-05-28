@@ -5,13 +5,10 @@ public interface StorageController
 {
 	public default StorageController start()
 	{
-		return this.start(null, null);
+		return this.start(null);
 	}
 
-	public StorageController start(
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
-	);
+	public StorageController start(StorageTypeDictionary oldTypes);
 
 	public boolean shutdown();
 
