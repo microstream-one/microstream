@@ -89,12 +89,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private       StorageEntity.Implementation        liveCursor          ;
 
 		private       long                                usedCacheSize       ;
-		private       boolean                             hasUpdatePendingSweep     ;
+		private       boolean                             hasUpdatePendingSweep;
 
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
 		private       long                                sweepGeneration     ;
 		private       long                                lastSweepStart      ;
 		private       long                                lastSweepEnd        ;
+		
+		private       long                                entityInitializationTime;
 
 
 
@@ -138,8 +140,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		final void startEntityInitialization()
+		{
+			this.entityInitializationTime = System.currentTimeMillis();
+		}
 
 		final long sweepGeneration()
 		{
@@ -694,7 +701,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntity.Implementation entity = this.initialCreateEntity(entityAddress, filePosition);
 
 			// cache fully available (=small) entities in advance to avoid numerous inefficient disc reads later on.
-			if(!this.entityCacheEvaluator.clearEntityCache(this.cacheSize(), entity.lastTouched, entity))
+			if(this.entityCacheEvaluator.initiallyCacheEntity(this.cacheSize(), this.entityInitializationTime, entity))
 			{
 //				DEBUGStorage.println(this.channelIndex + " initial-caching data for " + entity);
 				entity.putCacheData(entityAddress, entity.length);
@@ -1174,7 +1181,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageDataFile.Implementation file
 		)
 		{
-			final long chunkStartAddress = Memory.directByteBufferAddress(chunk);
+			final long chunkStartAddress = Memory.getDirectByteBufferAddress(chunk);
 			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter

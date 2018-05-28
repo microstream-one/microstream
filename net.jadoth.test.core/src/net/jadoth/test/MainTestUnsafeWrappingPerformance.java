@@ -20,7 +20,7 @@ public class MainTestUnsafeWrappingPerformance
 	{
 		final ByteBuffer bb = ByteBuffer.allocateDirect((int)(SIZE * 4));
 //		final ByteBuffer bb = ByteBuffer.allocateDirect(SIZE * 4);
-		final long address = Memory.directByteBufferAddress(bb);
+		final long address = Memory.getDirectByteBufferAddress(bb);
 
 
 		for(int r = 0; r < RUNS; r++)

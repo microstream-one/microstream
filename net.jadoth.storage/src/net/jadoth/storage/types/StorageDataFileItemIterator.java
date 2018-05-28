@@ -128,11 +128,8 @@ public interface StorageDataFileItemIterator
 		final ItemProcessor  entityProcessor
 	)
 	{
-		// downward cap at page size to avoid unreasonable small buffer sizes
 		return new Implementation(bufferProvider, entityProcessor);
 	}
-
-
 
 	public final class Implementation implements StorageDataFileItemIterator
 	{
@@ -224,7 +221,7 @@ public interface StorageDataFileItemIterator
 
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					nextEntityLength = processBufferedEntities(
-						Memory.directByteBufferAddress(buffer),
+						Memory.getDirectByteBufferAddress(buffer),
 						buffer.limit(),
 						fileChannel,
 						itemProcessor

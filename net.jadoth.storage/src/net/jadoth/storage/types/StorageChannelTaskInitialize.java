@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.EqHashEnum;
@@ -22,7 +23,6 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 		private final StorageChannelController    channelController               ;
 		private final StorageInventory[]          result                          ;
-		private final StorageEntityCacheEvaluator entityInitializingCacheEvaluator;
 		private final StorageTypeDictionary       oldTypes                        ;
 
 		private Long consistentStoreTimestamp   ;
@@ -40,18 +40,16 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		/////////////////////
 
 		public Implementation(
-			final long                        timestamp                       ,
-			final int                         channelCount                    ,
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final long                     timestamp        ,
+			final int                      channelCount     ,
+			final StorageChannelController channelController,
+			final StorageTypeDictionary    oldTypes
 		)
 		{
 			super(timestamp, channelCount);
-			this.channelController                = notNull(channelController);
-			this.entityInitializingCacheEvaluator = entityInitializingCacheEvaluator; // may be null
-			this.oldTypes                         = oldTypes                        ; // may be null
-			this.result = new StorageInventory[channelCount];
+			this.channelController = notNull(channelController)        ;
+			this.oldTypes          = mayNull(oldTypes)                 ;
+			this.result            = new StorageInventory[channelCount];
 		}
 
 		private synchronized long getConsistentStoreTimestamp()
@@ -203,7 +201,6 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 				this.getCommonTaskHeadFileTimestamp(),
 				this.getConsistentStoreTimestamp()   ,
 				result[channel.channelIndex()]       ,
-				this.entityInitializingCacheEvaluator,
 				this.oldTypes
 			);
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " initialized storage, activating controller");

@@ -28,16 +28,12 @@ public interface StorageManager extends StorageController
 	@Override
 	public default StorageManager start()
 	{
-		return this.start(null, null); // null implies to use the standard / entityCache's evaluator
+		return this.start(null); // null implies to use the standard / entityCache's evaluator
 	}
 
 	// (28.05.2018 TM)FIXME: OGS-3: remove all occurances of "oldTypes"
-	// (28.05.2018 TM)TODO: OGS-3: reintroduce entityInitializingCacheEvaluator via detour?
 	@Override
-	public StorageManager start(
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
-	);
+	public StorageManager start(StorageTypeDictionary oldTypes);
 
 	@Override
 	public boolean shutdown();
@@ -301,7 +297,6 @@ public interface StorageManager extends StorageController
 		}
 
 		private void internalStartUp(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
 			final StorageTypeDictionary       oldTypes
 		)
 			throws InterruptedException
@@ -312,7 +307,6 @@ public interface StorageManager extends StorageController
 			this.taskbroker = this.taskBrokerCreator.createTaskBroker(this, this.requestTaskCreator);
 			final StorageChannelTaskInitialize task = this.taskbroker.issueChannelInitialization(
 				this.channelController,
-				entityInitializingCacheEvaluator,
 				oldTypes
 			);
 			this.createChannels();
@@ -352,10 +346,7 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public final StorageManager.Implementation start(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
-		)
+		public final StorageManager.Implementation start(final StorageTypeDictionary oldTypes)
 		{
 			synchronized(this.stateLock)
 			{
@@ -367,7 +358,7 @@ public interface StorageManager extends StorageController
 				this.isShutdown = false;
 				try
 				{
-					this.internalStartUp(entityInitializingCacheEvaluator, oldTypes);
+					this.internalStartUp(oldTypes);
 					this.isRunning = true;
 				}
 				catch(final InterruptedException e)

@@ -182,7 +182,7 @@ public final class Memory
 	 * @param directByteBuffer
 	 * @return
 	 */
-	public static final long directByteBufferAddress(final ByteBuffer directByteBuffer)
+	public static final long getDirectByteBufferAddress(final ByteBuffer directByteBuffer)
 	{
 		return ((DirectBuffer)directByteBuffer).address();
 	}
@@ -1002,7 +1002,7 @@ public final class Memory
 	{
 		final byte[] bytes;
 		copyRangeToArray(
-			directByteBufferAddress(directByteBuffer),
+			getDirectByteBufferAddress(directByteBuffer),
 			bytes = new byte[directByteBuffer.limit()]
 		);
 		return bytes;

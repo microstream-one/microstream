@@ -301,7 +301,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
 			this.writeBuffer             = ByteBuffer.allocateDirect(this.writeBufferSize)    ;
-			this.writeStart              = Memory.directByteBufferAddress(this.writeBuffer)   ;
+			this.writeStart              = Memory.getDirectByteBufferAddress(this.writeBuffer)   ;
 			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()    ;
 			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE               ;
 			this.writeAddress            = this.writeStart                                    ;

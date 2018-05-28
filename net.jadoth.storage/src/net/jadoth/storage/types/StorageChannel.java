@@ -71,11 +71,10 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
 	public StorageIdAnalysis initializeStorage(
-		long                        taskTimestamp                   ,
-		long                        consistentStoreTimestamp        ,
-		StorageInventory            storageInventory                ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+		long                  taskTimestamp           ,
+		long                  consistentStoreTimestamp,
+		StorageInventory      storageInventory        ,
+		StorageTypeDictionary oldTypes
 	);
 
 	public void clear();
@@ -561,18 +560,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		@Override
 		public final StorageIdAnalysis initializeStorage(
-			final long                        taskTimestamp                   ,
-			final long                        consistentStoreTimestamp        ,
-			final StorageInventory            storageInventory                ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final long                  taskTimestamp           ,
+			final long                  consistentStoreTimestamp,
+			final StorageInventory      storageInventory        ,
+			final StorageTypeDictionary oldTypes
 		)
 		{
 			return this.fileManager.initializeStorage(
-				taskTimestamp                   ,
-				consistentStoreTimestamp        ,
-				storageInventory                ,
-				entityInitializingCacheEvaluator,
+				taskTimestamp           ,
+				consistentStoreTimestamp,
+				storageInventory        ,
 				oldTypes
 			);
 		}

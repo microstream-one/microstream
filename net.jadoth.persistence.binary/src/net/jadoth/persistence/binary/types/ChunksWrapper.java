@@ -50,7 +50,7 @@ public final class ChunksWrapper extends Binary
 //			startOffsets[i] = BinaryPersistence.chunkDataAddress(chunks[i]);
 //			boundOffsets[i] = Memory.directByteBufferAddress(chunks[i]) + chunks[i].position();
 
-			boundOffsets[i] = (startOffsets[i] = Memory.directByteBufferAddress(chunks[i])) + chunks[i].position();
+			boundOffsets[i] = (startOffsets[i] = Memory.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
 		}
 
 		this.buffers      = chunks     ;

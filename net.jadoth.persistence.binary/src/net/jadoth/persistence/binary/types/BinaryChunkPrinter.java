@@ -125,7 +125,7 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 
 	private void appendByteBuffer(final ByteBuffer byteBuffer, final int number)
 	{
-		final long baseAddress = Memory.directByteBufferAddress(byteBuffer);
+		final long baseAddress = Memory.getDirectByteBufferAddress(byteBuffer);
 //		this.appendChunk(number, BinaryPersistence.chunkDataAddress(baseAddress), baseAddress + byteBuffer.limit());
 		this.appendChunk(number, baseAddress, baseAddress + byteBuffer.limit());
 

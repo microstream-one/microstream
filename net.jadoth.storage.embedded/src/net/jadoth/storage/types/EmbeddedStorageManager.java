@@ -26,22 +26,18 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	@Override
 	public default EmbeddedStorageManager start()
 	{
-		return this.start(null, null);
+		return this.start(null);
 	}
 
 	@Override
-	public default EmbeddedStorageManager start(
-		final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		final StorageTypeDictionary       oldTypes
-	)
+	public default EmbeddedStorageManager start(final StorageTypeDictionary oldTypes)
 	{
-		return this.start(entityInitializingCacheEvaluator, oldTypes, null);
+		return this.start(oldTypes, null);
 	}
 
 	public EmbeddedStorageManager start(
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes                        ,
-		XGettingEnum<File>          initialImportFiles
+		StorageTypeDictionary oldTypes          ,
+		XGettingEnum<File>    initialImportFiles
 	);
 
 	@Override
@@ -113,12 +109,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		@Override
 		public final EmbeddedStorageManager.Implementation start(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes                        ,
-			final XGettingEnum<File>          initialImportFiles
+			final StorageTypeDictionary oldTypes          ,
+			final XGettingEnum<File>    initialImportFiles
 		)
 		{
-			this.storageManager.start(entityInitializingCacheEvaluator, oldTypes);
+			this.storageManager.start(oldTypes);
 
 			// special initial import for refactoring purposes: after validation but before roots loading.
 			if(initialImportFiles != null && !initialImportFiles.isEmpty())
