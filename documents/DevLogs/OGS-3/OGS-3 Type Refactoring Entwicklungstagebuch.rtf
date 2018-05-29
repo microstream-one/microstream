@@ -1093,6 +1093,27 @@ Das macht alles gigantisch viel einfacher und sicher fehlerfrei.\par
 \par
 So implementieren. Auslagern in StorageEntityInitializer Implementierung.\par
 \par
+Testen.\par
+FileManager Headfile muss on the fly gesetzt werden, weil der EntityCache das zum registrieren braucht.\par
+Oder ich bau das bissl um, dann m\'fcsste es sogar performanter sein und der etwas seltsame Initialisierungszeitpunkt fliegt aus dem EntityCache wieder raus.\par
+\par
+Testen.\par
+Das enqueuen eines Entities im File muss nun r\'fcckw\'e4rts erfolgen anstatt vorw\'e4rts.\par
+Umbauen.\par
+\par
+Testen. Passt f\'fcr ein gro\'dfes File.\par
+\par
+Config Defaults umbauen, so dass mehrere Files erzeugt werden.\par
+Testen. Kleiner Reihenfolge Denkfehler bug. Zeilen umstellen.\par
+Testen. Passt.\par
+\par
+Alten init Code l\'f6schen. Und durch neuen ersetzen.\par
+Dabei auch gleich das oldTypes Ged\'f6ns rauswerfen.\par
+\par
+Testen mit und ohne Entity Data Caching.\par
+Interessant: dauert ca. 1,5 mal so lang: 65 statt 45 ms bei 15 MB Daten.\par
+Wobei diese Zeiten so oder so ein Witz sind. 3 oder 4 ms pro MB. D.h. ein Gigabyte an Daten geht im Bereich von 3-4 Sekunden. Bei 160 MB sind es sogar nur 480 ms, also eher 3 ms pro MB, selbst mit Caching.\par
+\par
 \par
 \par
 }

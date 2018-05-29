@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.EqHashEnum;
@@ -21,9 +20,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		// instance fields  //
 		/////////////////////
 
-		private final StorageChannelController    channelController               ;
-		private final StorageInventory[]          result                          ;
-		private final StorageTypeDictionary       oldTypes                        ;
+		private final StorageChannelController channelController;
+		private final StorageInventory[]       result           ;
 
 		private Long consistentStoreTimestamp   ;
 		private Long commonTaskHeadFileTimestamp;
@@ -31,6 +29,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		private long maxEntityObjectOid  ;
 		private long maxEntityConstantOid;
 		private long maxEntityTypeOid    ; // this is NOT the highest TID, but the highest TID used as an entity ID
+		
 		private final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
 
 
@@ -42,13 +41,11 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		public Implementation(
 			final long                     timestamp        ,
 			final int                      channelCount     ,
-			final StorageChannelController channelController,
-			final StorageTypeDictionary    oldTypes
+			final StorageChannelController channelController
 		)
 		{
 			super(timestamp, channelCount);
 			this.channelController = notNull(channelController)        ;
-			this.oldTypes          = mayNull(oldTypes)                 ;
 			this.result            = new StorageInventory[channelCount];
 		}
 
@@ -200,8 +197,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			final StorageIdAnalysis idAnalysis = channel.initializeStorage(
 				this.getCommonTaskHeadFileTimestamp(),
 				this.getConsistentStoreTimestamp()   ,
-				result[channel.channelIndex()]       ,
-				this.oldTypes
+				result[channel.channelIndex()]
 			);
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " initialized storage, activating controller");
 

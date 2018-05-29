@@ -334,7 +334,11 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		@Override
 		public final void enqueueEntry(final StorageEntity.Implementation entry)
 		{
-			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
+			// entry gets appended after the start (the head), hence reverse-building the order.
+			(entry.filePrev = this.head).fileNext = (entry.fileNext = this.head.fileNext).filePrev = entry;
+			
+//			// entry gets appended before the end (the tail), hence forward-building the order
+//			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
 		}
 
 		@Override

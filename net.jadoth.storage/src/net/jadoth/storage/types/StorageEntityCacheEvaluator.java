@@ -26,9 +26,7 @@ public interface StorageEntityCacheEvaluator
 		final StorageEntity entity
 	)
 	{
-		// (28.05.2018 TM)TODO: OGS-3: reactivate and test initial entity caching
-		return false; // hehe
-//		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
+		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
 	}
 
 

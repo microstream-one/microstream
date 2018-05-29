@@ -18,7 +18,6 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.memory.Memory;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
@@ -58,10 +57,9 @@ public interface StorageFileManager
 	public StorageInventory readStorage();
 
 	public StorageIdAnalysis initializeStorage(
-		long                  taskTimestamp           ,
-		long                  consistentStoreTimestamp,
-		StorageInventory      storageInventory        ,
-		StorageTypeDictionary oldTypes
+		long             taskTimestamp           ,
+		long             consistentStoreTimestamp,
+		StorageInventory storageInventory
 	);
 
 	public StorageDataFile<?> currentStorageFile();
@@ -194,9 +192,6 @@ public interface StorageFileManager
 
 		private int  pendingFileDeletes;
 
-		// (28.05.2018 TM)TODO: OGS-3: Make field in StorageEntityCache private again after removal.
-		private final StorageEntityCacheEvaluator entityInitializingCacheEvaluator;
-
 //		private transient boolean hasUnflushedWrites = false;
 
 
@@ -219,16 +214,15 @@ public interface StorageFileManager
 		)
 		{
 			super();
-			this.channelIndex                     = notNegative(channelIndex)                 ;
-			this.initialDataFileNumberProvider    =     notNull(initialDataFileNumberProvider);
-			this.timestampProvider                =     notNull(timestampProvider)            ;
-			this.dataFileEvaluator                =     notNull(dataFileEvaluator)            ;
-			this.storageFileProvider              =     notNull(storageFileProvider)          ;
-			this.entityCache                      =     notNull(entityCache)                  ;
-			this.reader                           =     notNull(reader)                       ;
-			this.writer                           =     notNull(writer)                       ;
-			this.writeListener                    =     notNull(writeListener)                ;
-			this.entityInitializingCacheEvaluator = this.entityCache.entityCacheEvaluator     ;
+			this.channelIndex                  = notNegative(channelIndex)                 ;
+			this.initialDataFileNumberProvider =     notNull(initialDataFileNumberProvider);
+			this.timestampProvider             =     notNull(timestampProvider)            ;
+			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
+			this.storageFileProvider           =     notNull(storageFileProvider)          ;
+			this.entityCache                   =     notNull(entityCache)                  ;
+			this.reader                        =     notNull(reader)                       ;
+			this.writer                        =     notNull(writer)                       ;
+			this.writeListener                 =     notNull(writeListener)                ;
 			
 			/*
 			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
@@ -872,10 +866,9 @@ public interface StorageFileManager
 
 		@Override
 		public StorageIdAnalysis initializeStorage(
-			final long                  taskTimestamp           ,
-			final long                  consistentStoreTimestamp,
-			final StorageInventory      storageInventory        ,
-			final StorageTypeDictionary oldTypes
+			final long             taskTimestamp           ,
+			final long             consistentStoreTimestamp,
+			final StorageInventory storageInventory
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
@@ -905,7 +898,6 @@ public interface StorageFileManager
 						taskTimestamp                  ,
 						storageInventory               ,
 						consistentStoreTimestamp       ,
-						oldTypes                       ,
 						unregisteredEmptyLastFileNumber
 					);
 				}
@@ -930,39 +922,48 @@ public interface StorageFileManager
 			}
 		}
 
-		// (28.05.2018 TM)FIXME: remove with OGS-3
 		private StorageIdAnalysis initializeForExistingFiles(
-			final long                  taskTimestamp                  ,
-			final StorageInventory      storageInventory               ,
-			final long                  consistentStoreTimestamp       ,
-			final StorageTypeDictionary oldTypes                       ,
-			final long                  unregisteredEmptyLastFileNumber
+			final long             taskTimestamp                  ,
+			final StorageInventory storageInventory               ,
+			final long             consistentStoreTimestamp       ,
+			final long             unregisteredEmptyLastFileNumber
 		)
 		{
+			/*
+			 * The data files and all entities in them get initialized in reverse order.
+			 * The reason is that for every entity, only the latest, most current version counts.
+			 * Reversing the order makes this trivial to implement: for every OID (i.e. entity), only the first
+			 * occurance counts and defines type, length and position in the storage. All further occurances
+			 * (meaning EARLIER versions) of an already encountered Entity/OID are simply ignored.
+			 */
+			
 			// local variables for readability, debugging and (paranoid) consistency guarantee
-			final XGettingSequence<StorageInventoryFile> files    = storageInventory.dataFiles();
-			final StorageInventoryFile                   lastFile = files.peek();
+			final XGettingSequence<StorageInventoryFile> files = storageInventory.dataFiles();
 
 			// validate and determine length of last file before any file is processed to recognize errors early
 			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
 				? 0
 				: this.determineLastFileLength(consistentStoreTimestamp, storageInventory)
 			;
-//			DEBUGStorage.println(this.channelIndex + " determined last file length as " + lastFileLength);
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			this.registerItems(files, lastFile, lastFileLength);
+			final StorageEntityInitializer<StorageDataFile.Implementation> initializer =
+				StorageEntityInitializer.New(this.entityCache, f ->
+					StorageDataFile.Implementation.New(this, f)
+				)
+			;
+			this.headFile = initializer.registerEntities(files, lastFileLength);
 
-			// validate entities (only the latest versions)
-			final StorageIdAnalysis idAnalysis = this.entityCache.validateEntities(oldTypes);
+			// validate entities (only the latest versions) before potential transaction file derivation
+			final StorageIdAnalysis idAnalysis = this.entityCache.validateEntities();
 
 			// ensure transactions file before handling last file as truncation needs to write in it
 			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
 
 			// special-case handle the last file
-			this.handleLastFile(lastFile, lastFileLength);
+			this.handleLastFile(this.headFile.file, lastFileLength);
 
-			// check if last file is oversized and should be retired right away (to avoid necessary dummy-store)
+			// check if last file is oversized and should be retired right away.
 			this.checkForNewFile();
 
 			return idAnalysis;
@@ -999,95 +1000,9 @@ public interface StorageFileManager
 				throw new RuntimeException(
 					"Inconsistent last timestamps in last file of channel " + this.channelIndex()
 				);
-
 			}
 		}
-
-		// (28.05.2018 TM)FIXME: remove with OGS-3
-		private void registerItems(
-			final XGettingSequence<StorageInventoryFile> files         ,
-			final StorageInventoryFile                   lastFile      ,
-			final long                                   lastFileLength
-		)
-		{
-			// (10.06.2014)TODO: configurable initializer buffer size
-			// (16.06.2014 TM)NOTE: funny enough, tests showed no significant difference above page sized buffer
-			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
-				StorageDataFileItemIterator.BufferProvider.New(),
-				this::initialPutEntity
-			);
-
-			for(final StorageInventoryFile file : files)
-			{
-				try
-				{
-					this.registerHeadFile(file);
-					if(file != lastFile)
-					{
-						iterator.iterateStoredItems(file.fileChannel(), 0, file.file().length());
-					}
-					else
-					{
-						// iterate BEFORE truncation to avoid modifying the file in case of errors in items
-						iterator.iterateStoredItems(lastFile.fileChannel(), 0, lastFileLength);
-					}
-				}
-				catch(final Exception e)
-				{
-					throw new StorageException("Exception while initializing storage file " + file.file(), e);
-				}
-			}
-		}
-		
-		private StorageIdAnalysis initializeForExistingFiles_NEWOGS3(
-			final long             taskTimestamp                  ,
-			final StorageInventory storageInventory               ,
-			final long             consistentStoreTimestamp       ,
-			final long             unregisteredEmptyLastFileNumber
-		)
-		{
-			/*
-			 * The data files and all entities in them get initialized in reverse order.
-			 * The reason is that for every entity, only the latest, most current version counts.
-			 * Reversing the order makes this trivial to implement: for every OID (i.e. entity), only the first
-			 * occurance counts and defines type, length and position in the storage. All further occurances
-			 * (meaning EARLIER versions) of an already encountered Entity/OID are simply ignored.
-			 */
-			
-			// local variables for readability, debugging and (paranoid) consistency guarantee
-			final XGettingSequence<StorageInventoryFile> files    = storageInventory.dataFiles().toReversed();
-			final StorageInventoryFile                   lastFile = files.poll();
-
-			// validate and determine length of last file before any file is processed to recognize errors early
-			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
-				? 0
-				: this.determineLastFileLength(consistentStoreTimestamp, storageInventory)
-			;
-
-			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			final StorageEntityInitializer<StorageDataFile.Implementation> initializer =
-				StorageEntityInitializer.New(this.entityCache, f ->
-					StorageDataFile.Implementation.New(this, f)
-				)
-			;
-			this.entityCache.startEntityInitialization();
-			this.headFile = initializer.registerEntities(files, lastFileLength);
-
-			// validate entities (only the latest versions)
-			final StorageIdAnalysis idAnalysis = this.entityCache.validateEntities_NEWOGS3();
-
-			// ensure transactions file before handling last file as truncation needs to write in it
-			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
-
-			// special-case handle the last file
-			this.handleLastFile(lastFile, lastFileLength);
-
-			// check if last file is oversized and should be retired right away (to avoid necessary dummy-store)
-			this.checkForNewFile();
-
-			return idAnalysis;
-		}
-						
+								
 		private void initializeForNoFiles(final long taskTimestamp, final StorageInventory storageInventory)
 		{
 			// ensure transcations file BEFORE adding the first file as it writes a transactions entry
@@ -1309,63 +1224,6 @@ public interface StorageFileManager
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
 				this.writer.truncate(lastFile, lastFileLength);
 			}
-		}
-
-		final boolean initialPutEntity(final long address, final long availableItemLength)
-		{
-			final long length = BinaryPersistence.getEntityLength(address);
-			if(length < 0)
-			{
-				this.headFile.registerGapLength(X.checkArrayRange(-length));
-				
-				// gap appended successfully. No entity to be registered, so return success.
-				return true;
-			}
-			if(availableItemLength < BinaryPersistence.entityHeaderLength())
-			{
-				// incomplete entity header, cannot register, so return failure and wait for reload.
-				return false;
-			}
-
-//			System.out.println(
-//				this.channelIndex + "\t" + this.headFile.number() + "\t" + typeId + "\t" + objcId
-//				+ "\t" + length + "\t" + this.headFile.dataLength() + "\t" + this.headFile.totalLength()
-//			);
-
-			/* validation is postponed to after registering all entities for the following reasons:
-			 * 1.) only the latest version of each entity is validated, not all previous ones (huge performance win)
-			 * 2.) makes initialization refactoring-friendly: old versions are not checked against changed type
-			 */
-
-			final StorageEntity.Implementation entity = this.entityCache.putEntity(address);
-			/*
-			 * note:
-			 * intentionally no markEntityForChangedData here, as entities are initially not
-			 * guaranteed to be reachable. They might be unreachable (= junk) entities that
-			 * only exist because the storage file has not yet been cleaned up and might reference already
-			 * deleted entities. This would cause false positive zombie OID encounters.
-			 */
-			entity.updateStorageInformation(
-				X.checkArrayRange(length),
-				this.headFile,
-				XTypes.to_int(this.headFile.totalLength())
-			);
-			this.headFile.increaseContentLength(length);
-
-			// cache fully available (=small) entities in advance to avoid numerous inefficient disc reads later on.
-			if(this.entityInitializingCacheEvaluator.initiallyCacheEntity(
-				this.entityCache.cacheSize(),
-				System.currentTimeMillis(),
-				entity
-			) && availableItemLength >= length)
-			{
-//				DEBUGStorage.println(this.channelIndex + " initial-caching data for " + entity);
-				this.putLiveEntityData(entity, address, length, length);
-			}
-
-//			System.out.println("\t\t\t\t" + this.headFile.dataLength() + "\t" + this.headFile.totalLength());
-//			System.out.println("");
-			return true; // entity registered successfully
 		}
 		
 		@Override

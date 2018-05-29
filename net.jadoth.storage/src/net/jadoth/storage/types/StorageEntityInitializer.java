@@ -13,13 +13,11 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
+import net.jadoth.typing.XTypes;
 
 public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 {
-	public D registerEntities(
-		XGettingSequence<? extends StorageInventoryFile> reversedFiles ,
-		long                                             lastFileLength
-	);
+	public D registerEntities(XGettingSequence<? extends StorageInventoryFile> files, long lastFileLength);
 	
 	
 	
@@ -67,70 +65,90 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		
 		@Override
 		public final StorageDataFile.Implementation registerEntities(
-			final XGettingSequence<? extends StorageInventoryFile> reversedFiles ,
+			final XGettingSequence<? extends StorageInventoryFile> files ,
 			final long                                             lastFileLength
 		)
 		{
-			final ByteBuffer                               buffer   = allocateInitializationBuffer(reversedFiles);
-			final Iterator<? extends StorageInventoryFile> iterator = reversedFiles.iterator();
-
-			return registerEntities(this.dataFileCreator, this.entityCache, buffer, iterator, lastFileLength);
+			return registerEntities(this.dataFileCreator, this.entityCache, files.toReversed(), lastFileLength);
 		}
 		
 		private static StorageDataFile.Implementation registerEntities(
 			final Function<StorageInventoryFile, StorageDataFile.Implementation> fileCreator    ,
 			final StorageEntityCache.Implementation                              entityCache    ,
-			final ByteBuffer                                                     fileReadBuffer ,
-			final Iterator<? extends StorageInventoryFile>                       revFileIterator,
+			final XGettingSequence<? extends StorageInventoryFile>               reversedFiles  ,
 			final long                                                           lastFileLength
 		)
 		{
-			final int[] entityOffsets = createOffsetsArray(fileReadBuffer.capacity());
+			final ByteBuffer                               buffer   = allocateInitializationBuffer(reversedFiles);
+			final Iterator<? extends StorageInventoryFile> iterator = reversedFiles.iterator();
+			final int[] entityOffsets = createOffsetsArray(buffer.capacity());
+			
+			final long initTime = System.currentTimeMillis();
 			
 			// special case handling for last/head file
-			final StorageDataFile.Implementation headFile = setupHeadFile(fileCreator.apply(revFileIterator.next()));
-			registerFileEntities(entityCache, headFile, lastFileLength, fileReadBuffer, entityOffsets);
+			final StorageDataFile.Implementation headFile = setupHeadFile(fileCreator.apply(iterator.next()));
+			registerFileEntities(entityCache, initTime, headFile, lastFileLength, buffer, entityOffsets);
 			
 			// simple tail file adding iteration for all remaining (previous!) storage files
-			for(StorageDataFile.Implementation dataFile = headFile; revFileIterator.hasNext();)
+			for(StorageDataFile.Implementation dataFile = headFile; iterator.hasNext();)
 			{
-				registerFileEntities(entityCache, dataFile, dataFile.length(), fileReadBuffer, entityOffsets);
-				dataFile = linkTailFile(dataFile, fileCreator.apply(revFileIterator.next()));
+				dataFile = linkTailFile(dataFile, fileCreator.apply(iterator.next()));
+				registerFileEntities(entityCache, initTime, dataFile, dataFile.length(), buffer, entityOffsets);
 			}
 			
 			return headFile;
 		}
 		
 		final static void registerFileEntities(
-			final StorageEntityCache.Implementation entityCache     ,
-			final StorageDataFile.Implementation    file            ,
-			final long                              fileActualLength,
-			final ByteBuffer                        buffer          ,
+			final StorageEntityCache.Implementation entityCache       ,
+			final long                              initializationTime,
+			final StorageDataFile.Implementation    file              ,
+			final long                              fileActualLength  ,
+			final ByteBuffer                        buffer            ,
 			final int[]                             entityOffsets
 		)
 		{
 			// entities must be indexed first to allow reverse iteration.
-			final int entityCount = indexEntities(file, fileActualLength, buffer, entityOffsets);
+			final int                         entityCount = indexEntities(file, fileActualLength, buffer, entityOffsets);
+			final StorageEntityCacheEvaluator entityCacheEvaluator = entityCache.entityCacheEvaluator;
+			final long                        bufferStartAddress   = Memory.getDirectByteBufferAddress(buffer);
 			
-			long totalContentLength = 0;
-
+			long totalFileContentLength = 0;
+			
 			// reverse entity iteration to register the most current version first and discard all prior versions.
-			final long bufferStartAddress = Memory.getDirectByteBufferAddress(buffer);
 			for(int i = entityCount; i --> 0;)
 			{
-				if(entityCache.initialRegisterEntity(bufferStartAddress + entityOffsets[i], entityOffsets[i]))
+				/*
+				 * Initialization only registers the first occurance in the reversed initialization,
+				 * meaning only the most current version of every entity (identified by its ObjectId).
+				 * All earlier versions are simply ignored, hence the "return false".
+				 */
+				if(entityCache.getEntry(BinaryPersistence.getEntityObjectId(bufferStartAddress + entityOffsets[i])) != null)
 				{
-					totalContentLength += BinaryPersistence.getEntityLength(bufferStartAddress + entityOffsets[i]);
+					continue;
+				}
+				
+				final long                         entityAddress = bufferStartAddress + entityOffsets[i];
+				final long                         entityLength  = BinaryPersistence.getEntityLength(entityAddress);
+				final StorageEntity.Implementation entity        = entityCache.initialCreateEntity(entityAddress);
+				
+				entity.updateStorageInformation(XTypes.to_int(entityLength), file, entityOffsets[i]);
+				totalFileContentLength += entityLength;
+				
+				if(entityCacheEvaluator.initiallyCacheEntity(entityCache.cacheSize(), initializationTime, entity))
+				{
+					entity.putCacheData(entityAddress, entityLength);
+					entityCache.modifyUsedCacheSize(entityLength);
 				}
 			}
 
 			// the total length of all actually registered entities is the file's content length. The rest is gaps.
-			file.increaseContentLength(totalContentLength);
+			file.increaseContentLength(totalFileContentLength);
 			
 			// the buffer is currently limited to exactely the file size. So gapLength = limit - contentLength.
-			file.registerGapLength(buffer.limit() - totalContentLength);
+			file.registerGapLength(buffer.limit() - totalFileContentLength);
 		}
-		
+				
 		/**
 		 * 
 		 * @param file
