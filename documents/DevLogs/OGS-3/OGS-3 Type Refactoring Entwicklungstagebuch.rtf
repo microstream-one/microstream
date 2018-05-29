@@ -1073,6 +1073,27 @@ Noch paar kleine Fixes machen und auff\'e4llige Stelle mit TODO markieren.\par
 \cf0\par
 \par
 \par
+2018-05-29\par
+\par
+TODO zu buffer limit recherchieren. Ich glaub, das ist falsch.\par
+\par
+...\par
+\par
+Eigentlich ... ist dieses ganze Buffer Size Ged\'f6ns und verschiedene F\'e4lle und nur header und bla unn\'f6tige Verkomplizierung.\par
+Viel einfacher w\'e4r:\par
+Beim Auflisten der Files gleich die maximale L\'e4nge feststellen.\par
+Initialisierungsbuffer genau so gro\'df machen.\par
+Damit ist unter Garantie der Buffer gro\'df genug f\'fcr jedes file.\par
+Damit reicht eine triviale File Iterierung, es gibt keine Sonderf\'e4lle, keine reloads, keinen Segment overhead o.\'c4., jedes Entity ist cacheable.\par
+Wenn jemand riesige Files haben will, also 100MB, 500MB, 1 GB, dann braucht der Server beim Starten halt auch einmalig diese Gr\'f6\'dfe im RAM zum initialisieren. Danach wird der wieder freigegeben.\par
+Wenn man eine anscheinend so gigantisch riesige Datenbank hat, dann sollte man auch irgendwo noch 1 GB freien RAM rumliegen, so wie das heute jeder dumme Arbeitsplatz-PC hat.\par
+Das einzige Problem w\'e4re, h\'f6chst theoretisch, wenn ein Entity mit Speicherposition < MAX_INT mit seiner L\'e4nge \'fcber MAX_INT File length hinausgeht. Dann kann das File nicht mehr am St\'fcck eingelesen werden.\par
+Aber ich sag jetzt mal so: in den GB-Bereich sollte man mit storage files eh nie kommen. Und: Sollte es irgendwann mal so weit kommen, muss es halt auch mal file IO ohne das schwachsinnige int limit geben.\par
+Das macht alles gigantisch viel einfacher und sicher fehlerfrei.\par
+\par
+So implementieren. Auslagern in StorageEntityInitializer Implementierung.\par
+\par
+\par
 \par
 }
  

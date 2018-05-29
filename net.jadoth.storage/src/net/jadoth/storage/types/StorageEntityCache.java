@@ -41,7 +41,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 	public final class Implementation
-	implements StorageEntityCache<StorageEntity.Implementation>, StorageEntityInitializer, Unpersistable
+	implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -684,8 +684,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		}
 		
-		@Override
-		public final boolean initialRegisterEntityCachable(final long entityAddress, final int filePosition)
+		public final boolean initialRegisterEntity(final long entityAddress, final int filePosition)
 		{
 			/*
 			 * Initialization only registers the first occurance in the reversed initialization,
@@ -711,7 +710,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return true;
 		}
 		
-		@Override
+		// (29.05.2018 TM)FIXME: OGS-3: delete
 		public final boolean initialRegisterEntityUncachable(final long entityAddress, final int filePosition)
 		{
 			/*

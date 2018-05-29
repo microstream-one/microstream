@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -24,7 +23,6 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
-import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
 import net.jadoth.typing.XTypes;
@@ -564,25 +562,6 @@ public interface StorageFileManager
 			this.registerStorageHeadFile(StorageDataFile.Implementation.New(this, file));
 		}
 		
-		private void initializeHeadFile_NEWOGS3(final StorageInventoryFile file)
-		{
-			final StorageDataFile.Implementation storageFile = StorageDataFile.Implementation.New(this, file);
-			storageFile.next = storageFile.prev = storageFile;
-			
-			this.headFile = storageFile;
-		}
-		
-		private void registerHeadFile_NEWOGS3(final StorageInventoryFile file)
-		{
-			final StorageDataFile.Implementation storageFile = StorageDataFile.Implementation.New(this, file);
-			
-			// joined in chain after current head file and before the current first
-			storageFile.next = (storageFile.prev = this.headFile).next; // setup new element's links
-			this.headFile.next = this.headFile.next.prev = storageFile; // insert new element
-			
-			this.headFile = storageFile;
-		}
-
 		private void registerStorageHeadFile(final StorageDataFile.Implementation storageFile)
 		{
 			if(this.headFile == null)
@@ -1084,12 +1063,15 @@ public interface StorageFileManager
 				? 0
 				: this.determineLastFileLength(consistentStoreTimestamp, storageInventory)
 			;
-//			DEBUGStorage.println(this.channelIndex + " determined last file length as " + lastFileLength);
-			
-			this.entityCache.startEntityInitialization();
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			this.reverseRegisterAllEntities_NEWOGS3(files, lastFile, lastFileLength);
+			final StorageEntityInitializer<StorageDataFile.Implementation> initializer =
+				StorageEntityInitializer.New(this.entityCache, f ->
+					StorageDataFile.Implementation.New(this, f)
+				)
+			;
+			this.entityCache.startEntityInitialization();
+			this.headFile = initializer.registerEntities(files, lastFileLength);
 
 			// validate entities (only the latest versions)
 			final StorageIdAnalysis idAnalysis = this.entityCache.validateEntities_NEWOGS3();
@@ -1105,59 +1087,7 @@ public interface StorageFileManager
 
 			return idAnalysis;
 		}
-				
-		private void reverseRegisterAllEntities_NEWOGS3(
-			final XGettingSequence<StorageInventoryFile> reversedFiles ,
-			final StorageInventoryFile                   lastFile      ,
-			final long                                   lastFileLength
-		)
-		{
-			final EntityIndexer indexer = new EntityIndexer(
-				this.entityCache,
-				this.dataFileEvaluator.maximumFileSize()
-			);
-			
-			final StorageDataFileItemIterator fileIterator = StorageDataFileItemIterator.New(indexer, indexer);
-			
-			// special case handling for last file
-			this.initializeHeadFile_NEWOGS3(lastFile);
-			indexer.headFile = this.headFile;
-			indexFileEntities_NEWOGS3(fileIterator, lastFile, lastFileLength);
-			indexer.reverseRegisterFileEntities();
-			
-			final StorageDataFile.Implementation actualHeadFile = this.headFile;
-			
-			// special case iteration: first element in reversed files (= last file) is skipped due to special handling
-			final Iterator<StorageInventoryFile> revFileIterator = reversedFiles.iterator();
-			for(StorageInventoryFile file = revFileIterator.next(); revFileIterator.hasNext();)
-			{
-				file = revFileIterator.next();
-				this.registerHeadFile_NEWOGS3(file);
-				indexer.headFile = this.headFile;
-				indexFileEntities_NEWOGS3(fileIterator, file, file.file().length());
-				indexer.reverseRegisterFileEntities();
-			}
-			
-			// restore actual head file since the reversed file iteration leaves the first file as the head file
-			this.headFile = actualHeadFile;
-		}
-		
-		private void indexFileEntities_NEWOGS3(
-			final StorageDataFileItemIterator iterator,
-			final StorageInventoryFile        file    ,
-			final long                        length
-		)
-		{
-			try
-			{
-				iterator.iterateStoredItems(file.fileChannel(), 0, length);
-			}
-			catch(final Exception e)
-			{
-				throw new StorageException("Exception while initializing storage file " + file.file(), e);
-			}
-		}
-				
+						
 		private void initializeForNoFiles(final long taskTimestamp, final StorageInventory storageInventory)
 		{
 			// ensure transcations file BEFORE adding the first file as it writes a transactions entry
@@ -1386,7 +1316,7 @@ public interface StorageFileManager
 			final long length = BinaryPersistence.getEntityLength(address);
 			if(length < 0)
 			{
-				this.headFile.registerGap(X.checkArrayRange(-length));
+				this.headFile.registerGapLength(X.checkArrayRange(-length));
 				
 				// gap appended successfully. No entity to be registered, so return success.
 				return true;
@@ -1890,270 +1820,7 @@ public interface StorageFileManager
 
 
 		}
-		
-		
-		
-		static final class EntityIndexer implements StorageDataFileItemIterator.BufferProvider, ItemProcessor
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-
-			private final StorageEntityInitializer       registerer          ;
-			private final ByteBuffer                     buffer              ;
-			private final long                           bufferAddress       ;
-			              StorageDataFile.Implementation headFile            ;
-			              int                            filePosition        ;
-			              int[]                          entityOffsets       ;
-			              int                            entityCount         ;
-			              boolean                        incompleteLastEntity;
-			      
-			final FileScanSegment head = new FileScanSegment(0, 0, null, 0, false);
-
-			EntityIndexer(final StorageEntityInitializer registerer, final int bufferCapacity)
-			{
-				super();
-				this.registerer = registerer;
-				this.buffer = ByteBuffer.allocateDirect(
-					Math.max(bufferCapacity, Memory.defaultBufferSize())
-				);
-				this.bufferAddress = Memory.getDirectByteBufferAddress(this.buffer);
-				
-				// maximum number of entities in the buffer, so that entityCount can never overflow.
-				this.entityOffsets = new int[this.buffer.capacity() / BinaryPersistence.entityHeaderLength()];
-				
-				this.resetForNextFile();
-			}
-			
-			private void resetForNextFile()
-			{
-				this.head.prev = this.head.next = this.head;
-				
-				this.filePosition         =     0;
-				this.entityCount          =    -1; // because of pre-incremental logic. See other comments.
-				this.incompleteLastEntity = false;
-			}
-
-			@Override
-			public final ByteBuffer provideInitialBuffer()
-			{
-				return this.buffer;
-			}
-
-			@Override
-			public final ByteBuffer provideBuffer(final ByteBuffer byteBuffer, final long nextEntityLength)
-			{
-				// any call to provide a new buffer means that the current data has to be archived in a new segment.
-				this.addSegment();
-				
-				// always return standard buffer, logic only reads headers, not content. Clear buffer for next batch.
-				this.buffer.clear();
-
-				/*
-				 * If only one entity header fits in the buffer, limit the buffer to one header right away
-				 * to avoid filling a giant buffer with an incomplete giant entity and then just read the header.
-				 * This is not noticeable in normal situations (tiny to large entities), but allows the initialization
-				 * to skip huge parts of pure content data if the database contains giant entities.
-				 */
-				if(nextEntityLength > this.buffer.capacity())
-				{
-					this.buffer.limit(BinaryPersistence.entityHeaderLength());
-				}
-
-				return this.buffer;
-			}
-			
-			private void addSegment()
-			{
-				// (28.05.2018 TM)FIXME: is it really always buffer limit? what about incomplete entities and as a consequence file position resets?
-				final int currentDataLength = this.buffer.limit();
-				
-				final FileScanSegment newFileSegment = new FileScanSegment(
-					this.filePosition    ,
-					currentDataLength,
-					this.entityOffsets ,
-					this.entityCount + 1, // to compensate the pre-increment logic
-					this.incompleteLastEntity
-				);
-				
-				// prepending to the head in a circular list means adding to the "end".
-				newFileSegment.prev = (newFileSegment.next = this.head).prev; // setup new element's links
-				this.head.prev      = this.head.prev.next = newFileSegment;   // insert new element
-
-				this.filePosition  += currentDataLength;
-				this.entityOffsets =  new int[this.entityOffsets.length];
-				this.entityCount   =  -1; // because pre-increment is faster than post-increment.
-			}
-
-			@Override
-			public boolean accept(final long address, final long remaninigBufferedData)
-			{
-				final long length = BinaryPersistence.getEntityLength(address);
-				
-				// case 1: the item is a comment (negative length). Register and then skip it.
-				if(length < 0)
-				{
-					this.headFile.registerGap(X.checkArrayRange(-length));
-					
-					// gap appended successfully. No entity to be registered, so return success.
-					return true;
-				}
-				
-
-				// case 2: incomplete entity data in buffer.
-				if(remaninigBufferedData < length)
-				{
-					// case 2a: also incomplete entity header. Return failure and wait for reload.
-					if(remaninigBufferedData < BinaryPersistence.entityHeaderLength())
-					{
-						return false;
-					}
-
-					// case 2b: just incomplete data. Can only occur at the buffer's last entity. Mark accordingly.
-					this.incompleteLastEntity = true;
-				}
-				
-				// case 3: valid entity (at least a header) present. Register its relative offset and return success.
-				// accessing arrays via pre-incremented indices is faster than post-increment and here it really matters.
-				this.entityOffsets[++this.entityCount] = XTypes.to_int(address - this.bufferAddress);
-				return true;
-			}
-			
-			final void reverseRegisterFileEntities()
-			{
-				// reverse register indexed entities in the current buffer
-				registerEntities(this.filePosition, this.entityOffsets, this.entityCount, this.incompleteLastEntity);
-
-				// repeat the same for all archived segments, but with refilling the buffer
-				for(FileScanSegment s = this.head.prev; s != this.head; s = s.prev)
-				{
-					this.buffer.limit(s.dataLength);
-					this.refillBuffer(s.filePosition);
-					registerEntities(s.filePosition, s.entityOffsets, s.entityCount, s.incompleteLastEntity);
-				}
-				
-				this.head.prev = this.head.next = this.head;
-				this.entityCount = -1;
-				
-				// reset state for use with the next file
-				this.resetForNextFile();
-			}
-			
-			private void refillBuffer(final long fileOffset)
-			{
-				final FileChannel fileChannel = this.headFile.fileChannel();
-				
-				try
-				{
-					fileChannel.position(fileOffset);
-					do
-					{
-						fileChannel.read(this.buffer);
-					}
-					while(this.buffer.hasRemaining());
-				}
-				catch(final Exception e)
-				{
-					throw new StorageException("Exception while readinig from file " + this.headFile, e);
-				}
-			}
-			
-			private void registerEntities(
-				final int     filePosition        ,
-				final int[]   entityOffsets       ,
-				final int     entityCount         ,
-				final boolean incompleteLastEntity
-			)
-			{
-				if(incompleteLastEntity)
-				{
-					final long entityAddress = this.bufferAddress + entityOffsets[entityCount - 1];
-					final boolean registered = this.registerer.initialRegisterEntityUncachable(
-						entityAddress,
-						filePosition + entityOffsets[entityCount - 1]
-					);
-					updateHeadFileLengths(
-						registered ? BinaryPersistence.getEntityLength(entityAddress) : 0,
-						registered ? 0 : BinaryPersistence.getEntityLength(entityAddress)
-					);
-
-					this.registerEntitiesCachable(filePosition, entityOffsets, entityCount - 1);
-				}
-				else
-				{
-					this.registerEntitiesCachable(filePosition, entityOffsets, entityCount);
-				}
-			}
-			
-			private void updateHeadFileLengths(final long additionalContentLength, final long additionalGapLength)
-			{
-				this.headFile.increaseContentLength(additionalContentLength);
-				this.headFile.registerGap(additionalGapLength);
-			}
-			
-			private void registerEntitiesCachable(
-				final int   filePosition ,
-				final int[] entityOffsets,
-				final int   entityCount
-			)
-			{
-				long headFileContentLength = 0;
-				long headFileGapLength     = 0;
-				
-				final long                     bufferAddress = this.bufferAddress;
-				final StorageEntityInitializer registerer    = this.registerer;
-				
-				for(int i = entityCount; i --> 0;)
-				{
-					final long entityAddress = bufferAddress + entityOffsets[i];
-					final boolean registered = registerer.initialRegisterEntityCachable(
-						entityAddress,
-						filePosition + entityOffsets[i]
-					);
-					if(registered)
-					{
-						headFileContentLength += BinaryPersistence.getEntityLength(entityAddress);
-					}
-					else
-					{
-						headFileGapLength += BinaryPersistence.getEntityLength(entityAddress);
-					}
-				}
-				
-				this.updateHeadFileLengths(headFileContentLength, headFileGapLength);
-			}
-			
-		}
-		
-		
-		static final class FileScanSegment
-		{
-			FileScanSegment prev, next          ;
-			final int       filePosition        ;
-			final int       dataLength          ;
-			final int[]     entityOffsets       ;
-			final int       entityCount         ;
-			final boolean   incompleteLastEntity;
-			
-			FileScanSegment(
-				final int     filePosition        ,
-				final int     dataLength          ,
-				final int[]   entityOffsets       ,
-				final int     entityCount         ,
-				final boolean incompleteLastEntity
-			)
-			{
-				super();
-				this.filePosition         = filePosition        ;
-				this.dataLength           = dataLength          ;
-				this.entityOffsets        = entityOffsets       ;
-				this.entityCount          = entityCount         ;
-				this.incompleteLastEntity = incompleteLastEntity;
-			}
-			
-		}
-
 
 	}
-
+		
 }
