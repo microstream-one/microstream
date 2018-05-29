@@ -174,7 +174,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			(this.prev.next = this.next).prev = this.prev;
 		}
 
-		final void registerGap(final long length)
+		final void registerGapLength(final long length)
 		{
 			this.fileTotalLength += length;
 		}
