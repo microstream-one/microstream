@@ -3,12 +3,7 @@ package net.jadoth.storage.types;
 
 public interface StorageController
 {
-	public default StorageController start()
-	{
-		return this.start(null);
-	}
-
-	public StorageController start(StorageTypeDictionary oldTypes);
+	public StorageController start();
 
 	public boolean shutdown();
 

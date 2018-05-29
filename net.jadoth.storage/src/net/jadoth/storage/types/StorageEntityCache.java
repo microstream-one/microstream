@@ -95,8 +95,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private       long                                sweepGeneration     ;
 		private       long                                lastSweepStart      ;
 		private       long                                lastSweepEnd        ;
-		
-		private       long                                entityInitializationTime;
 
 
 
@@ -143,11 +141,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// methods //
 		////////////
 		
-		final void startEntityInitialization()
-		{
-			this.entityInitializationTime = System.currentTimeMillis();
-		}
-
 		final long sweepGeneration()
 		{
 			return this.sweepGeneration;
@@ -503,51 +496,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				throw new RuntimeException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
 			}
 		}
-
-		// (28.05.2018 TM)FIXME: remove with OGS-3
-		final StorageIdAnalysis validateEntities(final StorageTypeDictionary oldTypes)
-		{
-			long maxTid = 0, maxOid = 0, maxCid = 0;
-			
-			final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
-
-			// validate all entities via iteration by type. Simplifies debugging and requires less type pointer chasing
-			for(StorageEntityType.Implementation type : this.tidHashTable)
-			{
-				while(type != null)
-				{
-					if(!type.isEmpty())
-					{
-						occuringTypeIds.add(type.typeId);
-					}
-					
-					final StorageIdAnalysis idAnalysis = type.validateEntities(oldTypes);
-					type = type.hashNext;
-
-					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
-					if(typeMaxTid != null && typeMaxTid >= maxTid)
-					{
-						maxTid = typeMaxTid;
-					}
-
-					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
-					if(typeMaxOid != null && typeMaxOid >= maxOid)
-					{
-						maxOid = typeMaxOid;
-					}
-
-					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
-					if(typeMaxCid != null && typeMaxCid >= maxCid)
-					{
-						maxCid = typeMaxCid;
-					}
-				}
-			}
-
-			return StorageIdAnalysis.New(maxTid, maxOid, maxCid, occuringTypeIds);
-		}
 		
-		final StorageIdAnalysis validateEntities_NEWOGS3()
+		final StorageIdAnalysis validateEntities()
 		{
 			long maxTid = 0, maxOid = 0, maxCid = 0;
 			
@@ -563,7 +513,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 						occuringTypeIds.add(type.typeId);
 					}
 					
-					final StorageIdAnalysis idAnalysis = type.validateEntities_NEWOGS3();
+					final StorageIdAnalysis idAnalysis = type.validateEntities();
 					type = type.hashNext;
 
 					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
@@ -683,75 +633,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 		}
-		
-		public final boolean initialRegisterEntity(final long entityAddress, final int filePosition)
-		{
-			/*
-			 * Initialization only registers the first occurance in the reversed initialization,
-			 * meaning only the most current version of every entity (identified by its ObjectId).
-			 * All earlier versions are simply ignored, hence the "return false".
-			 */
-			if(this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress)) != null)
-			{
-//				DEBUGStorage.println("Entity alredy registered: " + BinaryPersistence.getEntityObjectId(entityAddress));
-				return false;
-			}
-			
-			final StorageEntity.Implementation entity = this.initialCreateEntity(entityAddress, filePosition);
-
-			// cache fully available (=small) entities in advance to avoid numerous inefficient disc reads later on.
-			if(this.entityCacheEvaluator.initiallyCacheEntity(this.cacheSize(), this.entityInitializationTime, entity))
-			{
-//				DEBUGStorage.println(this.channelIndex + " initial-caching data for " + entity);
-				entity.putCacheData(entityAddress, entity.length);
-				this.modifyUsedCacheSize(entity.length);
-			}
-
-			return true;
-		}
-		
-		// (29.05.2018 TM)FIXME: OGS-3: delete
-		public final boolean initialRegisterEntityUncachable(final long entityAddress, final int filePosition)
-		{
-			/*
-			 * Initialization only registers the first occurance in the reversed initialization,
-			 * meaning only the most current version of every entity (identified by its ObjectId).
-			 * All earlier versions are simply ignored, hence the "return false".
-			 */
-			if(this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress)) != null)
-			{
-//				DEBUGStorage.println("Entity alredy registered: " + BinaryPersistence.getEntityObjectId(entityAddress));
-				return false;
-			}
-			
-			this.initialCreateEntity(entityAddress, filePosition);
-			
-			return true;
-		}
-		
-
-		
-		private StorageEntity.Implementation initialCreateEntity(final long entityAddress, final int filePosition)
+					
+		final StorageEntity.Implementation initialCreateEntity(final long entityAddress)
 		{
 			final StorageEntity.Implementation entity = this.createEntity(
 				BinaryPersistence.getEntityObjectId(entityAddress),
 				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
 			);
-			
-			/*
-			 * note:
-			 * intentionally no markEntityForChangedData here, as entities are initially not
-			 * guaranteed to be reachable. They might be unreachable (= junk) entities that
-			 * only exist because the storage file has not yet been cleaned up and might reference already
-			 * deleted entities. This would cause false positive zombie OID encounters.
-			 */
-			entity.updateStorageInformation(
-				XTypes.to_int(BinaryPersistence.getEntityLength(entityAddress)),
-				this.fileManager.currentStorageFile(),
-				filePosition
-			);
-
-			// head file content length is increased batch-wise in the calling context.
 			
 			return entity;
 		}

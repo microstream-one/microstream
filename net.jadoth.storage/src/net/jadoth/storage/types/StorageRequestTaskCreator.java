@@ -13,8 +13,7 @@ public interface StorageRequestTaskCreator
 {
 	public StorageChannelTaskInitialize createInitializationTask(
 		int                      channelCount     ,
-		StorageChannelController channelController,
-		StorageTypeDictionary    oldTypes
+		StorageChannelController channelController
 	);
 
 	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
@@ -106,15 +105,13 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageChannelTaskInitialize createInitializationTask(
 			final int                      channelCount     ,
-			final StorageChannelController channelController,
-			final StorageTypeDictionary    oldTypes
+			final StorageChannelController channelController
 		)
 		{
 			return new StorageChannelTaskInitialize.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
-				channelController                            ,
-				oldTypes
+				channelController
 			);
 		}
 

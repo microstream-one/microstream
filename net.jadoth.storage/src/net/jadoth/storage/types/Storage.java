@@ -36,9 +36,9 @@ public final class Storage
 	private static final long   DEFAULT_CACHE_TIMEOUT               =    86_400_000  ; // 1 day default timeout
 
 	// file housekeeping configuration (applies per channel). Relatively small default values
-	private static final int    DEFAULT_MIN_FILESIZE                = 1 * 1024 * 1024    ; // 1 MB
-	private static final int    DEFAULT_MAX_FILESIZE                = 8 * 1024 * 1024    ; // 8 MB
-	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75               ; // 75 %
+	private static final int    DEFAULT_MIN_FILESIZE                = 1 * 1024 * 1024; // 1 MB
+	private static final int    DEFAULT_MAX_FILESIZE                = 8 * 1024 * 1024; // 8 MB
+	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75           ; // 75 %
 
 	private static final long   ONE_MILLION                         = 1_000_000L;
 

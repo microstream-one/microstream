@@ -54,18 +54,8 @@ public interface StorageTaskBroker
 	public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask()
 		throws InterruptedException;
 
-	public default StorageChannelTaskInitialize issueChannelInitialization(
-		final StorageChannelController channelController
-	)
-		throws InterruptedException
-	{
-		// oldTypes dictionary is optional, may be null
-		return this.issueChannelInitialization(channelController, null);
-	}
-
 	public StorageChannelTaskInitialize issueChannelInitialization(
-		StorageChannelController channelController,
-		StorageTypeDictionary    oldTypes
+		StorageChannelController channelController
 	)
 		throws InterruptedException;
 
@@ -405,16 +395,14 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageChannelTaskInitialize issueChannelInitialization(
-			final StorageChannelController channelController,
-			final StorageTypeDictionary    oldTypes
+			final StorageChannelController channelController
 
 		)
 			throws InterruptedException
 		{
 			final StorageChannelTaskInitialize task = this.taskCreator.createInitializationTask(
 				this.channelCount,
-				channelController,
-				oldTypes
+				channelController
 			);
 			
 			// special case: cannot wait on the task before the channel threads are started

@@ -26,15 +26,8 @@ public interface StorageManager extends StorageController
 	public StorageConfiguration configuration();
 
 	@Override
-	public default StorageManager start()
-	{
-		return this.start(null); // null implies to use the standard / entityCache's evaluator
-	}
-
-	// (28.05.2018 TM)FIXME: OGS-3: remove all occurances of "oldTypes"
-	@Override
-	public StorageManager start(StorageTypeDictionary oldTypes);
-
+	public StorageManager start();
+	
 	@Override
 	public boolean shutdown();
 
@@ -296,18 +289,14 @@ public interface StorageManager extends StorageController
 			return this.keepers.length;
 		}
 
-		private void internalStartUp(
-			final StorageTypeDictionary       oldTypes
-		)
-			throws InterruptedException
+		private void internalStartUp() throws InterruptedException
 		{
 			// thread safety and state consistency ensured prior to calling
 
 			// create channels, setup task processing and start threads
 			this.taskbroker = this.taskBrokerCreator.createTaskBroker(this, this.requestTaskCreator);
 			final StorageChannelTaskInitialize task = this.taskbroker.issueChannelInitialization(
-				this.channelController,
-				oldTypes
+				this.channelController
 			);
 			this.createChannels();
 
@@ -346,7 +335,7 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public final StorageManager.Implementation start(final StorageTypeDictionary oldTypes)
+		public final StorageManager.Implementation start()
 		{
 			synchronized(this.stateLock)
 			{
@@ -358,7 +347,7 @@ public interface StorageManager extends StorageController
 				this.isShutdown = false;
 				try
 				{
-					this.internalStartUp(oldTypes);
+					this.internalStartUp();
 					this.isRunning = true;
 				}
 				catch(final InterruptedException e)

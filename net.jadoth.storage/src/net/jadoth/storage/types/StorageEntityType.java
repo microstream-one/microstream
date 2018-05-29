@@ -27,17 +27,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 	public void iterateEntityReferenceIds(I entity, _longProcedure procedure);
 
-	@Deprecated // (28.05.2018 TM)FIXME: remove with OGS-3
-	public default StorageIdAnalysis validateEntities()
-	{
-		return this.validateEntities(null);
-	}
-
-	@Deprecated // (28.05.2018 TM)FIXME: remove with OGS-3
-	public StorageIdAnalysis validateEntities(StorageTypeDictionary oldTypes);
-
-	// (28.05.2018 TM)FIXME: rename with OGS-3
-	public StorageIdAnalysis validateEntities_NEWOGS3();
+	public StorageIdAnalysis validateEntities();
 
 
 
@@ -230,84 +220,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		}
 
 		@Override
-		public final StorageIdAnalysis validateEntities(final StorageTypeDictionary oldTypes)
-		{
-			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
-
-			final StorageEntityTypeHandler<?> oldTypeHandler = oldTypes == null
-				? null
-				: oldTypes.lookupTypeHandler(this.typeId)
-			;
-
-			long maxOid = 0, maxCid = 0, maxTid = 0;
-			final Swizzle.IdType typeCid = Swizzle.IdType.CID;
-			final Swizzle.IdType typeOid = Swizzle.IdType.OID;
-			final Swizzle.IdType typeTid = Swizzle.IdType.TID;
-
-			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
-			{
-				final long entityLength   = entity.length;
-				final long entityObjectId = entity.objectId();
-
-				if(!typeHandler.isValidEntityGuaranteedType(entityLength, entityObjectId))
-				{
-					if(oldTypeHandler != null)
-					{
-//						DEBUGStorage.println("Invalid for current type, trying old type for " + typeHandler.typeName());
-
-						// try again with old type handler
-						if(!oldTypeHandler.isValidEntityGuaranteedType(entityLength, entityObjectId))
-						{
-							// if still not valid, throw exception based on old type definition
-							oldTypeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
-						}
-						// valid by old type at this point, go on without exception
-					}
-					else
-					{
-						// if not valid and no old handler, throw exception based on new type definition
-						typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
-					}
-				}
-				// valid by one way or the other
-
-				final long oid = entity.objectId();
-				if(typeOid.isInRange(oid))
-				{
-					if(oid >= maxOid)
-					{
-						maxOid = oid;
-					}
-				}
-				else if(typeCid.isInRange(oid))
-				{
-					if(oid >= maxCid)
-					{
-						maxCid = oid;
-					}
-				}
-				else if(typeTid.isInRange(oid))
-				{
-					/* note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
-					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
-					 */
-					if(oid >= maxTid)
-					{
-						maxTid = oid;
-					}
-				}
-				else
-				{
-					throw new StorageException("Invalid OID: " + oid);
-				}
-			}
-
-			return StorageIdAnalysis.New(maxTid, maxOid, maxCid);
-		}
-		
-
-		@Override
-		public StorageIdAnalysis validateEntities_NEWOGS3()
+		public StorageIdAnalysis validateEntities()
 		{
 			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
 
