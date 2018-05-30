@@ -319,29 +319,21 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 			final EmbeddedStorageConnectionFoundation ecf = this.getConnectionFoundation();
 			final PersistenceTypeHandlerManager<?>    thm = ecf.getTypeHandlerManager();
-
-			/* (13.09.2015)TODO: StorageEntityTypeHandlerCreator for storage-side lazy ref handling
-			 * link PersistenceTypeHandlerManager and to-be-created StorageEntityTypeHandlerCreator
-			 * in order to have a way for the entity type handler creation recognize lazy references.
-			 * Required for storage-side graph deep-reference loading.
-			 */
+			
+			// (30.05.2018 TM)FIXME: OGS-3: link TypeHandlerManager with StorageEntityCache instead of TypeDicts.
 			final StorageManager stm = this.createStorageManager();
 			ecf.setStorageManager(stm);
-
-			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
 			
 			// register special case type handler for roots instance
+			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
 			prp.registerRootsTypeHandlerCreator(
 				ecf.getCustomTypeHandlerRegistry(),
 				ecf.getSwizzleRegistry()
 			);
 
-			// (04.05.2015)TODO: /!\ Entry point for improved type description validation
 			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)
 			thm.initialize();
-
-			// (22.01.2015 TM)TODO: prevent unnecessary writing of type dictionary
-
+			
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();
 			std

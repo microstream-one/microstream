@@ -210,7 +210,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			// definitions can be replaced by another instance (e.g. a plain instance by a handler instance)
 			this.allTypesPerTypeId.put(typeDefinition.typeId(), typeDefinition);
 
-			// callback gets set externally, can be null as well, so check for it.
+			// callback gets set externally, can/may be null, so check for it.
 			if(this.registrationObserver != null)
 			{
 				this.registrationObserver.observeTypeDefinitionRegistration(typeDefinition);

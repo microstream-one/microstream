@@ -109,7 +109,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				this.initialImport(initialImportFiles);
 			}
 
+			this.createLegacyTypeMappings();
 			this.initialize();
+			
 			return this;
 		}
 
@@ -145,6 +147,15 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
 			return !loadedRoots.hasChanged();
+		}
+		
+		
+		private void createLegacyTypeMappings()
+		{
+			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
+			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
+			
+			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlers(occuringTypeIds);
 		}
 
 		@Override

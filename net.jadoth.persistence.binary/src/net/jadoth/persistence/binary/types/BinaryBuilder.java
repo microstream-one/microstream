@@ -137,23 +137,25 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		protected PersistenceTypeHandler<Binary, Object> lookupTypeHandler(final long oid, final long tid)
 		{
 			final PersistenceTypeHandler<Binary, Object> handler;
+			
 			if((handler = this.district.lookupTypeHandler(oid, tid)) == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
 			}
+			
 			return handler;
 		}
 
 		protected Entry createBuildItem(final long objectId, final long typeId)
 		{
 			final Entry buildItem = this.district.createBuildItem(this, objectId, typeId);
+			
 			if(buildItem.handler == null)
 			{
-				// (23.05.2018 TM)FIXME: OGS-3: must ensure a legacy type mapper on demand
-				
 				// at this point, a handler must definitely be present
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 			}
+			
 			return buildItem;
 		}
 
@@ -165,6 +167,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				BinaryPersistence.getEntityObjectId(address),
 				BinaryPersistence.getEntityTypeId(address)
 			);
+			
 			// content of item begins after instance header
 			buildItem.entityContentAddress = BinaryPersistence.entityDataAddress(address);
 

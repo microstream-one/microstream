@@ -74,15 +74,15 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDefinition<T> typeDescription     ;
-		private final BinaryReferenceTraverser[]    referenceTraversers ;
-		private final int                           simpleReferenceCount;
-		private final long                          simpleReferenceRange;
-		private final long                          minimumEntityLength ;
-		private final long                          maximumEntityLength ;
-		private final boolean                       hasReferences       ;
-		private final boolean                       isPrimitive         ;
-		private final boolean                       hasVariableLength   ;
+		private final PersistenceTypeDefinition<T> typeDefinition      ;
+		private final BinaryReferenceTraverser[]   referenceTraversers ;
+		private final int                          simpleReferenceCount;
+		private final long                         simpleReferenceRange;
+		private final long                         minimumEntityLength ;
+		private final long                         maximumEntityLength ;
+		private final boolean                      hasReferences       ;
+		private final boolean                      isPrimitive         ;
+		private final boolean                      hasVariableLength   ;
 
 
 
@@ -90,50 +90,22 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceTypeDefinition<T> typeDescription)
+		public Implementation(final PersistenceTypeDefinition<T> typeDefinition)
 		{
 			super();
-//			if(typeDescription.typeName().contains("Root"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("BulkList"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().endsWith("java.lang.String"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("HashTable"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("EmptyTable"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().endsWith("java.lang.Integer"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
-//			if(typeDescription.typeName().contains("Person"))
-//			{
-//				DEBUGStorage.println("DEBUG");
-//			}
 
 			final BinaryReferenceTraverser[] referenceTraversers =
-				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDescription.members())
+				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
 			;
 
-			this.typeDescription      = typeDescription;
-			this.isPrimitive          = typeDescription.isPrimitiveType();
-			this.hasReferences        = typeDescription.hasPersistedReferences();
+			this.typeDefinition       = typeDefinition;
+			this.isPrimitive          = typeDefinition.isPrimitiveType();
+			this.hasReferences        = typeDefinition.hasPersistedReferences();
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
 			this.simpleReferenceRange = this.simpleReferenceCount * BinaryPersistence.oidLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
-			this.minimumEntityLength  = calculateMinimumEntityLength(typeDescription);
-			this.maximumEntityLength  = calculateMaximumEntityLength(typeDescription);
+			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
+			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);
 			this.hasVariableLength    = this.minimumEntityLength != this.maximumEntityLength;
 		}
 
@@ -146,25 +118,25 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		@Override
 		public final long typeId()
 		{
-			return this.typeDescription.typeId();
+			return this.typeDefinition.typeId();
 		}
 
 		@Override
 		public final String typeName()
 		{
-			return this.typeDescription.typeName();
+			return this.typeDefinition.typeName();
 		}
 		
 		@Override
 		public final Class<T> type()
 		{
-			return this.typeDescription.type();
+			return this.typeDefinition.type();
 		}
 
 		@Override
 		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
 		{
-			return this.typeDescription.members();
+			return this.typeDefinition.members();
 		}
 
 		@Override
