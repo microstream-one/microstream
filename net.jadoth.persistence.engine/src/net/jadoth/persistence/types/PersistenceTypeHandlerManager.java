@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -35,6 +36,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(long tid);
+	
+	public void ensureTypeHandlers(XGettingEnum<Long> tids);
 
 	public void initialize();
 
@@ -200,19 +203,80 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 		}
 
-		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final long tid)
+		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandlerByTypeId(final long tid)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
 				PersistenceTypeHandler<M, T> handler;
 				if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) == null)
 				{
-					// must pass manager instance itself to get a chance to cache new dictionary entry
-					handler = this.typeHandlerProvider.provideTypeHandler(tid);
-					this.internalRegisterTypeHandler(handler);
+					handler = this.tryLegacyTypeHandler(tid);
+					if(handler == null)
+					{
+						handler = this.createProperTypeHandler(tid);
+					}
 				}
+				
 				return handler;
 			}
+		}
+		
+		private <T> PersistenceTypeHandler<M, T> tryLegacyTypeHandler(final long tid)
+		{
+			/* (30.05.2018 TM)TODO: OGS-3 custom legacy handler lookup
+			 * A way is required to make a lookup in a custom legacy handler registry, first.
+			 * Also, the lookup should not only use the TypeId, but prior to that a lookup via the
+			 * structure, because its cumbersome (or logically misplaced) to have to manually assign TypeIds.
+			 * The structure is what identifies the handler on a logical level, not an internal technical id.
+			 */
+			
+			final PersistenceTypeDictionary    typeDict = this.typeDictionaryManager.provideTypeDictionary();
+			final PersistenceTypeDefinition<?> typeDef  = typeDict.lookupTypeById(tid);
+						
+			if(typeDef != null)
+			{
+				final PersistenceTypeLineage<?> typeLin = typeDict.lookupTypeLineage(typeDef.typeName());
+				if(typeLin.runtimeDefinition() != typeDef)
+				{
+					// (30.05.2018 TM)FIXME: OGS-3: the <T> never makes sense when passing a TID.
+					return this.createLegacyTypeHandler(typeDef);
+				}
+			}
+			
+			return null;
+		}
+		private <T> PersistenceTypeHandler<M, T> createProperTypeHandler(final long tid)
+		{
+			final PersistenceTypeHandler<M, T> handler = this.typeHandlerProvider.provideTypeHandler(tid);
+			this.internalRegisterTypeHandler(handler);
+			
+			return handler;
+		}
+		
+		private <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<T> typeDefinition)
+		{
+			if(typeDefinition.type() != null)
+			{
+				return typeDefinition.type();
+			}
+			
+			// (30.05.2018 TM)FIXME: OGS-3: lookup in manual refactoring mapping for that typeName
+			
+			// (30.05.2018 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeConsistency("Type not resolvable: " + typeDefinition.typeName());
+		}
+		
+		private <T> PersistenceTypeHandler<M, T> createLegacyTypeHandler(
+			final PersistenceTypeDefinition<T> typeDefinition
+		)
+		{
+			final Class<T>                     runtimeType        = this.resolveRuntimeType(typeDefinition);
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			
+			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
+			
+			// FIXME OGS-3 PersistenceTypeHandlerManager.Implementation#createLegacyTypeHandler()
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
@@ -290,7 +354,20 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				return handler;
 			}
-			return this.internalEnsureTypeHandler(tid);
+			return this.internalEnsureTypeHandlerByTypeId(tid);
+		}
+		
+
+		@Override
+		public void ensureTypeHandlers(final XGettingEnum<Long> tids)
+		{
+			synchronized(this.typeHandlerRegistry)
+			{
+				for(final Long tid : tids)
+				{
+					this.internalEnsureTypeHandlerByTypeId(tid);
+				}
+			}
 		}
 
 		@Override

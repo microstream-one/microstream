@@ -1116,5 +1116,74 @@ Wobei diese Zeiten so oder so ein Witz sind. 3 oder 4 ms pro MB. D.h. ein Gigaby
 \par
 \par
 \par
+2018-05-30\par
+\par
+So, neue, zum neuen Typversionskonzept passede Initialisierung abgeschlossen. N\'e4chstes Thema.\par
+\par
+Aktuell sind zwei OGS-3 TODOs im Sourcecode:\par
+- in BinaryBuilder#createBuildItem\par
+- in StorageManager#internalStartUp\par
+Das erste kann sofort wieder raus, weil das durch das zweite bei der Initialisierung vorbereitet anstatt im Betrieb on-demand gemacht werden wird.\par
+\par
+Nur vorsichtshalber mal checken, wie die beiden zusammenh\'e4ngen:\par
+- BinaryBuilder#createBuildItem checkt auf Vorhandensein des TypeHandler im BuildItem.\par
+- Das BuildItem kommt vom District, der macht daf\'fcr ein lookupTypeHandler()\par
+- #lookupTypeHandler verwendet die Referenz typeLookup\par
+- Das ist die PersistenceTypeHandlerRegistry Instanz des PersistenceTypeHandlerManager-s\par
+- Die kommt wiederum von der PersistenceFoundation, #createTypeHandlerManager <- #getTypeHandlerRegistry <- #createTypeHandlerRegistry\par
+\par
+Kurz gesagt: der BinaryBuilder schaut in der zentralen TypeHandlerRegistry nach. Passt.\par
+\par
+Jetzt ist nur noch die Frage, wie der StorageManager mit dieser verbunden ist. Bzw. das ist jetzt das zweite TODO und das erste kann getrost gel\'f6scht werden.\par
+\par
+Oh, das wird komplizierter als gedacht.\par
+Es ist so:\par
+Es gibt zwei Ebenen: Storage und Persistence.\par
+Storage k\'fcmmert sich grob gesagt um die Dateien und Cachen von Bin\'e4rdaten.\par
+Persistence k\'fcmmert sich um den \'dcbergang von Anwendungsinstanzen zu Bin\'e4rdaten.\par
+Die Storage Ebene ist nur an einer Stelle mit der Persistence Ebene verbunden: in der Connection (darum hei\'dft die so).\par
+Die erzeugt Storer/Loader, die die Bin\'e4rdatenseite von der Storage Ebene handeln lassen und die Seite des \'dcbergangs zur Anwendung von der Persistence Ebene.\par
+Dummerweise kennt der StorageManager selbst bisher nicht die Persistence Ebene und hat damit keinen Zugriff auf die PersistenceTypeHandler Infrastruktur.\par
+Mal durchschauen und durchdenken ...\par
+\par
+Oh, aufgefallen: Der Abgleich muss sogar fr\'fcher als in dem StartUp stattfinden:\par
+Schon das Validieren der Entities braucht ja TypeHandler und das sind die aus der Persistence Ebene.\par
+Bisher lauscht das StorageTypeDictionary \'fcber einen Callback in der Persistence Ebene mit, ob ein neuer TypeHandler dazukommt und registriert sich den ebenfalls.\par
+F\'fcr den Abgleich muss nun der andere Weg m\'f6glich werden:\par
+Die Storage Ebene trifft auf einen Type (TypeId), f\'fcr den es keinen TypeHandler gibt und muss das an die Persistence Ebene melden, damit die einen erzeugt. Also einen LegacyTypeMapperHandler.\par
+Nat\'fcrlich alle auf einmal und dann werden entweder alle n\'f6tigen Handler erzeugt und registriert, oder es gibt eine Exception.\par
+\par
+Hei\'dft:\par
+- die StorageTypeHandler im StorageType m\'fcssen nun zun\'e4chst mal null sein k\'f6nnen.\par
+- Nach der Registrierung aller Entities aber vor der Validierung werden alle Types mit TypeHandler null zusammengesammelt. /!\\ \'e4rgerlich dabei: das l\'e4uft lokal in den StorageChannels, d.h. es muss erst zentral zusammengesammelt werden. Doof.\par
+- Wenn die Liste komplett ist (d.h. alle Channels haben ihre lokale Liste gemeldet, der letzte merget alles zusammen), wird die \'fcber irgendwie einen Callback an die PersistenceEbene gemeldet.\par
+- Die wirft dann entweder eine Exception f\'fcr einen oder mehrere Typen oder erzeugt Legacy TypeHandler und registriert die in der Registry.\par
+- Danach holen sich alle Channels die n\'f6tigen TypeHandler aus der aufgestockten TypeHandlerRegistry und machen wie gewohnt mit der Entity Validierung weiter.\par
+\par
+Das ist soweit alles straight forward l\'f6sbar, bis auf einen Punkt: wie bringt man den Callback zur Persistence Ebene in den StorageEntityCache rein?\par
+\par
+Bisher gibt es die Verbindung nur zwischen PersistenceTypeDictionary und StorageTypeDictionary.\par
+Was n\'f6tig w\'e4re, ist eine Verbindung zwischen PersistenceTypeHandlerManager und StorageEntityCache und zwar in beide Richtungen.\par
+Mal recherchieren...\par
+\par
+Hm, die Methode, wo die TypeDict Linkerei bisher passiert, EmbeddedStorageFoundation#createEmbeddedStorageManager, sieht daf\'fcr schon mal gut aus:\par
+Dort wird der PersistenceTypeHandlerManager initialisiert und der StorageManager erzeugt.\par
+D.h. man gibt dem StorageManager den TypeHandlerManager (in Form eines simplen interfaces) mit, der reicht das an die EntityCaches weiter und die verbandeln sich gegenseitig.\par
+Der Link zwischen den TypeDicts fliegt dann daf\'fcr raus. War eh bl\'f6d, dass eigentlich passive Datenstrukturklassen aktiv herumkomunizieren. Besser ist, dass die beiden ManagementLogik Klassen kommunizieren und dann jeweils ihre passiven Datenstrukturinstanzen updaten.\par
+\par
+Ne, Moment mal: die Storage Ebene braucht nur die PersistenceTypeDefinitions aus dem Dictionary und die sind dann TypeLineage erweiterung ja einwandfrei da.\par
+Mal live testen, ob das wirklich stimmt... passt.\par
+\par
+Okay, das hei\'dft: zur\'fcck zur anf\'e4nglichen Vermutung. Man muss nur einen Weg finden, wie der StorageManager mit dem TypeHandlerManager reden kann.\par
+Naja und das ist durch die Recherche trivial geworden:\par
+In EmbeddedStorageFoundation#createEmbeddedStorageManager ist der TypeHandlerManager verf\'fcgbar und eine Zeile drunter wird der StorageManager instanziert.\par
+D.h. die werden mit einem lustigen Interface einfach miteinander verbandelt, dann k\'f6nnen sie quatschen und fehlende Types synchen. Passt.\par
+Dass die Dict<->Dict Kommunikation nicht so ganz h\'fcbsch ist stimmt zwar trotzdem noch, aber das lass ich jetzt so, da rei\'df ich wegen kaum mehr als Kosmetik nicht rum.\par
+\par
+Oder noch besser: Eigentlich geh\'f6rt das nicht in den StorageManager, sondern in den EmbeddedStorageManager, der diesen aufruft. Denn nur im Embedded Fall, bzw. auf der "Seite" der Anwendung, macht es Sinn, an Types herumzuanalysieren und Legacy Mapper anzulegen. D.h. der StorageManager schiebt die IdAnalysis einfach nur noch eins weiter.\par
+\par
+Der EmbeddedStorageManager holt sich von der Foundation den TypeHandlerManager und damit kann endlich die eigentliche Type-Abgleich-Logik eingebaut werden.\par
+\par
+\par
 }
  

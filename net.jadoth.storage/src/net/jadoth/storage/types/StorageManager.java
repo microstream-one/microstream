@@ -22,11 +22,12 @@ public interface StorageManager extends StorageController
 		return this.channelController().channelCountProvider();
 	}
 
-
 	public StorageConfiguration configuration();
 
 	@Override
 	public StorageManager start();
+	
+	public StorageIdAnalysis initializationIdAnalysis();
 	
 	@Override
 	public boolean shutdown();
@@ -87,6 +88,8 @@ public interface StorageManager extends StorageController
 		private volatile StorageTaskBroker    taskbroker   ;
 		private final    ChannelKeeper[]      keepers      ;
 		private          StorageWriteListener writeListener;
+		
+		private StorageIdAnalysis initializationIdAnalysis;
 
 
 
@@ -306,7 +309,7 @@ public interface StorageManager extends StorageController
 			// only ObjectId is relevant at this point
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
 			
-			// (28.05.2018 TM)FIXME: OGS-3: idAnalysis.occuringTypeIds() validation / analysis
+			this.initializationIdAnalysis = idAnalysis;
 
 			this.writeListener.start();
 		}
@@ -365,6 +368,12 @@ public interface StorageManager extends StorageController
 				}
 			}
 			return this;
+		}
+		
+		@Override
+		public final StorageIdAnalysis initializationIdAnalysis()
+		{
+			return this.initializationIdAnalysis;
 		}
 
 		@Override

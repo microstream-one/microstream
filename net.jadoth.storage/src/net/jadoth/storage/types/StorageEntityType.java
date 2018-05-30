@@ -90,13 +90,13 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		)
 		{
 			super();
-			this.channelIndex             = channelIndex                      ;
-			this.hasReferences            = typeHandler.hasPersistedReferences()       ;
-			this.simpleReferenceDataCount = typeHandler.simpleReferenceCount();
-			this.typeId                   = typeHandler.typeId()              ;
-			this.typeHandler              = typeHandler                       ;
-			this.hashNext                 = hashNext                          ;
-			this.next                     = next                              ;
+			this.channelIndex             = channelIndex                        ;
+			this.hasReferences            = typeHandler.hasPersistedReferences();
+			this.simpleReferenceDataCount = typeHandler.simpleReferenceCount()  ;
+			this.typeId                   = typeHandler.typeId()                ;
+			this.typeHandler              = typeHandler                         ;
+			this.hashNext                 = hashNext                            ;
+			this.next                     = next                                ;
 		}
 
 
