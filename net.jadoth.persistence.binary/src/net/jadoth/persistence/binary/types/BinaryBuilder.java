@@ -134,9 +134,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			;
 		}
 
-		protected PersistenceTypeHandler<Binary, Object> lookupTypeHandler(final long oid, final long tid)
+		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long oid, final long tid)
 		{
-			final PersistenceTypeHandler<Binary, Object> handler;
+			final PersistenceTypeHandler<Binary, ?> handler;
 			
 			if((handler = this.district.lookupTypeHandler(oid, tid)) == null)
 			{

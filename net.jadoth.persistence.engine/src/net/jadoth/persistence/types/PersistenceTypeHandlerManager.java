@@ -29,13 +29,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
 
 	@Override
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long typeId);
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(T instance);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
 
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(long tid);
+	public PersistenceTypeHandler<M, ?> ensureTypeHandler(long tid);
 	
 	public void ensureTypeHandlers(XGettingEnum<Long> tids);
 
@@ -56,7 +56,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public long ensureTypeId(Class<?> type);
 
 	@Override
-	public <T> Class<T> ensureType(long typeId);
+	public Class<?> ensureType(long typeId);
 
 
 
@@ -203,11 +203,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 		}
 
-		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandlerByTypeId(final long tid)
+		private PersistenceTypeHandler<M, ?> internalEnsureTypeHandlerByTypeId(final long tid)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
-				PersistenceTypeHandler<M, T> handler;
+				PersistenceTypeHandler<M, ?> handler;
 				if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) == null)
 				{
 					handler = this.tryLegacyTypeHandler(tid);
@@ -221,7 +221,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> tryLegacyTypeHandler(final long tid)
+		private PersistenceTypeHandler<M, ?> tryLegacyTypeHandler(final long tid)
 		{
 			/* (30.05.2018 TM)TODO: OGS-3 custom legacy handler lookup
 			 * A way is required to make a lookup in a custom legacy handler registry, first.
@@ -245,19 +245,20 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			return null;
 		}
-		private <T> PersistenceTypeHandler<M, T> createProperTypeHandler(final long tid)
+		private PersistenceTypeHandler<M, ?> createProperTypeHandler(final long tid)
 		{
-			final PersistenceTypeHandler<M, T> handler = this.typeHandlerProvider.provideTypeHandler(tid);
+			final PersistenceTypeHandler<M, ?> handler = this.typeHandlerProvider.provideTypeHandler(tid);
 			this.internalRegisterTypeHandler(handler);
 			
 			return handler;
 		}
 		
-		private <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<T> typeDefinition)
+		@SuppressWarnings("unchecked") // cast safety guaranteed by logic (resolving by class name)
+		private <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			if(typeDefinition.type() != null)
 			{
-				return typeDefinition.type();
+				return (Class<T>)typeDefinition.type();
 			}
 			
 			// (30.05.2018 TM)FIXME: OGS-3: lookup in manual refactoring mapping for that typeName
@@ -267,7 +268,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 		
 		private <T> PersistenceTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceTypeDefinition<T> typeDefinition
+			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
 			final Class<T>                     runtimeType        = this.resolveRuntimeType(typeDefinition);
@@ -347,9 +348,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final long tid)
+		public final PersistenceTypeHandler<M, ?> ensureTypeHandler(final long tid)
 		{
-			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
+			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) != null)
 			{
 				return handler;
@@ -377,7 +378,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
 		}
@@ -390,7 +391,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			// standard implementation does not consider actual objects
 			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
@@ -451,14 +452,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> Class<T> ensureType(final long typeId)
+		public final Class<?> ensureType(final long typeId)
 		{
-			final Class<T> type;
+			final Class<?> type;
 			if((type = this.typeHandlerRegistry.lookupType(typeId)) != null)
 			{
 				return type;
 			}
-			return this.<T>ensureTypeHandler(typeId).type();
+			return this.ensureTypeHandler(typeId).type();
 		}
 
 		@Override

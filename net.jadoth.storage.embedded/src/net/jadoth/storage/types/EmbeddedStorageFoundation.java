@@ -320,10 +320,9 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final EmbeddedStorageConnectionFoundation ecf = this.getConnectionFoundation();
 			final PersistenceTypeHandlerManager<?>    thm = ecf.getTypeHandlerManager();
 			
-			// (30.05.2018 TM)FIXME: OGS-3: link TypeHandlerManager with StorageEntityCache instead of TypeDicts.
 			final StorageManager stm = this.createStorageManager();
 			ecf.setStorageManager(stm);
-			
+						
 			// register special case type handler for roots instance
 			final BinaryPersistenceRootsProvider prp = this.getRootsProvider();
 			prp.registerRootsTypeHandlerCreator(
@@ -346,9 +345,11 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 			// the roots instance to be used
 			final PersistenceRoots roots = prp.provideRoots();
+			
+			final PersistenceRefactoringMappingProvider rmp = this.getRefactoringMappingProvider();
 				
 			// everything bundled together in the actual manager instance
-			return new EmbeddedStorageManager.Implementation(stm.configuration(), ecf, roots);
+			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots, rmp);
 		}
 
 	}

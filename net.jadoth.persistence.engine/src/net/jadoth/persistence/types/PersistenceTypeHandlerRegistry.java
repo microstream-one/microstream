@@ -66,11 +66,10 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 			return (PersistenceTypeHandler<M, T>)this.handlersByType.get(type);
 		}
 
-		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
-			return (PersistenceTypeHandler<M, T>)this.handlersByTypeId.get(typeId);
+			return this.handlersByTypeId.get(typeId);
 		}
 
 		@Override
@@ -81,7 +80,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			// standard registry does not consider actual objects
 			return this.lookupTypeHandler(typeId);
