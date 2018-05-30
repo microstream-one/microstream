@@ -92,7 +92,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.handlerRegistry.lookupTypeHandler(typeId);
 		}
@@ -109,16 +109,15 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 			return (PersistenceTypeHandler<M, T>)handler;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			PersistenceTypeHandler<M, ?> handler;
 			if((handler = this.oidToHandler.get(objectId)) == null)
 			{
 				handler = this.handlerRegistry.lookupTypeHandler(objectId, typeId);
 			}
-			return (PersistenceTypeHandler<M, T>)handler;
+			return handler;
 		}
 
 		@Override

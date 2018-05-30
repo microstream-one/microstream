@@ -29,7 +29,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(final long typeId)
+	public PersistenceTypeHandler<M, ?> provideTypeHandler(final long typeId)
 	{
 		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 	}
@@ -41,7 +41,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public <T> Class<T> ensureType(final long typeId)
+	public Class<?> ensureType(final long typeId)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeManager#ensureType
 	}

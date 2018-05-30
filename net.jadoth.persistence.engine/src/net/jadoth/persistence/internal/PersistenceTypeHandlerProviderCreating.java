@@ -82,10 +82,10 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(final long typeId)
+	public final PersistenceTypeHandler<M, ?> provideTypeHandler(final long typeId)
 	{
 		// either the type can be found or an exception is thrown
-		final Class<T> type = this.typeManager.ensureType(typeId);
+		final Class<?> type = this.typeManager.ensureType(typeId);
 		
 		return this.provideTypeHandler(type, typeId);
 	}
@@ -97,7 +97,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final <T> Class<T> ensureType(final long typeId)
+	public final Class<?> ensureType(final long typeId)
 	{
 		return this.typeManager.ensureType(typeId);
 	}

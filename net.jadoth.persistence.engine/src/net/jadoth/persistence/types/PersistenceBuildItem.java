@@ -11,9 +11,9 @@ public interface PersistenceBuildItem<M>
 		// introducing an unnecessary T here creates an aweful lot of unnecessary trouble in the generic builder
 		// note: do not change parameter order without checking/fixing all call site logic!
 		public I createBuildItem(
-			long oid,
+			long                              oid        ,
 			PersistenceTypeHandler<M, Object> typeHandler,
-			Object instance
+			Object                            instance
 		);
 
 		public I createSkipBuildItem(long oid, Object instance);

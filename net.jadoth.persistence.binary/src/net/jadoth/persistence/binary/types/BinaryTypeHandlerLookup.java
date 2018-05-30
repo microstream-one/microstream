@@ -8,5 +8,5 @@ public interface BinaryTypeHandlerLookup extends PersistenceTypeHandlerLookup<Bi
 	public <T> BinaryTypeHandler<T> lookupTypeHandler(Class<T> type);
 
 	@Override
-	public <T> BinaryTypeHandler<T> lookupTypeHandler(long typeId);
+	public BinaryTypeHandler<?> lookupTypeHandler(long typeId);
 }

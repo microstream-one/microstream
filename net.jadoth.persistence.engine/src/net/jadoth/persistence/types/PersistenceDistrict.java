@@ -47,9 +47,9 @@ public interface PersistenceDistrict<M>
 
 //	public long lookupTypeId(Class<?> type);
 
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long typeId);
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long objectId, long typeId);
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long objectId, long typeId);
 
 	/* (23.05.2018 TM)TODO: SwizzleRegistry nonsense method?
 	 * Isn't this method nonsense since the tid got removed?
@@ -134,6 +134,7 @@ public interface PersistenceDistrict<M>
 			);
 		}
 
+		@SuppressWarnings("unchecked") // weird interplay between ? and Object. Correctness guaranteed by logic.
 		@Override
 		public <I extends PersistenceBuildItem<M>> I createBuildItem(
 			final Creator<M, I> creator,
@@ -144,7 +145,7 @@ public interface PersistenceDistrict<M>
 			// type handler lookup (potential miss / validation error, etc.) must be executed BEFORE tid registration
 			return creator.createBuildItem(
 				oid,
-				this.lookupTypeHandler(oid, tid),
+				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(oid, tid),
 				this.registerObjectId(oid)
 			);
 		}
@@ -162,13 +163,13 @@ public interface PersistenceDistrict<M>
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.typeLookup.lookupTypeHandler(typeId);
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			return this.typeLookup.lookupTypeHandler(objectId, typeId);
 		}

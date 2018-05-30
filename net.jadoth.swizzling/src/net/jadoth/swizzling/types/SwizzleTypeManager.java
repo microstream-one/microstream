@@ -10,7 +10,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 {
 	public long ensureTypeId(Class<?> type);
 
-	public <T> Class<T> ensureType(long typeId);
+	public Class<?> ensureType(long typeId);
 
 	public long currentTypeId();
 
@@ -156,9 +156,9 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		}
 
 		@Override
-		public <T> Class<T> ensureType(final long typeId)
+		public Class<?> ensureType(final long typeId)
 		{
-			Class<T> type;
+			Class<?> type;
 			if((type = this.typeRegistry.lookupType(typeId)) == null)
 			{
 				throw new SwizzleExceptionConsistencyUnknownTid(typeId);
