@@ -9,7 +9,6 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
-import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.persistence.types.Unpersistable;
@@ -40,17 +39,15 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	
 	public static EmbeddedStorageManager.Implementation New(
-		final StorageConfiguration                  configuration             ,
-		final EmbeddedStorageConnectionFoundation   connectionFactory         ,
-		final PersistenceRoots                      definedRoots              ,
-		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		final StorageConfiguration                configuration    ,
+		final EmbeddedStorageConnectionFoundation connectionFactory,
+		final PersistenceRoots                    definedRoots
 	)
 	{
 		return new EmbeddedStorageManager.Implementation(
-			notNull(configuration)             ,
-			notNull(connectionFactory)         ,
-			notNull(definedRoots)              ,
-			notNull(refactoringMappingProvider)
+			notNull(configuration)    ,
+			notNull(connectionFactory),
+			notNull(definedRoots)
 		);
 	}
 
@@ -66,9 +63,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		private final EmbeddedStorageConnectionFoundation   connectionFactory         ;
 		private final PersistenceRoots                      definedRoots              ;
 		
-		// (30.05.2018 TM)FIXME: OGS-3: either move this to TypeHandlerManager or move logic here.
-		private final PersistenceRefactoringMappingProvider refactoringMappingProvider;
-
 		private StorageConnection singletonConnection;
 
 
@@ -78,18 +72,16 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		/////////////////////
 
 		Implementation(
-			final StorageConfiguration                  configuration             ,
-			final EmbeddedStorageConnectionFoundation   connectionFactory         ,
-			final PersistenceRoots                      definedRoots              ,
-			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+			final StorageConfiguration                configuration    ,
+			final EmbeddedStorageConnectionFoundation connectionFactory,
+			final PersistenceRoots                    definedRoots
 		)
 		{
 			super();
-			this.configuration              = configuration                        ;
-			this.storageManager             = connectionFactory.getStorageManager(); // to ensure consistency
-			this.connectionFactory          = connectionFactory                    ;
-			this.definedRoots               = definedRoots                         ;
-			this.refactoringMappingProvider = refactoringMappingProvider           ;
+			this.configuration     = configuration                        ;
+			this.storageManager    = connectionFactory.getStorageManager(); // to ensure consistency
+			this.connectionFactory = connectionFactory                    ;
+			this.definedRoots      = definedRoots                         ;
 		}
 
 

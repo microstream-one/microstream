@@ -3,10 +3,10 @@ package net.jadoth.persistence.test;
 import java.io.File;
 
 import net.jadoth.X;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
-import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;
 
 
@@ -19,7 +19,7 @@ public class StorageTestSimple extends TestStorage
 	static final EmbeddedStorageManager STORAGE =
 		EmbeddedStorage.createFoundation(           // create manager building foundation with mostly defaults
 			new File("c:/simpleTestStorage"),       // set storage directory (instead of using working directory)
-			Storage.RootResolver(ROOT)              // link application's root instance to the storage management
+			Persistence.RootResolver(ROOT)              // link application's root instance to the storage management
 		)
 		.createEmbeddedStorageManager().start()     // start threads and load all non-lazy referenced instances
 	;

@@ -1,14 +1,6 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
-import java.util.function.Supplier;
-
-import net.jadoth.chars.StringTable;
-import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.files.XFiles;
-import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
-import net.jadoth.persistence.types.PersistenceRootResolver;
 
 public final class Storage
 {
@@ -224,90 +216,6 @@ public final class Storage
 	)
 	{
 		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio, dissolveHeadfile);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
-	{
-		return RootResolver(rootIdentifier, () -> rootInstance);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
-	{
-		return RootResolver(() -> rootInstance);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
-	{
-		return RootResolver("root", rootInstanceSupplier);
-	}
-	
-	public static final PersistenceRootResolver RootResolver(
-		final String      rootIdentifier      ,
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolver.New(rootIdentifier, rootInstanceSupplier);
-	}
-	
-	public static final PersistenceRootResolver RootResolver(
-		final String                                rootIdentifier      ,
-		final Supplier<?>                           rootInstanceSupplier,
-		final PersistenceRefactoringMappingProvider refactoringMapping
-	)
-	{
-		return PersistenceRootResolver.Wrap(
-			RootResolver(rootIdentifier, rootInstanceSupplier),
-			refactoringMapping
-		);
-	}
-	
-	public static final PersistenceRootResolver RootResolver(
-		final Supplier<?>                           rootInstanceSupplier,
-		final PersistenceRefactoringMappingProvider refactoringMapping
-	)
-	{
-		return PersistenceRootResolver.Wrap(
-			RootResolver(rootInstanceSupplier),
-			refactoringMapping
-		);
-	}
-	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder()
-	{
-		return PersistenceRootResolver.Builder();
-	}
-	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
-	{
-		return RefactoringMapping(
-			readRefactoringMappings(refactoringsFile)
-		);
-	}
-	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
-		final XGettingTable<String, String> refactoringMappings
-	)
-	{
-		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
-	}
-	
-	public static XGettingTable<String, String> readRefactoringMappings(final File file)
-	{
-		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XFiles.readStringFromFile(
-			file,
-			Persistence.standardCharset(),
-			RuntimeException::new
-		);
-		final StringTable stringTable                     = StringTable.Static.parse(fileContent);
-		final XGettingTable<String, String> keyValueTable = stringTable.toKeyValueTable(
-			row ->
-				row[0], // debuggability linebreak, do not rewrite!
-			row ->
-				row[1] // debuggability linebreak, do not rewrite!
-		);
-		
-		return keyValueTable;
 	}
 
 	/**

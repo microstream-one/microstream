@@ -7,8 +7,10 @@ import net.jadoth.persistence.binary.types.BinaryLoader;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.binary.types.BinaryStorer;
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceRegisterer;
+import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
@@ -468,6 +470,12 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 				this.connectionRequestAcceptor = this.storageManager.createRequestAcceptor();
 			}
 			return this.connectionRequestAcceptor;
+		}
+		
+		@Override
+		protected PersistenceRootResolver createRootResolver()
+		{
+			return Persistence.RootResolver(EmbeddedStorage::root);
 		}
 
 		@Override
