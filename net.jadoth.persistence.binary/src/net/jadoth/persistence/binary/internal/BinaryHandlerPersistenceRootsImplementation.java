@@ -27,7 +27,6 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 
 	private static final long OFFSET_OID_LIST = 0;
 
-
 	
 	
 	///////////////////////////////////////////////////////////////////////////

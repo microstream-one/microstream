@@ -16,6 +16,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.XFunc;
 import net.jadoth.meta.XDebug;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -48,7 +49,7 @@ public class TestStorage extends TestComponentProvider
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.createFoundation(Storage.FileProvider(DIRECTORY))
-		.setRootResolver(Storage.RootResolver(ROOT))
+		.setRootResolver(Persistence.RootResolver(ROOT))
 		.setConfiguration(
 			Storage.Configuration(
 				createTestFileProvider()                        ,

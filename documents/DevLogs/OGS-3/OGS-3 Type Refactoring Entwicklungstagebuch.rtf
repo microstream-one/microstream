@@ -1210,6 +1210,32 @@ Ich bin jetzt an dem Punkt, wo die veraltete Typbeschreibung mit der aktuellen T
 \par
 \par
 \par
+2018-05-31\par
 \par
+Irgendwie ist es komisch, dass das PersistenceRefactoringMapping Ding bisher nur in der EmbeddedStorage Schicht ist, aber jetzt im PersistenceTypeHandlerManager, also der Persistence Schicht, gebraucht werden w\'fcrde.\par
+Noch dazu, weil es Persistence~ hei\'dft und eigentliche reine Aufgaben der Persistence Ebene macht. Mal rechechieren.\par
+\par
+Ergebnis:\par
+Also der ganze Block aus PersistenceRootResolver, BinaryPersistenceRootsProvider, PersistenceRefactoringMappingProvider in der EmbeddedStorageFoundation ist eigentlich Zeug der Persistence Ebene. Also eigentlich der BinaryPersistenceFoundation. Witzigerweise ist das einzig andere Feld in der EmbeddedStorageFoundation vom Typ EmbeddedStorageConnectionFoundation und die leitet ab von ... tada: BinaryPersistenceFoundation.\par
+Hei\'dft: diese Teile sind in der EmbeddedStorage Ebene eigentlich deplatziert, sondern geh\'f6ren in die Persistence Ebene und deren Foundation. Wir das mit dem einen Binary~ Ding ist, ob man das noch zu Persistence~ allgemein abstrahieren kann, muss ich mal noch checken.\par
+Dann ist das RefactoringMapping Zeug ordentlich in der Persistence Ebene und der TypeHandlerManager kann es mit \'fcbergeben bekommen. Passt.\par
+\par
+Jup. Das kann abstrahiert werden. Die Verwendung davon gibt ja sogar eh nur ein PersistenceRoots zur\'fcck, also war die zu spezifische Typisierung Bl\'f6dsinn. Ab in die PersistenceFoundation mit dem Zeug.\par
+\par
+Die zwei getRootResolver und provideRootResolver sind irgendwie seltsam. Provide~ Methoden gibts in der Foundation eigentlich nicht.\par
+Mal recherchieren.\par
+\par
+Umbenannt auf getRootResolver und getEffectiveRootResolver, was deren eigentlichem Verhalten/Zweck entspricht.\par
+\par
+Und jetzt ist die interessante Frage: warum hei\'dfen in den Foundations die Provider-Methoden, die ja typische Provider-Arbeit machen, get~ und nicht provide~?\par
+Dadurch kann es n\'e4mlich auch keine wirklichen getter geben.\par
+\par
+Das Roots Zeugs nach PersistenceFoundation zu verschieben und trotzdem nur sch\'f6n einfach die EmbeddedStorageFoundation zu verwenden, war etwas kniffliger als gedacht. Aber funktioniert und jetzt ist das Zeug dort, wo es hingeh\'f6rt.\par
+\par
+Nun das bestehende RefactoringMapping im dazukommenden TypeHandlerManager Code einsetzen.\par
+Nice, dann ist damit schon  mal das Mapping von einem Type auf einen anderen drin.\par
+\par
+Testen, ob default root und custom root nach der Umstellung noch gehen.\par
+Kleiner Fl\'fcchtigkeitsfehler in der Testklasse (store(MY_ROOT.get()) anstatt store(MY_ROOT)) und daran ewig rumdebuggt, aber kaum macht mans richtig, schon gehts.\par
 }
  

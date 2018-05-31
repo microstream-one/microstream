@@ -1,6 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceRefactoringMappingProvider
@@ -10,7 +9,7 @@ public interface PersistenceRefactoringMappingProvider
 	public static PersistenceRefactoringMappingProvider New(final XGettingTable<String, String> entries)
 	{
 		return new PersistenceRefactoringMappingProvider.Implementation(
-			EqConstHashTable.New(entries)
+			entries
 		);
 	}
 	
@@ -20,7 +19,7 @@ public interface PersistenceRefactoringMappingProvider
 		// instance fields //
 		////////////////////
 		
-		private final EqConstHashTable<String, String> entries;
+		private final XGettingTable<String, String> entries;
 		
 		
 		
@@ -28,7 +27,7 @@ public interface PersistenceRefactoringMappingProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(final EqConstHashTable<String, String> entries)
+		Implementation(final XGettingTable<String, String> entries)
 		{
 			super();
 			this.entries = entries;
@@ -43,7 +42,10 @@ public interface PersistenceRefactoringMappingProvider
 		@Override
 		public PersistenceRefactoringMapping provideRefactoringMapping()
 		{
-			return new PersistenceRefactoringMapping.Implementation(this.entries);
+			// nifty: immure at creation time, not before.
+			return new PersistenceRefactoringMapping.Implementation(
+				this.entries.immure()
+			);
 		}
 		
 	}

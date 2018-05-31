@@ -1,9 +1,8 @@
-package net.jadoth.storage.types;
+package net.jadoth.persistence.binary.types;
 
 import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.binary.internal.BinaryHandlerPersistenceRootsImplementation;
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;

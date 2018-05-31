@@ -8,6 +8,7 @@ import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRegisterer;
+import net.jadoth.persistence.types.PersistenceRootsProvider;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
@@ -450,7 +451,15 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		{
 			return BinaryPersistence.createFieldLengthResolver();
 		}
-
+		
+		@Override
+		protected PersistenceRootsProvider<Binary> createRootsProviderInternal()
+		{
+			return BinaryPersistenceRootsProvider.New(
+				this.getRootResolver()
+			);
+		}
+		
 	}
 
 }

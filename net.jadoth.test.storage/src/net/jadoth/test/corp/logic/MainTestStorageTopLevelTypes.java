@@ -2,29 +2,29 @@ package net.jadoth.test.corp.logic;
 
 import java.util.Arrays;
 
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
-import net.jadoth.storage.types.Storage;
 
 
 public class MainTestStorageTopLevelTypes
 {
 	public static void main(final String[] args)
 	{
-		net.jadoth.reference.Reference<Object>               root         = Reference.New(null);
+		final net.jadoth.reference.Reference<Object>               root         = Reference.New(null);
 
-		net.jadoth.persistence.types.PersistenceRootResolver rootResolver = Storage.RootResolver(root);
+		final net.jadoth.persistence.types.PersistenceRootResolver rootResolver = Persistence.RootResolver(root);
 		
-		net.jadoth.storage.types.EmbeddedStorageManager      storage      = EmbeddedStorage
+		final net.jadoth.storage.types.EmbeddedStorageManager      storage      = EmbeddedStorage
 			.createStorageManager(rootResolver)
 			.start()
 		;
 		
-		net.jadoth.storage.types.StorageConnection           connection  = storage.createConnection();
+		final net.jadoth.storage.types.StorageConnection           connection  = storage.createConnection();
 		
-		net.jadoth.persistence.types.Storer                  storer      = connection.createStorer();
+		final net.jadoth.persistence.types.Storer                  storer      = connection.createStorer();
 				
-		java.util.List<TestPerson> entityGraph = Arrays.asList(
+		final java.util.List<TestPerson> entityGraph = Arrays.asList(
 			new TestPerson(),
 			new TestPerson(),
 			new TestPerson()

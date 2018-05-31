@@ -2,6 +2,7 @@ package net.jadoth.test.corp.logic;
 
 import java.io.File;
 
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
@@ -30,7 +31,7 @@ public class MainTestStorageExampleMore
 //		)
 		
 		.createStorageManager(
-			Storage.RootResolver(ROOT)                           , // binding between graph's root instance and the storage
+			Persistence.RootResolver(ROOT)                       , // binding between graph's root instance and the storage
 			Storage.Configuration(
 				Storage.FileProvider(DIRECTORY)                  , // location for the database files
 				Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
