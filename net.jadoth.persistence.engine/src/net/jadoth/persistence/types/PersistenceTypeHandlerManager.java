@@ -62,12 +62,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 
 	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
-		final PersistenceTypeHandlerRegistry<M>     typeHandlerRegistry       ,
-		final PersistenceTypeHandlerProvider<M>     typeHandlerProvider       ,
-		final PersistenceTypeDictionaryManager      typeDictionaryManager     ,
-		final PersistenceTypeEvaluator              typeEvaluator             ,
-		final PersistenceTypeMismatchValidator<M>   typeMismatchValidator     ,
-		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ,
+		final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ,
+		final PersistenceTypeDictionaryManager        typeDictionaryManager     ,
+		final PersistenceTypeEvaluator                typeEvaluator             ,
+		final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ,
+		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
 	)
 	{
 		return new PersistenceTypeHandlerManager.Implementation<>(
@@ -76,7 +77,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			notNull(typeDictionaryManager)     ,
 			notNull(typeEvaluator)             ,
 			notNull(typeMismatchValidator)     ,
-			notNull(refactoringMappingProvider)
+			notNull(refactoringMappingProvider),
+			notNull(deletedTypeHandlerCreator)
 		);
 	}
 
@@ -88,13 +90,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		// instance fields  //
 		/////////////////////
 
-		        final PersistenceTypeHandlerRegistry<M>     typeHandlerRegistry       ;
-		private final PersistenceTypeHandlerProvider<M>     typeHandlerProvider       ;
-		private final PersistenceTypeDictionaryManager      typeDictionaryManager     ;
-		private final PersistenceTypeEvaluator              typeEvaluator             ;
-		private final PersistenceTypeMismatchValidator<M>   typeMismatchValidator     ;
-		private final PersistenceRefactoringMappingProvider refactoringMappingProvider;
-		private       boolean                               initialized               ;
+		        final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ;
+		private final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ;
+		private final PersistenceTypeDictionaryManager        typeDictionaryManager     ;
+		private final PersistenceTypeEvaluator                typeEvaluator             ;
+		private final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ;
+		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
+		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
+		private       boolean                                 initialized               ;
 
 
 
@@ -103,12 +106,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeHandlerRegistry<M>     typeHandlerRegistry       ,
-			final PersistenceTypeHandlerProvider<M>     typeHandlerProvider       ,
-			final PersistenceTypeDictionaryManager      typeDictionaryManager     ,
-			final PersistenceTypeEvaluator              typeEvaluator             ,
-			final PersistenceTypeMismatchValidator<M>   typeMismatchValidator     ,
-			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+			final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ,
+			final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ,
+			final PersistenceTypeDictionaryManager        typeDictionaryManager     ,
+			final PersistenceTypeEvaluator                typeEvaluator             ,
+			final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ,
+			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
 		)
 		{
 			super();
@@ -118,6 +122,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.typeEvaluator              = typeEvaluator             ;
 			this.typeMismatchValidator      = typeMismatchValidator     ;
 			this.refactoringMappingProvider = refactoringMappingProvider;
+			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
 		}
 
 
@@ -229,7 +234,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		
 		private PersistenceTypeHandler<M, ?> tryLegacyTypeHandler(final long tid)
 		{
-			/* (30.05.2018 TM)TODO: OGS-3 custom legacy handler lookup
+			/* (30.05.2018 TM)TODO: OGS-3: custom legacy handler lookup
 			 * A way is required to make a lookup in a custom legacy handler registry, first.
 			 * Also, the lookup should not only use the TypeId, but prior to that a lookup via the
 			 * structure, because it is cumbersome (or logically misplaced) to have to manually assign TypeIds.
@@ -238,18 +243,22 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			final PersistenceTypeDictionary    typeDict = this.typeDictionaryManager.provideTypeDictionary();
 			final PersistenceTypeDefinition<?> typeDef  = typeDict.lookupTypeById(tid);
-						
-			if(typeDef != null)
+			if(typeDef == null)
 			{
-				final PersistenceTypeLineage<?> typeLin = typeDict.lookupTypeLineage(typeDef.typeName());
-				if(typeLin.runtimeDefinition() != typeDef)
-				{
-					return this.createLegacyTypeHandler(typeDef);
-				}
+				// the type id might refer to a new type that has no handler registered, yet, so this is not an error.
+				return null;
 			}
 			
-			// the type id might refer to a new type that has no handler registered, yet.
-			return null;
+			final PersistenceTypeLineage<?> typeLin = typeDict.lookupTypeLineage(typeDef.typeName());
+			if(typeLin.runtimeDefinition() == typeDef)
+			{
+				// the tid belongs to the type's runtime type definition, so a legacy type handler is not required.
+				return null;
+			}
+			
+			// existing, but not current type version (identified by the typeId), so create a legacy handler.
+			return this.createLegacyTypeHandler(typeDef);
+			
 		}
 		private PersistenceTypeHandler<M, ?> createProperTypeHandler(final long tid)
 		{
@@ -257,6 +266,24 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.internalRegisterTypeHandler(handler);
 			
 			return handler;
+		}
+				
+		private PersistenceTypeHandler<M, ?> createLegacyTypeHandler(
+			final PersistenceTypeDefinition<?> typeDefinition
+		)
+		{
+			final Class<?> runtimeType = this.resolveRuntimeType(typeDefinition);
+			if(runtimeType == null)
+			{
+				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
+				return this.createDeletedTypeHandler(typeDefinition);
+			}
+			
+			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			
+			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
+			
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
 		private Class<?> resolveRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
@@ -290,8 +317,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 					}
 				}
 				
-				// (31.05.2018 TM)FIXME: OGS-3: return a generic "DeletedTypeHandler" throwing an exception in load/store methods.
-				throw new net.jadoth.meta.NotImplementedYetError();
+				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
+				return null;
 			}
 			
 			/* At this point, the type definition neither has a fitting runtime type nor an entry in the explicit
@@ -300,17 +327,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
 		}
 		
-		private PersistenceTypeHandler<M, ?> createLegacyTypeHandler(
+		private PersistenceTypeHandler<M, ?> createDeletedTypeHandler(
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
-			final Class<?>                     runtimeType        = this.resolveRuntimeType(typeDefinition);
-			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
-			
-			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
-			
-			// FIXME OGS-3 PersistenceTypeHandlerManager.Implementation#createLegacyTypeHandler()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			return this.deletedTypeHandlerCreator.createDeletedTypeHandler(typeDefinition);
 		}
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)

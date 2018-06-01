@@ -1237,5 +1237,27 @@ Nice, dann ist damit schon  mal das Mapping von einem Type auf einen anderen dri
 \par
 Testen, ob default root und custom root nach der Umstellung noch gehen.\par
 Kleiner Fl\'fcchtigkeitsfehler in der Testklasse (store(MY_ROOT.get()) anstatt store(MY_ROOT)) und daran ewig rumdebuggt, aber kaum macht mans richtig, schon gehts.\par
+\par
+
+\pard Issue OGS-3 updaten:\par
+\par
+edit 2018-05-31:\par
+Kleines Update:\par
+Die neue RootResolving- und RefactoringMapping-Logik aus OGS-41 war auf der EmbeddedStorage Ebene, obwohl das alles nur Zeug der allgemeinen Persistence Ebene ist. F\'fcr Punkt 2.5 (also User-Mapping ber\'fccksichtigen k\'f6nnen) w\'e4re es nun aber auf der Persistence Ebene n\'f6tig geworden. An zwei Orten haben, die potenziell inkonsistent zueinander oder selbst im g\'fcnstigsten Fall verwirrend und umst\'e4ndlich zu verwenden w\'e4ren, w\'e4re bl\'f6d, also musste konsolidiert werden: reines Persistence Zeug auf die Ebene, wo es hingeh\'f6rt. Enthielt ein paar knifflige Details, aber jetzt passt diesbez\'fcglich alles, inklusive Test, ob das Root Resolven noch geht (default und custom).\par
+
+\pard\sl276\slmult1\par
+\par
+\par
+2018-06-01\par
+\par
+Gleich mal den "DeletedTypeHandler" implementieren. Wobei jetzt die interessante Frage ist: Soll der wirklich eine Exception werfen, oder soll er einfach als instanz null zur\'fcckgeben?\par
+Hm, oder einen Provider daf\'fcr machen, der das entscheiden l\'e4sst?\par
+\par
+Handler implementiert, aber immer noch kein Ergebnis, ob die eine oder die andere Variante immer besser ist.\par
+Letztendlich ist es bei sowas immer das gleiche: Provider bauen mit sinnvollem Default. Wenn's jemandem nicht passt, soll er die eine Zeile Code aufwenden, um es anders zu machen.\par
+\par
+Entsprechend einbauen. Methoden im TypeHandlerManager umstrukturieren bzw. weiter implementieren, soweit m\'f6glich.\par
+Damit bleibt nun nur noch der Fall, alte und neue type definition zu vergleichen und einen LegacyMapper daraus abzuleiten.\par
+Dann fertig (yay)\par
 }
  

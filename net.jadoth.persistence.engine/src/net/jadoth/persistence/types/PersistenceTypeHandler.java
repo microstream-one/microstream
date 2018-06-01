@@ -90,9 +90,10 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 		}
 
 
+
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		protected final void validateInstance(final T instance)
 		{
@@ -102,21 +103,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			}
 			throw new PersistenceExceptionTypeConsistency();
 		}
-
-//		protected final void validateBasicTypeDefinition(final PersistenceTypeDescription typeDefinition)
-//		{
-//			if(this.tid == typeDefinition.typeId() && this.type.getName().equals(typeDefinition.typeName()))
-//			{
-//				return; // validation successful
-//			}
-//			throw new RuntimeException(); // (18.03.2013)EXCP: proper exception
-//		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
 
 		@Override
 		public final Class<T> type()
