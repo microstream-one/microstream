@@ -186,8 +186,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			 */
 			if(buildItem.districtInstance == null)
 			{
-				// kind of redundant type check, only purpose is to harden against faulty custom handler implementations
-				buildItem.localInstance = buildItem.handler.type().cast(buildItem.handler.create(buildItem));
+				buildItem.localInstance = buildItem.handler.create(buildItem);
 			}
 
 			// register build item

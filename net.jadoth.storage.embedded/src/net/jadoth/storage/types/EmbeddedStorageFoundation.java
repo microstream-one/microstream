@@ -1,6 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
@@ -13,8 +14,13 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	public EmbeddedStorageConnectionFoundation getConnectionFoundation();
 
 	public EmbeddedStorageManager createEmbeddedStorageManager();
-
 	
+	public default EmbeddedStorageManager start()
+	{
+		final EmbeddedStorageManager esm = this.createEmbeddedStorageManager();
+		esm.start();
+		return esm;
+	}
 	
 	@Override
 	public EmbeddedStorageFoundation setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
@@ -48,7 +54,10 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation connectionFoundation);
 
 	public EmbeddedStorageFoundation setRootResolver(PersistenceRootResolver rootResolver);
-
+	
+	public EmbeddedStorageFoundation setRefactoringMappingProvider(
+		PersistenceRefactoringMappingProvider refactoringMappingProvider
+	);
 
 
 	public class Implementation extends StorageFoundation.Implementation implements EmbeddedStorageFoundation
@@ -181,6 +190,15 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		public EmbeddedStorageFoundation setRootResolver(final PersistenceRootResolver rootResolver)
 		{
 			this.connectionFoundation.setRootResolver(rootResolver);
+			return this;
+		}
+		
+		@Override
+		public EmbeddedStorageFoundation setRefactoringMappingProvider(
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		)
+		{
+			this.connectionFoundation.setRefactoringMappingProvider(refactoringMappingProvider);
 			return this;
 		}
 

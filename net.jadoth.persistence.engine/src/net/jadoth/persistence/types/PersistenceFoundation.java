@@ -108,6 +108,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceRootsProvider<M> getRootsProvider();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
+	
+	public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator();
 
 
 
@@ -208,6 +210,10 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setRefactoringMappingProvider(
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
+	
+	public PersistenceFoundation<M> setDeletedTypeHandlerCreator(
+		PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+	);
 
 
 
@@ -283,6 +289,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		private PersistenceRefactoringMappingProvider   refactoringMappingProvider ;
+		private PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ;
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -650,6 +657,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.refactoringMappingProvider = this.dispatch(this.createRefactoringMappingProvider());
 			}
 			return this.refactoringMappingProvider;
+		}
+		
+		@Override
+		public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator()
+		{
+			if(this.deletedTypeHandlerCreator == null)
+			{
+				this.deletedTypeHandlerCreator = this.dispatch(this.createDeletedTypeHandlerCreator());
+			}
+			return this.deletedTypeHandlerCreator;
 		}
 
 		@Override
@@ -1020,6 +1037,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			this.refactoringMappingProvider = refactoringMappingProvider;
 			return this;
 		}
+		
+		@Override
+		public PersistenceFoundation.AbstractImplementation<M> setDeletedTypeHandlerCreator(
+			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+		)
+		{
+			this.deletedTypeHandlerCreator = deletedTypeHandlerCreator;
+			return this;
+		}
 
 
 		
@@ -1073,7 +1099,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 					this.getTypeDictionaryManager(),
 					this.getTypeEvaluatorTypeIdMappable(),
 					this.getTypeMismatchValidator(),
-					this.getRefactoringMappingProvider()
+					this.getRefactoringMappingProvider(),
+					this.getDeletedTypeHandlerCreator()
 				)
 			;
 			return newTypeHandlerManager;
@@ -1232,6 +1259,11 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return PersistenceRefactoringMappingProvider.New(
 				X.emptyTable()
 			);
+		}
+		
+		protected PersistenceDeletedTypeHandlerCreator<M> createDeletedTypeHandlerCreator()
+		{
+			return PersistenceDeletedTypeHandlerCreator.New();
 		}
 
 

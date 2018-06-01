@@ -14,7 +14,11 @@ import net.jadoth.swizzling.types.SwizzleTypeRegistry;
 public interface PersistenceTypeHandlerRegistry<M>
 extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHandlerIterable<M>
 {
-	public boolean registerTypeHandler(PersistenceTypeHandler<M, ?> type);
+	public boolean registerTypeHandler(PersistenceTypeHandler<M, ?> typeHandler);
+	
+	public boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler);
+	
+	
 	
 
 
@@ -113,14 +117,10 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 				}
 				// else: handler is not registered yet, proceed with tid check
 
-				// check if handler is already registered for tid
-				if((actualHandler = this.handlersByTypeId.get(tid)) != null)
+				// check if a handler is already registered for the same tid
+				if(this.synchCheckByTypeId(typeHandler))
 				{
-					if(actualHandler != typeHandler)
-					{
-						throw new PersistenceExceptionTypeHandlerConsistencyConflictedTypeId(tid, actualHandler, typeHandler);
-					}
-					// else: handler is already consistently registered. Hence redundant registering, abort.
+					// redundant registering attempt, abort.
 					return false;
 				}
 				// else: handler, tid, type combination is neither registered nor inconsistent, so register handler.
@@ -128,6 +128,47 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 				// register new bidirectional assignment
 				// note: basic type<->tid registration already happened above if necessary
 				this.putMapping(typeHandler);
+				
+				return true;
+			}
+		}
+		
+		private boolean synchCheckByTypeId(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			final PersistenceTypeHandler<M, ?> actualHandler;
+			if((actualHandler = this.handlersByTypeId.get(typeHandler.typeId())) != null)
+			{
+				if(actualHandler != typeHandler)
+				{
+					throw new PersistenceExceptionTypeHandlerConsistencyConflictedTypeId(
+						typeHandler.typeId(),
+						actualHandler,
+						typeHandler
+					);
+				}
+				// else: handler is already consistently registered.
+				return true;
+			}
+			
+			return false;
+		}
+		
+
+		@Override
+		public boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		{
+			synchronized(this.handlersByType)
+			{
+				// check if a handler is already registered for the same tid
+				if(this.synchCheckByTypeId(legacyTypeHandler))
+				{
+					// redundant registering attempt, abort.
+					return false;
+				}
+				
+				// no registration by type, just by typeId. This is a one-way translation helper for lookups by TID.
+				this.handlersByTypeId.put(legacyTypeHandler.typeId(), legacyTypeHandler);
+				
 				return true;
 			}
 		}

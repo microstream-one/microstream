@@ -42,8 +42,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public void initialize();
 
-	public void reinitialize();
-
 	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
 
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
@@ -331,7 +329,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
-			return this.deletedTypeHandlerCreator.createDeletedTypeHandler(typeDefinition);
+			final PersistenceDeletedTypeHandler<M, ?> typeHandler =
+				this.deletedTypeHandlerCreator.createDeletedTypeHandler(typeDefinition)
+			;
+			
+			// direct registration without any validation or dictionary entry. This is just a runtime dummy logic.
+			this.registerLegacyTypeHandler(typeHandler);
+			
+			return typeHandler;
 		}
 
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
@@ -481,6 +486,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 			return false;
 		}
+		
+		@Override
+		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		{
+			return this.typeHandlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
+		}
 
 		@Override
 		public final long ensureTypeId(final Class<?> type)
@@ -560,43 +571,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 			this.internalInitialize();
 		}
-
-		@Override
-		public final synchronized void reinitialize()
-		{
-			this.initialized = false;
-			// (25.06.2014 TM)TODO: actually clear registry on reinitialize or just perform algorithm again?
-			this.initialize();
-		}
-		
-		// (18.05.2018 TM)NOTE: old version befpre legacy type handling
-//		private void internalInitialize()
-//		{
-//			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
-//
-//			final BulkList<PersistenceTypeDefinition<?>> runtimeTypes = BulkList.New();
-//			typeDictionary.iterateLatestTypes(td ->
-//			{
-//				if(td.type() != null)
-//				{
-//					runtimeTypes.add(td);
-//				}
-//			});
-//
-//			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
-//
-//			// register all runtime types (with validity check)
-//			typeRegistry.registerTypes(runtimeTypes);
-//
-//			this.internalUpdateCurrentHighestTypeId(typeDictionary);
-//
-//			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
-//			runtimeTypes.iterate(e ->
-//				this.ensureTypeHandler(e.type())
-//			);
-//
-//			this.initialized = true;
-//		}
 
 		private void internalInitialize()
 		{

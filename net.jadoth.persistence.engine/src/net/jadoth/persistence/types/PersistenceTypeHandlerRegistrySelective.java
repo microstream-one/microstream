@@ -34,7 +34,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		/////////////////////
 
 		private final PersistenceTypeHandlerRegistry<M> handlerRegistry;
-		private final SwizzleObjectLookup                    objectLookup   ;
+		private final SwizzleObjectLookup               objectLookup   ;
 
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> oidToHandler = HashMapIdObject.New();
 		private final MiniMap<Object, PersistenceTypeHandler<M, ?>> objToHandler = new MiniMap<>();
@@ -83,6 +83,12 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		public boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> type)
 		{
 			return this.handlerRegistry.registerTypeHandler(type);
+		}
+		
+		@Override
+		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		{
+			return this.handlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
 		}
 
 		@Override

@@ -1,5 +1,8 @@
 package net.jadoth.test.corp.logic;
 
+import java.io.File;
+
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 
@@ -7,7 +10,13 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 public class MainTestStorageExample
 {
 	// creates and start an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
+		.createFoundation()
+		.setRefactoringMappingProvider(
+			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+		)
+		.start()
+	;
 
 	public static void main(final String[] args)
 	{
