@@ -139,7 +139,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 				}
 				
 				// (26.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new IllegalArgumentException(
 					"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
 				);
 			}

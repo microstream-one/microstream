@@ -40,7 +40,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver();
 	
 	public <T> PersistenceTypeLineage<T> ensureTypeLineage(Class<T> type);
-	
+		
 	public PersistenceTypeLineage<?> ensureTypeLineage(String typeName);
 	
 	public <T> PersistenceTypeLineage<T> lookupTypeLineage(Class<T> type);
@@ -176,7 +176,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			
 			return synchRegisterTypeLineage(this.typeLineageCreator.createTypeLineage(type));
 		}
-		
+				
 		private <T> PersistenceTypeLineage<T> synchRegisterTypeLineage(final PersistenceTypeLineage<T> lineage)
 		{
 			this.typeLineages.add(lineage.typeName(), lineage);
@@ -188,18 +188,37 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public synchronized PersistenceTypeLineage<?> ensureTypeLineage(final String typeName)
 		{
-			final PersistenceTypeLineage<?> lineage = this.lookupTypeLineage(typeName);
-			if(lineage != null)
+			PersistenceTypeLineage<?> lineage = this.lookupTypeLineage(typeName);
+			if(lineage == null)
 			{
-				return lineage;
+				lineage = synchRegisterTypeLineage(this.typeLineageCreator.createTypeLineage(typeName));
 			}
 
-			return synchRegisterTypeLineage(this.typeLineageCreator.createTypeLineage(typeName));
+			return lineage;
+		}
+
+		@SuppressWarnings("unchecked") // type safety guaranteed by the type name
+		public synchronized <T> PersistenceTypeLineage<T> ensureTypeLineage(
+			final PersistenceTypeDefinition<T> typeDefinition
+		)
+		{
+			PersistenceTypeLineage<T> lineage = (PersistenceTypeLineage<T>)this.lookupTypeLineage(
+				typeDefinition.typeName()
+			);
+			
+			if(lineage == null)
+			{
+				lineage = (PersistenceTypeLineage<T>)synchRegisterTypeLineage(
+					this.typeLineageCreator.createTypeLineage(typeDefinition.typeName())
+				);
+			}
+
+			return lineage;
 		}
 
 		final <T> boolean synchRegisterType(final PersistenceTypeDefinition<T> typeDefinition)
 		{
-			final PersistenceTypeLineage<T> lineage = this.ensureTypeLineage(typeDefinition.type());
+			final PersistenceTypeLineage<T> lineage = this.ensureTypeLineage(typeDefinition);
 						
 			if(!lineage.registerTypeDefinition(typeDefinition))
 			{

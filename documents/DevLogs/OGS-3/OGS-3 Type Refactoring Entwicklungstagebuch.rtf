@@ -1258,6 +1258,24 @@ Letztendlich ist es bei sowas immer das gleiche: Provider bauen mit sinnvollem D
 \par
 Entsprechend einbauen. Methoden im TypeHandlerManager umstrukturieren bzw. weiter implementieren, soweit m\'f6glich.\par
 Damit bleibt nun nur noch der Fall, alte und neue type definition zu vergleichen und einen LegacyMapper daraus abzuleiten.\par
-Dann fertig (yay)\par
+Dann fertig (yay).\par
+\par
+Noch PersistenceFoundation um PersistenceDeletedTypeHandlerCreator erweitern.\par
+Und Testen w\'e4re auch nicht schlecht.\par
+\par
+Ah, nullpointer beim TypeLineage lookup-en, wenn es f\'fcr einen Typ im Dictionary keinen Runtime Typ gibt. Ist ja klar. Lookup Methode umbauen von Class Parameter (von dem letztendlich eh nur der name verwendet wird) auf nur name.\par
+Testen. Passt.\par
+\par
+Refactorings Mapping Eintrag bauen. Hm. Convenience Setter in EmbeddedStorageFoundation einbauen.\par
+Testen.\par
+Ahja, Registrierung des Deleted Handlers fehlt noch. Bissl recherchieren, einbauen.\par
+Testen.\par
+Haha, Mist. Die PersistenceTypeHandlerRegistry will den type registrieren, um die Konsistenz zu \'fcberpr\'fcfen und zu wahren. Aber die Deleted Dumm Handler haben keinen Typ. Darum ja Deleted.\par
+Eigentlich kann das nur \'fcber eine "Hintert\'fcr"-Registrierm\'f6glichkeit in der Registry gel\'f6st werden. Aber das ist gef\'e4hrlich. Oder ich mach einen expliziten Typ "DeletedTypeHandler" und nur solche kann man dort registrieren.\par
+Ich glaub, so mach ichs.\par
+\par
+Dabei aufgefallen: das gleiche in gr\'fcn werd ich f\'fcr die "normalen" LegacyTypeHandler brauchen. Also gleich noch eine Typebene reinzimmern und die Hintert\'fcr darauf typisieren.\par
+Testen. Passt auf Anhieb.\par
+\par
 }
  
