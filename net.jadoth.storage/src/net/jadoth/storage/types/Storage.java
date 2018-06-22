@@ -196,7 +196,7 @@ public final class Storage
 		final long millisecondTimeout
 	)
 	{
-		return new StorageEntityCacheEvaluator.Implementation(threshold, millisecondTimeout);
+		return StorageEntityCacheEvaluator.New(threshold, millisecondTimeout);
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator(
