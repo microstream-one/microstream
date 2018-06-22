@@ -30,8 +30,16 @@ public interface StorageEntityCacheEvaluator
 	}
 
 
+	
+	public static StorageEntityCacheEvaluator New(final long threshold, final long millisecondTimeout)
+	{
+		return new StorageEntityCacheEvaluator.Implementation(
+			positive(threshold)         ,
+			positive(millisecondTimeout)
+		);
+	}
 
-	public final class Implementation implements StorageEntityCacheEvaluator
+	public class Implementation implements StorageEntityCacheEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -63,7 +71,7 @@ public interface StorageEntityCacheEvaluator
 		 * (e.g. constantly working systems with medium load)
 		 * Can be set to a huge value to like 1 year or max long to disable the timeout and solely rely on the threshold
 		 */
-		private final long msTimeout  ;
+		private final long msTimeout;
 
 
 
@@ -71,11 +79,13 @@ public interface StorageEntityCacheEvaluator
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final long threshold, final long millisecondTimeout)
+		protected Implementation(final long threshold, final long millisecondTimeout)
 		{
 			super();
-			this.threshold = positive(threshold);
-			this.msTimeout = positive(millisecondTimeout)  ;
+			
+			// must perform checks in constructor in case a deriving implementation passes invalid values
+			this.threshold = positive(threshold)         ;
+			this.msTimeout = positive(millisecondTimeout);
 		}
 
 
