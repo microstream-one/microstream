@@ -4,6 +4,7 @@ import static java.lang.System.identityHashCode;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.XMath;
@@ -18,7 +19,6 @@ import net.jadoth.swizzling.exceptions.SwizzleExceptionNullObjectId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionNullTypeId;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.typing.KeyValue;
 
 public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 {
@@ -612,8 +612,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		return false;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void iterateTypes(final Entry[][] slots, final Consumer<KeyValue<Long, Class<?>>> iterator)
+	private static void iterateTypes(final Entry[][] slots, final Consumer<? super SwizzleRegistry.Entry> iterator)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -625,14 +624,14 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 					if(buckets[b] != null && buckets[b].ref.get() instanceof Class<?>)
 					{
 						// no idea how to do it otherwise (and don't want to wrap the procedure in a relay procedure :P)
-						iterator.accept((KeyValue)buckets[b]);
+						iterator.accept(buckets[b]);
 					}
 				}
 			}
 		}
 	}
 
-	private static void iterateEntries(final Entry[][] slots, final Consumer<KeyValue<Long, Object>> iterator)
+	private static void iterateEntries(final Entry[][] slots, final Consumer<? super SwizzleRegistry.Entry> iterator)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -660,6 +659,24 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 				for(int b = 0; b < buckets.length; b++)
 				{
 					if(buckets[b] != null && buckets[b].isOrphan())
+					{
+						buckets[b] = null;
+					}
+				}
+			}
+		}
+	}
+	
+	private static void synchClearEntries(final Entry[][] slots, final Predicate<? super SwizzleRegistry.Entry> filter)
+	{
+		for(int s = 0; s < slots.length; s++)
+		{
+			if(slots[s] != null)
+			{
+				final Entry[] buckets = slots[s];
+				for(int b = 0; b < buckets.length; b++)
+				{
+					if(buckets[b] != null && (buckets[b].isOrphan() || filter.test(buckets[b])))
 					{
 						buckets[b] = null;
 					}
@@ -986,13 +1003,13 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public void iterateTypes(final Consumer<KeyValue<Long, Class<?>>> iterator)
+	public void iterateTypes(final Consumer<? super SwizzleRegistry.Entry> iterator)
 	{
 		iterateTypes(this.synchronizedGetSlotsPerOid(), iterator);
 	}
 
 	@Override
-	public void iterateEntries(final Consumer<KeyValue<Long, Object>> iterator)
+	public void iterateEntries(final Consumer<? super SwizzleRegistry.Entry> iterator)
 	{
 		iterateEntries(this.synchronizedGetSlotsPerOid(), iterator);
 	}
@@ -1017,8 +1034,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	@Override
 	public synchronized void cleanUp()
 	{
-		synchClearOrphanEntries(this.slotsPerOid);
-		synchClearOrphanEntries(this.slotsPerRef);
+		this.clearOrphanEntries();
 		this.synchRebuild(this.slotsPerOid.length);
 	}
 
@@ -1027,6 +1043,14 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	{
 		synchClearOrphanEntries(this.slotsPerOid);
 		synchClearOrphanEntries(this.slotsPerRef);
+	}
+	
+	@Override
+	public synchronized void clear(final Predicate<? super SwizzleRegistry.Entry> filter)
+	{
+		synchClearEntries(this.slotsPerOid, filter);
+		synchClearEntries(this.slotsPerRef, filter);
+		this.synchRebuild(this.slotsPerOid.length);
 	}
 
 
@@ -1039,12 +1063,22 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	 * This saves memory footprint.
 	 * Must however on referen update replace Entries with new instances instead of just setting a new WeakReference.
 	 */
-	private static final class Entry implements KeyValue<Long, Object>
+	private static final class Entry implements SwizzleRegistry.Entry
 	{
-		final long oid;
-		int hash; // note: causes 4 byte alignment overhead with and without coops. => 4 byte to spare
-		WeakReference<Object> ref;
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		final long                  oid ;
+		      int                   hash; // causes 4 byte alignment overhead with and without coops. => 4 byte to spare
+		      WeakReference<Object> ref ;
 
+		      
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
 		Entry(final long oid, final Object ref)
 		{
 			super();
@@ -1060,15 +1094,21 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 			this.ref  = new WeakReference<>(null); // dummy to avoid NPEs / explicit null checks for ref
 			this.hash = 0;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public Long key()
+		public final long id()
 		{
 			return this.oid;
 		}
 
 		@Override
-		public Object value()
+		public final Object reference()
 		{
 			return this.ref.get();
 		}
@@ -1078,7 +1118,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		 *
 		 * @see #isEmpty()
 		 */
-		boolean isOrphan()
+		final boolean isOrphan()
 		{
 			return this.ref.get() == null && this.hash > 0;
 		}
@@ -1088,12 +1128,12 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		 *
 		 * @see #isOrphan()
 		 */
-		boolean isEmpty()
+		final boolean isEmpty()
 		{
 			return this.ref.get() == null;
 		}
 
-		int set(final Object ref)
+		final int set(final Object ref)
 		{
 			// case: hollow oid<->tid entry
 			if(this.hash == 0)

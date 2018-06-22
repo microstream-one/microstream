@@ -1,11 +1,11 @@
 package net.jadoth.swizzling.types;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.typing.Clearable;
-import net.jadoth.typing.KeyValue;
 
 /**
  * Type combining {@link SwizzleObjectRegistry} and {@link SwizzleTypeRegistry}.
@@ -67,7 +67,7 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public Object optionalRegisterObject(long oid, Object object);
 
 	@Override
-	public void iterateTypes(Consumer<KeyValue<Long, Class<?>>> iterator);
+	public void iterateTypes(Consumer<? super SwizzleRegistry.Entry> iterator);
 
 //	@Override
 //	public long lookupTypeIdForObjectId(long oid);
@@ -78,6 +78,8 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public Object registerObjectId(long oid);
 
 	public void clearOrphanEntries();
+	
+	public void clear(Predicate<? super SwizzleRegistry.Entry> filter);
 
 	public void shrink();
 
@@ -87,7 +89,7 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	 */
 	public void cleanUp();
 
-	public void iterateEntries(Consumer<KeyValue<Long, Object>> iterator);
+	public void iterateEntries(Consumer<? super SwizzleRegistry.Entry> iterator);
 
 	public Object retrieveByOid(long oid);
 
@@ -98,5 +100,13 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public boolean removeById(long id);
 
 	public boolean remove(Object object);
+	
+	
+	public interface Entry
+	{
+		public long id();
+		
+		public Object reference();
+	}
 
 }

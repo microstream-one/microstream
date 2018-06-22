@@ -36,6 +36,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 	{
 		storing.storeBy(this.createStorer()).commit();
 	}
+	
+	public SwizzleRegistry swizzleRegistry();
 
 
 
@@ -95,6 +97,12 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final SwizzleRegistry swizzleRegistry()
+		{
+			return this.objectRegistry;
+		}
 
 		@Override
 		public final void cleanUp()
