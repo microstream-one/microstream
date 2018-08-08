@@ -11,7 +11,7 @@ import net.jadoth.swizzling.types.SwizzleIdSet;
 public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 {
 	@Override
-	public XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer;
+	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer;
 
 	@Override
 	public XGettingCollection<? extends Binary> readByObjectIds(SwizzleIdSet[] oids)
@@ -46,7 +46,7 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 		////////////
 
 		@Override
-		public XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer
+		public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 		{
 			try
 			{
