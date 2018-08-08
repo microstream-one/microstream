@@ -134,5 +134,30 @@ Und schon gibts das erste Problem: Daraus ein Maven Projekt machen ist alles and
 Also wieder Maven Projekt l\'f6schen und normales Java Projekt mit normalen Projektabh\'e4ngigkeiten anlegen. Soll jemand mit magischem Maven Wissen in der Arbeit dann konvertieren.\par
 \par
 NetworkPersistenceConnection anlegen.\par
+\par
+\par
+Gleich im Persistence Framework einen neuen Kombi-Typ PersistenceChannel (Target+Source) anlegen. Als Konsequenz bisherige Doppelimplementierungen konsolidieren. Interessant: In den Factories gibt es sowas eh schon, aber implizit definiert \'fcber doppel-Bound-Generics. #setPersistenceStorage. Vereinfachen zu #setPersistenceChannel.\par
+\par
+NetworkPersistenceConnection umbenennen zu NetworkPersistenceChannel. Das "Channel" hat nichts mit dem zu verwendenden SocketChannel zu tun, sondern ist allgemein gemeint. Siehe oben. Eher im Sinn "Einen Kanal \'f6ffnen", so wie bei Funkkommunikation oder allgemein einfach ein Kanel, durch den hin und zur\'fcck Daten flie\'dfen. Dass der NetworkChannel dann einen SocketChannel wrapt, passt zuf\'e4llig ganz gut.\par
+\par
+PersistenceSource#readInitial refactoren zu PersistenceSource#read und JavaDoc aktualisieren.\par
+\par
+Nachdenken \'fcber NetworkPersistenceConnection#readByObjectIds. Macht grunds\'e4tzliuch schon Sinn, aber erstmal weglassen. Entsprechenden Kommentar schreiben.\par
+\par
+NetworkPersistenceChannel muss abstract werden.\par
+Es muss dann noch einen NetworkPersistenceChannelBinary mit konkreter Implementierung geben.\par
+\par
+Hm.\par
+In PersistenceSource fehlt noch ein #prepareSource und #closeSource.\par
+Analog in PersistenceTarget.\par
+Gut, dass es default methods gibts. Damit ist es ein Klacks, das abw\'e4rtskompatibel zu machen.\par
+\par
+\par
+Jetzt NetworkPersistenceChannelBinary implementieren.\par
+Struktur fertig. Jetzt ist die Frage, wie man aus einem SocketChannel ein bis mehrere Binary rauszieht.\par
+Das m\'fcsste analog zur simplen File Implementierung gehen. Mal checken.\par
+\par
+Ca. 1,0h f\'fcr Maven \'c4rger, Projekte und Strukturen anlegen, bestehende Typen leicht refactoren und NetworkPersistenceChannelBinary implementieren. \'dcberlegungen zu Daten lesen mit unbekannter L\'e4nge.\par
+\par
 }
  
