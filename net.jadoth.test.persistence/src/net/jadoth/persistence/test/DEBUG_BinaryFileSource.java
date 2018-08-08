@@ -43,9 +43,9 @@ public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 	/////////////////////
 
 	@Override
-	public XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer
+	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
-		final XGettingCollection<? extends Binary> chunks = this.relayTarget.readInitial();
+		final XGettingCollection<? extends Binary> chunks = this.relayTarget.read();
 		final VarString vc = VarString.New();
 		chunks.iterate(new BinaryChunkPrinter(vc));
 		this.out.println("read:"+vc);
@@ -56,7 +56,7 @@ public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 	public XGettingCollection<? extends Binary> readByObjectIds(final SwizzleIdSet[] oids) throws PersistenceExceptionTransfer
 	{
 		// simple input stream reading implementation can't do complex queries, so just read "everything" provided
-		return this.readInitial();
+		return this.read();
 	}
 
 //	@Override

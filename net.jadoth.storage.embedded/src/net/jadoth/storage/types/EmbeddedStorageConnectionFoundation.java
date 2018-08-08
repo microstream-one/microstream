@@ -8,6 +8,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.binary.types.BinaryStorer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceRegisterer;
 import net.jadoth.persistence.types.PersistenceRootResolver;
@@ -116,8 +117,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	BinaryPersistenceFoundation setSwizzleIdProvider(P swizzleTypeIdProvider);
 
 	@Override
-	public <S extends PersistenceTarget<Binary> & PersistenceSource<Binary>>
-	BinaryPersistenceFoundation setPersistenceStorage(S persistenceStorage);
+	public BinaryPersistenceFoundation setPersistenceChannel(PersistenceChannel<Binary> persistenceChannel);
 
 	public EmbeddedStorageConnectionFoundation setStorageManager(StorageManager storageManager);
 
@@ -382,11 +382,10 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		}
 
 		@Override
-		public <S extends PersistenceTarget<Binary> & PersistenceSource<Binary>>
-		EmbeddedStorageConnectionFoundation.Implementation setPersistenceStorage(final S persistenceStorage)
+		public BinaryPersistenceFoundation setPersistenceChannel(final PersistenceChannel<Binary> persistenceChannel)
 		{
-			super.setPersistenceSource(persistenceStorage);
-			super.setPersistenceTarget(persistenceStorage);
+			super.setPersistenceSource(persistenceChannel);
+			super.setPersistenceTarget(persistenceChannel);
 			return this;
 		}
 

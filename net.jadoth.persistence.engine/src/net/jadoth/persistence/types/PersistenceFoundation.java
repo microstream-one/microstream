@@ -224,8 +224,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 	PersistenceFoundation<M> setDictionaryStorage(H typeDictionaryStorageHandler);
 
-	public <S extends PersistenceTarget<M> & PersistenceSource<M>>
-	PersistenceFoundation<M> setPersistenceStorage(S persistenceStorage);
+	public PersistenceFoundation<M> setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
 
 
 

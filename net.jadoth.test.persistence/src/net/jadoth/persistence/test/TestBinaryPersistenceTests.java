@@ -88,7 +88,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testFileLoading()
 	{
-		TEST.persistenceStorage().readInitial();
+		TEST.persistenceStorage().read();
 	}
 
 

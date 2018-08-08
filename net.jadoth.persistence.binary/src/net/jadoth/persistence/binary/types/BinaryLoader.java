@@ -69,7 +69,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		private void readLoadOnce()
 		{
-			this.addChunks(this.swizzleSupplier.source().readInitial());
+			this.addChunks(this.swizzleSupplier.source().read());
 
 			/* the processing of the initial read might have resulted in reference oids that have to be loaded
 			 * (e.g. the initial read returns a root instance). So call the standard loading method at this point.

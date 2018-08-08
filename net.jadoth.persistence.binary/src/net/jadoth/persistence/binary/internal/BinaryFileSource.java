@@ -52,22 +52,6 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	}
 
 
-//	private ByteBuffer buffer(final long requiredCapacity)
-//	{
-//		final int newCapacity = checkArrayRange(requiredCapacity);
-//		if(newCapacity > this.chunkDataBuffer.capacity())
-//		{
-//			Memory.deallocateDirectByteBuffer(this.chunkDataBuffer);
-//			this.chunkDataBuffer = ByteBuffer.allocateDirect(newCapacity);
-//		}
-//		else
-//		{
-//			this.chunkDataBuffer.clear().limit(newCapacity);
-//		}
-//		return this.chunkDataBuffer;
-//	}
-
-
 
 	///////////////////////////////////////////////////////////////////////////
 	// declared methods //
@@ -102,7 +86,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	/////////////////////
 
 	@Override
-	public XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer
+	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
 		/* Instantiation detour should still be faster than the weird Set instantiating FileChannel.open()
 		 */
@@ -126,8 +110,8 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	public XGettingCollection<? extends Binary> readByObjectIds(final SwizzleIdSet[] oids)
 		throws PersistenceExceptionTransfer
 	{
-		// simple input file reading implementation can't do complex queries, so just read "everything"
-		return this.readInitial();
+		// simple input file reading implementation can't do complex queries
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
