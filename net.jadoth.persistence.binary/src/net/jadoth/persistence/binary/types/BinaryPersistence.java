@@ -1,10 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -30,7 +27,6 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.Memory;
-import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
 import net.jadoth.persistence.binary.internal.BinaryHandlerBigDecimal;
@@ -1875,53 +1871,6 @@ public final class BinaryPersistence extends Persistence
 			.setInstanceDispatcher(dispatcher)
 		;
 		return factory;
-	}
-
-	public static final long readChunkLength(
-		final ByteBuffer          lengthBuffer,
-		final ReadableByteChannel channel     ,
-		final MessageWaiter       messageWaiter
-	)
-		throws IOException
-	{
-		// not complicated to read a long from a channel. Not complicated at all. Just crap.
-		lengthBuffer.clear().limit(LENGTH_LONG); // too dumb to write a properly typed chaining method, no joke.
-		fillBuffer(lengthBuffer, channel, messageWaiter);
-//		return lengthBuffer.getLong();
-		/* OMG they convert every single primitive to big endian, even if it's just from the same machine
-		 * to the same machine. With checking global "aligned" state like noobs and what not.
-		 * Giant runtime effort ruining everything just to avoid caring about / communicating local endianess.
-		 * Which is especially stupid as 90% of all machines are little endian anyway.
-		 * Who cares about negligible overpriced SUN hardware and other exotics.
-		 * They simply have to synchronize endianess in network communication via communication protocol.
-		 * Messing up the standard case with RUNTIME effort just for those is so stupid I can't tell.
-		 */
-
-		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-		return Memory.get_long(Memory.getDirectByteBufferAddress(lengthBuffer));
-	}
-
-	public static final void fillBuffer(
-		final ByteBuffer          buffer       ,
-		final ReadableByteChannel channel      ,
-		final MessageWaiter       messageWaiter
-	)
-		throws IOException
-	{
-		while(true)
-		{
-			final int readCount;
-			if((readCount = channel.read(buffer)) < 0 && buffer.hasRemaining())
-			{
-				throw new BinaryPersistenceExceptionIncompleteChunk(buffer.position(), buffer.limit());
-			}
-			if(!buffer.hasRemaining())
-			{
-				break; // chunk complete, stop reading without calling waiter again
-			}
-			messageWaiter.waitForBytes(readCount);
-		}
-		// intentionally no flipping here.
 	}
 
 	public static final short get_short(final Binary bytes, final long offset)

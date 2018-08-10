@@ -109,10 +109,9 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private int calculateNewBufferCapacity(final long requiredCapacity)
 	{
 		final long defaultBufferCapacity = this.bufferSizeProvider.incrementalBufferSize();
-		return X.checkArrayRange(requiredCapacity < defaultBufferCapacity
-			? defaultBufferCapacity
-			: requiredCapacity)
-		;
+		
+		// never allocate less than the default, but more if needed.
+		return X.checkArrayRange(Math.max(requiredCapacity, defaultBufferCapacity));
 	}
 
 	private void ensureFreeStoreCapacity(final long requiredCapacity)
