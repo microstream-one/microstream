@@ -67,13 +67,6 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 			.add(System.identityHashCode(this))
 			.add(" @")
 			.add(this.timestamp())
-			.add(". EntityCounts: [")
-			;
-			for(final Chunks c : this.data)
-			{
-				vs.add(c.entityCount()).add(", ");
-			}
-			vs.deleteLast(2).add("]")
 			;
 			
 			if(channel == null)

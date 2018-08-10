@@ -47,8 +47,7 @@ public interface StorageFileManager
 
 	public int channelIndex();
 
-	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers, long entityCount)
-		throws StorageExceptionIoWritingChunk;
+	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers) throws StorageExceptionIoWritingChunk;
 
 	public void rollbackWrite();
 
@@ -365,7 +364,7 @@ public interface StorageFileManager
 			}
 		}
 
-		private void writeChunks(final long timestamp, final ByteBuffer[] dataBuffers, final long entityCount)
+		private void writeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
 		{
 			this.uncommittedDataLength = chunksTotalLength(dataBuffers);
 //			DEBUGStorage.println(this.channelIndex + " writing " + entityCount + " entities (" + this.uncommittedDataLength + " bytes) to " + this.headFile.number());
@@ -623,7 +622,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final long[] storeChunks(final long timestamp, final ByteBuffer[] dataBuffers, final long entityCount)
+		public final long[] storeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
 			throws StorageExceptionIoWritingChunk
 		{
 			this.checkForNewFile();
@@ -631,7 +630,7 @@ public interface StorageFileManager
 				dataBuffers,
 				this.headFile.totalLength()
 			);
-			this.writeChunks(timestamp, dataBuffers, entityCount);
+			this.writeChunks(timestamp, dataBuffers);
 			return storagePositions;
 		}
 

@@ -104,7 +104,8 @@ public final class LogicSimpleNetwork
 	)
 		throws IOException, NetworkExceptionTimeout
 	{
-		long respTimeoutPoint = System.currentTimeMillis() + responseTimeout;
+		long responseTimeoutPoint = System.currentTimeMillis() + responseTimeout;
+		
 		// monitor progress via remaining bytes to avoid unnecessary up-front read count storage
 		long remaining = buffer.remaining();
 		while(true)
@@ -118,14 +119,15 @@ public final class LogicSimpleNetwork
 			if(buffer.remaining() < remaining)
 			{
 				// reset timeout if new bytes arrived
-				respTimeoutPoint = System.currentTimeMillis() + responseTimeout;
+				responseTimeoutPoint = System.currentTimeMillis() + responseTimeout;
 				remaining = buffer.remaining();
 			}
-			else if(System.currentTimeMillis() >= respTimeoutPoint)
+			else if(System.currentTimeMillis() >= responseTimeoutPoint)
 			{
 				// otherwise check for timeout
 				throw new NetworkExceptionTimeout();
 			}
+			
 			try
 			{
 				Thread.sleep(IO_LOOP_SLEEP_TIME);
