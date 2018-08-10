@@ -186,5 +186,44 @@ Performancetechnisch ist das alles kein Problem: Es geht nur um ein einzelnes En
 \par
 Aber erst mal die triviale L\'f6sung mit dem gro\'dfen Puffer und TODO daneben.\par
 \par
+\par
+Implementieren am Beispiel von Klasse BinaryFileSource.\par
+\par
+Dabei gleich mal die Methoden BinaryPersistence#fillBuffer und BinaryPersistence#readChunkLength nach BinaryFileSource verschieben, weil die von inszwischen falschen Annahmen (jeder Chunk beginnt mit einem Chunk Length Header) ausgehen.\par
+Solche Methoden d\'fcrfen nicht in einer allgemeinen, noch aktuellen Klasse sein.\par
+\par
+\par
+Hm. Das ist gar nicht so einfach: Muss bei Netzwerk-Kommunikation evtl. doch ein Chunk Length Header mitgeschickt werden, weil der Empf\'e4nger sonst nie wei\'df, wie viele Bytes noch kommen werden, ob er bei einer Pause abbrechen soll, usw.\par
+\par
+Also w\'e4re die Strategie so:\par
+Der Channel h\'e4lt sich einen Header Buffer. Ist im Moment nur 8 bytes lang, aber evtl. wird der Header mal gr\'f6\'dfer (Endiness, Version, usw.). Dann muss man nur einmal zentral den Header Buffer erweitern.\par
+Der wird immer voll gemacht. Wenn der nicht voll wird (innerhalb eines bestimmten Timeouts), dann ist die Verbindung abgebrochen und es wird resettet und eine Exception geworfen.\par
+Wenn er voll ist, wird die L\'e4nge des Chunks ausgelesen.\par
+\par
+Dann wird der aktuelle Buffer auf diese Gr\'f6\'dfe gesetzt oder, falls n\'f6tig, ein gr\'f6\'dferer allokiert. Mehrere kleine Buffers hintereinanderschalten w\'e4re hier nicht sinnvoll, weil sowieso der komplette Chunk auf einmal eingelesen werden muss und mehrere kleine machen nur mehr Overhead. Dann lieber gleich einen exakt ausreichend gro\'dfen allokieren und (mit timeout) volllaufen lassen.\par
+\par
+\par
+Implementieren am Beispiel von Klasse BinaryFileSource.\par
+\par
+Dabei gleich mal die Methoden BinaryPersistence#fillBuffer und BinaryPersistence#readChunkLength nach BinaryFileSource verschieben, weil die von inszwischen falschen Annahmen (jeder Chunk beginnt mit einem Chunk Length Header) ausgehen.\par
+Solche Methoden d\'fcrfen nicht in einer allgemeinen, noch aktuellen Klasse sein.\par
+\par
+\par
+Hm. Das ist gar nicht so einfach: Muss bei Netzwerk-Kommunikation evtl. doch ein Chunk Length Header mitgeschickt werden, weil der Empf\'e4nger sonst nie wei\'df, wie viele Bytes noch kommen werden, ob er bei einer Pause abbrechen soll, usw.\par
+\par
+Also w\'e4re die Strategie so:\par
+Der Channel h\'e4lt sich einen Header Buffer. Ist im Moment nur 8 bytes lang, aber evtl. wird der Header mal gr\'f6\'dfer (Endiness, Version, usw.). Dann muss man nur einmal zentral den Header Buffer erweitern.\par
+Der wird immer voll gemacht. Wenn der nicht voll wird (innerhalb eines bestimmten Timeouts), dann ist die Verbindung abgebrochen und es wird resettet und eine Exception geworfen.\par
+Wenn er voll ist, wird die L\'e4nge des Chunks ausgelesen.\par
+\par
+Dann wird der aktuelle Buffer auf diese Gr\'f6\'dfe gesetzt oder, falls n\'f6tig, ein gr\'f6\'dferer allokiert. Mehrere kleine Buffers hintereinanderschalten w\'e4re hier nicht sinnvoll, weil sowieso der komplette Chunk auf einmal eingelesen werden muss und mehrere kleine machen nur mehr Overhead. Dann lieber gleich einen exakt ausreichend gro\'dfen allokieren und (mit timeout) volllaufen lassen.\par
+\par
+Das analog dazu passende Schreiben ist relativ einfach:\par
+Erst alle ChunksBuffer f\'fcllen wie gehabt, dann einen zus\'e4tzlichen voranstellen, der den korrekten Header enth\'e4lt und dann alle abschicken.\par
+\par
+Das muss dann aber doch gleich jetzt so implementiert werden, weil sonst nicht festgestellt werden kann, wann ein read komplett ist.\par
+Es ist halt alles immer komplizierter als zun\'e4chst gedacht.\par
+Positiv ist immerhin: Viel Logik (bzw. Denkarbeit) von LogicSimpleNetwork kann da gleich verwendet werden. Das hilft.\par
+\par
 }
  
