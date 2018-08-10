@@ -159,5 +159,32 @@ Das m\'fcsste analog zur simplen File Implementierung gehen. Mal checken.\par
 \par
 Ca. 1,0h f\'fcr Maven \'c4rger, Projekte und Strukturen anlegen, bestehende Typen leicht refactoren und NetworkPersistenceChannelBinary implementieren. \'dcberlegungen zu Daten lesen mit unbekannter L\'e4nge.\par
 \par
+\par
+\par
+2018-08-10 20:15\par
+\par
+PersistenceSource Implementierung f\'fcr simples File anschauen und f\'fcr SocketChannel \'fcbernehmen.\par
+\par
+Hm ...\par
+Bei einer Netzwerkverbindung wei\'df man vorher nicht, wie viele Bytes der schicken wird. Also m\'fcsste ich entweder die Struktur der persistierten Daten erweitern ("Ein Haufen Bytes muss am Anfang immer eine Angabe \'fcber die L\'e4nge haben") oder eine bissl komplizierte zusammenst\'fcckel-Logik bauen. Aber f\'fcr ein simples Beispiel mach ich jetzt einfach mal einen gro\'dfz\'fcgigen Puffer, in den alle Daten auf einmal reingehen. Plus TODO daneben hin.\par
+Etwas weiter daran rum\'fcberlegt: letztendlich muss es die "Zusammenst\'fcckel-Logik" werden, weil das flexibler ist, als zus\'e4tzliche Metadaten zu verlangen, auf die man bei einer anderen Strategie verzichten k\'f6nnte.\par
+\par
+Das wird aber bissl komplizierter:\par
+- Anfangen mit nur einem ChunksBuffer, okay.\par
+- Sobald der voll ist, den n\'e4chsten anlegen und immer so weiter, bis keine Bytes mehr \'fcber den Socket reinsprudeln.\par
+- Beim durchiterieren der Bytes gibts dann verschiedene eklige Sonderf\'e4lle:\par
+1.) am Ende eines Buffers ist ein Entity unvollst\'e4ndig enthalten.\par
+2.) am Ende eines Buffers ist das length header field eines Entities unvollst\'e4ndig enthalten.\par
+Beide F\'e4lle m\'fcssen so gel\'f6st werden:\par
+Falls so ein Fall festgestellt wird, muss ein zus\'e4tzlicher ChunksBuffer erzeugt werden, der "dazwischengeschoben" wird.\par
+In den wird der Restteil aus dem aktuellen ChunksBuffer kopiert.\par
+Im Fall 1 wird dann der Rest des zerteilten Entities dazukopiert, so dass das Entity wieder komplett ist.\par
+Im Fall 2 wird der Rest des Length Headers dazukopiert. Dann kann \'fcberhaupt erst geschaut werden, wie lang das Entity ist. Falls der dazwischengeschobene ChunksBuffer zu klein sein sollte, muss nochmal ein neues angelegt werden und nochmal umkopiert werden, damit das entity letztendlich komplett enthalten sein kann.\par
+Der regul\'e4r folgende ChunksBuffer braucht einen Offset, damit die zusammenkopierten Daten an seinem Anfang nicht nochmal gelesen und f\'e4lschlicherweise als ganzes Entity interpretiert werden.\par
+\par
+Performancetechnisch ist das alles kein Problem: Es geht nur um ein einzelnes Entity und der ganz eklige Fall 2 sollte relativ selten sein. Aber das wird relativ viel Code. Bissl bl\'f6d.\par
+\par
+Aber erst mal die triviale L\'f6sung mit dem gro\'dfen Puffer und TODO daneben.\par
+\par
 }
  
