@@ -13,6 +13,8 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.memory.Memory;
+import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
@@ -63,7 +65,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
 //		byteBuffer.position(8);
-		BinaryPersistence.fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation
+		fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation
 		return byteBuffer;
 	}
 
@@ -73,10 +75,57 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		final BulkList<ByteBuffer> chunks = new BulkList<>();
 		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
 		{
-			chunkTotalLength = BinaryPersistence.readChunkLength(this.chunkDataBuffer, channel, this);
+			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
 			chunks.add(this.readChunk(channel, chunkTotalLength));
 		}
 		return X.<Binary>Constant(ChunksWrapper.New(chunks.toArray(ByteBuffer.class)));
+	}
+	
+	private static final long readChunkLength(
+		final ByteBuffer          lengthBuffer,
+		final ReadableByteChannel channel     ,
+		final MessageWaiter       messageWaiter
+	)
+		throws IOException
+	{
+		// not complicated to read a long from a channel. Not complicated at all. Just crap.
+		lengthBuffer.clear().limit(BinaryPersistence.lengthLength());
+		fillBuffer(lengthBuffer, channel, messageWaiter);
+//		return lengthBuffer.getLong();
+		/* OMG they convert every single primitive to big endian, even if it's just from the same machine
+		 * to the same machine. With checking global "aligned" state like noobs and what not.
+		 * Giant runtime effort ruining everything just to avoid caring about / communicating local endianess.
+		 * Which is especially stupid as 90% of all machines are little endian anyway.
+		 * Who cares about negligible overpriced SUN hardware and other exotics.
+		 * They simply have to synchronize endianess in network communication via communication protocol.
+		 * Messing up the standard case with RUNTIME effort just for those is so stupid I can't tell.
+		 */
+
+		// good thing is: doing it manually gets rid of the clumsy flipping in this case
+		return Memory.get_long(Memory.getDirectByteBufferAddress(lengthBuffer));
+	}
+
+	private static final void fillBuffer(
+		final ByteBuffer          buffer       ,
+		final ReadableByteChannel channel      ,
+		final MessageWaiter       messageWaiter
+	)
+		throws IOException
+	{
+		while(true)
+		{
+			final int readCount;
+			if((readCount = channel.read(buffer)) < 0 && buffer.hasRemaining())
+			{
+				throw new BinaryPersistenceExceptionIncompleteChunk(buffer.position(), buffer.limit());
+			}
+			if(!buffer.hasRemaining())
+			{
+				break; // chunk complete, stop reading without calling waiter again
+			}
+			messageWaiter.waitForBytes(readCount);
+		}
+		// intentionally no flipping here.
 	}
 
 
