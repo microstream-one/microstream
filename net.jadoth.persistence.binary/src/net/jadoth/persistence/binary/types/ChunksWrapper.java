@@ -118,12 +118,6 @@ public final class ChunksWrapper extends Binary
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public final long entityCount()
-	{
-		throw new UnsupportedOperationException();
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	protected final void internalIterateCurrentData(final Consumer<byte[]> iterator)

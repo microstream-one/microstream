@@ -43,7 +43,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private ByteBuffer   currentBuffer      ;
 	private long         currentAddress     ;
 	private long         currentBound       ;
-	private long         entityCount        ;
 
 
 
@@ -159,7 +158,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 			buffers[i] = null;
 		}
 		this.setCurrent(buffers[this.currentBuffersIndex = 0]);
-		this.entityCount = 0;
 	}
 
 	/**
@@ -199,8 +197,8 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		}
 		this.ensureFreeStoreCapacity(BinaryPersistence.entityTotalLength(entityContentLength));
 
-		this.entityCount++;
-		/* static methods returns entity bound address for updating this current address,
+		/*
+		 * static methods returns entity bound address for updating this current address,
 		 * but content address has to be returned, so the content length has to be subtracted again
 		 */
 		return (this.currentAddress = BinaryPersistence.storeEntityHeader(
@@ -230,12 +228,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 			buffers.length
 		);
 		return buffers;
-	}
-
-	@Override
-	public final long entityCount()
-	{
-		return this.entityCount;
 	}
 
 	public final ChunksBuffer complete()

@@ -354,7 +354,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			final ByteBuffer[] buffers = chunkData.buffers();
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
-			return X.KeyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
+			return X.KeyValue(buffers, this.fileManager.storeChunks(timestamp, buffers));
 		}
 
 		@Override
