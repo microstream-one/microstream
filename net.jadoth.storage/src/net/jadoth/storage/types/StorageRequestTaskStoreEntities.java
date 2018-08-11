@@ -10,6 +10,19 @@ import net.jadoth.util.UtilStackTrace;
 
 public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 {
+	
+	/* (11.08.2018 TM)TODO:
+	 * The overly complex "KeyValue<ByteBuffer[], long[]>" construct could be replaced by a simple Long containing
+	 * the channel's basePosition at which the chunk is stored as determined in StorageFileManager#storeChunks.
+	 * Every sub-chunk's (ByteBuffer content's) file position could be calculated on the file by this while
+	 * iterating them in the postCompletionSuccess logic.
+	 * Preferable to a meaningless Long would be a "StorageChunkFilePosition" instance, containing a long value
+	 * and, why not, a reference to the ByteBuffer[].
+	 * The performance gain would probably not be noticeable, but it would simplify the source code.
+	 * But for now (and while actually working on a network persistence demo and not the storage), the
+	 * "never touch a running system" proverb applies.
+	 */
+	
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<KeyValue<ByteBuffer[], long[]>>
 	implements StorageRequestTaskStoreEntities, StorageChannelTaskStoreEntities

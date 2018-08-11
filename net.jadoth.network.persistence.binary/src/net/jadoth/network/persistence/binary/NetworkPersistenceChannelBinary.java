@@ -90,6 +90,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 					X.checkArrayRange(this.bufferSizeProvider.initialBufferSize())
 				);
 			}
+			
 			return this.defaultBuffer;
 		}
 
@@ -103,7 +104,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledHeaderBuffer = NetworkPersistenceBinary.readBytes(
+				filledHeaderBuffer = NetworkPersistenceBinary.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
@@ -114,7 +115,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 					Memory.getDirectByteBufferAddress(filledHeaderBuffer)
 				);
 				
-				filledContentBuffer = NetworkPersistenceBinary.readBytes(
+				filledContentBuffer = NetworkPersistenceBinary.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
@@ -130,14 +131,55 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 		}
 
 		@Override
-		protected XGettingCollection<? extends Binary> writeToSocketChannel(
+		protected void writeToSocketChannel(
 			final SocketChannel channel,
-			final Binary[]      data
+			final Binary[]      chunks
 		)
 			throws PersistenceExceptionTransfer
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME NetworkPersistenceChannel.AbstractImplementation<Binary>#writeToSocketChannel()
+			if(chunks.length != 1)
+			{
+				/* (11.08.2018 TM)NOTE:
+				 * This is a somewhat unclean API:
+				 * Chunks is only an array because the Storage's channel hashing mechanism requires it.
+				 * But for each channel, there is only exactely one chunk.
+				 * Here, there are no channels, so it appears that multiple chunks can/could/should be sent
+				 * at a time. Doing that would require another layer of meta-header: sending how many chunks
+				 * there are.
+				 * The clean way would probably be to nest the channel-chunks in the Binary type itself
+				 * and then provide an iterateChunks Method instead of an explicit array. Or something like that.
+				 * Or some specialized Binary meta type.
+				 * The short-term solution is to force the chunks length to be exactely 1, here.
+				 * Not pretty. The concept should be consolidated to cover both use cases nicely instead of ugly.
+				 */
+				throw new UnsupportedOperationException("Can only send one chunk at a time.");
+			}
+			
+			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
+			defaultBuffer.clear();
+			
+			// (11.08.2018 TM)FIXME: fill default buffer with chunk total length
+			
+			try
+			{
+				// the chunk header is sent first, the actual chunk data afterwards
+				NetworkPersistenceBinary.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
+				
+				for(final Binary chunk : chunks)
+				{
+					for(final ByteBuffer bb : chunk.buffers())
+					{
+						NetworkPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
+					}
+				}
+			}
+			catch(final IOException e)
+			{
+				throw new PersistenceExceptionTransfer(e);
+			}
+			
 		}
 		
 	}
+	
 }

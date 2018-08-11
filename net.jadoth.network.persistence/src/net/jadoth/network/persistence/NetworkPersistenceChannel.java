@@ -39,7 +39,7 @@ public interface NetworkPersistenceChannel<M> extends PersistenceChannel<M>
 		protected abstract XGettingCollection<? extends M> readFromSocketChannel(SocketChannel channel)
 			 throws PersistenceExceptionTransfer;
 		
-		protected abstract XGettingCollection<? extends M> writeToSocketChannel(SocketChannel channel, M[] data)
+		protected abstract void writeToSocketChannel(SocketChannel channel, M[] data)
 			 throws PersistenceExceptionTransfer;
 
 		@Override
