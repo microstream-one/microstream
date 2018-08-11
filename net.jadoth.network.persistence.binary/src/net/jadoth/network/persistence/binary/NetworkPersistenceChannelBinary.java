@@ -8,7 +8,6 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.memory.Memory;
 import net.jadoth.network.persistence.NetworkPersistenceChannel;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
@@ -111,8 +110,8 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 					NetworkPersistenceBinary.networkChunkHeaderLength()
 				);
 				
-				final long networkChunkContentLength = NetworkPersistenceBinary.readNetworkChunkContentLength(
-					Memory.getDirectByteBufferAddress(filledHeaderBuffer)
+				final long networkChunkContentLength = NetworkPersistenceBinary.getNetworkChunkHeaderContentLength(
+					filledHeaderBuffer
 				);
 				
 				filledContentBuffer = NetworkPersistenceBinary.readIntoBufferKnownLength(
@@ -131,10 +130,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 		}
 
 		@Override
-		protected void writeToSocketChannel(
-			final SocketChannel channel,
-			final Binary[]      chunks
-		)
+		protected void writeToSocketChannel(final SocketChannel channel, final Binary[] chunks)
 			throws PersistenceExceptionTransfer
 		{
 			if(chunks.length != 1)
@@ -154,23 +150,22 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 				 */
 				throw new UnsupportedOperationException("Can only send one chunk at a time.");
 			}
+			final Binary chunk = chunks[0];
 			
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
-			defaultBuffer.clear();
 			
-			// (11.08.2018 TM)FIXME: fill default buffer with chunk total length
+			// (11.08.2018 TM)TODO: better encapsulate chunk header reading and writing logic
+			defaultBuffer.clear().limit(NetworkPersistenceBinary.networkChunkHeaderLength());
+			NetworkPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
 			
 			try
 			{
-				// the chunk header is sent first, the actual chunk data afterwards
+				// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
 				NetworkPersistenceBinary.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
 				
-				for(final Binary chunk : chunks)
+				for(final ByteBuffer bb : chunk.buffers())
 				{
-					for(final ByteBuffer bb : chunk.buffers())
-					{
-						NetworkPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
-					}
+					NetworkPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
 				}
 			}
 			catch(final IOException e)

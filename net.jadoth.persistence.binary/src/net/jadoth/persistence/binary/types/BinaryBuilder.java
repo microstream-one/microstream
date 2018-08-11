@@ -630,6 +630,12 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+		public final long totalLength()
+		{
+			throw new UnsupportedOperationException();
+		}
 
 	}
 
