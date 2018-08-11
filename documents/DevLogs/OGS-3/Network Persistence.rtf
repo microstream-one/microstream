@@ -236,5 +236,31 @@ Das Zeug ist auch schon ganz sch\'f6n alt... ^^\par
 \par
 \par
 2,5 h f\'fcr Netzwerk\'fcbertragung Konzept\'fcberlegungen (Terminierung, Timeout). Einlesen in und geringf\'fcgiges Refactoring von bestehendem Code (LogicSimpleNetwork, Chunks), Implementierung #readFromSocketChannel.\par
+\par
+\par
+\par
+\par
+2018-10-11 22:00\par
+\par
+Jetzt write implementieren:\par
+Plan ist wie gehabt:\par
+- Gesamtl\'e4nge der Daten in allen Chunks summieren\par
+- Ermittelte Gesamtl\'e4nge in einem vorangestellten Header ByteBuffer zuerst schicken\par
+- Dann den eigentlichen ByteBuffer Inhalt hinterherschicken.\par
+\par
+Die Gesamtl\'e4nge eines Chunks kann in diesem beim Beschreiben gleich mitgef\'fchrt werden, so dass man sp\'e4ter nicht nochmal per Schleife dr\'fcber muss. Hm. Interessant ist, wie das beim Storage write ermittelt wird. Mal nachschauen ...\par
+Ah. Das wird mit "chunksTotalLength()" tats\'e4chlich manuell aufaddiert. Das ersetz ich auch dort durch die on-the-fly Strategie. Das ist besser.\par
+Hm. Da wird nur das ByteBuffer[] anstatt dem original Chunks \'fcbergeben. Warum ...?\par
+Warum gibt StorageChannel#storeEntities ein KeyValue<ByteBuffer[], long[]> zur\'fcck?\par
+Hm. Das verwendet StorageEntityCache#internalPutEntities tats\'e4chlich zum Entities updaten. Das k\'f6nnte auch ohne Arrayumweg mit einer mitsummierten ChunkPosition gel\'f6st werden, aber gut. Jetzt ist das halt so.\par
+\par
+Hm. Trotzdem mal ein TODO schreiben. Code Vereinfachung ist immer gut.\par
+\par
+Aber zur\'fcck zum Network Demo ...\par
+\par
+Hm. Es gibt von #flushBuffer (in NetworkPersistenceBinary bzw. fr\'fcher in LogicSimpleNetwork noch gar keine allgemeine Verwendung. Das String Senden z\'e4hlt nicht). Aber gibt eigentlich keinen Grund, die Methode nicht gleich direkt public zu machen. Am besten mit besserem Namen bzw. analog dazu auch gleich mit umbenanntem und public gemachtem #fillBuffer.\par
+\par
+Hm. Bl\'f6d: write() kriegt ein array, das aber eigentlich gar keins ist, weil das f\'fcr das Storage Channel Hashing ben\'f6tigt wird. \'dcberlegen. Gibt auf die Schnelle keine einfache L\'f6sung. Provisorische L\'f6sung: in Network Kommunikation auf chunks.length == 1 pr\'fcfen und ansonsten exception werfen.\par
+\par
 }
  
