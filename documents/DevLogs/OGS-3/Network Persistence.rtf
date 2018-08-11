@@ -262,5 +262,19 @@ Hm. Es gibt von #flushBuffer (in NetworkPersistenceBinary bzw. fr\'fcher in Logi
 \par
 Hm. Bl\'f6d: write() kriegt ein array, das aber eigentlich gar keins ist, weil das f\'fcr das Storage Channel Hashing ben\'f6tigt wird. \'dcberlegen. Gibt auf die Schnelle keine einfache L\'f6sung. Provisorische L\'f6sung: in Network Kommunikation auf chunks.length == 1 pr\'fcfen und ansonsten exception werfen.\par
 \par
+\par
+Chunks#totalLength implementieren.\par
+Dabei recherchieren, ob ChunksWrapper \'fcberhaupt nocht gebraucht wird.\par
+Hm. Irgendwie nur in den veralteten BinaryFile- und Network-Klassen. Aber ich verwend den mal in dem neuen Network Zeug auch. Kann man sp\'e4ter ja mal rausrefactoren.\par
+Dabei gleich mal aufgefallen: der ByteBuffer.flip() Aufruf im Network read ist falsch, weil position erhalten bleiben muss. Gleich mal einen Bug weniger beim Testen. Fein.\par
+\par
+Mit dieser Methode ist das eigentliche ChunkHeader schreiben trivial:\par
+NetworkPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());\par
+Okay, nicht ganz trivial: defaultBuffer.limit(NetworkPersistenceBinary.networkChunkHeaderLength()) fehlte noch.\par
+Note hinschreiben, dass das alles besser gekapselt werden m\'fcsste.\par
+\par
+Und damit w\'e4r die write Methode fertig.\par
+\par
+2,0 h f\'fcr Recherchen zu bisheriger Verwendung von Chunks Typ und dessen Metadaten, Kommentare f\'fcr empfehlenswerte Codeverbesserungen, Chunks Metadaten Erweiterung, write Logik implementiert, kleiner Bugfix in read Logik.\par
 }
  
