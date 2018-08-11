@@ -28,7 +28,7 @@ public class NetworkPersistenceBinary
 	// (10.08.2018 TM)TODO: make IO_LOOP_SLEEP_TIME dynamic
 	private static final int IO_LOOP_SLEEP_TIME = 10;
 	
-	public static final ByteBuffer readBytes(
+	public static final ByteBuffer readIntoBufferKnownLength(
 		final SocketChannel channel        ,
 		final ByteBuffer    buffer         ,
 		final int           responseTimeout,
@@ -46,7 +46,13 @@ public class NetworkPersistenceBinary
 		{
 			(checkedBuffer = buffer).clear().limit(length);
 		}
-		fillBuffer(channel, checkedBuffer, responseTimeout);
+		readIntoBuffer(channel, checkedBuffer, responseTimeout);
+		
+		/* (11.08.2018 TM)NOTE:
+		 * flip() is actually an awfully bad design: the limit field is changed by the user code (this code here)
+		 * without calling the limit(value) setter. Searching for limit(value) does not yield that location
+		 * in the search (although it does in this case because of the call above, but that is just "by chance").
+		 */
 		checkedBuffer.flip();
 		return checkedBuffer;
 	}
@@ -66,13 +72,13 @@ public class NetworkPersistenceBinary
 		channel.write(buffer);
 	}
 	
-	private static void fillBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
+	public static void readIntoBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
 		performIoOperation(buffer, NetworkPersistenceBinary::read, channel, responseTimeout);
 	}
 
-	private static void flushBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
+	public static void writeFromBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
 		performIoOperation(buffer, NetworkPersistenceBinary::write, channel, responseTimeout);
