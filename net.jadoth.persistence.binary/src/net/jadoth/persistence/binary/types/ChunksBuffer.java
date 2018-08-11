@@ -43,6 +43,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	private ByteBuffer   currentBuffer      ;
 	private long         currentAddress     ;
 	private long         currentBound       ;
+	private long         totalLength        ;
 
 
 
@@ -82,9 +83,11 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private void updateCurrentBufferPosition()
 	{
-		this.currentBuffer.position(
-			X.checkArrayRange(this.currentAddress - Memory.getDirectByteBufferAddress(this.currentBuffer))
-		).flip();
+		final long contentLength = this.currentAddress - Memory.getDirectByteBufferAddress(this.currentBuffer);
+		
+		this.currentBuffer.position(X.checkArrayRange(contentLength)).flip();
+		
+		this.totalLength += contentLength;
 	}
 
 	private boolean isEmptyCurrentBuffer()
@@ -328,4 +331,10 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		return this.buffers[0] == null;
 	}
 
+	@Override
+	public final long totalLength()
+	{
+		return this.totalLength;
+	}
+	
 }

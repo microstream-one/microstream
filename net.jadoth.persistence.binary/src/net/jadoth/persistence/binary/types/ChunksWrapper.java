@@ -26,8 +26,10 @@ public final class ChunksWrapper extends Binary
 	// instance fields  //
 	/////////////////////
 
-	private final ByteBuffer[] buffers;
-	private final long[] startOffsets, boundOffsets;
+	private final ByteBuffer[] buffers     ;
+	private final long[]       startOffsets;
+	private final long[]       boundOffsets;
+	private final long         totalLength ;
 
 
 
@@ -41,6 +43,8 @@ public final class ChunksWrapper extends Binary
 		super();
 		final long[] startOffsets = new long[chunks.length];
 		final long[] boundOffsets = new long[chunks.length];
+		
+		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
 			if(!(chunks[i] instanceof DirectBuffer))
@@ -51,11 +55,13 @@ public final class ChunksWrapper extends Binary
 //			boundOffsets[i] = Memory.directByteBufferAddress(chunks[i]) + chunks[i].position();
 
 			boundOffsets[i] = (startOffsets[i] = Memory.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
+			totalLength += chunks[i].position();
 		}
 
-		this.buffers      = chunks     ;
+		this.buffers      = chunks      ;
 		this.startOffsets = startOffsets;
 		this.boundOffsets = boundOffsets;
+		this.totalLength  = totalLength ;
 	}
 
 
@@ -128,14 +134,13 @@ public final class ChunksWrapper extends Binary
 	@Override
 	public final boolean isEmpty()
 	{
-		for(final ByteBuffer bb : this.buffers)
-		{
-			if(bb.position() != 0)
-			{
-				return false;
-			}
-		}
-		return true;
+		return this.totalLength != 0;
+	}
+	
+	@Override
+	public final long totalLength()
+	{
+		return this.totalLength;
 	}
 
 }

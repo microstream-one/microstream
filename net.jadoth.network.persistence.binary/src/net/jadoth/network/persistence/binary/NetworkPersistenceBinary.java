@@ -19,9 +19,14 @@ public class NetworkPersistenceBinary
 		return BinaryPersistence.lengthLength();
 	}
 	
-	public static long readNetworkChunkContentLength(final long networkChunkHeaderOffset)
+	public static long getNetworkChunkHeaderContentLength(final ByteBuffer directByteBuffer)
 	{
-		return Memory.get_long(networkChunkHeaderOffset);
+		return Memory.get_long(Memory.getDirectByteBufferAddress(directByteBuffer));
+	}
+	
+	public static void setNetworkChunkHeaderContentLength(final ByteBuffer directByteBuffer, final long contentLength)
+	{
+		Memory.set_long(Memory.getDirectByteBufferAddress(directByteBuffer), contentLength);
 	}
 	
 	
@@ -48,12 +53,8 @@ public class NetworkPersistenceBinary
 		}
 		readIntoBuffer(channel, checkedBuffer, responseTimeout);
 		
-		/* (11.08.2018 TM)NOTE:
-		 * flip() is actually an awfully bad design: the limit field is changed by the user code (this code here)
-		 * without calling the limit(value) setter. Searching for limit(value) does not yield that location
-		 * in the search (although it does in this case because of the call above, but that is just "by chance").
-		 */
-		checkedBuffer.flip();
+		// note: intentionally no flip() here, as position is interpreted as the content length later on.
+
 		return checkedBuffer;
 	}
 	
