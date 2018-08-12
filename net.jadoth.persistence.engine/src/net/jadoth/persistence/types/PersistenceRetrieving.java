@@ -21,7 +21,7 @@ public interface PersistenceRetrieving extends SwizzleObjectSupplier
 	 * there" is not relevant/possible by design.
 	 */
 
-	public Object initialGet();
+	public Object get();
 
 	@Override
 	public Object get(long oid);

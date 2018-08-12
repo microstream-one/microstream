@@ -160,7 +160,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
-		public final synchronized Object initialGet()
+		public final synchronized Object get()
 		{
 			this.readLoadOnce();
 			this.build();
@@ -203,7 +203,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		@Override
 		public PersistenceRoots loadRoots()
 		{
-			final Object initial = this.initialGet();
+			final Object initial = this.get();
 
 			if(initial == null)
 			{
