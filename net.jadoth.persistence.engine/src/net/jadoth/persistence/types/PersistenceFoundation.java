@@ -282,7 +282,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
-		private BufferSizeProviderIncremental                      bufferSizeProvider         ;
+		private BufferSizeProviderIncremental           bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluator             ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver                 rootResolver               ;

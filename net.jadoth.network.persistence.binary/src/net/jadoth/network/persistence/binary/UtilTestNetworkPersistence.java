@@ -6,6 +6,11 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
+import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.PersistenceManager;
+
 public class UtilTestNetworkPersistence
 {
 	public static int defaultPort()
@@ -41,4 +46,47 @@ public class UtilTestNetworkPersistence
 		socketChannel.connect(new InetSocketAddress(address, port));
 		return socketChannel;
 	}
+	
+	public static SocketChannel accept(final ServerSocketChannel serverSocketChannel)
+	{
+		final SocketChannel socketChannel;
+		try
+		{
+			socketChannel = serverSocketChannel.accept();
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+		
+		return socketChannel;
+	}
+	
+	public static void close(final SocketChannel socketChannel)
+	{
+		try
+		{
+			socketChannel.close();
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static PersistenceManager<Binary> createPersistenceManager(final SocketChannel socketChannel)
+	{
+		final NetworkPersistenceChannelBinary channel = NetworkPersistenceChannelBinary.New(
+			socketChannel,
+			BufferSizeProvider.New()
+		);
+		
+		final BinaryPersistenceFoundation.Implementation foundation = new BinaryPersistenceFoundation.Implementation();
+		foundation.setPersistenceChannel(channel);
+		
+		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
+		
+		return pm;
+	}
+	
 }
