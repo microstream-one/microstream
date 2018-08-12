@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
@@ -94,7 +94,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		private final PersistenceTarget<Binary>             target        ;
 		
 		// channel hashing fields
-		private final BufferSizeProvider bufferSizeProvider;
+		private final BufferSizeProviderIncremental bufferSizeProvider;
 		private final int                chunksHashRange   ;
 		private final ChunksBuffer[]     chunks            ;
 
@@ -121,7 +121,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final SwizzleObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider,
+			final BufferSizeProviderIncremental                    bufferSizeProvider,
 			final int                                   chunkHashSize
 		)
 		{
@@ -512,7 +512,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final SwizzleObjectSupplier                  objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary>  typeManager       ,
 			final PersistenceTarget<Binary>              target            ,
-			final BufferSizeProvider                     bufferSizeProvider,
+			final BufferSizeProviderIncremental                     bufferSizeProvider,
 			final int                                    channelCount
 		)
 		{
@@ -572,7 +572,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			SwizzleObjectSupplier                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
-			BufferSizeProvider                    bufferSizeProvider
+			BufferSizeProviderIncremental                    bufferSizeProvider
 		);
 		
 		@Override
@@ -581,7 +581,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final SwizzleObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
-			final BufferSizeProvider                    bufferSizeProvider
+			final BufferSizeProviderIncremental                    bufferSizeProvider
 		)
 		{
 			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
@@ -593,7 +593,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			SwizzleObjectSupplier                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
-			BufferSizeProvider                    bufferSizeProvider
+			BufferSizeProviderIncremental                    bufferSizeProvider
 		);
 		
 		
@@ -644,7 +644,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				final SwizzleObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
-				final BufferSizeProvider                    bufferSizeProvider
+				final BufferSizeProviderIncremental                    bufferSizeProvider
 			)
 			{
 				return new BinaryStorer.Implementation(
@@ -662,7 +662,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				final SwizzleObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
-				final BufferSizeProvider                    bufferSizeProvider
+				final BufferSizeProviderIncremental                    bufferSizeProvider
 			)
 			{
 				return new BinaryStorer.ImplementationEager(

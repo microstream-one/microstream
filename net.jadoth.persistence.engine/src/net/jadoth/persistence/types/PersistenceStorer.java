@@ -57,7 +57,7 @@ public interface PersistenceStorer<M> extends Storer
 			SwizzleObjectSupplier            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
-			BufferSizeProvider               bufferSizeProvider
+			BufferSizeProviderIncremental               bufferSizeProvider
 		);
 		
 		/**
@@ -76,7 +76,7 @@ public interface PersistenceStorer<M> extends Storer
 			final SwizzleObjectSupplier            objectSupplier    ,
 			final PersistenceTypeHandlerManager<M> typeManager       ,
 			final PersistenceTarget<M>             target            ,
-			final BufferSizeProvider               bufferSizeProvider
+			final BufferSizeProviderIncremental               bufferSizeProvider
 		)
 		{
 			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
@@ -104,7 +104,7 @@ public interface PersistenceStorer<M> extends Storer
 			SwizzleObjectSupplier            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
-			BufferSizeProvider               bufferSizeProvider
+			BufferSizeProviderIncremental               bufferSizeProvider
 		);
 	}
 

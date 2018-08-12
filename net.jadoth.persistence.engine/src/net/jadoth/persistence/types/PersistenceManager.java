@@ -56,7 +56,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		private final PersistenceTypeHandlerManager<M> typeHandlerManager;
 		private final PersistenceStorer.Creator<M>     storerCreator     ;
 		private final PersistenceLoader.Creator<M>     loaderCreator     ;
-		private final BufferSizeProvider               bufferSizeProvider;
+		private final BufferSizeProviderIncremental               bufferSizeProvider;
 
 		// source and target //
 		private final PersistenceSource<M>             source            ;
@@ -77,7 +77,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			final PersistenceRegisterer.Creator    registererCreator ,
 			final PersistenceTarget<M>             target            ,
 			final PersistenceSource<M>             source            ,
-			final BufferSizeProvider               bufferSizeProvider
+			final BufferSizeProviderIncremental               bufferSizeProvider
 		)
 		{
 			super();

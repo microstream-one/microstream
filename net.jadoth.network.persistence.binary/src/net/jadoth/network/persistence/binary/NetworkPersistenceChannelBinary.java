@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 
 public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChannel<Binary>
 {
-	public static <M> NetworkPersistenceChannelBinary New(
+	public static NetworkPersistenceChannelBinary New(
 		final SocketChannel      channel           ,
 		final BufferSizeProvider bufferSizeProvider
 	)
@@ -86,7 +86,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 			if(this.defaultBuffer == null)
 			{
 				this.defaultBuffer = ByteBuffer.allocateDirect(
-					X.checkArrayRange(this.bufferSizeProvider.initialBufferSize())
+					X.checkArrayRange(this.bufferSizeProvider.provideBufferSize())
 				);
 			}
 			

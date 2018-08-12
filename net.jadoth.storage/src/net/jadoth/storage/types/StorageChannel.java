@@ -15,6 +15,7 @@ import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
@@ -99,7 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
-		private final BufferSizeProvider                loadingBufferSizeProvider;
+		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -136,7 +137,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageChannelController          controller               ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
-			final BufferSizeProvider                loadingBufferSizeProvider,
+			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
 		{
@@ -671,8 +672,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 				final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
 				
-				final BufferSizeProvider loadingBufferSizeProvider        = new BufferSizeProvider.Simple(loadingBufferSize);
-				final BufferSizeProvider readingDefaultBufferSizeProvider = new BufferSizeProvider.Simple(readingDefaultBufferSize);
+				final BufferSizeProviderIncremental loadingBufferSizeProvider = BufferSizeProviderIncremental.New(loadingBufferSize);
+				final BufferSizeProvider readingDefaultBufferSizeProvider     = BufferSizeProvider.New(readingDefaultBufferSize);
 
 				for(int i = 0; i < channels.length; i++)
 				{
