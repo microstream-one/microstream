@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 
 
 public final class ChunksBuffer extends Binary implements MemoryRangeCopier
@@ -25,7 +25,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksBuffer New(final BufferSizeProvider bufferSizeProvider)
+	public static final ChunksBuffer New(final BufferSizeProviderIncremental bufferSizeProvider)
 	{
 		return new ChunksBuffer(bufferSizeProvider);
 	}
@@ -36,7 +36,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	// instance fields  //
 	/////////////////////
 
-	private final BufferSizeProvider bufferSizeProvider;
+	private final BufferSizeProviderIncremental bufferSizeProvider;
 
 	private ByteBuffer[] buffers            ;
 	private int          currentBuffersIndex;
@@ -52,12 +52,12 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	/////////////////////
 
 	// private constructor. Does not validate arguments!
-	ChunksBuffer(final BufferSizeProvider bufferSizeProvider)
+	ChunksBuffer(final BufferSizeProviderIncremental bufferSizeProvider)
 	{
 		super();
 		this.bufferSizeProvider = notNull(bufferSizeProvider);
 		this.setCurrent((this.buffers = new ByteBuffer[DEFAULT_BUFFERS_CAPACITY])[this.currentBuffersIndex = 0] =
-			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.initialBufferSize())))
+			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.provideBufferSize())))
 		;
 	}
 
@@ -110,7 +110,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private int calculateNewBufferCapacity(final long requiredCapacity)
 	{
-		final long defaultBufferCapacity = this.bufferSizeProvider.incrementalBufferSize();
+		final long defaultBufferCapacity = this.bufferSizeProvider.provideIncrementalBufferSize();
 		
 		// never allocate less than the default, but more if needed.
 		return X.checkArrayRange(Math.max(requiredCapacity, defaultBufferCapacity));

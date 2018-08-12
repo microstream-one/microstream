@@ -97,7 +97,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator();
 
-	public BufferSizeProvider getBufferSizeProvider();
+	public BufferSizeProviderIncremental getBufferSizeProvider();
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 	
@@ -195,7 +195,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	 */
 	public PersistenceFoundation<M> setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
 
-	public PersistenceFoundation<M> setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
+	public PersistenceFoundation<M> setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
 
 	public PersistenceFoundation<M> setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
@@ -282,7 +282,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
-		private BufferSizeProvider                      bufferSizeProvider         ;
+		private BufferSizeProviderIncremental                      bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluator             ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver                 rootResolver               ;
@@ -606,7 +606,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 
 		@Override
-		public BufferSizeProvider getBufferSizeProvider()
+		public BufferSizeProviderIncremental getBufferSizeProvider()
 		{
 			if(this.bufferSizeProvider == null)
 			{
@@ -976,7 +976,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setBufferSizeProvider(
-			final BufferSizeProvider bufferSizeProvider
+			final BufferSizeProviderIncremental bufferSizeProvider
 		)
 		{
 			this.bufferSizeProvider = bufferSizeProvider;
@@ -1238,9 +1238,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultTypeEvaluatorPersistable();
 		}
 
-		protected BufferSizeProvider createBufferSizeProvider()
+		protected BufferSizeProviderIncremental createBufferSizeProvider()
 		{
-			return new BufferSizeProvider.Default();
+			return new BufferSizeProviderIncremental.Default();
 		}
 
 		protected PersistenceFieldEvaluator createFieldEvaluator()

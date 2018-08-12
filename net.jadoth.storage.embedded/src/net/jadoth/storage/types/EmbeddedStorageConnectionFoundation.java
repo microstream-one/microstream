@@ -6,7 +6,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryLoader;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.binary.types.BinaryStorer;
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceLoader;
@@ -418,7 +418,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 		@Override
 		public EmbeddedStorageConnectionFoundation.Implementation setBufferSizeProvider(
-			final BufferSizeProvider bufferSizeProvider
+			final BufferSizeProviderIncremental bufferSizeProvider
 		)
 		{
 			super.setBufferSizeProvider(bufferSizeProvider);

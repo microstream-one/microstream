@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.functional.InstanceDispatcherLogic;
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -115,7 +115,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeHandlerCreator(PersistenceTypeHandlerCreator<Binary> typeHandlerCreator);
 
 	@Override
-	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
+	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
@@ -378,7 +378,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 		@Override
 		public BinaryPersistenceFoundation.Implementation setBufferSizeProvider(
-			final BufferSizeProvider bufferSizeProvider
+			final BufferSizeProviderIncremental bufferSizeProvider
 		)
 		{
 			super.setBufferSizeProvider(bufferSizeProvider);

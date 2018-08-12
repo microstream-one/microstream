@@ -1,38 +1,35 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.math.XMath;
 import net.jadoth.memory.Memory;
 import net.jadoth.typing.Immutable;
 import net.jadoth.typing.Stateless;
 
-
 public interface BufferSizeProvider
 {
-	public long initialBufferSize();
-
-	public long incrementalBufferSize();
-
-
-
-	public final class Default implements BufferSizeProvider, Stateless
+	public default long provideBufferSize()
 	{
-
-		@Override
-		public final long initialBufferSize()
-		{
-			return Memory.defaultBufferSize();
-		}
-
-		@Override
-		public final long incrementalBufferSize()
-		{
-			return Memory.defaultBufferSize();
-		}
-
+		return Memory.defaultBufferSize();
 	}
 	
+	public static BufferSizeProvider New()
+	{
+		return new BufferSizeProvider.Default();
+	}
 	
-
-	public final class Simple implements BufferSizeProvider, Immutable
+	public static BufferSizeProvider New(final long bufferSize)
+	{
+		return new BufferSizeProvider.Implementation(
+			XMath.positive(bufferSize)
+		);
+	}
+	
+	public final class Default implements BufferSizeProvider, Stateless
+	{
+		// since default methods, java is missing interface instantiation
+	}
+	
+	public final class Implementation implements BufferSizeProviderIncremental, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -46,7 +43,7 @@ public interface BufferSizeProvider
 		// constructors     //
 		/////////////////////
 
-		public Simple(final long bufferSize)
+		Implementation(final long bufferSize)
 		{
 			super();
 			this.bufferSize = bufferSize;
@@ -59,60 +56,17 @@ public interface BufferSizeProvider
 		////////////
 
 		@Override
-		public final long initialBufferSize()
+		public final long provideBufferSize()
 		{
 			return this.bufferSize;
 		}
 
 		@Override
-		public final long incrementalBufferSize()
+		public final long provideIncrementalBufferSize()
 		{
 			return this.bufferSize;
 		}
 
 	}
-
-
-
-	public final class Implementation implements BufferSizeProvider, Immutable
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
-
-		private final long initialBufferSize    ;
-		private final long incrementalBufferSize;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
-
-		public Implementation(final long initialBufferSize, final long incrementalBufferSize)
-		{
-			super();
-			this.initialBufferSize     = initialBufferSize    ;
-			this.incrementalBufferSize = incrementalBufferSize;
-		}
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
-		@Override
-		public final long initialBufferSize()
-		{
-			return this.initialBufferSize;
-		}
-
-		@Override
-		public final long incrementalBufferSize()
-		{
-			return this.incrementalBufferSize;
-		}
-
-	}
-
+	
 }

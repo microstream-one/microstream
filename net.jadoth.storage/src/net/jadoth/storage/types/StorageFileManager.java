@@ -229,7 +229,7 @@ public interface StorageFileManager
 			 * tools for working with memory. Right?
 			 */
 			this.standardByteBuffer            = ByteBuffer.allocateDirect(
-				XTypes.to_int(standardBufferSizeProvider.initialBufferSize())
+				XTypes.to_int(standardBufferSizeProvider.provideBufferSize())
 			);
 		}
 
