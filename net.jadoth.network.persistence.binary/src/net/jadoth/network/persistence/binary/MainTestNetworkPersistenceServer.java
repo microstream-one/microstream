@@ -5,8 +5,6 @@ import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class MainTestNetworkPersistenceServer
@@ -22,34 +20,22 @@ public class MainTestNetworkPersistenceServer
 	{
 		while(true)
 		{
-			processNextRequest(serverSocketChannel, logic);
+			// accept (wait for) the next client connection, process the request/data sent via it and then close it.
+			final SocketChannel socketChannel = UtilTestNetworkPersistence.accept(serverSocketChannel);
+			processNextRequest(socketChannel, logic);
+			UtilTestNetworkPersistence.close(socketChannel);
 		}
 	}
 	
-	public static void processNextRequest(final ServerSocketChannel serverSocketChannel, final Consumer<Object> logic)
+	public static void processNextRequest(final SocketChannel socketChannel, final Consumer<Object> logic)
 	{
-		final SocketChannel newConnection;
-		try
-		{
-			newConnection = serverSocketChannel.accept();
-		}
-		catch(final Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
+		final PersistenceManager<Binary> pm = UtilTestNetworkPersistence.createPersistenceManager(socketChannel);
 		
-		final NetworkPersistenceChannelBinary channel = NetworkPersistenceChannelBinary.New(
-			newConnection,
-			BufferSizeProvider.New()
-		);
-		
-		final BinaryPersistenceFoundation.Implementation foundation = new BinaryPersistenceFoundation.Implementation();
-		foundation.setPersistenceChannel(channel);
-		
-		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
-		
+		// receiving arbitrary instances is a generic "get" for the PersistenceManager
 		final Object graphRoot = pm.get();
 		
+		// process the rebuilt graph via the arbitrary server logic
 		logic.accept(graphRoot);
 	}
 	
