@@ -299,5 +299,57 @@ Paar kleinere Aufr\'e4umarbeiten.\par
 \par
 \par
 1,25 h f\'fcr Server und Client Main Test Klassen und geringf\'fcgiges Refactoring.\par
+\par
+\par
+\par
+2018-08-13 20:15\par
+\par
+Test und Bugfixes.\par
+\par
+Exception: Missing assembly part of type interface net.jadoth.swizzling.types.SwizzleTypeIdProvider. null\par
+Achja, klar: PeristenceManager allein bauen reicht ja nicht. Da fehlt noch einiges an Metadaten Zeug, wie z.B. in EmbeddedStorageFoundation#createEmbeddedStorageManager.\par
+Anschauen und nachziehen.\par
+\par
+Hm. Wobei: Die ganze Storage-Specials wie Root-Handling, TypeDictionary-Verbandelung, usw. braucht man ja f\'fcr Netzwerkkommunikation nicht. Und der SwizzleTypeIdProvider wird hier gar nicht gesetzt. Das ist die falsche Stelle.\par
+\par
+EmbeddedStorage#createConnectionFoundation ist die richtige Stelle.\par
+Die ConnectionFoundation ist nichts anderes als eine BinaryPersistenceFoundation mit bissl Erweiterung.\par
+Von dort kopieren.\par
+\par
+Hm. Das sollte erst mal so klappen, w\'e4re aber unbrauchbar f\'fcr einen Produktivbetrieb.\par
+Mal "Beschr\'e4nkungen / TODOs / bekannte Probleme" aufschreiben.\par
+\par
+Noch default system directory definieren. Directory ensuren. Blabla.\par
+\par
+Und schwups: Schon gehts. \\o/\par
+\par
+Paar debug-outs dazubauen. So sieht das dann aus:\par
+\par
+.run(MainTestNetworkPersistenceServer.java:25)                  21:18:36.132> Server awaiting connection ...\par
+.run(MainTestNetworkPersistenceServer.java:27)                  21:18:36.132> Server accepted connection. Processing.\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:35)   21:18:36.132> Server initializing PersistenceManager\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:39)   21:18:36.136> Server is reading data ...\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:43)   21:18:36.337> Server is processing graph ...\par
+Request 1534187909821:27\par
+.run(MainTestNetworkPersistenceServer.java:25)                  21:18:36.338> Server awaiting connection ...\par
+.run(MainTestNetworkPersistenceServer.java:27)                  21:18:36.338> Server accepted connection. Processing.\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:35)   21:18:36.339> Server initializing PersistenceManager\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:39)   21:18:36.343> Server is reading data ...\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:43)   21:18:36.543> Server is processing graph ...\par
+Request 1534187909821:28\par
+\par
+\par
+.main(MainTestNetworkPersistenceClient.java:23)                 21:18:36.131> Client opens channel ...\par
+.main(MainTestNetworkPersistenceClient.java:26)                 21:18:36.132> Client opened channel. Sleeping ...\par
+.main(MainTestNetworkPersistenceClient.java:29)                 21:18:36.332> Client initializing PersistenceManager\par
+.main(MainTestNetworkPersistenceClient.java:32)                 21:18:36.336> Client sending data ... \par
+.main(MainTestNetworkPersistenceClient.java:34)                 21:18:36.337> Client sent data.\par
+.main(MainTestNetworkPersistenceClient.java:23)                 21:18:36.338> Client opens channel ...\par
+.main(MainTestNetworkPersistenceClient.java:26)                 21:18:36.338> Client opened channel. Sleeping ...\par
+.main(MainTestNetworkPersistenceClient.java:29)                 21:18:36.538> Client initializing PersistenceManager\par
+.main(MainTestNetworkPersistenceClient.java:32)                 21:18:36.542> Client sending data ... \par
+.main(MainTestNetworkPersistenceClient.java:34)                 21:18:36.544> Client sent data.\par
+\par
+\par
 }
  
