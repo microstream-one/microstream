@@ -86,26 +86,25 @@ public class UtilTestNetworkPersistence
 		}
 	}
 	
-	public static PersistenceManager<Binary> createPersistenceManager(final SocketChannel socketChannel)
+	public static ComChannel openComChannel(
+		final SocketChannel socketChannel  ,
+		final File          systemDirectory
+	)
 	{
 		final NetworkPersistenceChannelBinary channel = NetworkPersistenceChannelBinary.New(
 			socketChannel,
 			BufferSizeProvider.New()
 		);
 		
-		final BinaryPersistenceFoundation.Implementation foundation = createFoundation();
+		//!\\ Note that client and server must have disjunct OID ranges. E.g. Server starting with 1, Client with 2.
+		final BinaryPersistenceFoundation.Implementation foundation = createFoundation(systemDirectory);
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
 		
-		return pm;
+		return ComChannel.New(pm);
 	}
-	
-	private static BinaryPersistenceFoundation.Implementation createFoundation()
-	{
-		return createFoundation(defaultSystemDirectory());
-	}
-	
+		
 	private static BinaryPersistenceFoundation.Implementation createFoundation(final File systemDirectory)
 	{
 		XFiles.ensureDirectory(systemDirectory);
