@@ -6,17 +6,19 @@ Netzwerkthema Blocking/Non-Blocking und/oder Threading
 
 2.)
 Timeout Handling müsste für einen Produktivbetrieb komplexer werden.
-Z.B.
+Z.B. Zeit seit letztem empfangen Byte, Zeit seit Beginn der Kommunikation, aktuelle Geschwindigkeit, usw.
 
 3.)
 Endianess wird ignoriert. D.h. aktuell können nur Little-Endian mit LE und BE mit BE kommunizieren.
 Sinnvoll wäre ein Abgleich beim Verbindungsaufbau: Nicht pauschal alles auf BE umschreiben (das behindert fast die komplette aktuellen Hardware und begünstigt die Nischenhardware), sondern abgleichen, ob gleich oder unterschiedlich. Nur umschreiben, wenn unterschiedlich. Je nach Strategie (Priorität) nur der Server oder nur der Client.
 
 4.)
-Momentan nur Sessionless UND nur mit 1 Nachricht pro Connection (proof-of-concept)
+Momentan nur Sessionless UND nur mit 1 Nachricht pro Connection (proof-of-concept).
+Das ist aber alles Networking Programmierung. Mit Persistence Code hat das nichts zu tun.
 
 5.)
 TypeDictionary kann eigentlich nicht dynamisch wachsen, sondern muss bei Verbindungsaufbau zwischen beiden Partnern abgeglichen werden und darf sich danach nicht mehr ändern.
+Das würde einen entsprechend anderen TypeManager erfordern: Jeder unbekannte Typ muss eine Exception werfen.
 
 6.)
 Aktuell benutzen alle Verbindungen dieselben ID-Files und schreiben unsynchronisiert hinein. D.h. Inkonsistenz bei mehr als einer gleichzeitigen Verbindung.
