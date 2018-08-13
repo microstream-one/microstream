@@ -382,7 +382,7 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setPersistenceChannel(final PersistenceChannel<Binary> persistenceChannel)
+		public EmbeddedStorageConnectionFoundation.Implementation setPersistenceChannel(final PersistenceChannel<Binary> persistenceChannel)
 		{
 			super.setPersistenceSource(persistenceChannel);
 			super.setPersistenceTarget(persistenceChannel);

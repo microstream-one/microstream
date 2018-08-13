@@ -2,6 +2,7 @@ package net.jadoth.network.persistence.binary;
 
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 
@@ -19,13 +20,18 @@ public class MainTestNetworkPersistenceClient
 		// Send n messages to the server, each in an exclusive connection (simplicity's sake)
 		for(int i = 1; i <= REQUEST_COUNT; i++)
 		{
+			XDebug.debugln("Client opens channel ...");
 			try(final SocketChannel channel = UtilTestNetworkPersistence.openChannelLocalhost())
 			{
+				XDebug.debugln("Client opened channel. Sleeping ...");
 				Thread.sleep(REQUEST_DELAY);
-				
+
+				XDebug.debugln("Client initializing " + PersistenceManager.class.getSimpleName());
 				final PersistenceManager<Binary> pm = UtilTestNetworkPersistence.createPersistenceManager(channel);
-				
+
+				XDebug.debugln("Client sending data ... ");
 				pm.store("Request " +CLIENT_ID + ":"+ i);
+				XDebug.debugln("Client sent data.");
 			}
 		}
 	}

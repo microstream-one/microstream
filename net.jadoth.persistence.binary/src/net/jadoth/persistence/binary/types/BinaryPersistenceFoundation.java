@@ -324,7 +324,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setTypeDictionaryExporter(
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryExporter(
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)
 		{
@@ -333,7 +333,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setTypeDictionaryParser(
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryParser(
 			final PersistenceTypeDictionaryParser typeDictionaryParser
 		)
 		{
@@ -352,7 +352,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 		@Override
 		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
-		BinaryPersistenceFoundation setDictionaryStorage(final H typeDictionaryStorageHandler)
+		BinaryPersistenceFoundation.Implementation setDictionaryStorage(final H typeDictionaryStorageHandler)
 		{
 			super.setTypeDictionaryLoader(typeDictionaryStorageHandler);
 			super.setTypeDictionaryStorer(typeDictionaryStorageHandler);
@@ -360,7 +360,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 
 		@Override
-		public BinaryPersistenceFoundation setPersistenceChannel(final PersistenceChannel<Binary> persistenceChannel)
+		public BinaryPersistenceFoundation.Implementation setPersistenceChannel(final PersistenceChannel<Binary> persistenceChannel)
 		{
 			super.setPersistenceSource(persistenceChannel);
 			super.setPersistenceTarget(persistenceChannel);
@@ -371,8 +371,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
 		BinaryPersistenceFoundation.Implementation setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
-			this.setTypeIdProvider    (swizzleTypeIdProvider);
-			this.setObjectIdProvider  (swizzleTypeIdProvider);
+			this.setTypeIdProvider  (swizzleTypeIdProvider);
+			this.setObjectIdProvider(swizzleTypeIdProvider);
 			return this;
 		}
 
