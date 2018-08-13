@@ -1,9 +1,10 @@
 package net.jadoth.network.persistence.binary;
 
+import java.io.File;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.collections.old.OldCollections;
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class MainTestNetworkPersistenceClient
@@ -27,11 +28,24 @@ public class MainTestNetworkPersistenceClient
 				Thread.sleep(REQUEST_DELAY);
 
 				XDebug.debugln("Client initializing " + PersistenceManager.class.getSimpleName());
-				final PersistenceManager<Binary> pm = UtilTestNetworkPersistence.createPersistenceManager(channel);
+				final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
+					channel,
+					new File(MainTestNetworkPersistenceClient.class.getSimpleName())
+				);
 
-				XDebug.debugln("Client sending data ... ");
-				pm.store("Request " +CLIENT_ID + ":"+ i);
-				XDebug.debugln("Client sent data.");
+				XDebug.debugln("Client sending data ... "); // arbitrary graph
+				cc.send(
+					OldCollections.ArrayList(
+						"Request " +CLIENT_ID + ":"+ i,
+						"Some String",
+						OldCollections.ArrayList(1, 2, 3)
+					)
+				);
+				XDebug.debugln("* Client completed sending.");
+				
+				XDebug.debugln("Client reading data ... ");
+				System.out.println("Server answered: " + cc.receive());
+				XDebug.debugln("* Client completed reading.");
 			}
 		}
 	}

@@ -1,11 +1,11 @@
 package net.jadoth.network.persistence.binary;
 
+import java.io.File;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class MainTestNetworkPersistenceServer
@@ -14,10 +14,19 @@ public class MainTestNetworkPersistenceServer
 	{
 		final ServerSocketChannel serverSocketChannel = UtilTestNetworkPersistence.openServerSocketChannel();
 		
-		run(serverSocketChannel, System.out::println);
+		run(serverSocketChannel, cc ->
+		{
+			XDebug.debugln("Server is reading data ...");
+			final Object root = cc.receive();
+			XDebug.debugln("* Server completed reading.");
+			System.out.println(root);
+			XDebug.debugln("Server is sending response ...");
+			cc.send("You said: " + root);
+			XDebug.debugln("* Server completed responding.");
+		});
 	}
 	
-	public static void run(final ServerSocketChannel serverSocketChannel, final Consumer<Object> logic)
+	public static void run(final ServerSocketChannel serverSocketChannel, final Consumer<ComChannel> logic)
 	{
 		while(true)
 		{
@@ -30,19 +39,16 @@ public class MainTestNetworkPersistenceServer
 		}
 	}
 	
-	public static void processNextRequest(final SocketChannel socketChannel, final Consumer<Object> logic)
+	public static void processNextRequest(final SocketChannel socketChannel, final Consumer<ComChannel> logic)
 	{
 		XDebug.debugln("Server initializing " + PersistenceManager.class.getSimpleName());
 		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
-		final PersistenceManager<Binary> pm = UtilTestNetworkPersistence.createPersistenceManager(socketChannel);
+		final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
+			socketChannel,
+			new File(MainTestNetworkPersistenceServer.class.getSimpleName())
+		);
 		
-		XDebug.debugln("Server is reading data ...");
-		// receiving arbitrary instances is a generic "get" for the PersistenceManager
-		final Object graphRoot = pm.get();
-		
-		XDebug.debugln("Server is processing graph ...");
-		// process the rebuilt graph via the arbitrary server logic
-		logic.accept(graphRoot);
+		logic.accept(cc);
 	}
 	
 }
