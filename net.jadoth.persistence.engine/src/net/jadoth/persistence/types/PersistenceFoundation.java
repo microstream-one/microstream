@@ -771,8 +771,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			final P swizzleTypeIdProvider
 		)
 		{
-			this.internalSetOidProvider(swizzleTypeIdProvider);
-			this.internalSetTidProvider(swizzleTypeIdProvider);
+			this.setObjectIdProvider(swizzleTypeIdProvider);
+			this.setTypeIdProvider  (swizzleTypeIdProvider);
 			return this;
 		}
 

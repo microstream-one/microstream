@@ -35,24 +35,10 @@ public interface SwizzleFoundation
 		private SwizzleTypeIdProvider   tidProvider;
 
 
-
+		
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
-		protected final void internalSetOidProvider(final SwizzleObjectIdProvider oidProvider)
-		{
-			this.oidProvider = oidProvider;
-		}
-
-		protected final void internalSetTidProvider(final SwizzleTypeIdProvider tidProvider)
-		{
-			this.tidProvider = tidProvider;
-		}
-
-		///////////////////////////////////////////////////////////////////////////
-		// pseudo-abstract creators //
-		/////////////////////////////
+		// methods //
+		////////////
 
 		/* Explanation:
 		 * These methods are not actually abstract because it is not necessaryly required
@@ -106,14 +92,14 @@ public interface SwizzleFoundation
 		@Override
 		public SwizzleFoundation.Implementation setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
 		{
-			this.internalSetOidProvider(oidProvider);
+			this.oidProvider = oidProvider;
 			return this;
 		}
 
 		@Override
 		public SwizzleFoundation.Implementation setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
 		{
-			this.internalSetTidProvider(tidProvider);
+			this.tidProvider = tidProvider;
 			return this;
 		}
 
@@ -121,8 +107,8 @@ public interface SwizzleFoundation
 		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
 		SwizzleFoundation.Implementation setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
-			this.internalSetOidProvider(swizzleTypeIdProvider);
-			this.internalSetTidProvider(swizzleTypeIdProvider);
+			this.setObjectIdProvider(swizzleTypeIdProvider);
+			this.setTypeIdProvider(swizzleTypeIdProvider);
 			return this;
 		}
 

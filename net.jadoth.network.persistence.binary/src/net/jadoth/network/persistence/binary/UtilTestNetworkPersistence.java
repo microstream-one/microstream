@@ -1,14 +1,21 @@
 package net.jadoth.network.persistence.binary;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
+import net.jadoth.persistence.internal.FileObjectIdProvider;
+import net.jadoth.persistence.internal.FileSwizzleIdProvider;
+import net.jadoth.persistence.internal.FileTypeIdProvider;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class UtilTestNetworkPersistence
@@ -16,6 +23,11 @@ public class UtilTestNetworkPersistence
 	public static int defaultPort()
 	{
 		return 1337;
+	}
+	
+	public static File defaultSystemDirectory()
+	{
+		return new File("networkpersistencedemo");
 	}
 	
 	public static ServerSocketChannel openServerSocketChannel() throws IOException
@@ -81,12 +93,48 @@ public class UtilTestNetworkPersistence
 			BufferSizeProvider.New()
 		);
 		
-		final BinaryPersistenceFoundation.Implementation foundation = new BinaryPersistenceFoundation.Implementation();
+		final BinaryPersistenceFoundation.Implementation foundation = createFoundation();
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
 		
 		return pm;
 	}
+	
+	private static BinaryPersistenceFoundation.Implementation createFoundation()
+	{
+		return createFoundation(defaultSystemDirectory());
+	}
+	
+	private static BinaryPersistenceFoundation.Implementation createFoundation(final File systemDirectory)
+	{
+		XFiles.ensureDirectory(systemDirectory);
+		
+		// (13.08.2018 TM)NOTE: copied from EmbeddedStorage#createConnectionFoundation
+		
+		final PersistenceTypeDictionaryFileHandler dictionaryStorage = PersistenceTypeDictionaryFileHandler.New(
+			new File(systemDirectory, Persistence.defaultFilenameTypeDictionary())
+		);
+
+		final FileTypeIdProvider fileTypeIdProvider = new FileTypeIdProvider(
+			new File(systemDirectory, Persistence.defaultFilenameTypeId())
+		);
+
+		final FileObjectIdProvider fileObjectIdProvider = new FileObjectIdProvider(
+			new File(systemDirectory, Persistence.defaultFilenameObjectId())
+		);
+
+		final FileSwizzleIdProvider idProvider = new FileSwizzleIdProvider(fileTypeIdProvider, fileObjectIdProvider)
+			.initialize()
+		;
+		
+		return new BinaryPersistenceFoundation.Implementation()
+			.setDictionaryStorage          (dictionaryStorage            )
+			.setSwizzleIdProvider          (idProvider                   )
+			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
+			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
+		;
+	}
+	
 	
 }

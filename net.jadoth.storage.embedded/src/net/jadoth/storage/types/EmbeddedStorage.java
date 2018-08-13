@@ -154,7 +154,8 @@ public final class EmbeddedStorage
 
 	static EmbeddedStorageConnectionFoundation createConnectionFoundation(final File directory)
 	{
-		/* (03.11.2014)TODO: EmbeddedStorage loosely coupled id providers?
+		/*
+		 * (03.11.2014)TODO: EmbeddedStorage loosely coupled id providers?
 		 * shouldn't the providers below be somehow loosely coupled?
 		 * There also has to be an opportunity to configure things like id range increment
 		 */
