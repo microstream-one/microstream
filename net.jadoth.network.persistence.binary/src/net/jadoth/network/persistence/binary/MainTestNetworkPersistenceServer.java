@@ -45,7 +45,8 @@ public class MainTestNetworkPersistenceServer
 		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
 		final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
 			socketChannel,
-			new File(MainTestNetworkPersistenceServer.class.getSimpleName())
+			new File(MainTestNetworkPersistenceServer.class.getSimpleName()),
+			false
 		);
 		
 		logic.accept(cc);

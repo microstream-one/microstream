@@ -30,7 +30,8 @@ public class MainTestNetworkPersistenceClient
 				XDebug.debugln("Client initializing " + PersistenceManager.class.getSimpleName());
 				final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
 					channel,
-					new File(MainTestNetworkPersistenceClient.class.getSimpleName())
+					new File(MainTestNetworkPersistenceClient.class.getSimpleName()),
+					true
 				);
 
 				XDebug.debugln("Client sending data ... "); // arbitrary graph
