@@ -8,15 +8,16 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.files.XFiles;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FileSwizzleIdProvider;
-import net.jadoth.persistence.internal.FileTypeIdProvider;
+import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
+import net.jadoth.persistence.internal.TransientOidProvider;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class UtilTestNetworkPersistence
 {
@@ -88,7 +89,8 @@ public class UtilTestNetworkPersistence
 	
 	public static ComChannel openComChannel(
 		final SocketChannel socketChannel  ,
-		final File          systemDirectory
+		final File          systemDirectory,
+		final boolean       isClient
 	)
 	{
 		final NetworkPersistenceChannelBinary channel = NetworkPersistenceChannelBinary.New(
@@ -96,8 +98,7 @@ public class UtilTestNetworkPersistence
 			BufferSizeProvider.New()
 		);
 		
-		//!\\ Note that client and server must have disjunct OID ranges. E.g. Server starting with 1, Client with 2.
-		final BinaryPersistenceFoundation.Implementation foundation = createFoundation(systemDirectory);
+		final BinaryPersistenceFoundation.Implementation foundation = createFoundation(systemDirectory, isClient);
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
@@ -105,7 +106,10 @@ public class UtilTestNetworkPersistence
 		return ComChannel.New(pm);
 	}
 		
-	private static BinaryPersistenceFoundation.Implementation createFoundation(final File systemDirectory)
+	private static BinaryPersistenceFoundation.Implementation createFoundation(
+		final File    systemDirectory,
+		final boolean isClient
+	)
 	{
 		XFiles.ensureDirectory(systemDirectory);
 		
@@ -115,17 +119,23 @@ public class UtilTestNetworkPersistence
 			new File(systemDirectory, Persistence.defaultFilenameTypeDictionary())
 		);
 
-		final FileTypeIdProvider fileTypeIdProvider = new FileTypeIdProvider(
-			new File(systemDirectory, Persistence.defaultFilenameTypeId())
-		);
+		// (17.08.2018 TM)NOTE: use once to create a TypeDictionary, then switch back to Failing implementation
+//		final FileTypeIdProvider fileTypeIdProvider = new FileTypeIdProvider(
+//			new File(systemDirectory, Persistence.defaultFilenameTypeId())
+//		);
 
-		final FileObjectIdProvider fileObjectIdProvider = new FileObjectIdProvider(
-			new File(systemDirectory, Persistence.defaultFilenameObjectId())
-		);
-
-		final FileSwizzleIdProvider idProvider = new FileSwizzleIdProvider(fileTypeIdProvider, fileObjectIdProvider)
-			.initialize()
+		final CompositeSwizzleIdProvider idProvider = new CompositeSwizzleIdProvider(
+//			fileTypeIdProvider,
+			SwizzleTypeIdProvider.Failing(), // a network handling layer can never - properly - add new types
+			TransientOidProvider.New(isClient
+				? 9_200_000_000_000_000_000L // temporary id range.
+				: 9_100_000_000_000_000_000L // temporary id range
+			)
+		)
+		.initialize()
 		;
+		
+		XDebug.debugln("OID: " + idProvider.currentObjectId());
 		
 		return new BinaryPersistenceFoundation.Implementation()
 			.setDictionaryStorage          (dictionaryStorage            )

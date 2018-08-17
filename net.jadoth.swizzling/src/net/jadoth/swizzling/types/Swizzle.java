@@ -249,6 +249,11 @@ public class Swizzle
 	{
 		return START_OID_BASE;
 	}
+	
+	public static final long defaultBoundConstantId()
+	{
+		return BOUND_CID;
+	}
 
 
 	/* (22.03.2013 TM)XXX: remove or optionally replace with SwizzleTypeDictionary lookup

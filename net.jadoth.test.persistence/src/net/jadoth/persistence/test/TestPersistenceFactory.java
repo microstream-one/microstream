@@ -2,6 +2,7 @@ package net.jadoth.persistence.test;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
+import net.jadoth.persistence.internal.TransientOidProvider;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
@@ -13,7 +14,7 @@ public class TestPersistenceFactory extends BinaryPersistenceFoundation.Implemen
 	@Override
 	protected SwizzleObjectIdProvider createObjectIdProvider()
 	{
-		return new TransientOidProvider();
+		return TransientOidProvider.New();
 	}
 
 	@Override

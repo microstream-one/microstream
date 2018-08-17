@@ -1,4 +1,4 @@
-package net.jadoth.persistence.test;
+package net.jadoth.persistence.internal;
 
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
@@ -6,12 +6,27 @@ import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 
 /**
  * Simple thread UNsafe, volatile (i.e. non-persistent) implementation.
- * Useful only for testing and debugging.
  *
  * @author Thomas Muenz
  */
 public class TransientOidProvider implements SwizzleObjectIdProvider
 {
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static TransientOidProvider New()
+	{
+		return new TransientOidProvider(Swizzle.defaultStartObjectId());
+	}
+	
+	public static TransientOidProvider New(final long startingOid)
+	{
+		return new TransientOidProvider(startingOid);
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
@@ -24,15 +39,10 @@ public class TransientOidProvider implements SwizzleObjectIdProvider
 	// constructors     //
 	/////////////////////
 
-	public TransientOidProvider()
-	{
-		this(Swizzle.defaultStartObjectId());
-	}
-
-	public TransientOidProvider(final long oid)
+	protected TransientOidProvider(final long startingOid)
 	{
 		super();
-		this.oid = Swizzle.validateObjectId(oid);
+		this.oid = Swizzle.validateObjectId(startingOid);
 	}
 
 

@@ -7,7 +7,7 @@ import net.jadoth.X;
 import net.jadoth.collections.Singleton;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FileSwizzleIdProvider;
+import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
@@ -171,7 +171,7 @@ public final class EmbeddedStorage
 			new File(directory, Persistence.defaultFilenameObjectId())
 		);
 
-		final FileSwizzleIdProvider idProvider = new FileSwizzleIdProvider(fileTypeIdProvider, fileObjectIdProvider)
+		final CompositeSwizzleIdProvider idProvider = new CompositeSwizzleIdProvider(fileTypeIdProvider, fileObjectIdProvider)
 			.initialize()
 		;
 

@@ -5,14 +5,14 @@ import static net.jadoth.X.notNull;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
-public final class FileSwizzleIdProvider implements SwizzleObjectIdProvider, SwizzleTypeIdProvider
+public final class CompositeSwizzleIdProvider implements SwizzleObjectIdProvider, SwizzleTypeIdProvider
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
 
-	private final FileTypeIdProvider   typeIdProvider  ;
-	private final FileObjectIdProvider objectIdProvider;
+	private final SwizzleTypeIdProvider   typeIdProvider  ;
+	private final SwizzleObjectIdProvider objectIdProvider;
 
 	private transient boolean initialized;
 
@@ -22,7 +22,10 @@ public final class FileSwizzleIdProvider implements SwizzleObjectIdProvider, Swi
 	// constructors     //
 	/////////////////////
 
-	public FileSwizzleIdProvider(final FileTypeIdProvider typeIdProvider, final FileObjectIdProvider objectIdProvider)
+	public CompositeSwizzleIdProvider(
+		final SwizzleTypeIdProvider   typeIdProvider  ,
+		final SwizzleObjectIdProvider objectIdProvider
+	)
 	{
 		super();
 		this.typeIdProvider   = notNull(typeIdProvider  );
@@ -51,7 +54,7 @@ public final class FileSwizzleIdProvider implements SwizzleObjectIdProvider, Swi
 	// constructors     //
 	/////////////////////
 
-	public final synchronized FileSwizzleIdProvider initialize()
+	public final synchronized CompositeSwizzleIdProvider initialize()
 	{
 		if(!this.isInitialized())
 		{
@@ -69,13 +72,13 @@ public final class FileSwizzleIdProvider implements SwizzleObjectIdProvider, Swi
 	/////////////////////
 
 	@Override
-	public final FileSwizzleIdProvider initializeTypeId()
+	public final CompositeSwizzleIdProvider initializeTypeId()
 	{
 		return this.initialize();
 	}
 
 	@Override
-	public final FileSwizzleIdProvider initializeObjectId()
+	public final CompositeSwizzleIdProvider initializeObjectId()
 	{
 		return this.initialize();
 	}
@@ -105,14 +108,14 @@ public final class FileSwizzleIdProvider implements SwizzleObjectIdProvider, Swi
 	}
 
 	@Override
-	public final FileSwizzleIdProvider updateCurrentObjectId(final long currentObjectId)
+	public final CompositeSwizzleIdProvider updateCurrentObjectId(final long currentObjectId)
 	{
 		this.objectIdProvider.updateCurrentObjectId(currentObjectId);
 		return this;
 	}
 
 	@Override
-	public final FileSwizzleIdProvider updateCurrentTypeId(final long currentTypeId)
+	public final CompositeSwizzleIdProvider updateCurrentTypeId(final long currentTypeId)
 	{
 		this.typeIdProvider.updateCurrentTypeId(currentTypeId);
 		return this;
