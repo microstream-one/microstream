@@ -645,7 +645,7 @@ public final class X
 		{
 			return BulkList.New();
 		}
-		return BulkList.New(elements.length);
+		return BulkList.New(elements);
 	}
 
 	@SafeVarargs
