@@ -36,25 +36,30 @@ public class MainTestItemMatcher
 	static final ItemMatcher<String> STRING_MATCHER_FACTORY = new ItemMatcher.Implementation<String>()
 		.setEqualator(null)
 		.setSimilator(Levenshtein::substringSimilarity)
-		.setMatchCallback(
-		(
-			final String sourceItem,
-			final String targetItem,
-			final double similarity,
-			final int sourceCandidateCount,
-			final int targetCandidateCount
-		) ->
-		{
-			System.out.println("matching "+sourceItem+" <-"+similarity+"-> "+targetItem);
-			return true;
-		})
+		.setMatchCallback(MainTestItemMatcher::printMatch)
 	;
 
-	public static final BiConsumer<VarString, Object> joiner = new BiConsumer<VarString, Object>(){
-		@Override public void accept(final VarString vc, final Object e) {
-			vc.add(e);
-		}
-	};
+	
+	public static boolean printMatch(
+		final String sourceItem          ,
+		final String targetItem          ,
+		final double similarity          ,
+		final int    sourceCandidateCount,
+		final int    targetCandidateCount
+	)
+	{
+		System.out.println("matching\t" + sourceItem + "\t<-" + similarity + "->\t" + targetItem);
+		return true;
+	}
+
+	
+	public static void join(final VarString vc, final Object e)
+	{
+		vc.add(e);
+	}
+	
+	// because a default context concise "::join" would have been too much to ask.
+	public static final BiConsumer<VarString, Object> join = MainTestItemMatcher::join;
 
 
 	static void testSimple()
@@ -66,10 +71,10 @@ public class MainTestItemMatcher
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeVertical(match, VarString.New(), joiner));
+		System.out.println(ItemMatcher.Static.assembleMappingSchemeVertical(match, VarString.New(), join));
 
 		final ItemMatchResult<String> result = match.getResult();
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(result, VarString.New(), joiner));
+		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(result, VarString.New(), join));
 	}
 
 
@@ -131,7 +136,7 @@ public class MainTestItemMatcher
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(match.getResult(), VarString.New(), joiner));
+		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(match.getResult(), VarString.New(), join));
 	}
 
 	public static void main(final String[] args)
