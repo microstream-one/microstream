@@ -3,8 +3,8 @@ package net.jadoth.util.matching;
 import java.text.DecimalFormat;
 import java.util.function.BiConsumer;
 
-import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
@@ -327,7 +327,7 @@ public interface ItemMatcher<E>
 				}
 				else
 				{
-					vc.add("\t + ");
+					vc.add("\t[new]");
 				}
 				vc.lf();
 			}
@@ -335,7 +335,7 @@ public interface ItemMatcher<E>
 			{
 				if(im.trg[t] != null)
 				{
-					vc.add("\t       x\t");
+					vc.add("\t       X\t");
 					appender.accept(vc, im.trg[t]);
 					vc.lf();
 				}
