@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 OGS-3 Type Refactoring Entwicklungstagebuch:\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 OGS-3 Type Refactoring Entwicklungstagebuch:\par
 \b0\par
 2017-08-30\par
 Komplexe Sache. Es gibt:\par
@@ -445,7 +446,7 @@ Damit w\'e4re in den Laufzeit Strukturen (TypeRegistry, TypeDictionary, TypeHand
 2018-05-08\par
 \par
 Uuund weiter gehts.\par
-Siehe {\field{\*\fldinst{HYPERLINK "https://www.xdevissues.com/browse/OGS-3"}}{\fldrslt{\ul\cf4 https://www.xdevissues.com/browse/OGS-3}}}\f0\fs28  f\'fcr Probleme mit dem Mergen zwischenzeitlicher \'c4nderungen.\par
+Siehe {{\field{\*\fldinst{HYPERLINK https://www.xdevissues.com/browse/OGS-3 }}{\fldrslt{https://www.xdevissues.com/browse/OGS-3\ul0\cf0}}}}\f0\fs28  f\'fcr Probleme mit dem Mergen zwischenzeitlicher \'c4nderungen.\par
 Aber das ist halt so schlimm. Die wichtigsten Teile k\'f6nnen leicht ge-copy&paste-t werden. Teilweise muss sich der Code f\'fcr das bessere Legacy-Type-Mapper (LTM) Konzept eh \'e4ndern.\par
 \par
 Brainstorming zu bisherigen Konzepten und LTM:\par
@@ -1237,11 +1238,13 @@ Nice, dann ist damit schon  mal das Mapping von einem Type auf einen anderen dri
 Testen, ob default root und custom root nach der Umstellung noch gehen.\par
 Kleiner Fl\'fcchtigkeitsfehler in der Testklasse (store(MY_ROOT.get()) anstatt store(MY_ROOT)) und daran ewig rumdebuggt, aber kaum macht mans richtig, schon gehts.\par
 \par
+
 \pard Issue OGS-3 updaten:\par
 \par
 edit 2018-05-31:\par
 Kleines Update:\par
 Die neue RootResolving- und RefactoringMapping-Logik aus OGS-41 war auf der EmbeddedStorage Ebene, obwohl das alles nur Zeug der allgemeinen Persistence Ebene ist. F\'fcr Punkt 2.5 (also User-Mapping ber\'fccksichtigen k\'f6nnen) w\'e4re es nun aber auf der Persistence Ebene n\'f6tig geworden. An zwei Orten haben, die potenziell inkonsistent zueinander oder selbst im g\'fcnstigsten Fall verwirrend und umst\'e4ndlich zu verwenden w\'e4ren, w\'e4re bl\'f6d, also musste konsolidiert werden: reines Persistence Zeug auf die Ebene, wo es hingeh\'f6rt. Enthielt ein paar knifflige Details, aber jetzt passt diesbez\'fcglich alles, inklusive Test, ob das Root Resolven noch geht (default und custom).\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1306,7 +1309,7 @@ Ca. 1h f\'fcr Performance Test \'dcberlegungen. Datenebenen usw.\par
 2018-06-21\par
 \par
 Ca. 1h f\'fcr weitere \'dcberlegungen Performance Test Datenebenen und Vergleichbarkeit von Datenbankl\'f6sungen.\par
-Ca. 1h f\'fcr Kommentar zu Jetstream Verwendung mit Android ({\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/display/JET/Android"}}{\fldrslt{\ul\cf4 https://www.xdevcollaboration.com/display/JET/Android}}}\f0\fs28 )\par
+Ca. 1h f\'fcr Kommentar zu Jetstream Verwendung mit Android ({{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/display/JET/Android }}{\fldrslt{https://www.xdevcollaboration.com/display/JET/Android\ul0\cf0}}}}\f0\fs28 )\par
 \par
 \par
 2018-06-22\par
@@ -1318,5 +1321,24 @@ Ca. 0,5h f\'fcr OGS Code Hinweis bzgl. SwizzleRegistry Reset f\'fcr Performance 
 2018-06-23\par
 \par
 Ca. 1,0h f\'fcr Fertigstellung und posten von Performance Tests \'dcberlegungen.\par
+\par
+\par
+\par
+Elternzeit Ende.\par
+\par
+\par
+2018-09-03\par
+\par
+Hui! Schon \'fcber ein Jahr seit Tagebuchbeginn. Aber nat\'fcrlich nicht 1 Jahr dran gearbeitet.\par
+Wieder einlesen/eindenken.\par
+\par
+Also jetzt w\'fcrde es eigentlich weitergehen mit dem ItemMatcher. Oder sollte vorher noch auf einen perfekten Match gepr\'fcft werden? Oder ist das nur unn\'f6tige Code Verkomplizierung? Die Performance f\'fcr die Matcherei spielt hier ja keine Rolle.\par
+Mal Matcher Beispiel anschauen.\par
+\par
+Dabei kleinen, aber krassen Giga-Bug in X.List() entdeckt. Recherchieren, wann ich den warum verbrochen hab und was davon noch betroffen ist.\par
+Sonst nix. Fixen. Committen.\par
+\par
+Weiter\'fcberlegen. Itemmatcher wieder anschauen. Testklasse bissl verbessern.\par
+Hm, aber vor dem Matching stuff muss erst mal nach expliziten Mappings gesucht werden. Und die m\'fcssen dann in den matcher einfliesen, damit sie die Mehrdeutigkeitenreduzieren.\par
 }
  
