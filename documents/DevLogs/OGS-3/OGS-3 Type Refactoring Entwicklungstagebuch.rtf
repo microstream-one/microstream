@@ -1340,5 +1340,30 @@ Sonst nix. Fixen. Committen.\par
 \par
 Weiter\'fcberlegen. Itemmatcher wieder anschauen. Testklasse bissl verbessern.\par
 Hm, aber vor dem Matching stuff muss erst mal nach expliziten Mappings gesucht werden. Und die m\'fcssen dann in den matcher einfliesen, damit sie die Mehrdeutigkeitenreduzieren.\par
+\par
+\par
+2018-09-04\par
+\par
+Also zun\'e4chst mal recherchieren, ob man in dem ItemMatcher eine Bevorzugungsmap einspeisen kann.\par
+Nein, kann man nicht. Oder macht man das \'fcber einen Similator mit Similarity 1.0?\par
+Mal \'fcberlegen ...\par
+Eigentlich nicht, weil das was anderes ist:\par
+Ein explizites Mapping kann vorgeben: "Hans" in Source soll auf "Sepp" in Target gemappt werden, selbst dann, wenn es in Source selbst einen "Sepp" gibt.\par
+W\'fcrde man nur eine \'c4hnlichkeit von 1.0 verwenden, g\'e4be es keine Bevorzugung mehr, sondern einfach nur zwei Paare mit 1.0.\par
+Hei\'dft:\par
+Es muss auf jeden Fall eine Vorzugsmap geben.\par
+Die Frage ist nat\'fcrlich, ob die in den Similator rein muss oder ob man nicht eher vor der Anwendung des Matchers die expliziten Zuordnungen einfach raus nimmt.\par
+Ja, das ist sinnvoller. Beim Matcher gehts um \'c4hnlichkeit und nicht darum, \'c4hnlichkeitslogik auszuhebeln.\par
+\par
+Davon abgesehen ... wenn ich mir den Code (Kommentare von 2011!) so anschau: Da muss ich einiges \'fcberarbeiten:\par
+- Java 8 Features\par
+- verk\'fcrzte Bezeichner und seltsame Bezeichner ordentlich benennen.\par
+- premature performance optimizations (quantifier) rausnehmen\par
+- String Assembly Logik in eigene Klasse verschieben.\par
+- Blanke API Klassen durch Interface ersetzen.\par
+Ist zwar alles nicht tragisch und es funktioniert auch so, aber wenn der Matcher nun (endlich) produktiv verwendet wird, sollte die Code Qualit\'e4t schon den \'fcblichen Standard haben.\par
+\par
+\par
+\par
 }
  
