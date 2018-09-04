@@ -12,9 +12,8 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.meta.XDebug;
-import net.jadoth.util.matching.ItemMatch;
-import net.jadoth.util.matching.ItemMatchResult;
-import net.jadoth.util.matching.ItemMatcher;
+import net.jadoth.util.matching.MultiMatch;
+import net.jadoth.util.matching.MultiMatcher;
 
 public class MainTestItemMatcher
 {
@@ -33,7 +32,7 @@ public class MainTestItemMatcher
 	);
 
 
-	static final ItemMatcher<String> STRING_MATCHER_FACTORY = new ItemMatcher.Implementation<String>()
+	static final MultiMatcher<String> STRING_MATCHER = new MultiMatcher.Implementation<String>()
 		.setEqualator(null)
 		.setSimilator(Levenshtein::substringSimilarity)
 		.setMatchCallback(MainTestItemMatcher::printMatch)
@@ -64,17 +63,15 @@ public class MainTestItemMatcher
 
 	static void testSimple()
 	{
-		final ItemMatch<String> match = STRING_MATCHER_FACTORY.match(src, trg);
+		final MultiMatch<String> match = STRING_MATCHER.match(src, trg);
 
 		System.out.println("INPUT:");
 		XDebug.printCollection(src, null, "\t", null, null);
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeVertical(match, VarString.New(), join));
-
-		final ItemMatchResult<String> result = match.getResult();
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(result, VarString.New(), join));
+		System.out.println(match.assembler().assembleMappingSchemeVertical(VarString.New(), join));
+		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New(), join));
 	}
 
 
@@ -118,14 +115,14 @@ public class MainTestItemMatcher
 
 		final XGettingEnum<String> src = HashEnum.New(shuffle(sourceStrings));
 		final XGettingEnum<String> trg = HashEnum.New(shuffle(targetStrings));
-		ItemMatch<String> match = STRING_MATCHER_FACTORY.match(src, trg);
+		MultiMatch<String> match = STRING_MATCHER.match(src, trg);
 
 
 		for(int r = LOOPS; r --> 0;)
 		{
 			long tStart, tStop;
 			tStart = System.nanoTime();
-			match = STRING_MATCHER_FACTORY.match(src, trg);
+			match = STRING_MATCHER.match(src, trg);
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
@@ -136,7 +133,7 @@ public class MainTestItemMatcher
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(ItemMatcher.Static.assembleMappingSchemeHorizontal(match.getResult(), VarString.New(), join));
+		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New(), join));
 	}
 
 	public static void main(final String[] args)
