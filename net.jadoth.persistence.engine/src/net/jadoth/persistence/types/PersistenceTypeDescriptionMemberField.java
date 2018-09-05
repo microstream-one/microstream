@@ -4,9 +4,12 @@ package net.jadoth.persistence.types;
 
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
+	@Override
 	public String declaringTypeName();
 
-	public String qualifiedFieldName();
+	@Override
+	public String uniqueName();
+	
 
 	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType
 //	public String typeParamterString();
@@ -76,7 +79,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		}
 
 		@Override
-		public String qualifiedFieldName()
+		public String uniqueName()
 		{
 			return this.qualifiedFieldName;
 		}
@@ -91,12 +94,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
 		{
 			return equalator.equals(this, m2);
-		}
-
-		@Override
-		public String toString()
-		{
-			return this.typeName() + ' ' + this.qualifiedFieldName();
 		}
 
 	}

@@ -1,15 +1,25 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceRefactoringMappingProvider
 {
 	public PersistenceRefactoringMapping provideRefactoringMapping();
 	
+	public static PersistenceRefactoringMappingProvider NewEmpty()
+	{
+		return new PersistenceRefactoringMappingProvider.Implementation(
+			X.emptyTable()
+		);
+	}
+	
 	public static PersistenceRefactoringMappingProvider New(final XGettingTable<String, String> entries)
 	{
 		return new PersistenceRefactoringMappingProvider.Implementation(
-			entries
+			notNull(entries)
 		);
 	}
 	

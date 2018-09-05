@@ -11,7 +11,30 @@ public interface PersistenceTypeDescriptionMember
 {
 	public String typeName();
 
+	/**
+	 * The direct, simple name of the member. E.g. "lastName".
+	 * 
+	 * @return the member's simple name.
+	 */
 	public String name();
+	
+	/**
+	 * The type-wide unique (or identifying or full qualified) name of the member.<br>
+	 * E.g. "com.my.app.entities.Person#lastname"
+	 * 
+	 * @return the member's uniquely identifying name.
+	 */
+	public default String uniqueName()
+	{
+		// should be the same as the simple name. With the exception of ambiguities via inheritance.
+		return this.name();
+	}
+	
+	public default String declaringTypeName()
+	{
+		// should be the same as the type name. With the exception of inheritance.
+		return this.typeName();
+	}
 
 	public boolean equals(PersistenceTypeDescriptionMember m2, DescriptionMemberEqualator equalator);
 
@@ -254,6 +277,12 @@ public interface PersistenceTypeDescriptionMember
 				"Invalid persistent length: " + persistentLength
 				+ " not in [" + this.persistentMinimumLength + ";" + this.persistentMaximumLength + "]"
 			);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return this.typeName() + ' ' + this.uniqueName();
 		}
 
 	}

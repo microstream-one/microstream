@@ -1364,6 +1364,59 @@ Davon abgesehen ... wenn ich mir den Code (Kommentare von 2011!) so anschau: Da 
 Ist zwar alles nicht tragisch und es funktioniert auch so, aber wenn der Matcher nun (endlich) produktiv verwendet wird, sollte die Code Qualit\'e4t schon den \'fcblichen Standard haben.\par
 \par
 \par
+2018-09-05\par
 \par
+Ist soweit fertig bis auf die Quantifier Entfernung. Da schreib ich aber mal nur ein TODO.\par
+\par
+Jetzt bei der eigentlichen Baustelle weiterdenken:\par
+Zuerst m\'fcssen mal die expliziten Mappings eingelesen werden.\par
+Dann m\'fcssen die explizit zugeordneten Felder auf beiden Seiten per Namen rausgesucht werden (evtl. gleich in eine XTable reinpacken).\par
+Knifflig: Felder mit gleichen Namen in unterschiedlichen Klassen. Wichtig!\par
+\par
+Erst mal wieder in die schon existierende Mapping Funktionalit\'e4t einlesen. PersistenceRefactoringMapping und OGS-41.\par
+\par
+Wieder Eindenken zieht sich ... wo wird PersistenceRefactoringMapping schon verwendet? Ist der "#" als Trennzeichen schon irgendwo zentral definiert?\par
+...\par
+Ah! Das ist schon im TypeHandlerManager und wird sogar schon f\'fcr das TypeName Mapping verwendet.\par
+Dann muss man quasi das gleiche in gr\'fcn einfach nur f\'fcr die Felder machen. Allerdings: Mit full qualified field names und optionalen Vereinfachungen\par
+\par
+Mal so implementieren ...\par
+\par
+Hm, noch eine Verkomplizierung: Field Members und PseudoField Members.\par
+Hm. daf\'fcr in PersistenceTypeDescriptionMember noch #uniqueName und #declaringTypeName nachr\'fcsten, kommentieren und PersistenceTypeDescriptionMemberField anpassen.\par
+Eigentlich ist f\'fcr die Identifizierung eines Felds dann sogar ein doppelter Qualifier n\'f6tig: definingType#DeclaringType#fieldName. Denn es kann ja sein, dass ein deklariertes Feld einer Superklasse entfallen soll und in verschiedenen Kindklassen unterschiedlich gemappt werden soll.\par
+Dann muss ich aber wirklich Erg\'e4nzungslogiken bauen, um manche Teile des Identifiers wegzulassen, sonst drehen wieder alle durch, wie kompliziert es ist.\par
+Wobei man das auch nicht zu sehr vereinfachen darf, sonst entstehen ungewollte Mehrdeutigkeiten.\par
+Was auf jeden Fall geht ist: Wenn defining und declaring type gleich sind, reicht es, den type einmal zu schreiben.\par
+\par
+Hm, ne, es ist noch kniffliger:\par
+Wenn ich das so mache, dann m\'fcsste man bei einem ge\'e4nderten Feld f\'fcr jede Kindklasse einen Eintrag machen. Also hundert Kindklassen, hundert Eintr\'e4ge. Da dreht jeder durch. Zurecht.\par
+Also muss es so sein:\par
+[typeName]#[fieldName] wird intepretiert als declaringClass Eintrag und der gilt allgemein in allen Kindklassen.\par
+Das sollte auch der Normalfall sein: Ein Feld \'e4ndert sich designstrukturm\'e4\'dfig eher innerhalb derselben Klassen, nicht \'fcber Klassen hinweg.\par
+\par
+Als Sonderfall kann man dann auch noch schreiben:\par
+[typeName]#[typeName]#[fieldName]. Das wird interpretiert als Eintrag, der nur f\'fcr die definingClass gilt.\par
+\par
+Beispiel:\par
+Klasse A definiert ein Feld "lastName".\par
+Klasse B extends A.\par
+Nun soll in Klasse A das Feld "lastName" gel\'f6scht werden. Also Eintrag: C#lastName -> [null].\par
+Die Klasse B hat aber ein Feld "lastName" dazu bekommen (sprich: im Design ist das Feld von A nach B verschoben worden). D.h. die vorhandenen Daten f\'fcr "lastName" sollen im Fall von B Instanzen nicht verloren gehen, sondern weiterhin im daf\'fcr vorgesehenen Feld "lastName" stehen. Wie bringt man das dem Refactoring bei?\par
+So:\par
+B#C#lastName -> B#lastName\par
+\par
+Diese Struktur ist NICHT hierarchisch, d.h. bei C extends B extends A kann man NICHT schreiben C#B#A#lastName und ein Eintrag B#A#Lastname gilt NICHT automatisch auch f\'fcr die Klasse C.\par
+Es gibt immer nur die zwei Klassen: "DefiningClass" (die konkrete, aktuelle Klasse) und "DeclaringClass" (die, in der das Feld steht).\par
+Hier muss man dann tats\'e4chlich zwei Eintr\'e4ge f\'fcr dasselbe Feld machen. Einen f\'fcr Klasse B und einen f\'fcr Klasse C. F\'fcr derartige Sonderf\'e4lle sollte das aber zumutbar sein.\par
+\par
+Jetzt ist noch die Frage nach der Priorit\'e4t:\par
+Wie immer: je spezifischer, umso wichtiger.\par
+1.) [typeName]#[typeName]#[fieldName]\par
+2.) [typeName]#[fieldName]\par
+Alles, was in 1 oder 2 gefunden wird, wird als definite Match registriert und rausgenommen. Der Rest geht ins:\par
+3.) Similarity Matching\par
+\par
+So implementier ich das jetzt mal. Mal sehen, ob dabei noch was auftaucht.\par
 }
  

@@ -1,6 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
@@ -1255,9 +1254,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		protected PersistenceRefactoringMappingProvider createRefactoringMappingProvider()
 		{
-			return PersistenceRefactoringMappingProvider.New(
-				X.emptyTable()
-			);
+			// empty (= dummy) mapping by default
+			return PersistenceRefactoringMappingProvider.NewEmpty();
 		}
 		
 		protected PersistenceDeletedTypeHandlerCreator<M> createDeletedTypeHandlerCreator()

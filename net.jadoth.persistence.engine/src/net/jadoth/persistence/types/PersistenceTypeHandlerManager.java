@@ -8,6 +8,7 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -128,6 +129,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+		
+		public static char memberIdentifierSeparator()
+		{
+			// (05.09.2018 TM)TODO: centralize and make configurable
+			return '#';
+		}
 
 		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
 		{
@@ -280,8 +287,78 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
+			final HashTable<PersistenceTypeDescriptionMember, String> refactoringTargetStrings =
+				this.collectRefactoringTargetStrings(typeDefinition)
+			;
+			
 			
 			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		private void collectRefactoringTargetStrings(
+			final PersistenceTypeDefinition<?> typeDefinition
+		)
+		{
+			final HashTable<PersistenceTypeDescriptionMember, String> refacTargetStringsByDefiningClass  = HashTable.New();
+			final HashTable<PersistenceTypeDescriptionMember, String> refacTargetStringsByDeClaringClass = HashTable.New();
+			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers               = HashEnum.New();
+			
+			final XGettingTable<String, String> refactoringEntries = this.ensureRefactoringMapping().entries();
+			
+			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
+			{
+				final String definingClassMemberIdentifier = toDefiningClassMemberIdentifier(member);
+				if(checkEntry(member, definingClassMemberIdentifier, refactoringEntries, refacTargetStringsByDefiningClass, refacDeletionMembers))
+				{
+					continue;
+				}
+				
+				final String declaringClassMemberIdentifier = toDeclaringClassMemberIdentifier(member);
+				if(checkEntry(member, declaringClassMemberIdentifier, refactoringEntries, refacTargetStringsByDeClaringClass, refacDeletionMembers))
+				{
+					continue;
+				}
+			}
+			
+			return TODO;
+		}
+		
+		private static boolean checkEntry(
+			final PersistenceTypeDescriptionMember                    member                    ,
+			final String                                              lookupString              ,
+			final XGettingTable<String, String>                       refactoringEntries        ,
+			final HashTable<PersistenceTypeDescriptionMember, String> refactoringTargetStrings  ,
+			final HashEnum<PersistenceTypeDescriptionMember>          refactoringDeletionMembers
+		)
+		{
+			// must check keys themselves, as a null value means deletion
+			if(refactoringEntries.keys().contains(lookupString))
+			{
+				// might be null to indicate deletion
+				final String targetString = refactoringEntries.get(lookupString);
+				if(targetString == null)
+				{
+					refactoringDeletionMembers.add(member);
+				}
+				else
+				{
+					refactoringTargetStrings.add(member, targetString);
+				}
+				
+				return true;
+			}
+			
+			return false;
+		}
+		
+		static String toDefiningClassMemberIdentifier(final PersistenceTypeDescriptionMember member)
+		{
+			return member.typeName() + memberIdentifierSeparator() + toDeclaringClassMemberIdentifier(member);
+		}
+		
+		static String toDeclaringClassMemberIdentifier(final PersistenceTypeDescriptionMember member)
+		{
+			return member.declaringTypeName() + memberIdentifierSeparator() + member.uniqueName();
 		}
 		
 		private Class<?> resolveRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
@@ -294,11 +371,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return this.resolveMappedRuntimeType(typeDefinition.typeName());
 		}
 		
+		private PersistenceRefactoringMapping ensureRefactoringMapping()
+		{
+			return this.refactoringMappingProvider.provideRefactoringMapping();
+		}
+		
 		private Class<?> resolveMappedRuntimeType(final String typeName)
 		{
-			final PersistenceRefactoringMapping refactoringMapping =
-				this.refactoringMappingProvider.provideRefactoringMapping()
-			;
+			final PersistenceRefactoringMapping refactoringMapping = this.ensureRefactoringMapping();
 			
 			if(refactoringMapping.entries().keys().contains(typeName))
 			{

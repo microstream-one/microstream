@@ -7,15 +7,14 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import net.jadoth.X;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.hashing.Hashing;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.KeyValue;
 
 public interface PersistenceRootResolver
 {
@@ -85,7 +84,6 @@ public interface PersistenceRootResolver
 			addRoots(roots, rootIdentifierDeriver, type);
 		}
 	}
-	
 	
 	public static void addRoots(
 		final EqHashTable<String, Supplier<?>> roots                ,
@@ -201,12 +199,11 @@ public interface PersistenceRootResolver
 			{
 				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
 				
-				// arbitrary constant identifiers that decouple constant resolving from class/field names.
-				this.register(entries, "XHashEqualator:hashEqualityValue"   , Hashing::hashEqualityValue   );
-				this.register(entries, "XHashEqualator:hashEqualityIdentity", Hashing::hashEqualityIdentity);
-				this.register(entries, "XEmpty:Collection"                  , X::empty                     );
-				this.register(entries, "XEmpty:Table"                       , X::emptyTable                );
-				
+				for(final KeyValue<String, Supplier<?>> entry : PersistenceMetaIdentifiers.defineConstantSuppliers())
+				{
+					entries.add(entry.key(), this.entryProvider.apply(entry.key(), entry.value()));
+				}
+								
 				return entries;
 			}
 			
@@ -226,16 +223,7 @@ public interface PersistenceRootResolver
 				}
 				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
 			}
-			
-			private void register(
-				final EqHashTable<String, PersistenceRootEntry> entries         ,
-				final String                                    identifier      ,
-				final Supplier<?>                               instanceSupplier
-			)
-			{
-				entries.add(identifier, this.entryProvider.apply(identifier, instanceSupplier));
-			}
-			
+						
 			@Override
 			public final synchronized PersistenceRootResolver build()
 			{
@@ -404,7 +392,9 @@ public interface PersistenceRootResolver
 			 * but an outdated mapping rule defined by the using developer).
 			 */
 			final XGettingMap<String, String> refactoringMappings = this.refactoringMappings();
-			final String                      sourceIdentifier    = normalize(identifier);
+			final String                      sourceIdentifier    = PersistenceMetaIdentifiers.normalizeIdentifier(
+				identifier
+			);
 			
 			if(!refactoringMappings.keys().contains(sourceIdentifier))
 			{
@@ -412,7 +402,9 @@ public interface PersistenceRootResolver
 				return this.actualRootResolver.resolveRootInstance(sourceIdentifier);
 			}
 			
-			final String targetIdentifier = normalize(refactoringMappings.get(sourceIdentifier));
+			final String targetIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(
+				refactoringMappings.get(sourceIdentifier)
+			);
 			
 			/*
 			 * special case: an explicit mapping entry for the (normalized) sourceIdentifier exists,
@@ -439,33 +431,7 @@ public interface PersistenceRootResolver
 			
 			return mappedEntry;
 		}
-		
-		/**
-		 * Identifiers cannot have whitespaces at the end or the beginning.
-		 * A string that only consists of whitespaces is considered no identifier at all.
-		 * 
-		 * Note that for strings that don't have bordering whitespaces or are already <code>null</code>,
-		 * this method takes very little time and does not allocate any new instances. Only
-		 * the problematic case is any mentionable effort.
-		 * 
-		 * @param s the raw string to be normalized.
-		 * @return the normalized string, potentially <code>null</code>.
-		 */
-		private static String normalize(final String s)
-		{
-			if(s == null)
-			{
-				return null;
-			}
-			
-			final String normalized = s.trim();
-			
-			return normalized.isEmpty()
-				? null
-				: normalized
-			;
-		}
-		
+				
 	}
 
 }
