@@ -41,6 +41,14 @@ public interface MultiMatch<E>
 		/////////////////////
 
 		// note that similarity values get converted from raw double similarity to int quantifiers to boost performance.
+		/* (05.09.2018 TM)TODO: premature optimization
+		 * The quantifier concept (from 2011) is naive:
+		 * The performance impact for handling doubles instead of ints is negligible here.
+		 * Most operations are simple != 0 or < 0 checks.
+		 * Plus, the work to convert all values, even multiple times is not free.
+		 * The quantifier conversion can even create false behavior for really big double values.
+		 * Conclusion: all "quantifiers" should be eliminated, the work should be done on the doubles themselves.
+		 */
 		protected static final int MAX_QUANTIFIER = 1000000000; // nicer to read/debug values and still big enough.
 
 
