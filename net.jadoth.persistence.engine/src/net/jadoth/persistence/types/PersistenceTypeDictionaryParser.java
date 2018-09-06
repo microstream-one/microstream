@@ -166,7 +166,7 @@ public interface PersistenceTypeDictionaryParser
 		private static int parseTypeMembers(
 			final char[]                         input         ,
 			      int                            i             ,
-			final TypeEntry           typeEntry     ,
+			final TypeEntry                      typeEntry     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{

@@ -287,43 +287,64 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
-			final HashTable<PersistenceTypeDescriptionMember, String> refactoringTargetStrings =
-				this.collectRefactoringTargetStrings(typeDefinition)
-			;
+
+			typeDefinition.members()
 			
+			final HashTable<PersistenceTypeDescriptionMember, String> defClassRefacTargetStrings = HashTable.New();
+			final HashTable<PersistenceTypeDescriptionMember, String> decClassRefacTargetStrings = HashTable.New();
+			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers       = HashEnum.New();
+			
+			this.collectRefactoringTargetStrings(
+				typeDefinition            ,
+				defClassRefacTargetStrings,
+				decClassRefacTargetStrings,
+				refacDeletionMembers
+			);
+			
+			/*
+			 * Matching:
+			 * - resolve target strings to target members
+			 * - create source and target collections for MultiMatching
+			 * - null out (but the slot must be kept!) all explicit matches and deletions
+			 * - perform multimatching
+			 * - assemble results
+			 * 
+			 * Legacy Mapping:
+			 * - derive value mapper for each result (including changed field offsets)
+			 * - wrapp all value mappers in a PersistenceTypeHandler instance.
+			 * complex values are not supported for now but throw an exception.
+			 */
 			
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
 		private void collectRefactoringTargetStrings(
-			final PersistenceTypeDefinition<?> typeDefinition
+			final PersistenceTypeDefinition<?>                        typeDefinition            ,
+			final HashTable<PersistenceTypeDescriptionMember, String> defClassRefacTargetStrings,
+			final HashTable<PersistenceTypeDescriptionMember, String> decClassRefacTargetStrings,
+			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, String> refacTargetStringsByDefiningClass  = HashTable.New();
-			final HashTable<PersistenceTypeDescriptionMember, String> refacTargetStringsByDeClaringClass = HashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers               = HashEnum.New();
-			
-			final XGettingTable<String, String> refactoringEntries = this.ensureRefactoringMapping().entries();
+			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
 			
 			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
 			{
-				final String definingClassMemberIdentifier = toDefiningClassMemberIdentifier(member);
-				if(checkEntry(member, definingClassMemberIdentifier, refactoringEntries, refacTargetStringsByDefiningClass, refacDeletionMembers))
+				// entries with the more specific defining class take precidence, so they must be checked first!
+				final String defClassMemberId = toDefiningClassMemberIdentifier(typeDefinition, member);
+				if(check(member, defClassMemberId, refacEntries, defClassRefacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
 				
-				final String declaringClassMemberIdentifier = toDeclaringClassMemberIdentifier(member);
-				if(checkEntry(member, declaringClassMemberIdentifier, refactoringEntries, refacTargetStringsByDeClaringClass, refacDeletionMembers))
+				final String decClassMemberId = toDeclaringClassMemberIdentifier(member);
+				if(check(member, decClassMemberId, refacEntries, decClassRefacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
 			}
-			
-			return TODO;
 		}
 		
-		private static boolean checkEntry(
+		private static boolean check(
 			final PersistenceTypeDescriptionMember                    member                    ,
 			final String                                              lookupString              ,
 			final XGettingTable<String, String>                       refactoringEntries        ,
@@ -351,9 +372,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return false;
 		}
 		
-		static String toDefiningClassMemberIdentifier(final PersistenceTypeDescriptionMember member)
+		static String toDefiningClassMemberIdentifier(
+			final PersistenceTypeDefinition<?>     typeDefinition,
+			final PersistenceTypeDescriptionMember member
+		)
 		{
-			return member.typeName() + memberIdentifierSeparator() + toDeclaringClassMemberIdentifier(member);
+			return typeDefinition.typeName() + memberIdentifierSeparator() + toDeclaringClassMemberIdentifier(member);
 		}
 		
 		static String toDeclaringClassMemberIdentifier(final PersistenceTypeDescriptionMember member)

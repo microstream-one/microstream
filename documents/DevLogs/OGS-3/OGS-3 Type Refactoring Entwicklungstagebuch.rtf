@@ -1418,5 +1418,23 @@ Alles, was in 1 oder 2 gefunden wird, wird als definite Match registriert und ra
 3.) Similarity Matching\par
 \par
 So implementier ich das jetzt mal. Mal sehen, ob dabei noch was auftaucht.\par
+\par
+\par
+2018-09-06\par
+\par
+Implementierung weitermachen.\par
+\par
+Dabei aufgefallen: PersistenceTypeDescription#members sollte eigentlich eine Enum sein: einzigartige Elemente mit Reihenfolge. Ist aber nur eine Sequence.\par
+Recherchieren.\par
+Dabei aufgefallen: Beim TypeDictionary einlesen wird die Einzigartigkeit nicht gepr\'fcft. Erst mal alle Eintr\'e4ge, auch mit potentiellen Inkonsistenzen, in eine List stecken, ist ja okay, damit man damit arbeiten und ggf. Fehler anzeigen kann.\par
+Aber bevor eine Description gebaut wird, muss das in eine Enum gesteckt werden zur Validierung. Das ist genau das, was fehlt.\par
+Und dabei aufgefallen:\par
+Hehe, es gibt schon hier zwei Arten von Equality:\par
+1.) Datenm\'e4\'dfig definierte Identit\'e4t. In diesem Fall: UniqueName\par
+2.) Gleichheit der Definition (Declaring Class, Type, Name) f\'fcr eine Validierung des Dictionaries gegen\'fcber der Runtime.\par
+Das muss ich umbauen. Dann kann PersistenceTypeDescription#members auch eine Enum werden und dann kann ich beim Refactoring gesichert davon ausgehen, dass die Members einzigartig sind.\par
+\par
+Hmpfl, dabei aufgefallen: Der DescriptionMemberEqualator hat ein bisschen wirres Konzept mit den \'dcberladungen und instanceof checks.\par
+Besser ist die Unterscheidung oben: Identit\'e4t oder ganze Definition.\par
 }
  
