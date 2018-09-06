@@ -305,7 +305,7 @@ public interface PersistenceTypeDescriptionMember
 
 	public static final DescriptionMemberEqualator DESCRIPTION_MEMBER_EQUALATOR =
 		new DescriptionMemberEqualator.Implementation()
-;
+	;
 
 
 	public static boolean isEqual(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)

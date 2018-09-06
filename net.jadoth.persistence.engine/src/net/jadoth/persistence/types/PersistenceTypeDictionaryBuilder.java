@@ -50,8 +50,14 @@ public interface PersistenceTypeDictionaryBuilder
 		final BulkList<PersistenceTypeDefinition<?>> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
 		for(final PersistenceTypeDictionaryEntry e : uniqueTypeIdEntries.values())
 		{
+			/* (06.09.2018 TM)FIXME: validate uniqueness of members
+			 * note: the entry list just contains all entries as they are written in the dictionary,
+			 * even if they are inconsistent. The point where unvalidated entries are formed into
+			 * valid definitions is exactely here, so here has to be the validation.
+			 */
+			
 			// type dictionary entries do not necessarily have to be resolvable to the current type model.
-			final Class<?>                     type = Persistence.resolveTypeOptional(e.typeName());
+			final Class<?>                     type    = Persistence.resolveTypeOptional(e.typeName());
 			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
 				e.typeName(),
 				type        ,

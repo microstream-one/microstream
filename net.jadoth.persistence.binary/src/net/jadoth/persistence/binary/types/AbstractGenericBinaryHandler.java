@@ -156,10 +156,10 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	/////////////////////
 
 	protected AbstractGenericBinaryHandler(
-		final Class<T>                                    type                   ,
-		final XGettingEnum<Field>                         allFields              ,
-		final PersistenceFieldLengthResolver              lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+		final Class<T>                              type                   ,
+		final XGettingEnum<Field>                   allFields              ,
+		final PersistenceFieldLengthResolver        lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
 	)
 	{
 		super(type);
@@ -194,7 +194,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 			                  new long[             allFieldsDeclOrder.length],
 			this.binStorers = new BinaryValueStorer[allFieldsDeclOrder.length],
 			this.memSetters = new BinaryValueSetter[allFieldsDeclOrder.length],
-			mandatoryFieldEvaluator
+			eagerStoringFieldEvaluator
 		);
 
 		// memory offsets must correspond to other arrays
