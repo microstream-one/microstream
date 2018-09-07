@@ -5,6 +5,26 @@ package net.jadoth.persistence.types;
 public interface PersistenceTypeDescriptionMemberPseudoFieldSimple
 extends PersistenceTypeDescriptionMemberPseudoField
 {
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		// the type check is the only specific thing here.
+		return member instanceof PersistenceTypeDescriptionMemberPseudoFieldSimple
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberPseudoFieldSimple)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberPseudoFieldSimple m1,
+		final PersistenceTypeDescriptionMemberPseudoFieldSimple m2
+	)
+	{
+		// currently no specific checking logic
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
+	
+	
+	
 	public final class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberPseudoFieldSimple
@@ -57,12 +77,6 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		public void assembleTypeDescription(final Appender assembler)
 		{
 			assembler.appendTypeMemberDescription(this);
-		}
-
-		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
-		{
-			return equalator.equals(this, m2);
 		}
 
 	}

@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
@@ -33,8 +34,8 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	/////////////////////
 
 	public AbstractBinaryHandlerNativeArray(
-		final Class<A>                                                                  arrayType   ,
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+		final Class<A>                                                                arrayType   ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
 	)
 	{
 		super(arrayType, pseudoFields);

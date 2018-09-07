@@ -130,7 +130,7 @@ public interface PersistenceTypeLineage<T>
 				return true;
 			}
 			
-			return PersistenceTypeDescriptionMember.equalMembers(
+			return PersistenceTypeDescriptionMember.equalDescriptions(
 				typeDefinition.members(),
 				alreadyRegistered.members()
 			);

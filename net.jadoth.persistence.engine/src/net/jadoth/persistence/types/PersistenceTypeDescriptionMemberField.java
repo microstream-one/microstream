@@ -1,10 +1,7 @@
 package net.jadoth.persistence.types;
 
-
-
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
-	@Override
 	public String declaringTypeName();
 
 	@Override
@@ -15,6 +12,25 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 //	public String typeParamterString();
 
 
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		return member instanceof PersistenceTypeDescriptionMemberField
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberField)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberField m1,
+		final PersistenceTypeDescriptionMemberField m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+			&& m1.declaringTypeName().equals(m2.declaringTypeName())
+		;
+	}
+	
+	
 
 	public static PersistenceTypeDescriptionMemberField New(
 		final String  typeName               ,
@@ -62,7 +78,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		)
 		{
 			super(typeName, name, isReference, !isReference, false, isReference, persistentMinLength, persistentMaxLength);
-			this.declaringTypeName = declaringTypeName;
+			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
 		}
 
@@ -90,11 +106,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 			assembler.appendTypeMemberDescription(this);
 		}
 
-		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
-		{
-			return equalator.equals(this, m2);
-		}
+
 
 	}
 

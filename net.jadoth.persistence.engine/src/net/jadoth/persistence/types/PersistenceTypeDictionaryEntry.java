@@ -31,7 +31,7 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 		return type1 == type2
 			|| type1 != null && type2 != null
 			&& SwizzleTypeIdentity.equals(type1, type2)
-			&& PersistenceTypeDescriptionMember.equalMembers(
+			&& PersistenceTypeDescriptionMember.equalDescriptions(
 				type1.members(),
 				type2.members()
 			)

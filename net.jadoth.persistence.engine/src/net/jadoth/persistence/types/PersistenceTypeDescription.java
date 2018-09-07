@@ -34,7 +34,7 @@ public interface PersistenceTypeDescription
 		return ts1 == ts2
 			|| ts1 != null && ts2 != null
 			&& ts1.typeName().equals(ts2.typeName())
-			&& PersistenceTypeDescriptionMember.equalMembers(ts1.members(), ts2.members())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(ts1.members(), ts2.members())
 		;
 	}
 }

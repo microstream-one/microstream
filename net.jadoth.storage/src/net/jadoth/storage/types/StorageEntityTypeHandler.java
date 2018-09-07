@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
@@ -134,7 +134,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		}
 
 		@Override
-		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDefinition.members();
 		}

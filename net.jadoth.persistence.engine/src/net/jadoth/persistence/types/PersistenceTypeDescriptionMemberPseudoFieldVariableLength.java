@@ -8,6 +8,24 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	{
 		return true;
 	}
+	
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		// the type check is the only specific thing here.
+		return member instanceof PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberPseudoFieldVariableLength)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength m1,
+		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength m2
+	)
+	{
+		// currently no specific checking logic
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
 
 
 
@@ -82,12 +100,6 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
-		{
-			return equalator.equals(this, m2);
-		}
 
 		@Override
 		public void assembleTypeDescription(final Appender assembler)

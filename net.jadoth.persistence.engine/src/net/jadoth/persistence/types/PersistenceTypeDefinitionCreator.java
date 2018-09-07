@@ -1,15 +1,15 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 
 @FunctionalInterface
 public interface PersistenceTypeDefinitionCreator
 {
 	public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-		String                                                       typeName,
-		Class<T>                                                     type    ,
-		long                                                         typeId ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		String                                                   typeName,
+		Class<T>                                                 type    ,
+		long                                                     typeId ,
+		XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 	);
 	
 	
@@ -38,10 +38,10 @@ public interface PersistenceTypeDefinitionCreator
 
 		@Override
 		public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
-			final long                                                         typeId ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+			final String                                                   typeName,
+			final Class<T>                                                 type    ,
+			final long                                                     typeId ,
+			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			return PersistenceTypeDefinition.New(typeName, type, typeId, members);

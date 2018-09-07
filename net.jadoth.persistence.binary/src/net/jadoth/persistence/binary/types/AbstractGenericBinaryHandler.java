@@ -10,7 +10,7 @@ import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
@@ -135,19 +135,19 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>                               allFields        ;
-	private final EqConstHashEnum<Field>                               refFields        ;
-	private final EqConstHashEnum<Field>                               prmFields        ;
-	private final long[]                                               allMemOfs        ;
-	private final long[]                                               refMemOfs        ;
-//	private final long[]                                               allBinOfs        ;
-	private final long                                                 refBinStartOffset;
-	private final long                                                 refBinBoundOffset;
-	private final long                                                 binaryLength     ;
-	private final BinaryValueStorer[]                                  binStorers       ;
-	private final BinaryValueSetter[]                                  memSetters       ;
-	private final XImmutableSequence<PersistenceTypeDescriptionMember> members          ;
-	private final boolean                                              hasReferences    ;
+	private final EqConstHashEnum<Field>                           allFields        ;
+	private final EqConstHashEnum<Field>                           refFields        ;
+	private final EqConstHashEnum<Field>                           prmFields        ;
+	private final long[]                                           allMemOfs        ;
+	private final long[]                                           refMemOfs        ;
+//	private final long[]                                           allBinOfs        ;
+	private final long                                             refBinStartOffset;
+	private final long                                             refBinBoundOffset;
+	private final long                                             binaryLength     ;
+	private final BinaryValueStorer[]                              binStorers       ;
+	private final BinaryValueSetter[]                              memSetters       ;
+	private final XImmutableEnum<PersistenceTypeDescriptionMember> members          ;
+	private final boolean                                          hasReferences    ;
 
 
 
@@ -221,7 +221,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		 * Value handlers are derived dynamically. As long as it results in the same persistent order,
 		 * everything is fine.
 		 */
-		this.members = members.immure();
+		this.members = PersistenceTypeDescriptionMember.immureValidated(members);
 	}
 
 	
@@ -255,7 +255,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 	{
 		return this.members;
 	}

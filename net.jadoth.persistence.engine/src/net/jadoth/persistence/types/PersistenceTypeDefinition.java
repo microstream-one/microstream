@@ -1,9 +1,11 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
@@ -30,8 +32,13 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
 	 */
 
+	/**
+	 * Enum (unique elements with order), using {@link PersistenceTypeDescriptionMember#identityHashEqualator()}.
+	 * 
+	 * @return
+	 */
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members();
 
 	public boolean hasPersistedReferences();
 
@@ -169,20 +176,38 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		}
 		
 		return SwizzleTypeIdentity.equals(td1, td2)
-			&& PersistenceTypeDescriptionMember.equalMembers(td1.members(), td2.members())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(
+				td1.members(),
+				td2.members()
+			)
 		;
 	}
 
 	
 	
 	public static <T> PersistenceTypeDefinition<T> New(
-		final String                                                       typeName,
-		final Class<T>                                                     type    ,
-		final long                                                         typeId  ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		final String                                                   typeName,
+		final Class<T>                                                 type    ,
+		final long                                                     typeId  ,
+		final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return new PersistenceTypeDefinition.Implementation<>(typeId, typeName, type, members);
+		// as defined by interface contract.
+		if(members.equality() != PersistenceTypeDescriptionMember.identityHashEqualator())
+		{
+			throw new IllegalArgumentException();
+		}
+		
+		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> internalMembers = members.immure();
+		return new PersistenceTypeDefinition.Implementation<>(
+			                                                         typeId          ,
+			                                                 notNull(typeName)       ,
+			                                                 mayNull(type)           ,
+			                                                         internalMembers ,
+			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers),
+			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers),
+			PersistenceTypeDefinition       .determineVariableLength(internalMembers)
+		);
 	}
 
 
@@ -195,13 +220,13 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		// instance fields //
 		////////////////////
 
-		final long                                                           typeId        ;
-		final String                                                         typeName      ;
-		final Class<T>                                                       type          ;
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
-		final boolean                                                        hasReferences ;
-		final boolean                                                        isPrimitive   ;
-		final boolean                                                        variableLength;
+		final long                                                       typeId        ;
+		final String                                                     typeName      ;
+		final Class<T>                                                   type          ;
+		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members       ;
+		final boolean                                                    hasReferences ;
+		final boolean                                                    isPrimitive   ;
+		final boolean                                                    variableLength;
 
 
 
@@ -210,20 +235,23 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		/////////////////
 
 		Implementation(
-			final long                                                         typeId  ,
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+			final long                                                       typeId        ,
+			final String                                                     typeName      ,
+			final Class<T>                                                   type          ,
+			final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members       ,
+			final boolean                                                    hasReferences ,
+			final boolean                                                    isPrimitive   ,
+			final boolean                                                    variableLength
 		)
 		{
 			super();
-			this.typeId         =         typeId   ;
-			this.typeName       = notNull(typeName);
-			this.type           =         type     ; // may be null for obsolete type description or external process
-			this.members        = members.immure() ; // same instance if already immutable
-			this.hasReferences  = PersistenceTypeDescriptionMember.determineHasReferences (members);
-			this.isPrimitive    = PersistenceTypeDefinition      .determineIsPrimitive   (members);
-			this.variableLength = PersistenceTypeDefinition      .determineVariableLength(members);
+			this.typeId         = typeId        ;
+			this.typeName       = typeName      ;
+			this.type           = type          ;
+			this.members        = members       ;
+			this.hasReferences  = hasReferences ;
+			this.isPrimitive    = isPrimitive   ;
+			this.variableLength = variableLength;
 		}
 
 		
@@ -251,7 +279,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		}
 		
 		@Override
-		public final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.members;
 		}

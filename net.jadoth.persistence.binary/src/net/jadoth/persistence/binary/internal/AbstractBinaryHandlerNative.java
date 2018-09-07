@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
@@ -130,7 +131,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final XImmutableSequence<? extends PersistenceTypeDescriptionMember> fields;
+	private final XImmutableEnum<? extends PersistenceTypeDescriptionMember> fields;
 
 
 
@@ -138,13 +139,13 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerNative(
-		final Class<T>                                                     type  ,
+	protected AbstractBinaryHandlerNative(
+		final Class<T>                                                 type  ,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
 	)
 	{
 		super(type);
-		this.fields = fields.immure();
+		this.fields = PersistenceTypeDescriptionMember.immureValidated(fields);
 	}
 
 
@@ -159,7 +160,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 	
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 	{
 		return this.fields;
 	}

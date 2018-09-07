@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
 import net.jadoth.collections.Constant;
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -48,7 +48,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	////////////
 
 	@Override
-	public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 	{
 		return this.member;
 	}
