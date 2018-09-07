@@ -3,8 +3,12 @@ package net.jadoth.persistence.types;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.equality.Equalator;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 
 
 public interface PersistenceTypeDescriptionMember
@@ -30,13 +34,30 @@ public interface PersistenceTypeDescriptionMember
 		return this.name();
 	}
 	
-	public default String declaringTypeName()
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
 	{
-		// should be the same as the type name. With the exception of inheritance.
-		return this.typeName();
+		return equalDescriptions(this, other);
 	}
-
-	public boolean equals(PersistenceTypeDescriptionMember m2, DescriptionMemberEqualator equalator);
+	
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
+	{
+		return m1 == m2 || m1 != null && m2 != null
+			&& m1.typeName().equals(m2.typeName())
+			&& m1.name().equals(m2.name())
+		;
+	}
+	
+	public static boolean equalDescriptions(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
+	{
+		return m1 == m2 || m1 != null && m2 != null && m1.equalsDescription(m2);
+	}
 
 	public void assembleTypeDescription(PersistenceTypeDescriptionMember.Appender assembler);
 
@@ -103,8 +124,75 @@ public interface PersistenceTypeDescriptionMember
 	public boolean isValidPersistentLength(long persistentLength);
 
 	public void validatePersistentLength(long persistentLength);
+	
+	public default boolean isIdentical(final PersistenceTypeDescriptionMember other)
+	{
+		return isIdentical(this, other);
+	}
 
+	public static boolean isIdentical(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
+	{
+		return m1 == m2 || m1 != null && m2 != null && m1.uniqueName().equals(m2.uniqueName());
+	}
+	
+	public static int identityHash(final PersistenceTypeDescriptionMember member)
+	{
+		return member == null ? 0 : member.uniqueName().hashCode();
+	}
+	
+	public static IdentityHashEqualator identityHashEqualator()
+	{
+		return IdentityHashEqualator.SINGLETON;
+	}
+	
+	public static XImmutableEnum<PersistenceTypeDescriptionMember> immureValidated(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		final EqHashEnum<PersistenceTypeDescriptionMember> validatedMembers = EqHashEnum.New(
+			PersistenceTypeDescriptionMember.identityHashEqualator()
+		);
+		validatedMembers.addAll(members);
+		if(validatedMembers.size() != members.size())
+		{
+			// (07.09.2018 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeConsistency("Duplicate member descriptions.");
+		}
+		
+		return validatedMembers.immure();
+	}
+	
+	public final class IdentityHashEqualator implements HashEqualator<PersistenceTypeDescriptionMember>
+	{
+		static final PersistenceTypeDescriptionMember.IdentityHashEqualator SINGLETON =
+			new PersistenceTypeDescriptionMember.IdentityHashEqualator(
+		);
 
+		@Override
+		public final int hash(final PersistenceTypeDescriptionMember member)
+		{
+			return identityHash(member);
+		}
+
+		@Override
+		public final boolean equal(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
+		{
+			return isIdentical(m1, m2);
+		}
+		
+	}
+	
+	public static boolean equalTypeAndName(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
+	{
+		return m1 == m2 || m1 != null && m2 != null
+			&& m1.typeName().equals(m2.typeName())
+			&& m1.name().equals(m2.name())
+		;
+	}
+	
 
 	public static boolean determineHasReferences(final Iterable<? extends PersistenceTypeDescriptionMember> members)
 	{
@@ -125,12 +213,12 @@ public interface PersistenceTypeDescriptionMember
 		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
 	
-	public static boolean equalMembers(
+	public static boolean equalDescriptions(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
 	)
 	{
-		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::isEqual);
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescriptions);
 	}
 	
 	public static boolean equalMembers(
@@ -298,133 +386,6 @@ public interface PersistenceTypeDescriptionMember
 		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldComplex typeMember);
 
 		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember);
-
-	}
-
-
-
-	public static final DescriptionMemberEqualator DESCRIPTION_MEMBER_EQUALATOR =
-		new DescriptionMemberEqualator.Implementation()
-	;
-
-
-	public static boolean isEqual(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
-	{
-		// must check for null, e.g. when checking size-mismatched member lists
-		return m1 != null && m2 != null && m1.equals(m2, DESCRIPTION_MEMBER_EQUALATOR);
-	}
-
-
-
-	public interface DescriptionMemberEqualator
-	{
-		public boolean hasEqualField(PersistenceTypeDescriptionMemberField m1, PersistenceTypeDescriptionMemberField m2);
-
-		public boolean equals(PersistenceTypeDescriptionMemberField m1, PersistenceTypeDescriptionMember m2);
-
-		public boolean equals(PersistenceTypeDescriptionMemberPseudoFieldSimple m1, PersistenceTypeDescriptionMember m2);
-
-		public boolean equals(PersistenceTypeDescriptionMemberPseudoFieldVariableLength m1, PersistenceTypeDescriptionMember m2);
-
-		public boolean equals(PersistenceTypeDescriptionMemberPseudoFieldComplex m1, PersistenceTypeDescriptionMember m2);
-
-		public boolean equals(PersistenceTypeDescriptionMemberPrimitiveDefinition m1, PersistenceTypeDescriptionMember m2);
-
-
-
-		public final class Implementation implements DescriptionMemberEqualator
-		{
-			private static boolean equalTypeAndName(
-				final PersistenceTypeDescriptionMember m1,
-				final PersistenceTypeDescriptionMember m2
-			)
-			{
-				return m1.typeName().equals(m2.typeName()) && m1.name().equals(m2.name());
-			}
-
-			private static boolean equalFields(
-				final PersistenceTypeDescriptionMemberField m1,
-				final PersistenceTypeDescriptionMemberField m2
-			)
-			{
-				return equalTypeAndName(m1, m2) && m1.declaringTypeName().equals(m2.declaringTypeName());
-			}
-
-
-
-			@Override
-			public boolean hasEqualField(
-				final PersistenceTypeDescriptionMemberField m1,
-				final PersistenceTypeDescriptionMemberField m2
-			)
-			{
-				return equalFields(m1, m2);
-			}
-
-			@Override
-			public boolean equals(
-				final PersistenceTypeDescriptionMemberField m1,
-				final PersistenceTypeDescriptionMember      m2
-			)
-			{
-				return m2 instanceof PersistenceTypeDescriptionMemberField
-					&& equalFields(m1, (PersistenceTypeDescriptionMemberField)m2)
-				;
-			}
-
-			@Override
-			public boolean equals(
-				final PersistenceTypeDescriptionMemberPseudoFieldSimple m1,
-				final PersistenceTypeDescriptionMember                  m2
-			)
-			{
-				return m2 instanceof PersistenceTypeDescriptionMemberPseudoFieldSimple
-					&& equalTypeAndName(m1, m2);
-			}
-
-			@Override
-			public boolean equals(
-				final PersistenceTypeDescriptionMemberPseudoFieldVariableLength m1,
-				final PersistenceTypeDescriptionMember                          m2
-			)
-			{
-				return m2 instanceof PersistenceTypeDescriptionMemberPseudoFieldVariableLength
-					&& equalTypeAndName(m1, m2)
-				;
-			}
-
-			@Override
-			public boolean equals(
-				final PersistenceTypeDescriptionMemberPseudoFieldComplex m1,
-				final PersistenceTypeDescriptionMember                   m2
-			)
-			{
-				return m2 instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex
-					&& equalTypeAndName(m1, m2)
-					&& m1.members().equalsContent(
-						((PersistenceTypeDescriptionMemberPseudoFieldComplex)m2).members(),
-						PersistenceTypeDescriptionMember::isEqual
-					)
-				;
-			}
-
-			@Override
-			public boolean equals(
-				final PersistenceTypeDescriptionMemberPrimitiveDefinition m1,
-				final PersistenceTypeDescriptionMember                    m2
-			)
-			{
-				/* this method is just for completeness as it should never be called anyway
-				 * (primitive definition members get substituted by a special primitive type definition type)
-				 */
-				return m2 instanceof PersistenceTypeDescriptionMemberPrimitiveDefinition
-					&& m1.primitiveDefinition().equals(
-						((PersistenceTypeDescriptionMemberPrimitiveDefinition)m2).primitiveDefinition()
-					)
-				;
-			}
-
-		}
 
 	}
 

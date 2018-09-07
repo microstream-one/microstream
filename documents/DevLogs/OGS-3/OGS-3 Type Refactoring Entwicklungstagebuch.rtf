@@ -1436,5 +1436,21 @@ Das muss ich umbauen. Dann kann PersistenceTypeDescription#members auch eine Enu
 \par
 Hmpfl, dabei aufgefallen: Der DescriptionMemberEqualator hat ein bisschen wirres Konzept mit den \'dcberladungen und instanceof checks.\par
 Besser ist die Unterscheidung oben: Identit\'e4t oder ganze Definition.\par
+Nochmal genauer Recherchieren, was der Grund daf\'fcr ist und ob das Sinn macht.\par
+Ne, eher nicht.\par
+\par
+\par
+\par
+2018-09-07\par
+\par
+DescriptionMemberEqualator l\'f6schen und durch einfacheres, normaleres equality Konzept ersetzen. Dabei gleich UniqueName Identity Equality dazubauen.\par
+HashEqualator usw.\par
+Die Umstellung von PersistenceTypeDescription#members von Sequence auf Enum hat sich einmal quer durch die TypeHandling Klassen gezogen.\par
+Dabei gleich zentralisierte Methode PersistenceTypeDescriptionMember#immureValidated implementiert.\par
+\par
+\par
+\par
+\par
+\par
 }
  

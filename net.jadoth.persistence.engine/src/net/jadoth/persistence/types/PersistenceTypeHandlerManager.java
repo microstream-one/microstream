@@ -287,8 +287,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
-
-			typeDefinition.members()
 			
 			final HashTable<PersistenceTypeDescriptionMember, String> defClassRefacTargetStrings = HashTable.New();
 			final HashTable<PersistenceTypeDescriptionMember, String> decClassRefacTargetStrings = HashTable.New();
@@ -329,15 +327,15 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
 			{
-				// entries with the more specific defining class take precidence, so they must be checked first!
-				final String defClassMemberId = toDefiningClassMemberIdentifier(typeDefinition, member);
-				if(check(member, defClassMemberId, refacEntries, defClassRefacTargetStrings, refacDeletionMembers))
+				// entries with the more specific global identifier take precidence, so they must be checked first.
+				final String globalIdentifier = toGlobalIdentifier(typeDefinition, member);
+				if(check(member, globalIdentifier, refacEntries, defClassRefacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
 				
-				final String decClassMemberId = toDeclaringClassMemberIdentifier(member);
-				if(check(member, decClassMemberId, refacEntries, decClassRefacTargetStrings, refacDeletionMembers))
+				final String internalIdentifier = toTypeInternalIdentifier(member);
+				if(check(member, internalIdentifier, refacEntries, decClassRefacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
@@ -372,17 +370,17 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return false;
 		}
 		
-		static String toDefiningClassMemberIdentifier(
+		static String toGlobalIdentifier(
 			final PersistenceTypeDefinition<?>     typeDefinition,
 			final PersistenceTypeDescriptionMember member
 		)
 		{
-			return typeDefinition.typeName() + memberIdentifierSeparator() + toDeclaringClassMemberIdentifier(member);
+			return typeDefinition.typeName() + memberIdentifierSeparator() + toTypeInternalIdentifier(member);
 		}
 		
-		static String toDeclaringClassMemberIdentifier(final PersistenceTypeDescriptionMember member)
+		static String toTypeInternalIdentifier(final PersistenceTypeDescriptionMember member)
 		{
-			return member.declaringTypeName() + memberIdentifierSeparator() + member.uniqueName();
+			return member.uniqueName();
 		}
 		
 		private Class<?> resolveRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
@@ -466,10 +464,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 					throw new PersistenceExceptionTypeConsistency("Member count mismatch of type " + typeHandler.typeName());
 				}
 
-				if(m1.equals(m2, PersistenceTypeDescriptionMember.DESCRIPTION_MEMBER_EQUALATOR))
+				if(m1.equalsDescription(m2))
 				{
 					return true;
 				}
+				
 				// (07.04.2013)EXCP proper exception
 				throw new PersistenceExceptionTypeConsistency(
 					"Inconsistent member in type description for type "
@@ -787,7 +786,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			for(final PersistenceTypeDefinition<?> typeDefinition : typeLineage.entries().values())
 			{
 				// exact match including field order
-				final boolean isMatched = PersistenceTypeDescriptionMember.equalMembers(
+				final boolean isMatched = PersistenceTypeDescriptionMember.equalDescriptions(
 					handler.members(),
 					typeDefinition.members()
 				);

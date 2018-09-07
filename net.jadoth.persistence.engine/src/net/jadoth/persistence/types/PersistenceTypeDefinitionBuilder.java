@@ -2,17 +2,17 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 
 @FunctionalInterface
 public interface PersistenceTypeDefinitionBuilder
 {
 	public <T> PersistenceTypeDefinition<T> build(
-		long                                                         typeId  ,
-		String                                                       typeName,
-		Class<T>                                                     type    ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		long                                                     typeId  ,
+		String                                                   typeName,
+		Class<T>                                                 type    ,
+		XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 	);
 	
 	
@@ -52,10 +52,10 @@ public interface PersistenceTypeDefinitionBuilder
 
 		@Override
 		public <T> PersistenceTypeDefinition<T> build(
-			final long                                                         typeId  ,
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+			final long                                                     typeId  ,
+			final String                                                   typeName,
+			final Class<T>                                                 type    ,
+			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
 			@SuppressWarnings("unchecked")

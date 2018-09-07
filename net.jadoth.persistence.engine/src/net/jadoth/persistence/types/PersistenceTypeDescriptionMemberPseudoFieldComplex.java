@@ -8,6 +8,24 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 {
 	public XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members();
 
+	
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		return member instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberPseudoFieldComplex)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberPseudoFieldComplex m1,
+		final PersistenceTypeDescriptionMemberPseudoFieldComplex m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+			&& PersistenceTypeDescriptionMember.equalDescriptions(m1.members(), m2.members())
+		;
+	}
 
 
 	public final class Implementation
@@ -59,12 +77,6 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		public void assembleTypeDescription(final Appender assembler)
 		{
 			assembler.appendTypeMemberDescription(this);
-		}
-
-		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
-		{
-			return equalator.equals(this, m2);
 		}
 
 	}

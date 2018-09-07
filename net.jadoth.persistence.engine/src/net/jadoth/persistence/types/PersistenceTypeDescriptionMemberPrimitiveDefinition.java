@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.chars.XChars;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.memory.Memory;
 
 
@@ -10,6 +10,24 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 {
 	public String primitiveDefinition();
 
+	
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		return member instanceof PersistenceTypeDescriptionMemberPrimitiveDefinition
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberPrimitiveDefinition)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberPrimitiveDefinition m1,
+		final PersistenceTypeDescriptionMemberPrimitiveDefinition m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+			&& m1.primitiveDefinition().equals(m2.primitiveDefinition())
+		;
+	}
 
 
 	public final class Implementation
@@ -18,11 +36,13 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 	{
 		// CHECKSTYLE.OFF: ConstantName: literals and type names are intentionally unchanged
 
-		private static final String _bit             = " bit"            ;
-		private static final String _integer_signed  = " integer signed" ;
-		private static final String _integer_unicode = " integer unicode";
-		private static final String _decimal_IEEE754 = " decimal IEEE754";
-		private static final String _boolean         = " boolean"        ;
+		private static final String
+			_bit             = " bit"            ,
+			_integer_signed  = " integer signed" ,
+			_integer_unicode = " integer unicode",
+			_decimal_IEEE754 = " decimal IEEE754",
+			_boolean         = " boolean"
+		;
 
 		private static final char[]
 			DEFINITION_byte    = (Memory.bitSize_byte()    + _bit + _integer_signed ).toCharArray(),
@@ -185,9 +205,14 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		}
 
 		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
+		public boolean equalsDescription(final PersistenceTypeDescriptionMember member)
 		{
-			return equalator.equals(this, m2);
+			return member instanceof PersistenceTypeDescriptionMemberPrimitiveDefinition
+				&& PersistenceTypeDescriptionMemberPrimitiveDefinition.equalDescription(
+					this,
+					(PersistenceTypeDescriptionMemberPrimitiveDefinition)member
+				)
+			;
 		}
 
 	}

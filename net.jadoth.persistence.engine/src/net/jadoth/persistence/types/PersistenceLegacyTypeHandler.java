@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
@@ -60,7 +60,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDefinition.members();
 		}
