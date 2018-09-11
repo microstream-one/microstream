@@ -9,7 +9,7 @@ public interface PersistenceTypeHandlerProvider<M> extends SwizzleTypeManager, P
 {
 	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
-	public PersistenceTypeHandler<M, ?> provideTypeHandler(long typeId);
+//	public PersistenceTypeHandler<M, ?> provideTypeHandler(long typeId);
 	
 	// must be able to act as a pure TypeHandlerEnsurer as well because of type refactoring type mismatch checks.
 	@Override

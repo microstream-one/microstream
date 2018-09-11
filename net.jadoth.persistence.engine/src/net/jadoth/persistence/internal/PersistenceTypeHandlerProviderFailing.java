@@ -29,12 +29,6 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public PersistenceTypeHandler<M, ?> provideTypeHandler(final long typeId)
-	{
-		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
-	}
-
-	@Override
 	public long ensureTypeId(final Class<?> type)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(type);
