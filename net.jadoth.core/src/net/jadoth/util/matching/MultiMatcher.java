@@ -80,7 +80,7 @@ public interface MultiMatcher<E>
 	
 	public Similator<? super E> similator();
 	
-	public MatchValidator<? super E> matchCallback();
+	public MatchValidator<? super E> validator();
 	
 
 	public MultiMatcher<E> setSimilarityThreshold(double similarityThreshold);
@@ -95,17 +95,11 @@ public interface MultiMatcher<E>
 	
 	public MultiMatcher<E> setEqualator(Equalator<? super E> equalator);
 	
-	public MultiMatcher<E> setMatchCallback(MatchValidator<? super E> decisionCallback);
-	
+	public MultiMatcher<E> setValidator(MatchValidator<? super E> validator);
 
 	public MultiMatch<E> match(XGettingCollection<? extends E> source, XGettingCollection<? extends E> target);
 
 
-	
-	public static <E> Equalator<E> defaultEqualator()
-	{
-		return Equalator.value();
-	}
 	
 	public static double defaultSimilarityThreshold()
 	{
@@ -166,6 +160,12 @@ public interface MultiMatcher<E>
 		}
 		return maxQuantifier;
 	}
+	
+	
+	public static <E> MultiMatcher<E> New()
+	{
+		return new MultiMatcher.Implementation<>();
+	}
 
 	public class Implementation<E> implements MultiMatcher<E>
 	{
@@ -178,14 +178,25 @@ public interface MultiMatcher<E>
 		// instance fields  //
 		/////////////////////
 
-		private Equalator<? super E>         equalator     = defaultEqualator();
-		private Similator<? super E>         similator    ;
-		private MatchValidator<? super E> matchCallback;
+		private Equalator<? super E>      equalator;
+		private Similator<? super E>      similator;
+		private MatchValidator<? super E> validator;
 
 		private double similarityThreshold          = defaultSimilarityThreshold();
 		private double singletonPrecedenceThreshold = defaultSingletonPrecedenceThreshold();
 		private double singletonPrecedenceBonus     = defaultSingletonPrecedenceBonus();
 		private double noiseFactor                  = defaultNoiseFactor();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Implementation()
+		{
+			super();
+		}
 
 
 
@@ -230,9 +241,9 @@ public interface MultiMatcher<E>
 		}
 
 		@Override
-		public MatchValidator<? super E> matchCallback()
+		public MatchValidator<? super E> validator()
 		{
-			return this.matchCallback;
+			return this.validator;
 		}
 
 
@@ -284,9 +295,9 @@ public interface MultiMatcher<E>
 		}
 
 		@Override
-		public MultiMatcher<E> setMatchCallback(final MatchValidator<? super E> suspiciousMatchDecider)
+		public MultiMatcher<E> setValidator(final MatchValidator<? super E> validator)
 		{
-			this.matchCallback = suspiciousMatchDecider;
+			this.validator = validator;
 			return this;
 		}
 

@@ -15,7 +15,7 @@ import net.jadoth.meta.XDebug;
 import net.jadoth.util.matching.MultiMatch;
 import net.jadoth.util.matching.MultiMatcher;
 
-public class MainTestItemMatcher
+public class MainTestMultiMatcher
 {
 	static final boolean normalize = true;
 
@@ -32,10 +32,10 @@ public class MainTestItemMatcher
 	);
 
 
-	static final MultiMatcher<String> STRING_MATCHER = new MultiMatcher.Implementation<String>()
+	static final MultiMatcher<String> STRING_MATCHER = MultiMatcher.<String>New()
 		.setEqualator(null)
 		.setSimilator(Levenshtein::substringSimilarity)
-		.setMatchCallback(MainTestItemMatcher::printMatch)
+		.setValidator(MainTestMultiMatcher::printMatch)
 	;
 
 	
@@ -58,7 +58,7 @@ public class MainTestItemMatcher
 	}
 	
 	// because a default context concise "::join" would have been too much to ask.
-	public static final BiConsumer<VarString, Object> join = MainTestItemMatcher::join;
+	public static final BiConsumer<VarString, Object> join = MainTestMultiMatcher::join;
 
 
 	static void testSimple()

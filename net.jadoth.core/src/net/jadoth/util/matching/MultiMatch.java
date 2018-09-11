@@ -134,7 +134,7 @@ public interface MultiMatch<E>
 		{
 			super();
 			this.matcher = matcher;
-			this.matchValidator = matcher.matchCallback();
+			this.matchValidator = matcher.validator();
 
 			// configurations
 			this.singletonPrecedenceThreshold = quantifier(matcher.singletonPrecedenceThreshold());
