@@ -169,7 +169,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
 			
-			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlers(occuringTypeIds);
+			// (11.09.2018 TM)FIXME: OGS-3: resolve (and validate) TypeIds to TypeDefinitions via Dictionary
+			// (11.09.2018 TM)FIXME: OGS-3: ensure TypeHandlers for collected TypeDefinitions.
+			
+//			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlers(occuringTypeIds);
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 
 		@Override

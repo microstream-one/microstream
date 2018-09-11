@@ -1485,7 +1485,63 @@ Jup. Das kann raus.\par
 Umstrukturierung auf IdentifierBuilder abschlie\'dfen.\par
 toUniqueUnqualifiedIdentifier() implementieren.\par
 MultiMatcher noch bissl aufr\'e4umen und provisorisch einbauen.\par
-N\'e4chster Schritt: \par
+\par
+Das sollte alles in einen eigenen "Member Mapper" oder sowas gekapselt werden.\par
+Dazu mal schauen, wie das mit dem anderen TODO ist: custom legacy handler lookup. Kann der da auch rein oder muss das vorher passieren oder muss das unabh\'e4ngig sein?\par
+\par
+Warum l\'e4uft das in EmbeddedStorageManager#createLegacyTypeMappings \'fcberhaupt \'fcber TypeIds?\par
+Recherchieren und besser kommentieren ...\par
+\par
+Also mal ganz von vorne:\par
+EmbeddedStorageFoundation#createEmbeddedStorageManager macht den ganzen Setup Grusch, importiert das TypeDictionary.\par
+Dabei wird auch der TypeHandlerManager initialisiert. Allerdings nur f\'fcr alle Runtime TypeLineages.\par
+Macht ja Sinn: Alles aus dem Dictionary, was per Klassenname direkt in der Runtime gefunden wurde, bekommt - f\'fcr die aktuelle Version - gleich mal einen TypeHandler.\par
+\'dcbrig bleiben aus dem Dictionary alle Klassennamen, die keinen Runtime Type haben (evtl. umbenannt worden) und alle \'e4lteren Versionen aktueller Klassennamen.\par
+Danach kommt im Wesentlichen nur noch das EmbeddedStorageManager#start.\par
+Da drin werden alle vorkommenden TypeIds durchlaufen und TypeHandler daf\'fcr sichergestellt.\par
+Bei allen schon existierenden passiert gar nichts. Gibts schon. Passt.\par
+F\'fcr alle anderen wird versucht, ein LegacyHandler zu erstellen und wenn das nicht geht (neuer Typ oder TypeId ist die der aktuellen runtime Type TypeDefinition), dann wird ein normaler TypeHandler erzeugt.\par
+Da sind jetzt ein paar Redundanzen drin, aber das kann davon kommen, dass eine allgemeine Funktionalit\'e4t aufgerufen wird, die auch in einem anderen Kontext korrekte Ergebnisse liefern muss. Die in diesem Kontext schon behandelten Typen werden einfach \'fcbersprungen, also kein Problem.\par
+Was aber seltsam ist, ist, warum \'fcberhaupt nur \'fcber die TypeId gegangen wird.\par
+Sinnvoll ist auf jeden Fall schon mal, dass das nicht alle im Dictionary vorkommenden TypeIds sind, sondern alle wirklich in der Datenbank vorkommende. Das hei\'dft es wird nur f\'fcr die n\'f6tigen Typen ein Legacy Mapper erzeugt, nicht f\'fcr irgendwelche l\'e4ngst irrelevant gewordenen Dictionary Uralt-Eintr\'e4ge.\par
+Hm. Man kann zwar die TypeId \'fcber das Dictionary zu einer TypeDefinition aufl\'f6sen, das wird in dem tryLegacyTypeHandler() auch gemacht, aber sollte das nicht vorher und an zentraler Stelle gemacht werden?\par
+Also so:\par
+- Alle vorkommenden TypeIds sammeln.\par
+- Alle zu TypeDefinitions aufl\'f6sen.\par
+- Wenn bei einer kein (veralteter oder aktueller) Dictionary Eintrag gefunden wird, dann Exception werfen, denn das hei\'dft dann, dass Stuff in der Datenbank liegt, f\'fcr den das TypeDictionary keinen Plan liefern kann.\par
+Oder wird das vorher schon gemacht in dem IdAnalysis Zeugs?\par
+Recherchieren ...\par
+Ne, da wird noch nix validiert. Bzw: Storage-intern wird bei jedem TypeId Lookup nat\'fcrlich geschaut, ob es im StorageTypeDictionary daf\'fcr einen Eintrag gibt. Hm. Da das vom normalen TypeDictionary ableitet, k\'f6nnte man das durchaus als Validierung sehen.\par
+Also das hier: StorageEntityCache#addNewType: "TypeId not resolvable via type dictionary".\par
+Hm. Oder sollte die Anwendungsseite ihre TypeDefinitions autark selbst validieren, u.A. als Schutz gegen \'c4nderungen der Storage Logik?\par
+Irgendwo da sollten jedenfalls die TypeIds \'fcber das Dictionary zu TypeDefinitions aufgel\'f6st werden und f\'fcr die sollten dann im PersistenceTypeHandlerManager TypeHandler ensuret werden. Falls es nicht schon aktuelle gibt, dann m\'fcssen Legacy handler erzeugt werden. Ohne Fallback, einen neuen, noch unbehandelten Typ f\'fcr eine TypeId anzunehmen, sondern dann mit Exception.\par
+\'dcberhaupt darf eigentlich der PersistenceTypeHandlerManager, also die Schnittstelle auf der Seite der Anwendungslogik, nie in die Situation kommen, \'fcber eine blanke TypeId einen TypeHandler erzeugen zu sollen. Das muss immer \'fcber einen Runtime Type oder - im Fall der Legacy Handler - eine TypeDefinition laufen. Vielleicht ist das die grunds\'e4tzlich bessere Einteilung beim TypeHandlerManager:\par
+- Runtime Type (eine echte Class<?>) f\'fcr den laufenden Betrieb.\par
+- TypeDefinition (aus dem Dictionary) zum LegacyHandler ableiten.\par
+- F\'fcr TypeIds darf es im TypeHandlerManager gar keine API geben. \par
+\par
+Als Pr\'fcfung mal Recherchieren, ob die bisherigen per-TypeId-Methoden des TypeHandlerManagers irgendwo anders au\'dfer beim LegacyMapping verwendet werden. D\'fcrfte eigentlich nicht der Fall sein.\par
+Jup. Die delegaten und rufen sich alle nur gegenseitig APIm\'e4\'dfig auf. Wobei die Frage ist, ob ein lookup nach TypeId nicht durchaus sinnvoll ist. Immerhin ist das auch der einzige Weg, wie man eine TypeDefinition eindeutig identifiziert.\par
+Also lookup via TypeId, aber ensure nur via TypeDefinition.\par
+Hehe, witzig: vor LegacyHandlern h\'e4tte ich gesagt: Die handlersByTypeId Map kann eigentlich aus der TypeHandlerRegistry raus. Aber nun, mit LegacyHandlern, ist das die einzige Stelle, wo die registriert werden.\par
+Also passt.\par
+Genau. Also raus fliegen: provideTypeHandler(long) und ensureTypeHandler(long). Damit dann auch das komische "createProperTypeHandler" Fallback Ding von oben, das es logisch konsistent gar nicht geben br\'e4uchte bzw. d\'fcrfte. Passt.\par
+\par
+Das ging erfrischend schnell. Jetzt \'fcberlegen wegen Kapselung und LegacyTypeHandler Lookup.\par
+\par
+Hm. Also es m\'fcsste eigentlich reichen, eine HashEnum mit typeId-uninitialisierten LegacyTypeHandler Instanzen zu halten.\par
+Die werden dann alle durchgescannt, ob eine Beschreibung davon genau auf die \'fcbergebene TypeDefinition passt.\par
+Wenn ja, dann ist das der TypeHandler daf\'fcr. Dann wird dessen TypeId initialisiert und die Instanz als TypeHandler zur\'fcckgegeben. Alle freuen sich.\par
+Wenn nein, dann muss ein generischer LegacyTypeHandler  anhand von Mappings und MultiMatcher abgeleitet werden.\par
+Die Map k\'f6nnte in einem "PersistencLegacyTypeMapper" durchaus drin sein. Die passt da rein.\par
+Auch die IdentifierBuilder und der '#' Grusch.\par
+\par
+Hm. Dann ist die n\'e4chste Frage, ob der refactoringMappingProvider vielleicht auch dorthin verschoben werden sollte.\par
+Dann w\'e4rs aber eher ein "PersistenceRefactoringHandler", der sich k\'fcmmert um manuelle Refactoring Mappings und um LegacyTypeHandler Sicherstellung.\par
+Ne Moment: Das ganze RefactoringMapping Ding wird im TypeHandlerManager nur f\'fcr die LegacyTypeHandler erzeugung gebraucht. Also kann man das alles sauber single-concern-m\'e4\'dfig zu einem "PersistencLegacyTypeMapper" zusammenkapseln.\par
+So mach ichs!\par
+\par
+\par
 \par
 \par
 }

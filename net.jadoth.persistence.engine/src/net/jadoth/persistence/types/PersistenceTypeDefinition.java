@@ -89,7 +89,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		return this.getClass().getName() + "<" + this.type().getName() + ">(TID " + this.typeId() + ")";
 	}
 
-
+	
 
 	public static boolean determineVariableLength(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members

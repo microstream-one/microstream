@@ -1,20 +1,15 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.X.array;
 import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
@@ -23,8 +18,6 @@ import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
-import net.jadoth.util.matching.MultiMatch;
-import net.jadoth.util.matching.MultiMatcher;
 
 
 public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>
@@ -41,10 +34,10 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(T instance);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
-
-	public PersistenceTypeHandler<M, ?> ensureTypeHandler(long tid);
 	
-	public void ensureTypeHandlers(XGettingEnum<Long> tids);
+	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(PersistenceTypeDefinition<T> typeDefinition);
+	
+	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition<?>> typeDefinitions);
 
 	public void initialize();
 
@@ -66,27 +59,23 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 
 	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
-		final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ,
-		final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ,
-		final PersistenceTypeDictionaryManager        typeDictionaryManager     ,
-		final PersistenceTypeEvaluator                typeEvaluator             ,
-		final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ,
-		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+		final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
+		final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
+		final PersistenceTypeDictionaryManager    typeDictionaryManager,
+		final PersistenceTypeEvaluator            typeEvaluator        ,
+		final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
+		final PersistencLegacyTypeMapper<M>       legacyTypeMapper
 	)
 	{
 		return new PersistenceTypeHandlerManager.Implementation<>(
-			notNull(typeHandlerRegistry)       ,
-			notNull(typeHandlerProvider)       ,
-			notNull(typeDictionaryManager)     ,
-			notNull(typeEvaluator)             ,
-			notNull(typeMismatchValidator)     ,
-			notNull(refactoringMappingProvider),
-			notNull(deletedTypeHandlerCreator)
+			notNull(typeHandlerRegistry)  ,
+			notNull(typeHandlerProvider)  ,
+			notNull(typeDictionaryManager),
+			notNull(typeEvaluator)        ,
+			notNull(typeMismatchValidator),
+			notNull(legacyTypeMapper)
 		);
 	}
-
-
 
 	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
 	{
@@ -94,14 +83,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		// instance fields  //
 		/////////////////////
 
-		        final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ;
-		private final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ;
-		private final PersistenceTypeDictionaryManager        typeDictionaryManager     ;
-		private final PersistenceTypeEvaluator                typeEvaluator             ;
-		private final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ;
-		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
-		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
-		private       boolean                                 initialized               ;
+		        final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ;
+		private final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ;
+		private final PersistenceTypeDictionaryManager    typeDictionaryManager;
+		private final PersistenceTypeEvaluator            typeEvaluator        ;
+		private final PersistenceTypeMismatchValidator<M> typeMismatchValidator;
+		private final PersistencLegacyTypeMapper<M>       legacyTypeMapper     ;
+		private       boolean                             initialized          ;
 
 
 
@@ -110,37 +98,29 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry       ,
-			final PersistenceTypeHandlerProvider<M>       typeHandlerProvider       ,
-			final PersistenceTypeDictionaryManager        typeDictionaryManager     ,
-			final PersistenceTypeEvaluator                typeEvaluator             ,
-			final PersistenceTypeMismatchValidator<M>     typeMismatchValidator     ,
-			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+			final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
+			final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
+			final PersistenceTypeDictionaryManager    typeDictionaryManager,
+			final PersistenceTypeEvaluator            typeEvaluator        ,
+			final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
+			final PersistencLegacyTypeMapper<M>       legacyTypeMapper
 		)
 		{
 			super();
-			this.typeHandlerRegistry        = typeHandlerRegistry       ;
-			this.typeHandlerProvider        = typeHandlerProvider       ;
-			this.typeDictionaryManager      = typeDictionaryManager     ;
-			this.typeEvaluator              = typeEvaluator             ;
-			this.typeMismatchValidator      = typeMismatchValidator     ;
-			this.refactoringMappingProvider = refactoringMappingProvider;
-			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
+			this.typeHandlerRegistry   = typeHandlerRegistry  ;
+			this.typeHandlerProvider   = typeHandlerProvider  ;
+			this.typeDictionaryManager = typeDictionaryManager;
+			this.typeEvaluator         = typeEvaluator        ;
+			this.typeMismatchValidator = typeMismatchValidator;
+			this.legacyTypeMapper      = legacyTypeMapper     ;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 		
-		public static char memberIdentifierSeparator()
-		{
-			// (05.09.2018 TM)TODO: centralize and make configurable
-			return '#';
-		}
-
 		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
 		{
 			PersistenceTypeHandler<M, T> handler;
@@ -223,381 +203,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return this.synchEnsureTypeHandler(type);
 			}
 		}
-
-		private PersistenceTypeHandler<M, ?> internalEnsureTypeHandlerByTypeId(final long tid)
-		{
-			synchronized(this.typeHandlerRegistry)
-			{
-				PersistenceTypeHandler<M, ?> handler;
-				if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) == null)
-				{
-					handler = this.tryLegacyTypeHandler(tid);
-					if(handler == null)
-					{
-						handler = this.createProperTypeHandler(tid);
-					}
-				}
 				
-				return handler;
-			}
-		}
-		
-		private PersistenceTypeHandler<M, ?> tryLegacyTypeHandler(final long tid)
-		{
-			/* (30.05.2018 TM)TODO: OGS-3: custom legacy handler lookup
-			 * A way is required to make a lookup in a custom legacy handler registry, first.
-			 * Also, the lookup should not only use the TypeId, but prior to that a lookup via the
-			 * structure, because it is cumbersome (or logically misplaced) to have to manually assign TypeIds.
-			 * The structure is what identifies the handler on a logical level, not an internal technical id.
-			 */
-			
-			final PersistenceTypeDictionary    typeDict = this.typeDictionaryManager.provideTypeDictionary();
-			final PersistenceTypeDefinition<?> typeDef  = typeDict.lookupTypeById(tid);
-			if(typeDef == null)
-			{
-				// the type id might refer to a new type that has no handler registered, yet, so this is not an error.
-				return null;
-			}
-			
-			final PersistenceTypeLineage<?> typeLin = typeDict.lookupTypeLineage(typeDef.typeName());
-			if(typeLin.runtimeDefinition() == typeDef)
-			{
-				// the tid belongs to the type's runtime type definition, so a legacy type handler is not required.
-				return null;
-			}
-			
-			// existing, but not current type version (identified by the typeId), so create a legacy handler.
-			return this.createLegacyTypeHandler(typeDef);
-			
-		}
-		private PersistenceTypeHandler<M, ?> createProperTypeHandler(final long tid)
-		{
-			final PersistenceTypeHandler<M, ?> handler = this.typeHandlerProvider.provideTypeHandler(tid);
-			this.internalRegisterTypeHandler(handler);
-			
-			return handler;
-		}
-		
-		private static IdentifierBuilder[] createSourceIdentifierBuilders()
-		{
-			/*
-			 * identifier building logic in order of priority:
-			 * - global identifier (means most specific)
-			 * - internal identifier
-			 */
-			return array(
-				(t, m) ->
-					toGlobalIdentifier(t, m),
-				(t, m) ->
-					toTypeInternalIdentifier(m)
-			);
-		}
-		
-		private static IdentifierBuilder[] createTargetIdentifierBuilders()
-		{
-			/*
-			 * identifier building logic in order of priority:
-			 * - global identifier (means most specific)
-			 * - internal identifier
-			 * - unqualified identifier IF unambiguous (unique) or else null.
-			 */
-			return array(
-				(t, m) ->
-					toGlobalIdentifier(t, m),
-				(t, m) ->
-					toTypeInternalIdentifier(m),
-				(t, m) ->
-					toUniqueUnqualifiedIdentifier(t, m)
-			);
-		}
-		
-		private static void addDeletionMembers(
-			final XGettingSequence<PersistenceTypeDescriptionMember>                            deletionMembers,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
-		)
-		{
-			for(final PersistenceTypeDescriptionMember deletionMember : deletionMembers)
-			{
-				if(resolvedMembers.add(deletionMember, null))
-				{
-					continue;
-				}
-				
-				// (11.09.2018 TM)EXCP: proper exception
-				throw new PersistenceExceptionTypeConsistency(
-					"Conflicted mapping entry for member " + deletionMember.uniqueName()
-				);
-			}
-		}
-						
-		private PersistenceTypeHandler<M, ?> createLegacyTypeHandler(
-			final PersistenceTypeDefinition<?> typeDefinition
-		)
-		{
-			final Class<?> runtimeType = this.resolveRuntimeType(typeDefinition);
-			if(runtimeType == null)
-			{
-				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
-				return this.createDeletedTypeHandler(typeDefinition);
-			}
-			
-			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
-						
-			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = HashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers = HashEnum.New();
-			
-			this.collectRefactoringTargetStrings(
-				typeDefinition      ,
-				refacTargetStrings  ,
-				refacDeletionMembers
-			);
-			
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
-			
-			this.resolveToTargetMembers(refacTargetStrings, runtimeTypeHandler, resolvedMembers);
-			
-			addDeletionMembers(refacDeletionMembers, resolvedMembers);
-						
-			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers = BulkList.New(
-				typeDefinition.members()
-			);
-			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers = BulkList.New(
-				runtimeTypeHandler.members()
-			);
-			
-			// null out all explicitely mapped members before matching
-			sourceMembers.replace(m ->
-				resolvedMembers.keys().contains(m),
-				null
-			);
-			targetMembers.replace(m ->
-				resolvedMembers.values().contains(m),
-				null
-			);
-			
-			final MultiMatcher<PersistenceTypeDescriptionMember> matcher = MultiMatcher.New();
-			
-			// (11.09.2018 TM)FIXME: OGS-3: Member similator
-			// (11.09.2018 TM)FIXME: OGS-3: Include MatchValidator. Or encapsulate the whole mapping in the first place.
-			// (11.09.2018 TM)FIXME: OGS-3: match evaluator callback logic
-			
-			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
-			
-			/* (11.09.2018 TM)FIXME: OGS-3: Derive PersistenceLegacyTypeHandler from definite Mapping result.
-			 * - derive value mapper for each result (including changed field offsets)
-			 * - wrapp all value mappers in a PersistenceTypeHandler instance.
-			 * complex values are not supported for now but throw an exception.
-			 */
-						
-			throw new net.jadoth.meta.NotImplementedYetError();
-		}
-		
-		private void resolveToTargetMembers(
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings,
-			final PersistenceTypeDefinition<?>                                                  targetTypeDef     ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
-		)
-		{
-			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders();
-			
-			targetMembers:
-			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDef.members())
-			{
-				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
-				{
-					if(check(targetTypeDef, targetMember, refacTargetStrings, resolvedMembers, identifierBuilder))
-					{
-						continue targetMembers;
-					}
-				}
-			}
-		}
-		
-		@FunctionalInterface
-		interface IdentifierBuilder
-		{
-			public String buildIdentifier(PersistenceTypeDefinition<?> type, PersistenceTypeDescriptionMember member);
-		}
-		
-		private static boolean check(
-			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition,
-			final PersistenceTypeDescriptionMember                                              targetTypeMember    ,
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       sourceLookupTable   ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
-			final IdentifierBuilder                                                             identifierBuilder
-		)
-		{
-			final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetTypeMember);
-			final PersistenceTypeDescriptionMember defClassTargetMember = sourceLookupTable.get(identifier);
-			
-			if(defClassTargetMember == null)
-			{
-				return false;
-			}
-			
-			if(resolvedMembers.add(defClassTargetMember, targetTypeMember))
-			{
-				return true;
-			}
-			
-			// (10.09.2018 TM)EXCP: proper exception
-			throw new PersistenceExceptionTypeConsistency(
-				"Duplicate member mapping for target member \"" + identifier + "\""
-			);
-		}
-		
-		private void collectRefactoringTargetStrings(
-			final PersistenceTypeDefinition<?>                        typeDefinition      ,
-			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers
-		)
-		{
-			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
-			
-			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders();
-			
-			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
-			{
-				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
-				{
-					final String identifier = identifierBuilder.buildIdentifier(typeDefinition, member);
-					if(check(member, identifier, refacEntries, refacTargetStrings, refacDeletionMembers))
-					{
-						continue;
-					}
-				}
-			}
-		}
-		
-		private static boolean check(
-			final PersistenceTypeDescriptionMember                    member                    ,
-			final String                                              lookupString              ,
-			final XGettingTable<String, String>                       refactoringEntries        ,
-			final HashTable<String, PersistenceTypeDescriptionMember> refactoringTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>          refactoringDeletionMembers
-		)
-		{
-			// must check keys themselves, as a null value means deletion
-			if(refactoringEntries.keys().contains(lookupString))
-			{
-				// might be null to indicate deletion
-				final String targetString = refactoringEntries.get(lookupString);
-				if(targetString == null)
-				{
-					refactoringDeletionMembers.add(member);
-				}
-				else
-				{
-					if(!refactoringTargetStrings.add(targetString, member))
-					{
-						// (10.09.2018 TM)EXCP: proper exception
-						throw new PersistenceExceptionTypeConsistency(
-							"Duplicate member mapping for target member \"" + targetString + "\""
-						);
-					}
-				}
-				
-				return true;
-			}
-			
-			return false;
-		}
-		
-		static String toUniqueUnqualifiedIdentifier(
-			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member
-		)
-		{
-			final String memberSimpleName = member.name();
-			
-			for(final PersistenceTypeDescriptionMember m : typeDefinition.members())
-			{
-				if(m == member)
-				{
-					continue;
-				}
-				
-				// if the simple name is not unique, it cannot be used as a mapping target
-				if(m.name().equals(memberSimpleName))
-				{
-					return null;
-				}
-			}
-			
-			return memberIdentifierSeparator() + memberSimpleName;
-		}
-		
-		static String toGlobalIdentifier(
-			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member
-		)
-		{
-			return typeDefinition.typeName() + memberIdentifierSeparator() + toTypeInternalIdentifier(member);
-		}
-		
-		static String toTypeInternalIdentifier(final PersistenceTypeDescriptionMember member)
-		{
-			return member.uniqueName();
-		}
-		
-		private Class<?> resolveRuntimeType(final PersistenceTypeDefinition<?> typeDefinition)
-		{
-			if(typeDefinition.type() != null)
-			{
-				return typeDefinition.type();
-			}
-			
-			return this.resolveMappedRuntimeType(typeDefinition.typeName());
-		}
-		
-		private PersistenceRefactoringMapping ensureRefactoringMapping()
-		{
-			return this.refactoringMappingProvider.provideRefactoringMapping();
-		}
-		
-		private Class<?> resolveMappedRuntimeType(final String typeName)
-		{
-			final PersistenceRefactoringMapping refactoringMapping = this.ensureRefactoringMapping();
-			
-			if(refactoringMapping.entries().keys().contains(typeName))
-			{
-				final String mappedTypeName = refactoringMapping.entries().get(typeName);
-				if(mappedTypeName != null)
-				{
-					try
-					{
-						return XReflect.classForName(mappedTypeName);
-					}
-					catch (final ClassNotFoundException e)
-					{
-						throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(mappedTypeName, e);
-					}
-				}
-				
-				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
-				return null;
-			}
-			
-			/* At this point, the type definition neither has a fitting runtime type nor an entry in the explicit
-			 * refactoring mapping. There are not options left to handle the type, so it is an error.
-			 */
-			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
-		}
-		
-		private PersistenceTypeHandler<M, ?> createDeletedTypeHandler(
-			final PersistenceTypeDefinition<?> typeDefinition
-		)
-		{
-			final PersistenceDeletedTypeHandler<M, ?> typeHandler =
-				this.deletedTypeHandlerCreator.createDeletedTypeHandler(typeDefinition)
-			;
-			
-			// direct registration without any validation or dictionary entry. This is just a runtime dummy logic.
-			this.registerLegacyTypeHandler(typeHandler);
-			
-			return typeHandler;
-		}
-
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			final PersistenceTypeDefinition<?> registeredTd =
@@ -642,12 +248,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final T instance)
 		{
@@ -664,30 +264,61 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				return handler;
 			}
+			
 			return this.internalEnsureTypeHandler(type);
 		}
-
+		
 		@Override
-		public final PersistenceTypeHandler<M, ?> ensureTypeHandler(final long tid)
+		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition<T> typeDefinition)
 		{
 			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
-			if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) != null)
+			if((handler = this.typeHandlerRegistry.lookupTypeHandler(typeDefinition.typeId())) != null)
 			{
-				return handler;
+				@SuppressWarnings("unchecked" ) // cast safety ensured by TypeDefinition concept logic.
+				final PersistenceTypeHandler<M, T> typedHandler = (PersistenceTypeHandler<M, T>)handler;
+				return typedHandler;
 			}
-			return this.internalEnsureTypeHandlerByTypeId(tid);
+			
+			// can be null
+			final PersistenceTypeDefinition<T> runtimeTypeDefinition = this.determineRuntimeTypeDefinition(typeDefinition);
+			
+			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
+				typeDefinition,
+				runtimeTypeDefinition
+			);
+			
+			this.registerLegacyTypeHandler(legacyTypeHandler);
+			
+			return legacyTypeHandler;
 		}
 		
-
+		private <T> PersistenceTypeDefinition<T> determineRuntimeTypeDefinition(
+			final PersistenceTypeDefinition<T> typeDefinition
+		)
+		{
+			Class<T> runtimeType = typeDefinition.type();
+			if(runtimeType == null)
+			{
+				runtimeType = this.legacyTypeMapper.lookupRuntimeType(typeDefinition);
+				if(runtimeType == null)
+				{
+					return null;
+				}
+			}
+			
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			return runtimeTypeHandler;
+		}
+				
 		@Override
-		public void ensureTypeHandlers(final XGettingEnum<Long> tids)
+		public void ensureTypeHandlers(final XGettingEnum<PersistenceTypeDefinition<?>> typeDefinitions)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
-				for(final Long tid : tids)
-				{
-					this.internalEnsureTypeHandlerByTypeId(tid);
-				}
+//				typeDefinitions.iterate(this::ensureTypeHandler);
+				typeDefinitions.iterate(typeDefinition ->
+					this.ensureTypeHandler(typeDefinition) // debug-friendlier
+				);
 			}
 		}
 
@@ -879,7 +510,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// pass all misfits and the typeDictionary to a PersistenceTypeMismatchEvaluator
 			this.typeMismatchValidator.validateTypeMismatches(typeDictionary, newTypeHandlers);
 			
-			// internally update the current hightest type id (you don't say...)
+			// internally update the current hightest type id, including non-runtime types.
 			this.internalUpdateCurrentHighestTypeId(typeDictionary);
 			
 			// initialize all matches to the associated TypeId
@@ -983,7 +614,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			this.typeHandlerProvider.updateCurrentHighestTypeId(highestTypeId);
 		}
-
 		
 		final void internalUpdateCurrentHighestTypeId(final PersistenceTypeDictionary typeDictionary)
 		{
@@ -1008,8 +638,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				this.updateCurrentHighestTypeId(highestTypeId);
 			}
 		}
-		
-		
 
 		@Override
 		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
