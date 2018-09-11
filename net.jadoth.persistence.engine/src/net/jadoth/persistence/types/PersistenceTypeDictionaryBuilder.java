@@ -63,7 +63,7 @@ public interface PersistenceTypeDictionaryBuilder
 				e.typeName(),
 				type        ,
 				e.typeId()  ,
-				PersistenceTypeDescriptionMember.immureValidated(e.members())
+				PersistenceTypeDescriptionMember.validateAndImmure(e.members())
 			);
 			typeDefs.add(typeDef);
 		}

@@ -221,7 +221,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		 * Value handlers are derived dynamically. As long as it results in the same persistent order,
 		 * everything is fine.
 		 */
-		this.members = PersistenceTypeDescriptionMember.immureValidated(members);
+		this.members = PersistenceTypeDescriptionMember.validateAndImmure(members);
 	}
 
 	

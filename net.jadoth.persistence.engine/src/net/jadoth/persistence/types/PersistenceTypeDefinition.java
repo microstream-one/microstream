@@ -198,6 +198,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 			throw new IllegalArgumentException();
 		}
 		
+		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
 		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> internalMembers = members.immure();
 		return new PersistenceTypeDefinition.Implementation<>(
 			                                                         typeId          ,

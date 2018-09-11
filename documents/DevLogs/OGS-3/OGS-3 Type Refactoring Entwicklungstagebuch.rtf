@@ -1449,6 +1449,37 @@ Die Umstellung von PersistenceTypeDescription#members von Sequence auf Enum hat 
 Dabei gleich zentralisierte Methode PersistenceTypeDescriptionMember#immureValidated implementiert.\par
 \par
 \par
+2018-09-10\par
+\par
+Nochmal Implementierung von Freitag durchchecken und durchdenken. Benamung bissl verbessern. Passt.\par
+Jetzt weiter im Text: TypeDescription Members abgleichen.\par
+\par
+Interessant:\par
+Ich hatte zuerst Table<PersistenceTypeDescriptionMember, String> Target Mappings. Intuitiv von Source nach Target.\par
+Aber es muss genau umgekehrt sein:\par
+Table<String, PersistenceTypeDescriptionMember>, also ein Lookup von Target nach Source mit eindeutigen Target Member Identifier Strings.\par
+Denn:\par
+1.) Die Einzigartigkeit der Source Members ist ja eh schon garantiert, die m\'fcssen keine Keys sein.\par
+2.) Es muss aber auch die Einzigartigkeit der Targets Strings garantiert sein, sonst k\'f6nnten ja mehrere Source Members zum selben Target Field aufgel\'f6st werden. Darum m\'fcssen das die Keys sein.\par
+3.) Der Lookup erfolgt "r\'fcckw\'e4rts" \'fcber testweise konstruinierte Identifier, nicht "vorw\'e4rts" \'fcber die Source Members.\par
+\par
+\'dcberlegung zu Sonderfall:\par
+K\'f6nnte es sein, dass ein Source Member auf mehrere Target Members kopiert werden soll? Dann d\'fcrfte die Zuordnung nicht 1-zu-1, sondern m\'fcsste 1-zu-n sein.\par
+Ergebnis: theoretisch ja, aber soetwas w\'e4re designtechnisch immer Unsinn: Welchen Vorteil soll es haben, in einem Datensatz denselben Wert zu duplizieren? Alle vorstellbaren Antworten darauf sind eine Sache der Anwendungslogik (zwei Getter f\'fcr denselben Wert. Oder falls es aus irgendwelchen Strukturkompatibilit\'e4tsgr\'fcnden n\'f6tig werden w\'fcrde, dann m\'fcsste eine Refactoringlogik auf Ebene der Anwendung nach nachpflegen. Wenn man anf\'e4ngt, das in die Datenbankebene zu schieben, dann braucht man auch Arithmeti, Funktionen, Custom Funktionen und schwups, ist man dabei, eine eigene Sprache zu implementieren. Nene, auf der Datenbankebene werden mit 1-zu-1 Zuordnungen alle Daten sauber umgeformt. Alle weiteren Bl\'f6dsinnsspielereien dar\'fcber muss man selber schreiben. Durch ein Script oder durch einen CustomLegacyHandler. Beides liefert einwandfreie Ergebnisse ohne Nachteile.\par
+Fazit: 1-zu-1 reicht.\par
+\par
+Entsprechend umbauen.\par
+\par
+Ah, coole Idee:\par
+Ein Array an IdentifierBuilder Funktionsobjekten machen, die dann dynamisch durchgecheckt werden, ob f\'fcr ein TargetMember mit der entsprechenden Logik ein Mapping gefunden wird.\par
+Einbauen ...\par
+\par
+Hm, jetzt bin ich verwirrt: Wieso hab ich zwei unterschiedliche Maps f\'fcr defining Class und declaring Class gemacht? Falls es um Priorit\'e4t geht, w\'e4re das ja mit der Reihenfolge der IdentifierBuilder abbildbar.\par
+Recherchieren ...\par
+Jup. Das kann raus.\par
+\par
+\par
+\par
 \par
 \par
 \par
