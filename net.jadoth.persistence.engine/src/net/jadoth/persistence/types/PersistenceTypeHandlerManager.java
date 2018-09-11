@@ -10,6 +10,7 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -22,6 +23,8 @@ import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.util.matching.MultiMatch;
+import net.jadoth.util.matching.MultiMatcher;
 
 
 public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>
@@ -307,6 +310,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 					toUniqueUnqualifiedIdentifier(t, m)
 			);
 		}
+		
+		private static void addDeletionMembers(
+			final XGettingSequence<PersistenceTypeDescriptionMember>                            deletionMembers,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
+		)
+		{
+			for(final PersistenceTypeDescriptionMember deletionMember : deletionMembers)
+			{
+				if(resolvedMembers.add(deletionMember, null))
+				{
+					continue;
+				}
+				
+				// (11.09.2018 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency(
+					"Conflicted mapping entry for member " + deletionMember.uniqueName()
+				);
+			}
+		}
 						
 		private PersistenceTypeHandler<M, ?> createLegacyTypeHandler(
 			final PersistenceTypeDefinition<?> typeDefinition
@@ -320,11 +342,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 			
 			final PersistenceTypeHandler<M, ?> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
-			
-			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
-			
-			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings = HashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers       = HashEnum.New();
+						
+			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = HashTable.New();
+			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers = HashEnum.New();
 			
 			this.collectRefactoringTargetStrings(
 				typeDefinition      ,
@@ -335,29 +355,40 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
 			
 			this.resolveToTargetMembers(refacTargetStrings, runtimeTypeHandler, resolvedMembers);
+			
+			addDeletionMembers(refacDeletionMembers, resolvedMembers);
 						
 			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers = BulkList.New(
 				typeDefinition.members()
 			);
-			
 			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers = BulkList.New(
 				runtimeTypeHandler.members()
 			);
 			
-			/*
-			 * Matching:
-			 * - resolve target strings to target members
-			 * - create source and target collections for MultiMatching
-			 * - null out (but the slot must be kept!) all explicit matches and deletions
-			 * - perform multimatching
-			 * - assemble results
-			 * 
-			 * Legacy Mapping:
+			// null out all explicitely mapped members before matching
+			sourceMembers.replace(m ->
+				resolvedMembers.keys().contains(m),
+				null
+			);
+			targetMembers.replace(m ->
+				resolvedMembers.values().contains(m),
+				null
+			);
+			
+			final MultiMatcher<PersistenceTypeDescriptionMember> matcher = MultiMatcher.New();
+			
+			// (11.09.2018 TM)FIXME: OGS-3: Member similator
+			// (11.09.2018 TM)FIXME: OGS-3: Include MatchValidator. Or encapsulate the whole mapping in the first place.
+			// (11.09.2018 TM)FIXME: OGS-3: match evaluator callback logic
+			
+			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
+			
+			/* (11.09.2018 TM)FIXME: OGS-3: Derive PersistenceLegacyTypeHandler from definite Mapping result.
 			 * - derive value mapper for each result (including changed field offsets)
 			 * - wrapp all value mappers in a PersistenceTypeHandler instance.
 			 * complex values are not supported for now but throw an exception.
 			 */
-			
+						
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
@@ -365,7 +396,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings,
 			final PersistenceTypeDefinition<?>                                                  targetTypeDef     ,
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
-			
 		)
 		{
 			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders();
@@ -424,19 +454,17 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
 			
+			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders();
+			
 			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
 			{
-				// entries with the more specific global identifier take precidence, so they must be checked first.
-				final String globalIdentifier = toGlobalIdentifier(typeDefinition, member);
-				if(check(member, globalIdentifier, refacEntries, refacTargetStrings, refacDeletionMembers))
+				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
 				{
-					continue;
-				}
-				
-				final String internalIdentifier = toTypeInternalIdentifier(member);
-				if(check(member, internalIdentifier, refacEntries, refacTargetStrings, refacDeletionMembers))
-				{
-					continue;
+					final String identifier = identifierBuilder.buildIdentifier(typeDefinition, member);
+					if(check(member, identifier, refacEntries, refacTargetStrings, refacDeletionMembers))
+					{
+						continue;
+					}
 				}
 			}
 		}
@@ -480,7 +508,23 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDescriptionMember member
 		)
 		{
+			final String memberSimpleName = member.name();
 			
+			for(final PersistenceTypeDescriptionMember m : typeDefinition.members())
+			{
+				if(m == member)
+				{
+					continue;
+				}
+				
+				// if the simple name is not unique, it cannot be used as a mapping target
+				if(m.name().equals(memberSimpleName))
+				{
+					return null;
+				}
+			}
+			
+			return memberIdentifierSeparator() + memberSimpleName;
 		}
 		
 		static String toGlobalIdentifier(
