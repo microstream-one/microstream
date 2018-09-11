@@ -145,7 +145,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	)
 	{
 		super(type);
-		this.fields = PersistenceTypeDescriptionMember.immureValidated(fields);
+		this.fields = PersistenceTypeDescriptionMember.validateAndImmure(fields);
 	}
 
 

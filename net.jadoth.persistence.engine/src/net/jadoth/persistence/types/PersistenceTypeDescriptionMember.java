@@ -145,7 +145,7 @@ public interface PersistenceTypeDescriptionMember
 		return IdentityHashEqualator.SINGLETON;
 	}
 	
-	public static XImmutableEnum<PersistenceTypeDescriptionMember> immureValidated(
+	public static XImmutableEnum<PersistenceTypeDescriptionMember> validateAndImmure(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{

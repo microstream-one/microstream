@@ -1,9 +1,11 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.array;
 import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
@@ -272,7 +274,40 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			return handler;
 		}
-				
+		
+		private static IdentifierBuilder[] createSourceIdentifierBuilders()
+		{
+			/*
+			 * identifier building logic in order of priority:
+			 * - global identifier (means most specific)
+			 * - internal identifier
+			 */
+			return array(
+				(t, m) ->
+					toGlobalIdentifier(t, m),
+				(t, m) ->
+					toTypeInternalIdentifier(m)
+			);
+		}
+		
+		private static IdentifierBuilder[] createTargetIdentifierBuilders()
+		{
+			/*
+			 * identifier building logic in order of priority:
+			 * - global identifier (means most specific)
+			 * - internal identifier
+			 * - unqualified identifier IF unambiguous (unique) or else null.
+			 */
+			return array(
+				(t, m) ->
+					toGlobalIdentifier(t, m),
+				(t, m) ->
+					toTypeInternalIdentifier(m),
+				(t, m) ->
+					toUniqueUnqualifiedIdentifier(t, m)
+			);
+		}
+						
 		private PersistenceTypeHandler<M, ?> createLegacyTypeHandler(
 			final PersistenceTypeDefinition<?> typeDefinition
 		)
@@ -288,15 +323,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			// (30.05.2018 TM)FIXME: OGS-3: compare typeDefinition members to runtimeTypeHandler members
 			
-			final HashTable<PersistenceTypeDescriptionMember, String> defClassRefacTargetStrings = HashTable.New();
-			final HashTable<PersistenceTypeDescriptionMember, String> decClassRefacTargetStrings = HashTable.New();
+			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings = HashTable.New();
 			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers       = HashEnum.New();
 			
 			this.collectRefactoringTargetStrings(
-				typeDefinition            ,
-				defClassRefacTargetStrings,
-				decClassRefacTargetStrings,
+				typeDefinition      ,
+				refacTargetStrings  ,
 				refacDeletionMembers
+			);
+			
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
+			
+			this.resolveToTargetMembers(refacTargetStrings, runtimeTypeHandler, resolvedMembers);
+						
+			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers = BulkList.New(
+				typeDefinition.members()
+			);
+			
+			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers = BulkList.New(
+				runtimeTypeHandler.members()
 			);
 			
 			/*
@@ -316,10 +361,64 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
+		private void resolveToTargetMembers(
+			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings,
+			final PersistenceTypeDefinition<?>                                                  targetTypeDef     ,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
+			
+		)
+		{
+			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders();
+			
+			targetMembers:
+			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDef.members())
+			{
+				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
+				{
+					if(check(targetTypeDef, targetMember, refacTargetStrings, resolvedMembers, identifierBuilder))
+					{
+						continue targetMembers;
+					}
+				}
+			}
+		}
+		
+		@FunctionalInterface
+		interface IdentifierBuilder
+		{
+			public String buildIdentifier(PersistenceTypeDefinition<?> type, PersistenceTypeDescriptionMember member);
+		}
+		
+		private static boolean check(
+			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition,
+			final PersistenceTypeDescriptionMember                                              targetTypeMember    ,
+			final XGettingTable<String, PersistenceTypeDescriptionMember>                       sourceLookupTable   ,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
+			final IdentifierBuilder                                                             identifierBuilder
+		)
+		{
+			final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetTypeMember);
+			final PersistenceTypeDescriptionMember defClassTargetMember = sourceLookupTable.get(identifier);
+			
+			if(defClassTargetMember == null)
+			{
+				return false;
+			}
+			
+			if(resolvedMembers.add(defClassTargetMember, targetTypeMember))
+			{
+				return true;
+			}
+			
+			// (10.09.2018 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeConsistency(
+				"Duplicate member mapping for target member \"" + identifier + "\""
+			);
+		}
+		
 		private void collectRefactoringTargetStrings(
-			final PersistenceTypeDefinition<?>                        typeDefinition            ,
-			final HashTable<PersistenceTypeDescriptionMember, String> defClassRefacTargetStrings,
-			final HashTable<PersistenceTypeDescriptionMember, String> decClassRefacTargetStrings,
+			final PersistenceTypeDefinition<?>                        typeDefinition      ,
+			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings  ,
 			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers
 		)
 		{
@@ -329,13 +428,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				// entries with the more specific global identifier take precidence, so they must be checked first.
 				final String globalIdentifier = toGlobalIdentifier(typeDefinition, member);
-				if(check(member, globalIdentifier, refacEntries, defClassRefacTargetStrings, refacDeletionMembers))
+				if(check(member, globalIdentifier, refacEntries, refacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
 				
 				final String internalIdentifier = toTypeInternalIdentifier(member);
-				if(check(member, internalIdentifier, refacEntries, decClassRefacTargetStrings, refacDeletionMembers))
+				if(check(member, internalIdentifier, refacEntries, refacTargetStrings, refacDeletionMembers))
 				{
 					continue;
 				}
@@ -346,7 +445,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDescriptionMember                    member                    ,
 			final String                                              lookupString              ,
 			final XGettingTable<String, String>                       refactoringEntries        ,
-			final HashTable<PersistenceTypeDescriptionMember, String> refactoringTargetStrings  ,
+			final HashTable<String, PersistenceTypeDescriptionMember> refactoringTargetStrings  ,
 			final HashEnum<PersistenceTypeDescriptionMember>          refactoringDeletionMembers
 		)
 		{
@@ -361,13 +460,27 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				}
 				else
 				{
-					refactoringTargetStrings.add(member, targetString);
+					if(!refactoringTargetStrings.add(targetString, member))
+					{
+						// (10.09.2018 TM)EXCP: proper exception
+						throw new PersistenceExceptionTypeConsistency(
+							"Duplicate member mapping for target member \"" + targetString + "\""
+						);
+					}
 				}
 				
 				return true;
 			}
 			
 			return false;
+		}
+		
+		static String toUniqueUnqualifiedIdentifier(
+			final PersistenceTypeDefinition<?>     typeDefinition,
+			final PersistenceTypeDescriptionMember member
+		)
+		{
+			
 		}
 		
 		static String toGlobalIdentifier(
@@ -482,6 +595,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				// (07.04.2013)EXCP proper exception
 				throw new PersistenceExceptionTypeConsistency("Member inconsistency for " + typeHandler.typeName());
 			}
+			
 		}
 
 
