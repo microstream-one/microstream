@@ -6,8 +6,6 @@ import static net.jadoth.X.notNull;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
-import net.jadoth.hashing.HashEqualator;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
 public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
@@ -112,74 +110,21 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
 
-	public static final HashEqualator<PersistenceTypeDefinition<?>> EQUAL_TYPE =
-		new HashEqualator<PersistenceTypeDefinition<?>>()
-		{
-			@Override
-			public int hash(final PersistenceTypeDefinition<?> typeDescription)
-			{
-				return PersistenceTypeDefinition.hashCode(typeDescription);
-			}
-
-			@Override
-			public boolean equal(final PersistenceTypeDefinition<?> td1, final PersistenceTypeDefinition<?> td2)
-			{
-				return PersistenceTypeDefinition.equalType(td1, td2);
-			}
-		}
-	;
-
-
-
-	public static int hashCode(final PersistenceTypeDefinition <?>typeDescription)
-	{
-		return Long.hashCode(typeDescription.typeId()) & typeDescription.typeName().hashCode();
-	}
-
-	public static boolean equalType(
-		final PersistenceTypeDefinition <?>td1,
-		final PersistenceTypeDefinition <?>td2
-	)
-	{
-		if(td1 == td2)
-		{
-			return true;
-		}
-		if(td1 == null)
-		{
-			return td2 == null;
-		}
-		if(td2 == null)
-		{
-			return false;
-		}
-		
-		return SwizzleTypeIdentity.equals(td1, td2);
-	}
-
+	/**
+	 * Equal content description, without TypeId comparison
+	 * 
+	 * @param td1
+	 * @param td2
+	 * @return
+	 */
 	public static boolean equalDescription(
-		final PersistenceTypeDefinition <?>td1,
-		final PersistenceTypeDefinition <?>td2
+		final PersistenceTypeDefinition<?> td1,
+		final PersistenceTypeDefinition<?> td2
 	)
 	{
-		if(td1 == td2)
-		{
-			return true;
-		}
-		if(td1 == null)
-		{
-			return td2 == null;
-		}
-		if(td2 == null)
-		{
-			return false;
-		}
-		
-		return SwizzleTypeIdentity.equals(td1, td2)
-			&& PersistenceTypeDescriptionMember.equalDescriptions(
-				td1.members(),
-				td2.members()
-			)
+		return td1 == td2 || td1 != null && td2 != null
+			&& td1.typeName().equals(td1.typeName())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
 		;
 	}
 

@@ -14,7 +14,6 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
@@ -213,10 +212,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			{
 				return; // type not yet registered, hence it can't be invalid
 			}
-			if(!SwizzleTypeIdentity.equals(registeredTd, typeHandler))
+			
+			if(typeHandler.typeId() != registeredTd.typeId())
 			{
 				// (07.04.2013)EXCP proper exception
-				throw new PersistenceExceptionTypeConsistency("Swizzle inconsistency for " + typeHandler.typeName());
+				throw new PersistenceExceptionTypeConsistency(
+					"TypeId inconsistency for " + typeHandler.typeName()
+				);
 			}
 
 			final Equalator<PersistenceTypeDescriptionMember> memberValidator = (m1, m2) ->
@@ -224,7 +226,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				if(m1 == null || m2 == null)
 				{
 					// (01.07.2015)EXCP proper exception
-					throw new PersistenceExceptionTypeConsistency("Member count mismatch of type " + typeHandler.typeName());
+					throw new PersistenceExceptionTypeConsistency(
+						"Member count mismatch of type " + typeHandler.typeName()
+					);
 				}
 
 				if(m1.equalsDescription(m2))
@@ -245,7 +249,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				// (07.04.2013)EXCP proper exception
 				throw new PersistenceExceptionTypeConsistency("Member inconsistency for " + typeHandler.typeName());
 			}
-			
 		}
 
 		@Override

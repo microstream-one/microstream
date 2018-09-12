@@ -47,6 +47,7 @@ public interface PersistencLegacyTypeMapper<M>
 		////////////////////
 		
 		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
+		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ;
 		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
 		private final char                                    identifierSeparator       ;
 
@@ -58,12 +59,14 @@ public interface PersistencLegacyTypeMapper<M>
 		
 		protected Implementation(
 			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
 			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
 			final char                                    identifierSeparator
 		)
 		{
 			super();
 			this.refactoringMappingProvider = refactoringMappingProvider;
+			this.customTypeHandlerRegistry  = customTypeHandlerRegistry ;
 			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
 			this.identifierSeparator        = identifierSeparator       ;
 		}
