@@ -1546,5 +1546,18 @@ So mach ichs!\par
 2018-09-12\par
 \par
 Foundation erweitern um neuen PersistencLegacyTypeMapper. Dabei gleich die dumme '#' Konstante konfigurierbar machen.\par
+\par
+Gleich mal Konzept machen f\'fcr Custom LegacyTypeHandler Registrierung. Am besten m\'f6glichst \'e4hnlich zu der schon existierenden Custom Handler Registrierung.\par
+Ah ja, hehe: Am \'e4hnlichsten und einfachsten ist: Genau im selben Ding. Es gibt eine "PersistenceCustomTypeHandlerRegistry", dort kommen die mit rein.\par
+Sch\'f6n typisiert, damit nix schief gehen kann. Passt alles.\par
+\par
+Hm, wieder mal auf das knifflige Thema gesto\'dfen: wann sind zwei TypeDescriptions gleich?\par
+SwizzleTypeIdentity#equals definiert typeIds gleich UND Name gleich.\par
+Aber das stimmt eigentlich nicht. Richtig ist: die gleiche Identit\'e4t liegt vor, wenn die TypeIds gleich sind. Unterschiedliche Namen sind dann ein Fehler, keine Ungleicheit.\par
+Gleiche Beschreibung liegt vor, wenn alle entscheidenden Werte (Members usw.) gleich sind.\par
+Diese Doppelgleichzeit oben wird in PersistenceTypeHandlerManager#validateTypeHandler f\'fcr die Validierung verwendet. Mal dr\'fcber nachdenken.\par
+Also dort ist das eh Quatsch: Erst gibt es einen Lookup per Name und dann wird gepr\'fcft, ob TypeId und Name gleich sind. Name ist, garantiert durch den Lookup, eh gleich. Dann bleibt eh nur noch als validierung, ob beide die gleiche TypeId haben.\par
+Das ist an dieser Stelle auch sinnvoll: Der TypeHandler (der zwangsweise die aktuelle Definition eines Typs verwendet) und die als aktuell registrierte TypeDefinition m\'fcssen die gleiche TypeId haben, sonst passt was nicht.\par
+Um das zu validieren reicht hier aber, die TypeIds direkt zu vergleichen. D.h. die ganze #equals Methode kann weg.\par
 }
  
