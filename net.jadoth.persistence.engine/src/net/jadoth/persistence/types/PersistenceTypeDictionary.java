@@ -9,6 +9,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
@@ -465,7 +466,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	{
 		protected static final transient char   TYPE_START                       = '{';
 		protected static final transient char   TYPE_END                         = '}';
-		protected static final transient char   MEMBER_FIELD_DECL_TYPE_SEPERATOR = '#';
+		protected static final transient char   MEMBER_FIELD_DECL_TYPE_SEPERATOR = XReflect.fieldIdentifierDelimiter();
 		protected static final transient char   MEMBER_TERMINATOR                = ','; // cannot be ";" as array names are terminated by it
 		protected static final transient char   MEMBER_COMPLEX_DEF_START         = '(';
 		protected static final transient char   MEMBER_COMPLEX_DEF_END           = ')';

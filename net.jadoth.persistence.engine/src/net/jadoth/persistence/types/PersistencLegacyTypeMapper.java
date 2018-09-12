@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.array;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashEnum;
@@ -25,6 +26,20 @@ public interface PersistencLegacyTypeMapper<M>
 	);
 	
 	
+	
+	public static <M> PersistencLegacyTypeMapper<M> New(
+		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
+		final char                                    identifierSeparator
+	)
+	{
+		return new PersistencLegacyTypeMapper.Implementation<>(
+			notNull(refactoringMappingProvider),
+			notNull(deletedTypeHandlerCreator) ,
+			        identifierSeparator
+		);
+	}
+
 	public class Implementation<M> implements PersistencLegacyTypeMapper<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -33,6 +48,7 @@ public interface PersistencLegacyTypeMapper<M>
 		
 		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
 		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
+		private final char                                    identifierSeparator       ;
 
 		
 		
@@ -42,23 +58,25 @@ public interface PersistencLegacyTypeMapper<M>
 		
 		protected Implementation(
 			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
+			final char                                    identifierSeparator
 		)
 		{
 			super();
 			this.refactoringMappingProvider = refactoringMappingProvider;
-			this.deletedTypeHandlerCreator = deletedTypeHandlerCreator ;
+			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
+			this.identifierSeparator        = identifierSeparator       ;
 		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 		
-		public static char memberIdentifierSeparator()
+		public char identifierSeparator()
 		{
-			// (05.09.2018 TM)TODO: OGS-3: centralize and make configurable
-			return '#';
+			return this.identifierSeparator;
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
@@ -134,7 +152,7 @@ public interface PersistencLegacyTypeMapper<M>
 			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeDefinition);
 		}
 		
-		private static IdentifierBuilder[] createSourceIdentifierBuilders()
+		private static IdentifierBuilder[] createSourceIdentifierBuilders(final char separator)
 		{
 			/*
 			 * identifier building logic in order of priority:
@@ -143,13 +161,13 @@ public interface PersistencLegacyTypeMapper<M>
 			 */
 			return array(
 				(t, m) ->
-					toGlobalIdentifier(t, m),
+					toGlobalIdentifier(t, m, separator),
 				(t, m) ->
 					toTypeInternalIdentifier(m)
 			);
 		}
 		
-		private static IdentifierBuilder[] createTargetIdentifierBuilders()
+		private static IdentifierBuilder[] createTargetIdentifierBuilders(final char separator)
 		{
 			/*
 			 * identifier building logic in order of priority:
@@ -159,11 +177,11 @@ public interface PersistencLegacyTypeMapper<M>
 			 */
 			return array(
 				(t, m) ->
-					toGlobalIdentifier(t, m),
+					toGlobalIdentifier(t, m, separator),
 				(t, m) ->
 					toTypeInternalIdentifier(m),
 				(t, m) ->
-					toUniqueUnqualifiedIdentifier(t, m)
+					toUniqueUnqualifiedIdentifier(t, m, separator)
 			);
 		}
 		
@@ -194,7 +212,7 @@ public interface PersistencLegacyTypeMapper<M>
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
 		)
 		{
-			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders();
+			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(this.identifierSeparator());
 			
 			targetMembers:
 			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDef.members())
@@ -244,7 +262,7 @@ public interface PersistencLegacyTypeMapper<M>
 		{
 			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
 			
-			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders();
+			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders(this.identifierSeparator());
 			
 			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
 			{
@@ -295,7 +313,8 @@ public interface PersistencLegacyTypeMapper<M>
 		
 		static String toUniqueUnqualifiedIdentifier(
 			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member
+			final PersistenceTypeDescriptionMember member        ,
+			final char                             separator
 		)
 		{
 			final String memberSimpleName = member.name();
@@ -314,15 +333,16 @@ public interface PersistencLegacyTypeMapper<M>
 				}
 			}
 			
-			return memberIdentifierSeparator() + memberSimpleName;
+			return separator + memberSimpleName;
 		}
 		
 		static String toGlobalIdentifier(
 			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member
+			final PersistenceTypeDescriptionMember member        ,
+			final char                             separator
 		)
 		{
-			return typeDefinition.typeName() + memberIdentifierSeparator() + toTypeInternalIdentifier(member);
+			return typeDefinition.typeName() + separator + toTypeInternalIdentifier(member);
 		}
 		
 		static String toTypeInternalIdentifier(final PersistenceTypeDescriptionMember member)

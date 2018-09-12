@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleFoundation;
@@ -105,6 +106,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceRootResolver getEffectiveRootResolver();
 
 	public PersistenceRootsProvider<M> getRootsProvider();
+	
+	public PersistencLegacyTypeMapper<M> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 	
@@ -206,6 +209,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
+	public PersistenceFoundation<M> setLegacyTypeMapper(PersistencLegacyTypeMapper<M> legacyTypeMapper);
+	
 	public PersistenceFoundation<M> setRefactoringMappingProvider(
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
@@ -286,6 +291,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
+		
+		private PersistencLegacyTypeMapper<M>           legacyTypeMapper           ;
 		private PersistenceRefactoringMappingProvider   refactoringMappingProvider ;
 		private PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ;
 
@@ -645,6 +652,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.rootResolver = this.dispatch(this.createRootResolver());
 			}
 			return this.rootResolver;
+		}
+		
+		@Override
+		public PersistencLegacyTypeMapper<M> getLegacyTypeMapper()
+		{
+			if(this.legacyTypeMapper == null)
+			{
+				this.legacyTypeMapper = this.dispatch(this.createLegacyTypeMapper());
+			}
+			return this.legacyTypeMapper;
 		}
 		
 		@Override
@@ -1028,6 +1045,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
+		public PersistenceFoundation<M> setLegacyTypeMapper(
+			final PersistencLegacyTypeMapper<M> legacyTypeMapper
+		)
+		{
+			this.legacyTypeMapper = legacyTypeMapper;
+			return this;
+		}
+		
+		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setRefactoringMappingProvider(
 			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
@@ -1097,8 +1123,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 					this.getTypeDictionaryManager(),
 					this.getTypeEvaluatorTypeIdMappable(),
 					this.getTypeMismatchValidator(),
-					this.getRefactoringMappingProvider(),
-					this.getDeletedTypeHandlerCreator()
+					this.getLegacyTypeMapper()
 				)
 			;
 			return newTypeHandlerManager;
@@ -1252,6 +1277,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultReferenceFieldMandatoryEvaluator();
 		}
 		
+		protected PersistencLegacyTypeMapper<M> createLegacyTypeMapper()
+		{
+			return PersistencLegacyTypeMapper.New(
+				this.getRefactoringMappingProvider(),
+				this.getDeletedTypeHandlerCreator(),
+				XReflect.fieldIdentifierDelimiter()
+			);
+		}
+				
 		protected PersistenceRefactoringMappingProvider createRefactoringMappingProvider()
 		{
 			// empty (= dummy) mapping by default
