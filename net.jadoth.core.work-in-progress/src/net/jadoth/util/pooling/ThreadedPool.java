@@ -13,7 +13,7 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.concurrency.Threaded;
 import net.jadoth.concurrency.ThreadedInstantiating;
 import net.jadoth.exceptions.ExceptionCreator;
-import net.jadoth.memory.Instantiator;
+import net.jadoth.functional.Instantiator;
 import net.jadoth.typing.Immutable;
 import net.jadoth.typing.XTypes;
 

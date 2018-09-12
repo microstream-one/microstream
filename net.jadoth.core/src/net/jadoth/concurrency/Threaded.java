@@ -10,8 +10,8 @@ import java.util.function.Predicate;
 import net.jadoth.collections.interfaces.ConsolidatableCollection;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
+import net.jadoth.functional.Instantiator;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.Instantiator;
 import net.jadoth.reference.Referencing;
 
 

@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.typing.XTypes;
@@ -111,7 +111,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			// entities must be indexed first to allow reverse iteration.
 			final int                         entityCount = indexEntities(file, fileActualLength, buffer, entityOffsets);
 			final StorageEntityCacheEvaluator entityCacheEvaluator = entityCache.entityCacheEvaluator;
-			final long                        bufferStartAddress   = Memory.getDirectByteBufferAddress(buffer);
+			final long                        bufferStartAddress   = XVM.getDirectByteBufferAddress(buffer);
 			
 			long totalFileContentLength = 0;
 			
@@ -167,7 +167,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			
 			fillBuffer(buffer, file, fileActualLength);
 			
-			final long bufferStartAddress = Memory.getDirectByteBufferAddress(buffer);
+			final long bufferStartAddress = XVM.getDirectByteBufferAddress(buffer);
 			final long bufferBoundAddress = bufferStartAddress + buffer.limit();
 			
 			long currentItemLength;
@@ -236,7 +236,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			
 			// anything below the system's "default" buffer size (a "page", usually 4096) doesn't pay off.
 			final ByteBuffer buffer = ByteBuffer.allocateDirect(
-				Math.max(largestFileSize, Memory.defaultBufferSize())
+				Math.max(largestFileSize, XVM.defaultBufferSize())
 			);
 			
 			return buffer;

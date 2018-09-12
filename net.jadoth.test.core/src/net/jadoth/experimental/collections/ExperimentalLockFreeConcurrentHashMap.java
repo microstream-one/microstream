@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
+import net.jadoth.low.XVM;
 import net.jadoth.typing.KeyValue;
-import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 

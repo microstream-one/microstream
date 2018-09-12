@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.ThrowingProcedure;
+import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.Memory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Unpersistable;
@@ -1068,7 +1068,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageDataFile.Implementation file
 		)
 		{
-			final long chunkStartAddress = Memory.getDirectByteBufferAddress(chunk);
+			final long chunkStartAddress = XVM.getDirectByteBufferAddress(chunk);
 			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter

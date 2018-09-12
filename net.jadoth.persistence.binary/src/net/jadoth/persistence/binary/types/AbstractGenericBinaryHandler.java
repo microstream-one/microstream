@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
@@ -72,7 +72,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                  ;
 			if(fieldType.isPrimitive())
 			{
-				primBinOffsets += Memory.byteSizePrimitive(fieldType);
+				primBinOffsets += XVM.byteSizePrimitive(fieldType);
 				prmStorers[p] = storer;
 				prmSetters[p] = setter;
 				prmBinOffs[p] = primBinOffsets;
@@ -167,7 +167,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
 
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
-		Memory.ensureClassInitialized(type);
+		XVM.ensureClassInitialized(type);
 
 		this.allFields    =  filter(allFields, not(XReflect::isStatic)                                 );
 		this.refFields    =  filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
@@ -198,10 +198,10 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		);
 
 		// memory offsets must correspond to other arrays
-		this.allMemOfs         = Memory.objectFieldOffsets(allFieldsPersOrder);
+		this.allMemOfs         = XVM.objectFieldOffsets(allFieldsPersOrder);
 		
 		// reference field offsets fit either way
-		this.refMemOfs         = Memory.objectFieldOffsets(refFieldsDeclOrder);
+		this.refMemOfs         = XVM.objectFieldOffsets(refFieldsDeclOrder);
 		
 		// references are always stored at beginning
 		this.refBinStartOffset = BinaryPersistence.entityBinaryPosition(0);

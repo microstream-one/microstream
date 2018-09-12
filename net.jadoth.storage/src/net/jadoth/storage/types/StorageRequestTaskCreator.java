@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.memory.Chunks;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
 public interface StorageRequestTaskCreator

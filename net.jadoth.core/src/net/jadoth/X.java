@@ -69,7 +69,6 @@ public final class X
 	 */
 	private static final transient ThrowBreak BREAK = new ThrowBreak();
 		
-	// let's hope this changes at some point in the future
 	private static final long INTEGER_RANGE_BOUND = Integer.MAX_VALUE + 1L;
 	
 	

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
 import net.jadoth.chars.XChars;
-import net.jadoth.util.XVM;
+import net.jadoth.low.XVM;
 import sun.misc.Unsafe;
 
 public class MainReadObjectHeader

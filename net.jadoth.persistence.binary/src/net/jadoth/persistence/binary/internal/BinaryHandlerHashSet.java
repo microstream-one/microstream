@@ -5,7 +5,7 @@ import java.util.HashSet;
 import net.jadoth.X;
 import net.jadoth.chars.XChars;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -21,7 +21,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	/////////////////////
 
 	static final long BINARY_OFFSET_LOAD_FACTOR =                       0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Memory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_ELEMENTS    = XVM.byteSize_float(); // sized array at offset 0 + float size
 
 
 
@@ -87,7 +87,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		);
 
 		// store load factor as (sole) header value
-		Memory.set_float(contentAddress, Memory.accessLoadFactor(instance));
+		XVM.set_float(contentAddress, XVM.accessLoadFactor(instance));
 	}
 
 	@Override

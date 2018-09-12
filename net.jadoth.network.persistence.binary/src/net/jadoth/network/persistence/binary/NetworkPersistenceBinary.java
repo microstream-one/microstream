@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
@@ -21,12 +21,12 @@ public class NetworkPersistenceBinary
 	
 	public static long getNetworkChunkHeaderContentLength(final ByteBuffer directByteBuffer)
 	{
-		return Memory.get_long(Memory.getDirectByteBufferAddress(directByteBuffer));
+		return XVM.get_long(XVM.getDirectByteBufferAddress(directByteBuffer));
 	}
 	
 	public static void setNetworkChunkHeaderContentLength(final ByteBuffer directByteBuffer, final long contentLength)
 	{
-		Memory.set_long(Memory.getDirectByteBufferAddress(directByteBuffer), contentLength);
+		XVM.set_long(XVM.getDirectByteBufferAddress(directByteBuffer), contentLength);
 	}
 	
 	

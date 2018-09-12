@@ -1,6 +1,6 @@
 package net.jadoth.concurrency;
 
-import net.jadoth.memory.Instantiator;
+import net.jadoth.functional.Instantiator;
 
 
 /**

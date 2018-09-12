@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import net.jadoth.collections.BulkList;
 import net.jadoth.concurrency.Threaded;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.memory.Instantiator;
+import net.jadoth.functional.Instantiator;
 
 
 /**

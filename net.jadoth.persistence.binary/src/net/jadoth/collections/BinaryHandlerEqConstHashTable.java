@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
@@ -35,7 +35,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 		BINARY_OFFSET_KEYS         = BINARY_OFFSET_EQUALATOR + BinaryPersistence.oidLength(),
 		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS      + BinaryPersistence.oidLength(),
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES    + BinaryPersistence.oidLength(),
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Memory.byteSize_float()
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()
 	;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
@@ -117,19 +117,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 			instance.size()       ,
 			linker
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			linker.apply(instance.hashEqualator)
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_KEYS,
 			linker.apply(instance.keys)
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_VALUES,
 			linker.apply(instance.values)
 		);
-		Memory.set_float(
+		XVM.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -155,19 +155,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 		final EqConstHashTable<Object, Object> collectingInstance = (EqConstHashTable<Object, Object>)instance;
 
 		// set single instances (must be done on memory-level due to final modifier. Little hacky, but okay)
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_EQUALATOR),
+			XVM.objectFieldOffset(FIELD_EQUALATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_KEYS),
+			XVM.objectFieldOffset(FIELD_KEYS),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
 		);
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_VALUES),
+			XVM.objectFieldOffset(FIELD_VALUES),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
 		);
 		instance.size = BinaryPersistence.collectKeyValueReferences(

@@ -2,6 +2,7 @@ package net.jadoth.memory;
 
 import java.nio.ByteBuffer;
 
+import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
 import sun.misc.Unsafe;
 
@@ -11,7 +12,7 @@ import sun.misc.Unsafe;
 public class MainTestLittleEndianStringToAddress
 {
 	private static final ByteBuffer bb = ByteBuffer.allocateDirect(40);
-	private static final long bb_address = Memory.getDirectByteBufferAddress(bb);
+	private static final long bb_address = XVM.getDirectByteBufferAddress(bb);
 
 	public static void main(final String[] args)
 	{
@@ -133,10 +134,10 @@ public class MainTestLittleEndianStringToAddress
 
 	static void testHexDec(final byte b)
 	{
-		final long currentAddress = LittleEndianStringToAddress.toHexDecString(b, Memory.getDirectByteBufferAddress(bb));
-		final int length = (int)(currentAddress - Memory.getDirectByteBufferAddress(bb)) / 2;
+		final long currentAddress = LittleEndianStringToAddress.toHexDecString(b, XVM.getDirectByteBufferAddress(bb));
+		final int length = (int)(currentAddress - XVM.getDirectByteBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		Memory.copyRange(null, Memory.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		XVM.copyRange(null, XVM.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = b + "\t-->\t"+s;
 		if(s.equals(Integer.toHexString(b).toUpperCase()))
@@ -151,10 +152,10 @@ public class MainTestLittleEndianStringToAddress
 
 	static void test(final long i)
 	{
-		final long currentAddress = LittleEndianStringToAddress.toString(i, Memory.getDirectByteBufferAddress(bb));
-		final int length = (int)(currentAddress - Memory.getDirectByteBufferAddress(bb)) / 2;
+		final long currentAddress = LittleEndianStringToAddress.toString(i, XVM.getDirectByteBufferAddress(bb));
+		final int length = (int)(currentAddress - XVM.getDirectByteBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		Memory.copyRange(null, Memory.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		XVM.copyRange(null, XVM.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = i + "\t-->\t"+s;
 		if(s.equals(Long.toString(i)))
@@ -169,10 +170,10 @@ public class MainTestLittleEndianStringToAddress
 
 	static void test(final int i)
 	{
-		final long currentAddress = LittleEndianStringToAddress.toString(i, Memory.getDirectByteBufferAddress(bb));
-		final int length = (int)(currentAddress - Memory.getDirectByteBufferAddress(bb)) / 2;
+		final long currentAddress = LittleEndianStringToAddress.toString(i, XVM.getDirectByteBufferAddress(bb));
+		final int length = (int)(currentAddress - XVM.getDirectByteBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		Memory.copyRange(null, Memory.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		XVM.copyRange(null, XVM.getDirectByteBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = i + "\t-->\t"+s;
 		if(s.equals(Integer.toString(i)))

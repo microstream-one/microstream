@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import java.util.ArrayList;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
@@ -65,7 +65,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 			this.typeId(),
 			oid,
 			SIZED_ARRAY_BINARY_OFFSET,
-			Memory.accessStorage(instance),
+			XVM.accessStorage(instance),
 			instance.size(),
 			linker
 		);
@@ -86,16 +86,16 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes,
 			SIZED_ARRAY_BINARY_OFFSET,
-			Memory.accessStorage(instance),
+			XVM.accessStorage(instance),
 			builder
 		);
-		Memory.setSize(instance, size);
+		XVM.setSize(instance, size);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(final ArrayList<?> instance, final SwizzleFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, Memory.accessStorage(instance), 0, instance.size());
+		Swizzle.iterateReferences(iterator, XVM.accessStorage(instance), 0, instance.size());
 	}
 
 	@Override

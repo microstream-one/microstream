@@ -1,6 +1,6 @@
 package net.jadoth.chars;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 
 
 public final class MemoryCharConversion_doubleUTF8
@@ -92,34 +92,34 @@ public final class MemoryCharConversion_doubleUTF8
 		// head method with a bunch of special case handling
 		if(Double.isNaN(value))
 		{
-			Memory.copyArray(CHARS_NAN, address);
+			XVM.copyArray(CHARS_NAN, address);
 			return address + CHARS_NAN.length;
 		}
 		if(value < DOUBLE_ZERO)
 		{
 			if(value == Double.NEGATIVE_INFINITY)
 			{
-				Memory.copyArray(CHARS_NEGATIVE_INFINITY, address);
+				XVM.copyArray(CHARS_NEGATIVE_INFINITY, address);
 				return address + CHARS_NEGATIVE_INFINITY.length;
 			}
-			Memory.set_byte(address, MINUS);
+			XVM.set_byte(address, MINUS);
 			return put_doublePositive(-value, address + 1);
 		}
 		if(value == DOUBLE_ZERO)
 		{
 			// this case is so common that is pays off to handle it specifically
-			Memory.copyArray(CHARS_ZERO, address);
+			XVM.copyArray(CHARS_ZERO, address);
 			return address + CHARS_ZERO.length;
 		}
 		if(value == DOUBLE_ONE)
 		{
 			// this case is so common that is pays off to handle it specifically
-			Memory.copyArray(CHARS_ONE, address);
+			XVM.copyArray(CHARS_ONE, address);
 			return address + CHARS_ONE.length;
 		}
 		if(value == Double.POSITIVE_INFINITY)
 		{
-			Memory.copyArray(CHARS_POSITIVE_INFINITY, address);
+			XVM.copyArray(CHARS_POSITIVE_INFINITY, address);
 			return address + CHARS_POSITIVE_INFINITY.length;
 		}
 		return put_doublePositive(value, address);
@@ -152,16 +152,16 @@ public final class MemoryCharConversion_doubleUTF8
 	private static long put_doubleGte1Denormalized(final double value, final long address)
 	{
 		final int exponent = exponent(value);
-		Memory.set_byte(address, ZERO); // overflow handling digit, gets replaced by decimal point
+		XVM.set_byte(address, ZERO); // overflow handling digit, gets replaced by decimal point
 
 		// "extremely annoying special corner case" cannot happen in this range
 		final long i = put_doubleAndCleanup(value * pow10(DOUBLE_DIGITS_BOUND - exponent), address + 1);
-		if(Memory.get_byte(address) != ZERO)
+		if(XVM.get_byte(address) != ZERO)
 		{
 			return handle_doubleGte1DenormSpecialCase(address, exponent);
 		}
-		Memory.copyRange(address + 1, address, exponent + 1);
-		Memory.set_byte(address + exponent + 1, DOT);
+		XVM.copyRange(address + 1, address, exponent + 1);
+		XVM.set_byte(address + exponent + 1, DOT);
 		return Math.max(i, address + exponent + 3);
 	}
 
@@ -170,28 +170,28 @@ public final class MemoryCharConversion_doubleUTF8
 		if(exponent == 7)
 		{
 			// what do you know: special case inside a special case
-			Memory.copyArray(CHARS_NORM_THRESH_HIGH, address);
+			XVM.copyArray(CHARS_NORM_THRESH_HIGH, address);
 			return address + CHARS_NORM_THRESH_HIGH.length;
 		}
 		
 		final int e = Math.max(exponent, 1) + 1;
 		for(int i = 1; i <= e; i++)
 		{
-			Memory.set_byte(address + 1, ZERO);
+			XVM.set_byte(address + 1, ZERO);
 		}
-		Memory.set_byte(address + e    , DOT );
-		Memory.set_byte(address + e + 1, ZERO);
+		XVM.set_byte(address + e    , DOT );
+		XVM.set_byte(address + e + 1, ZERO);
 
 		return address + e + 2;
 	}
 
 	private static long putSimpleCharacterString(final String s, final long address)
 	{
-		final char[] chars = Memory.accessChars(s);
+		final char[] chars = XVM.accessChars(s);
 
 		for(int i = 0; i < chars.length; i++)
 		{
-			Memory.set_byte(address + i, (byte)chars[i]);
+			XVM.set_byte(address + i, (byte)chars[i]);
 		}
 
 		return address + chars.length;
@@ -211,25 +211,25 @@ public final class MemoryCharConversion_doubleUTF8
 			return putSimpleCharacterString(Double.toString(value), address);
 		}
 
-		Memory.set_byte(address, ZERO); // overflow handling digit, gets replaced by decimal point
+		XVM.set_byte(address, ZERO); // overflow handling digit, gets replaced by decimal point
 		long i = put_doubleAndCleanup(intedValue, address + 1);
-		if(Memory.get_byte(address) != ZERO)
+		if(XVM.get_byte(address) != ZERO)
 		{
-			Memory.set_byte(address + 1, DOT);
-			Memory.set_byte(address + 2, ZERO);
+			XVM.set_byte(address + 1, DOT);
+			XVM.set_byte(address + 2, ZERO);
 			i = address + 3;
 		}
 		else
 		{
-			Memory.set_byte(address    , Memory.get_byte(address + 1));
-			Memory.set_byte(address + 1, DOT);
+			XVM.set_byte(address    , XVM.get_byte(address + 1));
+			XVM.set_byte(address + 1, DOT);
 			if(i == address + 2)
 			{
 				i++;
 			}
 		}
 
-		Memory.set_byte(i, E); // put exponent symbol
+		XVM.set_byte(i, E); // put exponent symbol
 		return MemoryCharConversionIntegersUTF8.put_int3(exponent, i + 1);
 	}
 
@@ -238,13 +238,13 @@ public final class MemoryCharConversion_doubleUTF8
 		// "extremely annoying special corner case" cannot happen in this range
 
 		// this little decimal point detour auto-handles the case of overflowing to 1.0
-		Memory.set_byte(address + 1, ZERO);
+		XVM.set_byte(address + 1, ZERO);
 		long i = put_doubleLt1DenormAndCleanup(value, address);
-		Memory.set_byte(address    , Memory.get_byte(address + 1));
-		Memory.set_byte(address + 1, DOT);
+		XVM.set_byte(address    , XVM.get_byte(address + 1));
+		XVM.set_byte(address + 1, DOT);
 		if(i == address + 2)
 		{
-			Memory.set_byte(i++, ZERO);
+			XVM.set_byte(i++, ZERO);
 		}
 		return i;
 	}
@@ -255,13 +255,13 @@ public final class MemoryCharConversion_doubleUTF8
 		{
 			case -3:
 			{
-				Memory.set_byte(address + 2, ZERO);
-				Memory.set_byte(address + 3, ZERO);
+				XVM.set_byte(address + 2, ZERO);
+				XVM.set_byte(address + 3, ZERO);
 				return put_doubleAndCleanup(value / DOUBLE_LAST_DIGIT0, address + 4);
 			}
 			case -2:
 			{
-				Memory.set_byte(address + 2, ZERO);
+				XVM.set_byte(address + 2, ZERO);
 				return put_doubleAndCleanup(value / DOUBLE_LAST_DIGIT1, address + 3);
 			}
 			default:
@@ -284,14 +284,14 @@ public final class MemoryCharConversion_doubleUTF8
 		}
 
 		long i = put_doubleAndCleanup(intedValue, address + 1);
-		Memory.set_byte(address    , Memory.get_byte(address + 1)); // shift first digit to the left
-		Memory.set_byte(address + 1, DOT); // insert decimal point
+		XVM.set_byte(address    , XVM.get_byte(address + 1)); // shift first digit to the left
+		XVM.set_byte(address + 1, DOT); // insert decimal point
 		if(i == address + 2)
 		{
-			Memory.set_byte(i++, ZERO); // fix accidentally cleaned first 0.
+			XVM.set_byte(i++, ZERO); // fix accidentally cleaned first 0.
 		}
-		Memory.set_byte(i    , E    ); // put exponent symbol
-		Memory.set_byte(i + 1, MINUS); // lower 1 exponents always require a sign
+		XVM.set_byte(i    , E    ); // put exponent symbol
+		XVM.set_byte(i + 1, MINUS); // lower 1 exponents always require a sign
 		return MemoryCharConversionIntegersUTF8.put_int3(-exponent, i + 2);
 	}
 
@@ -366,7 +366,7 @@ public final class MemoryCharConversion_doubleUTF8
 			}
 			default:
 			{
-				return Memory.get_byte(i - 1) == NINE
+				return XVM.get_byte(i - 1) == NINE
 					? removeTrailingNinesSimple(i - 1)
 					: removeTrailingZerosSimple(i - 1)
 				;
@@ -377,7 +377,7 @@ public final class MemoryCharConversion_doubleUTF8
 	private static long removeTrailingZerosSimple(final long address)
 	{
 		long a = address;
-		while(Memory.get_byte(a) == ZERO)
+		while(XVM.get_byte(a) == ZERO)
 		{
 			a--;
 		}
@@ -387,39 +387,39 @@ public final class MemoryCharConversion_doubleUTF8
 	private static long removeTrailingLast(final long address)
 	{
 		// first condition is a workaround for some nasty special cases
-		if(Memory.get_byte(address - 3) == NINE && Memory.get_byte(address - 2) == NINE && Memory.get_byte(address - 1) >= SEVEN)
+		if(XVM.get_byte(address - 3) == NINE && XVM.get_byte(address - 2) == NINE && XVM.get_byte(address - 1) >= SEVEN)
 		{
 			return removeTrailingNinesSimple(address - 3);
 		}
-		if(Memory.get_byte(address - 3) == ZERO && Memory.get_byte(address - 2) == ZERO && Memory.get_byte(address - 1) <= TWO)
+		if(XVM.get_byte(address - 3) == ZERO && XVM.get_byte(address - 2) == ZERO && XVM.get_byte(address - 1) <= TWO)
 		{
 			return removeTrailingZerosSimple(address - 3);
 		}
-		if(Memory.get_byte(address - 2) == NINE && Memory.get_byte(address - 1) >= EIGHT)
+		if(XVM.get_byte(address - 2) == NINE && XVM.get_byte(address - 1) >= EIGHT)
 		{
 			// '8' because 16th digit can be off by +/- 1.
 			return removeTrailingNinesSimple(address - 2);
 		}
-		if(Memory.get_byte(address - 2) == ZERO && Memory.get_byte(address - 1) <= ONE)
+		if(XVM.get_byte(address - 2) == ZERO && XVM.get_byte(address - 1) <= ONE)
 		{
 			// 1 because 16th digit can be off by +/- 1
 			return removeTrailingZerosSimple(address - 2);
 		}
-		if(Memory.get_byte(address - 1) == NINE && Memory.get_byte(address) >= FIVE)
+		if(XVM.get_byte(address - 1) == NINE && XVM.get_byte(address) >= FIVE)
 		{
 			// simple rounding for 17th digit
-			Memory.set_byte(address - 2, (byte)(Memory.get_byte(address - 2) + 1));
+			XVM.set_byte(address - 2, (byte)(XVM.get_byte(address - 2) + 1));
 			return address - 1;
 		}
-		if(Memory.get_byte(address - 1) == ZERO && Memory.get_byte(address) < FIVE)
+		if(XVM.get_byte(address - 1) == ZERO && XVM.get_byte(address) < FIVE)
 		{
 			// simple rounding for 17th digit
 			return address - 1;
 		}
-		if(Memory.get_byte(address) >= FIVE)
+		if(XVM.get_byte(address) >= FIVE)
 		{
 			// simple rounding for 17th digit
-			Memory.set_byte(address - 1, (byte)(Memory.get_byte(address - 1) + 1));
+			XVM.set_byte(address - 1, (byte)(XVM.get_byte(address - 1) + 1));
 			return address;
 		}
 		return address;
@@ -428,31 +428,31 @@ public final class MemoryCharConversion_doubleUTF8
 	private static long removeTrailingPreLast(final long address)
 	{
 		// first condition is a workaround for some nasty special cases
-		if(Memory.get_byte(address - 2) == NINE && Memory.get_byte(address - 1) == NINE && Memory.get_byte(address - 1) >= SEVEN)
+		if(XVM.get_byte(address - 2) == NINE && XVM.get_byte(address - 1) == NINE && XVM.get_byte(address - 1) >= SEVEN)
 		{
 			return removeTrailingNinesSimple(address - 2);
 		}
-		if(Memory.get_byte(address - 2) == ZERO && Memory.get_byte(address - 1) == ZERO && Memory.get_byte(address) <= TWO)
+		if(XVM.get_byte(address - 2) == ZERO && XVM.get_byte(address - 1) == ZERO && XVM.get_byte(address) <= TWO)
 		{
 			return removeTrailingZerosSimple(address - 2);
 		}
-		if(Memory.get_byte(address - 1) == NINE && Memory.get_byte(address) >= EIGHT)
+		if(XVM.get_byte(address - 1) == NINE && XVM.get_byte(address) >= EIGHT)
 		{
 			// '8' because 16th digit can be off by +/- 1.
 			return removeTrailingNinesSimple(address - 1);
 		}
-		if(Memory.get_byte(address - 1) == ZERO && Memory.get_byte(address) <= ONE)
+		if(XVM.get_byte(address - 1) == ZERO && XVM.get_byte(address) <= ONE)
 		{
 			// 1 because 16th digit can be off by +/- 1
 			return removeTrailingZerosSimple(address - 1);
 		}
-		if(Memory.get_byte(address) >= EIGHT)
+		if(XVM.get_byte(address) >= EIGHT)
 		{
 			// 8 because 16th digit can be off by +/- 1
-			Memory.set_byte(address - 1, (byte)(Memory.get_byte(address - 1) + 1));
+			XVM.set_byte(address - 1, (byte)(XVM.get_byte(address - 1) + 1));
 			return address;
 		}
-		if(Memory.get_byte(address) <= ONE)
+		if(XVM.get_byte(address) <= ONE)
 		{
 			// 1 because 16th digit can be off by +/- 1
 			return address;
@@ -463,11 +463,11 @@ public final class MemoryCharConversion_doubleUTF8
 	private static long removeTrailingNinesSimple(final long address)
 	{
 		long a = address;
-		while(Memory.get_byte(a) == NINE)
+		while(XVM.get_byte(a) == NINE)
 		{
 			a--;
 		}
-		Memory.set_byte(a, (byte)(Memory.get_byte(a) + 1));
+		XVM.set_byte(a, (byte)(XVM.get_byte(a) + 1));
 		return a + 1;
 	}
 

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.XArrays;
 import net.jadoth.files.XFiles;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 
 public class MainSearchBinaryStringInFiles
 {
@@ -44,7 +44,7 @@ public class MainSearchBinaryStringInFiles
 		searchStringsInFiles(
 			DIRECT,
 			new File("C:/Bonus25/storage/channel_1").listFiles(),
-			Memory.toByteArray(1000000000034381713L)
+			XVM.toByteArray(1000000000034381713L)
 		);
 	}
 

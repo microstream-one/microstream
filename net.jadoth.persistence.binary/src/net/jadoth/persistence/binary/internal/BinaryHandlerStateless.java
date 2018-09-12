@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
@@ -34,7 +34,7 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	{
 		try
 		{
-			return Memory.instantiate(this.type());
+			return XVM.instantiate(this.type());
 		}
 		catch(final InstantiationException e)
 		{

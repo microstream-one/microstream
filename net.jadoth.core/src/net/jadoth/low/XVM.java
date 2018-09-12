@@ -1,6 +1,4 @@
-package net.jadoth.memory;
-
-import static net.jadoth.X.notNull;
+package net.jadoth.low;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -11,8 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import net.jadoth.X;
-import net.jadoth.util.XVM;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
@@ -25,13 +21,13 @@ import sun.nio.ch.DirectBuffer;
  *
  * @author Thomas Muenz
  */
-public final class Memory
+public final class XVM
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	private static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
+	private static final Unsafe VM = (Unsafe)getSystemInstance();
 
 
 	private static final long
@@ -89,6 +85,32 @@ public final class Memory
 		boolean.class
 	);
 
+	
+	// return type not specified to avoid public API dependencies to sun implementation details
+	public static final Object getSystemInstance()
+	{
+		// all that clumsy detour ... x_x
+		if(XVM.class.getClassLoader() == null)
+		{
+			return Unsafe.getUnsafe(); // Not on bootclasspath
+		}
+		try
+		{
+			final Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+			theUnsafe.setAccessible(true);
+			return theUnsafe.get(XVM.class);
+		}
+		catch(final Exception e)
+		{
+			throw new Error("Could not obtain access to sun.misc.Unsafe", e);
+		}
+	}
+
+	public static final void throwUnchecked(final Throwable t)
+	{
+		VM.throwException(t);
+	}
+	
 
 	private static <T> Constructor<T> getConstructorOrNull(final Class<T> c, final Class<?>... parameterTypes)
 	{
@@ -193,11 +215,12 @@ public final class Memory
 		{
 			return current;
 		}
-		X.checkArrayRange(capacity);
+		
+		checkArrayRange(capacity);
 		deallocateDirectByteBuffer(current);
+		
 		return ByteBuffer.allocateDirect((int)capacity);
 	}
-
 
 	/**
 	 * This method is ONLY meant as a dirty shortcut to create String instances without the performance
@@ -359,6 +382,7 @@ public final class Memory
 	}
 
 
+	
 	public static final int bitSize_byte()
 	{
 		return BIT_SIZE_1_BYTE;
@@ -531,7 +555,7 @@ public final class Memory
 	{
 		// min logic should be unnecessary but better exclude any source for potential errors
 		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = Memory.class.getDeclaredFields();
+		final Field[] declaredFields = XVM.class.getDeclaredFields();
 		for(final Field field : declaredFields)
 		{
 			if(Modifier.isStatic(field.getModifiers()))
@@ -545,7 +569,7 @@ public final class Memory
 		}
 		if(minOffset == Long.MAX_VALUE)
 		{
-			throw new Error("Could not find object header dummy field in class " + Memory.class);
+			throw new Error("Could not find object header dummy field in class " + XVM.class);
 		}
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
 	}
@@ -651,7 +675,7 @@ public final class Memory
 		int primFieldsCount = 0;
 		for(int i = 0; i < fields.length; i++)
 		{
-			if(fields[i].getType().isPrimitive() && Memory.byteSizePrimitive(fields[i].getType()) == byteSize)
+			if(fields[i].getType().isPrimitive() && XVM.byteSizePrimitive(fields[i].getType()) == byteSize)
 			{
 				primFields[primFieldsCount++] = fields[i];
 			}
@@ -668,7 +692,7 @@ public final class Memory
 			{
 				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
 			}
-			length += Memory.byteSizePrimitive(primFields[i].getType());
+			length += XVM.byteSizePrimitive(primFields[i].getType());
 		}
 		return length;
 	}
@@ -694,7 +718,7 @@ public final class Memory
 
 	public static byte[] toByteArray(final long[] longArray)
 	{
-		final byte[] bytes = new byte[X.checkArrayRange((long)longArray.length << BITS3)];
+		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
 		VM.copyMemory(longArray, Unsafe.ARRAY_LONG_BASE_OFFSET, bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}
@@ -1224,12 +1248,43 @@ public final class Memory
 	{
 		VM.putObjectVolatile(subject, offset, value);
 	}
+	
+	
+
+	
+	////////////////////////////////////////////////////////
+	// copies of general logic to eliminate dependencies //
+	//////////////////////////////////////////////////////
+	
+	private static final int checkArrayRange(final long capacity)
+	{
+		// " >= " proved to be faster in tests than ">" (probably due to simple sign checking)
+		if(capacity > Integer.MAX_VALUE)
+		{
+			throw new IllegalArgumentException("Invalid array length: " + capacity);
+		}
+		
+		return (int)capacity;
+	}
+	
+	private static final <T> T notNull(final T object) throws NullPointerException
+	{
+		if(object == null)
+		{
+			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
+			throw new NullPointerException();
+		}
+		
+		return object;
+	}
+	
+	////////////////////////////////////////////////////
 
 
 
 	Object fieldOffsetWorkaroundDummy;
 
-	private Memory()
+	private XVM()
 	{
 		throw new Error();
 	}

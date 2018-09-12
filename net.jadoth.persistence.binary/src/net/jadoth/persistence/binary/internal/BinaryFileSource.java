@@ -13,7 +13,7 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -102,7 +102,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		 */
 
 		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-		return Memory.get_long(Memory.getDirectByteBufferAddress(lengthBuffer));
+		return XVM.get_long(XVM.getDirectByteBufferAddress(lengthBuffer));
 	}
 
 	private static final void fillBuffer(

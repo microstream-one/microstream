@@ -1,4 +1,4 @@
-package net.jadoth.memory;
+package net.jadoth.functional;
 
 import net.jadoth.exceptions.InstantiationRuntimeException;
 

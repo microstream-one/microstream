@@ -6,10 +6,10 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.interfaces.Sized;
+import net.jadoth.low.XVM;
 import net.jadoth.typing.Clearable;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing._longKeyValue;
-import net.jadoth.util.XVM;
 import sun.misc.Unsafe;
 
 
