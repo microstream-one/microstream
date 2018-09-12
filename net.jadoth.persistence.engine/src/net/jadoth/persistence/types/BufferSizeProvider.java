@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.Memory;
 import net.jadoth.typing.Immutable;
 import net.jadoth.typing.Stateless;
 
@@ -9,7 +9,7 @@ public interface BufferSizeProvider
 {
 	public default long provideBufferSize()
 	{
-		return Memory.defaultBufferSize();
+		return XVM.defaultBufferSize();
 	}
 	
 	public static BufferSizeProvider New()

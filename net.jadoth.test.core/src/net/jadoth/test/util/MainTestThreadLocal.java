@@ -8,7 +8,7 @@ import static net.jadoth.math.XMath.random;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.LimitList;
 import net.jadoth.concurrency.Threaded;
-import net.jadoth.memory.Instantiator;
+import net.jadoth.functional.Instantiator;
 
 /**
  * This Test shows that although multiple Threads use the same shared static variable, each thread gets his own private

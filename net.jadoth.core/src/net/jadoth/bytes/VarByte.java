@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional._byteProcedure;
+import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.Memory;
 
 
 
@@ -411,7 +411,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final short value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_SHORT);
-		Memory.putShort(this.data, this.size, value);
+		XVM.putShort(this.data, this.size, value);
 		this.size += BYTE_LENGTH_SHORT;
 		return this;
 	}
@@ -419,7 +419,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final char value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_CHAR);
-		Memory.putChar(this.data, this.size, value);
+		XVM.putChar(this.data, this.size, value);
 		this.size += BYTE_LENGTH_CHAR;
 		return this;
 	}
@@ -427,7 +427,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final int value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_INT);
-		Memory.putInt(this.data, this.size, value);
+		XVM.putInt(this.data, this.size, value);
 		this.size += BYTE_LENGTH_INT;
 		return this;
 	}
@@ -435,7 +435,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final float value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_FLOAT);
-		Memory.putFloat(this.data, this.size, value);
+		XVM.putFloat(this.data, this.size, value);
 		this.size += BYTE_LENGTH_FLOAT;
 		return this;
 	}
@@ -443,7 +443,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final long value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_LONG);
-		Memory.putLong(this.data, this.size, value);
+		XVM.putLong(this.data, this.size, value);
 		this.size += BYTE_LENGTH_LONG;
 		return this;
 	}
@@ -451,7 +451,7 @@ public final class VarByte implements Externalizable
 	public VarByte append(final double value)
 	{
 		this.ensureFreeCapacity(BYTE_LENGTH_DOUBLE);
-		Memory.putDouble(this.data, this.size, value);
+		XVM.putDouble(this.data, this.size, value);
 		this.size += BYTE_LENGTH_DOUBLE;
 		return this;
 	}

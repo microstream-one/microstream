@@ -20,7 +20,7 @@ import net.jadoth.bytes.VarByte;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.functional._charProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 
 
 
@@ -231,7 +231,7 @@ public final class XChars
 		validateIndex(chars, offset);
 
 		final int    length = string.length();
-		final char[] sChars = Memory.accessChars(string);
+		final char[] sChars = XVM.accessChars(string);
 
 		if(length != chars.length - offset)
 		{
@@ -432,7 +432,7 @@ public final class XChars
 	public static final VarByte readAllBytesFromInputStream(final VarByte bytes, final InputStream inputStream)
 		throws IOException
 	{
-		final byte[] buffer = new byte[Memory.defaultBufferSize()];
+		final byte[] buffer = new byte[XVM.defaultBufferSize()];
 		for(int bytesRead = -1; (bytesRead = inputStream.read(buffer)) >= 0;)
 		{
 			bytes.append(buffer, 0, bytesRead);
@@ -442,13 +442,13 @@ public final class XChars
 
 	public static final VarByte readAllBytesFromInputStream(final InputStream inputStream) throws IOException
 	{
-		return readAllBytesFromInputStream(VarByte.New(Memory.defaultBufferSize()), inputStream);
+		return readAllBytesFromInputStream(VarByte.New(XVM.defaultBufferSize()), inputStream);
 	}
 
 	public static final String readStringFromInputStream(final InputStream inputStream, final Charset charset)
 		throws IOException
 	{
-		return readAllBytesFromInputStream(VarByte.New(Memory.defaultBufferSize()), inputStream).toString(charset);
+		return readAllBytesFromInputStream(VarByte.New(XVM.defaultBufferSize()), inputStream).toString(charset);
 	}
 
 	public static final int indexOf(final char[] data, final int dataLength, final char[] subject)
@@ -732,12 +732,12 @@ public final class XChars
 	public static final String string(final char c)
 	{
 		/* yields an average 25% better performance compared to plain String.valueOf()
-		 *  if this already exists somewhere in JDK, it couldn't be found before implementing this method.
+		 * If this already exists somewhere in JDK, it couldn't be found before implementing this method.
 		 * If not: shame on them ^^.
 		 */
 		switch(c)
 		{
-			// comon case table switch
+			// common case table switch
 			case '\t': return "\t"; // slid into table switch
 			case '\n': return "\n"; // slid into table switch
 			case '\r': return "\r"; // slid into table switch
@@ -1874,7 +1874,7 @@ public final class XChars
 
 	public static final char[] getChars(final String s)
 	{
-		return Memory.accessChars(s);
+		return XVM.accessChars(s);
 	}
 
 
@@ -1937,7 +1937,7 @@ public final class XChars
 		final C      collector
 	)
 	{
-		return splitAndTrimToStrings(Memory.accessChars(input), separator, collector);
+		return splitAndTrimToStrings(XVM.accessChars(input), separator, collector);
 	}
 
 	/**

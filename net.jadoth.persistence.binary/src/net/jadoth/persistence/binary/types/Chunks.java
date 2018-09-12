@@ -1,4 +1,4 @@
-package net.jadoth.memory;
+package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 

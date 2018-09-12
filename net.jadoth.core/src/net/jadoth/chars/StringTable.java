@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CSV;
 import net.jadoth.util.csv.CsvConfiguration;
@@ -77,7 +77,7 @@ public interface StringTable
 			 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
 			 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
 			 */
-			return parse(_charArrayRange.New(Memory.accessChars(rawData)), csvConfiguration);
+			return parse(_charArrayRange.New(XVM.accessChars(rawData)), csvConfiguration);
 		}
 		
 		public static StringTable parse(final _charArrayRange rawData, final CsvConfiguration csvConfiguration)

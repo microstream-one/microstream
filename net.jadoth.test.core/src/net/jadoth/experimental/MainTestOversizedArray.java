@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import java.util.Arrays;
 
-import net.jadoth.util.XVM;
+import net.jadoth.low.XVM;
 import sun.misc.Unsafe;
 
 public class MainTestOversizedArray

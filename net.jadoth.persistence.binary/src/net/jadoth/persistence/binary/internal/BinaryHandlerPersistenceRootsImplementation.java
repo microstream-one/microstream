@@ -6,7 +6,7 @@ import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceRootEntry;
@@ -151,7 +151,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	private void fillObjectIds(final long[] oids, final Binary bytes)
 	{
 		final long offsetOidData = BinaryPersistence.binaryArrayElementDataAddress(bytes, OFFSET_OID_LIST);
-		Memory.copyRangeToArray(offsetOidData, oids);
+		XVM.copyRangeToArray(offsetOidData, oids);
 	}
 
 	private void fillIdentifiers(final String[] identifiers, final Binary bytes)

@@ -6,7 +6,7 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
@@ -59,7 +59,7 @@ public interface BinaryReferenceTraverser
 		final long addressBound = address + referenceRange;
 		for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 		{
-			procedure.accept(Memory.get_long(a));
+			procedure.accept(XVM.get_long(a));
 		}
 	}
 
@@ -237,7 +237,7 @@ public interface BinaryReferenceTraverser
 				public final long apply(final long address, final _longProcedure procedure)
 				{
 					// first 8 bytes of inlined data is its total binary length
-					return address + Memory.get_long(address);
+					return address + XVM.get_long(address);
 				}
 
 			}
@@ -248,7 +248,7 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
+				procedure.accept(XVM.get_long(address));
 				return address + REFERENCE_LENGTH;
 			}
 			
@@ -270,8 +270,8 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH));
+				procedure.accept(XVM.get_long(address));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH));
 				return address + REFERENCE_LENGTH_2;
 			}
 			
@@ -293,9 +293,9 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH_2));
+				procedure.accept(XVM.get_long(address));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH_2));
 				return address + REFERENCE_LENGTH_3;
 			}
 			
@@ -320,7 +320,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_4;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -346,7 +346,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_5;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -372,7 +372,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_6;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -398,7 +398,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_7;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -424,7 +424,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_8;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -451,7 +451,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + BinaryPersistence.getListBinaryLength(address);
 				for(long a = BinaryPersistence.getListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -507,7 +507,7 @@ public interface BinaryReferenceTraverser
 			final Class<?> primitiveType = XReflect.primitiveType(typeName);
 			return primitiveType == null
 				? 0
-				: Memory.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class
+				: XVM.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class
 			;
 		}
 
@@ -692,7 +692,7 @@ public interface BinaryReferenceTraverser
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
-				procedure.accept(Memory.get_long(a));
+				procedure.accept(XVM.get_long(a));
 			}
 			return addressBound;
 		}

@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
@@ -54,7 +54,7 @@ public final class ChunksWrapper extends Binary
 //			startOffsets[i] = BinaryPersistence.chunkDataAddress(chunks[i]);
 //			boundOffsets[i] = Memory.directByteBufferAddress(chunks[i]) + chunks[i].position();
 
-			boundOffsets[i] = (startOffsets[i] = Memory.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
+			boundOffsets[i] = (startOffsets[i] = XVM.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
 			totalLength += chunks[i].position();
 		}
 

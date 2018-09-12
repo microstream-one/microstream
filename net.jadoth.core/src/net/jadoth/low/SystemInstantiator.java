@@ -1,6 +1,7 @@
-package net.jadoth.memory;
+package net.jadoth.low;
 
 import net.jadoth.exceptions.InstantiationRuntimeException;
+import net.jadoth.functional.Instantiator;
 
 public final class SystemInstantiator<T> implements Instantiator<T>
 {
@@ -44,7 +45,7 @@ public final class SystemInstantiator<T> implements Instantiator<T>
 	{
 		try
 		{
-			return Memory.instantiate(this.type);
+			return XVM.instantiate(this.type);
 		}
 		catch(final InstantiationException e)
 		{

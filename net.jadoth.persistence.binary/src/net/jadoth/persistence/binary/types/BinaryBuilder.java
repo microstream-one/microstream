@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional._longProcedure;
+import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.Memory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceBuildItem;
 import net.jadoth.persistence.types.PersistenceBuilder;
@@ -99,7 +99,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		private void createInstanceBuildItems(final long startAddress, final long boundAddress)
 		{
-			for(long address = startAddress; address < boundAddress; address += Memory.get_long(address))
+			for(long address = startAddress; address < boundAddress; address += XVM.get_long(address))
 			{
 				this.createInstanceBuildItem(address);
 			}
@@ -598,7 +598,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			{
 				throw new IllegalStateException();
 			}
-			return new long[]{this.entityContentAddress + Memory.get_long(this.entityContentAddress)};
+			return new long[]{this.entityContentAddress + XVM.get_long(this.entityContentAddress)};
 		}
 
 		@Override

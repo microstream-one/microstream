@@ -3,8 +3,8 @@ package net.jadoth.storage.types;
 import java.nio.ByteBuffer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.memory.Chunks;
 import net.jadoth.meta.XDebug;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.UtilStackTrace;
 

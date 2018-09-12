@@ -21,14 +21,14 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.util.XVM;
 import net.jadoth.util.csv.CsvConfiguration;
 import net.jadoth.util.csv.CsvRecordParserCharArray;
 import net.jadoth.util.csv.CsvRowCollector;
@@ -168,10 +168,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.typeDictionary                  = typeDictionary                                                 ;
 			this.fileProvider                    = fileProvider                                                   ;
 			// the * 2 is important for simplifying the flush check
-			this.bufferSize                      = Math.max(bufferSize, 2 * Memory.defaultBufferSize())           ;
+			this.bufferSize                      = Math.max(bufferSize, 2 * XVM.defaultBufferSize())           ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = Memory.getDirectByteBufferAddress(this.byteBuffer)                ;
-			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + Memory.defaultBufferSize()       ;
+			this.byteBufferStartAddress          = XVM.getDirectByteBufferAddress(this.byteBuffer)                ;
+			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XVM.defaultBufferSize()       ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
 			this.literalTrue                     = configuration.literalBooleanTrue().toCharArray()               ;
@@ -184,9 +184,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
 			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.lengthListHeader());
-			this.addressListHeaderUpdateBuffer   = Memory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
+			this.addressListHeaderUpdateBuffer   = XVM.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
-			this.addressEntityLengthUpdateBuffer = Memory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
+			this.addressEntityLengthUpdateBuffer = XVM.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
 		}
@@ -692,7 +692,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// update list header in binary form
 			this.retroUpdateListHeader(
 				currentFileOffset,
-				BinaryPersistence.calculateBinaryArrayByteLength(elementCount * Memory.byteSize_boolean()),
+				BinaryPersistence.calculateBinaryArrayByteLength(elementCount * XVM.byteSize_boolean()),
 				elementCount
 			);
 
@@ -915,11 +915,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// must check for flush to guarantee the header is never split between flushes!
 			this.checkForFlush();
 			// list binary length. Intentionally invalid initial length value.
-			Memory.set_long(this.currentBufferAddress                         , 0);
+			XVM.set_long(this.currentBufferAddress                         , 0);
 			// list element count. None so far.
-			Memory.set_long(this.currentBufferAddress + Memory.byteSize_long(), 0);
+			XVM.set_long(this.currentBufferAddress + XVM.byteSize_long(), 0);
 			
-			this.currentBufferAddress += 2 * Memory.byteSize_long();
+			this.currentBufferAddress += 2 * XVM.byteSize_long();
 
 			return currentFileOffset;
 		}
@@ -1499,12 +1499,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(filePosition - this.targetFileActualLength >= 0)
 			{
 				// simple case: the position to be updated is still in the buffer, so just set the value in-memory
-				Memory.set_long(this.byteBufferStartAddress + filePosition - this.targetFileActualLength, entityTotalLength);
+				XVM.set_long(this.byteBufferStartAddress + filePosition - this.targetFileActualLength, entityTotalLength);
 			}
 			else
 			{
 				// not so simple case: target position was already flushed to the file, hence update there
-				Memory.set_long(this.addressEntityLengthUpdateBuffer, entityTotalLength);
+				XVM.set_long(this.addressEntityLengthUpdateBuffer, entityTotalLength);
 				this.writeBuffer(this.entityLengthUpdateBuffer, filePosition);
 			}
 		}
@@ -1515,14 +1515,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				// simple case: the position to be updated is still in the buffer, so just set the values in-memory
 				final long offset = filePosition - this.targetFileActualLength;
-				Memory.set_long(this.byteBufferStartAddress + offset, length);
-				Memory.set_long(this.byteBufferStartAddress + offset + Memory.byteSize_long(), elementCount);
+				XVM.set_long(this.byteBufferStartAddress + offset, length);
+				XVM.set_long(this.byteBufferStartAddress + offset + XVM.byteSize_long(), elementCount);
 			}
 			else
 			{
 				// not so simple case: target position was already flushed to the file, hence update there
-				Memory.set_long(this.addressListHeaderUpdateBuffer, length);
-				Memory.set_long(this.addressListHeaderUpdateBuffer + Memory.byteSize_long(), elementCount);
+				XVM.set_long(this.addressListHeaderUpdateBuffer, length);
+				XVM.set_long(this.addressListHeaderUpdateBuffer + XVM.byteSize_long(), elementCount);
 				this.writeBuffer(this.listHeaderUpdateBuffer, filePosition);
 			}
 		}
@@ -1601,57 +1601,57 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final void write_byte(final byte value)
 		{
 			this.checkForFlush();
-			Memory.set_byte(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_byte();
+			XVM.set_byte(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_byte();
 		}
 
 		final void write_boolean(final boolean value)
 		{
 			this.checkForFlush();
-			Memory.set_boolean(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_boolean();
+			XVM.set_boolean(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_boolean();
 		}
 
 		final void write_short(final short value)
 		{
 			this.checkForFlush();
-			Memory.set_short(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_short();
+			XVM.set_short(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_short();
 		}
 
 		final void write_char(final char value)
 		{
 			this.checkForFlush();
-			Memory.set_char(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_char();
+			XVM.set_char(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_char();
 		}
 
 		final void write_int(final int value)
 		{
 			this.checkForFlush();
-			Memory.set_int(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_int();
+			XVM.set_int(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_int();
 		}
 
 		final void write_float(final float value)
 		{
 			this.checkForFlush();
-			Memory.set_float(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_float();
+			XVM.set_float(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_float();
 		}
 
 		final void write_long(final long value)
 		{
 			this.checkForFlush();
-			Memory.set_long(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_long();
+			XVM.set_long(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_long();
 		}
 
 		final void write_double(final double value)
 		{
 			this.checkForFlush();
-			Memory.set_double(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_double();
+			XVM.set_double(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_double();
 		}
 
 
