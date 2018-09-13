@@ -1244,7 +1244,9 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		protected PersistenceTypeMismatchValidator<M> createTypeMismatchValidator()
 		{
-			return Persistence.typeMismatchValidatorFailing();
+			// (13.09.2018 TM)NOTE: changed for legacy type mapping. Still a valid callback for monitoring purposes.
+			return Persistence.typeMismatchValidatorNoOp();
+//			return Persistence.typeMismatchValidatorFailing();
 		}
 
 		protected PersistenceTypeResolver createTypeResolver()

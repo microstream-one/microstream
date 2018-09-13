@@ -9,6 +9,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 
@@ -63,6 +64,25 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		return logic;
 	}
 	
+	public default <C extends Consumer<? super PersistenceTypeDefinition<?>>> C resolveTypeIds(
+		final Iterable<Long> typeIds  ,
+		final C              collector
+	)
+	{
+		for(final Long typeId : typeIds)
+		{
+			final PersistenceTypeDefinition<?> typeDefinition = this.lookupTypeById(typeId);
+			if(typeDefinition == null)
+			{
+				throw new PersistenceExceptionTypeConsistencyDictionary("TypeId cannot be resolved: " + typeId);
+			}
+			
+			collector.accept(typeDefinition);
+		}
+		
+		return collector;
+	}
+	
 	public default <C extends Consumer<? super PersistenceTypeDefinition<?>>> C iterateLatestTypes(final C logic)
 	{
 		this.iterateTypeLineages(tl ->
@@ -89,6 +109,8 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		return typeDictionary;
 	}
 
+	
+	
 	public static PersistenceTypeDictionary New(final PersistenceTypeLineageCreator typeLineageCreator)
 	{
 		return new PersistenceTypeDictionary.Implementation(
