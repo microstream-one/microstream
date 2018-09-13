@@ -93,7 +93,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition<?> registered = dictionary.lookupTypeById(typeDefinition.typeId());
 
 			// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
-			if(registered != null && !PersistenceTypeDefinition.equalDescription(registered, typeDefinition))
+			if(registered != null && !PersistenceTypeDescription.equalDescription(registered, typeDefinition))
 			{
 				// (31.07.2014 TM)EXCP: proper exception
 				throw new RuntimeException("Type Definition mismatch: " + typeDefinition);

@@ -24,17 +24,24 @@ public interface PersistenceTypeDescription
 	 * Lazy<Person> changed to Lazy<Employee>.
 	 * Currently, this is just recognized as Lazy.
 	 * 
-	 * (05.04.2017 TM)NOTE: but does it really have to be stored here?
-	 * Wouldn't it be enough to store it in the member description?
-	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
+	 * (13.09.2018 TM)NOTE: both here and in the member description
 	 */
-	
-	public static boolean isEqualStructure(final PersistenceTypeDescription ts1, final PersistenceTypeDescription ts2)
+ 	
+	/**
+	 * Equal content description, without TypeId comparison
+	 * 
+	 * @param td1
+	 * @param td2
+	 * @return
+	 */
+	public static boolean equalDescription(
+		final PersistenceTypeDefinition<?> td1,
+		final PersistenceTypeDefinition<?> td2
+	)
 	{
-		return ts1 == ts2
-			|| ts1 != null && ts2 != null
-			&& ts1.typeName().equals(ts2.typeName())
-			&& PersistenceTypeDescriptionMember.equalDescriptions(ts1.members(), ts2.members())
+		return td1 == td2 || td1 != null && td2 != null
+			&& td1.typeName().equals(td1.typeName())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
 		;
 	}
 }

@@ -29,12 +29,14 @@ public interface PersistencLegacyTypeMapper<M>
 	
 	public static <M> PersistencLegacyTypeMapper<M> New(
 		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
 		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
 		final char                                    identifierSeparator
 	)
 	{
 		return new PersistencLegacyTypeMapper.Implementation<>(
 			notNull(refactoringMappingProvider),
+			notNull(customTypeHandlerRegistry) ,
 			notNull(deletedTypeHandlerCreator) ,
 			        identifierSeparator
 		);
@@ -118,11 +120,12 @@ public interface PersistencLegacyTypeMapper<M>
 			final MultiMatcher<PersistenceTypeDescriptionMember> matcher = MultiMatcher.New();
 			
 			// (11.09.2018 TM)FIXME: OGS-3: Member similator
-			// (11.09.2018 TM)FIXME: OGS-3: Include MatchValidator. Or encapsulate the whole mapping in the first place.
+			// (11.09.2018 TM)FIXME: OGS-3: MatchValidator.
 			
 			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
 			
-			// (11.09.2018 TM)FIXME: OGS-3: match evaluator callback logic
+			// (11.09.2018 TM)FIXME: OGS-3: match result evaluator callback logic
+			
 			/* (11.09.2018 TM)FIXME: OGS-3: Derive PersistenceLegacyTypeHandler from definite Mapping result.
 			 * - derive value mapper for each result (including changed field offsets)
 			 * - wrap all value mappers in a PersistenceTypeHandler instance.
@@ -132,6 +135,22 @@ public interface PersistencLegacyTypeMapper<M>
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
+		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
+			final PersistenceTypeDefinition<T> legacyTypeDefinition
+		)
+		{
+			// cast safety ensured by checking the typename, which "is" the T.
+			@SuppressWarnings("unchecked")
+			final PersistenceLegacyTypeHandler<M, T> matchingLegacyTypeHandler = (PersistenceLegacyTypeHandler<M, T>)
+				this.customTypeHandlerRegistry.legacyTypeHandlers()
+				.search(h ->
+					PersistenceTypeDescription.equalDescription(h, legacyTypeDefinition)
+				)
+			;
+			
+			return matchingLegacyTypeHandler;
+		}
+						
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition<T> legacyTypeDefinition ,
@@ -143,13 +162,13 @@ public interface PersistencLegacyTypeMapper<M>
 				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
 				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
 			}
-			
-			/* (30.05.2018 TM)TODO: OGS-3: custom legacy handler lookup
-			 * A way is required to make a lookup in a custom legacy handler registry, first.
-			 * Also, the lookup should not only use the TypeId, but prior to that a lookup via the
-			 * structure, because it is cumbersome (or logically misplaced) to have to manually assign TypeIds.
-			 * The structure is what identifies the handler on a logical level, not an internal technical id.
-			 */
+
+			// check for a custom handler with matching structure
+			final PersistenceLegacyTypeHandler<M, T> customHandler = this.lookupCustomHandler(legacyTypeDefinition);
+			if(customHandler != null)
+			{
+				return customHandler;
+			}
 			
 			// at this point a legacy handler must be creatable or something went wrong.
 			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeDefinition);

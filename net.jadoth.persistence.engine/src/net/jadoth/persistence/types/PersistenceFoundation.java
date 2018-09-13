@@ -1281,7 +1281,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			return PersistencLegacyTypeMapper.New(
 				this.getRefactoringMappingProvider(),
-				this.getDeletedTypeHandlerCreator(),
+				this.getCustomTypeHandlerRegistry() ,
+				this.getDeletedTypeHandlerCreator() ,
 				XReflect.fieldIdentifierDelimiter()
 			);
 		}

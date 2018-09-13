@@ -7,6 +7,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationObserver;
+import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeLineage;
 
@@ -136,10 +137,11 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				for(final PersistenceTypeDefinition<?> typeDesc : typeDictionary.allTypeDefinitions().values())
 				{
-					if(PersistenceTypeDefinition.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
+					if(PersistenceTypeDescription.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
 						continue;
 					}
+					
 					throw new RuntimeException(
 						"Invalid type description: " + typeDesc.typeId() + " " + typeDesc.typeName()
 					);

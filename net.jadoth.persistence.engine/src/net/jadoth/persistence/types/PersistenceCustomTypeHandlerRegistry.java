@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingEnum;
 
 public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
 {
@@ -23,6 +24,8 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 	);
 	
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
+		
+	public XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers();
 
 	public boolean knowsType(Class<?> type);
 		
@@ -136,6 +139,12 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		{
 			this.mapping.values().iterate(iterator);
 			return iterator;
+		}
+		
+		@Override
+		public final XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers()
+		{
+			return this.legacyTypeHandlers;
 		}
 
 	}

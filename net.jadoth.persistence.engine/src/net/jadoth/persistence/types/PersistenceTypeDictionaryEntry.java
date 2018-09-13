@@ -23,24 +23,6 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 
 	
 	
-	public static boolean isEqual(
-		final PersistenceTypeDictionaryEntry type1,
-		final PersistenceTypeDictionaryEntry type2
-	)
-	{
-		return type1 == type2
-			|| type1 != null && type2 != null
-			&& SwizzleTypeIdentity.equals(type1, type2)
-			&& PersistenceTypeDescriptionMember.equalDescriptions(
-				type1.members(),
-				type2.members()
-			)
-		;
-	}
-
-	
-	
-	
 	public abstract class AbstractImplementation implements PersistenceTypeDictionaryEntry
 	{
 		///////////////////////////////////////////////////////////////////////////
