@@ -1,4 +1,4 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 MS Mincho;}}
 {\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.17134}\viewkind4\uc1 
 \pard\sl276\slmult1\b\f0\fs28\lang7 OGS-3 Type Refactoring Entwicklungstagebuch:\par
@@ -1587,5 +1587,46 @@ Passt.\par
 \par
 So, jetzt steht der Debugger im PersistencLegacyTypeMapper. Mal durchschauen.\par
 Abgesehen von einem kleinen Fl\'fcchtigkeitsfehler siehts im getesteten Fall gut aus, aber um alle F\'e4lle zu testen, muss ich mir ein paar Testklassen mit entsprechenden \'c4nderungen bauen.\par
+\par
+\par
+Testf\'e4lle:\par
+\par
+1.) Klassen\par
+- Name der Klasse \'e4ndert sich. Geht nur per explizitem Mapping.\par
+\par
+2.) \'c4nderungen innerhalb der Klasse (ohne Vererbung)\par
+- Feld wird umbenannt\par
+- Feld f\'e4llt weg.\par
+- Feld kommt neu dazu.\par
+- Feld wird an andere Stelle verschoben.\par
+\par
+\par
+3.) \'c4nderungen innerhalb der Klasse (mit Vererbung)\par
+TODO (eklig)\par
+\par
+4.) Fiese F\'e4lle\par
+- Aktuelle Klassendefinition ist so, dass ein fr\'fcherer TypeDictionary Eintrag wieder genau passt, weshalb der aktuelle Handler mit der alten TypeId initialisiert werden muss.\par
+\par
+\par
+\par
+Ah, schon was aufgefallen:\par
+Wenn sich von einem Type einfach nur der Name ge\'e4ndert hat und sonst sind alle Felder unver\'e4ndert, dann sollte direkt der aktuelle BinaryHandler verwendet werden, ohne dass ein Legacy Dingens erzeugt wird.\par
+Das ist wichtig, falls Custom BinaryHandler verwendet werden. Wenn der Name schon mal richtig aufgel\'f6st ist, sollen die ja wieder verwendet werden, anstatt dass nach einem LegacyHandler gesucht wird.\par
+Oder vielleicht kann das allgemeiner formuliert werden:\par
+Wenn nach dem member-matching ein Mapping rauskommt, bei dem kein Feld wegf\'e4llt, keins dazukommt und sich keine Reihenfolge \'e4ndert (auch wenn vielleicht Namenstrings anders sind), dann kann f\'fcr die alte TypeId der aktuelle BinaryHandler registriert werden. Das w\'e4re dann streng genommen eine Inkonsistenz im TypeHandler Lookup, weil TypeId 123 auf den Handler f\'fcr TypeId 345 linkt.\par
+Das wird dann aber ein bisschen knifflig, weil dann dem LegacyMapper der aktueller Handler \'fcbergeben werden muss und auch ein Callback, um nur optional einen LegacyMapper zu registrieren.\par
+Oder muss ein Handler immer registriert werden (also im Beispiel f\'fcr 123), aber das muss nicht unbedingt ein LegacyHandler sein? Hm...\par
+\par
+Wobei das mit dem "genau passt" gef\'e4hrlich ist:\par
+Wenn das Feld "String note" wegf\'e4llt und an seiner Stelle ein Feld "String uStIdNr" tritt, dann ist das designm\'e4\'dfig NICHT dasselbe Feld. Wenn man das einfach annimmt, hat man auf einmal alte Anmerkungsstrings im uStIdNr Feld drin.\par
+Oder sind solche F\'e4lle dann vom Entwickler eigenverantwortlich in Form von expliziten Mappings abzubilden? Eigentlich schon ...\par
+Oder anders gesagt: Das "genau passt" basiert ja auf den expliziten Mappings. Wenn dort was nicht angegeben ist ... \'af\\_(\f1\'83\'63\f0 )_/\'af.\par
+\par
+\par
+Und da f\'e4llt mir gerade noch auf: wenn es einen Custom Handler gibt, dann ist mit einer generischen L\'f6sung sowieso nix mehr, weil die ja nicht zu der Custom Logik passt.\par
+Es gibt also f\'fcr Typen mit Custom Handler nur zwei M\'f6glichkeiten:\par
+1.) Der aktuelle kann weiterverwendet werden, weil sich nur Benamungen ge\'e4ndert haben.\par
+2.) Es muss ein passender CustomLegacyTypeHandler registriert sein, der das alte custom Format auf das neue Custom Format umformt.\par
+Die ganze Membermatcherei geht nur f\'fcr generisch behandelte Typen, die mit reflect Fields arbeiten.\par
 }
  
