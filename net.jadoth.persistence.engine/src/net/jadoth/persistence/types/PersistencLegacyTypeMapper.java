@@ -19,8 +19,8 @@ import net.jadoth.util.matching.MultiMatcher;
 public interface PersistencLegacyTypeMapper<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-		PersistenceTypeDefinition<T> legacyTypeDefinition ,
-		PersistenceTypeDefinition<T> currentTypeDefinition
+		PersistenceTypeDefinition<T> legacyTypeDefinition,
+		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
 	public <T> Class<T> lookupRuntimeType(
@@ -87,8 +87,8 @@ public interface PersistencLegacyTypeMapper<M>
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceTypeDefinition<T> legacyTypeDefinition ,
-			final PersistenceTypeDefinition<T> currentTypeDefinition
+			final PersistenceTypeDefinition<T> legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
 			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = EqHashTable.New();
@@ -98,7 +98,7 @@ public interface PersistencLegacyTypeMapper<M>
 			
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
 			
-			this.resolveToTargetMembers(refacTargetStrings, currentTypeDefinition, resolvedMembers);
+			this.resolveToTargetMembers(refacTargetStrings, currentTypeHandler, resolvedMembers);
 			
 			addDeletionMembers(refacDeletionMembers, resolvedMembers);
 						
@@ -106,7 +106,7 @@ public interface PersistencLegacyTypeMapper<M>
 				legacyTypeDefinition.members()
 			);
 			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers = BulkList.New(
-				currentTypeDefinition.members()
+				currentTypeHandler.members()
 			);
 			
 			// null out all explicitely mapped members before matching
@@ -138,6 +138,19 @@ public interface PersistencLegacyTypeMapper<M>
 			 * - wrap all value mappers in a PersistenceTypeHandler instance.
 			 * complex values are not supported for now but cause an exception.
 			 */
+			
+			if(false)
+			{
+				// special case: structure didn't change, only namings, so the current type handler can be used.
+				return PersistenceLegacyTypeHandler.Wrap(legacyTypeDefinition, currentTypeHandler);
+			}
+			
+			/* (13.09.2018 TM)FIXME: OGS-3: throw exception if the type definition is not purely reflective
+			 * Because creating a generic mapping is not a sufficient solution for customly handled types.
+			 * If the current handler cannot be used and no custom legacy handler was found, the legacy mapper
+			 * ran out of options to find a working solution.
+			 * In short: custom handling requires custom handlers. For legacy mapping, too.
+			 */
 						
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
@@ -160,11 +173,11 @@ public interface PersistencLegacyTypeMapper<M>
 						
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-			final PersistenceTypeDefinition<T> legacyTypeDefinition ,
-			final PersistenceTypeDefinition<T> currentTypeDefinition
+			final PersistenceTypeDefinition<T> legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			if(currentTypeDefinition == null)
+			if(currentTypeHandler == null)
 			{
 				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
 				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
@@ -178,7 +191,7 @@ public interface PersistencLegacyTypeMapper<M>
 			}
 			
 			// at this point a legacy handler must be creatable or something went wrong.
-			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeDefinition);
+			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
 		}
 		
 		private static IdentifierBuilder[] createSourceIdentifierBuilders(final char separator)
