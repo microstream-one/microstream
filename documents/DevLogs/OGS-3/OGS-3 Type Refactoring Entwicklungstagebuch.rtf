@@ -1559,5 +1559,16 @@ Diese Doppelgleichzeit oben wird in PersistenceTypeHandlerManager#validateTypeHa
 Also dort ist das eh Quatsch: Erst gibt es einen Lookup per Name und dann wird gepr\'fcft, ob TypeId und Name gleich sind. Name ist, garantiert durch den Lookup, eh gleich. Dann bleibt eh nur noch als validierung, ob beide die gleiche TypeId haben.\par
 Das ist an dieser Stelle auch sinnvoll: Der TypeHandler (der zwangsweise die aktuelle Definition eines Typs verwendet) und die als aktuell registrierte TypeDefinition m\'fcssen die gleiche TypeId haben, sonst passt was nicht.\par
 Um das zu validieren reicht hier aber, die TypeIds direkt zu vergleichen. D.h. die ganze #equals Methode kann weg.\par
+\par
+\par
+2018-0913\par
+\par
+Equality Zeug fertig aufr\'e4umen.\par
+CustomLegacyHandler Registrierung abschlie\'dfen und einbauen.\par
+\par
+So! Jetzt fehlt eigentlich nur noch das Similator Zeug. Bzw. Jetzt w\'e4re mal Zeit f\'fcr einen Test, ob bis da hin alles funktioniert, wie es soll. Explizite Mappings, usw.\par
+Testen.\par
+\par
+\par
 }
  

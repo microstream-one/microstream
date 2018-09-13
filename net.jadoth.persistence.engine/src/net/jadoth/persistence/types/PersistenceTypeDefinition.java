@@ -109,25 +109,6 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	{
 		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
-
-	/**
-	 * Equal content description, without TypeId comparison
-	 * 
-	 * @param td1
-	 * @param td2
-	 * @return
-	 */
-	public static boolean equalDescription(
-		final PersistenceTypeDefinition<?> td1,
-		final PersistenceTypeDefinition<?> td2
-	)
-	{
-		return td1 == td2 || td1 != null && td2 != null
-			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
-		;
-	}
-
 	
 	
 	public static <T> PersistenceTypeDefinition<T> New(
