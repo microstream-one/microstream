@@ -1593,6 +1593,7 @@ Testf\'e4lle:\par
 \par
 1.) Klassen\par
 - Name der Klasse \'e4ndert sich. Geht nur per explizitem Mapping.\par
+- Felder mit expliziter Declaring Class m\'fcssen erkannt werden.\par
 \par
 2.) \'c4nderungen innerhalb der Klasse (ohne Vererbung)\par
 - Feld wird umbenannt\par
@@ -1633,6 +1634,13 @@ Es gibt also f\'fcr Typen mit Custom Handler nur zwei M\'f6glichkeiten:\par
 1.) Der aktuelle kann weiterverwendet werden, weil sich nur Benamungen ge\'e4ndert haben.\par
 2.) Es muss ein passender CustomLegacyTypeHandler registriert sein, der das alte custom Format auf das neue Custom Format umformt.\par
 Die ganze Membermatcherei geht nur f\'fcr generisch behandelte Typen, die mit reflect Fields arbeiten.\par
+\par
+Alles soweit eingebaut. Weiter testen.\par
+\par
+Ah, die extra gebaute Testklasse w\'fcrde viel sogar das richtige Verhalten haben, wenn man die Refactorings Datei mit einbinden w\'fcrde ... ^^.\par
+Damit siehts gut aus, was die abgedeckten Tests angeht.\par
+\par
+Als n\'e4chstes muss der Similator her, um das Matching abzuschlie\'dfen.\par
 \par
 \par
 \par

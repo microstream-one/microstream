@@ -92,7 +92,7 @@ public interface PersistencLegacyTypeMapper<M>
 		)
 		{
 			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = EqHashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers = HashEnum.New();
+			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletionMembers = HashEnum.New();
 			
 			this.collectRefactoringTargetStrings(legacyTypeDefinition, refacTargetStrings, refacDeletionMembers);
 			
