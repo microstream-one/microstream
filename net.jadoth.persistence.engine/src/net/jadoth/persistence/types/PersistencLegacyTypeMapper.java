@@ -4,10 +4,12 @@ import static net.jadoth.X.array;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
@@ -89,10 +91,10 @@ public interface PersistencLegacyTypeMapper<M>
 			final PersistenceTypeDefinition<T> currentTypeDefinition
 		)
 		{
-			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = HashTable.New();
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = EqHashTable.New();
 			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers = HashEnum.New();
 			
-			this.collectRefactoringTargetStrings(legacyTypeDefinition, refacTargetStrings ,refacDeletionMembers);
+			this.collectRefactoringTargetStrings(legacyTypeDefinition, refacTargetStrings, refacDeletionMembers);
 			
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
 			
@@ -116,6 +118,11 @@ public interface PersistencLegacyTypeMapper<M>
 				resolvedMembers.values().contains(m),
 				null
 			);
+			
+			if(true)
+			{
+				XDebug.debugln("Test!");
+			}
 			
 			final MultiMatcher<PersistenceTypeDescriptionMember> matcher = MultiMatcher.New();
 			
@@ -277,9 +284,9 @@ public interface PersistencLegacyTypeMapper<M>
 		}
 		
 		private void collectRefactoringTargetStrings(
-			final PersistenceTypeDefinition<?>                        typeDefinition      ,
-			final HashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>          refacDeletionMembers
+			final PersistenceTypeDefinition<?>                          typeDefinition      ,
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings  ,
+			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletionMembers
 		)
 		{
 			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
@@ -300,11 +307,11 @@ public interface PersistencLegacyTypeMapper<M>
 		}
 		
 		private static boolean check(
-			final PersistenceTypeDescriptionMember                    member                    ,
-			final String                                              lookupString              ,
-			final XGettingTable<String, String>                       refactoringEntries        ,
-			final HashTable<String, PersistenceTypeDescriptionMember> refactoringTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>          refactoringDeletionMembers
+			final PersistenceTypeDescriptionMember                      member                    ,
+			final String                                                lookupString              ,
+			final XGettingTable<String, String>                         refactoringEntries        ,
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refactoringTargetStrings  ,
+			final HashEnum<PersistenceTypeDescriptionMember>            refactoringDeletionMembers
 		)
 		{
 			// must check keys themselves, as a null value means deletion

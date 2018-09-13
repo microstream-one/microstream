@@ -1569,6 +1569,23 @@ CustomLegacyHandler Registrierung abschlie\'dfen und einbauen.\par
 So! Jetzt fehlt eigentlich nur noch das Similator Zeug. Bzw. Jetzt w\'e4re mal Zeit f\'fcr einen Test, ob bis da hin alles funktioniert, wie es soll. Explizite Mappings, usw.\par
 Testen.\par
 \par
+Ah, richtig: Occuring TypeIds zu TypeDefinitions aufl\'f6sen fehlt noch. Implementieren.\par
+Hm. Wobei schon irgendwie die Frage ist: Soll wirklich der Storage Kontext \'fcber den PersistenceTypeManager und dessen TypeDictionary die TypeIds zu TypeDescriptions aufl\'f6sen, um sie dann dem TypeManager wieder zu geben?\par
+W\'e4re es nicht sauberer, dem TypeManager eine TypeId Liste zu geben, die er sich intern dann selber aufl\'f6st? Irgendwie schon. Dann sind in der API aber wieder TypeIds drin. Bl\'f6d.\par
+Wobei die eh schon drin sind: f\'fcr lookups, f\'fcr den highest TypeId update.\par
+Also doch per TypeIds. Implementieren.\par
+Testen.\par
 \par
+Haha: PrimitiveDescription hat keinen UniqueName, darum Nullpointer. Mal \'fcberlegen f\'fcr einen sauberen Fix.\par
+Eigentlich sollte es unproblematisch sein, einfach direkt primitiveDefinition() zur\'fcckzugeben. Primitive Types sollten ja immer nur ein Member haben.\par
+Testen.\par
+Passt.\par
+\par
+PersistenceTypeMismatchValidator darf jetzt nat\'fcrlich keine Exception mehr werfen. Default von failing auf noOp \'e4ndern, kommentieren.\par
+Testen.\par
+Passt.\par
+\par
+So, jetzt steht der Debugger im PersistencLegacyTypeMapper. Mal durchschauen.\par
+Abgesehen von einem kleinen Fl\'fcchtigkeitsfehler siehts im getesteten Fall gut aus, aber um alle F\'e4lle zu testen, muss ich mir ein paar Testklassen mit entsprechenden \'c4nderungen bauen.\par
 }
  

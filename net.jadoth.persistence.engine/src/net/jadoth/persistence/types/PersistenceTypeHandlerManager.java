@@ -38,6 +38,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	
 	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition<?>> typeDefinitions);
 
+	public void ensureTypeHandlersByTypeIds(XGettingEnum<Long> typeIds);
+
 	public void initialize();
 
 	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
@@ -311,6 +313,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			
 			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			return runtimeTypeHandler;
+		}
+		
+		@Override
+		public void ensureTypeHandlersByTypeIds(final XGettingEnum<Long> typeIds)
+		{
+			final HashEnum<PersistenceTypeDefinition<?>> resolvedTypeDefinitions = HashEnum.New();
+			this.typeDictionaryManager.provideTypeDictionary().resolveTypeIds(typeIds, resolvedTypeDefinitions);
+			this.ensureTypeHandlers(resolvedTypeDefinitions);
 		}
 				
 		@Override

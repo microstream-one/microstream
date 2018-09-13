@@ -9,6 +9,12 @@ import net.jadoth.low.XVM;
 public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends PersistenceTypeDescriptionMember
 {
 	public String primitiveDefinition();
+	
+	@Override
+	public default String uniqueName()
+	{
+		return this.primitiveDefinition();
+	}
 
 	
 	@Override
@@ -24,9 +30,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition m2
 	)
 	{
-		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
-			&& m1.primitiveDefinition().equals(m2.primitiveDefinition())
-		;
+		return m1.primitiveDefinition().equals(m2.primitiveDefinition());
 	}
 
 
