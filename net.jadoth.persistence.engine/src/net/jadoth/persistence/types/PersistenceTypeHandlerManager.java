@@ -284,6 +284,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return typedHandler;
 			}
 			
+			/* (13.09.2018 TM)FIXME: generic legacy handler only for purely reflective types!
+			 * custom handled types MUST have a custom legacy handler
+			 */
+			// (13.09.2018 TM)FIXME: use current handler if possible (only namings changed, not structure)
+			// (13.09.2018 TM)FIXME: deleted type only if explicitely defined in mapping!
+			
 			// can be null
 			final PersistenceTypeDefinition<T> runtimeTypeDefinition = this.determineRuntimeTypeDefinition(typeDefinition);
 			
