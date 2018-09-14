@@ -4,12 +4,10 @@ import java.lang.reflect.Field;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -29,17 +27,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public final void validateFields(final XGettingSequence<Field> fieldDescriptions)
-		throws SwizzleExceptionConsistency
-	{
-		if(fieldDescriptions.isEmpty())
-		{
-			return;
-		}
-		throw new SwizzleExceptionConsistency();
-	}
 
 	@Override
 	public void update(final Binary medium, final T instance, final SwizzleBuildLinker builder)

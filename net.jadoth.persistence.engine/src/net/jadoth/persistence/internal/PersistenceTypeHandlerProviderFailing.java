@@ -37,7 +37,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public Class<?> ensureType(final long typeId)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeManager#ensureType
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

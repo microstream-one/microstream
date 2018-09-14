@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -76,13 +75,6 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	{
 		// nothing to do here in either case (null or exception)
 	}
-
-	@Override
-	public default void validateFields(final XGettingSequence<Field> fieldDescriptions)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeHandler<M,T>#validateFields()
-	}
-	
 	
 	
 	

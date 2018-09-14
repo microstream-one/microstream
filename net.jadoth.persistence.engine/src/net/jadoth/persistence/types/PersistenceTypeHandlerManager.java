@@ -65,7 +65,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		final PersistenceTypeDictionaryManager    typeDictionaryManager,
 		final PersistenceTypeEvaluator            typeEvaluator        ,
 		final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-		final PersistencLegacyTypeMapper<M>       legacyTypeMapper
+		final PersistenceLegacyTypeMapper<M>      legacyTypeMapper
 	)
 	{
 		return new PersistenceTypeHandlerManager.Implementation<>(
@@ -89,7 +89,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private final PersistenceTypeDictionaryManager    typeDictionaryManager;
 		private final PersistenceTypeEvaluator            typeEvaluator        ;
 		private final PersistenceTypeMismatchValidator<M> typeMismatchValidator;
-		private final PersistencLegacyTypeMapper<M>       legacyTypeMapper     ;
+		private final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ;
 		private       boolean                             initialized          ;
 
 
@@ -104,7 +104,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionaryManager    typeDictionaryManager,
 			final PersistenceTypeEvaluator            typeEvaluator        ,
 			final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-			final PersistencLegacyTypeMapper<M>       legacyTypeMapper
+			final PersistenceLegacyTypeMapper<M>      legacyTypeMapper
 		)
 		{
 			super();

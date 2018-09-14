@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -212,12 +211,6 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public void complete(final M medium, final T instance, final SwizzleBuildLinker builder)
 		{
 			this.typeHandler.complete(medium, instance, builder);
-		}
-
-		@Override
-		public void validateFields(final XGettingSequence<Field> fieldDescriptions)
-		{
-			this.typeHandler.validateFields(fieldDescriptions);
 		}
 		
 	}
