@@ -124,13 +124,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		final PersistenceTypeHandler<M, T> typeHandler
 	)
 	{
-		return new Wrapper<>(
+		return new DirectWrapper<>(
 			notNull(legacyTypeDefinition),
 			notNull(typeHandler)
 		);
 	}
 	
-	public final class Wrapper<M, T> extends AbstractImplementation<M, T>
+	public final class DirectWrapper<M, T> extends AbstractImplementation<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -144,7 +144,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// constructors //
 		/////////////////
 
-		public Wrapper(
+		public DirectWrapper(
 			final PersistenceTypeDefinition<T> typeDefinition           ,
 			final PersistenceTypeHandler<M, T> fittingCurrentTypeHandler
 		)
@@ -216,3 +216,4 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 
 }
+
