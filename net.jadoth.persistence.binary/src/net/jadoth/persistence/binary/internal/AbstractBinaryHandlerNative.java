@@ -12,7 +12,6 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryFieldLengthResolver;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationArrayType;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
@@ -167,18 +166,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 
 	@Override
 	public abstract void store(Binary bytes, T instance, long oid, PersistenceStoreFunction linker);
-
-	@Override
-	public void validateFields(final XGettingSequence<Field> fieldDescriptions)
-		throws PersistenceExceptionTypeConsistencyDefinitionValidationArrayType
-	{
-		if(fieldDescriptions.isEmpty())
-		{
-			return;
-		}
-		
-		throw new PersistenceExceptionTypeConsistencyDefinitionValidationArrayType(this.type());
-	}
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)

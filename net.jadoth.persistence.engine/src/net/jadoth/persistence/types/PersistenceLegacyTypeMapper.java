@@ -9,14 +9,17 @@ import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.equality.Equalator;
+import net.jadoth.functional.Similator;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.util.matching.MatchValidator;
 import net.jadoth.util.matching.MultiMatch;
 import net.jadoth.util.matching.MultiMatcher;
 
-public interface PersistencLegacyTypeMapper<M>
+public interface PersistenceLegacyTypeMapper<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
 		PersistenceTypeDefinition<T> legacyTypeDefinition,
@@ -29,31 +32,43 @@ public interface PersistencLegacyTypeMapper<M>
 	
 	
 	
-	public static <M> PersistencLegacyTypeMapper<M> New(
-		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
-		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
-		final char                                    identifierSeparator
+	public static <M> PersistenceLegacyTypeMapper<M> New(
+		final PersistenceRefactoringMappingProvider            refactoringMappingProvider,
+		final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ,
+		final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ,
+		final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ,
+		final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ,
+		final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ,
+		final PersistenceLegacyTypeMappingResultor<M>          resultor                  ,
+		final char                                             identifierSeparator
 	)
 	{
-		return new PersistencLegacyTypeMapper.Implementation<>(
+		return new PersistenceLegacyTypeMapper.Implementation<>(
 			notNull(refactoringMappingProvider),
 			notNull(customTypeHandlerRegistry) ,
 			notNull(deletedTypeHandlerCreator) ,
-			        identifierSeparator
+			notNull(memberMatchingEqualator)   ,
+			notNull(memberMatchingSimilator)   ,
+			notNull(memberMatchValidator)      ,
+			notNull(resultor)                  ,
+	                identifierSeparator
 		);
 	}
 
-	public class Implementation<M> implements PersistencLegacyTypeMapper<M>
+	public class Implementation<M> implements PersistenceLegacyTypeMapper<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
-		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ;
-		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
-		private final char                                    identifierSeparator       ;
+		private final PersistenceRefactoringMappingProvider            refactoringMappingProvider;
+		private final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ;
+		private final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ;
+		private final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ;
+		private final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ;
+		private final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ;
+		private final PersistenceLegacyTypeMappingResultor<M>          resultor                  ;
+		private final char                                             identifierSeparator       ;
 
 		
 		
@@ -62,16 +77,24 @@ public interface PersistencLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Implementation(
-			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
-			final char                                    identifierSeparator
+			final PersistenceRefactoringMappingProvider            refactoringMappingProvider,
+			final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ,
+			final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ,
+			final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ,
+			final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ,
+			final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ,
+			final PersistenceLegacyTypeMappingResultor<M>           resultor                  ,
+			final char                                             identifierSeparator
 		)
 		{
 			super();
 			this.refactoringMappingProvider = refactoringMappingProvider;
 			this.customTypeHandlerRegistry  = customTypeHandlerRegistry ;
 			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
+			this.memberMatchingEqualator    = memberMatchingEqualator   ;
+			this.memberMatchingSimilator    = memberMatchingSimilator   ;
+			this.memberMatchValidator       = memberMatchValidator      ;
+			this.resultor                   = resultor                  ;
 			this.identifierSeparator        = identifierSeparator       ;
 		}
 		
@@ -124,36 +147,78 @@ public interface PersistencLegacyTypeMapper<M>
 				XDebug.debugln("Test!");
 			}
 			
-			final MultiMatcher<PersistenceTypeDescriptionMember> matcher = MultiMatcher.New();
-			
-			// (11.09.2018 TM)FIXME: OGS-3: Member similator
-			// (11.09.2018 TM)FIXME: OGS-3: MatchValidator.
+			final MultiMatcher<PersistenceTypeDescriptionMember> matcher =
+				MultiMatcher.<PersistenceTypeDescriptionMember>New()
+				.setEqualator(this.memberMatchingEqualator)
+				.setSimilator(this.memberMatchingSimilator)
+				.setValidator(this.memberMatchValidator)
+			;
 			
 			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
 			
-			// (11.09.2018 TM)FIXME: OGS-3: match result evaluator callback logic
+			final PersistenceLegacyTypeMappingResult<M, T> result = this.resultor.createMappingResult(
+				legacyTypeDefinition,
+				currentTypeHandler  ,
+				resolvedMembers     ,
+				refacDeletionMembers,
+				match
+			);
 			
-			/* (11.09.2018 TM)FIXME: OGS-3: Derive PersistenceLegacyTypeHandler from definite Mapping result.
-			 * - derive value mapper for each result (including changed field offsets)
-			 * - wrap all value mappers in a PersistenceTypeHandler instance.
-			 * complex values are not supported for now but cause an exception.
-			 */
-			
-			if(false)
+			return this.createLegacyTypeHandler(result);
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
+			final PersistenceLegacyTypeMappingResult<M, T> result
+		)
+		{
+			if(isUnchangedStructure(result))
 			{
 				// special case: structure didn't change, only namings, so the current type handler can be used.
-				return PersistenceLegacyTypeHandler.Wrap(legacyTypeDefinition, currentTypeHandler);
+				return PersistenceLegacyTypeHandler.Wrap(result.legacyTypeDefinition(), result.currentTypeHandler());
 			}
 			
-			/* (13.09.2018 TM)FIXME: OGS-3: throw exception if the type definition is not purely reflective
-			 * Because creating a generic mapping is not a sufficient solution for customly handled types.
-			 * If the current handler cannot be used and no custom legacy handler was found, the legacy mapper
-			 * ran out of options to find a working solution.
-			 * In short: custom handling requires custom handlers. For legacy mapping, too.
-			 */
-						
+			if(isCustom(result.currentTypeHandler()))
+			{
+				return this.deriveCustomWrappingHandler(result);
+			}
+			
+			return this.deriveReflectiveHandler(result);
+		}
+			
+		
+		private static boolean isUnchangedStructure(final PersistenceLegacyTypeMappingResult<?, ?> result)
+		{
+			// (14.09.2018 TM)FIXME: OGS-3: isUnchangedStructure()
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
+		
+		private static boolean isCustom(final PersistenceTypeHandler<?, ?> currentTypeHandler)
+		{
+			// (14.09.2018 TM)FIXME: OGS-3: isCustom()
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> deriveCustomWrappingHandler(
+			final PersistenceLegacyTypeMappingResult<?, ?> result
+		)
+		{
+			/* (14.09.2018 TM)FIXME: OGS-3: deriveCustomWrappingHandler()
+			 * wrapping legacy handler that copies the bytes in the old structure into an intermediate Bytes
+			 * instances in the current structure and passes that instance to the current handler.
+			 * That is a slight detour, but it is a generic solution and it can be easily optimized away by
+			 * providing a suitable legacy handler.
+			 */
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> deriveReflectiveHandler(
+			final PersistenceLegacyTypeMappingResult<?, ?> result
+		)
+		{
+			// (14.09.2018 TM)FIXME: OGS-3: deriveReflectiveHandler()
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
 			final PersistenceTypeDefinition<T> legacyTypeDefinition

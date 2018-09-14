@@ -9,19 +9,16 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -354,22 +351,15 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		);
 	}
 
-	void validate(final Field describedField, final long index)
-	{
-		if(!this.allFields.at(index).equals(describedField))
-		{
-			throw new PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch(
-				this.allFields.at(index),
-				describedField
-			);
-		}
-	}
-
-	@Override
-	public void validateFields(final XGettingSequence<Field> fieldDescriptions)
-		throws SwizzleExceptionConsistency
-	{
-		fieldDescriptions.iterateIndexed(this::validate);
-	}
+//	void validate(final Field describedField, final long index)
+//	{
+//		if(!this.allFields.at(index).equals(describedField))
+//		{
+//			throw new PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatch(
+//				this.allFields.at(index),
+//				describedField
+//			);
+//		}
+//	}
 
 }

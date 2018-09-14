@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
@@ -59,8 +58,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 	 * And what about the existing one that still gets called? What if it gets passed another oidresolver?
 	 * Maybe solve by a PersistenceDomain-specific Builder? Wouldn't even have to have a new interface, just a class
 	 */
-
-	public void validateFields(XGettingSequence<Field> fieldDescriptions);
 	
 	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
 	

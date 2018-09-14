@@ -1644,5 +1644,27 @@ Als n\'e4chstes muss der Similator her, um das Matching abzuschlie\'dfen.\par
 \par
 \par
 \par
+2018-09-14\par
+\par
+Die Custom Handler k\'f6nnten auch ohne legacy custom handler mit einem zwischenschritt bedient werden:\par
+Wieder ein LegacyTypeHandler Wrapper, der beim builden die Bytes von der alten auf die aktuelle Struktur umkopiert und dann an den aktuellen Custom Handler weiterreicht.\par
+Ist vielleicht ein klein bisschen unsch\'f6n, aber das w\'fcrde ja nur auf ganz seltene Sonderf\'e4lle zutreffen und falls es performancetechnisch ein Problem sein sollte, muss man halt einen Custom Legacy Handler schreiben, dann l\'e4uft es direkt.\par
+Das bau ich noch mit ein.\par
+\par
+Es muss noch eine Datenstruktur geben, die das ganze Member Mapping Zeug letztendlich zusammenfasst.\par
+Und es muss eine Logik geben, die diese Zusammenfassung macht. Am besten Modular, damit man sie customizen kann, um eingreifen zu k\'f6nnen.\par
+\par
+Result und Resultor bauen.\par
+\par
+Verschiedene F\'e4lle in der Logik strukturieren.\par
+\par
+Foundation f\'fcr die ganzen neuen Module erweitern.\par
+\par
+FIXMEs durchschauen.\par
+PersistenceTypehandler#validateFields untersuchen ... das wird nie benutzt. Rausl\'f6schen.\par
+\par
+\par
+\par
+\par
 }
  

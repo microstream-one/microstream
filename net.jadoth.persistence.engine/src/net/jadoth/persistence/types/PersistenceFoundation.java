@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
@@ -12,6 +13,7 @@ import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
+import net.jadoth.util.matching.MatchValidator;
 
 
 /**
@@ -107,12 +109,19 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceRootsProvider<M> getRootsProvider();
 	
-	public PersistencLegacyTypeMapper<M> getLegacyTypeMapper();
+	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 	
 	public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator();
 
+	public Equalator<PersistenceTypeDescriptionMember> getLegacyTypeMappingMemberEqualator();
+	
+	public PersistenceTypeMemberSimilator getLegacyTypeMappingMemberSimilator();
+	
+	public MatchValidator<PersistenceTypeDescriptionMember> getLegacyTypeMappingMemberMatchValidator();
+	
+	public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor();
 
 
 
@@ -209,7 +218,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceFoundation<M> setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
-	public PersistenceFoundation<M> setLegacyTypeMapper(PersistencLegacyTypeMapper<M> legacyTypeMapper);
+	public PersistenceFoundation<M> setLegacyTypeMapper(PersistenceLegacyTypeMapper<M> legacyTypeMapper);
 	
 	public PersistenceFoundation<M> setRefactoringMappingProvider(
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
@@ -217,6 +226,22 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceFoundation<M> setDeletedTypeHandlerCreator(
 		PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
+	);
+	
+	public PersistenceFoundation<M> setLegacyTypeMappingMemberEqualator(
+		Equalator<PersistenceTypeDescriptionMember> legacyTypeMappingMemberEqualator
+	);
+	
+	public PersistenceFoundation<M> setLegacyTypeMappingMemberSimilator(
+		PersistenceTypeMemberSimilator legacyTypeMappingMemberSimilator
+	);
+	
+	public PersistenceFoundation<M> setLegacyTypeMappingMemberMatchValidator(
+		MatchValidator<PersistenceTypeDescriptionMember> legacyTypeMappingMemberMatchValidator
+	);
+	
+	public PersistenceFoundation<M> setLegacyTypeMappingResultor(
+		PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
 	);
 
 
@@ -292,11 +317,17 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		
-		private PersistencLegacyTypeMapper<M>           legacyTypeMapper           ;
-		private PersistenceRefactoringMappingProvider   refactoringMappingProvider ;
-		private PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ;
+		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
+		private PersistenceLegacyTypeMapper<M>                   legacyTypeMapper          ;
+		private PersistenceRefactoringMappingProvider            refactoringMappingProvider;
+		private PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ;
+		private Equalator<PersistenceTypeDescriptionMember>      legacyTypeMappingMemberEqualator     ;
+		private PersistenceTypeMemberSimilator                   legacyTypeMappingMemberSimilator     ;
+		private MatchValidator<PersistenceTypeDescriptionMember> legacyTypeMappingMemberMatchValidator;
+		private PersistenceLegacyTypeMappingResultor<M>          legacyTypeMappingResultor            ;
+		
 
-
+		
 		///////////////////////////////////////////////////////////////////////////
 		// getters          //
 		/////////////////////
@@ -308,6 +339,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeLineageCreator = this.dispatch(this.createTypeLineageCreator());
 			}
+			
 			return this.typeLineageCreator;
 		}
 
@@ -318,6 +350,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.swizzleRegistry = this.dispatch(this.createSwizzleRegistry());
 			}
+			
 			return this.swizzleRegistry;
 		}
 
@@ -328,6 +361,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.objectManager = this.dispatch(this.createObjectManager());
 			}
+			
 			return this.objectManager;
 		}
 
@@ -338,6 +372,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerManager = this.dispatch(this.createTypeHandlerManager());
 			}
+			
 			return this.typeHandlerManager;
 		}
 
@@ -348,6 +383,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.storerCreator = this.dispatch(this.createStorerCreator());
 			}
+			
 			return this.storerCreator;
 		}
 
@@ -358,6 +394,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.registererCreator = this.dispatch(this.createRegistererCreator());
 			}
+			
 			return this.registererCreator;
 		}
 
@@ -368,6 +405,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.builderCreator = this.dispatch(this.createBuilderCreator());
 			}
+			
 			return this.builderCreator;
 		}
 
@@ -378,6 +416,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.target = this.dispatch(this.createPersistenceTarget());
 			}
+			
 			return this.target;
 		}
 
@@ -388,6 +427,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.source = this.dispatch(this.createPersistenceSource());
 			}
+			
 			return this.source;
 		}
 
@@ -398,6 +438,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerRegistry = this.dispatch(this.createTypeHandlerRegistry());
 			}
+			
 			return this.typeHandlerRegistry;
 		}
 
@@ -408,6 +449,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerProvider = this.dispatch(this.createTypeHandlerProvider());
 			}
+			
 			return this.typeHandlerProvider;
 		}
 
@@ -418,6 +460,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeManager = this.dispatch(this.createTypeManager());
 			}
+			
 			return this.typeManager;
 		}
 
@@ -428,6 +471,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerEnsurer = this.dispatch(this.createTypeHandlerEnsurer());
 			}
+			
 			return this.typeHandlerEnsurer;
 		}
 
@@ -438,6 +482,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryProvider = this.dispatch(this.createTypeDictionaryProvider());
 			}
+			
 			return this.typeDictionaryProvider;
 		}
 
@@ -448,6 +493,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryManager = this.dispatch(this.createTypeDictionaryManager());
 			}
+			
 			return this.typeDictionaryManager;
 		}
 		
@@ -458,6 +504,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryCreator = this.dispatch(this.createTypeDictionaryCreator());
 			}
+			
 			return this.typeDictionaryCreator;
 		}
 		
@@ -468,6 +515,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryExporter = this.dispatch(this.createTypeDictionaryExporter());
 			}
+			
 			return this.typeDictionaryExporter;
 		}
 
@@ -478,6 +526,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryParser = this.dispatch(this.createTypeDictionaryParser());
 			}
+			
 			return this.typeDictionaryParser;
 		}
 
@@ -488,6 +537,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryLoader = this.dispatch(this.createTypeDictionaryLoader());
 			}
+			
 			return this.typeDictionaryLoader;
 		}
 		
@@ -498,6 +548,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryBuilder = this.dispatch(this.createTypeDictionaryBuilder());
 			}
+			
 			return this.typeDictionaryBuilder;
 		}
 
@@ -508,6 +559,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryAssembler = this.dispatch(this.createTypeDictionaryAssembler());
 			}
+			
 			return this.typeDictionaryAssembler;
 		}
 
@@ -518,6 +570,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryStorer = this.dispatch(this.createTypeDictionaryStorer());
 			}
+			
 			return this.typeDictionaryStorer;
 		}
 
@@ -528,6 +581,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerCreator = this.dispatch(this.createTypeHandlerCreator());
 			}
+			
 			return this.typeHandlerCreator;
 		}
 
@@ -538,6 +592,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.customTypeHandlerRegistry = this.dispatch(this.createCustomTypeHandlerRegistry());
 			}
+			
 			return this.customTypeHandlerRegistry;
 		}
 
@@ -548,6 +603,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeAnalyzer = this.dispatch(this.createTypeAnalyzer());
 			}
+			
 			return this.typeAnalyzer;
 		}
 
@@ -558,6 +614,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeEvaluatorTypeIdMappable = this.dispatch(this.createTypeEvaluatorTypeIdMappable());
 			}
+			
 			return this.typeEvaluatorTypeIdMappable;
 		}
 		
@@ -568,6 +625,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeMismatchValidator = this.dispatch(this.createTypeMismatchValidator());
 			}
+			
 			return this.typeMismatchValidator;
 		}
 
@@ -578,6 +636,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeResolver = this.dispatch(this.createTypeResolver());
 			}
+			
 			return this.typeResolver;
 		}
 		
@@ -588,6 +647,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDefinitionCreator = this.dispatch(this.createTypeDefinitionCreator());
 			}
+			
 			return this.typeDefinitionCreator;
 		}
 
@@ -598,6 +658,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeEvaluatorPersistable = this.dispatch(this.createTypeEvaluatorPersistable());
 			}
+			
 			return this.typeEvaluatorPersistable;
 		}
 
@@ -608,6 +669,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.fieldFixedLengthResolver = this.dispatch(this.createFieldFixedLengthResolver());
 			}
+			
 			return this.fieldFixedLengthResolver;
 		}
 
@@ -618,6 +680,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.bufferSizeProvider = this.dispatch(this.createBufferSizeProvider());
 			}
+			
 			return this.bufferSizeProvider;
 		}
 
@@ -628,17 +691,18 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.fieldEvaluator = this.dispatch(this.createFieldEvaluator());
 			}
+			
 			return this.fieldEvaluator;
 		}
 		
 		@Override
 		public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator()
 		{
-
 			if(this.eagerStoringFieldEvaluator == null)
 			{
 				this.eagerStoringFieldEvaluator = this.dispatch(this.createReferenceFieldMandatoryEvaluator());
 			}
+			
 			return this.eagerStoringFieldEvaluator;
 		}
 
@@ -651,16 +715,18 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.rootResolver = this.dispatch(this.createRootResolver());
 			}
+			
 			return this.rootResolver;
 		}
 		
 		@Override
-		public PersistencLegacyTypeMapper<M> getLegacyTypeMapper()
+		public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper()
 		{
 			if(this.legacyTypeMapper == null)
 			{
 				this.legacyTypeMapper = this.dispatch(this.createLegacyTypeMapper());
 			}
+			
 			return this.legacyTypeMapper;
 		}
 		
@@ -671,6 +737,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.refactoringMappingProvider = this.dispatch(this.createRefactoringMappingProvider());
 			}
+			
 			return this.refactoringMappingProvider;
 		}
 		
@@ -681,7 +748,45 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.deletedTypeHandlerCreator = this.dispatch(this.createDeletedTypeHandlerCreator());
 			}
+			
 			return this.deletedTypeHandlerCreator;
+		}
+		
+		@Override
+		public Equalator<PersistenceTypeDescriptionMember> getLegacyTypeMappingMemberEqualator()
+		{
+			// optional element, not default creation required.
+			return this.legacyTypeMappingMemberEqualator;
+		}
+		
+		
+		@Override
+		public PersistenceTypeMemberSimilator getLegacyTypeMappingMemberSimilator()
+		{
+			if(this.legacyTypeMappingMemberSimilator == null)
+			{
+				this.legacyTypeMappingMemberSimilator = this.dispatch(this.createLegacyTypeMappingMemberSimilator());
+			}
+			
+			return this.legacyTypeMappingMemberSimilator;
+		}
+		
+		@Override
+		public MatchValidator<PersistenceTypeDescriptionMember> getLegacyTypeMappingMemberMatchValidator()
+		{
+			// optional element, not default creation required.
+			return this.legacyTypeMappingMemberMatchValidator;
+		}
+		
+		@Override
+		public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor()
+		{
+			if(this.legacyTypeMappingResultor == null)
+			{
+				this.legacyTypeMappingResultor = this.dispatch(this.createLegacyTypeMappingResultor());
+			}
+			
+			return this.legacyTypeMappingResultor;
 		}
 
 		@Override
@@ -1046,7 +1151,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		
 		@Override
 		public PersistenceFoundation<M> setLegacyTypeMapper(
-			final PersistencLegacyTypeMapper<M> legacyTypeMapper
+			final PersistenceLegacyTypeMapper<M> legacyTypeMapper
 		)
 		{
 			this.legacyTypeMapper = legacyTypeMapper;
@@ -1070,6 +1175,43 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			this.deletedTypeHandlerCreator = deletedTypeHandlerCreator;
 			return this;
 		}
+		
+		@Override
+		public PersistenceFoundation<M> setLegacyTypeMappingMemberEqualator(
+			final Equalator<PersistenceTypeDescriptionMember> legacyTypeMappingMemberEqualator
+		)
+		{
+			this.legacyTypeMappingMemberEqualator = legacyTypeMappingMemberEqualator;
+			return this;
+		}
+		
+		@Override
+		public PersistenceFoundation<M> setLegacyTypeMappingMemberSimilator(
+			final PersistenceTypeMemberSimilator legacyTypeMappingMemberSimilator
+		)
+		{
+			this.legacyTypeMappingMemberSimilator = legacyTypeMappingMemberSimilator;
+			return this;
+		}
+		
+		@Override
+		public PersistenceFoundation<M> setLegacyTypeMappingMemberMatchValidator(
+			final MatchValidator<PersistenceTypeDescriptionMember> legacyTypeMappingMemberMatchValidator
+		)
+		{
+			this.legacyTypeMappingMemberMatchValidator = legacyTypeMappingMemberMatchValidator;
+			return this;
+		}
+		
+		@Override
+		public PersistenceFoundation<M> setLegacyTypeMappingResultor(
+			final PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
+		)
+		{
+			this.legacyTypeMappingResultor = legacyTypeMappingResultor;
+			return this;
+		}
+
 
 
 		
@@ -1279,12 +1421,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultReferenceFieldMandatoryEvaluator();
 		}
 		
-		protected PersistencLegacyTypeMapper<M> createLegacyTypeMapper()
+		protected PersistenceLegacyTypeMapper<M> createLegacyTypeMapper()
 		{
-			return PersistencLegacyTypeMapper.New(
-				this.getRefactoringMappingProvider(),
-				this.getCustomTypeHandlerRegistry() ,
-				this.getDeletedTypeHandlerCreator() ,
+			return PersistenceLegacyTypeMapper.New(
+				this.getRefactoringMappingProvider()           ,
+				this.getCustomTypeHandlerRegistry()            ,
+				this.getDeletedTypeHandlerCreator()            ,
+				this.getLegacyTypeMappingMemberEqualator()     ,
+				this.getLegacyTypeMappingMemberSimilator()     ,
+				this.getLegacyTypeMappingMemberMatchValidator(),
+				this.getLegacyTypeMappingResultor()            ,
 				XReflect.fieldIdentifierDelimiter()
 			);
 		}
@@ -1299,7 +1445,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			return PersistenceDeletedTypeHandlerCreator.New();
 		}
-
+				
+		protected PersistenceTypeMemberSimilator createLegacyTypeMappingMemberSimilator()
+		{
+			return PersistenceTypeMemberSimilator.New();
+		}
+				
+		protected PersistenceLegacyTypeMappingResultor<M> createLegacyTypeMappingResultor()
+		{
+			return PersistenceLegacyTypeMappingResultor.New();
+		}
 
 		
 		///////////////////////////////////////////////////////////////////////////
