@@ -6,6 +6,28 @@ import java.util.function.Consumer;
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
 public abstract class Binary implements Chunks
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	/*
+	 * sneaky hardcoded field for performance reasons.
+	 * Used only by build items for create/update address.
+	 * A little hacky, but worth it.
+	 * 
+	 * (14.09.2018 TM)NOTE: is it really faster? Is it really worth it?
+	 * Was it in the past? Is it still, with several years of JVM and JIT improvement?
+	 * Would it be slower or maybe even faster to have the field be final?
+	 * Or should the raw memory address not pollute the API?
+	 */
+	long entityContentAddress;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
 	@Override
 	public abstract ByteBuffer[] buffers();
 
@@ -35,12 +57,6 @@ public abstract class Binary implements Chunks
 
 	public abstract long   buildItemAddress();
 
-	/* sneaky hardcoded field for performance reasons.
-	 * Used only by build items for create/update address.
-	 * A little hacky, but worth it.
-	 */
-	long entityContentAddress;
-
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
 	 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.
@@ -58,6 +74,7 @@ public abstract class Binary implements Chunks
 	protected abstract long[] internalGetStartOffsets();
 
 	protected abstract long[] internalGetBoundOffsets();
+	
 }
 //CHECKSTYLE.ON: AbstractClassName
 

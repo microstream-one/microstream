@@ -1663,6 +1663,20 @@ Foundation f\'fcr die ganzen neuen Module erweitern.\par
 FIXMEs durchschauen.\par
 PersistenceTypehandler#validateFields untersuchen ... das wird nie benutzt. Rausl\'f6schen.\par
 \par
+Das mit dem Translating LegacyHandler f\'fcr CustomHandlers wird nicht so einfach, weil das ja ein konkreter BinaryHandler werden muss.\par
+Wobei der f\'fcr die Reflection Fields auch ein konkreter BinaryHandler werden muss. Ab irgendeinem Punkt muss es ja mal konkret mit dem Medium zu Tun haben, anstatt nur abstrakte Persistence Management Logik zu sein.\par
+\par
+BinaryLegacyTypeTranslatingMapper bauen.\par
+\par
+Hm. Das ist gar nicht so einfach: Man kann keine neue Binary Instanz machen und im builder registrieren, weil es im create() keine Referenz auf den Builder gibt.\par
+Mal \'fcberlegen.\par
+Ist auch gar nicht n\'f6tig, sondern einfach nur die entityContentAddress im medium neu setzen auf den umgebogenen Datenbereich.\par
+Aber woher kommt die Gesamtl\'e4nge? \par
+Mal recherchieren. Varying length, minimum, maximum Zeug. Da war doch was...\par
+Achja. So implmentieren.\par
+Da fehlt jetzt aber der Header vorne dran. Falls die Custom Logik den auslesen will, w\'fcrde es momentan krachen. Das darf nicht sein. Muss rekonstruiert werden.\par
+\par
+\par
 \par
 \par
 \par
