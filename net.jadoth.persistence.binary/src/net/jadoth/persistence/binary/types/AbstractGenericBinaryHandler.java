@@ -22,7 +22,6 @@ import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.typing.XTypes;
 
 public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
@@ -132,19 +131,18 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>                           allFields        ;
-	private final EqConstHashEnum<Field>                           refFields        ;
-	private final EqConstHashEnum<Field>                           prmFields        ;
-	private final long[]                                           allMemOfs        ;
-	private final long[]                                           refMemOfs        ;
-//	private final long[]                                           allBinOfs        ;
-	private final long                                             refBinStartOffset;
-	private final long                                             refBinBoundOffset;
-	private final long                                             binaryLength     ;
-	private final BinaryValueStorer[]                              binStorers       ;
-	private final BinaryValueSetter[]                              memSetters       ;
-	private final XImmutableEnum<PersistenceTypeDescriptionMember> members          ;
-	private final boolean                                          hasReferences    ;
+	private final EqConstHashEnum<Field>                           allFields                  ;
+	private final EqConstHashEnum<Field>                           referenceFields            ;
+	private final EqConstHashEnum<Field>                           primitiveFields            ;
+	private final long[]                                           allMemoryOffsets           ;
+	private final long[]                                           refMemoryOffsets           ;
+	private final long                                             refBinaryContentStartOffset;
+	private final long                                             refBinaryContentBoundOffset;
+	private final long                                             binaryLength               ;
+	private final BinaryValueStorer[]                              binStorers                 ;
+	private final BinaryValueSetter[]                              memSetters                 ;
+	private final XImmutableEnum<PersistenceTypeDescriptionMember> members                    ;
+	private final boolean                                          hasReferences              ;
 
 
 
@@ -167,16 +165,16 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		XVM.ensureClassInitialized(type);
 
 		this.allFields    =  filter(allFields, not(XReflect::isStatic)                                 );
-		this.refFields    =  filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
-		this.prmFields    =  filter(allFields, not(XReflect::isStatic),     XReflect::isPrimitive );
+		this.referenceFields    =  filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
+		this.primitiveFields    =  filter(allFields, not(XReflect::isStatic),     XReflect::isPrimitive );
 		final Field[]
 			allFieldsDeclOrder = this.allFields.toArray(Field.class),
-			refFieldsDeclOrder = this.refFields.toArray(Field.class),
+			refFieldsDeclOrder = this.referenceFields.toArray(Field.class),
 			allFieldsPersOrder = new Field[allFieldsDeclOrder.length]
 //			refFieldsPersOrder = new Field[refFieldsDeclOrder.length]
 		;
 		
-		this.hasReferences = !this.refFields.isEmpty();
+		this.hasReferences = !this.referenceFields.isEmpty();
 
 		/* (15.12.2012)TODO: TypeHandler: Field strategy
 		 * Must bring in the possibility for a ValueSkipSetter and ValueSkipStorer
@@ -195,18 +193,16 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		);
 
 		// memory offsets must correspond to other arrays
-		this.allMemOfs         = XVM.objectFieldOffsets(allFieldsPersOrder);
+		this.allMemoryOffsets = XVM.objectFieldOffsets(allFieldsPersOrder);
 		
 		// reference field offsets fit either way
-		this.refMemOfs         = XVM.objectFieldOffsets(refFieldsDeclOrder);
+		this.refMemoryOffsets = XVM.objectFieldOffsets(refFieldsDeclOrder);
 		
-		// references are always stored at beginning
-		this.refBinStartOffset = BinaryPersistence.entityBinaryPosition(0);
-		this.refBinBoundOffset = BinaryPersistence.entityBinaryPosition(
-			BinaryPersistence.referenceBinaryLength(XTypes.to_int(this.refFields.size()))
-		);
+		// references are always stored at the beginnnig of the content (0 bytes after header)
+		this.refBinaryContentStartOffset = 0;
+		this.refBinaryContentBoundOffset = BinaryPersistence.referenceBinaryLength(this.referenceFields.size());
 
-		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(XTypes.to_int(allFields.size()));
+		final BulkList<PersistenceTypeDescriptionMember> members = BulkList.New(allFields.size());
 		createTypeDescriptionMembers(allFieldsPersOrder, lengthResolver, members);
 
 		/* (21.10.2014 TM)XXX: binary handler declaration order or persistent order?
@@ -236,13 +232,13 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	@Override
 	public XGettingEnum<Field> getInstancePrimitiveFields()
 	{
-		return this.prmFields;
+		return this.primitiveFields;
 	}
 
 	@Override
 	public XGettingEnum<Field> getInstanceReferenceFields()
 	{
-		return this.refFields;
+		return this.referenceFields;
 	}
 	
 	@Override
@@ -291,7 +287,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 			this.typeId()    ,
 			objectId         ,
 			instance         ,
-			this.allMemOfs   ,
+			this.allMemoryOffsets   ,
 			this.binStorers
 		);
 	}
@@ -322,7 +318,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		BinaryPersistence.updateFixedSize(
 			instance,
 			this.memSetters,
-			this.allMemOfs,
+			this.allMemoryOffsets,
 			bytes.buildItemAddress(),
 			builder
 		);
@@ -337,16 +333,17 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	@Override
 	public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
 	{
-		BinaryPersistence.iterateInstanceReferences(iterator, instance, this.refMemOfs);
+		BinaryPersistence.iterateInstanceReferences(iterator, instance, this.refMemoryOffsets);
 	}
 
 	@Override
 	public void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
+		// "bytes" points to the entity content address, the offsets are relative to the content address.
 		BinaryPersistence.iterateBinaryReferences(
-			bytes,
-			BinaryPersistence.entityDataOffset(this.refBinStartOffset),
-			BinaryPersistence.entityDataOffset(this.refBinBoundOffset),
+			bytes                           ,
+			this.refBinaryContentStartOffset,
+			this.refBinaryContentBoundOffset,
 			iterator
 		);
 	}

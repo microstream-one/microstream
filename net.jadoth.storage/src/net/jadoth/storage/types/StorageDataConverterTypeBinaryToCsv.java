@@ -433,7 +433,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			XVM.set_byte(this.writeAddress, valueSeparator);
 			this.writeAddress += LITERAL_BYTE_SIZE_SINGLE_CHAR;
 
-			long address = BinaryPersistence.entityDataAddress(entityAddress);
+			long address = BinaryPersistence.entityContentAddress(entityAddress);
 			for(final ValueWriter writer : this.valueWriters)
 			{
 				address = writer.writeValue(address);

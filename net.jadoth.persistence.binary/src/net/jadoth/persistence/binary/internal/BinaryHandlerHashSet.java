@@ -100,14 +100,14 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
 	{
-		final int elementCount = getElementCount(bytes);
+		final int elementCount = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		BinaryPersistence.collectElementsIntoArray(bytes, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		BinaryPersistence.collectElementsIntoArray(rawData, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
 	
-		builder.registerHelper(instance, elementsHelper);
+		rawData.setHelper(elementsHelper);
 	}
 
 	@Override
@@ -126,9 +126,9 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public void complete(final Binary medium, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public void complete(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
 	{
-		final Object helper = builder.getHelper(instance);
+		final Object helper = rawData.getHelper();
 		
 		if(helper == null)
 		{
@@ -166,6 +166,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 				throw new RuntimeException("Element hashing insistency in " + XChars.systemString(castedInstance));
 			}
 		}
+		
+		rawData.setHelper(null); // might help ease Garbage Collection
 	}
 
 }

@@ -149,7 +149,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			{
 				// handling here spares a lot of traverser pointer chasing
 				BinaryReferenceTraverser.iterateReferenceRange(
-					BinaryPersistence.entityDataAddress(entityCacheAddress),
+					BinaryPersistence.entityContentAddress(entityCacheAddress),
 					this.simpleReferenceRange,
 					procedure
 				);
@@ -157,7 +157,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			else
 			{
 				BinaryReferenceTraverser.iterateReferences(
-					BinaryPersistence.entityDataAddress(entityCacheAddress),
+					BinaryPersistence.entityContentAddress(entityCacheAddress),
 					this.referenceTraversers,
 					procedure
 				);
