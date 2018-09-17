@@ -1679,6 +1679,43 @@ Da fehlt jetzt aber der Header vorne dran. Falls die Custom Logik den auslesen w
 \par
 \par
 \par
+2018-09-17\par
+\par
+BinaryLegacyTypeTranslatingMapper weiterbauen: fehlende Header Bytes einbauen.\par
+\par
+Dabei dar\'fcber gestolpert, dass BinaryPersistence#entityDataOffset die Header Length abzieht anstatt draufaddiert. Wenn ich mich nicht sehr t\'e4usche ist das ein fataler Bug, durch den eigentlich nie ein OGS Load ohne exception durchgehen d\'fcrfte.\par
+Hm okay, die Formulierung spricht jetzt daf\'fcr, dass ich mich doch t\'e4usche. Jedenfalls ist das unkommentiert und crazy und das muss ich jetzt recherchieren und dann fixen oder kommentieren.\par
+Und au\'dferdem mal konsistent auf "~content~" umbenennen.\par
+\par
+Ah, jetzt endlich verstanden:\par
+Da wird an einer Stelle unsinnig + header length drauf gez\'e4hlt und an der Verwendungsstelle wird dann buggerweise wieder - header length gerechnet.\par
+Beide Methoden werden nur an jeweils genau einer Stelle verwendet, darum haben beide Fehler sonst nirgends Probleme gemacht. Und hier gleichen sie sich gegenseitig aus, darum funktioniert trotzdem alles.\par
+Ich muss jetzt mal diese ganzen header length offset Methoden konsolidieren. Da steigt ja sonst niemand mehr durch und irgendwann ergibt sich durch einen vermeintlichen Bugfix ein fehlerhaftes Verhalten.\par
+So. Jetzt ist das ordentlich.\par
+\par
+Weiter beim BinaryLegacyTypeTranslatingMapper.\par
+\par
+Hm: Problem: Wenn ich einfach so direkt ein allocateMemory mach, muss ich das sp\'e4ter auch wieder freigeben.\par
+Aber falls es eine Exception geben sollte, w\'fcrde der Aufruf zum Freigeben nie stattfinden.\par
+Hei\'dft: Memory Leak. Nicht gut.\par
+\par
+Also m\'fcsste es \'fcber einen DirectByteBuffer laufen. Der gibt im Cleaner seinen Memory auf jeden Fall wieder frei.\par
+Das Problem daran ist aber wieder: im create() gibt es keine Referenz auf den Builder, in dem man den DBB als helper registrieren k\'f6nnte.\par
+\'c4h, shit.\par
+\par
+Hm, Idee: Wieso ist die helper Registry eigentlich \'fcberhaupt im Builder drin anstatt direkt in Binary? Die Binary Instanz h\'e4lt den State zum builden, also kann die doch auch den helper state mit halten.\par
+Damit leben auch beide strukturen immer genau gleich lang.\par
+Wenn die HashTable Instanz lazy instanziert wird, dann beschr\'e4nkt sich der Overhead im Normalfall auf eine Referenzgr\'f6\'dfe pro Binary Instanz.\par
+Passt, so mach ich das.\par
+\par
+BinaryValueCopier anlegen, 1,2,4,8 Varianten. Referenzen (OIDs) sind in binary Form auch nur 8 Byte. Kein Grund f\'fcr eine Sonderbehandlung.\par
+Algorithmus bauen zum Ableiten eines BinaryValueCopier[] aus einem bestehenden Mapping.\par
+\par
+Es muss noch einen PersistenceLegacyTypeHandlerCreator geben, analog zu normalen TypeHandlerCreatoren. Einerseits wegen modularisierung, andererseits wegen loser Koppelung von Binary~ Implementierung und abstraktem Peristence~ Framework. Die ganzen isCustom~ check-Stub-Methoden kommen dann dort rein. Genauer gesagt in eine Abstrakte Persistence~ Rumpfimplementierung.\par
+\par
+Foundation Klassen um die \'fcbliche Infrastruktur erweitern.\par
+\par
+\par
 \par
 }
  

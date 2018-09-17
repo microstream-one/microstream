@@ -96,8 +96,8 @@ public final class BinaryPersistence extends Persistence
 		LENGTH_LEN  = LENGTH_LONG                         ,
 		LENGTH_OID  = LENGTH_LONG                         ,
 		LENGTH_TID  = LENGTH_OID                          , // tid IS AN oid, so it must have the same length
-		LENGTH_LTO  = LENGTH_LEN + LENGTH_TID + LENGTH_OID,
-		LENGTH_TO   = LENGTH_TID + LENGTH_OID
+		LENGTH_TO   = LENGTH_TID + LENGTH_OID             , // 8
+		LENGTH_LTO  = LENGTH_LEN + LENGTH_TID + LENGTH_OID  // 24
 	;
 
 	// header (currently) constists of only LEN, TID, OID. Extra constant has sementical reasons.
@@ -260,30 +260,42 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long entityTotalLength(final long entityContentLength)
 	{
+		// the total length is the content length plus the length of the header (containing length, Tid, Oid)
 		return entityContentLength + LENGTH_ENTITY_HEADER;
 	}
-
-	// (23.05.2013)XXX: Consolidate different naming patterns (with/without get~ etc)
-
-	public static final long entityDataOffset(final long entityAbsoluteOffset)
+	
+	public static final long entityContentLength(final long entityTotalLength)
 	{
-		return entityAbsoluteOffset - LENGTH_ENTITY_HEADER;
-	}
-
-	public static final long entityDataLength(final long entityTotalLength)
-	{
+		// the content length is the total length minus the length of the header (containing length, Tid, Oid)
 		return entityTotalLength - LENGTH_ENTITY_HEADER;
 	}
 
+	// (23.05.2013 TM)XXX: Consolidate different naming patterns (with/without get~ etc)
+		
+	public static final long getEntityTypeId(final long entityAddress)
+	{
+		return VM.getLong(entityAddress + OFFSET_TID);
+	}
+
+	public static final long getEntityObjectId(final long entityAddress)
+	{
+		return VM.getLong(entityAddress + OFFSET_OID);
+	}
+
+	public static final long entityContentAddress(final long entityAddress)
+	{
+		return entityAddress + LENGTH_ENTITY_HEADER;
+	}
+
 	public static final long storeEntityHeader(
-		final long address            ,
+		final long entityAddress      ,
 		final long entityContentLength, // note: entity CONTENT length (without header length!)
 		final long entityTypeId       ,
 		final long entityObjectId
 	)
 	{
-		setEntityHeaderValues(address, LENGTH_ENTITY_HEADER + entityContentLength, entityTypeId, entityObjectId);
-		return address + LENGTH_ENTITY_HEADER + entityContentLength;
+		setEntityHeaderValues(entityAddress, entityTotalLength(entityContentLength), entityTypeId, entityObjectId);
+		return entityAddress + entityTotalLength(entityContentLength);
 	}
 
 	public static final void setEntityHeaderValues(
@@ -1431,26 +1443,6 @@ public final class BinaryPersistence extends Persistence
 	{
 		// (06.09.2014)TODO: test and comment if " + 0L" gets eliminated by JIT
 		return VM.getLong(entityAddress + OFFSET_LEN);
-	}
-
-	public static final long getEntityTypeId(final long entityAddress)
-	{
-		return VM.getLong(entityAddress + OFFSET_TID);
-	}
-
-	public static final long getEntityObjectId(final long entityAddress)
-	{
-		return VM.getLong(entityAddress + OFFSET_OID);
-	}
-
-	public static final long entityBinaryPosition(final long entityDataOffset)
-	{
-		return LENGTH_ENTITY_HEADER + entityDataOffset;
-	}
-
-	public static final long entityDataAddress(final long entityAddress)
-	{
-		return LENGTH_ENTITY_HEADER + entityAddress;
 	}
 
 	public static final BinaryValueStorer getStorer_byte()

@@ -4,8 +4,6 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.chars.XChars;
-import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.types.PersistenceDistrict;
 import net.jadoth.persistence.types.PersistenceLoader;
@@ -14,7 +12,6 @@ import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceSwizzleSupplier;
 import net.jadoth.reference._intReference;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-import net.jadoth.typing.KeyValue;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 {
@@ -37,7 +34,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		private final PersistenceSwizzleSupplier<Binary> swizzleSupplier;
 		private final LoadItemsChain                     loadItems      ;
-		private final HashTable<Object, Object>          helpers        ;
 
 
 
@@ -58,7 +54,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			super(district);
 			this.swizzleSupplier = notNull(source)   ;
 			this.loadItems       = notNull(loadItems);
-			this.helpers         = HashTable.New();
 		}
 
 
@@ -243,50 +238,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		public SwizzleObjectSupplier getSwizzleObjectSupplier()
 		{
 			return this.swizzleSupplier;
-		}
-
-		@Override
-		public boolean registerHelper(final Object subject, final Object helper)
-		{
-			synchronized(this.helpers)
-			{
-				final KeyValue<Object, Object> existingEntry = this.helpers.addGet(subject, helper);
-				if(existingEntry == null)
-				{
-					return true;
-				}
-
-				if(existingEntry.value() == helper)
-				{
-					return false;
-				}
-
-				// (21.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Conflicting helper registration: "
-					+ XChars.systemString(subject) + " already has helper instance "
-					+ XChars.systemString(existingEntry.value()) + " associated with it. Not "
-					+ XChars.systemString(helper)
-				);
-			}
-		}
-
-		@Override
-		public Object getHelper(final Object subject)
-		{
-			synchronized(this.helpers)
-			{
-				return this.helpers.get(subject);
-			}
-		}
-
-		@Override
-		public Object removeHelper(final Object subject)
-		{
-			synchronized(this.helpers)
-			{
-				return this.helpers.removeFor(subject);
-			}
 		}
 
 	}

@@ -169,7 +169,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			);
 			
 			// content of item begins after instance header
-			buildItem.entityContentAddress = BinaryPersistence.entityDataAddress(address);
+			buildItem.entityContentAddress = BinaryPersistence.entityContentAddress(address);
 
 //			XDebug.debugln("Item @ " + address + ":\n" +
 //				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
@@ -195,7 +195,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		protected void handleReferences(final Entry entry)
 		{
-			/* custom handler implementation can decide wether references of a particular field shall be loaded.
+			/*
+			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
 			 * Note that the handler has been provided by the district instance, so it can already be a
 			 * district-specific handler implementation.
 			 */

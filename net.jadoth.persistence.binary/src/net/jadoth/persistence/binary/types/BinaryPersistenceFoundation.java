@@ -6,6 +6,7 @@ import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceFoundation;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRegisterer;
@@ -458,6 +459,12 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			return BinaryPersistenceRootsProvider.New(
 				this.getRootResolver()
 			);
+		}
+		
+		@Override
+		protected PersistenceLegacyTypeHandlerCreator<Binary> createLegacyTypeHandlerCreator()
+		{
+			return BinaryLegacyTypeHandlerCreator.New();
 		}
 		
 	}
