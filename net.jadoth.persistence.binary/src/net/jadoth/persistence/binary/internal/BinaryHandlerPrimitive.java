@@ -54,6 +54,18 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 	
 	@Override
+	public final long binaryContentLengthMinimum()
+	{
+		return this.member.get().persistentMinimumLength();
+	}
+	
+	@Override
+	public final long binaryContentLengthMaximum()
+	{
+		return this.member.get().persistentMaximumLength();
+	}
+	
+	@Override
 	public final boolean isPrimitiveType()
 	{
 		return true;

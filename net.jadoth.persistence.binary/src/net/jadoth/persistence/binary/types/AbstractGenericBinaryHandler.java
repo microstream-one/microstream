@@ -18,17 +18,20 @@ import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
+import net.jadoth.persistence.types.PersistenceTypeHandlerGeneric;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
-public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.AbstractImplementation<T>
+public abstract class AbstractGenericBinaryHandler<T>
+extends BinaryTypeHandler.AbstractImplementation<T>
+implements PersistenceTypeHandlerGeneric<Binary, T>
 {
 	// (21.05.2013)XXX: BinaryHandlerGeneric cleanup static handling massacre mess
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
+	// static methods   //
 	/////////////////////
 
 	@SafeVarargs
@@ -138,7 +141,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	private final long[]                                           refMemoryOffsets           ;
 	private final long                                             refBinaryContentStartOffset;
 	private final long                                             refBinaryContentBoundOffset;
-	private final long                                             binaryLength               ;
+	private final long                                             binaryContentLength               ;
 	private final BinaryValueStorer[]                              binStorers                 ;
 	private final BinaryValueSetter[]                              memSetters                 ;
 	private final XImmutableEnum<PersistenceTypeDescriptionMember> members                    ;
@@ -182,7 +185,7 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 		 * Probably via different Value handler lookup instances.
 		 * However those would have to be located in the handler creator instance, not here
 		 */
-		this.binaryLength = calculateOffsets(
+		this.binaryContentLength = calculateOffsets(
 			type                                                              ,
 			allFieldsDeclOrder                                                ,
 			allFieldsPersOrder                                                ,
@@ -266,6 +269,18 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
+	public final long binaryContentLengthMinimum()
+	{
+		return this.binaryContentLength;
+	}
+	
+	@Override
+	public final long binaryContentLengthMaximum()
+	{
+		return this.binaryContentLength;
+	}
+	
+	@Override
 	public final boolean hasPersistedVariableLength()
 	{
 		return false;
@@ -281,12 +296,12 @@ public abstract class AbstractGenericBinaryHandler<T> extends BinaryTypeHandler.
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreFunction linker)
 	{
 		BinaryPersistence.storeFixedSize(
-			bytes            ,
-			linker        ,
-			this.binaryLength,
-			this.typeId()    ,
-			objectId         ,
-			instance         ,
+			bytes                   ,
+			linker                  ,
+			this.binaryContentLength,
+			this.typeId()           ,
+			objectId                ,
+			instance                ,
 			this.allMemoryOffsets   ,
 			this.binStorers
 		);

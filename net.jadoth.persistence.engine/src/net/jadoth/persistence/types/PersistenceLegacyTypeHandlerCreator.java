@@ -1,10 +1,15 @@
 package net.jadoth.persistence.types;
 
+import java.util.Iterator;
+
+import net.jadoth.collections.types.XGettingMap;
+
 public interface PersistenceLegacyTypeHandlerCreator<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
 		PersistenceLegacyTypeMappingResult<M, T> mappingResult
 	);
+	
 	
 	
 	public abstract class AbstractImplementation<M> implements PersistenceLegacyTypeHandlerCreator<M>
@@ -16,37 +21,68 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 		{
 			if(isUnchangedStructure(result))
 			{
-				// special case: structure didn't change, only namings, so the current type handler can be used.
+				/*
+				 * special case: structure didn't change, only namings, so the current type handler can be used.
+				 * Note that this applies to custom handlers, too. Even ones with variable length instances.
+				 */
 				return PersistenceLegacyTypeHandler.Wrap(result.legacyTypeDefinition(), result.currentTypeHandler());
 			}
 			
-			if(isCustom(result.currentTypeHandler()))
+			if(isGeneric(result.currentTypeHandler()))
 			{
-				return this.deriveCustomWrappingHandler(result);
+				return this.deriveReflectiveHandler(result);
 			}
-			
-			return this.deriveReflectiveHandler(result);
+
+			return this.deriveCustomWrappingHandler(result);
 		}
 			
 		
 		private static boolean isUnchangedStructure(final PersistenceLegacyTypeMappingResult<?, ?> result)
 		{
-			// (14.09.2018 TM)FIXME: OGS-3: isUnchangedStructure()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			if(result.legacyTypeDefinition().members().size() != result.currentTypeHandler().members().size())
+			{
+				// if there are differing members counts, the structure cannot be unchanged.
+				return false;
+			}
+
+			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> map =
+				result.legacyToCurrentMembers()
+			;
+			final Iterator<? extends PersistenceTypeDescriptionMember> legacy =
+				result.legacyTypeDefinition().members().iterator()
+			;
+			final Iterator<? extends PersistenceTypeDescriptionMember> current =
+				result.currentTypeHandler().members().iterator()
+			;
+			
+			// check as long as both collections have order-wise corresponding entries (ensured by size check above)
+			while(legacy.hasNext())
+			{
+				final PersistenceTypeDescriptionMember legacyMember  = legacy.next() ;
+				final PersistenceTypeDescriptionMember currentMember = current.next();
+				
+				// all legacy members must be directly mapped to their order-wise corresponding current member.
+				if(map.get(legacyMember) != currentMember)
+				{
+					return false;
+				}
+			}
+			
+			// no need to check for remaining elements since size was checked above
+			return true;
 		}
 		
-		private static boolean isCustom(final PersistenceTypeHandler<?, ?> currentTypeHandler)
+		private static boolean isGeneric(final PersistenceTypeHandler<?, ?> currentTypeHandler)
 		{
-			// (14.09.2018 TM)FIXME: OGS-3: isCustom()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			return currentTypeHandler instanceof PersistenceTypeHandlerGeneric;
 		}
 		
 		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveCustomWrappingHandler(
-			PersistenceLegacyTypeMappingResult<?, ?> result
+			PersistenceLegacyTypeMappingResult<M, T> result
 		);
 		
 		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveReflectiveHandler(
-			PersistenceLegacyTypeMappingResult<?, ?> result
+			PersistenceLegacyTypeMappingResult<M, T> result
 		);
 	}
 	

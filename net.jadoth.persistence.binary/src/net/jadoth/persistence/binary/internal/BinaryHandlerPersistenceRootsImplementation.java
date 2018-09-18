@@ -19,7 +19,7 @@ import net.jadoth.swizzling.types.SwizzleRegistry;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
-extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
+extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

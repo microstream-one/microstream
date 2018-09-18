@@ -79,6 +79,18 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
+	public long binaryContentLengthMinimum()
+	{
+		return 0;
+	}
+	
+	@Override
+	public long binaryContentLengthMaximum()
+	{
+		return 0;
+	}
+	
+	@Override
 	public boolean isPrimitiveType()
 	{
 		return false;
@@ -96,12 +108,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 		return false;
 	}
 	
-	@Override
-	public final boolean hasPersistedVariableLength()
-	{
-		return false;
-	}
-
 	@Override
 	public final boolean hasVaryingPersistedLengthInstances()
 	{

@@ -65,7 +65,20 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Primitive types must be handled by default (dummy) handler implementations.");
+				throw new RuntimeException(
+					"Primitive types must be handled by default (dummy) handler implementations."
+				);
+			}
+			
+			// since type refactoring, the old and simple strategy to handle Class instances does not work any more.
+			if(type.getClass() == Class.class)
+			{
+				// (18.09.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Class instances are system meta data and should not be stored as user data in a database. "
+					+ "Register a custom handler if you absolutely must and accept full responsibility "
+					+ "for all details and problems associated with it."
+				);
 			}
 			
 			// array special casing
@@ -75,7 +88,9 @@ public interface PersistenceTypeHandlerCreator<M>
 				if(type.getComponentType().isPrimitive())
 				{
 					// (01.04.2013)EXCP: proper exception
-					throw new RuntimeException("Primitive component type arrays must be handled by default handler implementations.");
+					throw new RuntimeException(
+						"Primitive component type arrays must be handled by default handler implementations."
+					);
 				}
 				
 				// array types can never change and therefore can never have obsolete types.

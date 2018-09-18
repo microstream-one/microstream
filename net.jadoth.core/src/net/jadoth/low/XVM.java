@@ -41,9 +41,6 @@ public final class XVM
 		DABO = Unsafe.ARRAY_DOUBLE_BASE_OFFSET
 	;
 
-	private static final long OABO = Unsafe.ARRAY_OBJECT_BASE_OFFSET;
-	private static final int  OAIS = Unsafe.ARRAY_OBJECT_INDEX_SCALE;
-
 	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
 
@@ -177,6 +174,16 @@ public final class XVM
 		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
 	}
 
+	
+	/* (18.09.2018 TM)TODO: Clean up XVM
+	 * Move out / delete all methods that are not absolutely required and/or don't use
+	 * Unsafe or direct memory access in the first place.
+	 * e.g.:
+	 * - deallocateDirectByteBuffer
+	 * - throwUnchecked
+	 * - defaultBufferSize
+	 */
+	
 	/**
 	 * No idea if this method is really (still?) necesssary, but it sounds reasonable.
 	 * See
@@ -647,17 +654,6 @@ public final class XVM
 	public static final <T> T instantiate(final Class<T> c) throws InstantiationException
 	{
 		return (T)VM.allocateInstance(notNull(c));
-	}
-
-	public static final <T, E extends T> void volatileArraySet(final T[] array, final int index, final E element)
-		throws ArrayIndexOutOfBoundsException
-	{
-		if(index < 0 || index > array.length)
-		{
-			// implicit NPE
-			throw new ArrayIndexOutOfBoundsException(index);
-		}
-		VM.putObjectVolatile(array, OABO + OAIS * index, element);
 	}
 
 	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
@@ -1239,15 +1235,6 @@ public final class XVM
 	{
 		return VM.compareAndSwapObject(subject, offset, expected, replacement);
 	}
-
-	public static final void volatileSetObject(
-		final Object subject,
-		final long   offset ,
-		final Object value
-	)
-	{
-		VM.putObjectVolatile(subject, offset, value);
-	}
 	
 	
 
@@ -1282,6 +1269,9 @@ public final class XVM
 
 
 
+	/* (18.09.2018 TM)TODO: fieldOffsetWorkaroundDummy necessary?
+	 * Why is there no comment? If it is necessary, it has to be commented, why.
+	 */
 	Object fieldOffsetWorkaroundDummy;
 
 	private XVM()

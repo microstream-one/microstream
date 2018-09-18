@@ -7,7 +7,10 @@ import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
-public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<Class<?>>
+
+// (18.09.2018 TM)NOTE: removed from BinaryPersistence#defaultHandlers as of today. See comment below for the rationale.
+@Deprecated
+public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeCustom<Class<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
@@ -56,12 +59,23 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 		
 		try
 		{
-			/* (18.05.2018 TM)FIXME: Changed TypeId of persisted class
+			/* (18.05.2018 TM)FIX-ME: Changed TypeId of persisted class
 			 * What about the case that a class instance gets persisted (i.e. just its full qualified name)
 			 * with a certain TypeId as its ObjectId and then the TypeId for the class changes?
 			 * Should class instances even be stored with the TypeId representing the type as their ObjectId?
 			 * Isn't the class instance itself a mere instance that represents the type and should therefore
 			 * have a normal ObjectId assigned?
+			 * 
+			 * (18.09.2018 TM)NOTE: Or should instances of Class be unpersistable in the first place to avoid such
+			 * problems? Is it wise to generically store a meta structure name as a data value in a data base?
+			 * What is a sane use case that needs to persist a type (identifier) as part of a persistent entity graph?
+			 * Maybe a good solution might be:
+			 * If an explicit (user-defined) handler is registered for the type, it is used.
+			 * If not, encountering instances of Class during type analysis throws an exception.
+			 * 
+			 * Done. ]:->
+			 * See PersistenceTypeHandlerEnsurer (lookup, on fail call creator)
+			 * and PersistenceTypeHandlerCreator (exception for Class instance)
 			 */
 			return XReflect.classForName(typeName);
 		}
@@ -69,7 +83,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNative<
 		{
 			final long typeId = BinaryPersistence.getBuildItemObjectId(bytes);
 			
-			// (16.05.2018 TM)EXCP: proper exception
+			// (16.05.2018 TM)EXcP: proper exception
 			throw new PersistenceExceptionTypeConsistency(
 				"Type cannot be resolved: " + typeName + " (TypeId " + typeId + ")"
 			);

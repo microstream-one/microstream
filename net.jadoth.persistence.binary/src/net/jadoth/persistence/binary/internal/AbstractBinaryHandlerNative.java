@@ -130,7 +130,9 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// instance fields  //
 	/////////////////////
 
-	private final XImmutableEnum<? extends PersistenceTypeDescriptionMember> fields;
+	private final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members;
+	private final long binaryLengthMinimum;
+	private final long binaryLengthMaximum;
 
 
 
@@ -139,14 +141,24 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	/////////////////////
 
 	protected AbstractBinaryHandlerNative(
-		final Class<T>                                                 type  ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
+		final Class<T>                                                     type   ,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
 		super(type);
-		this.fields = PersistenceTypeDescriptionMember.validateAndImmure(fields);
+		this.members = PersistenceTypeDescriptionMember.validateAndImmure(members);
+		
+		long binaryLengthMinimum = 0, binaryLengthMaximum = 0;
+		for(final PersistenceTypeDescriptionMember member : this.members)
+		{
+			binaryLengthMinimum += member.persistentMinimumLength();
+			binaryLengthMaximum += member.persistentMaximumLength();
+		}
+		this.binaryLengthMinimum = binaryLengthMinimum;
+		this.binaryLengthMaximum = binaryLengthMaximum;
 	}
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
@@ -161,7 +173,19 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 	{
-		return this.fields;
+		return this.members;
+	}
+	
+	@Override
+	public long binaryContentLengthMinimum()
+	{
+		return this.binaryLengthMinimum;
+	}
+	
+	@Override
+	public long binaryContentLengthMaximum()
+	{
+		return this.binaryLengthMaximum;
 	}
 
 	@Override
