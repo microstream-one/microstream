@@ -11,9 +11,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
-import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -25,53 +23,19 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	// static methods //
 	///////////////////
 	
-	private static long calculateBinaryContentLength(final PersistenceTypeHandler<Binary, ?> typeHandler)
-	{
-		long binaryContentLength = 0;
-		for(final PersistenceTypeDescriptionMember e : typeHandler.members())
-		{
-			// returned length values are expected to never be more than 3-digit, so no overflow check needed.
-			binaryContentLength += e.persistentMaximumLength();
-		}
-		
-		return binaryContentLength;
-	}
-	
 	public static <T> BinaryLegacyTypeTranslatingMapper<T> New(
-		final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult
+		final PersistenceTypeDefinition<T>            typeDefinition   ,
+		final PersistenceTypeHandler<Binary, T>       typeHandler      ,
+		final XGettingSequence<BinaryValueTranslator> valueTranslators ,
+		final long                                    binaryTotalLength
 	)
 	{
-		final PersistenceTypeDefinition<T>      typeDefinition = mappingResult.legacyTypeDefinition();
-		final PersistenceTypeHandler<Binary, T> typeHandler    = mappingResult.currentTypeHandler()  ;
-		
-		if(typeHandler.hasVaryingPersistedLengthInstances())
-		{
-			// (14.09.2018 TM)TODO: support VaryingPersistedLengthInstances
-			throw new UnsupportedOperationException(
-				"Types with instances of varying persisted length are not supported, yet by generic mapping."
-			);
-		}
-		
-		final long binaryTotalLength = BinaryPersistence.entityTotalLength(
-			calculateBinaryContentLength(typeHandler)
-		);
-		
-		final XGettingSequence<BinaryValueCopier> valueCopiers = deriveValueCopiers(mappingResult);
-		
 		return new BinaryLegacyTypeTranslatingMapper<>(
 			notNull(typeDefinition),
 			notNull(typeHandler)   ,
-			valueCopiers.toArray(BinaryValueCopier.class),
+			valueTranslators.toArray(BinaryValueTranslator.class),
 			X.checkArrayRange(binaryTotalLength)
 		);
-	}
-	
-	static XGettingSequence<BinaryValueCopier> deriveValueCopiers(
-		final PersistenceLegacyTypeMappingResult<Binary, ?> mappingResult
-	)
-	{
-		// (17.09.2018 TM)FIXME: OGS-3: BinaryLegacyTypeTranslatingMapper#deriveValueCopiers()
-		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 	
 	
@@ -81,7 +45,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	////////////////////
 	
 	private final PersistenceTypeHandler<Binary, T> typeHandler      ;
-	private final BinaryValueCopier[]               valueCopiers     ;
+	private final BinaryValueTranslator[]           valueTranslators ;
 	private final int                               binaryTotalLength;
 	
 	
@@ -93,13 +57,13 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	BinaryLegacyTypeTranslatingMapper(
 		final PersistenceTypeDefinition<T>      typeDefinition   ,
 		final PersistenceTypeHandler<Binary, T> typeHandler      ,
-		final BinaryValueCopier[]               valueCopiers     ,
+		final BinaryValueTranslator[]           valueTranslators ,
 		final int                               binaryTotalLength
 	)
 	{
 		super(typeDefinition);
 		this.typeHandler       = typeHandler      ;
-		this.valueCopiers      = valueCopiers     ;
+		this.valueTranslators  = valueTranslators ;
 		this.binaryTotalLength = binaryTotalLength;
 	}
 	
@@ -166,9 +130,9 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		final long newEntityContentAddress = BinaryPersistence.entityContentAddress(newEntityAddress);
 		
 		// note: DirectByteBuffer instantiation does already reset all bytes to 0, so not "Zeroer" is needed.
-		for(final BinaryValueCopier copier : this.valueCopiers)
+		for(final BinaryValueTranslator translator : this.valueTranslators)
 		{
-			copier.copy(oldEntityContentAddress, newEntityContentAddress);
+			translator.translateValue(oldEntityContentAddress, newEntityContentAddress);
 		}
 
 		// set newEntityContentAddress as entityContentAddress for later use in update()

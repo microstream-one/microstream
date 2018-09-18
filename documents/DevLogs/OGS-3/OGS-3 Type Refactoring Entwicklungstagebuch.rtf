@@ -1716,6 +1716,62 @@ Es muss noch einen PersistenceLegacyTypeHandlerCreator geben, analog zu normalen
 Foundation Klassen um die \'fcbliche Infrastruktur erweitern.\par
 \par
 \par
+2018-09-18\par
+\par
+Nach Confluence Post von RF mal Inventur \'fcber sun.misc.Unsafe Verwendungen in OGS machen.\par
+XVM geringf\'fcgig ausmisten und TODOs schreiben.\par
+\par
+Weiter mit OGS-3: Erkennung von generischen TypeHandlern (= nur Field Reflection, ohne Logik) bauen.\par
+Mal recherchieren, wie das am saubersten gemacht werden sollte.\par
+Dabei auf PersistenceTypeHandlerGeneric gesto\'dfen. Sinnvolles Interface, aber wird gar nicht verwendet. Einbauen. JavaDoc aktualisieren.\par
+Paar Ableitungshiarachien zu AbstractBinaryHandlerNativeCustom konsolidieren.\par
+\par
+Dabei wieder mal auf BinaryHandlerNativeClass Problem gesto\'dfen.\par
+Durchdenken. FIXME Kommentar erweitern.\par
+Hm, gute Idee gefunden: defaultm\'e4\'dfig exception, aber wenn jemand einen custom handler f\'fcr Class Instanzen registriert (und damit die Verantwortung \'fcbernimmt), gehts.\par
+So umbauen und kommentieren.\par
+\par
+\par
+Jetzt wieder weiter mit OGS-3: PersistenceLegacyTypeHandlerCreator#isUnchangedStructure implementieren.\par
+Hm. Das ist gar nicht so leicht:\par
+- Da muss f\'fcr declaring class names ja das Type Mapping wieder rein. Sonst ist das ein verwirrendes Verhalten: Typen k\'f6nnen gemappt werden, aber Felder von gemappten Typen werden auf einmal nicht mehr erkannt.\par
+- Eigentlich k\'f6nnte/m\'fcsste Vererbungskovarianz ber\'fccksichtigt werden. Aber das w\'e4re was f\'fcr eine sp\'e4tere Verbesserung, die erst mal ignoriert werden kann.\par
+\par
+Ne Moment, Quatsch:\par
+Die ganze Mapperei wurde ja schon gemacht und steckt im Result drin.\par
+Hier geht es nur noch um die Frage: Ist Feld #1 auf Feld #1 gemappt, #2 auf #2, usw.? Wenn ja, dann ist scheiss egal, welche Typen die Felder haben. Das Mapping sagt aus, dass der normale TypeHandler direkt verwendet werden kann.\par
+Fertig.\par
+\par
+Aber im Similator muss das Mapping f\'fcr die Declaring Class dann mit rein. Dort ja, aber nicht hier. Das hier ist ein total trivialer Check auf gleiche Reihenfolge.\par
+\par
+Implementieren. Passt.\par
+\par
+Jetzt BinaryLegacyTypeTranslatingMapper#deriveValueCopiers machen.\par
+Plan:\par
+- map mit binary offsets der current members erstellen.\par
+- legacy members durchlaufen.\par
+- binary offset der legacies ergibt sich durch das iterieren\par
+- je nach type passenden copier ausw\'e4hlen und mit offsets instanzieren.\par
+- copier zu collection adden.\par
+\par
+OMG, es m\'fcsste ja Konverter zwischen den Primitive Types geben. Hei\'dft 8*8=64 verschiedene Implementierungen ... o_0.\par
+Da mach ich erst mal eine Exception mit TODO hin.\par
+\par
+So, fertig.\par
+Damit ist jetzt noch zu tun:\par
+- Similator implementieren\par
+- Resultor implementieren\par
+- ReflectiveMapper implementieren.\par
+\par
+Und dann nat\'fcrlich testen.\par
+\par
+Eigentlich muss die BinaryValueTranslator Erstellung Modularisiert werden. F\'fcr die Primitive Converter und f\'fcr einfaches Customizing.\par
+Mal machen.\par
+\par
+Und eigentlich ist die binaryLength auch schon im TypeHandler verf\'fcgbar. Mal recherchieren, bissl refactoren usw.\par
+\par
+\par
+\par
 \par
 }
  

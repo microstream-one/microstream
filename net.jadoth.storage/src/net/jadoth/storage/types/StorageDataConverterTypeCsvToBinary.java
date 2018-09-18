@@ -1080,6 +1080,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char[]             input  = XFiles.readCharsFromFile(
 				this.sourceFile,
 				Charset.forName("UTF-8"),
+				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
+				 * Copied from StorageRequestTaskImportData#internalProcessBy:
+				 * if it is a normal problem, there should be a proper wrapping exception for it
+				 * instead of hacking the JVM.
+				 */
 				XVM::throwUnchecked
 			);
 			final CsvParserCharArray parser = CsvParserCharArray.New();

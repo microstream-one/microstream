@@ -45,7 +45,6 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArray_short;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeBoolean;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeByte;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeCharacter;
-import net.jadoth.persistence.binary.internal.BinaryHandlerNativeClass;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeDouble;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeFloat;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeInteger;
@@ -578,7 +577,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerPrimitive<>(long   .class),
 			new BinaryHandlerPrimitive<>(double .class),
 
-			new BinaryHandlerNativeClass()    ,
+//			new BinaryHandlerNativeClass()    , // (18.09.2018 TM)NOTE: see comments in BinaryHandlerNativeClass.
 			new BinaryHandlerNativeByte()     ,
 			new BinaryHandlerNativeBoolean()  ,
 			new BinaryHandlerNativeShort()    ,
@@ -642,7 +641,7 @@ public final class BinaryPersistence extends Persistence
 	public static final void storeFixedSize(
 		final Binary                   bytes        ,
 		final PersistenceStoreFunction persister    ,
-		final long                     length       ,
+		final long                     contentLength,
 		final long                     typeId       ,
 		final long                     objectId     ,
 		final Object                   instance     ,
@@ -650,7 +649,7 @@ public final class BinaryPersistence extends Persistence
 		final BinaryValueStorer[]      storers
 	)
 	{
-		long address = bytes.storeEntityHeader(length, typeId, objectId);
+		long address = bytes.storeEntityHeader(contentLength, typeId, objectId);
 		for(int i = 0; i < memoryOffsets.length; i++)
 		{
 			address = storers[i].storeValueFromMemory(instance, memoryOffsets[i], address, persister);
