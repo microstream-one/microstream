@@ -166,15 +166,15 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * creating new type handlers in the process will eventually end up here again for the new types
 			 * until all reachable types are ensured to have type handlers registered.
 			 */
-			typeHandler.getInstanceReferenceFields().iterate(e ->
+			typeHandler.iterateMemberTypes(t ->
 			{
 				try
 				{
-					this.ensureTypeHandler(e.getType());
+					this.ensureTypeHandler(t);
 				}
-				catch(final RuntimeException t)
+				catch(final RuntimeException e)
 				{
-					throw t; // debug hook
+					throw e; // debug hook
 				}
 			});
 		}

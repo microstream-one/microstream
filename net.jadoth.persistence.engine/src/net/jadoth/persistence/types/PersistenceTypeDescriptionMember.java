@@ -145,11 +145,10 @@ public interface PersistenceTypeDescriptionMember
 		return IdentityHashEqualator.SINGLETON;
 	}
 	
-	public static XImmutableEnum<PersistenceTypeDescriptionMember> validateAndImmure(
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-	)
+	public static <M extends PersistenceTypeDescriptionMember>
+	XImmutableEnum<M> validateAndImmure(final XGettingSequence<M> members)
 	{
-		final EqHashEnum<PersistenceTypeDescriptionMember> validatedMembers = EqHashEnum.New(
+		final EqHashEnum<M> validatedMembers = EqHashEnum.New(
 			PersistenceTypeDescriptionMember.identityHashEqualator()
 		);
 		validatedMembers.addAll(members);

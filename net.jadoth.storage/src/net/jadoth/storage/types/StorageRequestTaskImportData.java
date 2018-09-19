@@ -9,7 +9,6 @@ import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 
@@ -369,19 +368,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			{
 				// being interrupted is a normal problem here, causing to abort the task, no further handling required.
 
-				/* damn checked exceptios:
-				 * for clean architecture wihtout maintenance-error-prone redundant code,
-				 * the checked exception must be rethrown unchecked.
-				 * See calling context (addProblem() and incrementCompletionProgress())
+				/* (16.04.2016)TODO: storage import interruption handling.
+				 * Shouldn't an import be properly interruptible in the first place?
+				 * Either change code or comment accordingly.
 				 */
-				/* (16.04.2016)TODO: if it is a normal problem, there should be a proper wrapping exception for it
-				 * instead of hacking the JVM.
-				 * Also, shouldn't an import be properly interruptible in the first place?
-				 */
-				XVM.throwUnchecked(e);
-
-				// safety net error, may never be reached if the cheating method call works as intended.
-				throw new Error(e);
+				throw new RuntimeException(e);
 			}
 
 			return null;

@@ -1865,7 +1865,7 @@ public final class BinaryPersistence extends Persistence
 	public static BinaryPersistenceFoundation factory(final InstanceDispatcherLogic dispatcher)
 	{
 		final BinaryPersistenceFoundation.Implementation factory =
-			new BinaryPersistenceFoundation.Implementation()
+			BinaryPersistenceFoundation.New()
 			.setInstanceDispatcher(dispatcher)
 		;
 		return factory;

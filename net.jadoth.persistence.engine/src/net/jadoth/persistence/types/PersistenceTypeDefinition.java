@@ -32,6 +32,8 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 
 	/**
 	 * Enum (unique elements with order), using {@link PersistenceTypeDescriptionMember#identityHashEqualator()}.
+	 * Contains all persistent members (similar, but not identical to fields) in persistent order, which can
+	 * differ from the declaration order.
 	 * 
 	 * @return
 	 */
@@ -40,6 +42,10 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 
 	public boolean hasPersistedReferences();
 
+	public long membersPersistedLengthMinimum();
+	
+	public long membersPersistedLengthMaximum();
+	
 	/**
 	 * Provides information if two instances of the handled type can have different length in persisted form.<p>
 	 * Examples for variable length types:
@@ -59,7 +65,10 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 *
 	 * @return
 	 */
-	public boolean hasPersistedVariableLength();
+	public default boolean hasPersistedVariableLength()
+	{
+		return this.membersPersistedLengthMinimum() == this.membersPersistedLengthMaximum();
+	}
 
 	public boolean isPrimitiveType();
 	
@@ -147,13 +156,15 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		// instance fields //
 		////////////////////
 
-		final long                                                       typeId        ;
-		final String                                                     typeName      ;
-		final Class<T>                                                   type          ;
-		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members       ;
-		final boolean                                                    hasReferences ;
-		final boolean                                                    isPrimitive   ;
-		final boolean                                                    variableLength;
+		final long                                                       typeId              ;
+		final String                                                     typeName            ;
+		final Class<T>                                                   type                ;
+		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members             ;
+		final long                                                       membersLengthMinimum;
+		final long                                                       membersLengthMaximum;
+		final boolean                                                    hasReferences       ;
+		final boolean                                                    isPrimitive         ;
+		final boolean                                                    variableLength      ;
 
 
 
@@ -179,6 +190,15 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 			this.hasReferences  = hasReferences ;
 			this.isPrimitive    = isPrimitive   ;
 			this.variableLength = variableLength;
+			
+			long membersLengthMinimum = 0, membersLengthMaximum = 0;
+			for(final PersistenceTypeDescriptionMember member : this.members)
+			{
+				membersLengthMinimum += member.persistentMinimumLength();
+				membersLengthMaximum += member.persistentMaximumLength();
+			}
+			this.membersLengthMinimum = membersLengthMinimum;
+			this.membersLengthMaximum = membersLengthMaximum;
 		}
 
 		
@@ -239,6 +259,18 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		public final String toString()
 		{
 			return this.toTypeString();
+		}
+
+		@Override
+		public final long membersPersistedLengthMinimum()
+		{
+			return this.membersLengthMinimum;
+		}
+
+		@Override
+		public final long membersPersistedLengthMaximum()
+		{
+			return this.membersLengthMaximum;
 		}
 		
 

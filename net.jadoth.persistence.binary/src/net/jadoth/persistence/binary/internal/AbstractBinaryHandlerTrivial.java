@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
-import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
@@ -53,24 +53,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	{
 		// no-op, no references
 	}
-
-	@Override
-	public final XGettingEnum<Field> getInstanceFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstancePrimitiveFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstanceReferenceFields()
-	{
-		return X.empty();
-	}
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
@@ -79,13 +61,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public long binaryContentLengthMinimum()
+	public long membersPersistedLengthMinimum()
 	{
 		return 0;
 	}
 	
 	@Override
-	public long binaryContentLengthMaximum()
+	public long membersPersistedLengthMaximum()
 	{
 		return 0;
 	}
@@ -113,5 +95,12 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	{
 		return false;
 	}
-
+	
+	@Override
+	public final <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		// no member types to iterate in a trivial handler implementation
+		return logic;
+	}
+	
 }

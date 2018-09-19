@@ -21,6 +21,23 @@ import net.jadoth.functional.XFunc;
  */
 public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 {
+	/*
+	 * Their plain string programming with gigantic caching logic behind it
+	 * even for common cases is so painful to read D-: .
+	 */
+	private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+	
+	/**
+	 * Returns <code>java.nio.charset.Charset.forName("UTF-8")</code>, but with the instance locally cached in a
+	 * constant reference and with a properly structured method name instead of a botchy plain string.
+	 * 
+	 * @return <code>java.nio.charset.Charset.forName("UTF-8")</code>.
+	 */
+	public static final Charset charSetUtf8()
+	{
+		return CHARSET_UTF8;
+	}
+	
 	public static final File ensureDirectory(final File directory) throws DirectoryException
 	{
 		try
@@ -110,8 +127,8 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	}
 
 	public static final char[] readCharsFromFile(
-		final File                           file            ,
-		final Charset                        charset         ,
+		final File                          file            ,
+		final Charset                       charset         ,
 		final Consumer<? super IOException> exceptionHandler
 	)
 	{
@@ -131,6 +148,14 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		}
 
 		return XChars.getChars(content);
+	}
+	
+	public static final char[] readCharsFromFileUtf8(
+		final File                          file            ,
+		final Consumer<? super IOException> exceptionHandler
+	)
+	{
+		return readCharsFromFile(file, charSetUtf8(), exceptionHandler);
 	}
 
 	public static final char[] readCharsFromFile(final File file, final Charset charset) throws IOException

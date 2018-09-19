@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
@@ -29,16 +30,8 @@ public abstract class AbstractBinaryHandlerNative<T>
 extends BinaryTypeHandler.AbstractImplementation<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
+	// static methods   //
 	/////////////////////
-
-	public static final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoField>
-	defineValueType(final Class<?> valueType)
-	{
-		return X.Constant(pseudoField(valueType, "value"));
-	}
-	
-	
 	
 	public static final PersistenceTypeDescriptionMemberField declaredField(final Class<?> clazz, final String fieldName)
 	{
@@ -72,6 +65,12 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		return X.ConstList(declaredFields);
 	}
 
+	public static final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoField>
+	defineValueType(final Class<?> valueType)
+	{
+		return X.Constant(pseudoField(valueType, "value"));
+	}
+	
 	public static final PersistenceTypeDescriptionMemberPseudoField pseudoField(
 		final Class<?> type,
 		final String   name
@@ -177,13 +176,13 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 	
 	@Override
-	public long binaryContentLengthMinimum()
+	public long membersPersistedLengthMinimum()
 	{
 		return this.binaryLengthMinimum;
 	}
 	
 	@Override
-	public long binaryContentLengthMaximum()
+	public long membersPersistedLengthMaximum()
 	{
 		return this.binaryLengthMaximum;
 	}
@@ -204,24 +203,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public final XGettingEnum<Field> getInstanceFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstancePrimitiveFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstanceReferenceFields()
-	{
-		return X.empty();
-	}
-
-	@Override
 	public abstract T create(Binary bytes);
 
 	@Override
@@ -237,6 +218,13 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	public void complete(final Binary medium, final T instance, final SwizzleBuildLinker builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
+	}
+	
+	@Override
+	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		// native handling logic should normally not have any member types that have to be iterated here
+		return logic;
 	}
 
 }
