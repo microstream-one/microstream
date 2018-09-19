@@ -5,6 +5,8 @@ import static net.jadoth.X.notNull;
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.persistence.binary.internal.BinaryHandlerEnum;
+import net.jadoth.persistence.binary.internal.BinaryHandlerGeneric;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -76,19 +78,19 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
 				 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
 				 * makes sense in the first place. The whole enum concept (the identity of an instance depending
-				 *  on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
+				 * on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
 				 * Use enums for logic, if you must, but keep them out of proper entity graphs.
 				 */
 //				return this.createEnumHandler(type, persistableFields);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
-			return new BinaryHandlerGeneric<>(
+			return BinaryHandlerGeneric.New(
 				type                                           ,
-				BinaryPersistence.blankMemoryInstantiator(type),
 				persistableFields                              ,
 				this.lengthResolver()                          ,
-				this.mandatoryFieldEvaluator()
+				this.mandatoryFieldEvaluator()                 ,
+				BinaryPersistence.blankMemoryInstantiator(type)
 			);
 		}
 
@@ -98,7 +100,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> allFields
 		)
 		{
-			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEnum.New(
 				(Class<E>)type                ,
 				allFields                     ,
 				this.lengthResolver()         ,

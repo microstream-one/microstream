@@ -10,6 +10,10 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class TestPersistenceFactory extends BinaryPersistenceFoundation.Implementation
 {
+	protected TestPersistenceFactory()
+	{
+		super();
+	}
 
 	@Override
 	protected SwizzleObjectIdProvider createObjectIdProvider()

@@ -306,6 +306,18 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				 * So maybe a persistence layer must use two different concepts:
 				 * - one for initially loading (updating existing instances)
 				 * - one for normal loading after initialization (never updating existing instances)
+				 * 
+				 * (19.09.2018 TM)NOTE:
+				 * Another use case where it is valid to update instances from the persisted data is to keep
+				 * replicating server nodes ("shadow server" or "read-only node" or whatever) up to date.
+				 * 
+				 * It is also conceivable that a read from the database shall be used to reset modified instances
+				 * to their latest persisted state. While this is generally a rather bad design (an application
+				 * should be able to produce consistent states or store its resetting state on its own), this
+				 * might be a valid approach for specific applications.
+				 * 
+				 * In any case, there should be a distinction between logic to initially restore persisted state
+				 * and logic for regular runtime uses. The latter might be the same thing, but not always.
 				 */
 				entry.handler.update(
 					entry,
@@ -319,8 +331,10 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			/* (29.07.2015 TM)TODO: binary builder: complex completion cases
 			 * what if completing one instance properly depends on completing another instance first?
-			 * E.g. HashCollection of HashCollections with the hash value determined by the HashCollections content?
-			 * Stupid idea, but general implementation in JDK.
+			 * E.g. hash collection of hash collections with the hash value depending on the inner
+			 * hash collection's content?
+			 * Stupid idea in the first place, but a general implementation pattern in JDK with its naive equals&hash
+			 * concept.
 			 * What if two such instances have a circular dependency between each other?
 			 * Possible solutions:
 			 * - complete entries in reverse order. Should cover more, although not all cases

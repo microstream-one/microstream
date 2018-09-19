@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
@@ -66,6 +66,8 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		// (19.09.2018 TM)FIXME: OGS-3: is it correct to just reroute everything to the old type definition? Comment.
 
 		@Override
 		public final long typeId()
@@ -83,6 +85,18 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDefinition.members();
+		}
+		
+		@Override
+		public long membersPersistedLengthMinimum()
+		{
+			return this.typeDefinition.membersPersistedLengthMinimum();
+		}
+		
+		@Override
+		public long membersPersistedLengthMaximum()
+		{
+			return this.typeDefinition.membersPersistedLengthMaximum();
 		}
 
 		@Override
@@ -160,24 +174,6 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		////////////
 
 		@Override
-		public final XGettingEnum<Field> getInstanceFields()
-		{
-			return this.typeHandler.getInstanceFields();
-		}
-
-		@Override
-		public XGettingEnum<Field> getInstancePrimitiveFields()
-		{
-			return this.typeHandler.getInstancePrimitiveFields();
-		}
-
-		@Override
-		public XGettingEnum<Field> getInstanceReferenceFields()
-		{
-			return this.typeHandler.getInstanceReferenceFields();
-		}
-
-		@Override
 		public boolean hasInstanceReferences()
 		{
 			return this.typeHandler.hasInstanceReferences();
@@ -211,6 +207,12 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public void complete(final M medium, final T instance, final SwizzleBuildLinker builder)
 		{
 			this.typeHandler.complete(medium, instance, builder);
+		}
+		
+		@Override
+		public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+		{
+			return this.typeHandler.iterateMemberTypes(logic);
 		}
 		
 	}

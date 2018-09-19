@@ -194,18 +194,18 @@ public interface StorageChannelTask extends StorageTask
 				}
 				catch(final Throwable e)
 				{
-					// if problem while storing occured, report it, mark task complete and abort (but still cleaning up)
+					// a problem occuring while storing gets reported and the task get cleanly aborted.
 					this.addProblem(storageChannel.channelIndex(), e);
 					this.incrementCompletionProgress();
 					return;
 				}
 				finally
 				{
-					// finishing logic to be called in any case (e.g. notify other thread about task's progress)
+					// processing is finishing in any case (e.g. notifying other thread about the task's progress)
 					this.finishProcessing();
 				}
 
-				// complete the task (must be done after finishing the processing)
+				// task gets completed (must be done after finishing the processing)
 				this.complete(storageChannel, result);
 			}
 			finally

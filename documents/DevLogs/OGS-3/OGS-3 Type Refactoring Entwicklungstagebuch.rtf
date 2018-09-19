@@ -1771,7 +1771,31 @@ Mal machen.\par
 Und eigentlich ist die binaryLength auch schon im TypeHandler verf\'fcgbar. Mal recherchieren, bissl refactoren usw.\par
 \par
 \par
+2018-09-19\par
 \par
+ContentLength in PersistenceTypeHandler nachziehen und damit Code vereinfachen.\par
+\par
+Dabei aufgefallen: in PersistenceTypeHandler sind getter f\'fcr Field Members. Die haben erstens dort nichts verloren und werden zweitens nie verwendet.\par
+Aufr\'e4umen:\par
+Eigenen Type PersistenceTypeHandlerReflective machen und dorthin verschieben. Der kann dann auch gleich die Member Typen spezifischer definieren. Nice.\par
+\par
+Paar Refactorings auf dem Weg.\par
+\par
+Jetzt halt doch gleich noch das primitive converter mapping schreiben. Sonst gibts da sofort beim Ausprobieren gro\'dfes Geheule, wieso man das selber mache muss.\par
+Bissl rumbauen f\'fcr m\'f6glichst kompakte Syntax, sonst wird das seitenweise Spaghetticode...\par
+\par
+Jetzt die TODOs zu persistentOrder vs declaration Order anschauen. Das f\'e4llt auf ein uraltes TODO von 2014 zur\'fcck.\par
+Dabei gleich AbstractBinaryHandlerReflective umbenennen, verschieben, elendslangen Konstruktur aufr\'e4umen.\par
+\par
+
+\pard Besprechung mit CK zu OGS IO-Abstrahierung, z.B. f\'fcr Speichern in S3. Notizen zu aktuellem Konzept bzw. Anforderung machen.\par
+
+\pard\sl276\slmult1\par
+Damit sind nun noch 5 OGS-3 TODOs \'fcbrig. Noch immer Similator, Resultor und ReflectiveMapper plus 2 Checks auf ein potenzielles Problem.\par
+\par
+BinaryLegacyTypeHandlerCreator#deriveValueTranslators nochmal durchschauen/durchdenken als Ausgangspunkt f\'fcr den ReflectiveMapper.\par
+Dabei aufgefallen: der total offset wird ja gar nicht hochgez\'e4hlt und gel\'f6schte legacy Members werden nicht ber\'fccksichtigt.\par
+Beides noch fixen.\par
 \par
 }
  

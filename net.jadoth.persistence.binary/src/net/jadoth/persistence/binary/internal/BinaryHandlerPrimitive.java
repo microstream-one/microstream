@@ -31,7 +31,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 		super(type);
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
-
 		this.member = X.Constant(
 			new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
 				type,
@@ -54,13 +53,13 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 	
 	@Override
-	public final long binaryContentLengthMinimum()
+	public final long membersPersistedLengthMinimum()
 	{
 		return this.member.get().persistentMinimumLength();
 	}
 	
 	@Override
-	public final long binaryContentLengthMaximum()
+	public final long membersPersistedLengthMaximum()
 	{
 		return this.member.get().persistentMaximumLength();
 	}

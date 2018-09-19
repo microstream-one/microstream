@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import net.jadoth.X;
@@ -1077,18 +1076,22 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void parseCurrentFile()
 		{
-			final char[]             input  = XFiles.readCharsFromFile(
+			final char[] input = XFiles.readCharsFromFileUtf8(
 				this.sourceFile,
-				Charset.forName("UTF-8"),
 				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
 				 * Copied from StorageRequestTaskImportData#internalProcessBy:
 				 * if it is a normal problem, there should be a proper wrapping exception for it
 				 * instead of hacking the JVM.
 				 */
-				XVM::throwUnchecked
+				e -> handleIoException(e)
 			);
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
+		}
+		
+		static final void handleIoException(final IOException e)
+		{
+			throw new RuntimeException(e);
 		}
 
 		final void clearCurrentFileState()

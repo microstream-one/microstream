@@ -138,6 +138,18 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		{
 			return this.typeDefinition.members();
 		}
+		
+		@Override
+		public final long membersPersistedLengthMinimum()
+		{
+			return this.typeDefinition.membersPersistedLengthMinimum();
+		}
+		
+		@Override
+		public final long membersPersistedLengthMaximum()
+		{
+			return this.typeDefinition.membersPersistedLengthMaximum();
+		}
 
 		@Override
 		public final void iterateReferences(final long entityCacheAddress, final _longProcedure procedure)

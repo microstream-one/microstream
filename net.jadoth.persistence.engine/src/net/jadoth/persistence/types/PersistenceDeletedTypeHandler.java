@@ -2,34 +2,14 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
-import net.jadoth.X;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
 public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTypeHandler<M, T>
 {
-	@Override
-	public default XGettingEnum<Field> getInstanceFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public default XGettingEnum<Field> getInstancePrimitiveFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public default XGettingEnum<Field> getInstanceReferenceFields()
-	{
-		return X.empty();
-	}
-
 	@Override
 	public default boolean hasInstanceReferences()
 	{
@@ -74,6 +54,13 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	public default void complete(final M medium, final T instance, final SwizzleBuildLinker builder)
 	{
 		// nothing to do here in either case (null or exception)
+	}
+	
+	@Override
+	default <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		// nothing to iterate. No need to throw an exception, either.
+		return logic;
 	}
 	
 	

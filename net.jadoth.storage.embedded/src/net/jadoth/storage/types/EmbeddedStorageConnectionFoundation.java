@@ -137,9 +137,20 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 
 		private           StorageManager         storageManager           ;
 		private transient StorageRequestAcceptor connectionRequestAcceptor;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
+		protected Implementation()
+		{
+			super();
+		}
 
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////

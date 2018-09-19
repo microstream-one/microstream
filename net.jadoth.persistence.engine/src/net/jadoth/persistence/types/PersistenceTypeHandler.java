@@ -3,8 +3,8 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
@@ -14,12 +14,6 @@ import net.jadoth.swizzling.types.SwizzleFunction;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>
 {
-	public XGettingEnum<Field> getInstanceFields();
-
-	public XGettingEnum<Field> getInstancePrimitiveFields();
-
-	public XGettingEnum<Field> getInstanceReferenceFields();
-
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
@@ -60,6 +54,16 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 	 */
 	
 	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
+	
+	/**
+	 * Iterates the types of persistent members (e.g. non-transient {@link Field}s).
+	 * The same type may occur more than once.
+	 * The order in which the types are provided is undefined, i.e. depending on the implementation.
+	 * 
+	 * @param logic
+	 * @return
+	 */
+	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
 	
 	
 	

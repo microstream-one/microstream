@@ -2,11 +2,10 @@ package net.jadoth.persistence.binary.types;
 
 import static net.jadoth.X.notNull;
 
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import net.jadoth.X;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
@@ -74,24 +73,6 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	////////////
 	
 	@Override
-	public final XGettingEnum<Field> getInstanceFields()
-	{
-		return this.typeHandler.getInstanceFields();
-	}
-
-	@Override
-	public XGettingEnum<Field> getInstancePrimitiveFields()
-	{
-		return this.typeHandler.getInstancePrimitiveFields();
-	}
-
-	@Override
-	public XGettingEnum<Field> getInstanceReferenceFields()
-	{
-		return this.typeHandler.getInstanceReferenceFields();
-	}
-
-	@Override
 	public boolean hasInstanceReferences()
 	{
 		return this.typeHandler.hasInstanceReferences();
@@ -107,6 +88,12 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	public void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
 	{
 		this.typeHandler.iteratePersistedReferences(rawData, iterator);
+	}
+	
+	@Override
+	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		return this.typeHandler.iterateMemberTypes(logic);
 	}
 
 	@Override

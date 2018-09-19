@@ -1,15 +1,31 @@
-package net.jadoth.persistence.binary.types;
+package net.jadoth.persistence.binary.internal;
 
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
-public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractGenericBinaryHandler<T>
+public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHandlerReflective<T>
 {
+	public static <T extends Enum<T>> BinaryHandlerEnum<T> New(
+		final Class<T>                              type                   ,
+		final XGettingEnum<Field>                   allFields              ,
+		final PersistenceFieldLengthResolver        lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+	)
+	{
+		return new BinaryHandlerEnum<>(
+			type                   ,
+			allFields              ,
+			lengthResolver         ,
+			mandatoryFieldEvaluator
+		);
+	}
+	
 	/* (07.11.2013 TM)TODO: enum BinaryHandler special case implementation
 	 * (09.06.2017 TM)NOTE:
 	 * This is more complex than it appeared at first.

@@ -15,6 +15,12 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 
 public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHandlerCreator<Binary>
 {
+	public static BinaryLegacyTypeHandlerCreator New()
+	{
+		return new BinaryLegacyTypeHandlerCreator.Implementation(
+			BinaryValueTranslator.Creator()
+		);
+	}
 	
 	public static BinaryLegacyTypeHandlerCreator New(final BinaryValueTranslator.Creator valueTranslatorCreator)
 	{
@@ -50,19 +56,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		private static long calculateBinaryContentLength(final PersistenceTypeHandler<Binary, ?> typeHandler)
-		{
-			long binaryContentLength = 0;
-			for(final PersistenceTypeDescriptionMember e : typeHandler.members())
-			{
-				// returned length values are expected to never be more than 3-digit, so no overflow check needed.
-				binaryContentLength += e.persistentMaximumLength();
-			}
-			
-			return binaryContentLength;
-		}
-			
+					
 		private static HashTable<PersistenceTypeDescriptionMember, Integer> createMemberOffsetMap(
 			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 		)
@@ -82,7 +76,6 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final PersistenceLegacyTypeMappingResult<Binary, ?> result
 		)
 		{
-			// (18.09.2018 TM)FIXME: OGS-3: binary order offsets, not declaration order offsets!
 			final HashTable<PersistenceTypeDescriptionMember, Integer> currentMemberOffsets = createMemberOffsetMap(
 				result.currentTypeHandler().members()
 			);
@@ -92,23 +85,28 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			;
 			
 			final BulkList<BinaryValueTranslator> translators = BulkList.New();
-
-			/* (18.09.2018 TM)FIXME: OGS-3: binary order offsets, not declaration order offsets!
-			 * Also see AbstractGenericBinaryHandler constructor note about confusing orders
-			 */
 			
-			final int legacyTotalOffset = 0;
+			// (19.09.2018 TM)FIXME: OGS-3: refactor to function stateless, like BinaryValueSetter?
+			
+			int legacyTotalOffset = 0;
 			for(final PersistenceTypeDescriptionMember legacyMember : result.legacyTypeDefinition().members())
 			{
 				final PersistenceTypeDescriptionMember currentMember = legacyToCurrentMembers.get(legacyMember);
+								
+				// a legacy member might be unmapped (e.g. the value is discarded).
+				if(currentMember != null)
+				{
+					final BinaryValueTranslator valueTranslator = this.valueTranslatorCreator.createValueTranslator(
+						legacyMember,
+						legacyTotalOffset,
+						currentMember,
+						currentMemberOffsets.get(currentMember)
+					);
+					translators.add(valueTranslator);
+				}
 				
-				final BinaryValueTranslator valueTranslator = this.valueTranslatorCreator.createValueTranslator(
-					legacyMember,
-					legacyTotalOffset,
-					currentMember,
-					currentMemberOffsets.get(currentMember)
-				);
-				translators.add(valueTranslator);
+				// total offset mus be incremented in any case, including deleted member / discarded value
+				legacyTotalOffset += legacyMember.persistentMaximumLength();
 			}
 			
 			return translators;
@@ -120,24 +118,20 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		)
 		{
 			final PersistenceTypeHandler<Binary, T> typeHandler = mappingResult.currentTypeHandler();
-			if(typeHandler.hasVaryingPersistedLengthInstances())
+			if(typeHandler.hasPersistedVariableLength())
 			{
 				// (14.09.2018 TM)TODO: support VaryingPersistedLengthInstances
 				throw new UnsupportedOperationException(
-					"Types with instances of varying persisted length are not supported, yet by generic mapping."
+					"Types with varying persisted length are not supported, yet by generic mapping."
+					+ " Use a custom handler."
 				);
 			}
-			
-			// (18.09.2018 TM)FIXME: OGS-3: already available in the TypeHandler. Resolve API conflict on Persistence level.
-			final long binaryTotalLength = BinaryPersistence.entityTotalLength(
-				calculateBinaryContentLength(typeHandler)
-			);
 						
 			return BinaryLegacyTypeTranslatingMapper.New(
 				mappingResult.legacyTypeDefinition()      ,
 				typeHandler                               ,
 				this.deriveValueTranslators(mappingResult),
-				binaryTotalLength
+				typeHandler.membersPersistedLengthMaximum()
 			);
 		}
 
