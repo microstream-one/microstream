@@ -4,5 +4,5 @@ import net.jadoth.swizzling.types.PersistenceStoreFunction;
 
 public interface BinaryValueStorer
 {
-	public long storeValueFromMemory(Object src, long srcOffset, long address, PersistenceStoreFunction persister);
+	public long storeValueFromMemory(Object source, long sourceOffset, long targetAddress, PersistenceStoreFunction persister);
 }

@@ -2,11 +2,10 @@ package net.jadoth.persistence.binary.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
@@ -57,12 +56,12 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		// methods //
 		////////////
 					
-		private static HashTable<PersistenceTypeDescriptionMember, Integer> createMemberOffsetMap(
+		private static HashTable<PersistenceTypeDescriptionMember, Long> createMemberOffsetMap(
 			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, Integer> memberOffsets = HashTable.New();
-			int totalOffset = 0;
+			final HashTable<PersistenceTypeDescriptionMember, Long> memberOffsets = HashTable.New();
+			long totalOffset = 0;
 			for(final PersistenceTypeDescriptionMember member : members)
 			{
 				memberOffsets.add(member, totalOffset);
@@ -72,11 +71,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			return memberOffsets;
 		}
 		
-		private XGettingSequence<BinaryValueTranslator> deriveValueTranslators(
+		private XGettingTable<BinaryValueTranslator, Long> deriveValueTranslators(
 			final PersistenceLegacyTypeMappingResult<Binary, ?> result
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, Integer> currentMemberOffsets = createMemberOffsetMap(
+			final HashTable<PersistenceTypeDescriptionMember, Long> currentMemberOffsets = createMemberOffsetMap(
 				result.currentTypeHandler().members()
 			);
 			
@@ -84,32 +83,20 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				result.legacyToCurrentMembers()
 			;
 			
-			final BulkList<BinaryValueTranslator> translators = BulkList.New();
+			final HashTable<BinaryValueTranslator, Long> translatorsWithTargetOffsets = HashTable.New();
 			
-			// (19.09.2018 TM)FIXME: OGS-3: refactor to function stateless, like BinaryValueSetter?
-			
-			int legacyTotalOffset = 0;
+			final BinaryValueTranslator.Creator creator = this.valueTranslatorCreator;
+
 			for(final PersistenceTypeDescriptionMember legacyMember : result.legacyTypeDefinition().members())
 			{
+				// currentMember null means the value is to be discarded.
 				final PersistenceTypeDescriptionMember currentMember = legacyToCurrentMembers.get(legacyMember);
-								
-				// a legacy member might be unmapped (e.g. the value is discarded).
-				if(currentMember != null)
-				{
-					final BinaryValueTranslator valueTranslator = this.valueTranslatorCreator.createValueTranslator(
-						legacyMember,
-						legacyTotalOffset,
-						currentMember,
-						currentMemberOffsets.get(currentMember)
-					);
-					translators.add(valueTranslator);
-				}
-				
-				// total offset mus be incremented in any case, including deleted member / discarded value
-				legacyTotalOffset += legacyMember.persistentMaximumLength();
+				final BinaryValueTranslator translator   = creator.createValueTranslator(legacyMember, currentMember);
+				final Long                  targetOffset = currentMemberOffsets.get(currentMember);
+				translatorsWithTargetOffsets.add(translator, targetOffset);
 			}
 			
-			return translators;
+			return translatorsWithTargetOffsets;
 		}
 		
 		@Override
@@ -126,12 +113,15 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 					+ " Use a custom handler."
 				);
 			}
+			
+			final XGettingTable<BinaryValueTranslator, Long> translatorsWithTargetOffsets =
+				this.deriveValueTranslators(mappingResult)
+			;
 						
-			return BinaryLegacyTypeTranslatingMapper.New(
-				mappingResult.legacyTypeDefinition()      ,
-				typeHandler                               ,
-				this.deriveValueTranslators(mappingResult),
-				typeHandler.membersPersistedLengthMaximum()
+			return BinaryLegacyTypeHandlerRerouting.New(
+				mappingResult.legacyTypeDefinition(),
+				typeHandler                         ,
+				translatorsWithTargetOffsets
 			);
 		}
 

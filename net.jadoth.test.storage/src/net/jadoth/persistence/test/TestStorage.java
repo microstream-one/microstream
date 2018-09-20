@@ -85,7 +85,7 @@ public class TestStorage extends TestComponentProvider
 
 	static final EmbeddedStorageConnectionFoundation createTestConnectionFoundation()
 	{
-		return TEST.initialize(new EmbeddedStorageConnectionFoundation.Implementation());
+		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
 	}
 
 	protected static File convertBinToCsv(final File... binaryFiles)

@@ -1797,5 +1797,22 @@ BinaryLegacyTypeHandlerCreator#deriveValueTranslators nochmal durchschauen/durch
 Dabei aufgefallen: der total offset wird ja gar nicht hochgez\'e4hlt und gel\'f6schte legacy Members werden nicht ber\'fccksichtigt.\par
 Beides noch fixen.\par
 \par
+\par
+2018-09-20\par
+\par
+BinaryValueTranslator doch lieber umbauen auf stateless Funktionen so wie bei BinaryValueStorer usw.\par
+Das gleiche in gr\'fcn kann dann auch gleich f\'fcr den ReflectiveMapper verwendet werden, nur dass da die offsets anders sind.\par
+\par
+Der BinaryLegacyTypeTranslatingMapper und der BinaryLegacyTypeReflectiveMapper k\'f6nnen sich sogar eine gemeinsame Superklasse teilen. Refactoren.\par
+\par
+Hm. Man braucht ja eine instance als Basis f\'fcr den field offset. D.h. ich m\'fcsste f\'fcr den Reflective Mapper alle translators nochmal schreiben.\par
+Oder ich bau alles so um, dass gleich einheitlich ValueSetters verwendet werden. Dann werden halt ein Haufen nulls nutzlos rumgereicht, aber ansonsten w\'e4r alles super.\par
+Jup. ValueSetter Vereinheitlichung.\par
+\par
+Dabei f\'e4llt mir auf: hier k\'f6nnte einiges an Performance Optimierung m\'f6glich sein.\par
+Mal einen Kommentar in BinaryValueSetter schreiben, damit das dokumentiert ist.\par
+\par
+\par
+\par
 }
  
