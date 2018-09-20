@@ -126,6 +126,11 @@ public interface EmbeddedStorageConnectionFoundation extends BinaryPersistenceFo
 	public StorageConnection createStorageConnection();
 
 
+	
+	public static EmbeddedStorageConnectionFoundation New()
+	{
+		return new EmbeddedStorageConnectionFoundation.Implementation();
+	}
 
 	public class Implementation
 	extends BinaryPersistenceFoundation.Implementation

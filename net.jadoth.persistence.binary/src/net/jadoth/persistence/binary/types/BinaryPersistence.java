@@ -393,14 +393,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
+			final Object                   source       ,
+			final long                     sourceOffset ,
+			final long                     targetAddress,
 			final PersistenceStoreFunction persister
 		)
 		{
-			VM.putLong(address, persister.applyEager(VM.getObject(src, srcOffset)));
-			return address + LENGTH_OID;
+			VM.putLong(targetAddress, persister.applyEager(VM.getObject(source, sourceOffset)));
+			return targetAddress + LENGTH_OID;
 		}
 	};
 
@@ -408,14 +408,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long setValueToMemory(
-			final long                     srcAddress,
-			final Object                   dst       ,
-			final long                     dstOffset ,
+			final long                     sourceAddress,
+			final Object                   target       ,
+			final long                     targetOffset ,
 			final SwizzleObjectIdResolving idResolver
 		)
 		{
-			VM.putByte(dst, dstOffset, VM.getByte(srcAddress));
-			return srcAddress + BYTE_SIZE_1;
+			VM.putByte(target, targetOffset, VM.getByte(sourceAddress));
+			return sourceAddress + BYTE_SIZE_1;
 		}
 	};
 
@@ -423,14 +423,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long setValueToMemory(
-			final long                     srcAddress,
-			final Object                   dst       ,
-			final long                     dstOffset ,
+			final long                     sourceAddress,
+			final Object                   target       ,
+			final long                     targetOffset ,
 			final SwizzleObjectIdResolving idResolver
 		)
 		{
-			VM.putShort(dst, dstOffset, VM.getShort(srcAddress));
-			return srcAddress + BYTE_SIZE_2;
+			VM.putShort(target, targetOffset, VM.getShort(sourceAddress));
+			return sourceAddress + BYTE_SIZE_2;
 		}
 	};
 
@@ -438,14 +438,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long setValueToMemory(
-			final long                     srcAddress,
-			final Object                   dst       ,
-			final long                     dstOffset ,
+			final long                     sourceAddress,
+			final Object                   target       ,
+			final long                     targetOffset ,
 			final SwizzleObjectIdResolving idResolver
 		)
 		{
-			VM.putInt(dst, dstOffset, VM.getInt(srcAddress));
-			return srcAddress + BYTE_SIZE_4;
+			VM.putInt(target, targetOffset, VM.getInt(sourceAddress));
+			return sourceAddress + BYTE_SIZE_4;
 		}
 	};
 
@@ -453,14 +453,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long setValueToMemory(
-			final long                     srcAddress,
-			final Object                   dst       ,
-			final long                     dstOffset ,
+			final long                     sourceAddress,
+			final Object                   target       ,
+			final long                     targetOffset ,
 			final SwizzleObjectIdResolving idResolver
 		)
 		{
-			VM.putLong(dst, dstOffset, VM.getLong(srcAddress));
-			return srcAddress + BYTE_SIZE_8;
+			VM.putLong(target, targetOffset, VM.getLong(sourceAddress));
+			return sourceAddress + BYTE_SIZE_8;
 		}
 	};
 
@@ -468,14 +468,14 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long setValueToMemory(
-			final long                     srcAddress,
-			final Object                   dst       ,
-			final long                     dstOffset ,
+			final long                     sourceAddress,
+			final Object                   target       ,
+			final long                     targetOffset ,
 			final SwizzleObjectIdResolving idResolver
 		)
 		{
-			VM.putObject(dst, dstOffset, idResolver.lookupObject(VM.getLong(srcAddress)));
-			return srcAddress + LENGTH_OID;
+			VM.putObject(target, targetOffset, idResolver.lookupObject(VM.getLong(sourceAddress)));
+			return sourceAddress + LENGTH_OID;
 		}
 	};
 

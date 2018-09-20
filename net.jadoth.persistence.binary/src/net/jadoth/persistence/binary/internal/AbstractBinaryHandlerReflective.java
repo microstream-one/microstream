@@ -298,7 +298,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
-		/* must explicitely check type to avoid memory getting overwritten with bytes not fitting to the actual type
+		/*
+		 * Must explicitely check type to avoid memory getting overwritten with bytes not fitting to the actual type
 		 * this can be especially critical and important if a custom PersistenceRootResolver returns an instance
 		 * that does not match the type defined by the typeId.
 		 */

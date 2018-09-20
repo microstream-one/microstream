@@ -83,12 +83,18 @@ public interface PersistenceFieldLengthResolver
 
 	public default long resolveMinimumLengthFromType(final Class<?> type)
 	{
-		return type.isPrimitive()  ? this.resolveMinimumLengthFromPrimitiveType(type)  : this.referenceMinimumLength();
+		return type.isPrimitive()
+			? this.resolveMinimumLengthFromPrimitiveType(type)
+			: this.referenceMinimumLength()
+		;
 	}
 
 	public default long resolveMaximumLengthFromType(final Class<?> type)
 	{
-		return type.isPrimitive()  ? this.resolveMaximumLengthFromPrimitiveType(type)  : this.referenceMaximumLength();
+		return type.isPrimitive()
+			? this.resolveMaximumLengthFromPrimitiveType(type)
+			: this.referenceMaximumLength()
+		;
 	}
 
 	public default long referenceMinimumLength()

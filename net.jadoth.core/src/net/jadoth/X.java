@@ -533,25 +533,54 @@ public final class X
 		return result;
 	}
 	
-	public static final int[] unbox(final Integer[] intArray)
+	public static final int[] unbox(final Integer[] array)
 	{
-		return unbox(intArray, 0);
+		return unbox(array, 0);
 	}
 
-	public static final int[] unbox(final Integer[] intArray, final int nullReplacement)
+	public static final int[] unbox(final Integer[] array, final int nullReplacement)
 	{
-		if(intArray == null)
+		if(array == null)
 		{
 			return null;
 		}
 
-		final int[] returnArray = new int[intArray.length];
-		for(int i = 0, length = returnArray.length; i < length; i++)
+		final int[] result = new int[array.length];
+		for(int i = 0, length = result.length; i < length; i++)
 		{
-			final Integer objI = intArray[i];
-			returnArray[i] = objI == null ? nullReplacement : objI.intValue();
+			final Integer value = array[i];
+			result[i] = value == null
+				? nullReplacement
+				: value.intValue()
+			;
 		}
-		return returnArray;
+		
+		return result;
+	}
+	
+	public static final long[] unbox(final Long[] array)
+	{
+		return unbox(array, 0);
+	}
+
+	public static final long[] unbox(final Long[] array, final long nullReplacement)
+	{
+		if(array == null)
+		{
+			return null;
+		}
+
+		final long[] result = new long[array.length];
+		for(int i = 0, length = result.length; i < length; i++)
+		{
+			final Long value = array[i];
+			result[i] = value == null
+				? nullReplacement
+				: value.longValue()
+			;
+		}
+		
+		return result;
 	}
 
 	public static final int[] unbox(final XGettingCollection<Integer> ints)

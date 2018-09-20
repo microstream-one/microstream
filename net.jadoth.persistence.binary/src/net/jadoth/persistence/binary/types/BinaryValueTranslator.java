@@ -1,29 +1,480 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.low.XVM;
-import net.jadoth.math.XMath;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 
 public interface BinaryValueTranslator
 {
-	public void translateValue(long sourceAddress, long targetAddress);
+	/**
+	 * If target is <code>null</code>, targetOffset is interpreted as an absolute value, meaning a targetAddress.
+	 * See "Unsafe" JavaDoc for background information.
+	 */
+	public long translateValue(long sourceAddress, Object target, long targetOffset, SwizzleObjectIdResolving idResolver);
 	
+	public static int to_int(final boolean value)
+	{
+		return value
+			? 1
+			: 0
+		;
+	}
+	
+	
+	public static long skip_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_byte();
+	}
+	
+	public static long skip_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+	
+	public static long skip_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_short();
+	}
+	
+	public static long skip_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_char();
+	}
+	
+	public static long skip_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_int();
+	}
+	
+	public static long skip_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_float();
+	}
+	
+	public static long skip_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_long();
+	}
+	
+	public static long skip_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		return sourceAddress + XVM.byteSize_double();
+	}
+	
+	
+	
+	
+	public static long copy_byteTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+	public static long copy_byteTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_byte(sourceAddress));
+		return sourceAddress + XVM.byteSize_byte();
+	}
+
+
+
+	public static long copy_booleanTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, XVM.get_boolean(sourceAddress));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+	public static long copy_booleanTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
+		return sourceAddress + XVM.byteSize_boolean();
+	}
+
+
+
+	public static long copy_shortTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+	public static long copy_shortTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_short(sourceAddress));
+		return sourceAddress + XVM.byteSize_short();
+	}
+
+
+
+	public static long copy_charTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+	public static long copy_charTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_char(sourceAddress));
+		return sourceAddress + XVM.byteSize_char();
+	}
+
+
+
+	public static long copy_intTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+	public static long copy_intTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+	public static long copy_intTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_int(sourceAddress));
+		return sourceAddress + XVM.byteSize_int();
+	}
+
+
+
+	public static long copy_floatTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, (int)XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, (long)XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+	public static long copy_floatTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_float(sourceAddress));
+		return sourceAddress + XVM.byteSize_float();
+	}
+
+
+
+	public static long copy_longTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, (int)XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+	public static long copy_longTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_long(sourceAddress));
+		return sourceAddress + XVM.byteSize_long();
+	}
+
+
+
+	public static long copy_doubleTo_byte(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_byte(target, targetOffset, (byte)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_boolean(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_boolean(target, targetOffset, 0 != XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_short(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_short(target, targetOffset, (short)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_char(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_char(target, targetOffset, (char)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_int(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_int(target, targetOffset, (int)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_float(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_float(target, targetOffset, (float)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_long(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_long(target, targetOffset, (long)XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
+	public static long copy_doubleTo_double(final long sourceAddress, final Object target, final long targetOffset, final SwizzleObjectIdResolving idResolver)
+	{
+		XVM.set_double(target, targetOffset, XVM.get_double(sourceAddress));
+		return sourceAddress + XVM.byteSize_double();
+	}
+
 	
 	
 	public static BinaryValueTranslator.Creator Creator()
 	{
 		return new BinaryValueTranslator.Creator.Implementation();
 	}
-	
+		
 	@FunctionalInterface
 	public interface Creator
 	{
 		public BinaryValueTranslator createValueTranslator(
-			PersistenceTypeDescriptionMember sourceMember      ,
-			int                              sourceMemberOffset,
-			PersistenceTypeDescriptionMember targetMember      ,
-			int                              targetMemberOffset
+			PersistenceTypeDescriptionMember sourceMember,
+			PersistenceTypeDescriptionMember targetMember
 		);
 		
 		public final class Implementation implements BinaryValueTranslator.Creator
@@ -45,362 +496,279 @@ public interface BinaryValueTranslator
 
 			@Override
 			public final BinaryValueTranslator createValueTranslator(
-				final PersistenceTypeDescriptionMember sourceMember      ,
-				final int                              sourceMemberOffset,
-				final PersistenceTypeDescriptionMember targetMember      ,
-				final int                              targetMemberOffset
+				final PersistenceTypeDescriptionMember sourceMember,
+				final PersistenceTypeDescriptionMember targetMember
 			)
 			{
-				// offset validation
-				XMath.positive(sourceMemberOffset);
-				XMath.positive(targetMemberOffset);
-				
 				if(sourceMember.isReference())
 				{
-					if(!targetMember.isReference())
-					{
-						throwUnhandledTypeCompatibilityException(sourceMember.typeName(), targetMember.typeName());
-					}
-					
-					// all references are stored as OID primitive values
-					return BinaryValueTranslator.New(
-						(int)BinaryPersistence.oidLength(),
-						sourceMemberOffset,
-						targetMemberOffset
-					);
+					return createReferenceValueTranslator(sourceMember, targetMember);
 				}
 
 				// identical types use direct copying
-				return createPrimitiveValueTranslator(sourceMember, sourceMemberOffset, targetMember, targetMemberOffset);
+				return createPrimitiveValueTranslator(sourceMember, targetMember);
+			}
+			
+			private static BinaryValueTranslator createReferenceValueTranslator(
+				final PersistenceTypeDescriptionMember sourceMember,
+				final PersistenceTypeDescriptionMember targetMember
+			)
+			{
+				// all references are stored as OID primitive values (long)
+				if(targetMember == null)
+				{
+					return BinaryValueTranslator::skip_long;
+				}
+				
+				if(!targetMember.isReference())
+				{
+					throwUnhandledTypeCompatibilityException(sourceMember.typeName(), targetMember.typeName());
+				}
+				
+				return BinaryValueTranslator::copy_longTo_long;
 			}
 			
 			private static BinaryValueTranslator createPrimitiveValueTranslator(
-				final PersistenceTypeDescriptionMember sourceMember      ,
-				final int                              sourceMemberOffset,
-				final PersistenceTypeDescriptionMember targetMember      ,
-				final int                              targetMemberOffset
+				final PersistenceTypeDescriptionMember sourceMember,
+				final PersistenceTypeDescriptionMember targetMember
 			)
 			{
 				final Class<?> sourcePrimitiveType = XReflect.primitiveType(sourceMember.typeName());
-				final Class<?> targetPrimitiveType = XReflect.primitiveType(targetMember.typeName());
+				final Class<?> targetPrimitiveType = targetMember != null
+					? XReflect.primitiveType(targetMember.typeName())
+					: null
+				;
 				
 				if(sourcePrimitiveType == byte.class)
 				{
-					return createConverter_byte(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_byte(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == boolean.class)
 				{
-					return createConverter_boolean(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_boolean(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == short.class)
 				{
-					return createConverter_short(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_short(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == char.class)
 				{
-					return createConverter_char(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_char(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == int.class)
 				{
-					return createConverter_int(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_int(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == float.class)
 				{
-					return createConverter_float(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_float(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == long.class)
 				{
-					return createConverter_long(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_long(targetPrimitiveType);
 				}
 				else if(sourcePrimitiveType == double.class)
 				{
-					return createConverter_double(sourceMemberOffset, targetPrimitiveType, targetMemberOffset);
+					return createTranslator_double(targetPrimitiveType);
 				}
 				else
 				{
 					return throwUnhandledPrimitiveTypeException(targetPrimitiveType);
 				}
 			}
-									
-			private static int to_int(final boolean value)
-			{
-				return value
-					? 1
-					: 0
-				;
-			}
 			
-			private static BinaryValueTranslator createConverter_byte(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_byte(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? Size1(srcOffset, trgOffset)
+				return targetType == null
+					? BinaryValueTranslator::skip_byte
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_byteTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_byte(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_byteTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_boolean(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_boolean(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)to_int(XVM.get_boolean(srcAddress + srcOffset)))
+				return targetType == null
+					? BinaryValueTranslator::skip_boolean
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_booleanTo_byte
 					: targetType == boolean.class
-					? Size1(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_booleanTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, to_int(XVM.get_boolean(srcAddress + srcOffset)))
+					? BinaryValueTranslator::copy_booleanTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_short(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_short(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_short(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_short
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_shortTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_boolean
 					: targetType == short.class
-					? Size2(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_shortTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_short(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_shortTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_char(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_char(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_char(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_char
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_charTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_short
 					: targetType == char.class
-					? Size2(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_charTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_char(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_charTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_int(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_int(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_int(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_int
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_intTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_char
 					: targetType == int.class
-					? Size4(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_intTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_int(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_intTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_float(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_float(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_float(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_float
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_floatTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, (int)XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_int
 					: targetType == float.class
-					? Size4(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_floatTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, (long)XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_float(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_floatTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_long(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_long(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_long(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_long
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_longTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_long(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_longTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)XVM.get_long(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_longTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_long(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_longTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, (int)XVM.get_long(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_longTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, XVM.get_long(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_longTo_float
 					: targetType == long.class
-					? Size8(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_longTo_long
 					: targetType == double.class
-					? Size8(srcOffset, trgOffset)
+					? BinaryValueTranslator::copy_longTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
 			
-			private static BinaryValueTranslator createConverter_double(
-				final int      srcOffset ,
-				final Class<?> targetType,
-				final int      trgOffset
-			)
+			private static BinaryValueTranslator createTranslator_double(final Class<?> targetType)
 			{
-				// super compact and still nicely breakpoint-debuggable.
-				return targetType == byte.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_byte(trgAddress + trgOffset, (byte)XVM.get_double(srcAddress + srcOffset))
+				return targetType == null
+					? BinaryValueTranslator::skip_double
+					: targetType == byte.class
+					? BinaryValueTranslator::copy_doubleTo_byte
 					: targetType == boolean.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_boolean(trgAddress + trgOffset, 0 != XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_boolean
 					: targetType == short.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_short(trgAddress + trgOffset, (short)XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_short
 					: targetType == char.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_char(trgAddress + trgOffset, (char)XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_char
 					: targetType == int.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_int(trgAddress + trgOffset, (int)XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_int
 					: targetType == float.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_float(trgAddress + trgOffset, (float)XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_float
 					: targetType == long.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_long(trgAddress + trgOffset, (long)XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_long
 					: targetType == double.class
-					? (srcAddress, trgAddress) ->
-						XVM.set_double(trgAddress + trgOffset, XVM.get_double(srcAddress + srcOffset))
+					? BinaryValueTranslator::copy_doubleTo_double
 					: throwUnhandledPrimitiveTypeException(targetType)
 				;
 			}
+				
 			
 			private static BinaryValueTranslator throwUnhandledPrimitiveTypeException(final Class<?> primitiveType)
 			{
@@ -424,134 +792,5 @@ public interface BinaryValueTranslator
 	}
 	
 
-	
-	public static BinaryValueTranslator New(final int size, final int sourceOffset, final int targetOffset)
-	{
-		switch(size)
-		{
-			case 1: return Size1(sourceOffset, targetOffset);
-			case 2: return Size2(sourceOffset, targetOffset);
-			case 4: return Size4(sourceOffset, targetOffset);
-			case 8: return Size8(sourceOffset, targetOffset);
-			// (18.09.2018 TM)EXCP: proper exception
-			default: throw new IllegalArgumentException("Illegal value byte size: " + size);
-		}
-	}
-	
-	public static BinaryValueTranslator.Size1 Size1(final int sourceOffset, final int targetOffset)
-	{
-		return new Size1(
-			XMath.positive(sourceOffset),
-			XMath.positive(targetOffset)
-		);
-	}
-	
-	public static BinaryValueTranslator.Size2 Size2(final int sourceOffset, final int targetOffset)
-	{
-		return new Size2(
-			XMath.positive(sourceOffset),
-			XMath.positive(targetOffset)
-		);
-	}
-	
-	public static BinaryValueTranslator.Size4 Size4(final int sourceOffset, final int targetOffset)
-	{
-		return new Size4(
-			XMath.positive(sourceOffset),
-			XMath.positive(targetOffset)
-		);
-	}
-	
-	public static BinaryValueTranslator.Size8 Size8(final int sourceOffset, final int targetOffset)
-	{
-		return new Size8(
-			XMath.positive(sourceOffset),
-			XMath.positive(targetOffset)
-		);
-	}
-	
-	public abstract class AbstractImplementation implements BinaryValueTranslator
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		final int sourceOffset;
-		final int targetOffset;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		AbstractImplementation(final int sourceOffset, final int targetOffset)
-		{
-			super();
-			this.sourceOffset = sourceOffset;
-			this.targetOffset = targetOffset;
-		}
-		
-	}
-	
-	public final class Size1 extends AbstractImplementation
-	{
-		Size1(final int sourceOffset, final int targetOffset)
-		{
-			super(sourceOffset, targetOffset);
-		}
-
-		@Override
-		public final void translateValue(final long sourceAddress, final long targetAddress)
-		{
-			XVM.set_byte(targetAddress + this.targetOffset, XVM.get_byte(sourceAddress + this.sourceOffset));
-		}
-		
-	}
-	
-	public final class Size2 extends AbstractImplementation
-	{
-		Size2(final int sourceOffset, final int targetOffset)
-		{
-			super(sourceOffset, targetOffset);
-		}
-
-		@Override
-		public final void translateValue(final long sourceAddress, final long targetAddress)
-		{
-			XVM.set_short(targetAddress + this.targetOffset, XVM.get_short(sourceAddress + this.sourceOffset));
-		}
-		
-	}
-	
-	public final class Size4 extends AbstractImplementation
-	{
-		Size4(final int sourceOffset, final int targetOffset)
-		{
-			super(sourceOffset, targetOffset);
-		}
-
-		@Override
-		public final void translateValue(final long sourceAddress, final long targetAddress)
-		{
-			XVM.set_int(targetAddress + this.targetOffset, XVM.get_int(sourceAddress + this.sourceOffset));
-		}
-		
-	}
-	
-	public final class Size8 extends AbstractImplementation
-	{
-		Size8(final int sourceOffset, final int targetOffset)
-		{
-			super(sourceOffset, targetOffset);
-		}
-
-		@Override
-		public final void translateValue(final long sourceAddress, final long targetAddress)
-		{
-			XVM.set_long(targetAddress + this.targetOffset, XVM.get_long(sourceAddress + this.sourceOffset));
-		}
-		
-	}
 	
 }
