@@ -21,5 +21,18 @@ public interface BinaryValueSetter
 	 * 
 	 * In short: here should be a lot of performance optimization potential, but it has to be done properly.
 	 */
+	
+	/**
+	 * Sets a single value, read from binary (persisted) form at the absolute memory <code>address</code>to the memory so that it can be used by common program
+	 * logic, usually to the field offset of a target object or an index of a target array.
+	 * If <code>target</code> is null, the <code>targetOffset</code> is interpreted as an absolute memory address
+	 * instead of a relative offset.
+	 * 
+	 * @param address the absolute source memory address of the value to be set.
+	 * @param target the target object to set the value to or <code>null</code> for absolute memory addressing.
+	 * @param targetOffset the target object's relative memory offset or an absolute target memory address.
+	 * @param idResolver a helper instance to resolve OIDs to instance references.
+	 * @return absolute source memory address pointing at the first byte following the read value.
+	 */
 	public long setValueToMemory(long address, Object target, long targetOffset, SwizzleObjectIdResolving idResolver);
 }

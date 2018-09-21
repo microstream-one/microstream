@@ -156,6 +156,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				typeHandler.members()
 			);
 			
+			// (21.09.2018 TM)FIXME: OGS-3: May NOT end up at BinaryValueTranslators::copy_longTo_long!
 			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition(),
 				mappingResult.legacyToCurrentMembers(),
