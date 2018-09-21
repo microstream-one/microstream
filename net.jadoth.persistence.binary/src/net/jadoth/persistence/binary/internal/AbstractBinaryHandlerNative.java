@@ -1,6 +1,5 @@
 package net.jadoth.persistence.binary.internal;
 
-import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -10,17 +9,13 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryFieldLengthResolver;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -33,38 +28,6 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	// static methods   //
 	/////////////////////
 	
-	public static final PersistenceTypeDescriptionMemberField declaredField(final Class<?> clazz, final String fieldName)
-	{
-		final Field field = XReflect.getDeclaredField(clazz, fieldName);
-		return declaredField(field, new BinaryFieldLengthResolver.Implementation());
-	}
-	
-	public static final PersistenceTypeDescriptionMemberField declaredField(final Field field)
-	{
-		return declaredField(field, new BinaryFieldLengthResolver.Implementation());
-	}
-	
-	public static final PersistenceTypeDescriptionMemberField declaredField(
-		final Field                          field         ,
-		final PersistenceFieldLengthResolver lengthResolver
-	)
-	{
-		return PersistenceTypeDescriptionMemberField.New(
-			field.getType().getName(),
-			field.getName(),
-			field.getDeclaringClass().getName(),
-			!field.getType().isPrimitive(),
-			lengthResolver.resolveMinimumLengthFromField(field),
-			lengthResolver.resolveMaximumLengthFromField(field)
-		);
-	}
-	
-	public static final XImmutableSequence<PersistenceTypeDescriptionMemberField>
-	declaredFields(final PersistenceTypeDescriptionMemberField... declaredFields)
-	{
-		return X.ConstList(declaredFields);
-	}
-
 	public static final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoField>
 	defineValueType(final Class<?> valueType)
 	{

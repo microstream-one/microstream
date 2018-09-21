@@ -17,18 +17,18 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	// static methods //
 	///////////////////
 	
-	public static BinaryValueTranslator[] toTranslators(
-		final XGettingTable<BinaryValueTranslator, Long> translatorsWithTargetOffsets
+	public static BinaryValueSetter[] toTranslators(
+		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
 	)
 	{
-		final BinaryValueTranslator[] translators = translatorsWithTargetOffsets.keys()
-			.toArray(BinaryValueTranslator.class)
+		final BinaryValueSetter[] translators = translatorsWithTargetOffsets.keys()
+			.toArray(BinaryValueSetter.class)
 		;
 		return translators;
 	}
 	
 	public static long[] toTargetOffsets(
-		final XGettingTable<BinaryValueTranslator, Long> translatorsWithTargetOffsets
+		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
 	)
 	{
 		final long[] targetOffsets = X.unbox(translatorsWithTargetOffsets.values()
@@ -44,7 +44,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	////////////////////
 
 	private final PersistenceTypeHandler<Binary, T> typeHandler     ;
-	private final BinaryValueTranslator[]           valueTranslators;
+	private final BinaryValueSetter[]           valueTranslators;
 	private final long[]                            targetOffsets   ;
 	
 	
@@ -56,7 +56,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	protected AbstractBinaryLegacyTypeHandlerTranslating(
 		final PersistenceTypeDefinition<T>      typeDefinition  ,
 		final PersistenceTypeHandler<Binary, T> typeHandler     ,
-		final BinaryValueTranslator[]           valueTranslators,
+		final BinaryValueSetter[]           valueTranslators,
 		final long[]                            targetOffsets
 	)
 	{
@@ -71,6 +71,16 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	protected BinaryValueSetter[] valueTranslators()
+	{
+		return this.valueTranslators;
+	}
+	
+	protected long[] targetOffsets()
+	{
+		return this.targetOffsets;
+	}
 	
 	public PersistenceTypeHandler<Binary, T> typeHandler()
 	{

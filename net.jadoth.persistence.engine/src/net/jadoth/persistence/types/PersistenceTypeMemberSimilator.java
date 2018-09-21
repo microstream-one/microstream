@@ -6,6 +6,19 @@ public interface PersistenceTypeMemberSimilator extends Similator<PersistenceTyp
 {
 	public static PersistenceTypeMemberSimilator New()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME OGS-3: PersistenceTypeMemberSimilator#New()
+		return new PersistenceTypeMemberSimilator.Implementation();
 	}
+	
+	public final class Implementation implements PersistenceTypeMemberSimilator
+	{
+
+		@Override
+		public double evaluate(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
+		{
+			// FIXME: OGS-3: Similator<PersistenceTypeDescriptionMember>#evaluate()
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+	}
+	
 }

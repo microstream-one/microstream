@@ -28,9 +28,12 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				return PersistenceLegacyTypeHandler.Wrap(result.legacyTypeDefinition(), result.currentTypeHandler());
 			}
 			
-			if(isGeneric(result.currentTypeHandler()))
+			if(result.currentTypeHandler() instanceof PersistenceTypeHandlerReflective<?, ?>)
 			{
-				return this.deriveReflectiveHandler(result);
+				return this.deriveReflectiveHandler(
+					result,
+					(PersistenceTypeHandlerReflective<M, T>)result.currentTypeHandler()
+				);
 			}
 
 			return this.deriveCustomWrappingHandler(result);
@@ -71,18 +74,14 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			// no need to check for remaining elements since size was checked above
 			return true;
 		}
-		
-		private static boolean isGeneric(final PersistenceTypeHandler<?, ?> currentTypeHandler)
-		{
-			return currentTypeHandler instanceof PersistenceTypeHandlerGeneric;
-		}
-		
+				
 		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveCustomWrappingHandler(
-			PersistenceLegacyTypeMappingResult<M, T> result
+			PersistenceLegacyTypeMappingResult<M, T> mappingResult
 		);
 		
 		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveReflectiveHandler(
-			PersistenceLegacyTypeMappingResult<M, T> result
+			PersistenceLegacyTypeMappingResult<M, T> mappingResult,
+			PersistenceTypeHandlerReflective<M, T>   typeHandler
 		);
 	}
 	

@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
+import java.lang.reflect.Field;
+
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
@@ -116,7 +118,7 @@ public interface PersistenceTypeDictionaryParser
 		private static int parseType(
 			final char[]                         input         ,
 			final int                            i             ,
-			final TypeEntry                          typeEntry     ,
+			final TypeEntry                      typeEntry     ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
@@ -341,7 +343,7 @@ public interface PersistenceTypeDictionaryParser
 			while(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_END)
 			{
 				p = parseNestedMember(input, p, nestedMemberBuilder);
-				member.nestedMembers.add(nestedMemberBuilder.buildNestedMember());
+				member.nestedMembers.add(nestedMemberBuilder.buildPseudoFieldMember());
 			}
 
 			return parseMemberTermination(input, p + 1); // +1 to skip complex definition end
@@ -590,8 +592,8 @@ public interface PersistenceTypeDictionaryParser
 			this.nestedMembers.clear();
 			return this;
 		}
-
-		final PersistenceTypeDescriptionMemberPseudoField buildNestedMember()
+		
+		final PersistenceTypeDescriptionMemberPseudoField buildPseudoFieldMember()
 		{
 			if(this.isVariableLength)
 			{
@@ -678,26 +680,52 @@ public interface PersistenceTypeDictionaryParser
 		{
 			if(this.primitiveDefinition != null)
 			{
-				return new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
-					this.primitiveDefinition,
-					this.resolveMinimumPrimitiveLength(),
-					this.resolveMaximumPrimitiveLength()
-				);
+				return this.buildMemberPrimitiveDefinition();
 			}
 
 			if(this.declaringTypeName() != null)
 			{
-				return new PersistenceTypeDescriptionMemberField.Implementation(
-					this.typeName(),
-					this.fieldName(),
-					this.declaringTypeName(),
-					!XReflect.isPrimitiveTypeName(this.typeName()),
-					this.resolveMemberMinimumLength(),
-					this.resolveMemberMaximumLength()
-				);
+				return this.buildMemberField();
 			}
 
-			return this.buildNestedMember();
+			return this.buildPseudoFieldMember();
+		}
+		
+		final PersistenceTypeDescriptionMemberPrimitiveDefinition buildMemberPrimitiveDefinition()
+		{
+			return new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
+				this.primitiveDefinition,
+				this.resolveMinimumPrimitiveLength(),
+				this.resolveMaximumPrimitiveLength()
+			);
+		}
+		
+		final PersistenceTypeDescriptionMemberField buildMemberField()
+		{
+			// any failure to resolve the field means the type dictionary information is outdated, so field is null.
+			return PersistenceTypeDescriptionMemberField.New(
+				tryResolveField(this.declaringTypeName(), this.fieldName()),
+				this.typeName(),
+				this.fieldName(),
+				this.declaringTypeName(),
+				!XReflect.isPrimitiveTypeName(this.typeName()),
+				this.resolveMemberMinimumLength(),
+				this.resolveMemberMaximumLength()
+			);
+		}
+		
+		private static Field tryResolveField(final String declaringTypeName, final String fieldName)
+		{
+			try
+			{
+				final Class<?> c = Class.forName(fieldName);
+				return c.getDeclaredField(fieldName);
+			}
+			catch(final ReflectiveOperationException e)
+			{
+				// field may be unresolvable
+				return null;
+			}
 		}
 
 

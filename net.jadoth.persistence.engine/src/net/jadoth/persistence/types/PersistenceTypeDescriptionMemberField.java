@@ -1,7 +1,11 @@
 package net.jadoth.persistence.types;
 
+import java.lang.reflect.Field;
+
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
+	public Field field();
+	
 	public String declaringTypeName();
 
 	@Override
@@ -33,6 +37,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	
 
 	public static PersistenceTypeDescriptionMemberField New(
+		final Field   field                  ,
 		final String  typeName               ,
 		final String  name                   ,
 		final String  declaringTypeName      ,
@@ -42,6 +47,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	)
 	{
 		return new PersistenceTypeDescriptionMemberField.Implementation(
+			field                  ,
 			typeName               ,
 			name                   ,
 			declaringTypeName      ,
@@ -59,6 +65,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		// instance fields //
 		////////////////////
 
+		private final           Field  field             ;
 		private final           String declaringTypeName ;
 		private final transient String qualifiedFieldName;
 
@@ -69,6 +76,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		/////////////////
 
 		protected Implementation(
+			final Field   field              ,
 			final String  typeName           ,
 			final String  name               ,
 			final String  declaringTypeName  ,
@@ -78,6 +86,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		)
 		{
 			super(typeName, name, isReference, !isReference, false, isReference, persistentMinLength, persistentMaxLength);
+			this.field              = field            ;
 			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
 		}
@@ -87,6 +96,12 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public Field field()
+		{
+			return this.field;
+		}
 
 		@Override
 		public String declaringTypeName()

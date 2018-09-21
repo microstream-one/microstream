@@ -3,6 +3,7 @@ package net.jadoth.persistence.binary.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -17,7 +18,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	public static <T> BinaryLegacyTypeHandlerReflective<T> New(
 		final PersistenceTypeDefinition<T>                typeDefinition              ,
 		final PersistenceTypeHandlerReflective<Binary, T> typeHandler                 ,
-		final XGettingTable<BinaryValueTranslator, Long>  translatorsWithTargetOffsets
+		final XGettingTable<BinaryValueSetter, Long>      translatorsWithTargetOffsets
 	)
 	{
 		return new BinaryLegacyTypeHandlerReflective<>(
@@ -37,7 +38,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	BinaryLegacyTypeHandlerReflective(
 		final PersistenceTypeDefinition<T>                typeDefinition  ,
 		final PersistenceTypeHandlerReflective<Binary, T> typeHandler     ,
-		final BinaryValueTranslator[]                     valueTranslators,
+		final BinaryValueSetter[]                     valueTranslators,
 		final long[]                                      targetOffsets
 	)
 	{
@@ -66,17 +67,23 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	@Override
 	public final void update(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
 	{
-		// (20.09.2018 TM)FIXME: OGS-3: copy other logic from Generic handler
-		
-		final BinaryValueTranslator[] translators   = this.valueTranslators;
-		final int                     length        = translators.length   ;
-		final long[]                  targetOffsets = this.targetOffsets   ;
-				
-		long srcAddress = rawData.entityContentAddress;
-		for(int i = 0; i < length; i++)
+		/*
+		 * Explicite type check to avoid memory getting overwritten with bytes not fitting to the actual type.
+		 * This can be especially critical if a custom roo resolver returns an instance that does not match
+		 * the type defined by the typeId.
+		 */
+		if(!this.type().isInstance(instance))
 		{
-			srcAddress = translators[i].translateValue(srcAddress, instance, targetOffsets[i], builder);
+			throw new TypeCastException(this.type(), instance);
 		}
+
+		BinaryPersistence.updateFixedSize(
+			instance                  ,
+			this.valueTranslators()   ,
+			this.targetOffsets()      ,
+			rawData.buildItemAddress(),
+			builder
+		);
 	}
 
 	@Override

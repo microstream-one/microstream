@@ -44,10 +44,10 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition<T>                                               legacyTypeDefinition;
-		private final PersistenceTypeHandler<M, T>                                               currentTypeHandler  ;
+		private final PersistenceTypeDefinition<T>                  legacyTypeDefinition;
+		private final PersistenceTypeHandler<M, T>                  currentTypeHandler  ;
 		private final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers;
-		private final XGettingSet<PersistenceTypeDescriptionMember>                              newCurrentMembers   ;
+		private final XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers   ;
 		
 		
 		

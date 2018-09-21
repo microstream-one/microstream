@@ -16,8 +16,32 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	);
 	
 	
+	
 	public static <M> PersistenceLegacyTypeMappingResultor<M> New()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME OGS-3: PersistenceLegacyTypeMappingResultor#New
+		return new PersistenceLegacyTypeMappingResultor.Implementation<>();
 	}
+	
+	public final class Implementation<M> implements PersistenceLegacyTypeMappingResultor<M>
+	{
+
+		@Override
+		public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
+			final PersistenceTypeDefinition<T>                                                    legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
+			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
+			final XGettingSet<PersistenceTypeDescriptionMember>                                   refacDeletionMembers,
+			final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
+		)
+		{
+			return PersistenceLegacyTypeMappingResult.New(
+				legacyTypeDefinition,
+				currentTypeHandler  ,
+				resolvedMembers     ,
+				refacDeletionMembers
+			);
+		}
+		
+	}
+	
 }
