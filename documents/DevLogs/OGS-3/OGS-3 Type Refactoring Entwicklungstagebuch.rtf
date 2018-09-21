@@ -1813,6 +1813,18 @@ Dabei f\'e4llt mir auf: hier k\'f6nnte einiges an Performance Optimierung m\'f6g
 Mal einen Kommentar in BinaryValueSetter schreiben, damit das dokumentiert ist.\par
 \par
 \par
+2018-09-21\par
 \par
+BinaryValueTranslators auf BinaryValueSetter umbauen.\par
+BinaryLegacyTypeReflectiveMapper fertig bauen.\par
+Hm. In PersistenceTypeDescriptionMemberField fehlt das reflect.Field. Wieso eigentlich? Zumindest f\'fcr den ReflectiveMapper sind die n\'f6tig bzw allgemein sinnvoll.\par
+Mal nachr\'fcsten. Sollte sich mal ein Problem daraus ergeben, kann man es ja wieder rausnehmen und die Felder im LegacyTypeHandler Creator redundant nach Namen aufl\'f6sen.\par
+Damit BinaryLegacyTypeReflectiveMapper fertig bauen.\par
+\par
+Jetzt noch PersistenceLegacyTypeMappingResultor implementieren.\par
+\par
+Similator Stub auch gleich.\par
+\par
+Dann fehlt jetzt nur noch die Similator Logik und die zwei abcheck-TODOs.\par
 }
  

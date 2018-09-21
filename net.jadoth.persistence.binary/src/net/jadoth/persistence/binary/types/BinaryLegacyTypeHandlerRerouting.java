@@ -19,9 +19,9 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerRerouting<T> New(
-		final PersistenceTypeDefinition<T>               typeDefinition              ,
-		final PersistenceTypeHandler<Binary, T>          typeHandler                 ,
-		final XGettingTable<BinaryValueTranslator, Long> translatorsWithTargetOffsets
+		final PersistenceTypeDefinition<T>           typeDefinition              ,
+		final PersistenceTypeHandler<Binary, T>      typeHandler                 ,
+		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
 	)
 	{
 		return new BinaryLegacyTypeHandlerRerouting<>(
@@ -41,7 +41,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	BinaryLegacyTypeHandlerRerouting(
 		final PersistenceTypeDefinition<T>      typeDefinition  ,
 		final PersistenceTypeHandler<Binary, T> typeHandler     ,
-		final BinaryValueTranslator[]           valueTranslators,
+		final BinaryValueSetter[]               valueTranslators,
 		final long[]                            targetOffsets
 	)
 	{
@@ -77,14 +77,14 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final long targetContentAddress = BinaryPersistence.entityContentAddress(newEntityAddress);
 		
 		// note: DirectByteBuffer instantiation resets all bytes to 0, so no target value "Zeroer" is needed.
-		final BinaryValueTranslator[] translators   = this.valueTranslators;
-		final int                     length        = translators.length   ;
-		final long[]                  targetOffsets = this.targetOffsets   ;
+		final BinaryValueSetter[] translators   = this.valueTranslators();
+		final int                 length        = translators.length     ;
+		final long[]              targetOffsets = this.targetOffsets()   ;
 				
 		long srcAddress = rawData.entityContentAddress;
 		for(int i = 0; i < length; i++)
 		{
-			srcAddress = translators[i].translateValue(srcAddress, null, targetContentAddress + targetOffsets[i], null);
+			srcAddress = translators[i].setValueToMemory(srcAddress, null, targetContentAddress + targetOffsets[i], null);
 		}
 		
 		rawData.entityContentAddress = targetContentAddress;
@@ -110,8 +110,6 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
 		this.typeHandler().complete(rawData, instance, builder);
-		
-		rawData.setHelper(null); // might help ease Garbage Collection
 	}
 	
 }

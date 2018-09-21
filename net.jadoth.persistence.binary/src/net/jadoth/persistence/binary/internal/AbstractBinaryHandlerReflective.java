@@ -79,8 +79,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		{
 			final Class<?>          fieldType = fieldsDeclaredOrder[i].getType()                                      ;
 			final boolean           isForced  = eagerStoreEvaluator.isEagerStoring(entityType, fieldsDeclaredOrder[i]);
-			final BinaryValueStorer storer    = BinaryPersistence.getObjectValueStorer(fieldType, isForced)          ;
-			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                    ;
+			final BinaryValueStorer storer    = BinaryPersistence.getObjectValueStorer(fieldType, isForced)           ;
+			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                     ;
 			if(fieldType.isPrimitive())
 			{
 				primitiveTotalBinaryLength += XVM.byteSizePrimitive(fieldType);
@@ -118,14 +118,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		for(final Field field : persistentOrderFields)
 		{
-			members.add(PersistenceTypeDescriptionMemberField.New(
-				field.getType().getName(),
-				field.getName(),
-				field.getDeclaringClass().getName(),
-				!field.getType().isPrimitive(),
-				lengthResolver.resolveMinimumLengthFromField(field),
-				lengthResolver.resolveMaximumLengthFromField(field)
-			));
+			members.add(declaredField(field, lengthResolver));
 		}
 		
 		return PersistenceTypeDescriptionMember.validateAndImmure(members);
@@ -299,20 +292,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		/*
-		 * Must explicitely check type to avoid memory getting overwritten with bytes not fitting to the actual type
-		 * this can be especially critical and important if a custom PersistenceRootResolver returns an instance
-		 * that does not match the type defined by the typeId.
+		 * Explicite type check to avoid memory getting overwritten with bytes not fitting to the actual type.
+		 * This can be especially critical if a custom roo resolver returns an instance that does not match
+		 * the type defined by the typeId.
 		 */
 		if(!this.type().isInstance(instance))
 		{
-			/*
-			 * I wished they knew how to write proper exceptions (pass class and instance) instead of cramming
-			 * everything into contextless and expensive plain strings. Noobs.
-			 * So, as usual, a new and proper exception type is needed.
-			 * Also, while I'm on it, since not all types are classes (there are interfaces, too, which the JDK
-			 * guys apparently don't know, which is especially hilarious), the correct term for such an exception type
-			 * is "TypeCastException", not "ClassCastException".
-			 */
 			throw new TypeCastException(this.type(), instance);
 		}
 
