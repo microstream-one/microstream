@@ -1826,5 +1826,28 @@ Jetzt noch PersistenceLegacyTypeMappingResultor implementieren.\par
 Similator Stub auch gleich.\par
 \par
 Dann fehlt jetzt nur noch die Similator Logik und die zwei abcheck-TODOs.\par
+\par
+Erst mal ein Konzept. Es gibt:\par
+- Name\par
+- Type\par
+- DeclaringType\par
+\par
+Position darf keine Rolle spielen, weil sie in java Klassen keine Rolle spielt. W\'fcrde sie ber\'fccksichtigt werden, w\'fcrde das hei\'dfen, dass ein weniger gut passendes target Feld einem besser passenden vorgezogen wird, nur weil es an einer \'e4hnlichen Stelle wie das source Feld steht. Das w\'e4re Bl\'f6dsinn. F\'fcr alle anderen F\'e4lle braucht man es nicht. Einfacher gesagt ist es so: ein Feld wird fachlich \'fcber alles m\'f6gliche definiert und identifiziert, aber nicht \'fcber seine Position.\par
+\par
+Type muss unterschieden werden in Primitive und Nicht-Primitive. Zwischen diesen beiden ist die \'c4hnlichkeit zwangsweise 0.\par
+Hm, oder stimmt das? W\'e4re es nicht sinnvoll, erst mal die Felder m\'f6glichst zuverl\'e4ssig zuzuordnen und dann kann man immer noch eine Exception werfen, dass ein Mapping nicht geht?\par
+Z.B. "long amount" wird vom Entwickler ge\'e4ndert auf "Long amount". Technisch ist das inkompatibel, aber designm\'e4\'dfig/logisch/fachlich ist das das selbe Feld, nur abge\'e4ndert, also sollte es erst mal gematcht werden.\par
+\par
+Davon abgesehen seh ich schon die Heulerei kommen: Auch das muss gehen, blablab, muss man halt einen Wrappertyp instanzieren, blabla.\par
+Das Problem daran ist: Diese vom Mapper erzeugte Instanz hat dann keine OID und ist nicht f\'fcr eine solche registriert.\par
+Muss das dann der Mapper auch noch machen, oder ist hier eine Grenze, wo man sagt, dass das der Mapper nicht generisch macht?\par
+Hm ... mal recherchieren.\par
+Also das \'fcbergebene SwizzleObjectIdResolving wird eh (nur) vom Builder implementiert und der macht eh auch Registrierungsstuff. Wenn das um eine zweite Methode zum registrieren erweitert w\'fcrde, w\'fcrde es gehen.\par
+Das Problem ist aber: Wo kommt die neue OID her? M\'fcsste der mapper dann auch den OID-Provider kennen? Das wird ganz sch\'f6n kompliziert daf\'fcr, dass Leute ignorant gegen\'fcber dem Unterschied von Primitives und References sind.\par
+\par
+Hm. Es w\'fcrde aber reichen, wenn die SwizzleObjectIdResolving  ein #register(Object) hat und intern eine OID vergibt und f\'fcr die registriert. Im TypeHandler selbst interessiert die OID ja niemanden. Der Builder br\'e4uchte nur eine Referenz auf einen ObjectManager. Der PersistenceManager, der den Builder baut, kennt den eh. Also letztendlich w\'e4re es eine an den Builder \'fcbergebene Referenz mehr. Die Methode st\'f6rt im Normalfall niemanden.\par
+\par
+Oh, beim Durchdenken Bug entdeckt:\par
+F\'fcr den ReflectiveMapper darf das handeln von OIDs nicht einfach den long wert umkopieren, so wie das beim Rerouting korrekt ist. Da muss der object Lookup rein.\par
 }
  

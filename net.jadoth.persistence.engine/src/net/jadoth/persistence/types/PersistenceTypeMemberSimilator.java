@@ -4,6 +4,11 @@ import net.jadoth.functional.Similator;
 
 public interface PersistenceTypeMemberSimilator extends Similator<PersistenceTypeDescriptionMember>
 {
+	@Override
+	public double evaluate(PersistenceTypeDescriptionMember m1, PersistenceTypeDescriptionMember m2);
+	
+	
+	
 	public static PersistenceTypeMemberSimilator New()
 	{
 		return new PersistenceTypeMemberSimilator.Implementation();
