@@ -1520,6 +1520,8 @@ public final class BinaryPersistence extends Persistence
 			: STORE_REFERENCE
 		;
 	}
+	
+	// (23.09.2018 TM)TODO: consolidate with BinaryValueTranslators?
 
 	public static final BinaryValueSetter getSetter_byte()
 	{
