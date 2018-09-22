@@ -95,7 +95,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		private XGettingTable<BinaryValueSetter, Long> deriveValueTranslators(
 			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition ,
 			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToTargetMembers,
-			final HashTable<PersistenceTypeDescriptionMember, Long>                               targetMemberOffsets
+			final HashTable<PersistenceTypeDescriptionMember, Long>                               targetMemberOffsets  ,
+			final boolean                                                                         resolveReferences
 		)
 		{
 			final HashTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = HashTable.New();
@@ -106,8 +107,12 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			{
 				// currentMember null means the value is to be discarded.
 				final PersistenceTypeDescriptionMember currentMember = legacyToTargetMembers.get(legacyMember);
-				final BinaryValueSetter translator   = creator.provideValueTranslator(legacyMember, currentMember);
-				final Long              targetOffset = targetMemberOffsets.get(currentMember);
+				
+				final BinaryValueSetter translator = legacyMember.isReference() && resolveReferences
+					? creator.provideReferenceResolver(legacyMember, currentMember)
+					: creator.providePrimitiveValueTranslator(legacyMember, currentMember)
+				;
+				final Long targetOffset = targetMemberOffsets.get(currentMember);
 				translatorsWithTargetOffsets.add(translator, targetOffset);
 			}
 			
@@ -136,7 +141,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition(),
 				mappingResult.legacyToCurrentMembers(),
-				targetMemberOffsets
+				targetMemberOffsets,
+				false
 			);
 						
 			return BinaryLegacyTypeHandlerRerouting.New(
@@ -156,11 +162,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				typeHandler.members()
 			);
 			
-			// (21.09.2018 TM)FIXME: OGS-3: May NOT end up at BinaryValueTranslators::copy_longTo_long!
 			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition(),
 				mappingResult.legacyToCurrentMembers(),
-				targetMemberOffsets
+				targetMemberOffsets,
+				true
 			);
 			
 			return BinaryLegacyTypeHandlerReflective.New(
