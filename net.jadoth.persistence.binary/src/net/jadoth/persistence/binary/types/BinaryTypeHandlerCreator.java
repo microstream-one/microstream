@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.internal.BinaryHandlerEnum;
-import net.jadoth.persistence.binary.internal.BinaryHandlerGeneric;
+import net.jadoth.persistence.binary.internal.BinaryHandlerGenericType;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -85,7 +85,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			}
 
 			// default implementation simply always uses a blank memory instantiator
-			return BinaryHandlerGeneric.New(
+			return BinaryHandlerGenericType.New(
 				type                                           ,
 				persistableFields                              ,
 				this.lengthResolver()                          ,
