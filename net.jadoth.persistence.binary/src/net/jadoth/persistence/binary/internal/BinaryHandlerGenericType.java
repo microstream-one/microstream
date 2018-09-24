@@ -10,9 +10,9 @@ import net.jadoth.persistence.binary.types.BinaryInstantiator;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 
-public final class BinaryHandlerGeneric<T> extends AbstractBinaryHandlerReflective<T>
+public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerReflective<T>
 {
-	public static <T> BinaryHandlerGeneric<T> New(
+	public static <T> BinaryHandlerGenericType<T> New(
 		final Class<T>                              type                   ,
 		final XGettingEnum<Field>                   allFields              ,
 		final PersistenceFieldLengthResolver        lengthResolver         ,
@@ -20,7 +20,7 @@ public final class BinaryHandlerGeneric<T> extends AbstractBinaryHandlerReflecti
 		final BinaryInstantiator<T>                 instantiator
 	)
 	{
-		return new BinaryHandlerGeneric<>(
+		return new BinaryHandlerGenericType<>(
 			type                   ,
 			allFields              ,
 			lengthResolver         ,
@@ -43,7 +43,7 @@ public final class BinaryHandlerGeneric<T> extends AbstractBinaryHandlerReflecti
 	// constructors     //
 	/////////////////////
 
-	protected BinaryHandlerGeneric(
+	protected BinaryHandlerGenericType(
 		final Class<T>                              type                   ,
 		final XGettingEnum<Field>                   allFields              ,
 		final PersistenceFieldLengthResolver        lengthResolver         ,

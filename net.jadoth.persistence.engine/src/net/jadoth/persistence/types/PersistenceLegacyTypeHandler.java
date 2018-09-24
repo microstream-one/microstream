@@ -112,15 +112,15 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public final boolean isPrimitiveType()
-		{
-			return this.typeDefinition.isPrimitiveType();
-		}
-
-		@Override
 		public final boolean hasVaryingPersistedLengthInstances()
 		{
 			return this.typeDefinition.hasVaryingPersistedLengthInstances();
+		}
+
+		@Override
+		public final boolean isPrimitiveType()
+		{
+			return this.typeDefinition.isPrimitiveType();
 		}
 
 		@Override

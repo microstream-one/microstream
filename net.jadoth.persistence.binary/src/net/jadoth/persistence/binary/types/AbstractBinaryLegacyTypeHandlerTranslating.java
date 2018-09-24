@@ -44,7 +44,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	////////////////////
 
 	private final PersistenceTypeHandler<Binary, T> typeHandler     ;
-	private final BinaryValueSetter[]           valueTranslators;
+	private final BinaryValueSetter[]               valueTranslators;
 	private final long[]                            targetOffsets   ;
 	
 	
@@ -56,7 +56,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	protected AbstractBinaryLegacyTypeHandlerTranslating(
 		final PersistenceTypeDefinition<T>      typeDefinition  ,
 		final PersistenceTypeHandler<Binary, T> typeHandler     ,
-		final BinaryValueSetter[]           valueTranslators,
+		final BinaryValueSetter[]               valueTranslators,
 		final long[]                            targetOffsets
 	)
 	{
@@ -102,6 +102,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	@Override
 	public void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
 	{
+		// (24.09.2018 TM)FIXME: OGS-3: must be old order, not new!
 		this.typeHandler.iteratePersistedReferences(rawData, iterator);
 	}
 	
@@ -110,8 +111,5 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	{
 		return this.typeHandler.iterateMemberTypes(logic);
 	}
-		
-	
-	
 	
 }
