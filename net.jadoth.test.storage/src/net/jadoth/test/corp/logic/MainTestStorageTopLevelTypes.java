@@ -16,7 +16,8 @@ public class MainTestStorageTopLevelTypes
 		final net.jadoth.persistence.types.PersistenceRootResolver rootResolver = Persistence.RootResolver(root);
 		
 		final net.jadoth.storage.types.EmbeddedStorageManager      storage      = EmbeddedStorage
-			.createStorageManager(rootResolver)
+			.createFoundation()
+			.setRootResolver(rootResolver)
 			.start()
 		;
 		

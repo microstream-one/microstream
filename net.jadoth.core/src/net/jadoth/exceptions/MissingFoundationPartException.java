@@ -71,16 +71,36 @@ public class MissingFoundationPartException extends RuntimeException
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-	@Override
-	public String getMessage()
+	
+	public String assembleDetailString()
 	{
-		return (this.missingAssemblyPartType != null
+		return this.missingAssemblyPartType != null
 			? "Missing assembly part of type " + this.missingAssemblyPartType.toString() + ". "
-			: "")
-		+ super.getMessage();
+			: ""
+		;
 	}
 
+	protected String assembleExplicitMessageAddon()
+	{
+		final String explicitMessage = super.getMessage();
+		return explicitMessage == null ? "" : " (" + explicitMessage + ")";
+	}
 
+	public String assembleOutputString()
+	{
+		return this.assembleDetailString() + this.assembleExplicitMessageAddon();
+	}
+	
+	/**
+	 * Returns an assembled output String due to bad method design in {@link Throwable}.
+	 * For the actual message getter, see {@link #message()}.
+	 *
+	 * @return this exception type's generic string plus an explicit message if present.
+	 */
+	@Override
+	public String getMessage() // intentionally not final to enable subclasses to change the behavior again
+	{
+		return this.assembleOutputString();
+	}
 
 }

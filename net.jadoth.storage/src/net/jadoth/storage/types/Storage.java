@@ -113,6 +113,19 @@ public final class Storage
 			entityCacheEvaluator   != null ? entityCacheEvaluator   : EntityCacheEvaluator()
 		);
 	}
+	
+	public static final StorageConfiguration Configuration(
+		final StorageFileProvider fileProvider
+	)
+	{
+		return new StorageConfiguration.Implementation(
+			Storage.ChannelCountProvider()  ,
+			Storage.HousekeepingController(),
+			fileProvider                    ,
+			Storage.DataFileEvaluator()     ,
+			Storage.EntityCacheEvaluator()
+		);
+	}
 
 	public static final StorageConfiguration Configuration()
 	{

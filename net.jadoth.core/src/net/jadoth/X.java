@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -1006,6 +1007,20 @@ public final class X
 			? (RuntimeException)e
 			: new WrapperRuntimeException(e)
 		;
+	}
+	
+	/**
+	 * Nifty little helper logic that allows to execute custom logic on a subject instance but still return that
+	 * instance. Useful for method chaining.
+	 * 
+	 * @param subject
+	 * @param logic
+	 * @return
+	 */
+	public static final <S> S executeOn(final S subject, final Consumer<? super S> logic)
+	{
+		logic.accept(subject);
+		return subject;
 	}
 	
 	

@@ -16,7 +16,6 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
 import net.jadoth.functional.XFunc;
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -48,8 +47,7 @@ public class TestStorage extends TestComponentProvider
 
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation(Storage.FileProvider(DIRECTORY))
-		.setRootResolver(Persistence.RootResolver(ROOT))
+		.createFoundationBlank()
 		.setConfiguration(
 			Storage.Configuration(
 				createTestFileProvider()                        ,
@@ -59,7 +57,8 @@ public class TestStorage extends TestComponentProvider
 				Storage.EntityCacheEvaluatorCustomTimeout(10_000) // evalutator for removing entities from the cache
 			)
 		)
-		.setConnectionFoundation(createTestConnectionFoundation())     // config and files for persistence layer
+		.setConnectionFoundation(createTestConnectionFoundation()) // config and files for persistence layer
+		.setRoot(ROOT)                                            // binding between graph's root instance and the storage
 		.createEmbeddedStorageManager()
 //		.start() // start storage threads and load all non-lazy referenced instances starting at root
 	;

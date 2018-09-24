@@ -765,7 +765,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		@Override
 		public Equalator<PersistenceTypeDescriptionMember> getLegacyTypeMappingMemberEqualator()
 		{
-			// optional element, not default creation required.
+			// optional element, no default creation required.
 			return this.legacyTypeMappingMemberEqualator;
 		}
 		

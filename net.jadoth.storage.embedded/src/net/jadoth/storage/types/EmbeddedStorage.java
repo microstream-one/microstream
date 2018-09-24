@@ -1,158 +1,49 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
-import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.Singleton;
 import net.jadoth.files.XFiles;
-import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.reference.Reference;
 
 public final class EmbeddedStorage
 {
-	public static EmbeddedStorageFoundation createFoundationBlank()
+	/**
+	 * Default root instance of a persistent entity graph.
+	 * This is moreless a monkey business because proper applications should not rely on static state as their
+	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
+	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
+	 * need to explicitely define and register a root resolver.
+	 */
+	static final Singleton<Object> root = X.Singleton(null);
+	
+	/**
+	 * The default instance to be used as a root of the persistence entity graph.<br>
+	 * The reference value is initially <code>null</code>.<br>
+	 * 
+	 * @return the default root instance.
+	 * 
+	 * @see #root(Object)
+	 */
+	public static final Reference<Object> root()
+	{
+		return root;
+	}
+	
+	
+	
+	public static final EmbeddedStorageFoundation createFoundationBlank()
 	{
 		return new EmbeddedStorageFoundation.Implementation();
 	}
-
-	public static EmbeddedStorageFoundation createFoundation(final StorageConfiguration configuration)
-	{
-		return createFoundationBlank().setConfiguration(configuration);
-	}
 	
-	public static EmbeddedStorageFoundation createFoundation()
-	{
-		return createFoundation(new File(Storage.defaultDirectoryName()));
-	}
-	
-	public static EmbeddedStorageFoundation createFoundation(
-		final Consumer<? super EmbeddedStorageFoundation> customLogic
-	)
-	{
-		final EmbeddedStorageFoundation esf = createFoundation();
-		customLogic.accept(esf);
-		return esf;
-	}
-	
-	public static EmbeddedStorageFoundation createFoundation(final PersistenceRootResolver rootResolver)
-	{
-		return createFoundation()
-			.setRootResolver(rootResolver)
-		;
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final StorageConfiguration                configuration       ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
-	)
-	{
-		return createFoundation(configuration)
-			.setConnectionFoundation(connectionFoundation)
-		;
-	}
-	
-	
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final StorageConfiguration                configuration       ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation,
-		final PersistenceRootResolver             rootResolver
-	)
-	{
-		return createFoundation(configuration, connectionFoundation)
-			.setRootResolver(rootResolver)
-		;
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(final StorageFileProvider fileProvider)
-	{
-		return createFoundation(
-			Storage.Configuration(
-				fileProvider,
-				Storage.ChannelCountProvider(),
-				Storage.HousekeepingController(),
-				Storage.DataFileEvaluator(),
-				Storage.EntityCacheEvaluator()
-			)
-		);
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final StorageFileProvider                 fileProvider        ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
-	)
-	{
-		return createFoundation(fileProvider)
-			.setConnectionFoundation(connectionFoundation)
-		;
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final StorageFileProvider                 fileProvider        ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation,
-		final PersistenceRootResolver             rootResolver
-	)
-	{
-		return createFoundation(fileProvider, connectionFoundation)
-			.setRootResolver(rootResolver)
-		;
-	}
-	
-	public static EmbeddedStorageFoundation createFoundation(final File directory)
-	{
-		XFiles.ensureDirectory(directory);
-
-		return createFoundation(
-			Storage.FileProvider(directory),
-			createConnectionFoundation(directory)
-		);
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final File                    directory   ,
-		final PersistenceRootResolver rootResolver
-	)
-	{
-		XFiles.ensureDirectory(directory);
-
-		return createFoundation(
-			Storage.FileProvider(directory),
-			createConnectionFoundation(directory),
-			rootResolver
-		);
-	}
-
-	public static EmbeddedStorageFoundation createFoundation(
-		final PersistenceRootResolver       rootResolver,
-		final File                          directory   ,
-		final StorageChannelCountProvider   channelCountProvider  ,
-		final StorageHousekeepingController housekeepingController,
-		final StorageDataFileEvaluator      fileDissolver         ,
-		final StorageEntityCacheEvaluator   entityCacheEvaluator
-	)
-	{
-		XFiles.ensureDirectory(directory);
-
-		return createFoundation(
-			Storage.Configuration(
-				Storage.FileProvider(directory),
-				channelCountProvider           ,
-				housekeepingController         ,
-				fileDissolver                  ,
-				entityCacheEvaluator
-			),
-			createConnectionFoundation(directory),
-			rootResolver
-		);
-	}
-
-	static EmbeddedStorageConnectionFoundation createConnectionFoundation(final File directory)
+	public static final EmbeddedStorageConnectionFoundation createConnectionFoundation(final File directory)
 	{
 		/*
 		 * (03.11.2014)TODO: EmbeddedStorage loosely coupled id providers?
@@ -183,65 +74,111 @@ public final class EmbeddedStorage
 		;
 	}
 
-
-	public static final EmbeddedStorageManager createStorageManager(
-		final PersistenceRootResolver rootResolver
+	
+	
+	public static final EmbeddedStorageFoundation createFoundation(
+		final StorageConfiguration                configuration       ,
+		final EmbeddedStorageConnectionFoundation connectionFoundation
 	)
 	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation(rootResolver)
-			.createEmbeddedStorageManager()
+		/* (24.09.2018 TM)NOTE:
+		 * Configuration and ConnectionFoundation both depend on a File (directory)
+		 * So this is the most elementary creator method possible.
+		 */
+		return createFoundationBlank()
+			.setConfiguration(configuration)
+			.setConnectionFoundation(connectionFoundation)
 		;
-		return esm;
 	}
-
-	public static final EmbeddedStorageManager createStorageManager()
-	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation()
-			.createEmbeddedStorageManager()
-		;
-		return esm;
-	}
-
-	public static final EmbeddedStorageManager createStorageManager(
-		final PersistenceRootResolver rootResolver,
-		final File                    directory
+	
+	public static final EmbeddedStorageFoundation createFoundation(
+		final StorageFileProvider                 fileProvider        ,
+		final EmbeddedStorageConnectionFoundation connectionFoundation
 	)
 	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation(directory, rootResolver)
-			.createEmbeddedStorageManager()
+		return createFoundationBlank()
+			.setConfiguration(
+				Storage.Configuration(fileProvider)
+			)
+			.setConnectionFoundation(connectionFoundation)
 		;
-		return esm;
+	}
+	
+	public static final EmbeddedStorageFoundation createFoundation(final File directory)
+	{
+		XFiles.ensureDirectory(directory);
+
+		return createFoundation(
+			Storage.FileProvider(directory),
+			createConnectionFoundation(directory)
+		);
 	}
 
-	public static final EmbeddedStorageManager createStorageManager(
-		final PersistenceRootResolver rootResolver,
-		final StorageFileProvider     fileProvider
-	)
+	public static final EmbeddedStorageFoundation createFoundation()
 	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation(fileProvider)
-			.setRootResolver(rootResolver)
-			.createEmbeddedStorageManager()
-		;
-		return esm;
+		return createFoundation(new File(Storage.defaultDirectoryName()));
 	}
-
-	public static final EmbeddedStorageManager createStorageManager(
-		final PersistenceRootResolver rootResolver ,
-		final StorageConfiguration    configuration
+	
+	public static final EmbeddedStorageFoundation createFoundation(
+		final File                          directory   ,
+		final StorageChannelCountProvider   channelCountProvider  ,
+		final StorageHousekeepingController housekeepingController,
+		final StorageDataFileEvaluator      fileDissolver         ,
+		final StorageEntityCacheEvaluator   entityCacheEvaluator
 	)
 	{
-		final EmbeddedStorageManager esm = EmbeddedStorage
-			.createFoundation(configuration)
-			.setRootResolver(rootResolver)
+		XFiles.ensureDirectory(directory);
+
+		return createFoundation(
+			Storage.Configuration(
+				Storage.FileProvider(directory),
+				channelCountProvider           ,
+				housekeepingController         ,
+				fileDissolver                  ,
+				entityCacheEvaluator
+			),
+			createConnectionFoundation(directory)
+		);
+	}
+		
+	
+
+	public static final EmbeddedStorageManager start(
+		final StorageConfiguration                configuration       ,
+		final EmbeddedStorageConnectionFoundation connectionFoundation
+	)
+	{
+		final EmbeddedStorageManager esm = createFoundation(configuration, connectionFoundation)
 			.createEmbeddedStorageManager()
 		;
+		esm.start();
+		
 		return esm;
 	}
 	
+	public static final EmbeddedStorageManager start(
+		final StorageFileProvider                 fileProvider        ,
+		final EmbeddedStorageConnectionFoundation connectionFoundation
+	)
+	{
+		final EmbeddedStorageManager esm = createFoundation(fileProvider, connectionFoundation)
+			.createEmbeddedStorageManager()
+		;
+		esm.start();
+		
+		return esm;
+	}
+	
+	public static final EmbeddedStorageManager start(final File directory)
+	{
+		final EmbeddedStorageManager esm = createFoundation(directory)
+			.createEmbeddedStorageManager()
+		;
+		esm.start();
+		
+		return esm;
+	}
+
 	/**
 	 * Uber-simplicity util method. See {@link #createStorageManager()} and {@link #createFoundation()} variants for
 	 * more practical alternatives.
@@ -250,36 +187,41 @@ public final class EmbeddedStorage
 	 */
 	public static final EmbeddedStorageManager start()
 	{
-		final EmbeddedStorageManager esm = createStorageManager();
+		final EmbeddedStorageManager esm = createFoundation()
+			.createEmbeddedStorageManager()
+		;
 		esm.start();
+		
 		return esm;
 	}
-
 	
-	
-	/**
-	 * Default root instance of a persistent entity graph.
-	 * This is moreless a monkey business because proper applications should not rely on static state as their
-	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
-	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
-	 * need to explicitely define and register a root resolver.
-	 */
-	static final Singleton<Object> root = X.Singleton(null);
-	
-	/**
-	 * The default instance to be used as a root of the persistence entity graph.<br>
-	 * The reference value is initially <code>null</code>.<br>
-	 * 
-	 * @return the default root instance.
-	 * 
-	 * @see #root(Object)
-	 */
-	public static Reference<Object> root()
+	public static final EmbeddedStorageManager start(
+		final File                          directory   ,
+		final StorageChannelCountProvider   channelCountProvider  ,
+		final StorageHousekeepingController housekeepingController,
+		final StorageDataFileEvaluator      fileDissolver         ,
+		final StorageEntityCacheEvaluator   entityCacheEvaluator
+	)
 	{
-		return root;
-	}
+		final EmbeddedStorageManager esm = createFoundation(
+			directory             ,
+			channelCountProvider  ,
+			housekeepingController,
+			fileDissolver         ,
+			entityCacheEvaluator
+		)
+			.createEmbeddedStorageManager()
+		;
+		esm.start();
 		
-
+		return esm;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
 	private EmbeddedStorage()
 	{

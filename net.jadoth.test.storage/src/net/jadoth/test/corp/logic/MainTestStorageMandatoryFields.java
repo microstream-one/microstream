@@ -13,15 +13,14 @@ import net.jadoth.time.XTime;
 public class MainTestStorageMandatoryFields
 {
 	// creates and start an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation(
-			esf ->
+	static final EmbeddedStorageManager STORAGE = X.executeOn(
+		EmbeddedStorage.createFoundation(),
+		esf ->
 			esf.getConnectionFoundation().setReferenceFieldMandatoryEvaluator((clazz, field) ->
 //				clazz == Person.class && field.getType() == Address.class
 				field.getAnnotation(StoreEager.class) != null
 			)
 		)
-		.createEmbeddedStorageManager()
 		.start()
 	;
 

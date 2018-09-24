@@ -1,6 +1,8 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
@@ -55,6 +57,16 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 	public EmbeddedStorageFoundation setRootResolver(PersistenceRootResolver rootResolver);
 	
+	public default EmbeddedStorageFoundation setRoot(final Object root)
+	{
+		this.setRootResolver(
+			Persistence.RootResolver(root)
+		);
+		
+		return this;
+	}
+	
+	
 	public EmbeddedStorageFoundation setRefactoringMappingProvider(
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
@@ -76,7 +88,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		
 		protected EmbeddedStorageConnectionFoundation createConnectionFoundation()
 		{
-			return new EmbeddedStorageConnectionFoundation.Implementation();
+			throw new MissingFoundationPartException(EmbeddedStorageConnectionFoundation.class);
+//			return new EmbeddedStorageConnectionFoundation.Implementation();
 		}
 
 		@Override
@@ -189,7 +202,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		public EmbeddedStorageFoundation setRootResolver(final PersistenceRootResolver rootResolver)
 		{
-			this.connectionFoundation.setRootResolver(rootResolver);
+			this.getConnectionFoundation().setRootResolver(rootResolver);
 			return this;
 		}
 		
@@ -198,7 +211,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
 		{
-			this.connectionFoundation.setRefactoringMappingProvider(refactoringMappingProvider);
+			this.getConnectionFoundation().setRefactoringMappingProvider(refactoringMappingProvider);
 			return this;
 		}
 
