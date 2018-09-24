@@ -71,7 +71,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			}
 			
 			// since type refactoring, the old and simple strategy to handle Class instances does not work any more.
-			if(type.getClass() == Class.class)
+			if(type == Class.class)
 			{
 				// (18.09.2018 TM)EXCP: proper exception
 				throw new RuntimeException(

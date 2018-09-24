@@ -1849,5 +1849,60 @@ Hm. Es w\'fcrde aber reichen, wenn die SwizzleObjectIdResolving  ein #register(O
 \par
 Oh, beim Durchdenken Bug entdeckt:\par
 F\'fcr den ReflectiveMapper darf das handeln von OIDs nicht einfach den long wert umkopieren, so wie das beim Rerouting korrekt ist. Da muss der object Lookup rein.\par
+\par
+\par
+\par
+\par
+2018-09-24\par
+\par
+JetstreamDB Sampler Test\par
+\par
+Dabei auf einige Fl\'fcchtigkeitsfehler gesto\'dfen (notNull statt mayNull bei zwei neuen Parts, Pr\'fcfung auf Class.class war falsch).\par
+Au\'dferdem aufgefallen: Die vielen Factory Methoden f\'fcr StorageFoundation und StorageManager sind zu wirr und teilweise ungen\'fcgend dadurch, dass an zwei unterschiedlichen Stellen ein File n\'f6tig ist, aber es nicht redundant angegeben m\'fcssen werden soll. Das muss ich mal \'fcberarbeiten.\par
+\par
+EmbeddedStorage\par
+.createFoundation: komplette StorageFoundation \par
+\tab - mit default verzeichnis\par
+\tab - mit StorageConnectionFoundation basierend auf dem verzeichnis\par
+.start: createStorageManager mit Initialisierung und thread start\par
+\par
+\par
+EmbeddedStorage(RootResolver, Configuration)\par
+.createStorageManager:\par
+\tab - createFoundation(Configuration): blanke StorageFoundation mit gesetzter Configuration\par
+\tab - dort gesetzter RootResolver, aber exception wegen fehlender StorageConnectionFoundation\par
+\tab - createStorageManager mit Initialisierung.\par
+\tab\par
+\tab\par
+StorageFoundation\par
+- StorageConnectionFoundation (mit File)\par
+- Configuration (mit File)\par
+- RootResolver Setter, der aber eigentlich an StorageConnectionFoundation weiterleitet\par
+\par
+Es muss also geben:\par
+\par
+createFoundation():\par
+- holt default File\par
+< leitet weiter an createFoundation(File)\par
+\par
+createFoundation(File):\par
+- erzeugt FileProvider mit File\par
+- erzeugt ConnectionFoundation aus File\par
+< leitet weiter an createFoundation(FileProvider, ConnectionFoundation) \par
+\par
+\par
+createFoundation(FileProvider, ConnectionFoundation):\par
+- erzeugt Configuration mit FileProvider und ansonsten Defaults\par
+> leitet weiter an createFoundation(Configuration, ConnectionFoundation)\par
+- setzt ConnectionFoundation\par
+\par
+createFoundation(Configuration, ConnectionFoundation):\par
+- erzeugt blank StorageFoundation\par
+- setzt configuration\par
+- setzt ConnectionFoundation\par
+\par
+So bau ich das.\par
+\par
+\par
 }
  

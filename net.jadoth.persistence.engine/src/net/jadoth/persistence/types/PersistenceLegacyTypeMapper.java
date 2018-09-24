@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.array;
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
@@ -48,9 +49,9 @@ public interface PersistenceLegacyTypeMapper<M>
 			notNull(refactoringMappingProvider),
 			notNull(customTypeHandlerRegistry) ,
 			notNull(deletedTypeHandlerCreator) ,
-			notNull(memberMatchingEqualator)   ,
+			mayNull(memberMatchingEqualator)   ,
 			notNull(memberMatchingSimilator)   ,
-			notNull(memberMatchValidator)      ,
+			mayNull(memberMatchValidator)      ,
 			notNull(resultor)                  ,
 			notNull(legacyTypeHandlerCreator)  ,
 	                identifierSeparator

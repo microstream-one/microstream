@@ -2,7 +2,6 @@ package net.jadoth.test.corp.logic;
 
 import java.io.File;
 
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
@@ -18,29 +17,32 @@ public class MainTestStorageExampleMore
 
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
+		.createFoundation(
+			DIRECTORY                                        , // location for the database files
+			Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
+			Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
+			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
+			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
+		)
+
+		.setRoot(ROOT)                                         // binding between graph's root instance and the storage
 		
-		// with refactorings
-//		.createStorageManager(Storage.RootResolver(ROOT, Storage.RefactoringMapping(new File(DIRECTORY, "Refactorings.csv"))))
-//		.createStorageManager(
-////			Storage.RootResolver(ROOT, Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
-//			Storage.RootResolverBuilder()
+		// with registered refactorings
+//		.setRefactoringMappingProvider(
+//			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+//		)
+		
+		// root resolver with refactorings
+//		.setRootResolver(
+//		//	Storage.RootResolver(ROOT, Persistence.RefactoringMapping(new File("D:/Refactorings.csv")))
+//			PersistenceRootResolver.Builder()
 //			.registerRoot("root", ROOT)
-////			.registerRoots(PersistenceRootResolver.deriveRoots(SomeClassWithConstants.class))
-//			.setRefactoring(Storage.RefactoringMapping(new File("D:\\Refactorings.csv")))
+//		//	.registerRoots(PersistenceRootResolver.deriveRoots(SomeClassWithConstants.class))
+//			.setRefactoring(Persistence.RefactoringMapping(new File("D:/Refactorings.csv")))
 //			.build()
 //		)
 		
-		.createStorageManager(
-			Persistence.RootResolver(ROOT)                       , // binding between graph's root instance and the storage
-			Storage.Configuration(
-				Storage.FileProvider(DIRECTORY)                  , // location for the database files
-				Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
-				Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
-				Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
-				Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
-			)
-		)
-		.start()
+		.start() // starts database management threads and returns a reference to the manager instance
 	;
 	
 	public static void main(final String[] args)
