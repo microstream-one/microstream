@@ -27,11 +27,18 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	{
 		// no-op (or throw exception?)
 	}
+	
+	@Override
+	public default Class<T> type()
+	{
+		// (25.09.2018 TM)EXCP: proper exception
+		throw new UnsupportedOperationException("Type deleted");
+	}
 
 	@Override
 	public default T create(final M medium)
 	{
-		/* (13.09.2018 TM)TODO: shouldn't PersistenceDeletedTypeHandler#create return null?
+		/* (13.09.2018 TM)FIXME: OGS-3: shouldn't PersistenceDeletedTypeHandler#create return null?
 		 * If it throws an exception like it currently does, what's the point of having it in the first place?
 		 * Getting an exception later (during loading) instead of sooner (during validation)?
 		 * If a "deleted handler" has any point, then that to ignore instances of deleted types, i.e. "null out" any

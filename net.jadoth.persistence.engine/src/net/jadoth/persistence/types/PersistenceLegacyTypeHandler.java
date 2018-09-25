@@ -67,8 +67,6 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// methods //
 		////////////
 		
-		// (19.09.2018 TM)FIXME: OGS-3: is it correct to just reroute everything to the old type definition? Comment.
-
 		@Override
 		public final long typeId()
 		{
@@ -82,19 +80,27 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
+		public final boolean isPrimitiveType()
+		{
+			return this.typeDefinition.isPrimitiveType();
+		}
+
+		// persisted-form-related methods, so the old type definition has be used //
+
+		@Override
 		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
 		{
 			return this.typeDefinition.members();
 		}
 		
 		@Override
-		public long membersPersistedLengthMinimum()
+		public final long membersPersistedLengthMinimum()
 		{
 			return this.typeDefinition.membersPersistedLengthMinimum();
 		}
 		
 		@Override
-		public long membersPersistedLengthMaximum()
+		public final long membersPersistedLengthMaximum()
 		{
 			return this.typeDefinition.membersPersistedLengthMaximum();
 		}
@@ -116,20 +122,9 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		{
 			return this.typeDefinition.hasVaryingPersistedLengthInstances();
 		}
-
-		@Override
-		public final boolean isPrimitiveType()
-		{
-			return this.typeDefinition.isPrimitiveType();
-		}
-
-		@Override
-		public final Class<T> type()
-		{
-			// should always be null. Otherwise, something's fishy ...
-			return this.typeDefinition.type();
-		}
 		
+		// end of persisted-form-related methods //
+	
 	}
 	
 	
@@ -188,6 +183,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		@Override
 		public void iteratePersistedReferences(final M medium, final _longProcedure iterator)
 		{
+			// current type handler perfectly fits the old types structure, so it can be used here.
 			this.typeHandler.iteratePersistedReferences(medium, iterator);
 		}
 
@@ -213,6 +209,12 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 		{
 			return this.typeHandler.iterateMemberTypes(logic);
+		}
+		
+		@Override
+		public final Class<T> type()
+		{
+			return this.typeHandler.type();
 		}
 		
 	}

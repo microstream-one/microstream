@@ -37,16 +37,26 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		return targetOffsets;
 	}
 	
+	public static final BinaryReferenceTraverser[] deriveReferenceTraversers(final PersistenceTypeDefinition<?> typeDefinition)
+	{
+		final BinaryReferenceTraverser[] referenceTraversers =
+			BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
+		;
+		
+		return BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private final PersistenceTypeHandler<Binary, T> typeHandler     ;
-	private final BinaryValueSetter[]               valueTranslators;
-	private final long[]                            targetOffsets   ;
-	
+	private final PersistenceTypeHandler<Binary, T> typeHandler        ;
+	private final BinaryValueSetter[]               valueTranslators   ;
+	private final long[]                            targetOffsets      ;
+	private final BinaryReferenceTraverser[]        referenceTraversers;
+
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -64,6 +74,9 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		this.typeHandler      = typeHandler     ;
 		this.valueTranslators = valueTranslators;
 		this.targetOffsets    = targetOffsets   ;
+		
+		// reference traversers mut be derived from the old type definition that fits the persisted form.
+		this.referenceTraversers = deriveReferenceTraversers(typeDefinition);
 	}
 	
 	
@@ -71,7 +84,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
+		
 	protected BinaryValueSetter[] valueTranslators()
 	{
 		return this.valueTranslators;
@@ -87,6 +100,15 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		return this.typeHandler;
 	}
 	
+	
+	// runtime instance-related methods, so the current type handler must be used //
+	
+	@Override
+	public Class<T> type()
+	{
+		return this.typeHandler.type();
+	}
+	
 	@Override
 	public boolean hasInstanceReferences()
 	{
@@ -98,18 +120,29 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	{
 		this.typeHandler.iterateInstanceReferences(instance, iterator);
 	}
-
-	@Override
-	public void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
-	{
-		// (24.09.2018 TM)FIXME: OGS-3: must be old order, not new!
-		this.typeHandler.iteratePersistedReferences(rawData, iterator);
-	}
 	
 	@Override
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 	{
 		return this.typeHandler.iterateMemberTypes(logic);
 	}
+	
+	// end of runtime instance-related methods //
+	
+	
+	
+	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
+
+	@Override
+	public final void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
+	{
+		BinaryReferenceTraverser.iterateReferences(
+			rawData.buildItemAddress(),
+			this.referenceTraversers,
+			iterator
+		);
+	}
+
+	// end of persisted-form-related methods //
 	
 }
