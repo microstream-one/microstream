@@ -475,6 +475,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		@Override
 		protected PersistenceLegacyTypeHandlerCreator<Binary> createLegacyTypeHandlerCreator()
 		{
+			// (25.09.2018 TM)FIXME: OGS-3: BinaryLegacyTypeHandlerCreator construction
 			return BinaryLegacyTypeHandlerCreator.New();
 		}
 		

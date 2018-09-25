@@ -1,9 +1,11 @@
 package net.jadoth.persistence.binary.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.exceptions.TypeCastException;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -16,16 +18,18 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerReflective<T> New(
-		final PersistenceTypeDefinition<?>                typeDefinition              ,
-		final PersistenceTypeHandlerReflective<Binary, T> typeHandler                 ,
-		final XGettingTable<BinaryValueSetter, Long>      translatorsWithTargetOffsets
+		final PersistenceTypeDefinition<?>                  typeDefinition              ,
+		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
+		final XGettingTable<BinaryValueSetter, Long>        translatorsWithTargetOffsets,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener
 	)
 	{
 		return new BinaryLegacyTypeHandlerReflective<>(
 			notNull(typeDefinition)                      ,
 			notNull(typeHandler)                         ,
 			toTranslators(translatorsWithTargetOffsets)  ,
-			toTargetOffsets(translatorsWithTargetOffsets)
+			toTargetOffsets(translatorsWithTargetOffsets),
+			mayNull(listener)
 		);
 	}
 	
@@ -36,13 +40,14 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	/////////////////
 
 	BinaryLegacyTypeHandlerReflective(
-		final PersistenceTypeDefinition<?>                typeDefinition  ,
-		final PersistenceTypeHandlerReflective<Binary, T> typeHandler     ,
-		final BinaryValueSetter[]                         valueTranslators,
-		final long[]                                      targetOffsets
+		final PersistenceTypeDefinition<?>                  typeDefinition  ,
+		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
+		final BinaryValueSetter[]                           valueTranslators,
+		final long[]                                        targetOffsets   ,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener
 	)
 	{
-		super(typeDefinition, typeHandler, valueTranslators, targetOffsets);
+		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener);
 	}
 	
 	
@@ -59,11 +64,11 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public final T create(final Binary rawData)
+	protected T internalCreate(final Binary rawData)
 	{
 		return this.typeHandler().create(rawData);
 	}
-
+	
 	@Override
 	public final void update(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
 	{

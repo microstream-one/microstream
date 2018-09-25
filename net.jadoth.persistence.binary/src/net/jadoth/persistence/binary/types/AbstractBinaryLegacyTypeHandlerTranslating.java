@@ -6,6 +6,7 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -52,10 +53,11 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	// instance fields //
 	////////////////////
 
-	private final PersistenceTypeHandler<Binary, T> typeHandler        ;
-	private final BinaryValueSetter[]               valueTranslators   ;
-	private final long[]                            targetOffsets      ;
-	private final BinaryReferenceTraverser[]        referenceTraversers;
+	private final PersistenceTypeHandler<Binary, T>             typeHandler        ;
+	private final BinaryValueSetter[]                           valueTranslators   ;
+	private final long[]                                        targetOffsets      ;
+	private final BinaryReferenceTraverser[]                    referenceTraversers;
+	private final PersistenceLegacyTypeHandlingListener<Binary> listener           ;
 
 	
 	
@@ -64,16 +66,18 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	/////////////////
 	
 	protected AbstractBinaryLegacyTypeHandlerTranslating(
-		final PersistenceTypeDefinition<?>      typeDefinition  ,
-		final PersistenceTypeHandler<Binary, T> typeHandler     ,
-		final BinaryValueSetter[]               valueTranslators,
-		final long[]                            targetOffsets
+		final PersistenceTypeDefinition<?>                  typeDefinition  ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
+		final BinaryValueSetter[]                           valueTranslators,
+		final long[]                                        targetOffsets   ,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener
 	)
 	{
 		super(typeDefinition);
 		this.typeHandler      = typeHandler     ;
 		this.valueTranslators = valueTranslators;
 		this.targetOffsets    = targetOffsets   ;
+		this.listener         = listener        ;
 		
 		// reference traversers mut be derived from the old type definition that fits the persisted form.
 		this.referenceTraversers = deriveReferenceTraversers(typeDefinition);
@@ -144,5 +148,26 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	}
 
 	// end of persisted-form-related methods //
+	
+	@Override
+	public final T create(final Binary rawData)
+	{
+		if(this.listener == null)
+		{
+			return this.internalCreate(rawData);
+		}
+		
+		final T instance = this.internalCreate(rawData);
+		this.listener.reportLegacyTypeHandling(
+			BinaryPersistence.getBuildItemObjectId(rawData),
+			instance                                       ,
+			this.legacyTypeDefinition()                    ,
+			this.typeHandler()
+		);
+		
+		return instance;
+	}
+	
+	protected abstract T internalCreate(Binary rawData);
 	
 }
