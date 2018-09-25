@@ -64,8 +64,8 @@ import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
@@ -318,10 +318,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
-			final PersistenceStoreFunction persister
+			final Object         src      ,
+			final long           srcOffset,
+			final long           address  ,
+			final SwizzleHandler handler
 		)
 		{
 			VM.putByte(address, VM.getByte(src, srcOffset));
@@ -333,10 +333,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
-			final PersistenceStoreFunction persister
+			final Object         src      ,
+			final long           srcOffset,
+			final long           address  ,
+			final SwizzleHandler handler
 		)
 		{
 			VM.putShort(address, VM.getShort(src, srcOffset));
@@ -348,10 +348,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
-			final PersistenceStoreFunction persister
+			final Object         src      ,
+			final long           srcOffset,
+			final long           address  ,
+			final SwizzleHandler handler
 		)
 		{
 			VM.putInt(address, VM.getInt(src, srcOffset));
@@ -363,10 +363,10 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
-			final PersistenceStoreFunction persister
+			final Object         src      ,
+			final long           srcOffset,
+			final long           address  ,
+			final SwizzleHandler handler
 		)
 		{
 			VM.putLong(address, VM.getLong(src, srcOffset));
@@ -378,28 +378,28 @@ public final class BinaryPersistence extends Persistence
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   src      ,
-			final long                     srcOffset,
-			final long                     address  ,
-			final PersistenceStoreFunction persister
+			final Object         src      ,
+			final long           srcOffset,
+			final long           address  ,
+			final SwizzleHandler handler
 		)
 		{
-			VM.putLong(address, persister.apply(VM.getObject(src, srcOffset)));
+			VM.putLong(address, handler.apply(VM.getObject(src, srcOffset)));
 			return address + LENGTH_OID;
 		}
 	};
 	
-	private static final BinaryValueStorer STORE_REFERENCE_FORCED = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_REFERENCE_EAGER = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                   source       ,
-			final long                     sourceOffset ,
-			final long                     targetAddress,
-			final PersistenceStoreFunction persister
+			final Object         source       ,
+			final long           sourceOffset ,
+			final long           targetAddress,
+			final SwizzleHandler handler
 		)
 		{
-			VM.putLong(targetAddress, persister.applyEager(VM.getObject(source, sourceOffset)));
+			VM.putLong(targetAddress, handler.applyEager(VM.getObject(source, sourceOffset)));
 			return targetAddress + LENGTH_OID;
 		}
 	};
@@ -640,7 +640,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeFixedSize(
 		final Binary                   bytes        ,
-		final PersistenceStoreFunction persister    ,
+		final SwizzleHandler           handler      ,
 		final long                     contentLength,
 		final long                     typeId       ,
 		final long                     objectId     ,
@@ -652,7 +652,7 @@ public final class BinaryPersistence extends Persistence
 		long address = bytes.storeEntityHeader(contentLength, typeId, objectId);
 		for(int i = 0; i < memoryOffsets.length; i++)
 		{
-			address = storers[i].storeValueFromMemory(instance, memoryOffsets[i], address, persister);
+			address = storers[i].storeValueFromMemory(instance, memoryOffsets[i], address, handler);
 		}
 	}
 
@@ -1491,7 +1491,7 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final BinaryValueStorer getStorerReferenceForced()
 	{
-		return STORE_REFERENCE_FORCED;
+		return STORE_REFERENCE_EAGER;
 	}
 
 	public static BinaryValueStorer getObjectValueStorer(
@@ -1516,7 +1516,7 @@ public final class BinaryPersistence extends Persistence
 
 		// reference case. Either "forced" or normal.
 		return isForced
-			? STORE_REFERENCE_FORCED
+			? STORE_REFERENCE_EAGER
 			: STORE_REFERENCE
 		;
 	}

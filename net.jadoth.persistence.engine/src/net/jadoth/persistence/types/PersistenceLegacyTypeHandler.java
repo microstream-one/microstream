@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -28,7 +28,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 
 	@Override
-	public default void store(final M medium, final T instance, final long objectId, final PersistenceStoreFunction linker)
+	public default void store(final M medium, final T instance, final long objectId, final SwizzleHandler handler)
 	{
 		// (13.09.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(

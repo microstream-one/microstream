@@ -6,10 +6,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -74,10 +74,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final HashEnum<?>        instance ,
-		final long               oid      ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final HashEnum<?>    instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		// store elements simply as array binary form
@@ -88,7 +88,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
 
 		// store hash density as (sole) header value

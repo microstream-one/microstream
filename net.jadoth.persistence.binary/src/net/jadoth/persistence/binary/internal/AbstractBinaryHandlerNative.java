@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -151,7 +151,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public abstract void store(Binary bytes, T instance, long oid, PersistenceStoreFunction linker);
+	public abstract void store(Binary bytes, T instance, long oid, SwizzleHandler linker);
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)

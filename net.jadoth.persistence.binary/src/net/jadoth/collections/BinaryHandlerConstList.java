@@ -7,10 +7,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -63,10 +63,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final ConstList<?>    instance ,
-		final long            oid      ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final ConstList<?>   instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		final Object[] arrayInstance = instance.data;
@@ -75,7 +75,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 			this.typeId(),
 			oid
 		);
-		BinaryPersistence.storeArrayContentAsList(contentAddress, linker, arrayInstance, 0, arrayInstance.length);
+		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, arrayInstance, 0, arrayInstance.length);
 	}
 
 	@Override

@@ -4,10 +4,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -64,10 +64,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes   ,
-		final BulkList<?>     instance,
-		final long            oid     ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final BulkList<?>    instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -77,7 +77,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,
-			linker
+			handler
 		);
 	}
 

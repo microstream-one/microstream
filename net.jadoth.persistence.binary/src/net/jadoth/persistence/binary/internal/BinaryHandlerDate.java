@@ -4,7 +4,7 @@ import java.util.Date;
 
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomValueFixedLength<Date>
@@ -39,7 +39,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Date instance, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final Date instance, final long oid, final SwizzleHandler handler)
 	{
 		// the data content of a date is simple the timestamp long, nothing else
 		XVM.set_long(

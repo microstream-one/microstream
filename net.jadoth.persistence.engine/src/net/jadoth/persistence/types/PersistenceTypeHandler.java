@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -22,7 +22,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 	public void iteratePersistedReferences(M medium, _longProcedure iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, PersistenceStoreFunction linker);
+	public void store(M medium, T instance, long objectId, SwizzleHandler linker);
 
 	public T    create(M medium);
 

@@ -4,7 +4,7 @@ import net.jadoth.X;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 
@@ -26,7 +26,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final StringBuffer instance, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final StringBuffer instance, final long oid, final SwizzleHandler handler)
 	{
 		final char[] value;
 		final long address;

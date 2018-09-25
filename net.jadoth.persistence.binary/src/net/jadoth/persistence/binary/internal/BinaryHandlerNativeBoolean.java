@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativeCustomValueFixedLength<Boolean>
 {
@@ -22,7 +22,7 @@ public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerNativ
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Boolean instance, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final Boolean instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeBoolean(bytes, this.typeId(), oid, instance.booleanValue());
 	}

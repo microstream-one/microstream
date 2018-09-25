@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
@@ -24,7 +24,7 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	////////////
 
 	@Override
-	public void store(final Binary medium, final T instance, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary medium, final T instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeStateless(medium, this.typeId(), oid);
 	}

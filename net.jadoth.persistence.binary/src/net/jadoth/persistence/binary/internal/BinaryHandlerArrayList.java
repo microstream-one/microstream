@@ -6,10 +6,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -54,10 +54,10 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	
 	@Override
 	public final void store(
-		final Binary             bytes   ,
-		final ArrayList<?>       instance,
-		final long               oid     ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final ArrayList<?>   instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -67,7 +67,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 			SIZED_ARRAY_BINARY_OFFSET,
 			XVM.accessStorage(instance),
 			instance.size(),
-			linker
+			handler
 		);
 	}
 

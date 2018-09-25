@@ -14,10 +14,10 @@ import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -191,13 +191,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final EqHashEnum<?>   instance ,
-		final long            oid      ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final EqHashEnum<?>  instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
-		staticStore(bytes, instance, this.typeId(), oid, linker);
+		staticStore(bytes, instance, this.typeId(), oid, handler);
 	}
 
 	@Override

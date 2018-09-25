@@ -10,7 +10,7 @@ import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.reference._intReference;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
@@ -50,7 +50,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	 * 
 	 * @author TM
 	 */
-	public class Implementation implements BinaryStorer, PersistenceStoreFunction
+	public class Implementation implements BinaryStorer, SwizzleHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
