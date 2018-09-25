@@ -12,10 +12,10 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -88,10 +88,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final EqConstHashEnum<?> instance ,
-		final long               oid      ,
-		final PersistenceStoreFunction    linker
+		final Binary             bytes   ,
+		final EqConstHashEnum<?> instance,
+		final long               oid     ,
+		final SwizzleHandler     handler
 	)
 	{
 		// store elements simply as array binary form
@@ -102,13 +102,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
 		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
-			linker.apply(instance.hashEqualator)
+			handler.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value

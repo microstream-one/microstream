@@ -8,10 +8,10 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
 {
@@ -64,14 +64,14 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final A instance, final long oid, final PersistenceStoreFunction linker)
+	public final void store(final Binary bytes, final A instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeArrayContentAsList(
 			bytes                      ,
 			this.typeId()              ,
 			oid                        ,
 			0                          ,
-			linker                  ,
+			handler                    ,
 			(Object[])instance         ,
 			0                          ,
 			((Object[])instance).length

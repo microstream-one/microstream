@@ -29,7 +29,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final SwizzleHandler handler)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:
 		 *
@@ -67,11 +67,11 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		else
 		{
 			// OID validation or updating is done by linking logic
-			referenceOid = linker.apply(referent);
+			referenceOid = handler.apply(referent);
 		}
 
 		// link to object supplier (internal logic can either update, discard or throw exception on mismatch)
-		instance.link(referenceOid, linker.getSwizzleObjectSupplier());
+		instance.link(referenceOid, handler.getSwizzleObjectSupplier());
 
 		// lazy reference instance must be stored in any case
 		XVM.set_long(

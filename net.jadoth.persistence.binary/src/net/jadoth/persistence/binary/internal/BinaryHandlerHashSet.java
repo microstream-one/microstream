@@ -9,9 +9,9 @@ import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -68,12 +68,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	////////////
 
 	@Override
-	public final void store(
-		final Binary             bytes   ,
-		final HashSet<?>         instance,
-		final long               oid     ,
-		final PersistenceStoreFunction linker
-	)
+	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final SwizzleHandler handler)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
@@ -83,7 +78,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
 
 		// store load factor as (sole) header value

@@ -1956,5 +1956,20 @@ Ein "SuppressingTypeHandler", der beim create null zur\'fcck gibt, w\'e4re ein a
 Wobei man erst mal die Sinnhaftigkeit von soetwas gr\'fcndlich hinterfragen m\'fcsste und dann denn Fall, dass create null zur\'fcckgeben kann, in der Loader/Builder Logik irgendwo ordentlich behandeln m\'fcsste.\par
 \par
 Das schreib ich in pr\'e4gnanter Form jetzt noch auf Englisch in den Code rein, dann ist dieses TODO auch fertig.\par
+\par
+\par
+N\'e4chster Punkt:\par
+Ein Custom LegacyTypeHandler muss neue Instanzen erzeugen k\'f6nnen (z.B. String f\'fcr char[]) und diese dann irgendwie mit einer neuen OID versehen und registrieren lassen k\'f6nnen.\par
+\par
+Daf\'fcr muss der SwizzleBuildLinker eine entsprechende register Methode haben.\par
+Das muss dann \'fcber den Builder letztendlich an den ObjectManager geleitet werden, der eine neue OID vergibt. Eigentlich nur eine Referenz mehr und ein paar Konstruktor Methoden erweitern.\par
+\par
+Beim Implementieren aufgefallen: "PersistenceStoreFunction" hat im Swizzle Projekt nichts verloren. Bzw: ein besserer Name w\'e4re "SwizzleHandler". Umbenennen, JavaDoc anpassen, Aufrufstellen anpassen.\par
+\par
+Jetzt Builder erweitern.\par
+Hm. Moment mal: Ist eine im LegacyTypeHandler neu erzeugte und gesetzte Instanz nichts anderes, wie eine von der Anwendungslogik auch? Es wird zur Laufzeit was gesetzt. Wenn das gespeichert werden soll, dann muss die ver\'e4nderte Instanz gespeichert werden. Dann bekommt es eine OID zugewiesen, alles ist gut. W\'fcrde die OID schon zum Erstellzeitpunkt registriert werden, ohne dass die neue Instanz schon gespeichert worden ist, dann w\'fcrde sie beim regul\'e4ren speichern als "schon bekannt" erkannt und eben NICHT gespeichert werden.\par
+Jup, das hei\'dft: keine Sonderfallbehandlung wird das richtige Verhalten erzeugen. Die Sonderfallbehandlung w\'fcrde es sogar ruinieren.\par
+\par
+Sch\'f6n. Dann w\'e4r das ja gekl\'e4rt.\par
 }
  

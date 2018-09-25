@@ -26,7 +26,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -271,11 +271,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final T instance, final long objectId, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeFixedSize(
 			bytes                   ,
-			linker                  ,
+			handler                  ,
 			this.binaryContentLength,
 			this.typeId()           ,
 			objectId                ,

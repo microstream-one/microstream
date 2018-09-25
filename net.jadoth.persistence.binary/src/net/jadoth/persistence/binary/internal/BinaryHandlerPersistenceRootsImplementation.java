@@ -12,9 +12,9 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 
 
@@ -94,10 +94,10 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	@Override
 	public final void store(
-		final Binary                          bytes    ,
-		final PersistenceRoots.Implementation instance ,
-		final long                            oid      ,
-		final PersistenceStoreFunction              linker
+		final Binary                          bytes   ,
+		final PersistenceRoots.Implementation instance,
+		final long                            oid     ,
+		final SwizzleHandler                  handler
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -115,7 +115,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final long contentAddress = bytes.storeEntityHeader(totalContentLength, this.typeId(), oid);
 
 		// store instances first to allow efficient references-only caching
-		BinaryPersistence.storeArrayContentAsList(contentAddress, linker, instances, 0, instances.length);
+		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
 
 		// store identifiers as list of inlined [char]s
 		BinaryPersistence.storeStringsAsList(

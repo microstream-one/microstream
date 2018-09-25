@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerNativeArrayPrimitive<short[]>
@@ -23,7 +23,7 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final short[] array, final long oid, final PersistenceStoreFunction linker)
+	public void store(final Binary bytes, final short[] array, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeArray_short(bytes, this.typeId(), oid, array);
 	}

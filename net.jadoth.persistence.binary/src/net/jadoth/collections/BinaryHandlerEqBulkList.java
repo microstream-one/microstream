@@ -11,10 +11,10 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -77,10 +77,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final EqBulkList<?>   instance ,
-		final long            oid      ,
-		final PersistenceStoreFunction linker
+		final Binary         bytes   ,
+		final EqBulkList<?>  instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
@@ -91,13 +91,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,
-			linker
+			handler
 		);
 
 		// persist equalator and set the resulting oid at its binary place
 		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
-			linker.apply(instance.equalator)
+			handler.apply(instance.equalator)
 		);
 	}
 

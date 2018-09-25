@@ -4,8 +4,8 @@ import net.jadoth.collections.BinaryHandlerEqHashEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.PersistenceStoreFunction;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -49,15 +49,15 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 
 	@Override
 	public final void store(
-		final Binary                        bytes    ,
-		final Substituter.Implementation<?> instance ,
-		final long                          oid      ,
-		final PersistenceStoreFunction      linker
+		final Binary                        bytes   ,
+		final Substituter.Implementation<?> instance,
+		final long                          oid     ,
+		final SwizzleHandler                handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), oid, linker);
+			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), oid, handler);
 		}
 	}
 

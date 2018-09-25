@@ -102,7 +102,7 @@ public interface PersistenceDistrict<M>
 		)
 		{
 			super();
-			this.registry   = notNull(registry  );
+			this.registry   = notNull(registry)  ;
 			this.typeLookup = notNull(typeLookup);
 		}
 
