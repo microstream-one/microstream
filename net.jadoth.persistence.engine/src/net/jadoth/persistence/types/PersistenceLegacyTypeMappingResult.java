@@ -8,12 +8,8 @@ import net.jadoth.collections.types.XGettingSet;
 
 public interface PersistenceLegacyTypeMappingResult<M, T>
 {
-	/* (14.09.2018 TM)FIXME: OGS-3: Single T for two mapped types?
-	 * Which "T" is it? Source or target? Can there be problems?
-	 * Research and change or comment.
-	 */
-	
-	public PersistenceTypeDefinition<T> legacyTypeDefinition();
+	// the legacy type might potentially or usually be another type, maybe one that no more has a runtime type.
+	public PersistenceTypeDefinition<?> legacyTypeDefinition();
 	
 	public PersistenceTypeHandler<M, T> currentTypeHandler();
 	
@@ -24,7 +20,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 	
 	
 	public static <M, T> PersistenceLegacyTypeMappingResult<M, T> New(
-		final PersistenceTypeDefinition<T>                                                    legacyTypeDefinition  ,
+		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition  ,
 		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
 		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers,
 		final XGettingSet<PersistenceTypeDescriptionMember>                                   newCurrentMembers
@@ -44,7 +40,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition<T>                  legacyTypeDefinition;
+		private final PersistenceTypeDefinition<?>                  legacyTypeDefinition;
 		private final PersistenceTypeHandler<M, T>                  currentTypeHandler  ;
 		private final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers;
 		private final XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers   ;
@@ -56,7 +52,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeDefinition<T>                                                    legacyTypeDefinition  ,
+			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition  ,
 			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
 			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers,
 			final XGettingSet<PersistenceTypeDescriptionMember>                                   newCurrentMembers
@@ -76,7 +72,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		////////////
 		
 		@Override
-		public PersistenceTypeDefinition<T> legacyTypeDefinition()
+		public PersistenceTypeDefinition<?> legacyTypeDefinition()
 		{
 			return this.legacyTypeDefinition;
 		}

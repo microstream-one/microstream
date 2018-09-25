@@ -16,7 +16,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerReflective<T> New(
-		final PersistenceTypeDefinition<T>                typeDefinition              ,
+		final PersistenceTypeDefinition<?>                typeDefinition              ,
 		final PersistenceTypeHandlerReflective<Binary, T> typeHandler                 ,
 		final XGettingTable<BinaryValueSetter, Long>      translatorsWithTargetOffsets
 	)
@@ -36,9 +36,9 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	/////////////////
 
 	BinaryLegacyTypeHandlerReflective(
-		final PersistenceTypeDefinition<T>                typeDefinition  ,
+		final PersistenceTypeDefinition<?>                typeDefinition  ,
 		final PersistenceTypeHandlerReflective<Binary, T> typeHandler     ,
-		final BinaryValueSetter[]                     valueTranslators,
+		final BinaryValueSetter[]                         valueTranslators,
 		final long[]                                      targetOffsets
 	)
 	{
