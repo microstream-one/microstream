@@ -93,7 +93,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	
 	public default String toTypeString()
 	{
-		return this.getClass().getName() + "<" + this.type().getName() + ">(TID " + this.typeId() + ")";
+		return "Type " + this.typeId() + " " + this.type().getName();
 	}
 
 	

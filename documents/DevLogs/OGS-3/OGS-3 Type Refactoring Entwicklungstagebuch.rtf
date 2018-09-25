@@ -1936,5 +1936,25 @@ Keine gr\'f6\'dferen Probleme dabei.\par
 N\'e4chster Design-Check:\par
 PersistenceDeletedTypeHandler#create null oder exception?\par
 Recherchieren...\par
+\par
+Ahja! Also es ist so:\par
+\par
+1.)\par
+Momentan w\'fcrde ein vom create zur\'fcckgegebenes null eine exception ausl\'f6sen. D.h. bisher sieht das Storage Konzept nicht vor, dass f\'fcr einen Datensatz bytes geladen werden, aber keine Instanz darauf wird.\par
+\par
+2.)\par
+Das war auch gar nicht die Intention hinter dem DeletedType Handler. Also Instanzen irgendwie "unterdr\'fccken", weil man sie "nicht mehr haben will" oder so.\par
+\par
+3.)\par
+Sondern die Intention war:\par
+Es sind veraltete TypeDescription Eintr\'e4ge in einem TypeDictionary, f\'fcr die es \'fcberhaupt keine persistenten Instanzen mehr gibt. Oder zumindest keine erreichbaren.\par
+Darum kann man die als "deleted" mappen, damit man sich nicht mit einem Legacy Mapping rumschlagen muss f\'fcr etwas, das in der Datenbank (effektiv) \'fcberhaupt nicht mehr vorkommt.\par
+Sollte aus irgendeinem Grund doch mal eine Instanz eines gel\'f6schten Typs geladen werden (Typ versehentlich als gel\'f6scht eingetragen oder Entites nicht \'fcber den Root, sondern per Type geladen oder an den persistenten Daten rumgebastelt oder wie auch immer), dann soll im create eine Exception fliegen, die anzeigt, dass hier eine Instanz gebaut werden m\'fcsste von einem Typ, der eigentlich als gel\'f6scht markiert worden ist.\par
+\par
+4.)\par
+Ein "SuppressingTypeHandler", der beim create null zur\'fcck gibt, w\'e4re ein anderes Feature, das mit Legacy Mapping gar nichts zu tun hat.\par
+Wobei man erst mal die Sinnhaftigkeit von soetwas gr\'fcndlich hinterfragen m\'fcsste und dann denn Fall, dass create null zur\'fcckgeben kann, in der Loader/Builder Logik irgendwo ordentlich behandeln m\'fcsste.\par
+\par
+Das schreib ich in pr\'e4gnanter Form jetzt noch auf Englisch in den Code rein, dann ist dieses TODO auch fertig.\par
 }
  

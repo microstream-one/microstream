@@ -195,17 +195,17 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			if(currentTypeHandler == null)
-			{
-				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
-				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
-			}
-
 			// check for a custom handler with matching structure
 			final PersistenceLegacyTypeHandler<M, T> customHandler = this.lookupCustomHandler(legacyTypeDefinition);
 			if(customHandler != null)
 			{
 				return customHandler;
+			}
+			
+			if(currentTypeHandler == null)
+			{
+				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
+				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
 			}
 			
 			// at this point a legacy handler must be creatable or something went wrong.

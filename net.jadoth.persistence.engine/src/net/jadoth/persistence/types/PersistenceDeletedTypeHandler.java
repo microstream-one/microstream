@@ -8,6 +8,20 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
+/**
+ * "Deleted" handler to mark explicitely deleted types. Note that this is not a "unwanted instances suppressing handler".
+ * Explicitely marking a type as deleted only makes sense to handle type dictionary entries that are known by the
+ * developer to no longer be relevant, because the database no longer contains any instances of that type. At least
+ * none that would be reachable by a loading cascade. Should any persisted entity record of a deleted type be loaded
+ * nonetheless, it is an error that must be propagated (in {@link #create(Object)}). Hence, that method may NOT
+ * just return null. Maybe an "instance suppressing handler" might be a viable feature, as well (which is doubtful),
+ * but that would somethind different from a deleted type handler.
+ * 
+ * @author TM
+ *
+ * @param <M>
+ * @param <T>
+ */
 public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTypeHandler<M, T>
 {
 	@Override
@@ -25,26 +39,19 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	@Override
 	public default void iteratePersistedReferences(final M medium, final _longProcedure iterator)
 	{
-		// no-op (or throw exception?)
+		// no-op: whatever bytes representing references have been loaded for the instance, they shall be ignored.
 	}
 	
 	@Override
 	public default Class<T> type()
 	{
 		// (25.09.2018 TM)EXCP: proper exception
-		throw new UnsupportedOperationException("Type deleted");
+		throw new UnsupportedOperationException("Type deleted: " + this.toTypeString() + ".");
 	}
 
 	@Override
 	public default T create(final M medium)
 	{
-		/* (13.09.2018 TM)FIXME: OGS-3: shouldn't PersistenceDeletedTypeHandler#create return null?
-		 * If it throws an exception like it currently does, what's the point of having it in the first place?
-		 * Getting an exception later (during loading) instead of sooner (during validation)?
-		 * If a "deleted handler" has any point, then that to ignore instances of deleted types, i.e. "null out" any
-		 * reference to them during loading and not creating any instance at all.
-		 */
-		
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
 			"Cannot create an instance of explicitely deleted type " + this.typeName() + " " + this.typeId()
