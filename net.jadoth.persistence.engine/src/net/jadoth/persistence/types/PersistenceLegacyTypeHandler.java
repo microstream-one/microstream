@@ -47,7 +47,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition<T> typeDefinition;
+		private final PersistenceTypeDefinition<?> typeDefinition;
 		
 		
 
@@ -55,7 +55,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final PersistenceTypeDefinition<T> typeDefinition)
+		protected AbstractImplementation(final PersistenceTypeDefinition<?> typeDefinition)
 		{
 			super();
 			this.typeDefinition = typeDefinition;
@@ -129,7 +129,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	
 	public static <M, T> PersistenceLegacyTypeHandler<M, T> Wrap(
-		final PersistenceTypeDefinition<T> legacyTypeDefinition,
+		final PersistenceTypeDefinition<?> legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T> typeHandler
 	)
 	{
@@ -154,7 +154,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		/////////////////
 
 		public DirectWrapper(
-			final PersistenceTypeDefinition<T> typeDefinition           ,
+			final PersistenceTypeDefinition<?> typeDefinition           ,
 			final PersistenceTypeHandler<M, T> fittingCurrentTypeHandler
 		)
 		{

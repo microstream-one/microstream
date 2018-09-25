@@ -23,12 +23,12 @@ import net.jadoth.util.matching.MultiMatcher;
 public interface PersistenceLegacyTypeMapper<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-		PersistenceTypeDefinition<T> legacyTypeDefinition,
+		PersistenceTypeDefinition<?> legacyTypeDefinition,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
 	public <T> Class<T> lookupRuntimeType(
-		PersistenceTypeDefinition<T> legacyTypeDefinition
+		PersistenceTypeDefinition<?> legacyTypeDefinition
 	);
 	
 	
@@ -116,7 +116,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceTypeDefinition<T> legacyTypeDefinition,
+			final PersistenceTypeDefinition<?> legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
@@ -174,7 +174,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		}
 				
 		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
-			final PersistenceTypeDefinition<T> legacyTypeDefinition
+			final PersistenceTypeDefinition<?> legacyTypeDefinition
 		)
 		{
 			// cast safety ensured by checking the typename, which "is" the T.
@@ -191,7 +191,7 @@ public interface PersistenceLegacyTypeMapper<M>
 						
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-			final PersistenceTypeDefinition<T> legacyTypeDefinition,
+			final PersistenceTypeDefinition<?> legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
@@ -412,7 +412,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> Class<T> lookupRuntimeType(final PersistenceTypeDefinition<T> legacyTypeDefinition)
+		public <T> Class<T> lookupRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
 		{
 			return (Class<T>)this.resolveMappedRuntimeType(legacyTypeDefinition.typeName());
 		}

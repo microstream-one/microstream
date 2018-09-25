@@ -8,7 +8,7 @@ import net.jadoth.util.matching.MultiMatch;
 public interface PersistenceLegacyTypeMappingResultor<M>
 {
 	public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
-		final PersistenceTypeDefinition<T>                                                    legacyTypeDefinition,
+		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
 		final XGettingSet<PersistenceTypeDescriptionMember>                                   refacDeletionMembers,
@@ -27,7 +27,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 
 		@Override
 		public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
-			final PersistenceTypeDefinition<T>                                                    legacyTypeDefinition,
+			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
 			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
 			final XGettingSet<PersistenceTypeDescriptionMember>                                   refacDeletionMembers,

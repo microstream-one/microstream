@@ -3,7 +3,7 @@ package net.jadoth.persistence.types;
 public interface PersistenceDeletedTypeHandlerCreator<M>
 {
 	public <T> PersistenceDeletedTypeHandler<M, T> createDeletedTypeHandler(
-		PersistenceTypeDefinition<T> typeDefinition
+		PersistenceTypeDefinition<?> typeDefinition
 	);
 	
 	
@@ -18,7 +18,7 @@ public interface PersistenceDeletedTypeHandlerCreator<M>
 
 		@Override
 		public <T> PersistenceDeletedTypeHandler<M, T> createDeletedTypeHandler(
-			final PersistenceTypeDefinition<T> typeDefinition
+			final PersistenceTypeDefinition<?> typeDefinition
 		)
 		{
 			return PersistenceDeletedTypeHandler.New(typeDefinition);
