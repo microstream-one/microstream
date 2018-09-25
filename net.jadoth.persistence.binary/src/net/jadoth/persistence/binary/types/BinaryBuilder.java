@@ -179,8 +179,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 //			);
 
 			/* (08.07.2015 TM)TODO: unnecessary local instance
-			 * created an unnecessary local instance because the district instance could not have found before.
-			 * The instance was an enum constants array, so it should have been findable already.
+			 * there was a case where an unnecessary local instance was created because the district instance could not
+			 * have been found before. The instance was an enum constants array, so it should have been findable already.
 			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
 			 * special case (constant registration or whatever)
 			 */
@@ -534,8 +534,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		/////////////////////
 
 		final long oid;
-		Object districtInstance, localInstance;
 		PersistenceTypeHandler<Binary, Object> handler;
+		Object districtInstance, localInstance;
 		Entry next, link;
 
 
@@ -547,23 +547,27 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		Entry()
 		{
 			super();
-			this.oid              = 0L  ;
-			this.districtInstance = null;
-			this.localInstance    = null;
-			this.handler          = null;
-			this.link             = null;
-			this.next             = null;
+			this.oid = 0L;
+			
+			// fields are already initialized to null by the JVM. No need to do the work twice.
+//			this.handler          = null;
+//			this.districtInstance = null;
+//			this.localInstance    = null;
+//			this.link             = null;
+//			this.next             = null;
 		}
 
 		Entry(final long oid, final Object districtInstance, final PersistenceTypeHandler<Binary, Object> handler)
 		{
 			super();
 			this.oid              = oid    ;
-			this.districtInstance = districtInstance;
-			this.localInstance    = null   ;
 			this.handler          = handler;
-			this.link             = null   ;
-			this.next             = null   ;
+			this.districtInstance = districtInstance;
+			
+			// fields are already initialized to null by the JVM. No need to do the work twice.
+//			this.localInstance    = null   ;
+//			this.link             = null   ;
+//			this.next             = null   ;
 		}
 
 
