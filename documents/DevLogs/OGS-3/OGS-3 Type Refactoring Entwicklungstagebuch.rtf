@@ -1971,5 +1971,59 @@ Hm. Moment mal: Ist eine im LegacyTypeHandler neu erzeugte und gesetzte Instanz 
 Jup, das hei\'dft: keine Sonderfallbehandlung wird das richtige Verhalten erzeugen. Die Sonderfallbehandlung w\'fcrde es sogar ruinieren.\par
 \par
 Sch\'f6n. Dann w\'e4r das ja gekl\'e4rt.\par
+\par
+\par
+Damit w\'e4re nun als letztes TODO \'fcbrig, den Similator zu implementieren. Mal oben nachschauen.\par
+\par
+Ahja. Konzept von oben:\par
+- Name\par
+- Type\par
+- DeclaringType\par
+\par
+Position darf keine Rolle spielen, weil sie in java Klassen keine Rolle spielt. W\'fcrde sie ber\'fccksichtigt werden, w\'fcrde das hei\'dfen, dass ein weniger gut passendes target Feld einem besser passenden vorgezogen wird, nur weil es an einer \'e4hnlichen Stelle wie das source Feld steht. Das w\'e4re Bl\'f6dsinn. F\'fcr alle anderen F\'e4lle braucht man es nicht. Einfacher gesagt ist es so: ein Feld wird fachlich \'fcber alles m\'f6gliche definiert und identifiziert, aber nicht \'fcber seine Position.\par
+\par
+Und jetzt neu:\par
+Sogar Primitives und References k\'f6nnen dasselbe Feld sein, wenn man halt einen entsprechenden ValueTranslator verwendet.\par
+Hm. Das k\'f6nnte dann aber ganz sch\'f6n komplexe \'c4hnlichkeitstabellen ergeben:\par
+Primitives untereinander.\par
+Primitives zu Primitive Wrapper. Zu Number. Zu Object. Zu BigInteger und dem ganzen Grusch.\par
+Ein double ist einem Double \'e4hnlicher als einem char, obwohl das eine eine Referenz und das andere auch ein Primitive ist.\par
+Das m\'fcsste eine riesige Type-Similarity Matrix geben, wo f\'fcr source type X mit target type Y ein Wert eingetragen ist.\par
+Interessant ist: Das ist gar nicht eine OGS-spezifische Sache. Nicht mal persistenzspezifisch. Sondern das ist eine allgemeine Reflection Funktionalit\'e4t. \'c4hnlich wie Levenshtein f\'fcr Strings.\par
+Das w\'e4re dann irgendwie eine HashTable<Class<?>, HashTable<Class<?>, Float>> oder sowas.\par
+\par
+Das w\'e4r zum Type.\par
+\par
+Name wird Levenshtein.\par
+\par
+DeclaringType wird knifflig:\par
+Wenn der auf einen anderen Type gemappt worden ist, muss das mit gemappt werden, sonst sagt ein Type Vergleich oder der Levenshtein Algorithmus, dass der Declaring Type zwischen source und target total anders ist, obwohl er eigentlich identisch ist. Also muss da wieder eine Lookup Table vom Refactoring mit rein.\par
+Das hei\'dft, es muss einen SimilatorProvider geben, dem zur Laufzeit die erst sp\'e4ter verf\'fcgbar Lookup Table \'fcbergeben wird, um daraus den Similator zu bauen.\par
+Und was ist dann die \'c4hnlichkeit zwischen zwei Declaring Types? Eigentlich macht es nicht viel Sinn, hier mit Levenshtein String\'e4hnlichkeit rumzuwursteln.\par
+Der Typ\par
+com.some.framework.Table\par
+ist was fundamental anderes als \par
+com.my.framework.Table\par
+aber \par
+com.more.professional.name.DepartmentLookupTable\par
+kann ziemlich \'e4hnlich sein, evtl. nur eine Klassenhiarchie spezifischer oder so.\par
+Vielleicht sollte die \'c4hnlichkeit hier einfach nur 1 oder 0 sein: Entweder die Declaring Class ist dieselbe, oder es kann eh alles m\'f6gliche sein.\par
+Anders gesagt: Ein Match der Declaring Classes gibt einen enormen "boost" f\'fcr die \'c4hnlichkeit, also eine Bevorzugung gegen\'fcber Feldern anderer Declaring Klassen. Das sollte schon reichen f\'fcr passende Ergebnisse.\par
+\par
+Similator Provider einbauen.\par
+Bzw. gleich alle memberMatching Dinger in den Provider kapseln. Dann sieht das gleich viel sauberer aus.\par
+\par
+Dabei auch gleich PersistenceLegacyTypeMapper noch etwas aufr\'e4umen.\par
+\par
+\par
+Hm.\par
+Bei der ganzen type-similarity mapperei ist mir aufgefallen, dass es das gleiche in gr\'fcn eigentlich f\'fcr Value Translators geben m\'fcsste.\par
+"OGS-3: flexible value translators" TODO schreiben.\par
+\par
+\par
+\par
+\par
+\par
+\par
 }
  

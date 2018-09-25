@@ -1,7 +1,6 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.array;
-import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
@@ -12,7 +11,6 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
@@ -34,24 +32,20 @@ public interface PersistenceLegacyTypeMapper<M>
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
-		final PersistenceRefactoringMappingProvider            refactoringMappingProvider,
-		final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ,
-		final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ,
-		final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ,
-		final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ,
-		final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ,
-		final PersistenceLegacyTypeMappingResultor<M>          resultor                  ,
-		final PersistenceLegacyTypeHandlerCreator<M>           legacyTypeHandlerCreator  ,
-		final char                                             identifierSeparator
+		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
+		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
+		final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
+		final PersistenceLegacyTypeMappingResultor<M> resultor                  ,
+		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ,
+		final char                                    identifierSeparator
 	)
 	{
 		return new PersistenceLegacyTypeMapper.Implementation<>(
 			notNull(refactoringMappingProvider),
 			notNull(customTypeHandlerRegistry) ,
 			notNull(deletedTypeHandlerCreator) ,
-			mayNull(memberMatchingEqualator)   ,
-			notNull(memberMatchingSimilator)   ,
-			mayNull(memberMatchValidator)      ,
+			notNull(memberMatchingProvider)    ,
 			notNull(resultor)                  ,
 			notNull(legacyTypeHandlerCreator)  ,
 	                identifierSeparator
@@ -64,15 +58,13 @@ public interface PersistenceLegacyTypeMapper<M>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceRefactoringMappingProvider            refactoringMappingProvider;
-		private final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ;
-		private final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ;
-		private final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ;
-		private final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ;
-		private final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ;
-		private final PersistenceLegacyTypeMappingResultor<M>          resultor                  ;
-		private final PersistenceLegacyTypeHandlerCreator<M>           legacyTypeHandlerCreator  ;
-		private final char                                             identifierSeparator       ;
+		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
+		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ;
+		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
+		private final PersistenceMemberMatchingProvider       memberMatchingProvider    ;
+		private final PersistenceLegacyTypeMappingResultor<M> resultor                  ;
+		private final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ;
+		private final char                                    identifierSeparator       ;
 
 		
 		
@@ -81,24 +73,20 @@ public interface PersistenceLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Implementation(
-			final PersistenceRefactoringMappingProvider            refactoringMappingProvider,
-			final PersistenceCustomTypeHandlerRegistry<M>          customTypeHandlerRegistry ,
-			final PersistenceDeletedTypeHandlerCreator<M>          deletedTypeHandlerCreator ,
-			final Equalator<PersistenceTypeDescriptionMember>      memberMatchingEqualator   ,
-			final Similator<PersistenceTypeDescriptionMember>      memberMatchingSimilator   ,
-			final MatchValidator<PersistenceTypeDescriptionMember> memberMatchValidator      ,
-			final PersistenceLegacyTypeMappingResultor<M>          resultor                  ,
-			final PersistenceLegacyTypeHandlerCreator<M>           legacyTypeHandlerCreator  ,
-			final char                                             identifierSeparator
+			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
+			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
+			final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
+			final PersistenceLegacyTypeMappingResultor<M> resultor                  ,
+			final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ,
+			final char                                    identifierSeparator
 		)
 		{
 			super();
 			this.refactoringMappingProvider = refactoringMappingProvider;
 			this.customTypeHandlerRegistry  = customTypeHandlerRegistry ;
 			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
-			this.memberMatchingEqualator    = memberMatchingEqualator   ;
-			this.memberMatchingSimilator    = memberMatchingSimilator   ;
-			this.memberMatchValidator       = memberMatchValidator      ;
+			this.memberMatchingProvider     = memberMatchingProvider    ;
 			this.resultor                   = resultor                  ;
 			this.legacyTypeHandlerCreator   = legacyTypeHandlerCreator  ;
 			this.identifierSeparator        = identifierSeparator       ;
@@ -120,17 +108,46 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings   = EqHashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletionMembers = HashEnum.New();
+			// helper variables
+			final PersistenceRefactoringMapping refacMapping = this.ensureRefactoringMapping();
+			final char                          separator    = this.identifierSeparator;
 			
-			this.collectRefactoringTargetStrings(legacyTypeDefinition, refacTargetStrings, refacDeletionMembers);
-			
+			// mapping structures
+			final EqHashTable<String, PersistenceTypeDescriptionMember>                         refacTrgStrings = EqHashTable.New();
+			final HashEnum<PersistenceTypeDescriptionMember>                                    refacDeletes    = HashEnum.New();
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
 			
-			this.resolveToTargetMembers(refacTargetStrings, currentTypeHandler, resolvedMembers);
+			// mapping logic
+			collectTargetStrings(legacyTypeDefinition, refacTrgStrings, refacMapping.entries(), refacDeletes, separator);
+			resolveToTargetMembers(refacTrgStrings, currentTypeHandler, resolvedMembers, separator);
+			addDeletionMembers(refacDeletes, resolvedMembers);
 			
-			addDeletionMembers(refacDeletionMembers, resolvedMembers);
-						
+			// heuristics matching
+			final MultiMatch<PersistenceTypeDescriptionMember> match = match(
+				legacyTypeDefinition,
+				currentTypeHandler  ,
+				resolvedMembers
+			);
+			
+			// bundeling everything into a result
+			final PersistenceLegacyTypeMappingResult<M, T> result = this.resultor.createMappingResult(
+				legacyTypeDefinition,
+				currentTypeHandler  ,
+				resolvedMembers     ,
+				refacDeletes        ,
+				match
+			);
+			
+			// creating a type handler from the finished result
+			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(result);
+		}
+		
+		private MultiMatch<PersistenceTypeDescriptionMember> match(
+			final PersistenceTypeDefinition<?>                                                  legacyTypeDefinition,
+			final PersistenceTypeHandler<M, ?>                                                  currentTypeHandler  ,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
+		)
+		{
 			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers = BulkList.New(
 				legacyTypeDefinition.members()
 			);
@@ -148,29 +165,32 @@ public interface PersistenceLegacyTypeMapper<M>
 				null
 			);
 			
-			if(true)
-			{
-				XDebug.debugln("Test!");
-			}
+			final MultiMatch<PersistenceTypeDescriptionMember> match = this.match(sourceMembers, targetMembers);
+			
+			return match;
+		}
+		
+		private MultiMatch<PersistenceTypeDescriptionMember> match(
+			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers,
+			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers
+		)
+		{
+			final PersistenceRefactoringMapping                    mapping   = this.ensureRefactoringMapping();
+			final PersistenceMemberMatchingProvider                provider  = this.memberMatchingProvider;
+			final Equalator<PersistenceTypeDescriptionMember>      equalator = provider.provideMemberMatchingEqualator();
+			final Similator<PersistenceTypeDescriptionMember>      similator = provider.provideMemberMatchingSimilator(mapping);
+			final MatchValidator<PersistenceTypeDescriptionMember> validator = provider.provideMemberMatchValidator();
 			
 			final MultiMatcher<PersistenceTypeDescriptionMember> matcher =
 				MultiMatcher.<PersistenceTypeDescriptionMember>New()
-				.setEqualator(this.memberMatchingEqualator)
-				.setSimilator(this.memberMatchingSimilator)
-				.setValidator(this.memberMatchValidator)
+				.setEqualator(equalator)
+				.setSimilator(similator)
+				.setValidator(validator)
 			;
 			
 			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
 			
-			final PersistenceLegacyTypeMappingResult<M, T> result = this.resultor.createMappingResult(
-				legacyTypeDefinition,
-				currentTypeHandler  ,
-				resolvedMembers     ,
-				refacDeletionMembers,
-				match
-			);
-			
-			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(result);
+			return match;
 		}
 				
 		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
@@ -266,13 +286,14 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 
 		
-		private void resolveToTargetMembers(
+		private static void resolveToTargetMembers(
 			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings,
 			final PersistenceTypeDefinition<?>                                                  targetTypeDef     ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers   ,
+			final char                                                                          separator
 		)
 		{
-			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(this.identifierSeparator());
+			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(separator);
 			
 			targetMembers:
 			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDef.members())
@@ -314,22 +335,22 @@ public interface PersistenceLegacyTypeMapper<M>
 			);
 		}
 		
-		private void collectRefactoringTargetStrings(
-			final PersistenceTypeDefinition<?>                          typeDefinition      ,
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletionMembers
+		private static void collectTargetStrings(
+			final PersistenceTypeDefinition<?>                          typeDefinition    ,
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings,
+			final XGettingTable<String, String>                         refacMapping      ,
+			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletes      ,
+			final char                                                  separator
 		)
 		{
-			final XGettingTable<String, String> refacEntries = this.ensureRefactoringMapping().entries();
-			
-			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders(this.identifierSeparator());
+			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders(separator);
 			
 			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
 			{
 				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
 				{
 					final String identifier = identifierBuilder.buildIdentifier(typeDefinition, member);
-					if(check(member, identifier, refacEntries, refacTargetStrings, refacDeletionMembers))
+					if(check(member, identifier, refacMapping, refacTargetStrings, refacDeletes))
 					{
 						continue;
 					}
