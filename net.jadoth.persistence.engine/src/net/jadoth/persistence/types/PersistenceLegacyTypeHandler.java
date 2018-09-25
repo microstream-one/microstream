@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
@@ -86,6 +86,11 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		// persisted-form-related methods, so the old type definition has be used //
+		
+		public PersistenceTypeDefinition<?> legacyTypeDefinition()
+		{
+			return this.typeDefinition;
+		}
 
 		@Override
 		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()

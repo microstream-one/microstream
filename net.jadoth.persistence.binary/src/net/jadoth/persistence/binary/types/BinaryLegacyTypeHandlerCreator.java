@@ -1,5 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
@@ -11,6 +12,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -23,14 +25,19 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 	public static BinaryLegacyTypeHandlerCreator New()
 	{
 		return new BinaryLegacyTypeHandlerCreator.Implementation(
-			BinaryValueTranslatorProvider.New()
+			BinaryValueTranslatorProvider.New(),
+			null
 		);
 	}
 	
-	public static BinaryLegacyTypeHandlerCreator New(final BinaryValueTranslatorProvider valueTranslatorProvider)
+	public static BinaryLegacyTypeHandlerCreator New(
+		final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
+		final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+	)
 	{
 		return new BinaryLegacyTypeHandlerCreator.Implementation(
-			notNull(valueTranslatorProvider)
+			notNull(valueTranslatorProvider),
+			mayNull(legacyTypeHandlingListener)
 		);
 	}
 	
@@ -42,7 +49,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		// instance fields //
 		////////////////////
 		
-		private final BinaryValueTranslatorProvider valueTranslatorProvider;
+		private final BinaryValueTranslatorProvider                 valueTranslatorProvider   ;
+		private final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener;
 		
 		
 		
@@ -50,10 +58,14 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		// constructors //
 		/////////////////
 		
-		Implementation(final BinaryValueTranslatorProvider valueTranslatorProvider)
+		Implementation(
+			final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
+			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+		)
 		{
 			super();
-			this.valueTranslatorProvider = valueTranslatorProvider;
+			this.valueTranslatorProvider    = valueTranslatorProvider   ;
+			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
 		}
 		
 		
@@ -148,7 +160,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			return BinaryLegacyTypeHandlerRerouting.New(
 				mappingResult.legacyTypeDefinition(),
 				typeHandler                         ,
-				translatorsWithTargetOffsets
+				translatorsWithTargetOffsets        ,
+				this.legacyTypeHandlingListener
 			);
 		}
 
@@ -172,7 +185,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			return BinaryLegacyTypeHandlerReflective.New(
 				mappingResult.legacyTypeDefinition(),
 				typeHandler                         ,
-				translatorsWithTargetOffsets
+				translatorsWithTargetOffsets        ,
+				this.legacyTypeHandlingListener
 			);
 		}
 		

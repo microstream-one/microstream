@@ -1,5 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
@@ -7,6 +8,7 @@ import java.nio.ByteBuffer;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -19,16 +21,18 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerRerouting<T> New(
-		final PersistenceTypeDefinition<?>           typeDefinition              ,
-		final PersistenceTypeHandler<Binary, T>      typeHandler                 ,
-		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
+		final PersistenceTypeDefinition<?>                  typeDefinition              ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler                 ,
+		final XGettingTable<BinaryValueSetter, Long>        translatorsWithTargetOffsets,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener
 	)
 	{
 		return new BinaryLegacyTypeHandlerRerouting<>(
 			notNull(typeDefinition)                      ,
 			notNull(typeHandler)                         ,
 			toTranslators(translatorsWithTargetOffsets)  ,
-			toTargetOffsets(translatorsWithTargetOffsets)
+			toTargetOffsets(translatorsWithTargetOffsets),
+			mayNull(listener)
 		);
 	}
 	
@@ -39,13 +43,14 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	/////////////////
 
 	BinaryLegacyTypeHandlerRerouting(
-		final PersistenceTypeDefinition<?>      typeDefinition  ,
-		final PersistenceTypeHandler<Binary, T> typeHandler     ,
-		final BinaryValueSetter[]               valueTranslators,
-		final long[]                            targetOffsets
+		final PersistenceTypeDefinition<?>                  typeDefinition  ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
+		final BinaryValueSetter[]                           valueTranslators,
+		final long[]                                        targetOffsets   ,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener
 	)
 	{
-		super(typeDefinition, typeHandler, valueTranslators, targetOffsets);
+		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener);
 	}
 	
 	
@@ -55,7 +60,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	////////////
 
 	@Override
-	public final T create(final Binary rawData)
+	protected T internalCreate(final Binary rawData)
 	{
 		final long binaryContentLength = this.typeHandler().membersPersistedLengthMaximum();
 		
