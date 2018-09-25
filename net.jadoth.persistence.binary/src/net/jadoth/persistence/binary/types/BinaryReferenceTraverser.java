@@ -569,6 +569,12 @@ public interface BinaryReferenceTraverser
 			return traversers[0].count() / Static.REFERENCE_LENGTH;
 		}
 
+		/* important note:
+		 * trailing non-references may NOT be cropped, because nested complex structures
+		 * must skip all their bytes correctly. If the iteration falls only one byte short,
+		 * the reference traversal behavior is undefined (usually a JVM crash).
+		 * Only type-top-level traversers can be cropped!
+		 */
 		public static BinaryReferenceTraverser[] cropToReferences(final BinaryReferenceTraverser[] traversers)
 		{
 			// cut off trailing non-reference traversers at the top level
@@ -582,7 +588,8 @@ public interface BinaryReferenceTraverser
 			}
 
 			// nothing to crop, return transiently
-			if(i == traversers.length)
+			// (25.09.2018 TM)NOTE: "+ 1" because a pre-decremented variable can never reach its initial value again.
+			if(i + 1 == traversers.length)
 			{
 				return traversers;
 			}
@@ -670,6 +677,13 @@ public interface BinaryReferenceTraverser
 		{
 			this.finishSkipRange();
 			this.finishReferenceRange();
+			
+			/* important note:
+			 * trailing non-references may NOT be cropped here, because nested complex structures
+			 * must skip all their bytes correctly. If the iteration falls only one byte short,
+			 * the reference traversal behavior is undefined (usually a JVM crash).
+			 * Only type-top-level traversers can be cropped!
+			 */
 			return this.traversers.toArray(BinaryReferenceTraverser.class);
 		}
 

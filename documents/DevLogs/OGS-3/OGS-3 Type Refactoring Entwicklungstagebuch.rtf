@@ -1904,5 +1904,29 @@ createFoundation(Configuration, ConnectionFoundation):\par
 So bau ich das.\par
 \par
 \par
+2018-09-25\par
+\par
+OGS-3 Design Checks anschauen:\par
+Der LegacyTypeHandler verwendet zum iterieren der persistenten Daten (alte Struktur) den TypeHandler der aktuellen Struktur. Das ist - fast - immer ein Bug. Das muss auf der alten Struktur basieren.\par
+\par
+Puh, das ist gar nicht so einfach:\par
+Man darf nicht davon ausgehen, dass alle References am Anfang zusammen sind, so wie bei GenericType Handlern, denn es gibt ja auch Custom geschriebene Handler und die halten sich potenziell nicht an die Optimierungsstrategie.\par
+Also muss ein Array an Reference Offsets ermittelt werden, das dann durchlaufen wird.\par
+\par
+Hm, aber auch das reicht nicht bei variable length references.\par
+Gut, die w\'e4ren durch die "not supported, yet" Exception eh schon abgefangen.\par
+Aber irgendwie ist das komisch: Das muss doch z.B. im Storage GC auch richtig funktionieren, sonst w\'fcrde der ja Referenzen auslassen...\par
+Mal nachsehen und sei es nur als Sicherheit.\par
+Achja: Es gibt schon die ultra-komplexe, alle (bisher n\'f6tigen) F\'e4lle abdeckende Logik in BinaryReferenceTraverser.Static#deriveReferenceTraversers.\par
+Mal durchschauen.\par
+Hm. Das m\'fcsste eigentlich perfekt passen f\'fcr den LegacyTypeHandler.\par
+\par
+Einbauen.\par
+\par
+Alle anderen Methoden auf Unterscheidung old/current type pr\'fcfen und kommentieren.\par
+\par
+Damit w\'e4re das ald/neu Design-check TODO fertig.\par
+\par
+\par
 }
  

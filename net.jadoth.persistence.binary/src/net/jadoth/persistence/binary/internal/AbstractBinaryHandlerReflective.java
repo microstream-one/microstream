@@ -131,18 +131,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>                                instanceFields             ;
-	private final EqConstHashEnum<Field>                                instanceReferenceFields    ;
-	private final EqConstHashEnum<Field>                                instancePrimitiveFields    ;
-	private final long[]                                                allBinaryOffsets           ;
-	private final long[]                                                refBinaryOffsets           ;
-	private final long                                                  refBinaryContentStartOffset;
-	private final long                                                  refBinaryContentBoundOffset;
-	private final long                                                  binaryContentLength        ;
-	private final BinaryValueStorer[]                                   binaryStorers              ;
-	private final BinaryValueSetter[]                                   memorySetters              ;
-	private final XImmutableEnum<PersistenceTypeDescriptionMemberField> members                    ;
-	private final boolean                                               hasReferences              ;
+	private final EqConstHashEnum<Field>                                instanceFields         ;
+	private final EqConstHashEnum<Field>                                instanceReferenceFields;
+	private final EqConstHashEnum<Field>                                instancePrimitiveFields;
+	private final long[]                                                allBinaryOffsets       ;
+	private final long[]                                                refBinaryOffsets       ;
+	private final long                                                  referenceOffsetStart   ;
+	private final long                                                  referenceOffsetBound   ;
+	private final long                                                  binaryContentLength    ;
+	private final BinaryValueStorer[]                                   binaryStorers          ;
+	private final BinaryValueSetter[]                                   memorySetters          ;
+	private final XImmutableEnum<PersistenceTypeDescriptionMemberField> members                ;
+	private final boolean                                               hasReferences          ;
 
 
 
@@ -194,8 +194,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.refBinaryOffsets = XVM.objectFieldOffsets(refFieldsBothOrders);
 		
 		// references are always stored at the beginnnig of the content (0 bytes after header)
-		this.refBinaryContentStartOffset = 0;
-		this.refBinaryContentBoundOffset = BinaryPersistence.referenceBinaryLength(this.instanceReferenceFields.size());
+		this.referenceOffsetStart = 0;
+		this.referenceOffsetBound = BinaryPersistence.referenceBinaryLength(this.instanceReferenceFields.size());
 	}
 
 	
@@ -327,9 +327,9 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
 		BinaryPersistence.iterateBinaryReferences(
-			bytes                           ,
-			this.refBinaryContentStartOffset,
-			this.refBinaryContentBoundOffset,
+			bytes                    ,
+			this.referenceOffsetStart,
+			this.referenceOffsetBound,
 			iterator
 		);
 	}
