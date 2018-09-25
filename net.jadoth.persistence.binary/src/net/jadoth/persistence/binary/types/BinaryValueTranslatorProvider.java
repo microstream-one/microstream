@@ -45,6 +45,22 @@ public interface BinaryValueTranslatorProvider
 			final PersistenceTypeDescriptionMember targetMember
 		)
 		{
+			/* (25.09.2018 TM)FIXME: OGS-3: flexible value translators
+			 * Shouldn't there be a even more flexible mapping?
+			 * Ammong primitives, but also primitives to non-primitives (Wrappers).
+			 * Objects to other objects (e.h. char[] <-> String etc.)
+			 * 
+			 * There should also be a custom translator registry with the usual translators as defaults.
+			 * 
+			 * Maybe even with an optional per-TID registry to register very specific translators for just specific
+			 * types.
+			 * 
+			 * What about per target type? Per fieldname?
+			 * Maybe a general purpose String-Key registry with the keys being assembled via a certain pattern,
+			 * e.g. "TypeId 1000012". The pattern might even be completely application-specific, so no artificial
+			 * convention has to be forced upon the developer.
+			 * 
+			 */
 			if(!sourceMember.isReference())
 			{
 				// (23.09.2018 TM)EXCP: proper exception
