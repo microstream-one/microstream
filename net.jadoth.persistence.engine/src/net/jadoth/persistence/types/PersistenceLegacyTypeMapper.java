@@ -14,6 +14,7 @@ import net.jadoth.functional.Similator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.TypeMapping;
 import net.jadoth.util.matching.MatchValidator;
 import net.jadoth.util.matching.MultiMatch;
 import net.jadoth.util.matching.MultiMatcher;
@@ -33,6 +34,7 @@ public interface PersistenceLegacyTypeMapper<M>
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
 		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+		final TypeMapping<Float>                      typeSimilarity            ,
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
 		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
 		final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
@@ -43,6 +45,7 @@ public interface PersistenceLegacyTypeMapper<M>
 	{
 		return new PersistenceLegacyTypeMapper.Implementation<>(
 			notNull(refactoringMappingProvider),
+			notNull(typeSimilarity)            ,
 			notNull(customTypeHandlerRegistry) ,
 			notNull(deletedTypeHandlerCreator) ,
 			notNull(memberMatchingProvider)    ,
@@ -59,6 +62,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		////////////////////
 		
 		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
+		private final TypeMapping<Float>                      typeSimilarity            ;
 		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ;
 		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
 		private final PersistenceMemberMatchingProvider       memberMatchingProvider    ;
@@ -74,6 +78,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		protected Implementation(
 			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
+			final TypeMapping<Float>                      typeSimilarity            ,
 			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
 			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
 			final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
@@ -84,6 +89,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			super();
 			this.refactoringMappingProvider = refactoringMappingProvider;
+			this.typeSimilarity             = typeSimilarity            ;
 			this.customTypeHandlerRegistry  = customTypeHandlerRegistry ;
 			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
 			this.memberMatchingProvider     = memberMatchingProvider    ;
@@ -177,8 +183,12 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			final PersistenceRefactoringMapping                    mapping   = this.ensureRefactoringMapping();
 			final PersistenceMemberMatchingProvider                provider  = this.memberMatchingProvider;
+			final TypeMapping<Float>                               typeSimis = this.typeSimilarity;
 			final Equalator<PersistenceTypeDescriptionMember>      equalator = provider.provideMemberMatchingEqualator();
-			final Similator<PersistenceTypeDescriptionMember>      similator = provider.provideMemberMatchingSimilator(mapping);
+			final Similator<PersistenceTypeDescriptionMember>      similator = provider.provideMemberMatchingSimilator(
+				mapping,
+				typeSimis
+			);
 			final MatchValidator<PersistenceTypeDescriptionMember> validator = provider.provideMemberMatchValidator();
 			
 			final MultiMatcher<PersistenceTypeDescriptionMember> matcher =

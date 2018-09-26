@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
-
+import static net.jadoth.X.mayNull;
+import static net.jadoth.X.notNull;
 
 public interface PersistenceTypeDescriptionMemberPseudoFieldSimple
 extends PersistenceTypeDescriptionMemberPseudoField
@@ -23,48 +24,60 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
 	}
 	
+	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
+		final String   name                   ,
+		final Class<?> type                   ,
+		final long     persistentMinimumLength,
+		final long     persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
+			notNull(name)          ,
+			type.getName()         ,
+			notNull(type)          ,
+			!type.isPrimitive()    ,
+			persistentMinimumLength,
+			persistentMaximumLength
+		);
+	}
 	
+	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
+		final String   name                   ,
+		final Class<?> optionalType           ,
+		final String   typeName               ,
+		final boolean  isReference            ,
+		final long     persistentMinimumLength,
+		final long     persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
+			notNull(name)          ,
+			notNull(typeName)      ,
+			mayNull(optionalType)  ,
+			isReference            ,
+			persistentMinimumLength,
+			persistentMaximumLength
+		);
+	}
 	
 	public final class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberPseudoFieldSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		public static final PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
-			final String  typeName               ,
-			final String  name                   ,
-			final boolean isReference            ,
-			final long    persistentMinimumLength,
-			final long    persistentMaximumLength
-		)
-		{
-			return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
-				typeName               ,
-				name                   ,
-				isReference            ,
-				persistentMinimumLength,
-				persistentMaximumLength
-			);
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		private Implementation(
-			final String  typeName           ,
-			final String  name               ,
-			final boolean isReference        ,
-			final long    persistentMinLength,
-			final long    persistentMaxLength
+		Implementation(
+			final String   name               ,
+			final String   typeName           ,
+			final Class<?> type               ,
+			final boolean  isReference        ,
+			final long     persistentMinLength,
+			final long     persistentMaxLength
 		)
 		{
-			super(typeName, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
+			super(type, typeName, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
 		}
 
 

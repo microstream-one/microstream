@@ -13,6 +13,13 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 
 public interface PersistenceTypeDescriptionMember
 {
+	/**
+	 * The runtime type used by this description member, if possible. Otherwise <code>null</code>.
+	 * 
+	 * @return
+	 */
+	public Class<?> type();
+	
 	public String typeName();
 
 	/**
@@ -254,14 +261,15 @@ public interface PersistenceTypeDescriptionMember
 		// instance fields //
 		////////////////////
 
-		private final String  typeName               ;
-		private final String  name                   ;
-		private final boolean isReference            ;
-		private final boolean isPrimitive            ;
-		private final boolean isPrimitiveDefinition  ;
-		private final boolean hasReferences          ;
-		private final long    persistentMinimumLength;
-		private final long    persistentMaximumLength;
+		private final Class<?> type                   ;
+		private final String   typeName               ;
+		private final String   name                   ;
+		private final boolean  isReference            ;
+		private final boolean  isPrimitive            ;
+		private final boolean  isPrimitiveDefinition  ;
+		private final boolean  hasReferences          ;
+		private final long     persistentMinimumLength;
+		private final long     persistentMaximumLength;
 
 
 
@@ -270,17 +278,19 @@ public interface PersistenceTypeDescriptionMember
 		/////////////////
 
 		protected AbstractImplementation(
-			final String  typeName               ,
-			final String  name                   ,
-			final boolean isReference            ,
-			final boolean isPrimitive            ,
-			final boolean isPrimitiveDefinition  ,
-			final boolean hasReferences          ,
-			final long    persistentMinimumLength,
-			final long    persistentMaximumLength
+			final Class<?> type                   ,
+			final String   typeName               ,
+			final String   name                   ,
+			final boolean  isReference            ,
+			final boolean  isPrimitive            ,
+			final boolean  isPrimitiveDefinition  ,
+			final boolean  hasReferences          ,
+			final long     persistentMinimumLength,
+			final long     persistentMaximumLength
 		)
 		{
 			super();
+			this.type                    = type                   ;
 			this.typeName                = typeName               ;
 			this.name                    = name                   ;
 			this.isReference             = isReference            ;
@@ -297,6 +307,12 @@ public interface PersistenceTypeDescriptionMember
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final Class<?> type()
+		{
+			return this.type;
+		}
 
 		@Override
 		public final String typeName()

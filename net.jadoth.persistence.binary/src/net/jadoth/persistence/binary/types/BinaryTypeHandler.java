@@ -39,10 +39,6 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		{
 			return PersistenceTypeDescriptionMemberField.New(
 				field                                              ,
-				field.getType().getName()                          ,
-				field.getName()                                    ,
-				field.getDeclaringClass().getName()                ,
-				!field.getType().isPrimitive()                     ,
 				lengthResolver.resolveMinimumLengthFromField(field),
 				lengthResolver.resolveMaximumLengthFromField(field)
 			);

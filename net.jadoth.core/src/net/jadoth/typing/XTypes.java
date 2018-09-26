@@ -29,6 +29,7 @@ package net.jadoth.typing;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -333,6 +334,100 @@ public final class XTypes
 				? (Double)value
 				: Double.valueOf(value.doubleValue())
 		;
+	}
+	
+	
+	public static final TypeMapping<Float> createDefaultTypeSimilarity()
+	{
+		final Class<?>[] primitives =
+		{
+			byte.class, boolean.class, short.class, char.class, int.class, float.class, long.class, double.class
+		};
+		
+		final Class<?>[] wrappers =
+		{
+			Byte.class, Boolean.class, Short.class, Character.class, Integer.class, Float.class, Long.class, Double.class
+		};
+		
+		// always fun to use a class as a database :-D
+		final int[][] primSims = {
+			{100, 50, 80, 70, 60, 30, 40, 30},
+			{ 50,100, 40, 10, 30, 20, 20, 10},
+			{ 80, 40,100, 50, 80, 50, 60, 50},
+			{ 70, 10, 50,100, 50, 40, 30, 20},
+			{ 60, 30, 80, 50,100, 70, 80, 60},
+			{ 30, 20, 50, 40, 70,100, 60, 80},
+			{ 40, 20, 60, 30, 80, 60,100, 70},
+			{ 30, 10, 50, 20, 60, 80, 70,100}
+		};
+		
+		final Function percent   = value -> value * 0.010f;
+		final Function prim2Wrap = value -> value * 0.008f; // primitive-to-wrapper similarity is flat 80%.
+						
+		final TypeMapping<Float> typeSimilarities = TypeMapping.New();
+		
+		// 256 mapping for the 8 primitives and their 8 wrappers amongst each other
+		for(int x = 0; x < primitives.length; x++)
+		{
+			registerDual(typeSimilarities, primitives[x], percent  , primitives, primSims[x]);
+			registerDual(typeSimilarities, wrappers  [x], percent  , wrappers  , primSims[x]);
+			registerDual(typeSimilarities, wrappers  [x], prim2Wrap, primitives, primSims[x]);
+			registerDual(typeSimilarities, primitives[x], prim2Wrap, wrappers  , primSims[x]);
+		}
+		
+		// additional common types' similarities to the primitives
+		registerDual(typeSimilarities, BigInteger.class, percent, primitives, 30, 10, 50, 20, 70, 50, 90, 60);
+		registerDual(typeSimilarities, BigDecimal.class, percent, primitives, 20,  5, 40, 10, 50, 70, 60, 90);
+		registerDual(typeSimilarities, String    .class, percent, primitives, 20, 10, 20, 60, 20, 30, 20, 30);
+		registerDual(typeSimilarities, Date      .class, percent, primitives, 10,  0, 20,  0, 30,  0, 60,  0);
+
+		// additional common types' similarities to the primitives wrappers (values identical to primitives above)
+		registerDual(typeSimilarities, BigInteger.class, percent, wrappers, 30, 10, 50, 20, 70, 50, 90, 60);
+		registerDual(typeSimilarities, BigDecimal.class, percent, wrappers, 20,  5, 40, 10, 50, 70, 60, 90);
+		registerDual(typeSimilarities, String    .class, percent, wrappers, 20, 10, 20, 60, 20, 30, 20, 30);
+		registerDual(typeSimilarities, Date      .class, percent, wrappers, 10,  0, 20,  0, 30,  0, 60,  0);
+
+		// additional common types among each other, without self-mappings
+		registerDual(typeSimilarities, BigInteger.class, percent, BigDecimal.class, 80);
+		registerDual(typeSimilarities, BigInteger.class, percent, String.class    , 20);
+		registerDual(typeSimilarities, BigInteger.class, percent, Date.class      , 60);
+		registerDual(typeSimilarities, BigDecimal.class, percent, String.class    , 30);
+		registerDual(typeSimilarities, BigDecimal.class, percent, Date.class      , 20);
+		registerDual(typeSimilarities, String.class    , percent, Date.class      , 40);
+		
+		return typeSimilarities;
+	}
+		
+	interface Function
+	{
+		public float apply(int value);
+	}
+		
+	static void registerDual(
+		final TypeMapping<Float> typeSimilarities,
+		final Class<?>           type           ,
+		final Function           function        ,
+		final Class<?>[]         types           ,
+		final int...             values
+	)
+	{
+		for(int i = 0; i < types.length; i++)
+		{
+			registerDual(typeSimilarities, type, function, type, values[i]);
+		}
+	}
+	
+	static void registerDual(
+		final TypeMapping<Float> typeSimilarities,
+		final Class<?>           type1           ,
+		final Function           function        ,
+		final Class<?>           type2           ,
+		final int                value
+	)
+	{
+		final float similarity = function.apply(value);
+		typeSimilarities.register(type1, type2, similarity);
+		typeSimilarities.register(type2, type1, similarity);
 	}
 	
 

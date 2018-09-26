@@ -186,7 +186,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 			final long   persistentMaximumLength
 		)
 		{
-			super(null, null, false, false, true, false, persistentMinimumLength, persistentMaximumLength);
+			super(null, null, null, false, false, true, false, persistentMinimumLength, persistentMaximumLength);
 			this.primitiveDefinition = primitiveDefinition;
 		}
 

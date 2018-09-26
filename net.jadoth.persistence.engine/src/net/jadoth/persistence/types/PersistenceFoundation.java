@@ -12,6 +12,8 @@ import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
+import net.jadoth.typing.TypeMapping;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -110,6 +112,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
+	
+	public TypeMapping<Float> getTypeSimilarity();
 	
 	public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator();
 
@@ -220,6 +224,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceFoundation<M> setLegacyTypeMapper(PersistenceLegacyTypeMapper<M> legacyTypeMapper);
 	
+	public PersistenceFoundation<M> setTypeSimilarity(TypeMapping<Float> typeSimilarity);
+	
 	public PersistenceFoundation<M> setRefactoringMappingProvider(
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
@@ -231,7 +237,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setLegacyMemberMatchingProvider(
 		PersistenceMemberMatchingProvider legacyMemberMatchingProvider
 	);
-	
+		
 	public PersistenceFoundation<M> setLegacyTypeMappingResultor(
 		PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
 	);
@@ -323,6 +329,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
 		private PersistenceLegacyTypeMapper<M>           legacyTypeMapper            ;
 		private PersistenceRefactoringMappingProvider    refactoringMappingProvider  ;
+		private TypeMapping<Float>                       typeSimilarity              ;
 		private PersistenceDeletedTypeHandlerCreator<M>  deletedTypeHandlerCreator   ;
 		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
 		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
@@ -742,6 +749,17 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			}
 			
 			return this.refactoringMappingProvider;
+		}
+		
+		@Override
+		public TypeMapping<Float> getTypeSimilarity()
+		{
+			if(this.typeSimilarity == null)
+			{
+				this.typeSimilarity = this.dispatch(this.createTypeSimilarity());
+			}
+			
+			return this.typeSimilarity;
 		}
 		
 		@Override
@@ -1178,6 +1196,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		}
 		
 		@Override
+		public PersistenceFoundation<M> setTypeSimilarity(final TypeMapping<Float> typeSimilarity)
+		{
+			this.typeSimilarity = typeSimilarity;
+			return this;
+		}
+		
+		@Override
 		public PersistenceFoundation.AbstractImplementation<M> setDeletedTypeHandlerCreator(
 			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
 		)
@@ -1435,6 +1460,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			return PersistenceLegacyTypeMapper.New(
 				this.getRefactoringMappingProvider()  ,
+				this.getTypeSimilarity()              ,
 				this.getCustomTypeHandlerRegistry()   ,
 				this.getDeletedTypeHandlerCreator()   ,
 				this.getLegacyMemberMatchingProvider(),
@@ -1448,6 +1474,11 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			// empty (= dummy) mapping by default
 			return PersistenceRefactoringMappingProvider.NewEmpty();
+		}
+		
+		protected TypeMapping<Float> createTypeSimilarity()
+		{
+			return XTypes.createDefaultTypeSimilarity();
 		}
 		
 		protected PersistenceDeletedTypeHandlerCreator<M> createDeletedTypeHandlerCreator()

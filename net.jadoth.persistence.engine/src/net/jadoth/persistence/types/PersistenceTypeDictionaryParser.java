@@ -2,8 +2,6 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import java.lang.reflect.Field;
-
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionParser;
@@ -613,9 +611,10 @@ public interface PersistenceTypeDictionaryParser
 				;
 			}
 
-			return PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation.New(
-				this.typeName,
+			return PersistenceTypeDescriptionMemberPseudoFieldSimple.New(
 				this.fieldName,
+				XReflect.tryClassForName(this.typeName),
+				this.typeName,
 				!XReflect.isPrimitiveTypeName(this.typeName),
 				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
 				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
@@ -704,7 +703,6 @@ public interface PersistenceTypeDictionaryParser
 		{
 			// any failure to resolve the field means the type dictionary information is outdated, so field is null.
 			return PersistenceTypeDescriptionMemberField.New(
-				tryResolveField(this.declaringTypeName(), this.fieldName()),
 				this.typeName(),
 				this.fieldName(),
 				this.declaringTypeName(),
@@ -714,19 +712,7 @@ public interface PersistenceTypeDictionaryParser
 			);
 		}
 		
-		private static Field tryResolveField(final String declaringTypeName, final String fieldName)
-		{
-			try
-			{
-				final Class<?> c = Class.forName(fieldName);
-				return c.getDeclaredField(fieldName);
-			}
-			catch(final ReflectiveOperationException e)
-			{
-				// field may be unresolvable
-				return null;
-			}
-		}
+		
 
 
 

@@ -16,9 +16,9 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public abstract class AbstractBinaryHandlerNative<T>
@@ -39,15 +39,14 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		final String   name
 	)
 	{
-		return PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation.New(
-			type.getName(),
+		return PersistenceTypeDescriptionMemberPseudoFieldSimple.New(
 			name,
-			!type.isPrimitive(),
+			type,
 			BinaryPersistence.resolveFieldBinaryLength(type),
 			BinaryPersistence.resolveFieldBinaryLength(type)
 		);
 	}
-
+	
 	public static final PersistenceTypeDescriptionMemberPseudoField chars(final String name)
 	{
 		return PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Chars(

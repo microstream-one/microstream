@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 import java.lang.reflect.Field;
 
+import net.jadoth.reflect.XReflect;
+
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
 	public Field field();
@@ -34,25 +36,44 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		;
 	}
 	
-	
-
 	public static PersistenceTypeDescriptionMemberField New(
-		final Field   field                  ,
-		final String  typeName               ,
-		final String  name                   ,
-		final String  declaringTypeName      ,
-		final boolean isReference            ,
-		final long    persistentMinimumLength,
-		final long    persistentMaximumLength
+		final String   typeName               ,
+		final String   name                   ,
+		final String   declaringTypeName      ,
+		final boolean  isReference            ,
+		final long     persistentMinimumLength,
+		final long     persistentMaximumLength
 	)
 	{
+		final Class<?> declaringClass = XReflect.tryClassForName(declaringTypeName);
+		final Field    field          = XReflect.tryGetDeclaredField(declaringClass, name);
+		
 		return new PersistenceTypeDescriptionMemberField.Implementation(
 			field                  ,
+			declaringClass         ,
 			typeName               ,
 			name                   ,
 			declaringTypeName      ,
 			isReference            ,
 			persistentMinimumLength,
+			persistentMaximumLength
+		);
+	}
+	
+	public static PersistenceTypeDescriptionMemberField New(
+		final Field field                  ,
+		final long  persistentMinimumLength,
+		final long  persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDescriptionMemberField.Implementation(
+			field                              ,
+			field.getType()                    ,
+			field.getType().getName()          ,
+			field.getName()                    ,
+			field.getDeclaringClass().getName(),
+			!field.getType().isPrimitive()     ,
+			persistentMinimumLength            ,
 			persistentMaximumLength
 		);
 	}
@@ -76,16 +97,28 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		/////////////////
 
 		protected Implementation(
-			final Field   field              ,
-			final String  typeName           ,
-			final String  name               ,
-			final String  declaringTypeName  ,
-			final boolean isReference        ,
-			final long    persistentMinLength,
-			final long    persistentMaxLength
+			final Field    field              ,
+			final Class<?> fieldType          ,
+			final String   typeName           ,
+			final String   name               ,
+			final String   declaringTypeName  ,
+			final boolean  isReference        ,
+			final long     persistentMinLength,
+			final long     persistentMaxLength
 		)
 		{
-			super(typeName, name, isReference, !isReference, false, isReference, persistentMinLength, persistentMaxLength);
+			super(
+				fieldType          ,
+				typeName           ,
+				name               ,
+				isReference        ,
+				!isReference       ,
+				false              ,
+				isReference        ,
+				persistentMinLength,
+				persistentMaxLength
+			);
+			
 			this.field              = field            ;
 			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
