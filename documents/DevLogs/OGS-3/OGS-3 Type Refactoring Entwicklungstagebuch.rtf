@@ -2027,6 +2027,22 @@ Bei der ganzen type-similarity mapperei ist mir aufgefallen, dass es das gleiche
 \par
 Doch mal lieber den unsauberen Default Konstruktor f\'fcr PersistenceLegacyTypeHandlerCreator in den Foundations richtig aufl\'f6sen.\par
 \par
+Jetzt Similator Baustelle weitermachen.\par
+Ich hab gestern beim Heimradeln \'fcberlegt: sowohl Type-Type-\'c4hnlichkeit als auch Type-Type-ValueTranslator kann man generisch abbilden \'fcber eine DualMap<K1, K2, V>.\par
+Also bau ich erst mal so eine soweit wie n\'f6tig.\par
+Hm. Moment mal. Brauch ich wirklich eine 3-dimensionale Map? W\'fcrde es nicht reichen, eine Map<TypePair, V> zu haben? Performance und Speicherbedarf w\'e4ren sogar besser. Man kann halt nicht sagen "Gibt mir eine Sub-Map mit allen Eintr\'e4gen f\'fcr Type1", aber das ist in diesem Fall ja auch gar nicht n\'f6tig.\par
+\par
+Also ein TypePair und damit ein TypeMapping<V> bauen.\par
+Damit jetzt eine Similatiry Matrix definieren. F\'fcr alle Primitives untereinander. Und PrimitiveWrapper. Und paar \'fcbliche Typen wie das Big~ Number Ged\'f6ns.\par
+\par
+Dann PersistenceMemberMatchingProvider implementieren.\par
+Dabei aufgefallen: Die Member Objekte m\'fcssen ja ihren member type als Class<?> halten, sonst bringt die similarity gar nix und jedes mal Class for name Ged\'f6ns aufrufen w\'e4r bl\'f6d.\par
+Also PersistenceTypeDescriptionMember erweitern um ein Class<?> type Feld.\par
+\par
+Jetzt Similator Logik implementieren. Foundation Erweiterung nachziehen, bla.\par
+Die Declaring Class richtig zu ber\'fccksichtigen wird noch knifflig. \'dcberlegen. Code aufr\'e4umen und TODO machen.\par
+\par
+\par
 \par
 }
  

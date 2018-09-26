@@ -38,19 +38,10 @@ public interface PersistenceTypeResolver
 	public final class ImplementationIgnoring implements PersistenceTypeResolver
 	{
 		@Override
-		public Class<?> resolveType(final String typeName) throws PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
+		public Class<?> resolveType(final String typeName)
 		{
-			try
-			{
-				return XReflect.classForName(typeName);
-			}
-			catch(final ClassNotFoundException e)
-			{
-				// intentionally return null
-				return null;
-			}
+			return XReflect.tryClassForName(typeName);
 		}
 	}
-	
 	
 }

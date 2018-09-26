@@ -609,6 +609,48 @@ public final class XReflect
 			: Class.forName(className)
 		;
 	}
+	
+	/**
+	 * Calls {@link #classForName(String)}, but suppresses any {@link ClassNotFoundException} and returns
+	 * <code>null</code> instead. This is useful if the passed class name is only potentially resolvable
+	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
+	 * and marking the not resolvable types as unresolvable.
+	 * 
+	 * @param className
+	 * @return the {@link Class} instance representing the passed class name or <code>null</code> if unresolevable.
+	 */
+	public static final Class<?> tryClassForName(final String className)
+	{
+		try
+		{
+			return XReflect.classForName(className);
+		}
+		catch(final ClassNotFoundException e)
+		{
+			// intentionally return null
+			return null;
+		}
+	}
+	
+	public static final Field tryGetDeclaredField(final Class<?> declaringClass, final String fieldName)
+	{
+		if(declaringClass == null)
+		{
+			return null;
+		}
+		
+		try
+		{
+			return declaringClass.getDeclaredField(fieldName);
+		}
+		catch(final ReflectiveOperationException e)
+		{
+			// field may be unresolvable
+			return null;
+		}
+	}
+	
+	
 
 	public static final Class<?> primitiveType(final String className)
 	{

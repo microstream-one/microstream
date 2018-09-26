@@ -152,11 +152,15 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	@Override
 	public final T create(final Binary rawData)
 	{
-		if(this.listener == null)
-		{
-			return this.internalCreate(rawData);
-		}
-		
+		// the method splitting might help jitting out the not occuring case.
+		return this.listener == null
+			? this.internalCreate(rawData)
+			: this.internalCreateListening(rawData)
+		;
+	}
+	
+	private final T internalCreateListening(final Binary rawData)
+	{
 		final T instance = this.internalCreate(rawData);
 		this.listener.reportLegacyTypeHandling(
 			BinaryPersistence.getBuildItemObjectId(rawData),
