@@ -119,6 +119,8 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	
 	public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator();
 	
+	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
+	
 	
 
 
@@ -237,6 +239,12 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setLegacyTypeHandlerCreator(
 		PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator
 	);
+	
+	public PersistenceFoundation<M> setLegacyTypeHandlingListener(
+		PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
+	);
+	
+	
 
 	
 
@@ -313,12 +321,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
-		private PersistenceLegacyTypeMapper<M>          legacyTypeMapper            ;
-		private PersistenceRefactoringMappingProvider   refactoringMappingProvider  ;
-		private PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator   ;
-		private PersistenceMemberMatchingProvider       legacyMemberMatchingProvider;
-		private PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor   ;
-		private PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator    ;
+		private PersistenceLegacyTypeMapper<M>           legacyTypeMapper            ;
+		private PersistenceRefactoringMappingProvider    refactoringMappingProvider  ;
+		private PersistenceDeletedTypeHandlerCreator<M>  deletedTypeHandlerCreator   ;
+		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
+		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
+		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
+		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
 		
 
 		
@@ -778,6 +787,17 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			
 			return this.legacyTypeHandlerCreator;
 		}
+		
+		@Override
+		public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener()
+		{
+			if(this.legacyTypeHandlingListener == null)
+			{
+				this.legacyTypeHandlingListener = this.dispatch(this.createLegacyTypeHandlingListener());
+			}
+			
+			return this.legacyTypeHandlingListener;
+		}
 
 		@Override
 		public PersistenceRootsProvider<M> getRootsProvider()
@@ -1192,6 +1212,15 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			this.legacyTypeHandlerCreator = legacyTypeHandlerCreator;
 			return this;
 		}
+		
+		@Override
+		public PersistenceFoundation<M> setLegacyTypeHandlingListener(
+			final PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
+		)
+		{
+			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
+			return this;
+		}
 
 
 
@@ -1440,7 +1469,17 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			throw new MissingFoundationPartException(PersistenceLegacyTypeHandlerCreator.class);
 		}
+		
+		protected PersistenceLegacyTypeHandlingListener<M> createLegacyTypeHandlingListener()
+		{
+			/*
+			 * this listener is purely optional, so by default, nothing is created.
+			 * This method is just a stub for sub classes to override.
+			 */
+			return null;
+		}
 
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// pseudo-abstract creators //

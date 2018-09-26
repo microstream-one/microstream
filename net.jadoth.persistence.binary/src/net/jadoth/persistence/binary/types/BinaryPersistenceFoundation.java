@@ -43,6 +43,14 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// getters          //
+	/////////////////////
+	
+	public BinaryValueTranslatorProvider getValueTranslatorProvider();
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// setters          //
 	/////////////////////
 
@@ -127,6 +135,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	@Override
 	public BinaryPersistenceFoundation setFieldFixedLengthResolver(PersistenceFieldLengthResolver resolver);
 
+	public BinaryPersistenceFoundation setValueTranslatorProvider(BinaryValueTranslatorProvider valueTranslatorProvider);
+
 	@Override
 	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 	BinaryPersistenceFoundation setDictionaryStorage(H typeDictionaryStorageHandler);
@@ -153,12 +163,37 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	implements BinaryPersistenceFoundation
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private BinaryValueTranslatorProvider valueTranslatorProvider;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
 		protected Implementation()
 		{
 			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// getters          //
+		/////////////////////
+		
+		@Override
+		public BinaryValueTranslatorProvider getValueTranslatorProvider()
+		{
+			if(this.valueTranslatorProvider == null)
+			{
+				this.valueTranslatorProvider = this.dispatch(this.createValueTranslatorProvider());
+			}
+			
+			return this.valueTranslatorProvider;
 		}
 		
 		
@@ -423,6 +458,15 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			super.setFieldFixedLengthResolver(resolver);
 			return this;
 		}
+		
+		@Override
+		public BinaryPersistenceFoundation setValueTranslatorProvider(
+			final BinaryValueTranslatorProvider valueTranslatorProvider
+		)
+		{
+			this.valueTranslatorProvider = valueTranslatorProvider;
+			return this;
+		}
 
 
 
@@ -472,11 +516,18 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			);
 		}
 		
+		protected BinaryValueTranslatorProvider createValueTranslatorProvider()
+		{
+			return BinaryValueTranslatorProvider.New();
+		}
+		
 		@Override
 		protected PersistenceLegacyTypeHandlerCreator<Binary> createLegacyTypeHandlerCreator()
 		{
-			// (25.09.2018 TM)FIXME: OGS-3: BinaryLegacyTypeHandlerCreator construction
-			return BinaryLegacyTypeHandlerCreator.New();
+			return BinaryLegacyTypeHandlerCreator.New(
+				this.createValueTranslatorProvider(),
+				this.getLegacyTypeHandlingListener()
+			);
 		}
 		
 	}

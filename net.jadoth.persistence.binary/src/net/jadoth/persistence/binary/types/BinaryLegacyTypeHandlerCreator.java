@@ -22,14 +22,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 
 public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHandlerCreator<Binary>
 {
-	public static BinaryLegacyTypeHandlerCreator New()
-	{
-		return new BinaryLegacyTypeHandlerCreator.Implementation(
-			BinaryValueTranslatorProvider.New(),
-			null
-		);
-	}
-	
 	public static BinaryLegacyTypeHandlerCreator New(
 		final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
 		final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
