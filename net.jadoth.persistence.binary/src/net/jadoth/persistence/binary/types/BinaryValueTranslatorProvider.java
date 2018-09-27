@@ -45,6 +45,8 @@ public interface BinaryValueTranslatorProvider
 			final PersistenceTypeDescriptionMember targetMember
 		)
 		{
+			// (27.09.2018 TM)FIXME: OGS-3: include value translators for references
+			
 			/* (25.09.2018 TM)FIXME: OGS-3: flexible value translators
 			 * Shouldn't there be a even more flexible mapping?
 			 * Ammong primitives, but also primitives to non-primitives (Wrappers).

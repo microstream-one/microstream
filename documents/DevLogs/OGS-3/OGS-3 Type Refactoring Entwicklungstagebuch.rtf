@@ -1,5 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 MS Mincho;}}
-{\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 MS Mincho;}{\f2\fnil Courier New;}}
+{\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;\red128\green128\blue128;\red0\green0\blue0;\red127\green0\blue85;\red0\green96\blue0;\red42\green0\blue255;\red128\green0\blue255;\red0\green0\blue128;}
 {\*\generator Riched20 10.0.17134}\viewkind4\uc1 
 \pard\sl276\slmult1\b\f0\fs28\lang7 OGS-3 Type Refactoring Entwicklungstagebuch:\par
 \b0\par
@@ -2041,6 +2041,47 @@ Also PersistenceTypeDescriptionMember erweitern um ein Class<?> type Feld.\par
 \par
 Jetzt Similator Logik implementieren. Foundation Erweiterung nachziehen, bla.\par
 Die Declaring Class richtig zu ber\'fccksichtigen wird noch knifflig. \'dcberlegen. Code aufr\'e4umen und TODO machen.\par
+\par
+\par
+2018-09-27\par
+\par
+Besseren Plan f\'fcr value translators auch f\'fcr references \'fcberlegen:\par
+Unterscheidung binary->instance (normalfall) und binary->binary (custom handler Zwischenschritt)\par
+\par
+Erster Fall:\par
+\'dcber einen TypeMapping Lookup f\'fcr source member und target member k\'f6nnen beliebige Konvertierungen zwischen Primitives und References stattfinden.\par
+\par
+Zweiter Fall:\par
+- Beide Members m\'fcssen References sein und die Reference wird nur als long primitive kopiert.\par
+- Ansonsten m\'fcssen beide Members Primitives sein und es kann eine beliebige Konvertierung stattfinden (8*8 M\'f6glichkeiten)\par
+Beides kann auch \'fcber das TypeMapping des ersten Falls abgebildet werden, es m\'fcssen nur vorher die Typen validiert werden.\par
+\par
+Hei\'df: so ca. 95% des bisherigen Converter Codes (die 8*8 + 8 Converter Methoden) k\'f6nnen bleiben, es muss nur das TypeMapping mit rein und die Validierungen m\'fcssen ein bisschen anders werden.\par
+\par
+\par
+Declaring Class Zeug \'fcberlegen.\par
+\par
+Bl\'f6d ist: Declaring Class gibt es nur bei echten Field Members. Aber hier jetzt rum-instanceof-en ist auch bl\'f6d.\par
+Den uniqueName nehmen und bei Ungleichheit nach dem Separator trennen ist letztendlich auch nichts anderes als ein instanceof auf String-Ebene.\par
+Wobei der uniqueName schon verwendet werden sollte, sonst braucht man ihn gleich nicht.\par
+Man k\'f6nnte nat\'fcrlich allgemeiner sagen: der qualifier im unique name ist ein beliebiger namespace. Vielleicht baut mal jemand eine Member Implementierung, die damit das Matching pr\'e4ziser steuern kann.\par
+Dann verwend ich den uniqueName inklusive qualifier Splitterei, aber auf eine generische Weise. Passt.\par
+\par
+Dazu erst mal PersistenceTypeDictionary#splitFullQualifiedFieldName implementieren und testen. Passt. Achja, gleich noch wegen Padding schauen. Trim Aufruf einbauen. Passt.\par
+\cf5\f2\fs24 //\tab final String fullQualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName("MyType", "someField");\tab\tab\cf0\par
+\cf6\tab\cf7\b final\cf6\b0  String \cf8\b fullQualifiedFieldName\cf6\b0  = PersistenceTypeDictionary.paddedFullQualifiedFieldName(\cf0\par
+\cf6\tab\tab VarString.New(), \cf9 "MyType"\cf6 , \cf10 10\cf6 , \cf9 "someField"\cf6 , \cf10 10\cf0\par
+\cf6\tab ).toString();\cf0\par
+\cf6\tab\cf0\par
+\cf6\tab\cf7\b final\cf6\b0  KeyValue<String, String> \cf8\b splitted\cf6\b0  = PersistenceTypeDictionary.splitFullQualifiedFieldName(\cf8 fullQualifiedFieldName\cf6 );\cf0\par
+\cf6\tab System.\cf11\b\i out\cf6\b0\i0 .println(\cf9 ">"\cf6  + \cf8 splitted\cf6 .key()   + \cf9 "<"\cf6 );\cf0\par
+\cf6\tab System.\cf11\b\i out\cf6\b0\i0 .println(\cf9 ">"\cf6  + \cf8 splitted\cf6 .value() + \cf9 "<"\cf6 );\cf0\f0\fs28\par
+\par
+Jetzt verwenden im Similator.\par
+\par
+Damit w\'e4r der soweit fertig.\par
+\par
+Jetzt noch die Converters verbessern, dann w\'e4re das Legacy Type Mapping fertig implementiert zum Testen.\par
 \par
 \par
 \par
