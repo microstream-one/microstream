@@ -1,53 +1,41 @@
 package net.jadoth.typing;
 
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.collections.types.XTable;
 import net.jadoth.hashing.HashEqualator;
 
-public interface TypeMapping<T>
+public interface TypeMapping<V> extends TypeMappingLookup<V>
 {
-	public boolean contains(TypePair typePair);
+	public boolean add(TypePair typePair, V value);
 	
-	public T lookup(TypePair typePair);
+	public boolean put(TypePair typePair, V value);
 	
-	public boolean add(TypePair typePair, T value);
+	public TypeMapping<V> register(TypePair typePair, V value);
 	
-	public boolean put(TypePair typePair, T value);
 	
-	public TypeMapping<T> register(TypePair typePair, T value);
 	
-		
-	public default boolean contains(final Class<?> type1, final Class<?> type2)
-	{
-		return this.contains(TypePair.New(type1, type2));
-	}
-	
-	public default T lookup(final Class<?> type1, final Class<?> type2)
-	{
-		return this.lookup(TypePair.New(type1, type2));
-	}
-	
-	public default boolean add(final Class<?> type1, final Class<?> type2, final T value)
+	public default boolean add(final Class<?> type1, final Class<?> type2, final V value)
 	{
 		return this.add(TypePair.New(type1, type2), value);
 	}
 	
-	public default boolean put(final Class<?> type1, final Class<?> type2, final T value)
+	public default boolean put(final Class<?> type1, final Class<?> type2, final V value)
 	{
 		return this.put(TypePair.New(type1, type2), value);
 	}
 	
-	public default TypeMapping<T> register(final Class<?> type1, final Class<?> type2, final T value)
+	public default TypeMapping<V> register(final Class<?> type1, final Class<?> type2, final V value)
 	{
 		this.register(TypePair.New(type1, type2), value);
 		return this;
 	}
-		
 	
-	public XGettingTable<TypePair, T> table();
+
+	@Override
+	public XTable<TypePair, V> table();
 	
 	
-	
+
 	public static <T> TypeMapping<T> New()
 	{
 		return New(TypePair.HashEquality());
@@ -135,7 +123,7 @@ public interface TypeMapping<T>
 		}
 
 		@Override
-		public final XGettingTable<TypePair, V> table()
+		public final XTable<TypePair, V> table()
 		{
 			return this.table;
 		}
