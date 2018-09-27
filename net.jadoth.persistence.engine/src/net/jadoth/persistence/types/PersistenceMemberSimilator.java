@@ -2,9 +2,11 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
+import net.jadoth.X;
 import net.jadoth.chars.Levenshtein;
 import net.jadoth.functional.Similator;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMapping;
 
 public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDescriptionMember>
@@ -52,40 +54,75 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		////////////
 
 		@Override
-		public double evaluate(
+		public final double evaluate(
 			final PersistenceTypeDescriptionMember sourceMember,
 			final PersistenceTypeDescriptionMember targetMember
 		)
 		{
-			final float nameSimilarity = this.calculateSimilarityName(sourceMember, targetMember);
-			final float typeSimilarity = this.calculateSimilarityType(sourceMember, targetMember);
+			final float nameSimilarity = this.calculateSimilarityByName(sourceMember, targetMember);
+			final float typeSimilarity = this.calculateSimilaritybyType(sourceMember, targetMember);
 			
 			return (nameSimilarity + typeSimilarity ) / 2.0f;
 		}
 		
-		private float calculateSimilarityName(
+		private float calculateSimilarityByName(
 			final PersistenceTypeDescriptionMember sourceMember,
 			final PersistenceTypeDescriptionMember targetMember
 		)
 		{
-			/* (26.09.2018 TM)FIXME: OGS-3: declClass only for Field members and as a namespace for name
-			 * But for true reflection fields, it is essential!
-			 * 
-			 * 1.0 for matching decl classes, including null.
-			 * 0.5 for not matching decl classes.
-			 * 
-			 * Meaning:
-			 * If the declaring classes do not match, the name weighs only half and the type gets more important,
-			 * assuming the field is more probable to have been renamed instead of having been moved to another
-			 * class.
+			/*
+			 * Cannot do a quick-check for perfect matches, here, because a refactoring mapping
+			 * might map a type name (qualifier) on the source side to another one on the target side.
+			 * Doing a quick check on simple equality might cause an ambiguity for such cases.
 			 */
 			
-			final float declaringClassSimilarity = 1.0f;
+			final KeyValue<String, String> sourceUniqueName = PersistenceTypeDictionary.splitFullQualifiedFieldName(
+				sourceMember.uniqueName()
+			);
+			final KeyValue<String, String> targetUniqueName = PersistenceTypeDictionary.splitFullQualifiedFieldName(
+				targetMember.uniqueName()
+			);
 			
-			return declaringClassSimilarity * Levenshtein.similarity(sourceMember.name(), targetMember.name());
+			final float nameSimilarity = Levenshtein.similarity(
+				sourceUniqueName.value(),
+				targetUniqueName.value()
+			);
+			final float qualifierFactor = calculateQualifierSimilarityFactor(
+				sourceUniqueName.key(),
+				targetUniqueName.key()
+			);
+			
+			return qualifierFactor * nameSimilarity;
 		}
 		
-		private float calculateSimilarityType(
+		private float calculateQualifierSimilarityFactor(
+			final String sourceQualifier,
+			final String targetQualifier
+		)
+		{
+			if(sourceQualifier == null && targetQualifier == null)
+			{
+				// effectively "no factor".
+				return 1.0f;
+			}
+			else if(X.isNull(targetQualifier) != X.isNull(targetQualifier))
+			{
+				// simply a qualifier mismatch, so name similarity reduced to 50%.
+				return 0.5f;
+			}
+			
+			final String effectiveSourceDeclaringType = X.coalesce(
+				this.refactoringMapping.entries().get(sourceQualifier),
+				sourceQualifier
+			);
+			
+			return effectiveSourceDeclaringType.equals(targetQualifier)
+				? 1.0f
+				: 0.5f
+			;
+		}
+		
+		private float calculateSimilaritybyType(
 			final PersistenceTypeDescriptionMember sourceMember,
 			final PersistenceTypeDescriptionMember targetMember
 		)

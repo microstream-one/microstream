@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
@@ -12,6 +13,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleTypeDictionary;
+import net.jadoth.typing.KeyValue;
 
 public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
@@ -441,6 +443,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	{
 		return fullQualifiedFieldName(VarString.New(), declaringTypeName, fieldName).toString();
 	}
+	
+	public static char fullQualifiedFieldNameSeparator()
+	{
+		return Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR;
+	}
 
 	public static VarString fullQualifiedFieldName(
 		final VarString vc               ,
@@ -448,15 +455,27 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		final String    fieldName
 	)
 	{
-		return vc.add(declaringTypeName).add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR).add(fieldName);
+		return vc.add(declaringTypeName).add(fullQualifiedFieldNameSeparator()).add(fieldName);
+	}
+	
+	public static KeyValue<String, String> splitFullQualifiedFieldName(
+		final String identifier
+	)
+	{
+		final int index = identifier.lastIndexOf(fullQualifiedFieldNameSeparator());
+		
+		return index < 0
+			? X.KeyValue(null, identifier)
+			: X.KeyValue(identifier.substring(0, index).trim(), identifier.substring(index + 1).trim())
+		;
 	}
 
 	public static VarString paddedFullQualifiedFieldName(
 		final VarString vc                        ,
-		final String  declaringTypeName         ,
-		final int     maxDeclaringTypeNameLength,
-		final String  fieldName                 ,
-		final int     maxFieldNameLength
+		final String    declaringTypeName         ,
+		final int       maxDeclaringTypeNameLength,
+		final String    fieldName                 ,
+		final int       maxFieldNameLength
 	)
 	{
 		// redundant code here to avoid unnecessary padding in normal case
