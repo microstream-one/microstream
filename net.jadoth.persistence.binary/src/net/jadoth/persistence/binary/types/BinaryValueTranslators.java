@@ -2,8 +2,8 @@ package net.jadoth.persistence.binary.types;
 
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
+import net.jadoth.typing.TypeMapping;
 
 public final class BinaryValueTranslators
 {
@@ -11,7 +11,7 @@ public final class BinaryValueTranslators
 	// static methods //
 	///////////////////
 	
-	public static BinaryValueSetter provideReferenceValueTranslator(
+	public static BinaryValueSetter provideReferenceValueBinaryTranslator(
 		final PersistenceTypeDescriptionMember sourceMember,
 		final PersistenceTypeDescriptionMember targetMember
 	)
@@ -30,254 +30,6 @@ public final class BinaryValueTranslators
 		return BinaryValueTranslators::copy_longTo_long;
 	}
 	
-	public static BinaryValueSetter providePrimitiveValueTranslator(
-		final PersistenceTypeDescriptionMember sourceMember,
-		final PersistenceTypeDescriptionMember targetMember
-	)
-	{
-		final Class<?> sourcePrimitiveType = XReflect.primitiveType(sourceMember.typeName());
-		final Class<?> targetPrimitiveType = targetMember != null
-			? XReflect.primitiveType(targetMember.typeName())
-			: null
-		;
-		
-		if(sourcePrimitiveType == byte.class)
-		{
-			return provideTranslator_byte(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == boolean.class)
-		{
-			return provideTranslator_boolean(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == short.class)
-		{
-			return provideTranslator_short(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == char.class)
-		{
-			return provideTranslator_char(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == int.class)
-		{
-			return provideTranslator_int(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == float.class)
-		{
-			return provideTranslator_float(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == long.class)
-		{
-			return provideTranslator_long(targetPrimitiveType);
-		}
-		else if(sourcePrimitiveType == double.class)
-		{
-			return provideTranslator_double(targetPrimitiveType);
-		}
-		else
-		{
-			return throwUnhandledPrimitiveTypeException(targetPrimitiveType);
-		}
-	}
-	
-	private static BinaryValueSetter provideTranslator_byte(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_byte
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_byteTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_byteTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_byteTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_byteTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_byteTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_byteTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_byteTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_byteTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_boolean(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_boolean
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_booleanTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_booleanTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_booleanTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_booleanTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_booleanTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_booleanTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_booleanTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_booleanTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_short(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_short
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_shortTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_shortTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_shortTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_shortTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_shortTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_shortTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_shortTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_shortTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_char(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_char
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_charTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_charTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_charTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_charTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_charTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_charTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_charTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_charTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_int(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_int
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_intTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_intTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_intTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_intTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_intTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_intTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_intTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_intTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_float(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_float
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_floatTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_floatTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_floatTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_floatTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_floatTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_floatTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_floatTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_floatTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_long(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_long
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_longTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_longTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_longTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_longTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_longTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_longTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_longTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_longTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-	
-	private static BinaryValueSetter provideTranslator_double(final Class<?> targetType)
-	{
-		return targetType == null
-			? BinaryValueTranslators::skip_double
-			: targetType == byte.class
-			? BinaryValueTranslators::copy_doubleTo_byte
-			: targetType == boolean.class
-			? BinaryValueTranslators::copy_doubleTo_boolean
-			: targetType == short.class
-			? BinaryValueTranslators::copy_doubleTo_short
-			: targetType == char.class
-			? BinaryValueTranslators::copy_doubleTo_char
-			: targetType == int.class
-			? BinaryValueTranslators::copy_doubleTo_int
-			: targetType == float.class
-			? BinaryValueTranslators::copy_doubleTo_float
-			: targetType == long.class
-			? BinaryValueTranslators::copy_doubleTo_long
-			: targetType == double.class
-			? BinaryValueTranslators::copy_doubleTo_double
-			: throwUnhandledPrimitiveTypeException(targetType)
-		;
-	}
-		
-	
-	private static BinaryValueSetter throwUnhandledPrimitiveTypeException(final Class<?> primitiveType)
-	{
-		// (19.09.2018 TM)EXCP: proper exception
-		throw new RuntimeException("Unhandled primitive type: " + primitiveType);
-	}
-	
 	private static void throwUnhandledTypeCompatibilityException(
 		final String sourceType,
 		final String targetType
@@ -290,6 +42,95 @@ public final class BinaryValueTranslators
 		);
 	}
 	
+	/**
+	 * The default mapping only covers primitive types, because for arbitrary Object types, it cannot be
+	 * safely assumed that instances of those types are unshared and that implicitely replacing one instance
+	 * with another will never cause erronous behavior (e.g. identity comparisons suddenly yielding different
+	 * results than would be expected based on the stored instances).<p>
+	 * However, arbitrary mappings can be added to suit the needs of specific programs.
+	 * 
+	 * @return a default mapping of primitive-to-primitive binary value translators.
+	 */
+	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslators()
+	{
+		final TypeMapping<BinaryValueSetter> mapping = TypeMapping.New();
+		mapping
+		.register(byte.class, byte   .class, BinaryValueTranslators::copy_byteTo_byte   )
+		.register(byte.class, boolean.class, BinaryValueTranslators::copy_byteTo_boolean)
+		.register(byte.class, short  .class, BinaryValueTranslators::copy_byteTo_short  )
+		.register(byte.class, char   .class, BinaryValueTranslators::copy_byteTo_char   )
+		.register(byte.class, int    .class, BinaryValueTranslators::copy_byteTo_int    )
+		.register(byte.class, float  .class, BinaryValueTranslators::copy_byteTo_float  )
+		.register(byte.class, long   .class, BinaryValueTranslators::copy_byteTo_long   )
+		.register(byte.class, double .class, BinaryValueTranslators::copy_byteTo_double )
+		
+		.register(boolean.class, byte   .class, BinaryValueTranslators::copy_booleanTo_byte   )
+		.register(boolean.class, boolean.class, BinaryValueTranslators::copy_booleanTo_boolean)
+		.register(boolean.class, short  .class, BinaryValueTranslators::copy_booleanTo_short  )
+		.register(boolean.class, char   .class, BinaryValueTranslators::copy_booleanTo_char   )
+		.register(boolean.class, int    .class, BinaryValueTranslators::copy_booleanTo_int    )
+		.register(boolean.class, float  .class, BinaryValueTranslators::copy_booleanTo_float  )
+		.register(boolean.class, long   .class, BinaryValueTranslators::copy_booleanTo_long   )
+		.register(boolean.class, double .class, BinaryValueTranslators::copy_booleanTo_double )
+		
+		.register(short.class, byte   .class, BinaryValueTranslators::copy_shortTo_byte   )
+		.register(short.class, boolean.class, BinaryValueTranslators::copy_shortTo_boolean)
+		.register(short.class, short  .class, BinaryValueTranslators::copy_shortTo_short  )
+		.register(short.class, char   .class, BinaryValueTranslators::copy_shortTo_char   )
+		.register(short.class, int    .class, BinaryValueTranslators::copy_shortTo_int    )
+		.register(short.class, float  .class, BinaryValueTranslators::copy_shortTo_float  )
+		.register(short.class, long   .class, BinaryValueTranslators::copy_shortTo_long   )
+		.register(short.class, double .class, BinaryValueTranslators::copy_shortTo_double )
+		
+		.register(char.class, byte   .class, BinaryValueTranslators::copy_charTo_byte   )
+		.register(char.class, boolean.class, BinaryValueTranslators::copy_charTo_boolean)
+		.register(char.class, short  .class, BinaryValueTranslators::copy_charTo_short  )
+		.register(char.class, char   .class, BinaryValueTranslators::copy_charTo_char   )
+		.register(char.class, int    .class, BinaryValueTranslators::copy_charTo_int    )
+		.register(char.class, float  .class, BinaryValueTranslators::copy_charTo_float  )
+		.register(char.class, long   .class, BinaryValueTranslators::copy_charTo_long   )
+		.register(char.class, double .class, BinaryValueTranslators::copy_charTo_double )
+		
+		.register(int.class, byte   .class, BinaryValueTranslators::copy_intTo_byte   )
+		.register(int.class, boolean.class, BinaryValueTranslators::copy_intTo_boolean)
+		.register(int.class, short  .class, BinaryValueTranslators::copy_intTo_short  )
+		.register(int.class, char   .class, BinaryValueTranslators::copy_intTo_char   )
+		.register(int.class, int    .class, BinaryValueTranslators::copy_intTo_int    )
+		.register(int.class, float  .class, BinaryValueTranslators::copy_intTo_float  )
+		.register(int.class, long   .class, BinaryValueTranslators::copy_intTo_long   )
+		.register(int.class, double .class, BinaryValueTranslators::copy_intTo_double )
+		
+		.register(float.class, byte   .class, BinaryValueTranslators::copy_floatTo_byte   )
+		.register(float.class, boolean.class, BinaryValueTranslators::copy_floatTo_boolean)
+		.register(float.class, short  .class, BinaryValueTranslators::copy_floatTo_short  )
+		.register(float.class, char   .class, BinaryValueTranslators::copy_floatTo_char   )
+		.register(float.class, int    .class, BinaryValueTranslators::copy_floatTo_int    )
+		.register(float.class, float  .class, BinaryValueTranslators::copy_floatTo_float  )
+		.register(float.class, long   .class, BinaryValueTranslators::copy_floatTo_long   )
+		.register(float.class, double .class, BinaryValueTranslators::copy_floatTo_double )
+		
+		.register(long.class, byte   .class, BinaryValueTranslators::copy_longTo_byte   )
+		.register(long.class, boolean.class, BinaryValueTranslators::copy_longTo_boolean)
+		.register(long.class, short  .class, BinaryValueTranslators::copy_longTo_short  )
+		.register(long.class, char   .class, BinaryValueTranslators::copy_longTo_char   )
+		.register(long.class, int    .class, BinaryValueTranslators::copy_longTo_int    )
+		.register(long.class, float  .class, BinaryValueTranslators::copy_longTo_float  )
+		.register(long.class, long   .class, BinaryValueTranslators::copy_longTo_long   )
+		.register(long.class, double .class, BinaryValueTranslators::copy_longTo_double )
+		
+		.register(double.class, byte   .class, BinaryValueTranslators::copy_doubleTo_byte   )
+		.register(double.class, boolean.class, BinaryValueTranslators::copy_doubleTo_boolean)
+		.register(double.class, short  .class, BinaryValueTranslators::copy_doubleTo_short  )
+		.register(double.class, char   .class, BinaryValueTranslators::copy_doubleTo_char   )
+		.register(double.class, int    .class, BinaryValueTranslators::copy_doubleTo_int    )
+		.register(double.class, float  .class, BinaryValueTranslators::copy_doubleTo_float  )
+		.register(double.class, long   .class, BinaryValueTranslators::copy_doubleTo_long   )
+		.register(double.class, double .class, BinaryValueTranslators::copy_doubleTo_double )
+		;
+
+		return mapping;
+	}
+	
 	private static int to_int(final boolean value)
 	{
 		return value
@@ -297,8 +138,6 @@ public final class BinaryValueTranslators
 			: 0
 		;
 	}
-	
-	
 	
 	public static long skip_byte(
 		final long                     sourceAddress,

@@ -4,17 +4,29 @@ import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
+import net.jadoth.persistence.types.PersistenceDeletedTypeHandlerCreator;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import net.jadoth.persistence.types.PersistenceFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
+import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
+import net.jadoth.persistence.types.PersistenceLegacyTypeMapper;
+import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceMemberMatchingProvider;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRegisterer;
+import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionCreator;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryBuilder;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryCreator;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryExporter;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
@@ -27,11 +39,16 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
+import net.jadoth.persistence.types.PersistenceTypeLineageCreator;
+import net.jadoth.persistence.types.PersistenceTypeMismatchValidator;
+import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
+import net.jadoth.typing.TypeMapping;
+import net.jadoth.typing.TypeMappingLookup;
 
 
 
@@ -43,16 +60,23 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
+	
+	public TypeMappingLookup<BinaryValueSetter> getValueTranslatorMapping();
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters  //
+	/////////////
+	
+	// (overridden from Persistencefoundation to specify the return type)
+	
+	@Override
+	public BinaryPersistenceFoundation setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
 
 	@Override
 	public BinaryPersistenceFoundation setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
@@ -61,7 +85,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setObjectManager(SwizzleObjectManager objectManager);
 
 	@Override
-	public BinaryPersistenceFoundation setStorerCreator(PersistenceStorer.Creator<Binary> persisterCreator);
+	public BinaryPersistenceFoundation setStorerCreator(PersistenceStorer.Creator<Binary> storerCreator);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeHandlerManager(PersistenceTypeHandlerManager<Binary> typeHandlerManager);
@@ -76,7 +100,10 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	public BinaryPersistenceFoundation setTypeManager(SwizzleTypeManager typeManager);
 
 	@Override
-	public BinaryPersistenceFoundation setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
+	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeHandlerCreator(PersistenceTypeHandlerCreator<Binary> typeHandlerCreator);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<Binary> typeHandlerRegistry);
@@ -98,45 +125,103 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 	@Override
 	public BinaryPersistenceFoundation setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryProvider(PersistenceTypeDictionaryProvider typeDictionaryProvider);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryParser(PersistenceTypeDictionaryParser typeDictionaryParser);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryLoader(PersistenceTypeDictionaryLoader typeDictionaryLoader);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryAssembler(PersistenceTypeDictionaryAssembler typeDictionaryAssembler);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
-
-	@Override
-	public BinaryPersistenceFoundation setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<Binary> typeHandlerCreatorLookup);
 	
 	@Override
-	public BinaryPersistenceFoundation setTypeHandlerCreator(PersistenceTypeHandlerCreator<Binary> typeHandlerCreator);
+	public BinaryPersistenceFoundation setTypeDictionaryCreator(PersistenceTypeDictionaryCreator typeDictionaryCreator);
+		
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryProvider(PersistenceTypeDictionaryProvider typeDictionaryProvider);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryParser(PersistenceTypeDictionaryParser typeDictionaryParser);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryAssembler(PersistenceTypeDictionaryAssembler typeDictionaryAssembler);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryLoader(PersistenceTypeDictionaryLoader typeDictionaryLoader);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryBuilder(PersistenceTypeDictionaryBuilder typeDictionaryBuilder);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
 
 	@Override
-	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
+	public BinaryPersistenceFoundation setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeMismatchValidator(PersistenceTypeMismatchValidator<Binary> typeMismatchValidator);
+
+	@Override
+	public BinaryPersistenceFoundation setTypeResolver(PersistenceTypeResolver typeResolver);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeDescriptionBuilder(PersistenceTypeDefinitionCreator typeDefinitionCreator);
 
 	@Override
 	public BinaryPersistenceFoundation setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
 
 	@Override
-	public BinaryPersistenceFoundation setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable);
+	public BinaryPersistenceFoundation setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
 
 	@Override
-	public BinaryPersistenceFoundation setFieldFixedLengthResolver(PersistenceFieldLengthResolver resolver);
+	public BinaryPersistenceFoundation setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
-	public BinaryPersistenceFoundation setValueTranslatorProvider(BinaryValueTranslatorProvider valueTranslatorProvider);
+	@Override
+	public BinaryPersistenceFoundation setFieldEvaluator(PersistenceFieldEvaluator fieldEvaluator);
 
+	@Override
+	public BinaryPersistenceFoundation setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
+
+	@Override
+	public BinaryPersistenceFoundation setRootResolver(PersistenceRootResolver rootResolver);
+
+	@Override
+	public BinaryPersistenceFoundation setRootsProvider(PersistenceRootsProvider<Binary> rootsProvider);
+	
+	@Override
+	public BinaryPersistenceFoundation setLegacyTypeMapper(PersistenceLegacyTypeMapper<Binary> legacyTypeMapper);
+	
+	@Override
+	public BinaryPersistenceFoundation setTypeSimilarity(TypeMapping<Float> typeSimilarity);
+	
+	@Override
+	public BinaryPersistenceFoundation setRefactoringMappingProvider(
+		PersistenceRefactoringMappingProvider refactoringMappingProvider
+	);
+	
+	@Override
+	public BinaryPersistenceFoundation setDeletedTypeHandlerCreator(
+		PersistenceDeletedTypeHandlerCreator<Binary> deletedTypeHandlerCreator
+	);
+		
+	@Override
+	public BinaryPersistenceFoundation setLegacyMemberMatchingProvider(
+		PersistenceMemberMatchingProvider legacyMemberMatchingProvider
+	);
+		
+	@Override
+	public BinaryPersistenceFoundation setLegacyTypeMappingResultor(
+		PersistenceLegacyTypeMappingResultor<Binary> legacyTypeMappingResultor
+	);
+	
+	@Override
+	public BinaryPersistenceFoundation setLegacyTypeHandlerCreator(
+		PersistenceLegacyTypeHandlerCreator<Binary> legacyTypeHandlerCreator
+	);
+	
+	@Override
+	public BinaryPersistenceFoundation setLegacyTypeHandlingListener(
+		PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+	);
+	
 	@Override
 	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
 	BinaryPersistenceFoundation setDictionaryStorage(H typeDictionaryStorageHandler);
@@ -147,7 +232,23 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 
 	@Override
 	public BinaryPersistenceFoundation setPersistenceChannel(PersistenceChannel<Binary> persistenceChannel);
+	
 
+	
+	///////////////////////////////////////////////////////////////////////////
+	// specific setters //
+	/////////////////////
+
+	public BinaryPersistenceFoundation setValueTranslatorProvider(
+		BinaryValueTranslatorProvider valueTranslatorProvider
+	);
+	
+	public BinaryPersistenceFoundation setValueTranslatorMapping(
+		TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping
+	);
+
+
+	
 	@Override
 	public PersistenceManager<Binary> createPersistenceManager();
 
@@ -165,8 +266,9 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private BinaryValueTranslatorProvider valueTranslatorProvider;
+
+		private TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping ;
+		private BinaryValueTranslatorProvider        valueTranslatorProvider;
 		
 		
 		
@@ -184,6 +286,17 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		///////////////////////////////////////////////////////////////////////////
 		// getters          //
 		/////////////////////
+		
+		@Override
+		public TypeMappingLookup<BinaryValueSetter> getValueTranslatorMapping()
+		{
+			if(this.valueTranslatorMapping == null)
+			{
+				this.valueTranslatorMapping = this.dispatch(this.createValueTranslatorMapping());
+			}
+			
+			return this.valueTranslatorMapping;
+		}
 		
 		@Override
 		public BinaryValueTranslatorProvider getValueTranslatorProvider()
@@ -460,11 +573,188 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 		
 		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryCreator(
+			final PersistenceTypeDictionaryCreator typeDictionaryCreator
+		)
+		{
+			super.setTypeDictionaryCreator(typeDictionaryCreator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setLegacyMemberMatchingProvider(
+			final PersistenceMemberMatchingProvider legacyMemberMatchingProvider
+		)
+		{
+			super.setLegacyMemberMatchingProvider(legacyMemberMatchingProvider);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setLegacyTypeHandlerCreator(
+			final PersistenceLegacyTypeHandlerCreator<Binary> legacyTypeHandlerCreator
+		)
+		{
+			super.setLegacyTypeHandlerCreator(legacyTypeHandlerCreator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setLegacyTypeHandlingListener(
+			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+		)
+		{
+			super.setLegacyTypeHandlingListener(legacyTypeHandlingListener);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setLegacyTypeMapper(
+			final PersistenceLegacyTypeMapper<Binary> legacyTypeMapper
+		)
+		{
+			super.setLegacyTypeMapper(legacyTypeMapper);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setLegacyTypeMappingResultor(
+			final PersistenceLegacyTypeMappingResultor<Binary> legacyTypeMappingResultor
+		)
+		{
+			super.setLegacyTypeMappingResultor(legacyTypeMappingResultor);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeSimilarity(
+			final TypeMapping<Float> typeSimilarity
+		)
+		{
+			super.setTypeSimilarity(typeSimilarity);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setDeletedTypeHandlerCreator(
+			final PersistenceDeletedTypeHandlerCreator<Binary> deletedTypeHandlerCreator
+		)
+		{
+			super.setDeletedTypeHandlerCreator(deletedTypeHandlerCreator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setFieldEvaluator(
+			final PersistenceFieldEvaluator fieldEvaluator
+		)
+		{
+			super.setFieldEvaluator(fieldEvaluator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setRefactoringMappingProvider(
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		)
+		{
+			super.setRefactoringMappingProvider(refactoringMappingProvider);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setReferenceFieldMandatoryEvaluator(
+			final PersistenceEagerStoringFieldEvaluator evaluator
+		)
+		{
+			super.setReferenceFieldMandatoryEvaluator(evaluator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setRootResolver(
+			final PersistenceRootResolver rootResolver
+		)
+		{
+			super.setRootResolver(rootResolver);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setRootsProvider(
+			final PersistenceRootsProvider<Binary> rootsProvider
+		)
+		{
+			super.setRootsProvider(rootsProvider);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeDescriptionBuilder(
+			final PersistenceTypeDefinitionCreator typeDefinitionCreator
+		)
+		{
+			super.setTypeDescriptionBuilder(typeDefinitionCreator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeDictionaryBuilder(
+			final PersistenceTypeDictionaryBuilder typeDictionaryBuilder
+		)
+		{
+			super.setTypeDictionaryBuilder(typeDictionaryBuilder);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeLineageCreator(
+			final PersistenceTypeLineageCreator typeLineageCreator
+		)
+		{
+			super.setTypeLineageCreator(typeLineageCreator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeMismatchValidator(
+			final PersistenceTypeMismatchValidator<Binary> typeMismatchValidator
+		)
+		{
+			super.setTypeMismatchValidator(typeMismatchValidator);
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation setTypeResolver(
+			final PersistenceTypeResolver typeResolver
+		)
+		{
+			super.setTypeResolver(typeResolver);
+			return this;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// specific setters //
+		/////////////////////
+		
+		@Override
 		public BinaryPersistenceFoundation setValueTranslatorProvider(
 			final BinaryValueTranslatorProvider valueTranslatorProvider
 		)
 		{
 			this.valueTranslatorProvider = valueTranslatorProvider;
+			return this;
+		}
+		
+		@Override
+		public BinaryPersistenceFoundation setValueTranslatorMapping(
+			final TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping
+		)
+		{
+			this.valueTranslatorMapping = valueTranslatorMapping;
 			return this;
 		}
 
@@ -516,17 +806,24 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			);
 		}
 		
-		protected BinaryValueTranslatorProvider createValueTranslatorProvider()
-		{
-			return BinaryValueTranslatorProvider.New();
-		}
-		
 		@Override
 		protected PersistenceLegacyTypeHandlerCreator<Binary> createLegacyTypeHandlerCreator()
 		{
 			return BinaryLegacyTypeHandlerCreator.New(
 				this.createValueTranslatorProvider(),
 				this.getLegacyTypeHandlingListener()
+			);
+		}
+		
+		protected TypeMappingLookup<BinaryValueSetter> createValueTranslatorMapping()
+		{
+			return BinaryValueTranslators.createDefaultValueTranslators();
+		}
+		
+		protected BinaryValueTranslatorProvider createValueTranslatorProvider()
+		{
+			return BinaryValueTranslatorProvider.New(
+				this.getValueTranslatorMapping()
 			);
 		}
 		

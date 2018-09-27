@@ -2086,5 +2086,31 @@ Jetzt noch die Converters verbessern, dann w\'e4re das Legacy Type Mapping ferti
 Ah: Lieber noch TypeMapping aufteilen in TypeMappingLookup und (mutable) TypeMapping.\par
 Das war in ein paar Minuten gemacht: Interfaces trennen. Implementierung umziehen. Vorkommen in der Foundation umstellen. Paar Leerzeichen korrigieren. Fertig.\par
 \par
+Jetzt Arbeiten in BinaryValueTranslatorProvider:\par
+\par
+Methoden auf neues Konzept umbenennen und grobe JavaDoc zur Erkl\'e4rung schreiben.\par
+\par
+TypeMappingLookup<BinaryValueSetter> translatorLookup in die Klasse einbauen.\par
+\par
+Implementieren ...\par
+Hm. Das sind jetzt einige F\'e4lle, die sauber unterschieden werden m\'fcssen:\par
+- targetMember ist null, d.h. es soll einfach geskippt werden. Die SkipHandler werden auch aus dem Lookup geholt (mit type2 gleich null), damit man customizte Skipper reinbringen kann, z.B. f\'fcr (debug-)Logging.\par
+- source und target haben einen nicht-null type. Dann lookup daf\'fcr. Wenn Ergebnis null: falls source ein primitive ist, dann exception, weil dann passt was nicht. Ansonsten pr\'fcfen auf beide referenzen und default referenz resolving nehmen.\par
+- source und/oder target haben einen null-type. Dann k\'f6nnen das nur reference types sein, also einfach generisch resolven.\par
+\par
+Logik in TranslatorProvider anpassen.\par
+\par
+BinaryPersistenceFoundation erweitern.\par
+Dabei gleich alle Setter nachziehen, damit es nicht Typprobleme beim Chaining gibt.\par
+Diese Setter Overriderei ist extrem l\'e4stig und langsam richtig code-aufbl\'e4hend. TODO f\'fcr generische L\'f6sung mit Generics schreiben.\par
+\par
+Jetzt noch BinaryValueTranslators#createDefaultValueTranslators implementieren und JavaDoc schreiben.\par
+\par
+TODOs checken.\par
+\par
+So, ich denk, fast genau 13 Monate nach Beginn der Arbeiten ist das Feature auch schon fertig implementiert.\par
+\par
+Die Funktionalit\'e4t sollte, abgesehen von ein paar TODOs f\'fcr Verbesserungen und noch nicht unterst\'fctzt Spezialsonderf\'e4lle, nun vollst\'e4ndig sein.\par
+Ab jetzt testen ...\par
 }
  
