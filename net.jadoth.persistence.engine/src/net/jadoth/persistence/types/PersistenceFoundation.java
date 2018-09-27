@@ -27,13 +27,16 @@ import net.jadoth.typing.XTypes;
  * @author Thomas Muenz
  * @param <M>
  */
-public interface PersistenceFoundation<M> extends SwizzleFoundation
+public interface PersistenceFoundation<M/*, F extends PersistenceFoundation<F, ?>*/>
+extends SwizzleFoundation
 {
 	///////////////////////////////////////////////////////////////////////////
 	// getters //
-	/////////////
+	////////////
 	
 	// (31.05.2018 TM)TODO: rename ALL get~ methods in ALL foundations to provide~? Because that is what they do.
+	
+	// (27.09.2018 TM)TODO: use self-type parameter to get rid of all the dreaded override setters?
 
 	public SwizzleRegistry getSwizzleRegistry();
 
@@ -249,11 +252,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceFoundation<M> setLegacyTypeHandlingListener(
 		PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
 	);
-	
-	
-
-	
-
 
 	@Override
 	public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>

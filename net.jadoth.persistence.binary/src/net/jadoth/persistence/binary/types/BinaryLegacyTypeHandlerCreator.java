@@ -112,9 +112,9 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				// currentMember null means the value is to be discarded.
 				final PersistenceTypeDescriptionMember currentMember = legacyToTargetMembers.get(legacyMember);
 				
-				final BinaryValueSetter translator = legacyMember.isReference() && resolveReferences
-					? creator.provideReferenceResolver(legacyMember, currentMember)
-					: creator.providePrimitiveValueTranslator(legacyMember, currentMember)
+				final BinaryValueSetter translator = resolveReferences
+					? creator.provideValueTranslator(legacyMember, currentMember)
+					: creator.provideBinaryValueTranslator(legacyMember, currentMember)
 				;
 				final Long targetOffset = targetMemberOffsets.get(currentMember);
 				translatorsWithTargetOffsets.add(translator, targetOffset);
