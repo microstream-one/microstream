@@ -7,13 +7,13 @@ import net.jadoth.chars.Levenshtein;
 import net.jadoth.functional.Similator;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
-import net.jadoth.typing.TypeMapping;
+import net.jadoth.typing.TypeMappingLookup;
 
 public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDescriptionMember>
 {
 	public static PersistenceMemberSimilator New(
 		final PersistenceRefactoringMapping refactoringMapping,
-		final TypeMapping<Float>            typeSimilarity
+		final TypeMappingLookup<Float>      typeSimilarity
 	)
 	{
 		return new PersistenceMemberSimilator.Implementation(
@@ -29,7 +29,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		////////////////////
 		
 		final PersistenceRefactoringMapping refactoringMapping;
-		final TypeMapping<Float>            typeSimilarity    ;
+		final TypeMappingLookup<Float>            typeSimilarity    ;
 		
 		
 		
@@ -39,7 +39,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 
 		Implementation(
 			final PersistenceRefactoringMapping refactoringMapping,
-			final TypeMapping<Float>            typeSimilarity
+			final TypeMappingLookup<Float>      typeSimilarity
 		)
 		{
 			super();

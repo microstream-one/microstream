@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
-import net.jadoth.typing.TypeMapping;
+import net.jadoth.typing.TypeMappingLookup;
 import net.jadoth.util.matching.MatchValidator;
 
 public interface PersistenceMemberMatchingProvider
@@ -11,7 +11,7 @@ public interface PersistenceMemberMatchingProvider
 	
 	public Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
 		PersistenceRefactoringMapping refactoringMapping,
-		TypeMapping<Float>            typeSimilarity
+		TypeMappingLookup<Float>      typeSimilarity
 	);
 	
 	public MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator();
@@ -36,7 +36,7 @@ public interface PersistenceMemberMatchingProvider
 		@Override
 		public Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
 			final PersistenceRefactoringMapping refactoringMapping,
-			final TypeMapping<Float>            typeSimilarity
+			final TypeMappingLookup<Float>      typeSimilarity
 		)
 		{
 			return PersistenceMemberSimilator.New(refactoringMapping, typeSimilarity);
