@@ -41,7 +41,10 @@ public final class StorageBackupHelper
 		);
 	}
 
-	static void backupMetadata(final EmbeddedStorageConnectionFoundation connectionFoundation, final File targetDirectory)
+	static void backupMetadata(
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
+		final File                                   targetDirectory
+	)
 	{
 		// Der erste Teil nervt mich noch. Darum: https://www.xdevissues.com/browse/OGS-21
 		final PersistenceTypeDictionaryAssembler  dictionaryAssembler = connectionFoundation.getTypeDictionaryAssembler();

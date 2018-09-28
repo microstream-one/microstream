@@ -48,9 +48,9 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //	}
 
 	static void debugPrintGraph(
-		final Object root,
-		final PersistenceManager<Binary> persistenceManager,
-		final PersistenceFoundation<?> foundation
+		final Object                      root              ,
+		final PersistenceManager<Binary>  persistenceManager,
+		final PersistenceFoundation<?, ?> foundation
 	)
 	{
 		new DebugGraphPrinter(persistenceManager, foundation.getTypeHandlerManager()).apply(root);
@@ -128,18 +128,18 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		return XChars.valueString(object);
 	}
 
-	static void testWriteStateDefs(final BinaryPersistenceFoundation factory)
+	static void testWriteStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
 		factory.getTypeDictionaryManager().exportTypeDictionary();
 	}
 
-	static void testReadStateDefs(final BinaryPersistenceFoundation factory)
+	static void testReadStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
 		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideTypeDictionary();
 		XDebug.debugln('\n'+typeDictionary.toString());
 	}
 
-	static void resetRegistries(final BinaryPersistenceFoundation factory)
+	static void resetRegistries(final BinaryPersistenceFoundation<?> factory)
 	{
 		final SwizzleRegistry registry = factory.getSwizzleRegistry();
 		final PersistenceTypeHandlerRegistry.Implementation<Binary> typeHandlerRegistry =

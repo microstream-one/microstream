@@ -43,7 +43,9 @@ public final class EmbeddedStorage
 		return new EmbeddedStorageFoundation.Implementation();
 	}
 	
-	public static final EmbeddedStorageConnectionFoundation createConnectionFoundation(final File directory)
+	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
+		final File directory
+	)
 	{
 		/*
 		 * (03.11.2014)TODO: EmbeddedStorage loosely coupled id providers?
@@ -66,8 +68,8 @@ public final class EmbeddedStorage
 			.initialize()
 		;
 
-		return new EmbeddedStorageConnectionFoundation.Implementation()
-			.setDictionaryStorage          (dictionaryStorage            )
+		return EmbeddedStorageConnectionFoundation.New()
+			.setTypeDictionaryStorage      (dictionaryStorage            )
 			.setSwizzleIdProvider          (idProvider                   )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
@@ -77,8 +79,8 @@ public final class EmbeddedStorage
 	
 	
 	public static final EmbeddedStorageFoundation createFoundation(
-		final StorageConfiguration                configuration       ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
 		/* (24.09.2018 TM)NOTE:
@@ -92,8 +94,8 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageFoundation createFoundation(
-		final StorageFileProvider                 fileProvider        ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
+		final StorageFileProvider                    fileProvider        ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
 		return createFoundationBlank()
@@ -144,8 +146,8 @@ public final class EmbeddedStorage
 	
 
 	public static final EmbeddedStorageManager start(
-		final StorageConfiguration                configuration       ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
 		final EmbeddedStorageManager esm = createFoundation(configuration, connectionFoundation)
@@ -157,8 +159,8 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageManager start(
-		final StorageFileProvider                 fileProvider        ,
-		final EmbeddedStorageConnectionFoundation connectionFoundation
+		final StorageFileProvider                    fileProvider        ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
 		final EmbeddedStorageManager esm = createFoundation(fileProvider, connectionFoundation)

@@ -8,7 +8,7 @@ import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
-public class TestPersistenceFactory extends BinaryPersistenceFoundation.Implementation
+public class TestPersistenceFactory extends BinaryPersistenceFoundation.Implementation<TestPersistenceFactory>
 {
 	protected TestPersistenceFactory()
 	{
@@ -30,13 +30,15 @@ public class TestPersistenceFactory extends BinaryPersistenceFoundation.Implemen
 	@Override
 	protected PersistenceTarget<Binary> createPersistenceTarget()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractImplementation<Binary>#createPersistenceTarget()
+		// FIXME AbstractImplementation<Binary>#createPersistenceTarget()
+		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 	@Override
 	protected PersistenceSource<Binary> createPersistenceSource()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME AbstractImplementation<Binary>#createPersistenceSource()
+		// FIXME AbstractImplementation<Binary>#createPersistenceSource()
+		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 }

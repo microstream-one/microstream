@@ -1859,15 +1859,14 @@ public final class BinaryPersistence extends Persistence
 		};
 	}
 
-	public static BinaryPersistenceFoundation factory()
+	public static BinaryPersistenceFoundation<?> factory()
 	{
 		return factory(null);
 	}
 
-	public static BinaryPersistenceFoundation factory(final InstanceDispatcherLogic dispatcher)
+	public static BinaryPersistenceFoundation<?> factory(final InstanceDispatcherLogic dispatcher)
 	{
-		final BinaryPersistenceFoundation.Implementation factory =
-			BinaryPersistenceFoundation.New()
+		final BinaryPersistenceFoundation<?> factory = BinaryPersistenceFoundation.New()
 			.setInstanceDispatcher(dispatcher)
 		;
 		return factory;
@@ -1919,7 +1918,7 @@ public final class BinaryPersistence extends Persistence
 	
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
-		final BinaryPersistenceFoundation f = BinaryPersistenceFoundation.New()
+		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()
 			.setTypeDictionaryLoader(
 				PersistenceTypeDictionaryFileHandler.New(dictionaryFile)
 			)

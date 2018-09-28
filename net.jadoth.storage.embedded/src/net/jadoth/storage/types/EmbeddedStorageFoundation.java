@@ -13,7 +13,7 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface EmbeddedStorageFoundation extends StorageFoundation
 {
-	public EmbeddedStorageConnectionFoundation getConnectionFoundation();
+	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
 
 	public EmbeddedStorageManager createEmbeddedStorageManager();
 	
@@ -53,7 +53,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	@Override
 	public EmbeddedStorageFoundation setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
 
-	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation connectionFoundation);
+	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
 
 	public EmbeddedStorageFoundation setRootResolver(PersistenceRootResolver rootResolver);
 	
@@ -78,7 +78,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		// instance fields  //
 		/////////////////////
 
-		private EmbeddedStorageConnectionFoundation connectionFoundation;
+		private EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 
 		
 
@@ -86,7 +86,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		// methods //
 		////////////
 		
-		protected EmbeddedStorageConnectionFoundation createConnectionFoundation()
+		protected EmbeddedStorageConnectionFoundation<?> createConnectionFoundation()
 		{
 			throw new MissingFoundationPartException(EmbeddedStorageConnectionFoundation.class);
 //			return new EmbeddedStorageConnectionFoundation.Implementation();
@@ -95,8 +95,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		@Override
 		protected EmbeddedStorageRootTypeIdProvider createRootTypeIdProvider()
 		{
-			final EmbeddedStorageConnectionFoundation escf          = this.getConnectionFoundation();
-			final PersistenceRootsProvider<Binary>    rootsProvider = escf.getRootsProvider();
+			final EmbeddedStorageConnectionFoundation<?> escf          = this.getConnectionFoundation();
+			final PersistenceRootsProvider<Binary>       rootsProvider = escf.getRootsProvider();
 			
 			// the genericness of this :D (albeit #provideRoots is implicitly assumed to cache the instance)
 			return EmbeddedStorageRootTypeIdProvider.New(
@@ -105,7 +105,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		}
 
 		@Override
-		public EmbeddedStorageConnectionFoundation getConnectionFoundation()
+		public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation()
 		{
 			if(this.connectionFoundation == null)
 			{
@@ -192,7 +192,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 
 		@Override
 		public EmbeddedStorageFoundation.Implementation setConnectionFoundation(
-			final EmbeddedStorageConnectionFoundation connectionFoundation
+			final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 		)
 		{
 			this.connectionFoundation = connectionFoundation;
@@ -256,8 +256,8 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		{
 			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
 
-			final EmbeddedStorageConnectionFoundation ecf = this.getConnectionFoundation();
-			final PersistenceTypeHandlerManager<?>    thm = ecf.getTypeHandlerManager();
+			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
+			final PersistenceTypeHandlerManager<?>       thm = ecf.getTypeHandlerManager();
 			
 			final StorageManager stm = this.createStorageManager();
 			ecf.setStorageManager(stm);
