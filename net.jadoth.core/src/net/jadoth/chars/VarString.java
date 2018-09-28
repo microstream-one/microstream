@@ -1310,10 +1310,10 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	// RegExp //
 	///////////
 
-    public String replaceFirst(final String regex, final String replacement)
-    {
-        return Pattern.compile(regex).matcher(this).replaceFirst(replacement);
-    }
+	public String replaceFirst(final String regex, final String replacement)
+	{
+		return Pattern.compile(regex).matcher(this).replaceFirst(replacement);
+	}
 
 	public final String replaceAll(final String regex, final String replacement)
 	{

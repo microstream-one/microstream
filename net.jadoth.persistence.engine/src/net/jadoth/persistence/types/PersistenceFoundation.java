@@ -1419,7 +1419,7 @@ extends SwizzleFoundation
 		
 		protected PersistenceTypeMismatchValidator<M> createTypeMismatchValidator()
 		{
-			// (13.09.2018 TM)NOTE: changed for legacy type mapping. Still a valid callback for monitoring purposes.
+			// (13.09.2018 TM)NOTE: changed for Legacy Type Mapping. Still a valid callback for monitoring purposes.
 			return Persistence.typeMismatchValidatorNoOp();
 //			return Persistence.typeMismatchValidatorFailing();
 		}

@@ -550,9 +550,9 @@ public final class XReflect
 	 * {@link IllegalAccessException} with a proper {@link IllegalAccessRuntimeException}.
 	 *
 	 * @param field the field from which the value shall be extracted.
-     * @param obj object from which the represented field's value is to be extracted
-     * @return the value of the represented field in object {@code obj};
-     *         primitive values are wrapped in an appropriate object before being returned
+	 * @param obj object from which the represented field's value is to be extracted
+	 * @return the value of the represented field in object {@code obj};
+	 *         primitive values are wrapped in an appropriate object before being returned
 	 */
 	public static final Object getFieldValue(final Field field, final Object obj)
 	{
@@ -572,8 +572,8 @@ public final class XReflect
 	 * {@link IllegalAccessException} with a proper {@link IllegalAccessRuntimeException}.
 	 *
 	 * @param field the field to be modified
-     * @param obj the object whose field should be modified
-     * @param value the new value for the field of {@code obj} being modified
+	 * @param obj the object whose field should be modified
+	 * @param value the new value for the field of {@code obj} being modified
 	 */
 	public static final void setFieldValue(final Field field, final Object obj, final Object value)
 	{

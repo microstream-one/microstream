@@ -350,7 +350,8 @@ public final class XTypes
 		};
 		
 		// always fun to use a class as a database :-D
-		final int[][] primSims = {
+		final int[][] primSims =
+		{
 			{100, 50, 80, 70, 60, 30, 40, 30},
 			{ 50,100, 40, 10, 30, 20, 20, 10},
 			{ 80, 40,100, 50, 80, 50, 60, 50},

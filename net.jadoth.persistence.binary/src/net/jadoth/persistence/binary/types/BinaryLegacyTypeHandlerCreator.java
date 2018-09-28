@@ -131,7 +131,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final PersistenceTypeHandler<Binary, T> typeHandler = mappingResult.currentTypeHandler();
 			if(typeHandler.hasPersistedVariableLength())
 			{
-				// (14.09.2018 TM)TODO: support VaryingPersistedLengthInstances
+				// (14.09.2018 TM)TODO: Legacy Type Mapping: support VaryingPersistedLengthInstances
 				throw new UnsupportedOperationException(
 					"Types with varying persisted length are not supported, yet by generic mapping."
 					+ " Use a custom handler."

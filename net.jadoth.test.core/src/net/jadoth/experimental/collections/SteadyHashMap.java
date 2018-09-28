@@ -38,27 +38,27 @@ public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.20
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(SteadyHashMap.class, "size"));
 
 	// stolen from AtomicReferenceArray
-    private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
-    private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
+	private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
+	private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
 
-    /* Funny thing:
-     * A combined array/chain storage would allow indefinite amount of entries.
-     * But size and toArray() are limited to max int amount of entries.
-     * Thus the map has to be as well.
-     * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
-     * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
-     */
-    private static final int MAX_SIZE = 2147000000;
+	/* Funny thing:
+	 * A combined array/chain storage would allow indefinite amount of entries.
+	 * But size and toArray() are limited to max int amount of entries.
+	 * Thus the map has to be as well.
+	 * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
+	 * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
+	 */
+	private static final int MAX_SIZE = 2147000000;
 
-    private static final int   MINIMUM_CAPACITY = 16;
+	private static final int   MINIMUM_CAPACITY = 16;
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
-    private static int calculateCapacity(final int minimalCapacity)
+	private static int calculateCapacity(final int minimalCapacity)
 	{
 		if(minimalCapacity > 1<<30){ // JVM technical limit
 			return 1<<30;

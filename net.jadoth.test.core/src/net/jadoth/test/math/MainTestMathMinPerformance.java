@@ -39,6 +39,6 @@ public class MainTestMathMinPerformance
 
 	static final int min(final int a, final int b)
 	{
-        return a >= b ? b : a;
-    }
+		return a >= b ? b : a;
+	}
 }
