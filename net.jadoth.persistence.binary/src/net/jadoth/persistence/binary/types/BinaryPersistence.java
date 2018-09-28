@@ -1521,7 +1521,7 @@ public final class BinaryPersistence extends Persistence
 		;
 	}
 	
-	// (23.09.2018 TM)TODO: consolidate with BinaryValueTranslators?
+	// (23.09.2018 TM)TODO: consolidate with BinaryValueSetters for Legacy Type Mapping value translating?
 
 	public static final BinaryValueSetter getSetter_byte()
 	{

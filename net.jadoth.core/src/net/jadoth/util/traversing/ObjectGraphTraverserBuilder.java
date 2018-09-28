@@ -309,11 +309,11 @@ public interface ObjectGraphTraverserBuilder
 		private Predicate<? super Field>                           fieldPredicate            ;
 		private Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider    ;
 		private TypeTraverser.Creator                              typeTraverserCreator      ;
-                                                                                             
+
 		private TraversalAcceptor                                  acceptor                  ;
 		private Predicate<Object>                                  acceptorPredicate         ;
 		private Consumer<Object>                                   acceptorLogic             ;
-                                                                                             
+
 		private TraversalMutator                                   mutator                   ;
 		private Predicate<Object>                                  mutatorPredicate          ;
 		private Function<Object, ?>                                mutatorLogic              ;

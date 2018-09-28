@@ -38,10 +38,10 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		/////////////////////
 
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry;
-        final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
+		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
 
 
-        
+
 		///////////////////////////////////////////////////////////////////////////
 		// constructors     //
 		/////////////////////

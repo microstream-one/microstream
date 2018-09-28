@@ -29,7 +29,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		////////////////////
 		
 		final PersistenceRefactoringMapping refactoringMapping;
-		final TypeMappingLookup<Float>            typeSimilarity    ;
+		final TypeMappingLookup<Float>      typeSimilarity    ;
 		
 		
 		

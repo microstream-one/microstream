@@ -127,6 +127,9 @@ public final class BinaryValueTranslators
 		.register(double.class, long   .class, BinaryValueTranslators::copy_doubleTo_long   )
 		.register(double.class, double .class, BinaryValueTranslators::copy_doubleTo_double )
 		;
+		
+		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive -> primitive wrapper
+		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive wrapper -> primitive
 
 		return mapping;
 	}

@@ -573,11 +573,11 @@ public final class XMath
 		{
 			throw new IllegalArgumentException("No negative values allowed for decimals: " + decimals);
 		}
-	    // no idea if 323 is the best choice, tbh. At least it's a check for decimals values like million etc.
-	    if(decimals > 323)
-	    {
-	        throw new IllegalArgumentException("decimals value out of range: " + decimals);
-	    }
+		// no idea if 323 is the best choice, tbh. At least it's a check for decimals values like million etc.
+		if(decimals > 323)
+		{
+			throw new IllegalArgumentException("decimals value out of range: " + decimals);
+		}
 
 		// inlined pow(double, int) without checks
 		double factor = 1.0d;

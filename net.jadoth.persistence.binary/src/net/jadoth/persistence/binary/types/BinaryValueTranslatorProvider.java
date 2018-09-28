@@ -75,7 +75,7 @@ public interface BinaryValueTranslatorProvider
 				return BinaryValueTranslators::skip_long;
 			}
 
-			/* (27.09.2018 TM)TODO: implemented skipping a variable length type
+			/* (27.09.2018 TM)TODO: Legacy Type Mapping: implement skipping a variable length type.
 			 * This even already exists in BinaryReferenceTraverser
 			 */
 
@@ -228,7 +228,7 @@ public interface BinaryValueTranslatorProvider
 				return this.provideValueTranslator(sourceType, targetType);
 			}
 			
-			/* (27.09.2018 TM)TODO: Specific value translator registration options
+			/* (27.09.2018 TM)TODO: Legacy Type Mapping: Specific value translator registration options
 			 * Like registration per:
 			 * - TID
 			 * - source type name

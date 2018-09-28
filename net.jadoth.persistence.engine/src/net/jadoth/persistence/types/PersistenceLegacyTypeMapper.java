@@ -244,6 +244,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		private static IdentifierBuilder[] createSourceIdentifierBuilders(final char separator)
 		{
+			// (28.09.2018 TM)TODO: Legacy Type Mapping: Syntax to lookup type with and/or exclusively by TID
 			/*
 			 * identifier building logic in order of priority:
 			 * - global identifier (means most specific)
@@ -445,6 +446,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		@Override
 		public <T> Class<T> lookupRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
 		{
+			// (28.09.2018 TM)TODO: Legacy Type Mapping: Syntax to lookup type with and/or exclusively by TID
 			return (Class<T>)this.resolveMappedRuntimeType(legacyTypeDefinition.typeName());
 		}
 		

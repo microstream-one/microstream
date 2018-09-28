@@ -37,33 +37,33 @@ public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements Concurr
 	private static final long FIELD_ADDRESS_link = unsafe.objectFieldOffset(getDeclaredField(VolatileEntry.class, "link"));
 
 	// stolen from AtomicReferenceArray
-    private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
-    private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
+	private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
+	private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
 
-    /* Funny thing:
-     * A combined array/chain storage would allow indefinite amount of entries.
-     * But size and toArray() are limited to max int amount of entries.
-     * Thus the map has to be as well.
-     * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
-     * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
-     */
-    private static final int MAX_SIZE = 2147000000;
+	/* Funny thing:
+	 * A combined array/chain storage would allow indefinite amount of entries.
+	 * But size and toArray() are limited to max int amount of entries.
+	 * Thus the map has to be as well.
+	 * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
+	 * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
+	 */
+	private static final int MAX_SIZE = 2147000000;
 
-    private static final int   MINIMUM_CAPACITY = 1024;
-    private static final float DEFAULT_HASH_FACTOR = 1.20f;
+	private static final int   MINIMUM_CAPACITY = 1024;
+	private static final float DEFAULT_HASH_FACTOR = 1.20f;
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
-    private static String exceptionHashDensity(final float hashDensity)
+	private static String exceptionHashDensity(final float hashDensity)
 	{
 		return "Illegal hash density: " + hashDensity;
 	}
 
-    private static int calculateCapacity(final int minimalCapacity)
+	private static int calculateCapacity(final int minimalCapacity)
 	{
 		if(minimalCapacity > 1<<30){ // JVM technical limit
 			return Integer.MAX_VALUE;
@@ -76,7 +76,7 @@ public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements Concurr
 		return capacity;
 	}
 
-    private static float hashDensity(final float hashDensity)
+	private static float hashDensity(final float hashDensity)
 	{
 		if(hashDensity <= 0 || Float.isNaN(hashDensity))
 		{
