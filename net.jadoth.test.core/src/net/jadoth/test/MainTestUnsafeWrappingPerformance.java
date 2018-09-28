@@ -3,7 +3,6 @@ package net.jadoth.test;
 import java.nio.ByteBuffer;
 
 import net.jadoth.low.XVM;
-import net.jadoth.low.XVM;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance

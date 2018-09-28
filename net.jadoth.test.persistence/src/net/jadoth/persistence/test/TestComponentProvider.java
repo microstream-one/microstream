@@ -7,8 +7,8 @@ import java.io.File;
 
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
@@ -138,11 +138,11 @@ public class TestComponentProvider extends InvocationLogging
 		return this.dictionaryStorage;
 	}
 
-	public final <F extends PersistenceFoundation<Binary>> F initialize(final F foundation)
+	public final <F extends PersistenceFoundation<Binary, ?>> F initialize(final F foundation)
 	{
 		foundation
 			.setSwizzleIdProvider          (this.swizzleIdProvider()     )
-			.setDictionaryStorage          (this.dictionaryStorage()     )
+			.setTypeDictionaryStorage      (this.dictionaryStorage()     )
 			.setPersistenceChannel         (this.persistenceStorage()    )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)

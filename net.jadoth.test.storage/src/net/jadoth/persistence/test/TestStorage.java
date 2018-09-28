@@ -82,7 +82,7 @@ public class TestStorage extends TestComponentProvider
 		return Storage.FileProvider(TEST_DIRECTORY, "channel_", "dat");
 	}
 
-	static final EmbeddedStorageConnectionFoundation createTestConnectionFoundation()
+	static final EmbeddedStorageConnectionFoundation<?> createTestConnectionFoundation()
 	{
 		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
 	}

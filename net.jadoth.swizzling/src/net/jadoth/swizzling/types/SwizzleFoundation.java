@@ -6,7 +6,7 @@ import net.jadoth.util.InstanceDispatcher;
 
 
 
-public interface SwizzleFoundation
+public interface SwizzleFoundation<F extends SwizzleFoundation<?>>
 {
 	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
@@ -16,16 +16,17 @@ public interface SwizzleFoundation
 	public SwizzleTypeIdProvider getTypeIdProvider();
 
 
-	public SwizzleFoundation setObjectIdProvider(SwizzleObjectIdProvider oidProvider);
+	public F setObjectIdProvider(SwizzleObjectIdProvider oidProvider);
 
-	public SwizzleFoundation setTypeIdProvider(SwizzleTypeIdProvider tidProvider);
+	public F setTypeIdProvider(SwizzleTypeIdProvider tidProvider);
 
 	public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
-	SwizzleFoundation setSwizzleIdProvider(P swizzleTypeIdProvider);
+	F setSwizzleIdProvider(P swizzleTypeIdProvider);
 
 
 
-	public class Implementation extends InstanceDispatcher.Implementation implements SwizzleFoundation
+	public class Implementation<F extends SwizzleFoundation.Implementation<?>>
+	extends InstanceDispatcher.Implementation implements SwizzleFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -39,6 +40,12 @@ public interface SwizzleFoundation
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@SuppressWarnings("unchecked") // magic self-type.
+		protected final F $()
+		{
+			return (F)this;
+		}
 
 		/* Explanation:
 		 * These methods are not actually abstract because it is not necessaryly required
@@ -90,26 +97,26 @@ public interface SwizzleFoundation
 		}
 
 		@Override
-		public SwizzleFoundation.Implementation setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
+		public F setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
 		{
 			this.oidProvider = oidProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public SwizzleFoundation.Implementation setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
+		public F setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
 		{
 			this.tidProvider = tidProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
 		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
-		SwizzleFoundation.Implementation setSwizzleIdProvider(final P swizzleTypeIdProvider)
+		F setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
 			this.setObjectIdProvider(swizzleTypeIdProvider);
 			this.setTypeIdProvider(swizzleTypeIdProvider);
-			return this;
+			return this.$();
 		}
 
 	}

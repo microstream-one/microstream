@@ -98,7 +98,7 @@ public class UtilTestNetworkPersistence
 			BufferSizeProvider.New()
 		);
 		
-		final BinaryPersistenceFoundation.Implementation foundation = createFoundation(systemDirectory, isClient);
+		final BinaryPersistenceFoundation<?> foundation = createFoundation(systemDirectory, isClient);
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
@@ -106,7 +106,7 @@ public class UtilTestNetworkPersistence
 		return ComChannel.New(pm);
 	}
 		
-	private static BinaryPersistenceFoundation.Implementation createFoundation(
+	private static BinaryPersistenceFoundation<?> createFoundation(
 		final File    systemDirectory,
 		final boolean isClient
 	)
@@ -138,7 +138,7 @@ public class UtilTestNetworkPersistence
 		XDebug.debugln("OID: " + idProvider.currentObjectId());
 		
 		return BinaryPersistenceFoundation.New()
-			.setDictionaryStorage          (dictionaryStorage            )
+			.setTypeDictionaryStorage      (dictionaryStorage            )
 			.setSwizzleIdProvider          (idProvider                   )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)

@@ -39,9 +39,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	
 	public static EmbeddedStorageManager.Implementation New(
-		final StorageConfiguration                configuration    ,
-		final EmbeddedStorageConnectionFoundation connectionFactory,
-		final PersistenceRoots                    definedRoots
+		final StorageConfiguration                   configuration    ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFactory,
+		final PersistenceRoots                       definedRoots
 	)
 	{
 		return new EmbeddedStorageManager.Implementation(
@@ -58,10 +58,10 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		// instance fields //
 		////////////////////
 
-		private final StorageConfiguration                  configuration             ;
-		private final StorageManager                        storageManager            ;
-		private final EmbeddedStorageConnectionFoundation   connectionFactory         ;
-		private final PersistenceRoots                      definedRoots              ;
+		private final StorageConfiguration                   configuration    ;
+		private final StorageManager                         storageManager   ;
+		private final EmbeddedStorageConnectionFoundation<?> connectionFactory;
+		private final PersistenceRoots                       definedRoots     ;
 		
 		private StorageConnection singletonConnection;
 
@@ -72,9 +72,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		/////////////////////
 
 		Implementation(
-			final StorageConfiguration                configuration    ,
-			final EmbeddedStorageConnectionFoundation connectionFactory,
-			final PersistenceRoots                    definedRoots
+			final StorageConfiguration                   configuration    ,
+			final EmbeddedStorageConnectionFoundation<?> connectionFactory,
+			final PersistenceRoots                       definedRoots
 		)
 		{
 			super();
