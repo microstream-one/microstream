@@ -48,7 +48,6 @@ import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.TypeMapping;
-import net.jadoth.typing.TypeMappingLookup;
 
 
 
@@ -63,7 +62,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 	// getters //
 	////////////
 	
-	public TypeMappingLookup<BinaryValueSetter> getValueTranslatorMapping();
+	public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider();
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
@@ -243,8 +242,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		BinaryValueTranslatorProvider valueTranslatorProvider
 	);
 	
-	public BinaryPersistenceFoundation setValueTranslatorMapping(
-		TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping
+	public BinaryPersistenceFoundation setValueTranslatorMappingProvider(
+		BinaryValueTranslatorMappingProvider valueTranslatorMappingProvider
 	);
 
 
@@ -267,7 +266,7 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		// instance fields //
 		////////////////////
 
-		private TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping ;
+		private BinaryValueTranslatorMappingProvider valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider        valueTranslatorProvider;
 		
 		
@@ -288,11 +287,11 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		/////////////////////
 		
 		@Override
-		public TypeMappingLookup<BinaryValueSetter> getValueTranslatorMapping()
+		public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider()
 		{
 			if(this.valueTranslatorMapping == null)
 			{
-				this.valueTranslatorMapping = this.dispatch(this.createValueTranslatorMapping());
+				this.valueTranslatorMapping = this.dispatch(this.createValueTranslatorMappingProvider());
 			}
 			
 			return this.valueTranslatorMapping;
@@ -750,8 +749,8 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 		}
 		
 		@Override
-		public BinaryPersistenceFoundation setValueTranslatorMapping(
-			final TypeMappingLookup<BinaryValueSetter> valueTranslatorMapping
+		public BinaryPersistenceFoundation setValueTranslatorMappingProvider(
+			final BinaryValueTranslatorMappingProvider valueTranslatorMapping
 		)
 		{
 			this.valueTranslatorMapping = valueTranslatorMapping;
@@ -815,15 +814,15 @@ public interface BinaryPersistenceFoundation extends PersistenceFoundation<Binar
 			);
 		}
 		
-		protected TypeMappingLookup<BinaryValueSetter> createValueTranslatorMapping()
+		protected BinaryValueTranslatorMappingProvider createValueTranslatorMappingProvider()
 		{
-			return BinaryValueTranslators.createDefaultValueTranslators();
+			return BinaryValueTranslatorMappingProvider.New();
 		}
 		
 		protected BinaryValueTranslatorProvider createValueTranslatorProvider()
 		{
 			return BinaryValueTranslatorProvider.New(
-				this.getValueTranslatorMapping()
+				this.getValueTranslatorMappingProvider()
 			);
 		}
 		

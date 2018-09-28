@@ -54,6 +54,17 @@ public final class BinaryValueTranslators
 	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslators()
 	{
 		final TypeMapping<BinaryValueSetter> mapping = TypeMapping.New();
+		registerPrimitivesToPrimives(mapping);
+		registerPrimitivesToWrappers(mapping);
+		registerWrappersToPrimitives(mapping);
+		registerWrappersToWrappers(mapping);
+		registerCommonValueTypes(mapping);
+		
+		return mapping;
+	}
+	
+	private static void registerPrimitivesToPrimives(final TypeMapping<BinaryValueSetter> mapping)
+	{
 		mapping
 		.register(byte.class, byte   .class, BinaryValueTranslators::copy_byteTo_byte   )
 		.register(byte.class, boolean.class, BinaryValueTranslators::copy_byteTo_boolean)
@@ -127,11 +138,43 @@ public final class BinaryValueTranslators
 		.register(double.class, long   .class, BinaryValueTranslators::copy_doubleTo_long   )
 		.register(double.class, double .class, BinaryValueTranslators::copy_doubleTo_double )
 		;
-		
+	}
+	
+	private static void registerPrimitivesToWrappers(final TypeMapping<BinaryValueSetter> mapping)
+	{
 		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive -> primitive wrapper
+	}
+	
+	private static void registerWrappersToPrimitives(final TypeMapping<BinaryValueSetter> mapping)
+	{
 		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive wrapper -> primitive
-
-		return mapping;
+	}
+	
+	private static void registerWrappersToWrappers(final TypeMapping<BinaryValueSetter> mapping)
+	{
+		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive wrapper -> primitive wrapper
+	}
+	
+	private static void registerCommonValueTypes(final TypeMapping<BinaryValueSetter> mapping)
+	{
+		/* (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for common value type translation
+		 * (types that have no references to other - non-unshared - instances)
+		 * 
+		 * Obvious:
+		 * String?
+		 * BigInteger?
+		 * BigDecimal?
+		 * 
+		 * Potentially:
+		 * Date stuffs?
+		 * File stuffs?
+		 * StringBuilder stuffs?
+		 * Primitive arrays?? (char[] is obvious, but then why not the other 7?)
+		 * 
+		 * Hm... writing and mapping converters for 20 types among each other would yield a
+		 * whopping 400 methods. With arrays, it would be near 800.
+		 * Hm...
+		 */
 	}
 	
 	private static int to_int(final boolean value)
