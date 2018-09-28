@@ -34,7 +34,7 @@ public interface BinaryValueTranslatorProvider
 	
 	
 	
-	public static BinaryValueTranslatorProvider New(final TypeMappingLookup<BinaryValueSetter> translatorLookup)
+	public static BinaryValueTranslatorProvider New(final BinaryValueTranslatorLookupProvider translatorLookup)
 	{
 		return new BinaryValueTranslatorProvider.Implementation(
 			notNull(translatorLookup)
@@ -47,7 +47,9 @@ public interface BinaryValueTranslatorProvider
 		// instance fields //
 		////////////////////
 		
-		private final TypeMappingLookup<BinaryValueSetter> translatorLookup;
+		private final BinaryValueTranslatorLookupProvider translatorLookupProvider;
+		
+		private transient TypeMappingLookup<BinaryValueSetter> translatorLookup;
 		
 		
 		
@@ -55,10 +57,10 @@ public interface BinaryValueTranslatorProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(final TypeMappingLookup<BinaryValueSetter> translatorLookup)
+		Implementation(final BinaryValueTranslatorLookupProvider translatorLookupProvider)
 		{
 			super();
-			this.translatorLookup = translatorLookup;
+			this.translatorLookupProvider = translatorLookupProvider;
 		}
 		
 		
@@ -66,6 +68,16 @@ public interface BinaryValueTranslatorProvider
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private TypeMappingLookup<BinaryValueSetter> translatorLookup()
+		{
+			if(this.translatorLookup == null)
+			{
+				this.translatorLookup = this.translatorLookupProvider.mapping();
+			}
+			
+			return this.translatorLookup;
+		}
 		
 		private BinaryValueSetter provideValueSkipper(final PersistenceTypeDescriptionMember sourceMember)
 		{
@@ -131,7 +143,7 @@ public interface BinaryValueTranslatorProvider
 		
 		private BinaryValueSetter provideValueTranslator(final Class<?> sourceType, final Class<?> targetType)
 		{
-			final BinaryValueSetter translator = this.translatorLookup.lookup(sourceType, targetType);
+			final BinaryValueSetter translator = this.translatorLookup().lookup(sourceType, targetType);
 			if(translator != null)
 			{
 				return translator;
