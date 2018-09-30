@@ -1,5 +1,9 @@
 package net.jadoth.persistence.binary.types;
 
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.types.XEnum;
+import net.jadoth.collections.types.XTable;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -16,11 +20,23 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
 extends PersistenceFoundation<Binary, F>
 {
+	public XTable<String, BinaryValueSetter> getCustomTranslatorLookup();
+	
+	public XEnum<BinaryValueTranslatorKeyBuilder> getTranslatorKeyBuilders();
+	
 	public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider();
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
 
+	
+	public F setCustomTranslatorLookup(
+		XTable<String, BinaryValueSetter> customTranslatorLookup
+	);
+	
+	public F setTranslatorKeyBuilders(
+		XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders
+	);
 	
 	public F setValueTranslatorProvider(
 		BinaryValueTranslatorProvider valueTranslatorProvider
@@ -50,8 +66,10 @@ extends PersistenceFoundation<Binary, F>
 		// instance fields //
 		////////////////////
 
-		private BinaryValueTranslatorMappingProvider valueTranslatorMapping ;
-		private BinaryValueTranslatorProvider        valueTranslatorProvider;
+		private XTable<String, BinaryValueSetter>      customTranslatorLookup ;
+		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
+		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
+		private BinaryValueTranslatorProvider          valueTranslatorProvider;
 		
 		
 		
@@ -69,6 +87,28 @@ extends PersistenceFoundation<Binary, F>
 		///////////////////////////////////////////////////////////////////////////
 		// getters //
 		////////////
+		
+		@Override
+		public XTable<String, BinaryValueSetter> getCustomTranslatorLookup()
+		{
+			if(this.customTranslatorLookup == null)
+			{
+				this.customTranslatorLookup = this.dispatch(this.createCustomTranslatorLookup());
+			}
+			
+			return this.customTranslatorLookup;
+		}
+		
+		@Override
+		public XEnum<BinaryValueTranslatorKeyBuilder> getTranslatorKeyBuilders()
+		{
+			if(this.translatorKeyBuilders == null)
+			{
+				this.translatorKeyBuilders = this.dispatch(this.createTranslatorKeyBuilders());
+			}
+			
+			return this.translatorKeyBuilders;
+		}
 		
 		@Override
 		public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider()
@@ -99,24 +139,34 @@ extends PersistenceFoundation<Binary, F>
 		/////////////
 		
 		@Override
-		public F setValueTranslatorProvider(
-			final BinaryValueTranslatorProvider valueTranslatorProvider
-		)
+		public F setCustomTranslatorLookup(final XTable<String, BinaryValueSetter> customTranslatorLookup)
+		{
+			this.customTranslatorLookup = customTranslatorLookup;
+			return this.$();
+		}
+		
+		@Override
+		public F setTranslatorKeyBuilders(final XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders)
+		{
+			this.translatorKeyBuilders = translatorKeyBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setValueTranslatorProvider(final BinaryValueTranslatorProvider valueTranslatorProvider)
 		{
 			this.valueTranslatorProvider = valueTranslatorProvider;
 			return this.$();
 		}
 		
 		@Override
-		public F setValueTranslatorMappingProvider(
-			final BinaryValueTranslatorMappingProvider valueTranslatorMapping
-		)
+		public F setValueTranslatorMappingProvider(final BinaryValueTranslatorMappingProvider valueTranslatorMapping)
 		{
 			this.valueTranslatorMapping = valueTranslatorMapping;
 			return this.$();
 		}
-
-
+		
+	
 
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
@@ -173,6 +223,16 @@ extends PersistenceFoundation<Binary, F>
 			);
 		}
 		
+		protected XTable<String, BinaryValueSetter> createCustomTranslatorLookup()
+		{
+			return EqHashTable.New();
+		}
+		
+		protected XEnum<BinaryValueTranslatorKeyBuilder> createTranslatorKeyBuilders()
+		{
+			return EqHashEnum.New();
+		}
+		
 		protected BinaryValueTranslatorMappingProvider createValueTranslatorMappingProvider()
 		{
 			return BinaryValueTranslatorMappingProvider.New();
@@ -181,6 +241,8 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryValueTranslatorProvider createValueTranslatorProvider()
 		{
 			return BinaryValueTranslatorProvider.New(
+				this.getCustomTranslatorLookup()        ,
+				this.getTranslatorKeyBuilders()         ,
 				this.getValueTranslatorMappingProvider()
 			);
 		}

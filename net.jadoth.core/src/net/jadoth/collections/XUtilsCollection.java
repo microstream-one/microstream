@@ -2179,7 +2179,7 @@ public final class XUtilsCollection
 
 	public static <E, S extends E> E[] toArray(final XGettingCollection<S> collection, final Class<E> arrayComponentType)
 	{
-		final E[] array = X.Array(arrayComponentType, XTypes.to_int(collection.size()));
+		final E[] array = X.Array(arrayComponentType, X.checkArrayRange(collection.size()));
 		XArrays.copyTo(collection, array);
 
 		return array;
