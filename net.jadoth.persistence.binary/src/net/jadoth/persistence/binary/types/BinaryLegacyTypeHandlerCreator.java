@@ -98,6 +98,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		
 		private XGettingTable<BinaryValueSetter, Long> deriveValueTranslators(
 			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition ,
+			final PersistenceTypeHandler<Binary, ?>                                               currentTypeHandler   ,
 			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToTargetMembers,
 			final HashTable<PersistenceTypeDescriptionMember, Long>                               targetMemberOffsets  ,
 			final boolean                                                                         resolveReferences
@@ -113,8 +114,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				final PersistenceTypeDescriptionMember currentMember = legacyToTargetMembers.get(legacyMember);
 				
 				final BinaryValueSetter translator = resolveReferences
-					? creator.provideValueTranslator(legacyMember, currentMember)
-					: creator.provideBinaryValueTranslator(legacyMember, currentMember)
+					? creator.provideValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
+					: creator.provideBinaryValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 				;
 				final Long targetOffset = targetMemberOffsets.get(currentMember);
 				translatorsWithTargetOffsets.add(translator, targetOffset);
@@ -143,7 +144,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			);
 			
 			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
-				mappingResult.legacyTypeDefinition(),
+				mappingResult.legacyTypeDefinition()  ,
+				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
 				targetMemberOffsets,
 				false
@@ -168,7 +170,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			);
 			
 			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
-				mappingResult.legacyTypeDefinition(),
+				mappingResult.legacyTypeDefinition()  ,
+				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
 				targetMemberOffsets,
 				true

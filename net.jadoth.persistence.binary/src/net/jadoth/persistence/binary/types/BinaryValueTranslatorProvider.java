@@ -1,8 +1,14 @@
 package net.jadoth.persistence.binary.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.collections.XUtilsCollection;
+import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.typing.TypeMappingLookup;
 
 
@@ -16,8 +22,10 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideValueTranslator(
-		PersistenceTypeDescriptionMember sourceMember,
-		PersistenceTypeDescriptionMember targetMember
+		PersistenceTypeDefinition<?>      sourceLegacyType ,
+		PersistenceTypeDescriptionMember  sourceMember     ,
+		PersistenceTypeHandler<Binary, ?> targetCurrentType,
+		PersistenceTypeDescriptionMember  targetMember
 	);
 	
 	/**
@@ -28,17 +36,35 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
-		PersistenceTypeDescriptionMember sourceMember,
-		PersistenceTypeDescriptionMember targetMember
+		PersistenceTypeDefinition<?>      sourceLegacyType ,
+		PersistenceTypeDescriptionMember  sourceMember     ,
+		PersistenceTypeHandler<Binary, ?> targetCurrentType,
+		PersistenceTypeDescriptionMember  targetMember
 	);
 	
 	
 	
-	public static BinaryValueTranslatorProvider New(final BinaryValueTranslatorLookupProvider translatorLookup)
+	public static BinaryValueTranslatorProvider New(
+		final XGettingMap<String, BinaryValueSetter>                      customTranslatorLookup  ,
+		final XGettingSequence<? extends BinaryValueTranslatorKeyBuilder> translatorKeyBuilders   ,
+		final BinaryValueTranslatorLookupProvider                         translatorLookupProvider
+	)
 	{
 		return new BinaryValueTranslatorProvider.Implementation(
-			notNull(translatorLookup)
+			mayNull(customTranslatorLookup),
+			unwrapKeyBuilders(translatorKeyBuilders),
+			notNull(translatorLookupProvider)
 		);
+	}
+	
+	static BinaryValueTranslatorKeyBuilder[] unwrapKeyBuilders(
+		final XGettingSequence<? extends BinaryValueTranslatorKeyBuilder> translatorKeyBuilders
+	)
+	{
+		return translatorKeyBuilders == null || translatorKeyBuilders.isEmpty()
+			? null
+			: XUtilsCollection.toArray(translatorKeyBuilders, BinaryValueTranslatorKeyBuilder.class)
+		;
 	}
 	
 	public final class Implementation implements BinaryValueTranslatorProvider
@@ -47,7 +73,9 @@ public interface BinaryValueTranslatorProvider
 		// instance fields //
 		////////////////////
 		
-		private final BinaryValueTranslatorLookupProvider translatorLookupProvider;
+		private final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ;
+		private final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ;
+		private final BinaryValueTranslatorLookupProvider    translatorLookupProvider;
 		
 		private transient TypeMappingLookup<BinaryValueSetter> translatorLookup;
 		
@@ -57,9 +85,15 @@ public interface BinaryValueTranslatorProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(final BinaryValueTranslatorLookupProvider translatorLookupProvider)
+		Implementation(
+			final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ,
+			final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ,
+			final BinaryValueTranslatorLookupProvider    translatorLookupProvider
+		)
 		{
 			super();
+			this.customTranslatorLookup   = customTranslatorLookup  ;
+			this.translatorKeyBuilders    = translatorKeyBuilders   ;
 			this.translatorLookupProvider = translatorLookupProvider;
 		}
 		
@@ -153,7 +187,7 @@ public interface BinaryValueTranslatorProvider
 			validateIsReferenceType(targetType);
 			
 			/*
-			 * In case non of the other mapping tools (explicit mapping and member matching and translator registration)
+			 * In case none of the other mapping tools (explicit mapping and member matching and translator registration)
 			 * Covered the current case, it is essential to check the target type compatibility, since it is
 			 * too dangerous to arbitrarily copy references to instances with one type into fields with another type.
 			 */
@@ -222,42 +256,83 @@ public interface BinaryValueTranslatorProvider
 			;
 		}
 		
+		private BinaryValueSetter lookupCustomValueSetter(
+			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDescriptionMember  sourceMember     ,
+			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
+			final PersistenceTypeDescriptionMember  targetMember
+		)
+		{
+			if(this.translatorKeyBuilders == null || this.customTranslatorLookup == null)
+			{
+				return null;
+			}
+			
+			final XGettingMap<String, BinaryValueSetter> customTranslatorLookup = this.customTranslatorLookup;
+			final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders  = this.translatorKeyBuilders ;
+			
+			for(final BinaryValueTranslatorKeyBuilder keyBuilder : translatorKeyBuilders)
+			{
+				final String key = keyBuilder.buildTranslatorLookupKey(
+					sourceLegacyType ,
+					sourceMember     ,
+					targetCurrentType,
+					targetMember
+				);
+				
+				final BinaryValueSetter customValueSetter = customTranslatorLookup.get(key);
+				if(customValueSetter != null)
+				{
+					return customValueSetter;
+				}
+			}
+			
+			return null;
+		}
+		
 		@Override
 		public BinaryValueSetter provideValueTranslator(
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDescriptionMember targetMember
+			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDescriptionMember  sourceMember     ,
+			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
+			final PersistenceTypeDescriptionMember  targetMember
 		)
 		{
 			if(targetMember == null)
 			{
 				return this.provideValueSkipper(sourceMember);
 			}
-
+			
+			// check for potential custom value translator
+			final BinaryValueSetter customValueSetter = this.lookupCustomValueSetter(
+				sourceLegacyType ,
+				sourceMember     ,
+				targetCurrentType,
+				targetMember
+			);
+			if(customValueSetter != null)
+			{
+				return customValueSetter;
+			}
+			
+			// check for generically handleable types on both sides
 			final Class<?> sourceType = sourceMember.type();
 			final Class<?> targetType = targetMember.type();
 			if(sourceType != null && targetType != null)
 			{
 				return this.provideValueTranslator(sourceType, targetType);
 			}
-			
-			/* (27.09.2018 TM)TODO: Legacy Type Mapping: Specific value translator registration options
-			 * Like registration per:
-			 * - TID
-			 * - source type name
-			 * - member name
-			 * 
-			 * Maybe all combined in a map with String keys and a custom key generator logic so that
-			 * developers can define their own registration strategy and specificity.
-			 */
-			
+						
 			// generic fallback: for two reference fields, simply resolve the OID to a reference/instance.
 			return provideReferenceResolver(sourceMember, targetMember);
 		}
 		
 		@Override
 		public final BinaryValueSetter provideBinaryValueTranslator(
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDescriptionMember targetMember
+			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDescriptionMember  sourceMember     ,
+			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
+			final PersistenceTypeDescriptionMember  targetMember
 		)
 		{
 			if(sourceMember.isReference())
@@ -274,7 +349,7 @@ public interface BinaryValueTranslatorProvider
 			}
 
 			// primitives can be handled the normal way: copy/translate the bytes from source to target.
-			return this.provideValueTranslator(sourceMember, targetMember);
+			return this.provideValueTranslator(sourceLegacyType, sourceMember, targetCurrentType, targetMember);
 		}
 		
 	}
