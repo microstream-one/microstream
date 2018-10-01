@@ -10,13 +10,13 @@ public class MainTestStorageExampleTiny
 
 	public static void main(final String[] args)
 	{
-		if(EmbeddedStorage.root().get() == null)
+		if(STORAGE.root().get() == null)
 		{
 			Test.print("TEST: model data required." );
-			EmbeddedStorage.root().set(Test.generateModelData(100_000));
+			STORAGE.root().set(Test.generateModelData(100_000));
 
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(EmbeddedStorage.root());
+			STORAGE.store(STORAGE.root());
 			Test.print("STORAGE: storing completed.");
 		}
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe

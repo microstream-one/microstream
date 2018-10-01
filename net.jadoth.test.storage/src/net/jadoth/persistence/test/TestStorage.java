@@ -58,8 +58,7 @@ public class TestStorage extends TestComponentProvider
 			)
 		)
 		.setConnectionFoundation(createTestConnectionFoundation()) // config and files for persistence layer
-		.setRoot(ROOT)                                            // binding between graph's root instance and the storage
-		.createEmbeddedStorageManager()
+		.createEmbeddedStorageManager(ROOT) // binding between the application graph's root  and the storage
 //		.start() // start storage threads and load all non-lazy referenced instances starting at root
 	;
 

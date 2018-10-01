@@ -1,8 +1,5 @@
 package net.jadoth.test.corp.logic;
 
-import java.io.File;
-
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 
@@ -11,24 +8,24 @@ public class MainTestStorageExample
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation()
-		.setRefactoringMappingProvider(
-			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
-		)
+//		.createFoundation()
+//		.setRefactoringMappingProvider(
+//			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+//		)
 		.start()
 	;
 
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.
-		if(EmbeddedStorage.root().get() == null)
+		if(STORAGE.root().get() == null)
 		{
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			EmbeddedStorage.root().set(Test.generateModelData(10_000));
+			STORAGE.root().set(Test.generateModelData(10_000));
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(EmbeddedStorage.root());
+			STORAGE.store(STORAGE.root());
 			STORAGE.issueFullFileCheck();
 			Test.print("STORAGE: storing completed.");
 		}
@@ -37,7 +34,7 @@ public class MainTestStorageExample
 			// subsequent executions enter here
 
 			Test.print("TEST: model data loaded." );
-			Test.print(EmbeddedStorage.root().get());
+			Test.print(STORAGE.root().get());
 			Test.print("TEST: exporting data ..." );
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
 			Test.print("TEST: data export completed.");

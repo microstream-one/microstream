@@ -19,8 +19,7 @@ public class StorageTestSimple extends TestStorage
 		EmbeddedStorage.createFoundation(                // create manager building foundation with mostly defaults
 			new File("c:/simpleTestStorage")             // set storage directory (instead of using working directory)
 		)
-		.setRoot(ROOT)                                   // binding between graph's root instance and the storage
-		.start()
+		.start(ROOT) // binding between graph's root instance and the storage
 	;
 
 	public static void main(final String[] args)

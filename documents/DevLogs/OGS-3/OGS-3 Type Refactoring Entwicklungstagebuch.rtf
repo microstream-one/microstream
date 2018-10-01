@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 MS Mincho;}{\f2\fnil Courier New;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 MS Mincho;}{\f2\fnil Courier New;}}
 {\colortbl ;\red255\green0\blue0;\red0\green176\blue80;\red155\green0\blue211;\red0\green0\blue255;\red128\green128\blue128;\red0\green0\blue0;\red127\green0\blue85;\red0\green96\blue0;\red42\green0\blue255;\red128\green0\blue255;\red0\green0\blue128;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 OGS-3 Type Refactoring Entwicklungstagebuch:\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 OGS-3 Type Refactoring Entwicklungstagebuch:\par
 \b0\par
 2017-08-30\par
 Komplexe Sache. Es gibt:\par
@@ -445,7 +446,7 @@ Damit w\'e4re in den Laufzeit Strukturen (TypeRegistry, TypeDictionary, TypeHand
 2018-05-08\par
 \par
 Uuund weiter gehts.\par
-Siehe {\field{\*\fldinst{HYPERLINK "https://www.xdevissues.com/browse/OGS-3"}}{\fldrslt{\ul\cf4 https://www.xdevissues.com/browse/OGS-3}}}\f0\fs28  f\'fcr Probleme mit dem Mergen zwischenzeitlicher \'c4nderungen.\par
+Siehe {{\field{\*\fldinst{HYPERLINK https://www.xdevissues.com/browse/OGS-3 }}{\fldrslt{https://www.xdevissues.com/browse/OGS-3\ul0\cf0}}}}\f0\fs28  f\'fcr Probleme mit dem Mergen zwischenzeitlicher \'c4nderungen.\par
 Aber das ist halt so schlimm. Die wichtigsten Teile k\'f6nnen leicht ge-copy&paste-t werden. Teilweise muss sich der Code f\'fcr das bessere Legacy-Type-Mapper (LTM) Konzept eh \'e4ndern.\par
 \par
 Brainstorming zu bisherigen Konzepten und LTM:\par
@@ -1237,11 +1238,13 @@ Nice, dann ist damit schon  mal das Mapping von einem Type auf einen anderen dri
 Testen, ob default root und custom root nach der Umstellung noch gehen.\par
 Kleiner Fl\'fcchtigkeitsfehler in der Testklasse (store(MY_ROOT.get()) anstatt store(MY_ROOT)) und daran ewig rumdebuggt, aber kaum macht mans richtig, schon gehts.\par
 \par
+
 \pard Issue OGS-3 updaten:\par
 \par
 edit 2018-05-31:\par
 Kleines Update:\par
 Die neue RootResolving- und RefactoringMapping-Logik aus OGS-41 war auf der EmbeddedStorage Ebene, obwohl das alles nur Zeug der allgemeinen Persistence Ebene ist. F\'fcr Punkt 2.5 (also User-Mapping ber\'fccksichtigen k\'f6nnen) w\'e4re es nun aber auf der Persistence Ebene n\'f6tig geworden. An zwei Orten haben, die potenziell inkonsistent zueinander oder selbst im g\'fcnstigsten Fall verwirrend und umst\'e4ndlich zu verwenden w\'e4ren, w\'e4re bl\'f6d, also musste konsolidiert werden: reines Persistence Zeug auf die Ebene, wo es hingeh\'f6rt. Enthielt ein paar knifflige Details, aber jetzt passt diesbez\'fcglich alles, inklusive Test, ob das Root Resolven noch geht (default und custom).\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1306,7 +1309,7 @@ Ca. 1h f\'fcr Performance Test \'dcberlegungen. Datenebenen usw.\par
 2018-06-21\par
 \par
 Ca. 1h f\'fcr weitere \'dcberlegungen Performance Test Datenebenen und Vergleichbarkeit von Datenbankl\'f6sungen.\par
-Ca. 1h f\'fcr Kommentar zu Jetstream Verwendung mit Android ({\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/display/JET/Android"}}{\fldrslt{\ul\cf4 https://www.xdevcollaboration.com/display/JET/Android}}}\f0\fs28 )\par
+Ca. 1h f\'fcr Kommentar zu Jetstream Verwendung mit Android ({{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/display/JET/Android }}{\fldrslt{https://www.xdevcollaboration.com/display/JET/Android\ul0\cf0}}}}\f0\fs28 )\par
 \par
 \par
 2018-06-22\par
@@ -1784,7 +1787,9 @@ Bissl rumbauen f\'fcr m\'f6glichst kompakte Syntax, sonst wird das seitenweise S
 Jetzt die TODOs zu persistentOrder vs declaration Order anschauen. Das f\'e4llt auf ein uraltes TODO von 2014 zur\'fcck.\par
 Dabei gleich AbstractBinaryHandlerReflective umbenennen, verschieben, elendslangen Konstruktur aufr\'e4umen.\par
 \par
+
 \pard Besprechung mit CK zu OGS IO-Abstrahierung, z.B. f\'fcr Speichern in S3. Notizen zu aktuellem Konzept bzw. Anforderung machen.\par
+
 \pard\sl276\slmult1\par
 Damit sind nun noch 5 OGS-3 TODOs \'fcbrig. Noch immer Similator, Resultor und ReflectiveMapper plus 2 Checks auf ein potenzielles Problem.\par
 \par
@@ -2147,8 +2152,25 @@ Schon mal mit einem on-demand Provider vorbauen.\par
 Doch mal noch schnell das pseudo-self-typing in die Foundations einbauen. Bissl aufr\'e4umen.\par
 \par
 \par
+\par
 2018-09-30\par
 \par
 Enhanced BinaryValueTranslatorProvider with customTranslatorLookup and translatorKeyBuilders concept (magic).\par
+\par
+\par
+\par
+2018-10-01\par
+\par
+Eigentlich ist es schon sinnvoll, eine Root Instanz direkt in der Manager Instanz zu haben, so wie FH das mit einer "JetstreamDB" Ableitung macht.\par
+Der static Singleton ist eh nicht so toll. Mal recherchieren und umbauen.\par
+\par
+Dabei aufgefallen: PersistenceFoundation#getEffectiveRootResolver wird gar nicht mehr aufgerufen. Auskommentieren und sp\'e4ter testen.\par
+\par
+Singleton in EmbeddedStorageManager verschieben.\par
+Testen.\par
+Hm, das Default initialisieren ist gar nicht so einfach. Komplexer bauen. Sauber kommentieren.\par
+Passt.\par
+\par
+PersistenceFoundation#getEffectiveRootResolver l\'f6schen. Braucht anscheinend niemand mehr.\par
 }
  
