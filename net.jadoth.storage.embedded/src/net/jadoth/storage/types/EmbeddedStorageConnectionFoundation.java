@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.BinaryLoader;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -132,7 +133,8 @@ extends BinaryPersistenceFoundation<F>
 		@Override
 		protected PersistenceRootResolver createRootResolver()
 		{
-			return Persistence.RootResolver(EmbeddedStorage::root);
+			// default root is an empty reference that can be set afterwards
+			return Persistence.RootResolver(X.Reference(null));
 		}
 
 		@Override

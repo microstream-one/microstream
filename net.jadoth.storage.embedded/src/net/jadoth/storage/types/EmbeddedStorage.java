@@ -1,40 +1,39 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.notNull;
+
 import java.io.File;
 
-import net.jadoth.X;
-import net.jadoth.collections.Singleton;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.reference.Reference;
 
 public final class EmbeddedStorage
 {
-	/**
-	 * Default root instance of a persistent entity graph.
-	 * This is moreless a monkey business because proper applications should not rely on static state as their
-	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
-	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
-	 * need to explicitely define and register a root resolver.
-	 */
-	static final Singleton<Object> root = X.Singleton(null);
-	
-	/**
-	 * The default instance to be used as a root of the persistence entity graph.<br>
-	 * The reference value is initially <code>null</code>.<br>
-	 * 
-	 * @return the default root instance.
-	 * 
-	 * @see #root(Object)
-	 */
-	public static final Reference<Object> root()
-	{
-		return root;
-	}
+//	/**
+//	 * Default root instance of a persistent entity graph.
+//	 * This is moreless a monkey business because proper applications should not rely on static state as their
+//	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
+//	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
+//	 * need to explicitely define and register a root resolver.
+//	 */
+//	static final Singleton<Object> root = X.Singleton(null);
+//
+//	/**
+//	 * The default instance to be used as a root of the persistence entity graph.<br>
+//	 * The reference value is initially <code>null</code>.<br>
+//	 *
+//	 * @return the default root instance.
+//	 *
+//	 * @see #root(Object)
+//	 */
+//	public static final Reference<Object> root()
+//	{
+//		return root;
+//	}
 	
 	
 	
@@ -108,7 +107,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageFoundation createFoundation(final File directory)
 	{
-		XFiles.ensureDirectory(directory);
+		XFiles.ensureDirectory(notNull(directory));
 
 		return createFoundation(
 			Storage.FileProvider(directory),
@@ -122,7 +121,7 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageFoundation createFoundation(
-		final File                          directory   ,
+		final File                          directory             ,
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
 		final StorageDataFileEvaluator      fileDissolver         ,
@@ -143,15 +142,22 @@ public final class EmbeddedStorage
 		);
 	}
 		
-	
-
 	public static final EmbeddedStorageManager start(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
+		return start(null, configuration, connectionFoundation);
+	}
+
+	public static final EmbeddedStorageManager start(
+		final Object                                 explicitRoot        ,
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
 		final EmbeddedStorageManager esm = createFoundation(configuration, connectionFoundation)
-			.createEmbeddedStorageManager()
+			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
 		
@@ -159,6 +165,15 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageManager start(
+		final StorageFileProvider                    fileProvider        ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
+		return start(null, fileProvider, connectionFoundation);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final Object                                 explicitRoot        ,
 		final StorageFileProvider                    fileProvider        ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
@@ -173,8 +188,13 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageManager start(final File directory)
 	{
+		return start(null, directory);
+	}
+	
+	public static final EmbeddedStorageManager start(final Object explicitRoot, final File directory)
+	{
 		final EmbeddedStorageManager esm = createFoundation(directory)
-			.createEmbeddedStorageManager()
+			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
 		
@@ -189,8 +209,13 @@ public final class EmbeddedStorage
 	 */
 	public static final EmbeddedStorageManager start()
 	{
+		return start((Object)null); // no explicit root. Not to be confused with start(File)
+	}
+	
+	public static final EmbeddedStorageManager start(final Object explicitRoot)
+	{
 		final EmbeddedStorageManager esm = createFoundation()
-			.createEmbeddedStorageManager()
+			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
 		
@@ -198,7 +223,8 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageManager start(
-		final File                          directory   ,
+		final Object                        explicitRoot          ,
+		final File                          directory             ,
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
 		final StorageDataFileEvaluator      fileDissolver         ,
@@ -212,9 +238,7 @@ public final class EmbeddedStorage
 			fileDissolver         ,
 			entityCacheEvaluator
 		)
-			.createEmbeddedStorageManager()
-		;
-		esm.start();
+		.createEmbeddedStorageManager(explicitRoot).start();
 		
 		return esm;
 	}

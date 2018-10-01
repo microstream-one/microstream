@@ -103,8 +103,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public PersistenceRootResolver getRootResolver();
 	
-	public PersistenceRootResolver getEffectiveRootResolver();
-
 	public PersistenceRootsProvider<M> getRootsProvider();
 	
 	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
@@ -123,6 +121,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
 
+	public PersistenceRootResolver rootResolver();
+	
 	
 	
 	public F setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
@@ -787,6 +787,12 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.legacyTypeHandlingListener;
+		}
+		
+		@Override
+		public PersistenceRootResolver rootResolver()
+		{
+			return this.rootResolver;
 		}
 
 		@Override
@@ -1575,18 +1581,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			);
 			
 			return rootsProvider;
-		}
-
-		@Override
-		public PersistenceRootResolver getEffectiveRootResolver()
-		{
-			final PersistenceRootResolver               definedRootResolver = this.getRootResolver();
-			final PersistenceRefactoringMappingProvider mappingProvider     = this.getRefactoringMappingProvider();
-			
-			return mappingProvider == null
-				? definedRootResolver
-				: PersistenceRootResolver.Wrap(definedRootResolver, mappingProvider)
-			;
 		}
 		
 		@Override

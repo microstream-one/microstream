@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.Persistence;
@@ -8,6 +9,7 @@ import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
+import net.jadoth.reference.Reference;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
@@ -15,11 +17,22 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 {
 	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
 
-	public EmbeddedStorageManager createEmbeddedStorageManager();
+	public default EmbeddedStorageManager createEmbeddedStorageManager()
+	{
+		// no explicit root by default
+		return this.createEmbeddedStorageManager(null);
+	}
+	
+	public EmbeddedStorageManager createEmbeddedStorageManager(Object explicitRoot);
 	
 	public default EmbeddedStorageManager start()
 	{
-		final EmbeddedStorageManager esm = this.createEmbeddedStorageManager();
+		return this.start(null);
+	}
+	
+	public default EmbeddedStorageManager start(final Object explicitRoot)
+	{
+		final EmbeddedStorageManager esm = this.createEmbeddedStorageManager(explicitRoot);
 		esm.start();
 		return esm;
 	}
@@ -251,10 +264,35 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			};
 		}
 		
+		private Reference<Object> createRoot(final Object explicitRoot)
+		{
+			// if an explicit root is provided, it is used (set), no matter what
+			if(explicitRoot != null)
+			{
+				final Reference<Object> root = X.Reference(explicitRoot);
+				this.setRoot(root);
+				return root;
+			}
+			
+			// if there is no explicit root but an already set root resolver, no generic root is created
+			final PersistenceRootResolver rootResolver = this.getConnectionFoundation().rootResolver();
+			if(rootResolver != null)
+			{
+				return null;
+			}
+			
+			// if there is no root at all, yet, an empty generic one is created for later use.
+			final Reference<Object> root = X.Reference(null);
+			this.setRoot(root);
+			return root;
+		}
+		
 		@Override
-		public synchronized EmbeddedStorageManager createEmbeddedStorageManager()
+		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
 		{
 			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
+			
+			final Reference<Object> root = this.createRoot(explicitRoot);
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 			final PersistenceTypeHandlerManager<?>       thm = ecf.getTypeHandlerManager();
@@ -280,7 +318,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			final PersistenceRoots roots = prp.provideRoots();
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots);
+			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots, root);
 		}
 
 	}

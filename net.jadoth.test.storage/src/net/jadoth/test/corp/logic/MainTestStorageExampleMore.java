@@ -24,8 +24,6 @@ public class MainTestStorageExampleMore
 			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
 			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
 		)
-
-		.setRoot(ROOT)                                         // binding between graph's root instance and the storage
 		
 		// with registered refactorings
 //		.setRefactoringMappingProvider(
@@ -42,7 +40,7 @@ public class MainTestStorageExampleMore
 //			.build()
 //		)
 		
-		.start() // starts database management threads and returns a reference to the manager instance
+		.start(ROOT) // bind graph's root, start DB management threads and return a reference to the manager instance
 	;
 	
 	public static void main(final String[] args)
