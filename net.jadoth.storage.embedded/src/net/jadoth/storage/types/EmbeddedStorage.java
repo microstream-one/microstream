@@ -13,30 +13,6 @@ import net.jadoth.persistence.types.Persistence;
 
 public final class EmbeddedStorage
 {
-//	/**
-//	 * Default root instance of a persistent entity graph.
-//	 * This is moreless a monkey business because proper applications should not rely on static state as their
-//	 * entity graph root but define their own root with a proper type parameter and a suitable identifier.
-//	 * The only reason for this thing's existence is that it lowers the learning curve as it eliminates the
-//	 * need to explicitely define and register a root resolver.
-//	 */
-//	static final Singleton<Object> root = X.Singleton(null);
-//
-//	/**
-//	 * The default instance to be used as a root of the persistence entity graph.<br>
-//	 * The reference value is initially <code>null</code>.<br>
-//	 *
-//	 * @return the default root instance.
-//	 *
-//	 * @see #root(Object)
-//	 */
-//	public static final Reference<Object> root()
-//	{
-//		return root;
-//	}
-	
-	
-	
 	public static final EmbeddedStorageFoundation createFoundationBlank()
 	{
 		return new EmbeddedStorageFoundation.Implementation();
