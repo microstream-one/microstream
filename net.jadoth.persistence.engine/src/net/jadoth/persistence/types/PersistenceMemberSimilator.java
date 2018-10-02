@@ -135,6 +135,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 				return this.calculateTypeSimilarity(sourceType, targetType);
 			}
 			
+			// (02.10.2018 TM)TODO: Legacy Type Mapping: This should not be done again here, but looked up instead.
 			final String sourceTypeNameReplacement = this.refactoringMapping.entries().get(sourceMember.typeName());
 			if(sourceTypeNameReplacement == null)
 			{

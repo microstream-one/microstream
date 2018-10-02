@@ -244,12 +244,10 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		private static IdentifierBuilder[] createSourceIdentifierBuilders(final char separator)
 		{
-			// (28.09.2018 TM)TODO: Legacy Type Mapping: Syntax to lookup type with and/or exclusively by TID
-			/*
-			 * identifier building logic in order of priority:
-			 * - global identifier (means most specific)
-			 * - internal identifier
+			/* (02.10.2018 TM)TODO: Legacy Type Mapping: Flexible lookup syntax
+			 * See other occurance for the description.
 			 */
+			
 			return array(
 				(t, m) ->
 					toGlobalIdentifier(t, m, separator),
@@ -446,7 +444,16 @@ public interface PersistenceLegacyTypeMapper<M>
 		@Override
 		public <T> Class<T> lookupRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
 		{
-			// (28.09.2018 TM)TODO: Legacy Type Mapping: Syntax to lookup type with and/or exclusively by TID
+			/* (02.10.2018 TM)TODO: Legacy Type Mapping: Flexible lookup syntax
+			 * There should be a PersistenceRefactoringEntrySyntaxDeriver with 2 methds that can get passed a type
+			 * and a type plus a member and that derives entry strings for the passed values.
+			 * The system should use a default (type: "TID:Name" and just "Name") that are tried after the
+			 * (potentially empty) custom derivers.
+			 * The deriving applies to both source and target side. This means a very specific mapping
+			 * can be defined: from one specific type to another and if that other type is no longer the
+			 * current type, the mapping is no longer used.
+			 * 
+			 */
 			return (Class<T>)this.resolveMappedRuntimeType(legacyTypeDefinition.typeName());
 		}
 		
