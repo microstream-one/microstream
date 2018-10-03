@@ -5,9 +5,7 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
@@ -114,39 +112,55 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			// helper variables
-			final PersistenceRefactoringMapping refacMapping = this.ensureRefactoringMapping();
-			final char                          separator    = this.identifierSeparator;
-			
-			// mapping structures
-			final EqHashTable<String, PersistenceTypeDescriptionMember>                         refacTrgStrings = EqHashTable.New();
-			final HashEnum<PersistenceTypeDescriptionMember>                                    refacDeletes    = HashEnum.New();
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers = HashTable.New();
-			
-			// mapping logic
-			collectTargetStrings(legacyTypeDefinition, refacTrgStrings, refacMapping.entries(), refacDeletes, separator);
-			resolveToTargetMembers(refacTrgStrings, currentTypeHandler, resolvedMembers, separator);
-			addDeletionMembers(refacDeletes, resolvedMembers);
-			
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
+				this.createExplicitMappings(legacyTypeDefinition, currentTypeHandler)
+			;
+
 			// heuristics matching
 			final MultiMatch<PersistenceTypeDescriptionMember> match = match(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
-				resolvedMembers
+				explicitMappings
 			);
 			
 			// bundeling everything into a result
 			final PersistenceLegacyTypeMappingResult<M, T> result = this.resultor.createMappingResult(
-				legacyTypeDefinition,
-				currentTypeHandler  ,
-				resolvedMembers     ,
-				refacDeletes        ,
+				legacyTypeDefinition ,
+				currentTypeHandler   ,
+				explicitMappings,
 				match
 			);
 			
 			// creating a type handler from the finished result
 			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(result);
 		}
+		
+		private HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> createExplicitMappings(
+			final PersistenceTypeDefinition<?> legacyTypeDefinition,
+			final PersistenceTypeHandler<M, ?> currentTypeHandler
+		)
+		{
+			// helper variables
+			final PersistenceRefactoringMapping refacMapping = this.ensureRefactoringMapping();
+			final char                          separator    = this.identifierSeparator;
+			
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
+				HashTable.New()
+			;
+			
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings =
+				collectTargetStrings(explicitMappings, legacyTypeDefinition, refacMapping.entries(), separator)
+			;
+			
+			resolveSourceToTargetMembers(explicitMappings, refacTargetStrings, currentTypeHandler, separator);
+			
+			/* (04.10.2018 TM)FIXME: OGS-3: What about collected but unresolved target strings?
+			 * Can the be safely ignored or are they errors in the explicit refactoring mapping that must be propagated?
+			 */
+				
+			return explicitMappings;
+		}
+		
 		
 		private MultiMatch<PersistenceTypeDescriptionMember> match(
 			final PersistenceTypeDefinition<?>                                                  legacyTypeDefinition,
@@ -250,7 +264,9 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			return array(
 				(t, m) ->
-					toGlobalIdentifier(t, m, separator),
+					toTypeIdIdentifier(t, m, separator),
+				(t, m) ->
+					toGlobalNameIdentifier(t, m, separator),
 				(t, m) ->
 					toTypeInternalIdentifier(m)
 			);
@@ -260,119 +276,59 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			/*
 			 * identifier building logic in order of priority:
-			 * - global identifier (means most specific)
+			 * - typeId plus global type name identifier (unique)
+			 * - global type name identifier (means most specific)
 			 * - internal identifier
 			 * - unqualified identifier IF unambiguous (unique) or else null.
 			 */
 			return array(
 				(t, m) ->
-					toGlobalIdentifier(t, m, separator),
+					toTypeIdIdentifier(t, m, separator),
+				(t, m) ->
+					toGlobalNameIdentifier(t, m, separator),
 				(t, m) ->
 					toTypeInternalIdentifier(m),
 				(t, m) ->
 					toUniqueUnqualifiedIdentifier(t, m, separator)
 			);
 		}
-		
-		private static void addDeletionMembers(
-			final XGettingSequence<PersistenceTypeDescriptionMember>                            deletionMembers,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
-		)
-		{
-			for(final PersistenceTypeDescriptionMember deletionMember : deletionMembers)
-			{
-				if(resolvedMembers.add(deletionMember, null))
-				{
-					continue;
-				}
-				
-				// (11.09.2018 TM)EXCP: proper exception
-				throw new PersistenceExceptionTypeConsistency(
-					"Conflicted mapping entry for member " + deletionMember.uniqueName()
-				);
-			}
-		}
-			
-
-		
-		private static void resolveToTargetMembers(
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings,
-			final PersistenceTypeDefinition<?>                                                  targetTypeDef     ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers   ,
+					
+		private static EqHashTable<String, PersistenceTypeDescriptionMember> collectTargetStrings(
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
+			final PersistenceTypeDefinition<?>                                                  sourceTypeDefinition,
+			final XGettingTable<String, String>                                                 refacMapping        ,
 			final char                                                                          separator
 		)
 		{
-			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(separator);
+			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings = EqHashTable.New();
 			
-			targetMembers:
-			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDef.members())
-			{
-				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
-				{
-					if(check(targetTypeDef, targetMember, refacTargetStrings, resolvedMembers, identifierBuilder))
-					{
-						continue targetMembers;
-					}
-				}
-			}
-		}
-
-		private static boolean check(
-			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition,
-			final PersistenceTypeDescriptionMember                                              targetTypeMember    ,
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       sourceLookupTable   ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
-			final IdentifierBuilder                                                             identifierBuilder
-		)
-		{
-			final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetTypeMember);
-			final PersistenceTypeDescriptionMember defClassTargetMember = sourceLookupTable.get(identifier);
-			
-			if(defClassTargetMember == null)
-			{
-				return false;
-			}
-			
-			if(resolvedMembers.add(defClassTargetMember, targetTypeMember))
-			{
-				return true;
-			}
-			
-			// (10.09.2018 TM)EXCP: proper exception
-			throw new PersistenceExceptionTypeConsistency(
-				"Duplicate member mapping for target member \"" + identifier + "\""
-			);
-		}
-		
-		private static void collectTargetStrings(
-			final PersistenceTypeDefinition<?>                          typeDefinition    ,
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings,
-			final XGettingTable<String, String>                         refacMapping      ,
-			final HashEnum<PersistenceTypeDescriptionMember>            refacDeletes      ,
-			final char                                                  separator
-		)
-		{
 			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders(separator);
 			
-			for(final PersistenceTypeDescriptionMember member : typeDefinition.members())
+			// for every source (legacy type) member ...
+			for(final PersistenceTypeDescriptionMember sourceMember : sourceTypeDefinition.members())
 			{
+				// ... identifier patterns are checked in priority defined by the builder order ...
 				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
 				{
-					final String identifier = identifierBuilder.buildIdentifier(typeDefinition, member);
-					if(check(member, identifier, refacMapping, refacTargetStrings, refacDeletes))
+					final String identifier = identifierBuilder.buildIdentifier(sourceTypeDefinition, sourceMember);
+					if(check(sourceMember, identifier, refacMapping, refacTargetStrings, sourceToTargetMapping))
 					{
-						continue;
+						// ... and on a match, the remaining builders are skipped for the matched source member.
+						break;
 					}
 				}
 			}
+			
+			// every source member has been handled exactely once, so return the result.
+			return refacTargetStrings;
 		}
 		
 		private static boolean check(
-			final PersistenceTypeDescriptionMember                      member                    ,
-			final String                                                lookupString              ,
-			final XGettingTable<String, String>                         refactoringEntries        ,
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refactoringTargetStrings  ,
-			final HashEnum<PersistenceTypeDescriptionMember>            refactoringDeletionMembers
+			final PersistenceTypeDescriptionMember                                              member                  ,
+			final String                                                                        lookupString            ,
+			final XGettingTable<String, String>                                                 refactoringEntries      ,
+			final EqHashTable<String, PersistenceTypeDescriptionMember>                         refactoringTargetStrings,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping
 		)
 		{
 			// must check keys themselves, as a null value means deletion
@@ -382,7 +338,8 @@ public interface PersistenceLegacyTypeMapper<M>
 				final String targetString = refactoringEntries.get(lookupString);
 				if(targetString == null)
 				{
-					refactoringDeletionMembers.add(member);
+					// to be deleted members are registered right away. Important for uniqueness checks later on.
+					sourceToTargetMapping.add(member, null);
 				}
 				else
 				{
@@ -399,6 +356,58 @@ public interface PersistenceLegacyTypeMapper<M>
 			}
 			
 			return false;
+		}
+		
+		private static void resolveSourceToTargetMembers(
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
+			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings  ,
+			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition,
+			final char                                                                          separator
+		)
+		{
+			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(separator);
+
+			// for every target (current type) member ...
+			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDefinition.members())
+			{
+				// ... identifier patterns are checked in priority defined by the builder order ...
+				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
+				{
+					final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetMember);
+					if(check(targetTypeDefinition, targetMember, refacTargetStrings, sourceToTargetMapping, identifier))
+					{
+						// ... and on a match, the remaining builders are skipped for the resolved target member.
+						break;
+					}
+				}
+			}
+		}
+
+		private static boolean check(
+			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition ,
+			final PersistenceTypeDescriptionMember                                              targetTypeMember     ,
+			final XGettingTable<String, PersistenceTypeDescriptionMember>                       sourceLookupTable    ,
+			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
+			final String                                                                        identifier
+		)
+		{
+			final PersistenceTypeDescriptionMember sourceMember = sourceLookupTable.get(identifier);
+			
+			if(sourceMember == null)
+			{
+				return false;
+			}
+			
+			if(sourceToTargetMapping.add(sourceMember, targetTypeMember))
+			{
+				return true;
+			}
+			
+			// (10.09.2018 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeConsistency(
+				"Duplicate member mapping for source member " + sourceMember.uniqueName()
+				+ "to target identifier \"" + identifier + "\""
+			);
 		}
 		
 		static String toUniqueUnqualifiedIdentifier(
@@ -426,7 +435,22 @@ public interface PersistenceLegacyTypeMapper<M>
 			return separator + memberSimpleName;
 		}
 		
-		static String toGlobalIdentifier(
+		static String toTypeIdIdentifier(
+			final PersistenceTypeDefinition<?>     typeDefinition,
+			final PersistenceTypeDescriptionMember member        ,
+			final char                             separator
+		)
+		{
+			/* (04.10.2018 TM)TODO: Legacy Type Mapping: consolidate "toTypeIdIdentifier".
+			 * - hardcoded ":".
+			 * - consolidate with type resolving lookup logic.
+			 * Maybe implement as default custom builder
+			 * See "Flexible lookup syntax" for details
+			 */
+			return typeDefinition + ":" + typeDefinition.typeName() + separator + toTypeInternalIdentifier(member);
+		}
+		
+		static String toGlobalNameIdentifier(
 			final PersistenceTypeDefinition<?>     typeDefinition,
 			final PersistenceTypeDescriptionMember member        ,
 			final char                             separator

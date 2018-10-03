@@ -10,8 +10,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
 		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
-		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
-		final XGettingSet<PersistenceTypeDescriptionMember>                                   refacDeletionMembers,
+		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings    ,
 		final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
 	);
 	
@@ -29,16 +28,18 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
 			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
-			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers     ,
-			final XGettingSet<PersistenceTypeDescriptionMember>                                   refacDeletionMembers,
+			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings    ,
 			final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
 		)
 		{
+			// (04.10.2018 TM)FIXME: OGS-3: determine new current members
+			final XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers = null;
+			
 			return PersistenceLegacyTypeMappingResult.New(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
-				resolvedMembers     ,
-				refacDeletionMembers
+				explicitMappings    ,
+				newCurrentMembers
 			);
 		}
 		
