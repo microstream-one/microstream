@@ -2189,5 +2189,23 @@ PersistenceLegacyTypeMappingResult richtig mit deleted legacy members und new cu
 PersistenceLegacyTypeMapper#resolveSourceToTargetMembers um Pr\'fcfung auf ungemappte Target Strings erweitern.\par
 \par
 Hm. Ich hab ja in PersistenceLegacyTypeMappingResultor#createMappingResult ganz vergessen, das MultiMatcher Ergebnis zu ber\'fccksichtigen. Haha. Noch einbauen.\par
+\par
+Da fehlt noch ein PersistenceLegacyTypeMappingResultCallback, sonst muss man den ganzen Resultor \'fcberschreiben, um einfach nur loggen zu k\'f6nnen.\par
+Hm, wobei: die Idee, den Resultor als eigenen Typ zu machen, war ja, dass man einen Callback Punkt hat UND bei Bedarf das Mapping auch noch \'e4ndern kann.\par
+D.h. der ist schon der Callback, nur die Logik darin muss ein bisschen verpackt werden. Kommentare verbessern.\par
+Jetzt sieht das gut aus :-D.\par
+\par
+Testing Plan:\par
+\par
+Es gibt mehrere Dimensionen:\par
+\par
+1.) Mapping: expliztes Mapping und implizites Matching\par
+2.) Reflective Handling und custom Handling\par
+2.1.) Reflective Handling mit Vererbung\par
+2.1.1.) Reflective Handling mit Vererbung und gleichen Feldnamen\par
+3.) Value Translators: default und custom\par
+4.) Sonderf\'e4lle: unchanged structure, deleted handler\par
+\par
+Teilweise multiplizieren sich die Punkte untereindander (darum "Dimensionen"): Vererbung mit gleichen Feldnamen mal im expliziten Mapping und mal im impliziten Matching.\par
 }
  

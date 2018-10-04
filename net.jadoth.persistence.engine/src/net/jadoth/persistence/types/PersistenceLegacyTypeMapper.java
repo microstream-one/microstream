@@ -114,27 +114,28 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
+			// explicit mappings take precedence
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
 				this.createExplicitMappings(legacyTypeDefinition, currentTypeHandler)
 			;
 
-			// heuristics matching
+			// heuristical matching is a applied to the remaining unmapped members
 			final MultiMatch<PersistenceTypeDescriptionMember> match = match(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
 				explicitMappings
 			);
 			
-			// bundeling everything into a result
-			final PersistenceLegacyTypeMappingResult<M, T> result = this.resultor.createMappingResult(
+			// bundle the mappings into a result, potentially with user callback, validation, modification, logging, etc.
+			final PersistenceLegacyTypeMappingResult<M, T> validResult = this.resultor.createMappingResult(
 				legacyTypeDefinition ,
 				currentTypeHandler   ,
 				explicitMappings,
 				match
 			);
 			
-			// creating a type handler from the finished result
-			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(result);
+			// creating a type handler from the finalized valid result
+			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(validResult);
 		}
 		
 		private HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> createExplicitMappings(
