@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import net.jadoth.X;
 import net.jadoth.chars.Levenshtein;
 import net.jadoth.functional.Similator;
+import net.jadoth.meta.XDebug;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
@@ -61,6 +62,13 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		{
 			final float nameSimilarity = this.calculateSimilarityByName(sourceMember, targetMember);
 			final float typeSimilarity = this.calculateSimilaritybyType(sourceMember, targetMember);
+			
+			XDebug.debugln(
+				sourceMember.name()
+				+" ---["+nameSimilarity+","+typeSimilarity+"="+(nameSimilarity + typeSimilarity ) / 2.0f
+				+"]---> "
+				+targetMember.name()
+			);
 			
 			return (nameSimilarity + typeSimilarity ) / 2.0f;
 		}

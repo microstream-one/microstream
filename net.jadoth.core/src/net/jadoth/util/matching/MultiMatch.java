@@ -41,13 +41,15 @@ public interface MultiMatch<E>
 		/////////////////////
 
 		// note that similarity values get converted from raw double similarity to int quantifiers to boost performance.
-		/* (05.09.2018 TM)TODO: premature optimization
+		/* (05.09.2018 TM)TODO: MultiMatching: Remove premature int quantifier optimization
 		 * The quantifier concept (from 2011) is naive:
-		 * The performance impact for handling doubles instead of ints is negligible here.
+		 * The performance impact for handling floats instead of ints is negligible here.
 		 * Most operations are simple != 0 or < 0 checks.
-		 * Plus, the work to convert all values, even multiple times is not free.
+		 * Plus, the work to convert all values, even multiple times, is not free, either.
 		 * The quantifier conversion can even create false behavior for really big double values.
 		 * Conclusion: all "quantifiers" should be eliminated, the work should be done on the doubles themselves.
+		 * 
+		 * There might even occur overflows when multiplying with the bonus factor or other arithmetics.
 		 */
 		protected static final int MAX_QUANTIFIER = 1000000000; // nicer to read/debug values and still big enough.
 
@@ -81,10 +83,13 @@ public interface MultiMatch<E>
 		/**
 		 * Minimal similarity to be met by a candidate pair in order to be considered for matching (lower bound filter).
 		 */
-		private final double similarityThreshold; // stays double as it gets only for direct evaluation value comparison.
+		// double instead of float, since it gets only for direct evaluation value comparison.
+		private final double similarityThreshold;
+		
 		/**
 		 * Upward similarity bound from which on a singleton is granted precedence no matter the similarity of the
-		 * conflicted candidate pair.
+		 * conflicted candidate pair.<p>
+		 * See {@link MultiMatcher#singletonPrecedenceThreshold()}.
 		 */
 		private final int singletonPrecedenceThreshold;
 
@@ -451,6 +456,7 @@ public interface MultiMatch<E>
 					for(int i = s; i < this.source.length; i++)
 					{
 						// starting at s is sufficient because of singleton iteration
+						// (04.10.2018 TM)TODO: MultiMatching: But why is it enough? Or is it a bug?
 						if(this.srcCandCount[i] == 1 && this.quantifiers[i][t] > bestTargetSingletonQnt)
 						{
 							bestTargetSingletonQnt = this.quantifiers[bsts = i][t];
@@ -662,6 +668,22 @@ public interface MultiMatch<E>
 
 		protected Implementation<E> match()
 		{
+			/* (04.10.2018 TM)TODO: MultiMatching: Consolidate type structure
+			 * Currently, the MultiMatcher is more of a factory (configuration holder),
+			 * while the MultiMatch contains the actual algorithm and serves as the result instance,
+			 * PLUS there is an additonal MultiMatchResult type.
+			 * This is all weird and should be consolidated.
+			 * 
+			 * Also, leaving a potentially gigantic, but totally empty quantifier[][] in the kind-of result instance
+			 * at the end of the algorithm is a waste of memory.
+			 * All data that is only temporarily required for the algorithm to work on should end with it.
+			 * 
+			 * Plus see the int quantifier issue above.
+			 * 
+			 * This code is basically from my early days in 2012 and while it works quite well, it deserves an
+			 * overhault. Maybe even improve on the algorithm itself. Maybe get rid of the precedence stuff.
+			 */
+			
 			this.initializeLinkingArray();
 
 			this.linkAllEquals(this.matcher.equalator());
