@@ -3,13 +3,13 @@ package net.jadoth.test.legacy;
 public class ChangedClass
 {
 	// old:
-	int keptField1    ;
-	int deleletedField;
-	int keptField2    ;
-	int movedField    ;
-	int keptField3    ;
-	int renamedField  ;
-	int keptField4    ;
+	int keptField1  ;
+	int deletedField;
+	int keptField2  ;
+	int movedField  ;
+	int keptField3  ;
+	int renamedField;
+	int keptField4  ;
 	
 	// new:
 //	int keptField1    ;
