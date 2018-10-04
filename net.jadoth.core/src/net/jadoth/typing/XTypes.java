@@ -414,7 +414,7 @@ public final class XTypes
 	{
 		for(int i = 0; i < types.length; i++)
 		{
-			registerDual(typeSimilarities, type, function, type, values[i]);
+			registerDual(typeSimilarities, type, function, types[i], values[i]);
 		}
 	}
 	

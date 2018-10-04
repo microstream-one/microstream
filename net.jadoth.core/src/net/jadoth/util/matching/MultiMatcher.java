@@ -69,7 +69,14 @@ import net.jadoth.functional.Similator;
 public interface MultiMatcher<E>
 {
 	public double similarityThreshold();
-	
+
+	/**
+	 * This is a measure of how "eager" the algorithm is to find as many matches as possible.
+	 * The lower this threshold is, the more "single potential match" items will be preferred over actually
+	 * better matching pairs just to not leave them unmatched.
+	 * To deactivate this special casing, set the threshold to 1.0, meaning only items that fit perfectly anyway
+	 * take precedence over others.
+	 */
 	public double singletonPrecedenceThreshold();
 	
 	public double singletonPrecedenceBonus();
@@ -108,11 +115,17 @@ public interface MultiMatcher<E>
 	
 	public static double defaultSingletonPrecedenceThreshold()
 	{
-		return 0.75;
+		/* see #singletonPrecedenceThreshold.
+		 * This should be really high by default to avoid overly enthusiastic matching.
+		 */
+		return 0.90;
 	}
 	
 	public static double defaultSingletonPrecedenceBonus()
 	{
+		/* (04.10.2018 TM)TODO: MultiMatching: Why is a "bonus" factor below 1.0?
+		 * This makes it a malus, not a bonus.
+		 */
 		return 0.75;
 	}
 	

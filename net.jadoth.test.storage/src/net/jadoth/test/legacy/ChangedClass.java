@@ -16,7 +16,7 @@ public class ChangedClass
 //	int keptField2    ;
 //	int keptField3    ;
 //	int newNamedField ;
-//	int newField      ;
+//	double newField      ;
 //	int keptField4    ;
 //	int movedField    ;
 }

@@ -47,10 +47,11 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	{
 		final Class<?> declaringClass = XReflect.tryClassForName(declaringTypeName);
 		final Field    field          = XReflect.tryGetDeclaredField(declaringClass, name);
+		final Class<?> fieldType      = XReflect.tryClassForName(typeName);
 		
 		return new PersistenceTypeDescriptionMemberField.Implementation(
 			field                  ,
-			declaringClass         ,
+			fieldType              ,
 			typeName               ,
 			name                   ,
 			declaringTypeName      ,

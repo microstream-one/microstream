@@ -157,7 +157,7 @@ public interface MultiMatchAssembler<E>
 				}
 				else
 				{
-					line2.append('+');
+					line2.append('-');
 				}
 				line2.tab();
 				line3.tab();
@@ -166,7 +166,7 @@ public interface MultiMatchAssembler<E>
 
 			for(final E e : result.unmatchedTargets())
 			{
-				line3.append('-').tab();
+				line3.append('+').tab();
 				appender.accept(line4, e);
 				line4.tab();
 			}
@@ -189,7 +189,7 @@ public interface MultiMatchAssembler<E>
 				}
 				else
 				{
-					vs.add("\t[new]");
+					vs.add("\t[deleted]");
 				}
 				vs.lf();
 			}
@@ -197,7 +197,7 @@ public interface MultiMatchAssembler<E>
 			{
 				if(this.match.target[t] != null)
 				{
-					vs.add("\t       X\t");
+					vs.add("\t[new]\t");
 					appender.accept(vs, this.match.target[t]);
 					vs.lf();
 				}

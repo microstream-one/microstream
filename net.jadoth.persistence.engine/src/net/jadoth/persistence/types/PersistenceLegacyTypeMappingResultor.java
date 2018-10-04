@@ -10,6 +10,7 @@ import net.jadoth.typing.KeyValue;
 import net.jadoth.util.matching.MultiMatch;
 
 
+//@FunctionalInterface - well, lol.
 public interface PersistenceLegacyTypeMappingResultor<M>
 {
 	/**

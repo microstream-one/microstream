@@ -5,16 +5,28 @@ import net.jadoth.functional.Similator;
 import net.jadoth.typing.TypeMappingLookup;
 import net.jadoth.util.matching.MatchValidator;
 
+//@FunctionalInterface - well, lol.
 public interface PersistenceMemberMatchingProvider
 {
-	public Equalator<PersistenceTypeDescriptionMember> provideMemberMatchingEqualator();
+	public default Equalator<PersistenceTypeDescriptionMember> provideMemberMatchingEqualator()
+	{
+		// optional, null by default.
+		return null;
+	}
 	
-	public Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
-		PersistenceRefactoringMapping refactoringMapping,
-		TypeMappingLookup<Float>      typeSimilarity
-	);
+	public default Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
+		final PersistenceRefactoringMapping refactoringMapping,
+		final TypeMappingLookup<Float>      typeSimilarity
+	)
+	{
+		return PersistenceMemberSimilator.New(refactoringMapping, typeSimilarity);
+	}
 	
-	public MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator();
+	public default MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator()
+	{
+		// optional, null by default.
+		return null;
+	}
 	
 	
 	
@@ -25,30 +37,7 @@ public interface PersistenceMemberMatchingProvider
 	
 	public class Implementation implements PersistenceMemberMatchingProvider
 	{
-
-		@Override
-		public Equalator<PersistenceTypeDescriptionMember> provideMemberMatchingEqualator()
-		{
-			// optional, null by default.
-			return null;
-		}
-
-		@Override
-		public Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
-			final PersistenceRefactoringMapping refactoringMapping,
-			final TypeMappingLookup<Float>      typeSimilarity
-		)
-		{
-			return PersistenceMemberSimilator.New(refactoringMapping, typeSimilarity);
-		}
-
-		@Override
-		public MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator()
-		{
-			// optional, null by default.
-			return null;
-		}
-		
+		// since default methods, the ability to instantiate stateless instances from interfaces is missing
 	}
 	
 }

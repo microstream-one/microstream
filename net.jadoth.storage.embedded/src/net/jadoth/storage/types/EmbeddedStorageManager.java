@@ -15,6 +15,7 @@ import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.reference.Reference;
+import net.jadoth.swizzling.types.Swizzle;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -46,6 +47,16 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	 * @return the explicit root.
 	 */
 	public Reference<Object> root();
+	
+	public default long storeRoot()
+	{
+		final Reference<Object> root = this.root();
+		
+		return root == null
+			? Swizzle.nullId()
+			: this.store(this.root())
+		;
+	}
 
 	
 	

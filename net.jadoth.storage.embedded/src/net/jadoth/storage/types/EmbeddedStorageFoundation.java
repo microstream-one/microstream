@@ -264,12 +264,21 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 			};
 		}
 		
+		@SuppressWarnings("unchecked")
+		private static Reference<Object> ensureRootReference(final Object explicitRoot)
+		{
+			return explicitRoot instanceof Reference
+				? (Reference<Object>)explicitRoot
+				: X.Reference(explicitRoot)
+			;
+		}
+		
 		private Reference<Object> createRoot(final Object explicitRoot)
 		{
 			// if an explicit root is provided, it is used (set), no matter what
 			if(explicitRoot != null)
 			{
-				final Reference<Object> root = X.Reference(explicitRoot);
+				final Reference<Object> root = ensureRootReference(explicitRoot);
 				this.setRoot(root);
 				return root;
 			}
