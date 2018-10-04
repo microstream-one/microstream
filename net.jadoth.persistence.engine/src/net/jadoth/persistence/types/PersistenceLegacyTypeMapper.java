@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.array;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
@@ -12,6 +13,7 @@ import net.jadoth.functional.Similator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
 import net.jadoth.util.matching.MatchValidator;
 import net.jadoth.util.matching.MultiMatch;
@@ -152,12 +154,9 @@ public interface PersistenceLegacyTypeMapper<M>
 				collectTargetStrings(explicitMappings, legacyTypeDefinition, refacMapping.entries(), separator)
 			;
 			
+			// resolve and validate the collected mapping
 			resolveSourceToTargetMembers(explicitMappings, refacTargetStrings, currentTypeHandler, separator);
-			
-			/* (04.10.2018 TM)FIXME: OGS-3: What about collected but unresolved target strings?
-			 * Can the be safely ignored or are they errors in the explicit refactoring mapping that must be propagated?
-			 */
-				
+							
 			return explicitMappings;
 		}
 		
@@ -366,6 +365,8 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(separator);
+			
+			final EqHashTable<String, PersistenceTypeDescriptionMember> unresolvedTargetStrings = EqHashTable.New();
 
 			// for every target (current type) member ...
 			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDefinition.members())
@@ -376,10 +377,23 @@ public interface PersistenceLegacyTypeMapper<M>
 					final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetMember);
 					if(check(targetTypeDefinition, targetMember, refacTargetStrings, sourceToTargetMapping, identifier))
 					{
+						unresolvedTargetStrings.keys().remove(identifier);
 						// ... and on a match, the remaining builders are skipped for the resolved target member.
 						break;
 					}
 				}
+			}
+			
+			if(!unresolvedTargetStrings.isEmpty())
+			{
+				final VarString vs = VarString.New();
+				for(final KeyValue<String, PersistenceTypeDescriptionMember> unresolved : unresolvedTargetStrings)
+				{
+					vs.add(unresolved.value().uniqueName()).add(" -> ").add(unresolved.key()).lf();
+				}
+				
+				// (04.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Unresolved mapping targets: \n" + vs);
 			}
 		}
 
