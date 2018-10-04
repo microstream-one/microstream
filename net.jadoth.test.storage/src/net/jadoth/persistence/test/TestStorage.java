@@ -355,17 +355,57 @@ public class TestStorage extends TestComponentProvider
 		return array;
 	}
 
-	static BulkList<Person> createPersons(final int amount)
+	static BulkList<SimplePerson> createPersons(final int amount)
 	{
-		final BulkList<Person> persons = BulkList.New(amount);
+		final BulkList<SimplePerson> persons = BulkList.New(amount);
 
 		for(int i = 0; i < amount; i++)
 		{
-			persons.add(Person.New(i + 1));
+			persons.add(SimplePerson.New(i + 1));
 		}
 
 		return persons;
 	}
+	
+	static final class SimplePerson
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		
+		public static SimplePerson New(final int id)
+		{
+			return new SimplePerson(id, "P_"+id, SimplePerson.class.getSimpleName()+"_"+id, null);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		int id;
+		String firstName, lastName;
+		SimplePerson friend;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		SimplePerson(final int id, final String firstName, final String lastName, final SimplePerson friend)
+		{
+			super();
+			this.id = id;
+			this.firstName = firstName;
+			this.lastName = lastName;
+			this.friend = friend;
+		}
+		
+	}
+
 
 
 	static Object[] testGraphEvenMoreManyType()
