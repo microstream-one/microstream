@@ -753,6 +753,15 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 			return this.subject.get(key);
 		}
 	}
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.lookup(key);
+		}
+	}
 
 	@Override
 	public final V searchValue(final Predicate<? super K> keyPredicate)

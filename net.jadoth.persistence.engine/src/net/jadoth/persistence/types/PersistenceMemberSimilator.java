@@ -13,7 +13,7 @@ import net.jadoth.typing.TypeMappingLookup;
 public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDescriptionMember>
 {
 	public static PersistenceMemberSimilator New(
-		final PersistenceRefactoringMapping refactoringMapping,
+		final PersistenceRefactoringResolver refactoringMapping,
 		final TypeMappingLookup<Float>      typeSimilarity
 	)
 	{
@@ -29,7 +29,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		// instance fields //
 		////////////////////
 		
-		final PersistenceRefactoringMapping refactoringMapping;
+		final PersistenceRefactoringResolver refactoringMapping;
 		final TypeMappingLookup<Float>      typeSimilarity    ;
 		
 		
@@ -39,7 +39,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		/////////////////
 
 		Implementation(
-			final PersistenceRefactoringMapping refactoringMapping,
+			final PersistenceRefactoringResolver refactoringMapping,
 			final TypeMappingLookup<Float>      typeSimilarity
 		)
 		{

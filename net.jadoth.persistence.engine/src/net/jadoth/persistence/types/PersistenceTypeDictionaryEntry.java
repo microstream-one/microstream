@@ -10,7 +10,7 @@ import net.jadoth.swizzling.types.SwizzleTypeIdentity;
  * @author TM
  *
  */
-public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescription, SwizzleTypeIdentity
+public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescription
 {
 	@Override
 	public long   typeId();
@@ -22,6 +22,30 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
 
 	
+	
+	/* (05.10.2018 TM)TODO: Type Dictionary: consolidate PersistenceTypeDictionaryEntry assembling
+	 * The assembling should not be here and not with hard-coded meta characters.
+	 */
+	public static VarString assembleDictionaryString(final VarString vs, final PersistenceTypeDictionaryEntry e)
+	{
+		vs.add(e.typeId()).blank().add(e.typeName()).blank().add('{');
+		if(!e.members().isEmpty())
+		{
+			vs.lf();
+			for(final PersistenceTypeDescriptionMember member : e.members())
+			{
+				vs.tab().add(member).add(';').lf();
+			}
+		}
+		vs.add('}');
+		
+		return vs;
+	}
+	
+	public static String assembleDictionaryString(final PersistenceTypeDictionaryEntry e)
+	{
+		return assembleDictionaryString(VarString.New(), e).toString();
+	}
 	
 	public abstract class AbstractImplementation implements PersistenceTypeDictionaryEntry
 	{
@@ -43,20 +67,7 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 		@Override
 		public String toString()
 		{
-			final VarString vc = VarString.New();
-			
-			vc.add(this.typeId()).blank().add(this.typeName()).blank().add('{');
-			if(!this.members().isEmpty())
-			{
-				vc.lf();
-				for(final PersistenceTypeDescriptionMember member : this.members())
-				{
-					vc.tab().add(member).add(';').lf();
-				}
-			}
-			vc.add('}');
-			
-			return vc.toString();
+			return PersistenceTypeDictionaryEntry.assembleDictionaryString(this);
 		}
 
 	}

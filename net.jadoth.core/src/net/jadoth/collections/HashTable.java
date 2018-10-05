@@ -418,8 +418,9 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		this.chain.appendEntry(this.createNewEntry(key, value));
 		return null;
 	}
-
-	final KeyValue<K, V> getEntry(final K key)
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		// search for key by hash
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
@@ -1175,7 +1176,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = HashTable.this.getEntry(entry.key())) == null)
+			if((kv = HashTable.this.lookup(entry.key())) == null)
 			{
 				return false;
 			}

@@ -8,13 +8,33 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
-public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
+public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription, SwizzleTypeLink<T>
 {
+	/**
+	 * The biuniquely associated id value identifying a type description.
+	 */
 	@Override
-	public long   typeId();
-
+	public long typeId();
+	
+	/**
+	 * The name of the type as defined in the type dictionary. This name may never change for a given typeId,
+	 * even if the runtime {@link #runtimeTypeName()} did to reflect a design-level type renaming.
+	 */
 	@Override
 	public String typeName();
+	
+	/**
+	 * The name of the corresponding runtime type.
+	 * If not implemented otherwise (e.g. to cache the name), this method simply calls {@link Class#getName()} of
+	 * a non-null {@link #type()} reference.
+	 */
+	public default String runtimeTypeName()
+	{
+		return this.type() == null
+			? null
+			: this.type().getName()
+		;
+	}
 
 	/* (30.06.2015 TM)TODO: PersistenceTypeDescription <?>Generics
 	 * Must consider Generics Type information as well, at least as a simple normalized String for
@@ -91,11 +111,11 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	
-	public default String toTypeString()
+	public default String toRuntimeTypeIdentifier()
 	{
-		return "Type " + this.typeId() + " " + this.type().getName();
+		return PersistenceTypeDescription.buildTypeIdentifier(this.typeId(), this.runtimeTypeName());
 	}
-
+	
 	
 
 	public static boolean determineVariableLength(
@@ -121,9 +141,9 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	
 	
 	public static <T> PersistenceTypeDefinition<T> New(
-		final String                                                   typeName,
-		final Class<T>                                                 type    ,
-		final long                                                     typeId  ,
+		final long                                                     typeId            ,
+		final String                                                   dictionaryTypeName,
+		final Class<T>                                                 type              ,
 		final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
@@ -136,21 +156,19 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
 		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> internalMembers = members.immure();
 		return new PersistenceTypeDefinition.Implementation<>(
-			                                                         typeId          ,
-			                                                 notNull(typeName)       ,
-			                                                 mayNull(type)           ,
-			                                                         internalMembers ,
-			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers),
-			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers),
+			                                                         typeId             ,
+			                                                 notNull(dictionaryTypeName),
+			                                                 mayNull(type)              ,
+			                                                         internalMembers    ,
+			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers)   ,
+			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers)   ,
 			PersistenceTypeDefinition       .determineVariableLength(internalMembers)
 		);
 	}
 
 
 
-	public final class Implementation<T>
-	extends PersistenceTypeDictionaryEntry.AbstractImplementation
-	implements PersistenceTypeDefinition<T>
+	public final class Implementation<T> implements PersistenceTypeDefinition<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -158,7 +176,8 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 
 		final long                                                       typeId              ;
 		final String                                                     typeName            ;
-		final Class<T>                                                   type                ;
+		final Class<T>                                                   runtimeType         ;
+		final String                                                     runtimeTypeName     ;
 		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members             ;
 		final long                                                       membersLengthMinimum;
 		final long                                                       membersLengthMaximum;
@@ -173,23 +192,24 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		/////////////////
 
 		Implementation(
-			final long                                                       typeId        ,
-			final String                                                     typeName      ,
-			final Class<T>                                                   type          ,
-			final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members       ,
-			final boolean                                                    hasReferences ,
-			final boolean                                                    isPrimitive   ,
+			final long                                                       typeId       ,
+			final String                                                     typeName     ,
+			final Class<T>                                                   runtimeType  ,
+			final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members      ,
+			final boolean                                                    hasReferences,
+			final boolean                                                    isPrimitive  ,
 			final boolean                                                    variableLength
 		)
 		{
 			super();
-			this.typeId         = typeId        ;
-			this.typeName       = typeName      ;
-			this.type           = type          ;
-			this.members        = members       ;
-			this.hasReferences  = hasReferences ;
-			this.isPrimitive    = isPrimitive   ;
-			this.variableLength = variableLength;
+			this.typeId          = typeId        ;
+			this.typeName        = typeName      ;
+			this.runtimeType     = runtimeType   ;
+			this.runtimeTypeName = runtimeType == null ? null : runtimeType.getName();
+			this.members         = members       ;
+			this.hasReferences   = hasReferences ;
+			this.isPrimitive     = isPrimitive   ;
+			this.variableLength  = variableLength;
 			
 			long membersLengthMinimum = 0, membersLengthMaximum = 0;
 			for(final PersistenceTypeDescriptionMember member : this.members)
@@ -220,9 +240,15 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		}
 		
 		@Override
+		public final String runtimeTypeName()
+		{
+			return this.runtimeTypeName;
+		}
+		
+		@Override
 		public final Class<T> type()
 		{
-			return this.type;
+			return this.runtimeType;
 		}
 		
 		@Override
@@ -258,7 +284,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		@Override
 		public final String toString()
 		{
-			return this.toTypeString();
+			return this.toRuntimeTypeIdentifier();
 		}
 
 		@Override

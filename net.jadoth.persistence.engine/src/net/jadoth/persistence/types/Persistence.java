@@ -210,7 +210,7 @@ public class Persistence extends Swizzle
 	public static final PersistenceRootResolver RootResolver(
 		final String                                rootIdentifier      ,
 		final Supplier<?>                           rootInstanceSupplier,
-		final PersistenceRefactoringMappingProvider refactoringMapping
+		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -221,7 +221,7 @@ public class Persistence extends Swizzle
 	
 	public static final PersistenceRootResolver RootResolver(
 		final Supplier<?>                           rootInstanceSupplier,
-		final PersistenceRefactoringMappingProvider refactoringMapping
+		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -235,18 +235,18 @@ public class Persistence extends Swizzle
 		return PersistenceRootResolver.Builder();
 	}
 	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
+	public static final PersistenceRefactoringResolverProvider RefactoringMapping(final File refactoringsFile)
 	{
 		return RefactoringMapping(
 			readRefactoringMappings(refactoringsFile)
 		);
 	}
 	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+	public static final PersistenceRefactoringResolverProvider RefactoringMapping(
 		final XGettingTable<String, String> refactoringMappings
 	)
 	{
-		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
+		return PersistenceRefactoringResolverProvider.New(refactoringMappings);
 	}
 	
 	public static XGettingTable<String, String> readRefactoringMappings(final File file)

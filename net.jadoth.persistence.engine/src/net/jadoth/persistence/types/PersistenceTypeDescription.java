@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 
 /**
  * Data that describes the persistence-relevant aspects of a type, meaning its full type name and all its
@@ -9,8 +10,9 @@ import net.jadoth.collections.types.XGettingSequence;
  * @author TM
  *
  */
-public interface PersistenceTypeDescription
+public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 {
+	@Override
 	public String typeName();
 	
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
@@ -26,6 +28,27 @@ public interface PersistenceTypeDescription
 	 * 
 	 * (13.09.2018 TM)NOTE: both here and in the member description
 	 */
+	
+	
+	public static char typeIdentifierSeparator()
+	{
+		return ':';
+	}
+	
+	public static String buildTypeIdentifier(final long typeId, final String typeName)
+	{
+		return typeId + typeIdentifierSeparator() + typeName;
+	}
+	
+	public static String buildTypeIdentifier(final PersistenceTypeDescription typeDescription)
+	{
+		return buildTypeIdentifier(typeDescription.typeId(), typeDescription.typeName());
+	}
+	
+	public default String toTypeIdentifier()
+	{
+		return buildTypeIdentifier(this);
+	}
  	
 	/**
 	 * Equal content description, without TypeId comparison
@@ -35,8 +58,8 @@ public interface PersistenceTypeDescription
 	 * @return
 	 */
 	public static boolean equalDescription(
-		final PersistenceTypeDefinition<?> td1,
-		final PersistenceTypeDefinition<?> td2
+		final PersistenceTypeDescription td1,
+		final PersistenceTypeDescription td2
 	)
 	{
 		return td1 == td2 || td1 != null && td2 != null
@@ -44,4 +67,5 @@ public interface PersistenceTypeDescription
 			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
 		;
 	}
+	
 }

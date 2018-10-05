@@ -207,6 +207,15 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 			return this.subject.get();
 		}
 	}
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
+	{
+		synchronized(this.lock)
+		{
+			return this.subject.lookup(key);
+		}
+	}
 
 	@Override
 	public final XGettingMap<K, V> view()

@@ -46,7 +46,7 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	public default Class<T> type()
 	{
 		// (25.09.2018 TM)EXCP: proper exception
-		throw new UnsupportedOperationException("Type deleted: " + this.toTypeString() + ".");
+		throw new UnsupportedOperationException("Type deleted: " + this.toTypeIdentifier() + ".");
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	{
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
-			"Cannot create an instance of explicitely deleted type " + this.typeName() + " " + this.typeId()
+			"Cannot create an instance of explicitely deleted type " + this.toTypeIdentifier()
 		);
 	}
 

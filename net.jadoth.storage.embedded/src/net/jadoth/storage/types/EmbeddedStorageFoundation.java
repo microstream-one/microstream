@@ -4,7 +4,7 @@ import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
+import net.jadoth.persistence.types.PersistenceRefactoringResolverProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
@@ -81,7 +81,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 	
 	
 	public EmbeddedStorageFoundation setRefactoringMappingProvider(
-		PersistenceRefactoringMappingProvider refactoringMappingProvider
+		PersistenceRefactoringResolverProvider refactoringMappingProvider
 	);
 
 
@@ -221,7 +221,7 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		
 		@Override
 		public EmbeddedStorageFoundation setRefactoringMappingProvider(
-			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+			final PersistenceRefactoringResolverProvider refactoringMappingProvider
 		)
 		{
 			this.getConnectionFoundation().setRefactoringMappingProvider(refactoringMappingProvider);

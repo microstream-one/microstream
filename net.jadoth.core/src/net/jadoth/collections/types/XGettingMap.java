@@ -25,6 +25,8 @@ public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyVal
 
 	// key to value querying
 	public V get(K key);
+	
+	public KeyValue<K, V> lookup(K key);
 
 	public V searchValue(Predicate<? super K> keyPredicate);
 

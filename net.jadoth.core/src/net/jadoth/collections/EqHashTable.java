@@ -484,8 +484,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 		return null;
 	}
-
-	final KeyValue<K, V> getEntry(final K key)
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		final int hash; // search for key by hash
 		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
@@ -1349,7 +1350,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = this.getEntry(entry.key())) == null)
+			if((kv = this.lookup(entry.key())) == null)
 			{
 				return false;
 			}

@@ -15,7 +15,7 @@ public interface PersistenceMemberMatchingProvider
 	}
 	
 	public default Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
-		final PersistenceRefactoringMapping refactoringMapping,
+		final PersistenceRefactoringResolver refactoringMapping,
 		final TypeMappingLookup<Float>      typeSimilarity
 	)
 	{

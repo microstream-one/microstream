@@ -31,7 +31,7 @@ public interface PersistenceLegacyTypeMapper<M>
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
-		final PersistenceRefactoringMappingProvider                   refactoringMappingProvider,
+		final PersistenceRefactoringResolverProvider                   refactoringMappingProvider,
 		final TypeMappingLookup<Float>                                typeSimilarity            ,
 		final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
 		final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
@@ -59,7 +59,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceRefactoringMappingProvider                   refactoringMappingProvider;
+		private final PersistenceRefactoringResolverProvider                   refactoringMappingProvider;
 		private final TypeMappingLookup<Float>                                typeSimilarity            ;
 		private final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ;
 		private final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ;
@@ -75,7 +75,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Implementation(
-			final PersistenceRefactoringMappingProvider                   refactoringMappingProvider,
+			final PersistenceRefactoringResolverProvider                   refactoringMappingProvider,
 			final TypeMappingLookup<Float>                                typeSimilarity            ,
 			final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
 			final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
@@ -102,7 +102,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		// methods //
 		////////////
 		
-		private PersistenceRefactoringMapping ensureRefactoringMapping()
+		private PersistenceRefactoringResolver ensureRefactoringMapping()
 		{
 			return this.refactoringMappingProvider.provideRefactoringMapping();
 		}
@@ -142,7 +142,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			// helper variables
-			final PersistenceRefactoringMapping refacMapping = this.ensureRefactoringMapping();
+			final PersistenceRefactoringResolver refacMapping = this.ensureRefactoringMapping();
 			
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
 				HashTable.New()
@@ -191,7 +191,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers
 		)
 		{
-			final PersistenceRefactoringMapping               mapping   = this.ensureRefactoringMapping();
+			final PersistenceRefactoringResolver               mapping   = this.ensureRefactoringMapping();
 			final PersistenceMemberMatchingProvider           provider  = this.memberMatchingProvider;
 			final TypeMappingLookup<Float>                    typeSimis = this.typeSimilarity;
 			final Equalator<PersistenceTypeDescriptionMember> equalator = provider.provideMemberMatchingEqualator();
@@ -400,7 +400,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			// (05.10.2018 TM)FIXME: OGS-3: switch to PersistenceRefactoringMappingIdentifierBuildersProvider
 			final String typeName = legacyTypeDefinition.typeName();
 			
-			final PersistenceRefactoringMapping refactoringMapping = this.ensureRefactoringMapping();
+			final PersistenceRefactoringResolver refactoringMapping = this.ensureRefactoringMapping();
 			
 			if(refactoringMapping.entries().keys().contains(typeName))
 			{

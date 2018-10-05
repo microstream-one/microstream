@@ -15,8 +15,8 @@ import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 public final class TableView<K, V> implements XGettingTable<K, V>
 {
@@ -66,6 +66,12 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	public KeyValue<K, V> get()
 	{
 		return this.subject.get();
+	}
+	
+	@Override
+	public KeyValue<K, V> lookup(final K key)
+	{
+		return this.subject.lookup(key);
 	}
 
 	@Deprecated

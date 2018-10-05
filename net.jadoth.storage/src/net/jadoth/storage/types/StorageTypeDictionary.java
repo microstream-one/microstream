@@ -143,7 +143,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					}
 					
 					throw new RuntimeException(
-						"Invalid type description: " + typeDesc.typeId() + " " + typeDesc.typeName()
+						"Invalid type description: " + typeDesc.toTypeIdentifier()
 					);
 				}
 			}

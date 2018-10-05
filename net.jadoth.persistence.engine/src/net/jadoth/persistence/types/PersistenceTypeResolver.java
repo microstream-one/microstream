@@ -5,7 +5,7 @@ import net.jadoth.reflect.XReflect;
 
 public interface PersistenceTypeResolver
 {
-	public Class<?> resolveType(String typeName);
+	public Class<?> resolveType(PersistenceTypeDescription typeDescription);
 	
 	
 	
@@ -22,15 +22,16 @@ public interface PersistenceTypeResolver
 	public final class ImplementationFailing implements PersistenceTypeResolver
 	{
 		@Override
-		public Class<?> resolveType(final String typeName) throws PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
+		public Class<?> resolveType(final PersistenceTypeDescription typeDescription)
+			throws PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
 		{
 			try
 			{
-				return XReflect.classForName(typeName);
+				return XReflect.classForName(typeDescription.typeName());
 			}
 			catch(final ClassNotFoundException e)
 			{
-				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName, e);
+				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeDescription.typeName(), e);
 			}
 		}
 	}
@@ -38,9 +39,9 @@ public interface PersistenceTypeResolver
 	public final class ImplementationIgnoring implements PersistenceTypeResolver
 	{
 		@Override
-		public Class<?> resolveType(final String typeName)
+		public Class<?> resolveType(final PersistenceTypeDescription typeDescription)
 		{
-			return XReflect.tryClassForName(typeName);
+			return XReflect.tryClassForName(typeDescription.typeName());
 		}
 	}
 	
