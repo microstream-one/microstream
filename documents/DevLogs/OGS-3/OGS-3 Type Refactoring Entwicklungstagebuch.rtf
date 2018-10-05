@@ -2204,7 +2204,8 @@ Es gibt mehrere Dimensionen:\par
 2.1.) Reflective Handling mit Vererbung\par
 2.1.1.) Reflective Handling mit Vererbung und gleichen Feldnamen\par
 3.) Value Translators: default und custom\par
-4.) Sonderf\'e4lle: unchanged structure, deleted handler\par
+4.) custom legacy type handler\par
+5.) Sonderf\'e4lle: unchanged structure, deleted handler\par
 \par
 Teilweise multiplizieren sich die Punkte untereindander (darum "Dimensionen"): Vererbung mit gleichen Feldnamen mal im expliziten Mapping und mal im impliziten Matching.\par
 \par
@@ -2217,6 +2218,21 @@ Die \'fcblichen Fl\'fcchtigkeitsfehler ...\par
 Das MultiMatching arbeitet nicht ganz so, wie es soll. Recherchieren und TODOs in dem uralt-Code schreiben.\par
 Hm. Der PrecedenceBonus ist mit 0.75 bissl niedrig. Mit 0.90 default ist das Ergebnis besser. Macht auch generell mehr Sinn, die H\'fcrde daf\'fcr ziemlich hoch zu setzen.\par
 \par
+\par
+2018-10-05\par
+\par
+PersistenceRefactoringMappingIdentifierBuilder modularisieren und konsolideren. Das macht das Customizing einfacher/zentraler und gleichzeitig flexibler.\par
+Au\'dferdem verschwindet der seltsam durchgereichte Separator char.\par
+\par
+Oh. Dabei aufgefallen: Das Refactoring Mapping wird momentan zu sp\'e4t und nur f\'fcr simple F\'e4lle (Klasse kann gar nicht aufgel\'f6st werden) verwendet.\par
+Es m\'fcsste aber viel fr\'fcher, schon beim TypeDictionary einlesen, verwendet werden, um konfliktete Umbenennungen korrekt aufl\'f6sen zu k\'f6nnen.\par
+Beispiel:\par
+A wird umbenannt zu B.\par
+Eine neue Klasse A wird erstellt.\par
+Einfach "A" zu A aufl\'f6sen w\'e4re damit falsch.\par
+\par
+Bei der Recherche dazu aufgefalleN: PersistenceTypeDefinitionBuilder wird nicht mehr verwendet.\par
+Gel\'f6scht.\par
 \par
 }
  

@@ -1,12 +1,12 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.X.array;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
@@ -26,21 +26,19 @@ public interface PersistenceLegacyTypeMapper<M>
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
-	public <T> Class<T> lookupRuntimeType(
-		PersistenceTypeDefinition<?> legacyTypeDefinition
-	);
+	public <T> Class<T> resolveRuntimeType(PersistenceTypeDefinition<?> legacyTypeDefinition);
 	
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
-		final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-		final TypeMappingLookup<Float>                typeSimilarity            ,
-		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
-		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
-		final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
-		final PersistenceLegacyTypeMappingResultor<M> resultor                  ,
-		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ,
-		final char                                    identifierSeparator
+		final PersistenceRefactoringMappingProvider                   refactoringMappingProvider,
+		final TypeMappingLookup<Float>                                typeSimilarity            ,
+		final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
+		final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
+		final PersistenceMemberMatchingProvider                       memberMatchingProvider    ,
+		final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ,
+		final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ,
+		final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider
 	)
 	{
 		return new PersistenceLegacyTypeMapper.Implementation<>(
@@ -51,7 +49,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			notNull(memberMatchingProvider)    ,
 			notNull(resultor)                  ,
 			notNull(legacyTypeHandlerCreator)  ,
-	                identifierSeparator
+			notNull(identifierBuildersProvider)
 		);
 	}
 
@@ -61,14 +59,14 @@ public interface PersistenceLegacyTypeMapper<M>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceRefactoringMappingProvider   refactoringMappingProvider;
-		private final TypeMappingLookup<Float>                typeSimilarity            ;
-		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ;
-		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ;
-		private final PersistenceMemberMatchingProvider       memberMatchingProvider    ;
-		private final PersistenceLegacyTypeMappingResultor<M> resultor                  ;
-		private final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ;
-		private final char                                    identifierSeparator       ;
+		private final PersistenceRefactoringMappingProvider                   refactoringMappingProvider;
+		private final TypeMappingLookup<Float>                                typeSimilarity            ;
+		private final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ;
+		private final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ;
+		private final PersistenceMemberMatchingProvider                       memberMatchingProvider    ;
+		private final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ;
+		private final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ;
+		private final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider;
 
 		
 		
@@ -77,14 +75,14 @@ public interface PersistenceLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Implementation(
-			final PersistenceRefactoringMappingProvider   refactoringMappingProvider,
-			final TypeMappingLookup<Float>                typeSimilarity            ,
-			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator ,
-			final PersistenceMemberMatchingProvider       memberMatchingProvider    ,
-			final PersistenceLegacyTypeMappingResultor<M> resultor                  ,
-			final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator  ,
-			final char                                    identifierSeparator
+			final PersistenceRefactoringMappingProvider                   refactoringMappingProvider,
+			final TypeMappingLookup<Float>                                typeSimilarity            ,
+			final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
+			final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
+			final PersistenceMemberMatchingProvider                       memberMatchingProvider    ,
+			final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ,
+			final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ,
+			final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider
 		)
 		{
 			super();
@@ -95,7 +93,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			this.memberMatchingProvider     = memberMatchingProvider    ;
 			this.resultor                   = resultor                  ;
 			this.legacyTypeHandlerCreator   = legacyTypeHandlerCreator  ;
-			this.identifierSeparator        = identifierSeparator       ;
+			this.identifierBuildersProvider = identifierBuildersProvider;
 		}
 		
 		
@@ -104,9 +102,9 @@ public interface PersistenceLegacyTypeMapper<M>
 		// methods //
 		////////////
 		
-		public char identifierSeparator()
+		private PersistenceRefactoringMapping ensureRefactoringMapping()
 		{
-			return this.identifierSeparator;
+			return this.refactoringMappingProvider.provideRefactoringMapping();
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
@@ -145,23 +143,21 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			// helper variables
 			final PersistenceRefactoringMapping refacMapping = this.ensureRefactoringMapping();
-			final char                          separator    = this.identifierSeparator;
 			
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
 				HashTable.New()
 			;
 			
 			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings =
-				collectTargetStrings(explicitMappings, legacyTypeDefinition, refacMapping.entries(), separator)
+				collectTargetStrings(explicitMappings, legacyTypeDefinition, refacMapping.entries(), this.identifierBuildersProvider)
 			;
 			
 			// resolve and validate the collected mapping
-			resolveSourceToTargetMembers(explicitMappings, refacTargetStrings, currentTypeHandler, separator);
+			resolveSourceToTargetMembers(explicitMappings, refacTargetStrings, currentTypeHandler, this.identifierBuildersProvider);
 							
 			return explicitMappings;
 		}
-		
-		
+				
 		private MultiMatch<PersistenceTypeDescriptionMember> match(
 			final PersistenceTypeDefinition<?>                                                  legacyTypeDefinition,
 			final PersistenceTypeHandler<M, ?>                                                  currentTypeHandler  ,
@@ -255,62 +251,27 @@ public interface PersistenceLegacyTypeMapper<M>
 			// at this point a legacy handler must be creatable or something went wrong.
 			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
 		}
-		
-		private static IdentifierBuilder[] createSourceIdentifierBuilders(final char separator)
-		{
-			/* (02.10.2018 TM)TODO: Legacy Type Mapping: Flexible lookup syntax
-			 * See other occurance for the description.
-			 */
-			
-			return array(
-				(t, m) ->
-					toTypeIdIdentifier(t, m, separator),
-				(t, m) ->
-					toGlobalNameIdentifier(t, m, separator),
-				(t, m) ->
-					toTypeInternalIdentifier(m)
-			);
-		}
-		
-		private static IdentifierBuilder[] createTargetIdentifierBuilders(final char separator)
-		{
-			/*
-			 * identifier building logic in order of priority:
-			 * - typeId plus global type name identifier (unique)
-			 * - global type name identifier (means most specific)
-			 * - internal identifier
-			 * - unqualified identifier IF unambiguous (unique) or else null.
-			 */
-			return array(
-				(t, m) ->
-					toTypeIdIdentifier(t, m, separator),
-				(t, m) ->
-					toGlobalNameIdentifier(t, m, separator),
-				(t, m) ->
-					toTypeInternalIdentifier(m),
-				(t, m) ->
-					toUniqueUnqualifiedIdentifier(t, m, separator)
-			);
-		}
-					
+						
 		private static EqHashTable<String, PersistenceTypeDescriptionMember> collectTargetStrings(
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
-			final PersistenceTypeDefinition<?>                                                  sourceTypeDefinition,
-			final XGettingTable<String, String>                                                 refacMapping        ,
-			final char                                                                          separator
+			final PersistenceTypeDefinition<?>                                                  sourceTypeDefinition ,
+			final XGettingTable<String, String>                                                 refacMapping         ,
+			final PersistenceRefactoringMappingIdentifierBuildersProvider                       idBuildersProvider
 		)
 		{
 			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings = EqHashTable.New();
 			
-			final IdentifierBuilder[] identifierBuilders = createSourceIdentifierBuilders(separator);
-			
+			final XGettingSequence<? extends PersistenceRefactoringMappingIdentifierBuilder> identifierBuilders =
+				idBuildersProvider.provideSourceTypeIdentifierBuilders()
+			;
+						
 			// for every source (legacy type) member ...
 			for(final PersistenceTypeDescriptionMember sourceMember : sourceTypeDefinition.members())
 			{
 				// ... identifier patterns are checked in priority defined by the builder order ...
-				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
+				for(final PersistenceRefactoringMappingIdentifierBuilder idBuilder : identifierBuilders)
 				{
-					final String identifier = identifierBuilder.buildIdentifier(sourceTypeDefinition, sourceMember);
+					final String identifier = idBuilder.buildMemberIdentifier(sourceTypeDefinition, sourceMember);
 					if(check(sourceMember, identifier, refacMapping, refacTargetStrings, sourceToTargetMapping))
 					{
 						// ... and on a match, the remaining builders are skipped for the matched source member.
@@ -360,22 +321,24 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		private static void resolveSourceToTargetMembers(
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings  ,
-			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition,
-			final char                                                                          separator
+			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings   ,
+			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition ,
+			final PersistenceRefactoringMappingIdentifierBuildersProvider                       idBuildersProvider
 		)
 		{
-			final IdentifierBuilder[] identifierBuilders = createTargetIdentifierBuilders(separator);
-			
 			final EqHashTable<String, PersistenceTypeDescriptionMember> unresolvedTargetStrings = EqHashTable.New();
 
+			final XGettingSequence<? extends PersistenceRefactoringMappingIdentifierBuilder> identifierBuilders =
+				idBuildersProvider.provideSourceTypeIdentifierBuilders()
+			;
+			
 			// for every target (current type) member ...
 			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDefinition.members())
 			{
 				// ... identifier patterns are checked in priority defined by the builder order ...
-				for(final IdentifierBuilder identifierBuilder : identifierBuilders)
+				for(final PersistenceRefactoringMappingIdentifierBuilder idBuilder : identifierBuilders)
 				{
-					final String identifier = identifierBuilder.buildIdentifier(targetTypeDefinition, targetMember);
+					final String identifier = idBuilder.buildMemberIdentifier(targetTypeDefinition, targetMember);
 					if(check(targetTypeDefinition, targetMember, refacTargetStrings, sourceToTargetMapping, identifier))
 					{
 						unresolvedTargetStrings.keys().remove(identifier);
@@ -424,85 +387,19 @@ public interface PersistenceLegacyTypeMapper<M>
 				+ "to target identifier \"" + identifier + "\""
 			);
 		}
-		
-		static String toUniqueUnqualifiedIdentifier(
-			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member        ,
-			final char                             separator
-		)
-		{
-			final String memberSimpleName = member.name();
-			
-			for(final PersistenceTypeDescriptionMember m : typeDefinition.members())
-			{
-				if(m == member)
-				{
-					continue;
-				}
 				
-				// if the simple name is not unique, it cannot be used as a mapping target
-				if(m.name().equals(memberSimpleName))
-				{
-					return null;
-				}
-			}
-			
-			return separator + memberSimpleName;
-		}
-		
-		static String toTypeIdIdentifier(
-			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member        ,
-			final char                             separator
-		)
-		{
-			/* (04.10.2018 TM)TODO: Legacy Type Mapping: consolidate "toTypeIdIdentifier".
-			 * - hardcoded ":".
-			 * - consolidate with type resolving lookup logic.
-			 * Maybe implement as default custom builder
-			 * See "Flexible lookup syntax" for details
-			 */
-			return typeDefinition + ":" + typeDefinition.typeName() + separator + toTypeInternalIdentifier(member);
-		}
-		
-		static String toGlobalNameIdentifier(
-			final PersistenceTypeDefinition<?>     typeDefinition,
-			final PersistenceTypeDescriptionMember member        ,
-			final char                             separator
-		)
-		{
-			return typeDefinition.typeName() + separator + toTypeInternalIdentifier(member);
-		}
-		
-		static String toTypeInternalIdentifier(final PersistenceTypeDescriptionMember member)
-		{
-			return member.uniqueName();
-		}
-		
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> Class<T> lookupRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
+		public <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
 		{
-			/* (02.10.2018 TM)TODO: Legacy Type Mapping: Flexible lookup syntax
-			 * There should be a PersistenceRefactoringEntrySyntaxDeriver with 2 methds that can get passed a type
-			 * and a type plus a member and that derives entry strings for the passed values.
-			 * The system should use a default (type: "TID:Name" and just "Name") that are tried after the
-			 * (potentially empty) custom derivers.
-			 * The deriving applies to both source and target side. This means a very specific mapping
-			 * can be defined: from one specific type to another and if that other type is no longer the
-			 * current type, the mapping is no longer used.
-			 * 
-			 */
-			return (Class<T>)this.resolveMappedRuntimeType(legacyTypeDefinition.typeName());
+			return (Class<T>)this.internalResolveMappedRuntimeType(legacyTypeDefinition);
 		}
 		
-		private PersistenceRefactoringMapping ensureRefactoringMapping()
+		private Class<?> internalResolveMappedRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
 		{
-			return this.refactoringMappingProvider.provideRefactoringMapping();
-		}
-		
-		private Class<?> resolveMappedRuntimeType(final String typeName)
-		{
+			// (05.10.2018 TM)FIXME: OGS-3: switch to PersistenceRefactoringMappingIdentifierBuildersProvider
+			final String typeName = legacyTypeDefinition.typeName();
+			
 			final PersistenceRefactoringMapping refactoringMapping = this.ensureRefactoringMapping();
 			
 			if(refactoringMapping.entries().keys().contains(typeName))
@@ -529,15 +426,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			 */
 			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
 		}
-			
 		
-	}
-
-
-	@FunctionalInterface
-	interface IdentifierBuilder
-	{
-		public String buildIdentifier(PersistenceTypeDefinition<?> type, PersistenceTypeDescriptionMember member);
 	}
 	
 }
