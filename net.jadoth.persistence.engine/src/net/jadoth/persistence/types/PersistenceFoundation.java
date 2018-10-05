@@ -107,7 +107,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
-	public PersistenceRefactoringResolverProvider getRefactoringMappingProvider();
+	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 	
 	public TypeMapping<Float> getTypeSimilarity();
 	
@@ -217,7 +217,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setTypeSimilarity(TypeMapping<Float> typeSimilarity);
 	
 	public F setRefactoringMappingProvider(
-		PersistenceRefactoringResolverProvider refactoringMappingProvider
+		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
 	
 	public F setDeletedTypeHandlerCreator(
@@ -302,7 +302,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
 		private PersistenceLegacyTypeMapper<M>           legacyTypeMapper            ;
-		private PersistenceRefactoringResolverProvider    refactoringMappingProvider  ;
+		private PersistenceRefactoringMappingProvider    refactoringMappingProvider  ;
 		private TypeMapping<Float>                       typeSimilarity              ;
 		private PersistenceDeletedTypeHandlerCreator<M>  deletedTypeHandlerCreator   ;
 		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
@@ -713,7 +713,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public PersistenceRefactoringResolverProvider getRefactoringMappingProvider()
+		public PersistenceRefactoringMappingProvider getRefactoringMappingProvider()
 		{
 			if(this.refactoringMappingProvider == null)
 			{
@@ -1183,7 +1183,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		@Override
 		public F setRefactoringMappingProvider(
-			final PersistenceRefactoringResolverProvider refactoringMappingProvider
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
 		{
 			this.refactoringMappingProvider = refactoringMappingProvider;
@@ -1465,10 +1465,10 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			);
 		}
 				
-		protected PersistenceRefactoringResolverProvider createRefactoringMappingProvider()
+		protected PersistenceRefactoringMappingProvider createRefactoringMappingProvider()
 		{
 			// empty (= dummy) mapping by default
-			return PersistenceRefactoringResolverProvider.NewEmpty();
+			return PersistenceRefactoringMappingProvider.NewEmpty();
 		}
 		
 		protected TypeMapping<Float> createTypeSimilarity()

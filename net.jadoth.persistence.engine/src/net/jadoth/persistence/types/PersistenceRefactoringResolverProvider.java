@@ -2,25 +2,26 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingTable;
 
 public interface PersistenceRefactoringResolverProvider
 {
-	public PersistenceRefactoringResolver provideRefactoringMapping();
+	public PersistenceRefactoringResolver provideRefactoringResolver();
 	
-	public static PersistenceRefactoringResolverProvider NewEmpty()
+	
+	
+	public static PersistenceRefactoringResolverProvider New(
+		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
+		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
+		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
+		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
+	)
 	{
 		return new PersistenceRefactoringResolverProvider.Implementation(
-			X.emptyTable()
-		);
-	}
-	
-	public static PersistenceRefactoringResolverProvider New(final XGettingTable<String, String> entries)
-	{
-		return new PersistenceRefactoringResolverProvider.Implementation(
-			notNull(entries)
+			notNull(refactoringMappingProvider)    ,
+			notNull(sourceTypeIdentifierBuilders)  ,
+			notNull(sourceMemberIdentifierBuilders),
+			notNull(targetMemberIdentifierBuilders)
 		);
 	}
 	
@@ -30,7 +31,7 @@ public interface PersistenceRefactoringResolverProvider
 		// instance fields //
 		////////////////////
 		
-		final XGettingTable<String, String>                                         entries                       ;
+		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ;
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ;
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders;
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders;
@@ -42,14 +43,14 @@ public interface PersistenceRefactoringResolverProvider
 		/////////////////
 		
 		Implementation(
-			final XGettingTable<String, String>                                         entries                       ,
+			final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 			final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 		)
 		{
 			super();
-			this.entries                        = entries                       ;
+			this.refactoringMappingProvider     = refactoringMappingProvider    ;
 			this.sourceTypeIdentifierBuilders   = sourceTypeIdentifierBuilders  ;
 			this.sourceMemberIdentifierBuilders = sourceMemberIdentifierBuilders;
 			this.targetMemberIdentifierBuilders = targetMemberIdentifierBuilders;
@@ -62,11 +63,11 @@ public interface PersistenceRefactoringResolverProvider
 		////////////
 
 		@Override
-		public PersistenceRefactoringResolver provideRefactoringMapping()
+		public PersistenceRefactoringResolver provideRefactoringResolver()
 		{
 			// nifty: immure at creation time, not before.
 			return new PersistenceRefactoringResolver.Implementation(
-				this.entries                       .immure(),
+				this.refactoringMappingProvider.provideRefactoringMapping(),
 				this.sourceTypeIdentifierBuilders  .immure(),
 				this.sourceMemberIdentifierBuilders.immure(),
 				this.targetMemberIdentifierBuilders.immure()
