@@ -2,9 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
-import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
@@ -47,14 +45,14 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 
 		
 	public static PersistenceRefactoringResolver New(
-		final XGettingTable<String, String>                                         entries                       ,
+		final PersistenceRefactoringMapping                                         refactoringMapping                     ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
 		return new Implementation(
-			entries                       .immure(),
+			refactoringMapping                     ,
 			sourceTypeIdentifierBuilders  .immure(),
 			sourceMemberIdentifierBuilders.immure(),
 			targetMemberIdentifierBuilders.immure()
@@ -67,7 +65,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		// instance fields //
 		////////////////////
 		
-		final XImmutableTable<String, String>                                         entries                       ;
+		final PersistenceRefactoringMapping                                           refactoringMapping            ;
 		final XImmutableEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ;
 		final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders;
 		final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders;
@@ -79,14 +77,14 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		/////////////////
 		
 		Implementation(
-			final XImmutableTable<String, String>                                         entries                       ,
+			final PersistenceRefactoringMapping                                           refactoringMapping            ,
 			final XImmutableEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 			final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 		)
 		{
 			super();
-			this.entries                        = entries                       ;
+			this.refactoringMapping             = refactoringMapping            ;
 			this.sourceTypeIdentifierBuilders   = sourceTypeIdentifierBuilders  ;
 			this.sourceMemberIdentifierBuilders = sourceMemberIdentifierBuilders;
 			this.targetMemberIdentifierBuilders = targetMemberIdentifierBuilders;
@@ -101,11 +99,11 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		private String ensureActualTypeString(final PersistenceTypeDescription typeDescription)
 		{
 			// search for a mapping entry with identifier builders in descending order of priority.
-			final XImmutableTable<String, String> entries = this.entries;
+			final PersistenceRefactoringMapping refactoringMapping = this.refactoringMapping;
 			for(final PersistenceRefactoringTypeIdentifierBuilder idBuilder : this.sourceTypeIdentifierBuilders)
 			{
 				final String                   identifier = idBuilder.buildTypeIdentifier(typeDescription);
-				final KeyValue<String, String> entry      = entries.lookup(identifier);
+				final KeyValue<String, String> entry      = refactoringMapping.lookup(identifier);
 				if(entry == null)
 				{
 					continue;
@@ -143,7 +141,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		@Override
 		public final KeyValue<String, String> lookup(final String sourceIdentifier)
 		{
-			return this.entries.lookup(sourceIdentifier);
+			return this.refactoringMapping.lookup(sourceIdentifier);
 		}
 
 		@Override
@@ -154,11 +152,11 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		)
 		{
 			// search for a mapping entry with identifier builders in descending order of priority.
-			final XImmutableTable<String, String> entries = this.entries;
+			final PersistenceRefactoringMapping refactoringMapping = this.refactoringMapping;
 			for(final PersistenceRefactoringMemberIdentifierBuilder idBuilder : this.sourceMemberIdentifierBuilders)
 			{
 				final String                   identifier = idBuilder.buildMemberIdentifier(sourceType, sourceMember);
-				final KeyValue<String, String> entry      = entries.lookup(identifier);
+				final KeyValue<String, String> entry      = refactoringMapping.lookup(identifier);
 				if(entry == null)
 				{
 					continue;

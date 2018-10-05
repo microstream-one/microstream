@@ -363,7 +363,7 @@ public interface PersistenceRootResolver
 		{
 			if(this.refactoringResolver == null)
 			{
-				this.refactoringResolver = this.refactoringMappingProvider.provideRefactoringMapping();
+				this.refactoringResolver = this.refactoringMappingProvider.provideRefactoringResolver();
 			}
 			
 			return this.refactoringResolver;

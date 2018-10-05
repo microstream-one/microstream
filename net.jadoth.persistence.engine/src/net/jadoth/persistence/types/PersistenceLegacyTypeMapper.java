@@ -31,25 +31,23 @@ public interface PersistenceLegacyTypeMapper<M>
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
-		final PersistenceRefactoringResolverProvider                   refactoringMappingProvider,
-		final TypeMappingLookup<Float>                                typeSimilarity            ,
-		final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
-		final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
-		final PersistenceMemberMatchingProvider                       memberMatchingProvider    ,
-		final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ,
-		final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ,
-		final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider
+		final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
+		final TypeMappingLookup<Float>                typeSimilarity             ,
+		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
+		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ,
+		final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
+		final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
+		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
 	)
 	{
 		return new PersistenceLegacyTypeMapper.Implementation<>(
-			notNull(refactoringMappingProvider),
-			notNull(typeSimilarity)            ,
-			notNull(customTypeHandlerRegistry) ,
-			notNull(deletedTypeHandlerCreator) ,
-			notNull(memberMatchingProvider)    ,
-			notNull(resultor)                  ,
-			notNull(legacyTypeHandlerCreator)  ,
-			notNull(identifierBuildersProvider)
+			notNull(refactoringResolverProvider),
+			notNull(typeSimilarity)             ,
+			notNull(customTypeHandlerRegistry)  ,
+			notNull(deletedTypeHandlerCreator)  ,
+			notNull(memberMatchingProvider)     ,
+			notNull(resultor)                   ,
+			notNull(legacyTypeHandlerCreator)
 		);
 	}
 
@@ -58,15 +56,14 @@ public interface PersistenceLegacyTypeMapper<M>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final PersistenceRefactoringResolverProvider                   refactoringMappingProvider;
-		private final TypeMappingLookup<Float>                                typeSimilarity            ;
-		private final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ;
-		private final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ;
-		private final PersistenceMemberMatchingProvider                       memberMatchingProvider    ;
-		private final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ;
-		private final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ;
-		private final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider;
+
+		private final PersistenceRefactoringResolverProvider  refactoringResolverProvider;
+		private final TypeMappingLookup<Float>                typeSimilarity             ;
+		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
+		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ;
+		private final PersistenceMemberMatchingProvider       memberMatchingProvider     ;
+		private final PersistenceLegacyTypeMappingResultor<M> resultor                   ;
+		private final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator   ;
 
 		
 		
@@ -75,25 +72,23 @@ public interface PersistenceLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Implementation(
-			final PersistenceRefactoringResolverProvider                   refactoringMappingProvider,
-			final TypeMappingLookup<Float>                                typeSimilarity            ,
-			final PersistenceCustomTypeHandlerRegistry<M>                 customTypeHandlerRegistry ,
-			final PersistenceDeletedTypeHandlerCreator<M>                 deletedTypeHandlerCreator ,
-			final PersistenceMemberMatchingProvider                       memberMatchingProvider    ,
-			final PersistenceLegacyTypeMappingResultor<M>                 resultor                  ,
-			final PersistenceLegacyTypeHandlerCreator<M>                  legacyTypeHandlerCreator  ,
-			final PersistenceRefactoringMappingIdentifierBuildersProvider identifierBuildersProvider
+			final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
+			final TypeMappingLookup<Float>                typeSimilarity             ,
+			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
+			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ,
+			final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
+			final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
+			final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
 		)
 		{
 			super();
-			this.refactoringMappingProvider = refactoringMappingProvider;
-			this.typeSimilarity             = typeSimilarity            ;
-			this.customTypeHandlerRegistry  = customTypeHandlerRegistry ;
-			this.deletedTypeHandlerCreator  = deletedTypeHandlerCreator ;
-			this.memberMatchingProvider     = memberMatchingProvider    ;
-			this.resultor                   = resultor                  ;
-			this.legacyTypeHandlerCreator   = legacyTypeHandlerCreator  ;
-			this.identifierBuildersProvider = identifierBuildersProvider;
+			this.refactoringResolverProvider = refactoringResolverProvider;
+			this.typeSimilarity              = typeSimilarity             ;
+			this.customTypeHandlerRegistry   = customTypeHandlerRegistry  ;
+			this.deletedTypeHandlerCreator   = deletedTypeHandlerCreator  ;
+			this.memberMatchingProvider      = memberMatchingProvider     ;
+			this.resultor                    = resultor                   ;
+			this.legacyTypeHandlerCreator    = legacyTypeHandlerCreator   ;
 		}
 		
 		
@@ -102,9 +97,9 @@ public interface PersistenceLegacyTypeMapper<M>
 		// methods //
 		////////////
 		
-		private PersistenceRefactoringResolver ensureRefactoringMapping()
+		private PersistenceRefactoringResolver ensureRefactoringResolver()
 		{
-			return this.refactoringMappingProvider.provideRefactoringMapping();
+			return this.refactoringResolverProvider.provideRefactoringResolver();
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
@@ -142,7 +137,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			// helper variables
-			final PersistenceRefactoringResolver refacMapping = this.ensureRefactoringMapping();
+			final PersistenceRefactoringResolver refacMapping = this.ensureRefactoringResolver();
 			
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
 				HashTable.New()
