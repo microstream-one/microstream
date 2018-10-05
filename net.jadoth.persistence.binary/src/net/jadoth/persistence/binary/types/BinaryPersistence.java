@@ -59,10 +59,8 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
-import net.jadoth.persistence.types.PersistenceTypeDefinitionBuilder;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeResolver;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleHandler;
@@ -1910,12 +1908,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		return new BinaryFieldLengthResolver.Implementation();
 	}
-	
-	public static final PersistenceTypeDefinitionBuilder createTypeDescriptionBuilder()
-	{
-		return PersistenceTypeDefinitionBuilder.New(PersistenceTypeResolver.Failing());
-	}
-	
+		
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
 	{
 		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()

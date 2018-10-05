@@ -58,6 +58,16 @@ public interface PersistenceTypeDictionaryBuilder
 			 * even if they are inconsistent (e.g. duplicates). The point where unvalidated entries are formed into
 			 * valid definitions is exactely here, so here has to be the validation.
 			 */
+			/* (05.10.2018 TM)FIXME: OGS-3: use RefactoringMapping here
+			 * Also here is the point where a refactoring mapping must be used to lookup mapping and potentially
+			 * transform type names.
+			 * Currently, it is used much later and just for the simple case of unresolvable types.
+			 * But consider the following case:
+			 * Class A is part of the dictionary and has persisted instances.
+			 * During the developement process, it gets renamed to B and a new Class is created with the name A.
+			 * Design-wise, the entry saying "A" must now be mapped to the type "B".
+			 * The name "A" could still be resolved to a valid runtime class, but it would be the wrong one.
+			 */
 			final Class<?>                     type    = Persistence.resolveTypeOptional(e.typeName());
 			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
 				e.typeName(),

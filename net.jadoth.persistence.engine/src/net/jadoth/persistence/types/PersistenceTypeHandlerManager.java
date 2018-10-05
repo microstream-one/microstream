@@ -304,7 +304,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			Class<T> runtimeType = typeDefinition.type();
 			if(runtimeType == null)
 			{
-				runtimeType = this.legacyTypeMapper.lookupRuntimeType(typeDefinition);
+				runtimeType = this.legacyTypeMapper.resolveRuntimeType(typeDefinition);
 				if(runtimeType == null)
 				{
 					return null;
