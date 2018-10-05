@@ -6,9 +6,9 @@ import net.jadoth.collections.types.XGettingEnum;
 public interface PersistenceTypeDefinitionCreator
 {
 	public <T> PersistenceTypeDefinition<T> createTypeDefinition(
+		long                                                     typeId  ,
 		String                                                   typeName,
 		Class<T>                                                 type    ,
-		long                                                     typeId ,
 		XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 	);
 	
@@ -38,13 +38,13 @@ public interface PersistenceTypeDefinitionCreator
 
 		@Override
 		public <T> PersistenceTypeDefinition<T> createTypeDefinition(
+			final long                                                     typeId  ,
 			final String                                                   typeName,
 			final Class<T>                                                 type    ,
-			final long                                                     typeId ,
 			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
 		)
 		{
-			return PersistenceTypeDefinition.New(typeName, type, typeId, members);
+			return PersistenceTypeDefinition.New(typeId, typeName, type, members);
 		}
 		
 	}

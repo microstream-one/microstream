@@ -11,7 +11,6 @@ import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
@@ -159,7 +158,7 @@ public interface PersistenceRootResolver
 			return this.registerRoot(identifier, () -> instance);
 		}
 		
-		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoring);
+		public Builder setRefactoring(PersistenceRefactoringResolverProvider refactoring);
 				
 		public PersistenceRootResolver build();
 		
@@ -171,7 +170,7 @@ public interface PersistenceRootResolver
 			
 			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider  ;
 			private final EqHashTable<String, PersistenceRootEntry>             rootEntries    ;
-			private       PersistenceRefactoringMappingProvider                 refactoring    ;
+			private       PersistenceRefactoringResolverProvider                 refactoring    ;
 			
 			
 			
@@ -238,7 +237,7 @@ public interface PersistenceRootResolver
 			}
 			
 			@Override
-			public final synchronized Builder setRefactoring(final PersistenceRefactoringMappingProvider refactoring)
+			public final synchronized Builder setRefactoring(final PersistenceRefactoringResolverProvider refactoring)
 			{
 				this.refactoring = refactoring;
 				return this;
@@ -321,7 +320,7 @@ public interface PersistenceRootResolver
 	
 	public static PersistenceRootResolver Wrap(
 		final PersistenceRootResolver                actualRootResolver,
-		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		final PersistenceRefactoringResolverProvider refactoringMappingProvider
 	)
 	{
 		return new MappingWrapper(actualRootResolver, refactoringMappingProvider);
@@ -334,9 +333,9 @@ public interface PersistenceRootResolver
 		////////////////////
 		
 		final PersistenceRootResolver                actualRootResolver        ;
-		final PersistenceRefactoringMappingProvider refactoringMappingProvider;
+		final PersistenceRefactoringResolverProvider refactoringMappingProvider;
 		
-		transient XGettingMap<String, String>        refactoringMappings;
+		transient PersistenceRefactoringResolver refactoringResolver;
 
 		
 		
@@ -345,8 +344,8 @@ public interface PersistenceRootResolver
 		/////////////////
 		
 		MappingWrapper(
-			final PersistenceRootResolver actualRootResolver        ,
-			final PersistenceRefactoringMappingProvider                refactoringMappingProvider
+			final PersistenceRootResolver                actualRootResolver        ,
+			final PersistenceRefactoringResolverProvider refactoringMappingProvider
 		)
 		{
 			super();
@@ -360,14 +359,14 @@ public interface PersistenceRootResolver
 		// methods //
 		////////////
 		
-		private synchronized XGettingMap<String, String> refactoringMappings()
+		private synchronized PersistenceRefactoringResolver ensureRefactoringResolver()
 		{
-			if(this.refactoringMappings == null)
+			if(this.refactoringResolver == null)
 			{
-				this.refactoringMappings = this.refactoringMappingProvider.provideRefactoringMapping().entries();
+				this.refactoringResolver = this.refactoringMappingProvider.provideRefactoringMapping();
 			}
 			
-			return this.refactoringMappings;
+			return this.refactoringResolver;
 		}
 		
 		@Override
@@ -391,20 +390,19 @@ public interface PersistenceRootResolver
 			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
 			 * but an outdated mapping rule defined by the using developer).
 			 */
-			final XGettingMap<String, String> refactoringMappings = this.refactoringMappings();
-			final String                      sourceIdentifier    = PersistenceMetaIdentifiers.normalizeIdentifier(
+			final PersistenceRefactoringResolver refactoringResolver = this.ensureRefactoringResolver();
+			final String                         sourceIdentifier    = PersistenceMetaIdentifiers.normalizeIdentifier(
 				identifier
 			);
 			
-			if(!refactoringMappings.keys().contains(sourceIdentifier))
+			final KeyValue<String, String> mapping = refactoringResolver.lookup(sourceIdentifier);
+			if(mapping == null)
 			{
 				// simple case: no mapping found, use (normalized) source identifier directly.
 				return this.actualRootResolver.resolveRootInstance(sourceIdentifier);
 			}
 			
-			final String targetIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(
-				refactoringMappings.get(sourceIdentifier)
-			);
+			final String targetIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(mapping.value());
 			
 			/*
 			 * special case: an explicit mapping entry for the (normalized) sourceIdentifier exists,

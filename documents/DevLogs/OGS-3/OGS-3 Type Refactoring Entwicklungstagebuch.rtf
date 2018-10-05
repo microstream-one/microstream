@@ -2234,5 +2234,44 @@ Einfach "A" zu A aufl\'f6sen w\'e4re damit falsch.\par
 Bei der Recherche dazu aufgefalleN: PersistenceTypeDefinitionBuilder wird nicht mehr verwendet.\par
 Gel\'f6scht.\par
 \par
+Beim umbauen aufgefallen:\par
+Eigentlich ist es Schmarrn, einen RefactoringMappingProvider zu haben, der letztendlich nur eine Table liefert und dann einen Provider f\'fcr Identifier Builder, die da drin nachschauen.\par
+Besser ist: Einen RefactoringMapper, dem eine TypeDescription gibt und der daf\'fcr dann die passende runtime Class zur\'fcck gibt.\par
+Der kann dann intern Table und IdentifierBuilders kapseln oder was ganz anderes machen.\par
+So ist es sauber getrennt und dadurch strukturell m\'f6glichst einfach und flexibel.\par
+Umbauen.\par
+\par
+Eigentlich ist das zumindest an der Stelle des Aufl\'f6sens der Typen einfach ein PersistenceTypeResolver. Dass dasselbe Ding an anderer Stelle auch noch Members resolvet, ist ein zus\'e4tzlicher Aspekt (abgeleitetes Interface).\par
+Interessant: genau so einen gibt es schon.\par
+Und noch interessanter: Der wird nicht mehr verwendet, weil ja auf das Refactoring umgestellt wurde.\par
+Hei\'dft:\par
+Dieses Interface anpassen und erweitern um den Member Mapping Anteil.\par
+\par
+Knifflig: Das erfordert auch zwei TypeNames:\par
+- Einen DictionaryTypeName, so wie die TypeDescription im Dictionary steht, denn die darf nicht ver\'e4ndert werden.\par
+- Einen RuntimeTypeName, so wie der Name des Runtmie Types ist.\par
+\par
+Die Methoden umbenennen kollidiert wiederum mit SwizzleTypeIdentity#typeName.\par
+\par
+\'dcberlegen, rumprobieren. L\'f6sung:\par
+typeName ist der Runtime Type.\par
+Eine zus\'e4tzliche Methode dictionaryTypeName wird dazugebaut.\par
+Danach alle 32 Aufrufe der Methode typeName durchgehen und schauen, wo die auf dictionaryTypeName ge\'e4ndert werden muss.\par
+\par
+Umbauen.\par
+\par
+Haha, das geht nicht, denn PersistenceTypeDictionaryEntry leitet von SwizzleTypeIdentity ab und das definiert schon #typeName.\par
+\par
+Mal \'fcberlegen.\par
+\par
+Neues Konzept:\par
+Es gibt bei der ganzen Type Beschreiberei einen TypeName. Das ist der definitive, unver\'e4nderbare Name, der mit einer TypeId assoiziiert wird. Auf der Persistence Ebene IST das der TypeName.\par
+Wenn sich Namen irgendwelcher Anwendungsklassen mal \'e4ndern, dann interessiert das hier zun\'e4chst gar nicht.\par
+Darum ist #typeName immer der Name, der aus dem Dictionary kommt bzw. dort reingeschrieben wird. Theoretisch m\'fcsste der nicht mal dem Java Klassennamen Pattern entsprechen, aber wir wollen's mal nicht \'fcbertreiben.\par
+\par
+Dann gibt es noch einen #runtimeTypeName. Das ist eigentlich nur ein Convenience-Getter f\'fcr "type().getName()" mit null-check.\par
+\par
+Dei einzige Gefahr daran ist, dass Entwickler sehr leicht verleitet werden .typeName() zu tippen, obwohl sie eigentlich den runtime type name wollen.\par
+\par
 }
  

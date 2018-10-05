@@ -32,8 +32,8 @@ import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 public final class ConstHashTable<K, V>
@@ -294,7 +294,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		this.range = modulo;
 	}
 
-	final KeyValue<K, V> getEntry(final K key)
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		// search for key by hash
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
@@ -621,7 +622,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = ConstHashTable.this.getEntry(entry.key())) == null)
+			if((kv = ConstHashTable.this.lookup(entry.key())) == null)
 			{
 				return false;
 			}

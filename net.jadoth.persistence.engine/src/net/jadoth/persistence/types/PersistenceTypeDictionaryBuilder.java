@@ -42,6 +42,7 @@ public interface PersistenceTypeDictionaryBuilder
 	public static PersistenceTypeDictionary buildTypeDictionary(
 		final PersistenceTypeDictionaryCreator                           typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator,
+		final PersistenceTypeResolver                                    typeResolver,
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 	)
 	{
@@ -50,29 +51,28 @@ public interface PersistenceTypeDictionaryBuilder
 		final BulkList<PersistenceTypeDefinition<?>> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
 		for(final PersistenceTypeDictionaryEntry e : uniqueTypeIdEntries.values())
 		{
-			/* Notes:
-			 * 
-			 * Type dictionary entries do not necessarily have to be resolvable to the current type model.
-			 * 
+			/*
 			 * The type entry just contains all member entries as they are written in the dictionary,
-			 * even if they are inconsistent (e.g. duplicates). The point where unvalidated entries are formed into
-			 * valid definitions is exactely here, so here has to be the validation.
+			 * even if they are inconsistent (e.g. duplicates) or no longer resolvable to a runtime type.
+			 * The point where unvalidated entries are formed into valid definitions is exactely here,
+			 * so here has to be the validation and type mapping.
 			 */
-			/* (05.10.2018 TM)FIXME: OGS-3: use RefactoringMapping here
-			 * Also here is the point where a refactoring mapping must be used to lookup mapping and potentially
-			 * transform type names.
-			 * Currently, it is used much later and just for the simple case of unresolvable types.
-			 * But consider the following case:
-			 * Class A is part of the dictionary and has persisted instances.
-			 * During the developement process, it gets renamed to B and a new Class is created with the name A.
-			 * Design-wise, the entry saying "A" must now be mapped to the type "B".
-			 * The name "A" could still be resolved to a valid runtime class, but it would be the wrong one.
+			/*
+			 * The type resolver must also handle refactoring mappings internally.
+			 * Not just mapping types with unresolvably deprecated names to their currently named runtime type,
+			 * but also rerouting conflicted name changes.
+			 * Consider the following case:
+			 * Class A is part of the dictionary.
+			 * During the developement process, it gets renamed to "B" and a new Class is created with the name "A".
+			 * Design-wise, the entry saying "A" must now be mapped to the type B.
+			 * Without refactoring mapping, the name "A" could still be resolved to a valid runtime class,
+			 * but it would be the wrong one.
 			 */
-			final Class<?>                     type    = Persistence.resolveTypeOptional(e.typeName());
+			final Class<?>                     type    = typeResolver.resolveType(e);
 			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
+				e.typeId()  ,
 				e.typeName(),
 				type        ,
-				e.typeId()  ,
 				PersistenceTypeDescriptionMember.validateAndImmure(e.members())
 			);
 			typeDefs.add(typeDef);
@@ -89,12 +89,14 @@ public interface PersistenceTypeDictionaryBuilder
 	
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
 		final PersistenceTypeDictionaryCreator typeDictionaryCreator,
-		final PersistenceTypeDefinitionCreator typeDefinitionCreator
+		final PersistenceTypeDefinitionCreator typeDefinitionCreator,
+		final PersistenceTypeResolver          typeResolver
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
 			notNull(typeDictionaryCreator),
-			notNull(typeDefinitionCreator)
+			notNull(typeDefinitionCreator),
+			notNull(typeResolver)
 		);
 	}
 	
@@ -104,8 +106,9 @@ public interface PersistenceTypeDictionaryBuilder
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeDictionaryCreator typeDictionaryCreator;
-		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
+		final PersistenceTypeDictionaryCreator      typeDictionaryCreator     ;
+		final PersistenceTypeDefinitionCreator      typeDefinitionCreator     ;
+		final PersistenceTypeResolver               typeResolver              ;
 		
 		
 		
@@ -115,12 +118,14 @@ public interface PersistenceTypeDictionaryBuilder
 		
 		Implementation(
 			final PersistenceTypeDictionaryCreator typeDictionaryCreator,
-			final PersistenceTypeDefinitionCreator typeDefinitionCreator
+			final PersistenceTypeDefinitionCreator typeDefinitionCreator,
+			final PersistenceTypeResolver          typeResolver
 		)
 		{
 			super();
 			this.typeDictionaryCreator = typeDictionaryCreator;
 			this.typeDefinitionCreator = typeDefinitionCreator;
+			this.typeResolver          = typeResolver         ;
 		}
 		
 		
@@ -128,7 +133,7 @@ public interface PersistenceTypeDictionaryBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+				
 		@Override
 		public PersistenceTypeDictionary buildTypeDictionary(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
@@ -146,7 +151,8 @@ public interface PersistenceTypeDictionaryBuilder
 			 */
 			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(
 				this.typeDictionaryCreator,
-				this.typeDefinitionCreator ,
+				this.typeDefinitionCreator,
+				this.typeResolver         ,
 				entries
 			);
 		}

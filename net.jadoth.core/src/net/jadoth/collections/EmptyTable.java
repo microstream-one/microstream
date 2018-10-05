@@ -40,6 +40,12 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	{
 		return null;
 	}
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
+	{
+		return null;
+	}
 
 	@Override
 	public final V searchValue(final Predicate<? super K> keyPredicate)

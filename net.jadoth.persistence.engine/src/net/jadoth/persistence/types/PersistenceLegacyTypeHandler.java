@@ -33,8 +33,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// (13.09.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
 			PersistenceLegacyTypeHandler.class.getSimpleName()
-			+ " for TypeId " + this.typeId()
-			+ " (" + this.typeName()+")"
+			+ " for type " + this.toTypeIdentifier()
 			+ " may never store anything."
 		);
 	}
@@ -71,6 +70,12 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public final long typeId()
 		{
 			return this.typeDefinition.typeId();
+		}
+		
+		@Override
+		public final String runtimeTypeName()
+		{
+			return this.typeDefinition.runtimeTypeName();
 		}
 
 		@Override

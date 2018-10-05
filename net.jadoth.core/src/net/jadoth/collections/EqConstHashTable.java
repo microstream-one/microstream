@@ -30,8 +30,8 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.typing.Composition;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 public final class EqConstHashTable<K, V>
@@ -375,8 +375,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		this.slots = newSlots;
 		this.range = modulo;
 	}
-
-	final KeyValue<K, V> getEntry(final K key)
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		final int hash; // search for key by hash
 		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
@@ -760,7 +761,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = EqConstHashTable.this.getEntry(entry.key())) == null)
+			if((kv = EqConstHashTable.this.lookup(entry.key())) == null)
 			{
 				return false;
 			}

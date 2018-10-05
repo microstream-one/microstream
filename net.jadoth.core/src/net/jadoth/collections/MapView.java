@@ -13,8 +13,8 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 public final class MapView<K, V> implements XGettingMap<K, V>
 {
@@ -100,6 +100,12 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 	public V get(final K key)
 	{
 		return this.subject.get(key);
+	}
+	
+	@Override
+	public KeyValue<K, V> lookup(final K key)
+	{
+		return this.subject.lookup(key);
 	}
 
 	@Override
