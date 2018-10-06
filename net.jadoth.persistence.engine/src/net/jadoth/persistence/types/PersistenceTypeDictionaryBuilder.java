@@ -90,13 +90,13 @@ public interface PersistenceTypeDictionaryBuilder
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
 		final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator typeDefinitionCreator,
-		final PersistenceTypeResolver          typeResolver
+		final PersistenceTypeResolverProvider  typeResolverProvider
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
 			notNull(typeDictionaryCreator),
 			notNull(typeDefinitionCreator),
-			notNull(typeResolver)
+			notNull(typeResolverProvider)
 		);
 	}
 	
@@ -106,9 +106,9 @@ public interface PersistenceTypeDictionaryBuilder
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeDictionaryCreator      typeDictionaryCreator     ;
-		final PersistenceTypeDefinitionCreator      typeDefinitionCreator     ;
-		final PersistenceTypeResolver               typeResolver              ;
+		final PersistenceTypeDictionaryCreator typeDictionaryCreator;
+		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
+		final PersistenceTypeResolverProvider  typeResolverProvider ;
 		
 		
 		
@@ -119,13 +119,13 @@ public interface PersistenceTypeDictionaryBuilder
 		Implementation(
 			final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 			final PersistenceTypeDefinitionCreator typeDefinitionCreator,
-			final PersistenceTypeResolver          typeResolver
+			final PersistenceTypeResolverProvider  typeResolverProvider
 		)
 		{
 			super();
 			this.typeDictionaryCreator = typeDictionaryCreator;
 			this.typeDefinitionCreator = typeDefinitionCreator;
-			this.typeResolver          = typeResolver         ;
+			this.typeResolverProvider  = typeResolverProvider ;
 		}
 		
 		
@@ -150,9 +150,9 @@ public interface PersistenceTypeDictionaryBuilder
 			 * - explanatory comments where naming isn't self-explanatory.
 			 */
 			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(
-				this.typeDictionaryCreator,
-				this.typeDefinitionCreator,
-				this.typeResolver         ,
+				this.typeDictionaryCreator                 ,
+				this.typeDefinitionCreator                 ,
+				this.typeResolverProvider.provideResolver(),
 				entries
 			);
 		}

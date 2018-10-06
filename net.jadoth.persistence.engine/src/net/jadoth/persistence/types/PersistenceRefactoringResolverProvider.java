@@ -4,9 +4,10 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.types.XGettingEnum;
 
-public interface PersistenceRefactoringResolverProvider
+public interface PersistenceRefactoringResolverProvider extends PersistenceTypeResolverProvider
 {
-	public PersistenceRefactoringResolver provideRefactoringResolver();
+	@Override
+	public PersistenceRefactoringResolver provideResolver();
 	
 	
 	
@@ -63,7 +64,7 @@ public interface PersistenceRefactoringResolverProvider
 		////////////
 
 		@Override
-		public PersistenceRefactoringResolver provideRefactoringResolver()
+		public PersistenceRefactoringResolver provideResolver()
 		{
 			// nifty: immure at creation time, not before.
 			return new PersistenceRefactoringResolver.Implementation(
