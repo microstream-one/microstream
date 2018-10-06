@@ -235,18 +235,18 @@ public class Persistence extends Swizzle
 		return PersistenceRootResolver.Builder();
 	}
 	
-	public static final PersistenceRefactoringResolverProvider RefactoringMapping(final File refactoringsFile)
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
 	{
 		return RefactoringMapping(
 			readRefactoringMappings(refactoringsFile)
 		);
 	}
 	
-	public static final PersistenceRefactoringResolverProvider RefactoringMapping(
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final XGettingTable<String, String> refactoringMappings
 	)
 	{
-		return PersistenceRefactoringResolverProvider.New(refactoringMappings);
+		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
 	public static XGettingTable<String, String> readRefactoringMappings(final File file)

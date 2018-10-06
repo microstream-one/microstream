@@ -99,7 +99,8 @@ public interface PersistenceLegacyTypeMapper<M>
 		
 		private PersistenceRefactoringResolver ensureRefactoringResolver()
 		{
-			return this.refactoringResolverProvider.provideRefactoringResolver();
+			// (06.10.2018 TM)FIXME: OGS-3: Either locally cache the resolver (reasonable?) or remove this method.
+			return this.refactoringResolverProvider.provideResolver();
 		}
 		
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(

@@ -2266,11 +2266,26 @@ Darum ist #typeName immer der Name, der aus dem Dictionary kommt bzw. dort reing
 \par
 Dann gibt es noch einen #runtimeTypeName. Das ist eigentlich nur ein Convenience-Getter f\'fcr "type().getName()" mit null-check.\par
 \par
-Dei einzige Gefahr daran ist, dass Entwickler sehr leicht verleitet werden .typeName() zu tippen, obwohl sie eigentlich den runtime type name wollen.\par
+Die einzige Gefahr daran ist, dass Entwickler sehr leicht verleitet werden .typeName() zu tippen, obwohl sie eigentlich den runtime type name wollen.\par
+\par
+Hm. Es muss zwei Typen geben:\par
+PersistenceRefactoringMapping\par
+und \par
+PersistenceRefactoringResolver extends PersistenceTypeResolver\par
+\par
+Und entsprechende Provider daf\'fcr.\par
 \par
 \par
 2018-10-06\par
 \par
 Mal an der offene Baustelle weitermachen, damit die Compilerfehler weg gehen ...\par
+\par
+Paar falsch umrefactorte Vorkommen von PersistenceRefactoringResolverProvider wieder zur\'fcck\'e4ndern auf ~MappingProvider.\par
+\par
+Der PersistenceTypeResolver braucht nun auch einen Provider, sonst geht die on-demand Resolver Initialisierung Strategie nicht auf.\par
+\par
+PersistenceFoundation entsprechend erweitern.\par
+\par
+\par
 }
  

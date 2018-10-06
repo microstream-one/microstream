@@ -1,9 +1,10 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.collections.HashEnum;
+import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleFoundation;
@@ -108,6 +109,14 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
+
+	public PersistenceRefactoringResolverProvider getRefactoringResolverProvider();
+
+	public XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>  getRefactoringLegacyTypeIdentifierBuilders();
+	
+	public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringLegacyMemberIdentifierBuilders();
+	
+	public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringCurrentMemberIdentifierBuilders();
 	
 	public TypeMapping<Float> getTypeSimilarity();
 	
@@ -220,6 +229,22 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		PersistenceRefactoringMappingProvider refactoringMappingProvider
 	);
 	
+	public F setRefactoringResolverProvider(
+		PersistenceRefactoringResolverProvider refactoringResolverProvider
+	);
+	
+	public F setRefactoringLegacyTypeIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> typeIdentifierBuilders
+	);
+	
+	public F setRefactoringLegacyMemberIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
+	);
+	
+	public F setRefactoringCurrentMemberIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
+	);
+	
 	public F setDeletedTypeHandlerCreator(
 		PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
 	);
@@ -303,6 +328,12 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
 		private PersistenceLegacyTypeMapper<M>           legacyTypeMapper            ;
 		private PersistenceRefactoringMappingProvider    refactoringMappingProvider  ;
+		private PersistenceRefactoringResolverProvider   refactoringResolverProvider ;
+
+		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
+		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
+		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringCurrentMemberIdentifierBuilders;
+		
 		private TypeMapping<Float>                       typeSimilarity              ;
 		private PersistenceDeletedTypeHandlerCreator<M>  deletedTypeHandlerCreator   ;
 		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
@@ -721,6 +752,50 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.refactoringMappingProvider;
+		}
+		
+		@Override
+		public PersistenceRefactoringResolverProvider getRefactoringResolverProvider()
+		{
+			if(this.refactoringResolverProvider == null)
+			{
+				this.refactoringResolverProvider = this.dispatch(this.createRefactoringResolverProvider());
+			}
+			
+			return this.refactoringResolverProvider;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> getRefactoringLegacyTypeIdentifierBuilders()
+		{
+			if(this.refactoringLegacyTypeIdentifierBuilders == null)
+			{
+				this.refactoringLegacyTypeIdentifierBuilders = this.dispatch(this.createRefactoringLegacyTypeIdentifierBuilders());
+			}
+			
+			return this.refactoringLegacyTypeIdentifierBuilders;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringLegacyMemberIdentifierBuilders()
+		{
+			if(this.refactoringLegacyMemberIdentifierBuilders == null)
+			{
+				this.refactoringLegacyMemberIdentifierBuilders = this.dispatch(this.createRefactoringLegacyMemberIdentifierBuilders());
+			}
+			
+			return this.refactoringLegacyMemberIdentifierBuilders;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringCurrentMemberIdentifierBuilders()
+		{
+			if(this.refactoringCurrentMemberIdentifierBuilders == null)
+			{
+				this.refactoringCurrentMemberIdentifierBuilders = this.dispatch(this.createRefactoringCurrentMemberIdentifierBuilders());
+			}
+			
+			return this.refactoringCurrentMemberIdentifierBuilders;
 		}
 		
 		@Override
@@ -1191,6 +1266,42 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
+		public F setRefactoringResolverProvider(
+			final PersistenceRefactoringResolverProvider refactoringResolverProvider
+		)
+		{
+			this.refactoringResolverProvider = refactoringResolverProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringLegacyTypeIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> refactoringTypeIdentifierBuilders
+		)
+		{
+			this.refactoringLegacyTypeIdentifierBuilders = refactoringTypeIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringLegacyMemberIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringMemberIdentifierBuilders
+		)
+		{
+			this.refactoringLegacyMemberIdentifierBuilders = refactoringMemberIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringCurrentMemberIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringMemberIdentifierBuilders
+		)
+		{
+			this.refactoringCurrentMemberIdentifierBuilders = refactoringMemberIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
 		public F setTypeSimilarity(final TypeMapping<Float> typeSimilarity)
 		{
 			this.typeSimilarity = typeSimilarity;
@@ -1405,7 +1516,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			return PersistenceTypeDictionaryBuilder.New(
 				this.getTypeDictionaryCreator(),
 				this.getTypeDefinitionCreator(),
-				this.getRefactoringMappingProvider()
+				this.getRefactoringResolverProvider()
 			);
 		}
 
@@ -1454,14 +1565,13 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected PersistenceLegacyTypeMapper<M> createLegacyTypeMapper()
 		{
 			return PersistenceLegacyTypeMapper.New(
-				this.getRefactoringMappingProvider()  ,
+				this.getRefactoringResolverProvider() ,
 				this.getTypeSimilarity()              ,
 				this.getCustomTypeHandlerRegistry()   ,
 				this.getDeletedTypeHandlerCreator()   ,
 				this.getLegacyMemberMatchingProvider(),
 				this.getLegacyTypeMappingResultor()   ,
-				this.getLegacyTypeHandlerCreator()    ,
-				XReflect.fieldIdentifierDelimiter()
+				this.getLegacyTypeHandlerCreator()
 			);
 		}
 				
@@ -1469,6 +1579,31 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		{
 			// empty (= dummy) mapping by default
 			return PersistenceRefactoringMappingProvider.NewEmpty();
+		}
+		
+		protected PersistenceRefactoringResolverProvider createRefactoringResolverProvider()
+		{
+			return PersistenceRefactoringResolverProvider.New(
+				this.getRefactoringMappingProvider()                ,
+				this.getRefactoringLegacyTypeIdentifierBuilders()   ,
+				this.getRefactoringLegacyMemberIdentifierBuilders() ,
+				this.getRefactoringCurrentMemberIdentifierBuilders()
+			);
+		}
+		
+		protected XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> createRefactoringLegacyTypeIdentifierBuilders()
+		{
+			return HashEnum.New();
+		}
+		
+		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringLegacyMemberIdentifierBuilders()
+		{
+			return HashEnum.New();
+		}
+		
+		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringCurrentMemberIdentifierBuilders()
+		{
+			return HashEnum.New();
 		}
 		
 		protected TypeMapping<Float> createTypeSimilarity()
