@@ -1583,7 +1583,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		protected PersistenceRefactoringResolverProvider createRefactoringResolverProvider()
 		{
-			return PersistenceRefactoringResolverProvider.New(
+			return PersistenceRefactoringResolverProvider.Caching(
 				this.getRefactoringMappingProvider()                ,
 				this.getRefactoringLegacyTypeIdentifierBuilders()   ,
 				this.getRefactoringLegacyMemberIdentifierBuilders() ,
@@ -1593,16 +1593,19 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		protected XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> createRefactoringLegacyTypeIdentifierBuilders()
 		{
+			// (06.10.2018 TM)FIXME: OGS-3: add defaults
 			return HashEnum.New();
 		}
 		
 		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringLegacyMemberIdentifierBuilders()
 		{
+			// (06.10.2018 TM)FIXME: OGS-3: add defaults
 			return HashEnum.New();
 		}
 		
 		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringCurrentMemberIdentifierBuilders()
 		{
+			// (06.10.2018 TM)FIXME: OGS-3: add defaults
 			return HashEnum.New();
 		}
 		
