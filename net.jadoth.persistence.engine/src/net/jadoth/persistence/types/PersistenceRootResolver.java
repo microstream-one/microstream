@@ -335,8 +335,6 @@ public interface PersistenceRootResolver
 		final PersistenceRootResolver                actualRootResolver        ;
 		final PersistenceRefactoringResolverProvider refactoringMappingProvider;
 		
-		transient PersistenceRefactoringResolver refactoringResolver;
-
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -358,17 +356,7 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		private synchronized PersistenceRefactoringResolver ensureRefactoringResolver()
-		{
-			if(this.refactoringResolver == null)
-			{
-				this.refactoringResolver = this.refactoringMappingProvider.provideRefactoringResolver();
-			}
-			
-			return this.refactoringResolver;
-		}
-		
+				
 		@Override
 		public final XGettingTable<String, Object> getRootInstances()
 		{
@@ -390,12 +378,12 @@ public interface PersistenceRootResolver
 			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
 			 * but an outdated mapping rule defined by the using developer).
 			 */
-			final PersistenceRefactoringResolver refactoringResolver = this.ensureRefactoringResolver();
-			final String                         sourceIdentifier    = PersistenceMetaIdentifiers.normalizeIdentifier(
+			final PersistenceRefactoringResolver resolver         = this.refactoringMappingProvider.provideResolver();
+			final String                         sourceIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(
 				identifier
 			);
 			
-			final KeyValue<String, String> mapping = refactoringResolver.lookup(sourceIdentifier);
+			final KeyValue<String, String> mapping = resolver.lookup(sourceIdentifier);
 			if(mapping == null)
 			{
 				// simple case: no mapping found, use (normalized) source identifier directly.

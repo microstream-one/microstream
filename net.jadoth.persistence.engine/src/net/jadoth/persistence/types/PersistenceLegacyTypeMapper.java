@@ -2,12 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -96,13 +92,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		private PersistenceRefactoringResolver ensureRefactoringResolver()
-		{
-			// (06.10.2018 TM)FIXME: OGS-3: Either locally cache the resolver (reasonable?) or remove this method.
-			return this.refactoringResolverProvider.provideResolver();
-		}
-		
+				
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
 			final PersistenceTypeDefinition<?> legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> currentTypeHandler
@@ -137,20 +127,33 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, ?> currentTypeHandler
 		)
 		{
-			// helper variables
-			final PersistenceRefactoringResolver refacMapping = this.ensureRefactoringResolver();
-			
+			final PersistenceRefactoringResolver resolver = this.refactoringResolverProvider.provideResolver();
+
 			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
 				HashTable.New()
 			;
 			
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings =
-				collectTargetStrings(explicitMappings, legacyTypeDefinition, refacMapping.entries(), this.identifierBuildersProvider)
-			;
-			
-			// resolve and validate the collected mapping
-			resolveSourceToTargetMembers(explicitMappings, refacTargetStrings, currentTypeHandler, this.identifierBuildersProvider);
-							
+			for(final PersistenceTypeDescriptionMember sourceMember : legacyTypeDefinition.members())
+			{
+				// value might be null to indicate deletion. Member might not be resolvable (= mapped) at all.
+				final KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolved =
+					resolver.resolveMember(legacyTypeDefinition, sourceMember, currentTypeHandler)
+				;
+				
+				if(resolved == null)
+				{
+					continue;
+				}
+				if(!explicitMappings.add(resolved))
+				{
+					// (10.09.2018 TM)EXCP: proper exception
+					throw new PersistenceExceptionTypeConsistency(
+						"Duplicate member mapping for legacy/source member \"" + sourceMember.uniqueName() + "\""
+						+ " in legacy type " + legacyTypeDefinition.toTypeIdentifier()
+					);
+				}
+			}
+
 			return explicitMappings;
 		}
 				
@@ -187,12 +190,12 @@ public interface PersistenceLegacyTypeMapper<M>
 			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers
 		)
 		{
-			final PersistenceRefactoringResolver               mapping   = this.ensureRefactoringMapping();
+			final PersistenceRefactoringResolver              resolver  = this.refactoringResolverProvider.provideResolver();
 			final PersistenceMemberMatchingProvider           provider  = this.memberMatchingProvider;
 			final TypeMappingLookup<Float>                    typeSimis = this.typeSimilarity;
 			final Equalator<PersistenceTypeDescriptionMember> equalator = provider.provideMemberMatchingEqualator();
 			final Similator<PersistenceTypeDescriptionMember> similator = provider.provideMemberMatchingSimilator(
-				mapping,
+				resolver,
 				typeSimis
 			);
 			final MatchValidator<PersistenceTypeDescriptionMember> validator = provider.provideMemberMatchValidator();
@@ -247,143 +250,8 @@ public interface PersistenceLegacyTypeMapper<M>
 			// at this point a legacy handler must be creatable or something went wrong.
 			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
 		}
-						
-		private static EqHashTable<String, PersistenceTypeDescriptionMember> collectTargetStrings(
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
-			final PersistenceTypeDefinition<?>                                                  sourceTypeDefinition ,
-			final XGettingTable<String, String>                                                 refacMapping         ,
-			final PersistenceRefactoringMappingIdentifierBuildersProvider                       idBuildersProvider
-		)
-		{
-			final EqHashTable<String, PersistenceTypeDescriptionMember> refacTargetStrings = EqHashTable.New();
 			
-			final XGettingSequence<? extends PersistenceRefactoringMappingIdentifierBuilder> identifierBuilders =
-				idBuildersProvider.provideSourceTypeIdentifierBuilders()
-			;
-						
-			// for every source (legacy type) member ...
-			for(final PersistenceTypeDescriptionMember sourceMember : sourceTypeDefinition.members())
-			{
-				// ... identifier patterns are checked in priority defined by the builder order ...
-				for(final PersistenceRefactoringMappingIdentifierBuilder idBuilder : identifierBuilders)
-				{
-					final String identifier = idBuilder.buildMemberIdentifier(sourceTypeDefinition, sourceMember);
-					if(check(sourceMember, identifier, refacMapping, refacTargetStrings, sourceToTargetMapping))
-					{
-						// ... and on a match, the remaining builders are skipped for the matched source member.
-						break;
-					}
-				}
-			}
-			
-			// every source member has been handled exactely once, so return the result.
-			return refacTargetStrings;
-		}
-		
-		private static boolean check(
-			final PersistenceTypeDescriptionMember                                              member                  ,
-			final String                                                                        lookupString            ,
-			final XGettingTable<String, String>                                                 refactoringEntries      ,
-			final EqHashTable<String, PersistenceTypeDescriptionMember>                         refactoringTargetStrings,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping
-		)
-		{
-			// must check keys themselves, as a null value means deletion
-			if(refactoringEntries.keys().contains(lookupString))
-			{
-				// might be null to indicate deletion
-				final String targetString = refactoringEntries.get(lookupString);
-				if(targetString == null)
-				{
-					// to be deleted members are registered right away. Important for uniqueness checks later on.
-					sourceToTargetMapping.add(member, null);
-				}
-				else
-				{
-					if(!refactoringTargetStrings.add(targetString, member))
-					{
-						// (10.09.2018 TM)EXCP: proper exception
-						throw new PersistenceExceptionTypeConsistency(
-							"Duplicate member mapping for target member \"" + targetString + "\""
-						);
-					}
-				}
-				
-				return true;
-			}
-			
-			return false;
-		}
-		
-		private static void resolveSourceToTargetMembers(
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       refacTargetStrings   ,
-			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition ,
-			final PersistenceRefactoringMappingIdentifierBuildersProvider                       idBuildersProvider
-		)
-		{
-			final EqHashTable<String, PersistenceTypeDescriptionMember> unresolvedTargetStrings = EqHashTable.New();
-
-			final XGettingSequence<? extends PersistenceRefactoringMappingIdentifierBuilder> identifierBuilders =
-				idBuildersProvider.provideSourceTypeIdentifierBuilders()
-			;
-			
-			// for every target (current type) member ...
-			for(final PersistenceTypeDescriptionMember targetMember : targetTypeDefinition.members())
-			{
-				// ... identifier patterns are checked in priority defined by the builder order ...
-				for(final PersistenceRefactoringMappingIdentifierBuilder idBuilder : identifierBuilders)
-				{
-					final String identifier = idBuilder.buildMemberIdentifier(targetTypeDefinition, targetMember);
-					if(check(targetTypeDefinition, targetMember, refacTargetStrings, sourceToTargetMapping, identifier))
-					{
-						unresolvedTargetStrings.keys().remove(identifier);
-						// ... and on a match, the remaining builders are skipped for the resolved target member.
-						break;
-					}
-				}
-			}
-			
-			if(!unresolvedTargetStrings.isEmpty())
-			{
-				final VarString vs = VarString.New();
-				for(final KeyValue<String, PersistenceTypeDescriptionMember> unresolved : unresolvedTargetStrings)
-				{
-					vs.add(unresolved.value().uniqueName()).add(" -> ").add(unresolved.key()).lf();
-				}
-				
-				// (04.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Unresolved mapping targets: \n" + vs);
-			}
-		}
-
-		private static boolean check(
-			final PersistenceTypeDefinition<?>                                                  targetTypeDefinition ,
-			final PersistenceTypeDescriptionMember                                              targetTypeMember     ,
-			final XGettingTable<String, PersistenceTypeDescriptionMember>                       sourceLookupTable    ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> sourceToTargetMapping,
-			final String                                                                        identifier
-		)
-		{
-			final PersistenceTypeDescriptionMember sourceMember = sourceLookupTable.get(identifier);
-			
-			if(sourceMember == null)
-			{
-				return false;
-			}
-			
-			if(sourceToTargetMapping.add(sourceMember, targetTypeMember))
-			{
-				return true;
-			}
-			
-			// (10.09.2018 TM)EXCP: proper exception
-			throw new PersistenceExceptionTypeConsistency(
-				"Duplicate member mapping for source member " + sourceMember.uniqueName()
-				+ "to target identifier \"" + identifier + "\""
-			);
-		}
-				
+		// (06.10.2018 TM)FIXME: OGS-3: isn't this redundant to the type resolver?
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
