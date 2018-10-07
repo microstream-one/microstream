@@ -7,8 +7,6 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
 import net.jadoth.util.matching.MatchValidator;
@@ -21,8 +19,6 @@ public interface PersistenceLegacyTypeMapper<M>
 		PersistenceTypeDefinition<?> legacyTypeDefinition,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
-	
-	public <T> Class<T> resolveRuntimeType(PersistenceTypeDefinition<?> legacyTypeDefinition);
 	
 	
 	
@@ -112,9 +108,9 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			// bundle the mappings into a result, potentially with user callback, validation, modification, logging, etc.
 			final PersistenceLegacyTypeMappingResult<M, T> validResult = this.resultor.createMappingResult(
-				legacyTypeDefinition ,
-				currentTypeHandler   ,
-				explicitMappings,
+				legacyTypeDefinition,
+				currentTypeHandler  ,
+				explicitMappings    ,
 				match
 			);
 			
@@ -231,7 +227,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition<?> legacyTypeDefinition,
-			final PersistenceTypeHandler<M, T> currentTypeHandler
+			final PersistenceTypeHandler<M, T> properTypeHandler
 		)
 		{
 			// check for a custom handler with matching structure
@@ -241,56 +237,16 @@ public interface PersistenceLegacyTypeMapper<M>
 				return customHandler;
 			}
 			
-			if(currentTypeHandler == null)
+			if(properTypeHandler == null)
 			{
 				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
 				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
 			}
 			
 			// at this point a legacy handler must be creatable or something went wrong.
-			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
+			return this.createLegacyTypeHandler(legacyTypeDefinition, properTypeHandler);
 		}
-			
-		// (06.10.2018 TM)FIXME: OGS-3: isn't this redundant to the type resolver?
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> Class<T> resolveRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
-		{
-			return (Class<T>)this.internalResolveMappedRuntimeType(legacyTypeDefinition);
-		}
-		
-		private Class<?> internalResolveMappedRuntimeType(final PersistenceTypeDefinition<?> legacyTypeDefinition)
-		{
-			// (05.10.2018 TM)FIXME: OGS-3: switch to PersistenceRefactoringMappingIdentifierBuildersProvider
-			final String typeName = legacyTypeDefinition.typeName();
-			
-			final PersistenceRefactoringResolver refactoringMapping = this.ensureRefactoringMapping();
-			
-			if(refactoringMapping.entries().keys().contains(typeName))
-			{
-				final String mappedTypeName = refactoringMapping.entries().get(typeName);
-				if(mappedTypeName != null)
-				{
-					try
-					{
-						return XReflect.classForName(mappedTypeName);
-					}
-					catch (final ClassNotFoundException e)
-					{
-						throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(mappedTypeName, e);
-					}
-				}
 				
-				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
-				return null;
-			}
-			
-			/* At this point, the type definition neither has a fitting runtime type nor an entry in the explicit
-			 * refactoring mapping. There are not options left to handle the type name, so it is an error.
-			 */
-			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName);
-		}
-		
 	}
 	
 }

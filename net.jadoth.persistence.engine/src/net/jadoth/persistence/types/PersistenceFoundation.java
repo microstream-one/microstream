@@ -87,8 +87,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable();
 	
 	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
-
-	public PersistenceTypeResolver getTypeResolver();
 	
 	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
 
@@ -189,8 +187,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
 	
 	public F setTypeMismatchValidator(PersistenceTypeMismatchValidator<M> typeMismatchValidator);
-
-	public F setTypeResolver(PersistenceTypeResolver typeResolver);
 	
 	public F setTypeDescriptionBuilder(PersistenceTypeDefinitionCreator typeDefinitionCreator);
 
@@ -315,7 +311,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
 		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
 		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
-		private PersistenceTypeResolver                 typeResolver               ;
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
@@ -642,17 +637,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.typeMismatchValidator;
-		}
-
-		@Override
-		public PersistenceTypeResolver getTypeResolver()
-		{
-			if(this.typeResolver == null)
-			{
-				this.typeResolver = this.dispatch(this.createTypeResolver());
-			}
-			
-			return this.typeResolver;
 		}
 		
 		@Override
@@ -1165,15 +1149,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			this.typeMismatchValidator = typeMismatchValidator;
 			return this.$();
 		}
-
-		@Override
-		public F setTypeResolver(
-			final PersistenceTypeResolver typeResolver
-		)
-		{
-			this.typeResolver = typeResolver;
-			return this.$();
-		}
 		
 		@Override
 		public F setTypeDescriptionBuilder(
@@ -1530,11 +1505,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			// (13.09.2018 TM)NOTE: changed for Legacy Type Mapping. Still a valid callback for monitoring purposes.
 			return Persistence.typeMismatchValidatorNoOp();
 //			return Persistence.typeMismatchValidatorFailing();
-		}
-
-		protected PersistenceTypeResolver createTypeResolver()
-		{
-			return PersistenceTypeResolver.Failing();
 		}
 		
 		protected PersistenceTypeDefinitionCreator createTypeDefinitionCreator()

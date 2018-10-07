@@ -11,15 +11,10 @@ public interface PersistenceTypeResolver
 	
 	public static PersistenceTypeResolver Failing()
 	{
-		return new PersistenceTypeResolver.ImplementationFailing();
+		return new PersistenceTypeResolver.Implementation();
 	}
-	
-	public static PersistenceTypeResolver Ignoring()
-	{
-		return new PersistenceTypeResolver.ImplementationIgnoring();
-	}
-	
-	public final class ImplementationFailing implements PersistenceTypeResolver
+		
+	public final class Implementation implements PersistenceTypeResolver
 	{
 		@Override
 		public Class<?> resolveType(final PersistenceTypeDescription typeDescription)
@@ -35,14 +30,5 @@ public interface PersistenceTypeResolver
 			}
 		}
 	}
-	
-	public final class ImplementationIgnoring implements PersistenceTypeResolver
-	{
-		@Override
-		public Class<?> resolveType(final PersistenceTypeDescription typeDescription)
-		{
-			return XReflect.tryClassForName(typeDescription.typeName());
-		}
-	}
-	
+		
 }
