@@ -285,11 +285,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 						
 			// can only be null if an explicit mapping marked the type as deleted. Otherwise, an exception is thrown.
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.determineRuntimeTypeHandler(typeDefinition);
+			final PersistenceTypeHandler<M, T> properTypeHandler = this.determineProperTypeHandler(typeDefinition);
+			
+			// (07.10.2018 TM)FIXME: OGS-3: isn't there an if missing here? Always create type handler??
 			
 			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
 				typeDefinition,
-				runtimeTypeHandler
+				properTypeHandler
 			);
 			
 			this.registerLegacyTypeHandler(legacyTypeHandler);
@@ -297,22 +299,20 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return legacyTypeHandler;
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> determineRuntimeTypeHandler(
+		private <T> PersistenceTypeHandler<M, T> determineProperTypeHandler(
 			final PersistenceTypeDefinition<T> typeDefinition
 		)
 		{
-			Class<T> runtimeType = typeDefinition.type();
+			// can only be null if an explicit mapping marked the type as deleted.
+			final Class<T> runtimeType = typeDefinition.type();
 			if(runtimeType == null)
 			{
-				runtimeType = this.legacyTypeMapper.resolveRuntimeType(typeDefinition);
-				if(runtimeType == null)
-				{
-					return null;
-				}
+				// return null to indicate deleted type.
+				return null;
 			}
 			
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
-			return runtimeTypeHandler;
+			final PersistenceTypeHandler<M, T> properTypeHandler = this.ensureTypeHandler(runtimeType);
+			return properTypeHandler;
 		}
 		
 		@Override

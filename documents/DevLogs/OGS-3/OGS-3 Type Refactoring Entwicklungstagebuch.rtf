@@ -2299,6 +2299,29 @@ Offene Baustelle weitermachen:\par
 - Defaults f\'fcr IdentifierBuilder\par
 \par
 \par
+resolveRuntimeType recherchieren.\par
+Wird verwendet in PersistenceTypeHandlerManager#determineRuntimeTypeHandler. Dann muss wiederum das veraltet sein oder zumindest angepasst werden.\par
+Jup. Runtime Type hier feststellen ist veraltet, weil das nun ja schon beim Dictionary builden gemacht wird.\par
+Allerdings muss hier dann der deleted handler erzeugt werden, falls der runtime Type null ist.\par
+Und nochmal checken, dass ein explizites "deleted" mapping wirklich der einzige Fall ist, bei dem der runtime Type null sein kann.\par
+\par
+Recherche:\par
+Es gibt zwei Typen, die PersistenceTypeDefinition implementieren: Seine final Implementation selbst und den PersistenceTypeHandler.\par
+Von letzterem pr\'fcft der Konstruktor auf type not null. Ist ja klar: von einem (non-legacy) handler darf der type niemals null sein. Passt.\par
+\par
+Dann ist nur noch die Frage, ob der type bei der PersistenceTypeDefinition$Implementation Instanzierung null sein kann.\par
+Das liegt in der Verantwortung von PersistenceTypeResolver#resolveType: Wenn der null zur\'fcckgibt, dann ja.\par
+Also da rein schauen.\par
+Die IgnoringImplementation w\'fcrde das machen. Aber die wird eh nicht mehr verwendet. Gleich mal l\'f6schen.\par
+\par
+Dabei aufgefallen:\par
+PersistenceFoundation#getTypeResolver wird gar nicht mehr verwendet, weil stattdessen nun ja #getRefactoringResolverProvider verwendet wird.\par
+Aber evtl. sollte es anders rum sein: der "normale" Typeresolver sollte type members mit aufl\'f6sen k\'f6nnen, so dass an dieser Stelle von Refactoring gar nicht mehr die Rede sein braucht.\par
+Naja aber eigentlich ist das nur Benamungszeugs. #getTypeResolver l\'f6schen und fertig. Namen kann man sp\'e4ter immer noch \'e4ndern.\par
+\par
+\par
+\par
+\par
 \par
 }
  

@@ -120,6 +120,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		@Override
 		public final Class<?> resolveType(final PersistenceTypeDescription typeDescription)
 		{
+			// can be null for the sole case of an explicit mapping to be deleted.
 			final String actualTypeString = this.ensureActualTypeString(typeDescription);
 			if(actualTypeString == null)
 			{
@@ -127,7 +128,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 				return null;
 			}
 			
-			// every non-null type string MUST be resolvable or something is irreparably wrong (e.g. old mappings)
+			// every non-null type string MUST be resolvable or something is irreparably wrong (e.g. outdated mappings)
 			try
 			{
 				return XReflect.classForName(actualTypeString);

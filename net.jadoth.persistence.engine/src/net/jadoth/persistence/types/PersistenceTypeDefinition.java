@@ -23,6 +23,9 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 	@Override
 	public String typeName();
 	
+	@Override
+	public Class<T> type();
+	
 	/**
 	 * The name of the corresponding runtime type.
 	 * If not implemented otherwise (e.g. to cache the name), this method simply calls {@link Class#getName()} of
@@ -154,6 +157,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 		}
 		
 		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
+		// type may be null for the sole case of an explicitely mapped to be deleted type.
 		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> internalMembers = members.immure();
 		return new PersistenceTypeDefinition.Implementation<>(
 			                                                         typeId             ,
