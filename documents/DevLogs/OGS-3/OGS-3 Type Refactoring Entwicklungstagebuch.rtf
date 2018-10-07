@@ -2319,9 +2319,30 @@ PersistenceFoundation#getTypeResolver wird gar nicht mehr verwendet, weil stattd
 Aber evtl. sollte es anders rum sein: der "normale" Typeresolver sollte type members mit aufl\'f6sen k\'f6nnen, so dass an dieser Stelle von Refactoring gar nicht mehr die Rede sein braucht.\par
 Naja aber eigentlich ist das nur Benamungszeugs. #getTypeResolver l\'f6schen und fertig. Namen kann man sp\'e4ter immer noch \'e4ndern.\par
 \par
+Hm seltsam. Irgendwie fehlt bisher eine Pr\'fcfung, ob \'fcberhaupt ein LegacyTypeHandler n\'f6tig ist.\par
+Ich glaub, das ergab sich fr\'fcher mal aus dem Ablauf, aber der hat sich durch die Vorverlegung des Mapping Lookups ge\'e4ndert.\par
+Hm, mal sehen. F\'e4lle, in denen ein LegacyTypeHandler n\'f6tig ist:\par
+- TypeDefinition ist nicht die aktuellste in der TypeLineage f\'fcr den TypeName.\par
+- TypeDefinition runtime type name ist anders als der TypeName aus dem Dictionary (d.h. der Type wurde umbenannt und das wurde durch einen expliziten Refactoring Mapping Eintrag definiert)\par
+\par
+Das hei\'dft aber auch, das TypeLineages nur nach TypeName und nicht nach Type organisiert sein d\'fcrfen.\par
+Mal checken...\par
+(mann, zieht das alles Kreise ...)\par
+Ah, okay. In PersistenceTypeLineageCreator#createTypeLineage ist der runtime type lookup eh schon optional mit entsprechendem Kommentar. Passt.\par
+Also es z\'e4hlt nur der Name. Der Type l\'e4uft optional mit.\par
+Dann ist aber die Validierung nach Type in der TypeLineage falsch: Eine TypeDefinition der Familie kann durchaus einen anderen runtime Type haben, falls er gemappt worden ist.\par
+Rausmachen und kommentieren.\par
+\par
+Das hier ist eigentlich alles schon testen: Anstatt einen Test laufen zu lassen und dann eine Exception zu untersuchen, bin ich halt durch Recherche im Rahmen einer \'c4nderung drauf gekommen. So oder so: der Fehler wird behoben.\par
 \par
 \par
+Wieder zur\'fcck zu der Frage, woran die Notwendigkeit eines Legacy Type Handler erkannt wird:\par
+Das funktioniert bisher aber schon irgendwie. Wenn es keine Type\'e4nderung gibt, wird der LegacyTypeMapper gar nicht aufgerufen.\par
+Es gibt ja irgendwo einen Type check, der feststelle, ob der dictionary type zum runtime type passt. Dort wird das festgestellt.\par
+Die Frage ist nur, warum das in der ensureTypeHandler Methode nicht gepr\'fcft werden muss. Evtl., weil der darin gemachte lookup schon garantiert, den aktuellen runtime Type handler zu liefern?\par
+Kompliziert ...\par
 \par
-\par
+Tats\'e4chlich wird die Methode letztendlich nur von EmbeddedStorageManager#createLegacyTypeMappings aus aufgerufen.\par
+Das hei\'dft aber nicht, dass die Methode f\'fcr sich genommen nicht checken braucht. Wenn es keine Diskrepanz gibt, dann braucht auch kein Legacy Handler erzeugt werden.\par
 }
  
