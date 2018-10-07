@@ -119,10 +119,12 @@ public interface PersistenceTypeLineage<T>
 			{
 				return false;
 			}
-			if(this.runtimeType != typeDefinition.type())
-			{
-				return false;
-			}
+			
+			// a type check would not be correct here: the type may have been refactoring-mapped to another runtime type.
+//			if(this.runtimeType != typeDefinition.type())
+//			{
+//				return false;
+//			}
 			
 			final PersistenceTypeDefinition<T> alreadyRegistered = this.entries.get(typeDefinition.typeId());
 			if(alreadyRegistered == null)
@@ -147,10 +149,10 @@ public interface PersistenceTypeLineage<T>
 		{
 			synchronized(this.entries)
 			{
-				// the passed (and already validated) instance gets set in any way, ...
+				// the passed (and already validated) instance is always registered, ...
 				if(this.entries.put(typeDefinition.typeId(), typeDefinition))
 				{
-					// ... but the return value is only rue to indicate an actual additional entry.
+					// ... but the return value is only true to indicate an actual additional entry.
 					this.entries.keys().sort(Long::compare);
 					return true;
 				}

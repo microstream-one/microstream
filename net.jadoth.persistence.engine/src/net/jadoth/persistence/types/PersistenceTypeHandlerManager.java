@@ -285,13 +285,24 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 						
 			// can only be null if an explicit mapping marked the type as deleted. Otherwise, an exception is thrown.
-			final PersistenceTypeHandler<M, T> properTypeHandler = this.determineProperTypeHandler(typeDefinition);
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.determineRuntimeTypeHandler(typeDefinition);
 			
-			// (07.10.2018 TM)FIXME: OGS-3: isn't there an if missing here? Always create type handler??
+			/*
+			 * check if a legacy type handler is needed
+			 * Note:
+			 * This method is currently only called for creating legacy type mappings, so this check will
+			 * (... should ... must) always fail and a legacy type handler will (must) be created.
+			 * However, the method in general should very well check if such a legacy handler is required at all.
+			 * Just in case it gets called from another context in the future.
+			 */
+			if(runtimeTypeHandler != null && runtimeTypeHandler.typeId() == typeDefinition.typeId())
+			{
+				return runtimeTypeHandler;
+			}
 			
 			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
 				typeDefinition,
-				properTypeHandler
+				runtimeTypeHandler
 			);
 			
 			this.registerLegacyTypeHandler(legacyTypeHandler);
@@ -299,7 +310,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return legacyTypeHandler;
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> determineProperTypeHandler(
+		/**
+		 * Determines the TypeHandler for the runtime type is present.
+		 * 
+		 * @param typeDefinition
+		 * @return
+		 */
+		private <T> PersistenceTypeHandler<M, T> determineRuntimeTypeHandler(
 			final PersistenceTypeDefinition<T> typeDefinition
 		)
 		{
@@ -311,8 +328,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return null;
 			}
 			
-			final PersistenceTypeHandler<M, T> properTypeHandler = this.ensureTypeHandler(runtimeType);
-			return properTypeHandler;
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			return runtimeTypeHandler;
 		}
 		
 		@Override
