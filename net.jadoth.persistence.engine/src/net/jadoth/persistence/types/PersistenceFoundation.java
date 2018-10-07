@@ -1,6 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
@@ -1563,20 +1562,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		protected XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> createRefactoringLegacyTypeIdentifierBuilders()
 		{
-			// (06.10.2018 TM)FIXME: OGS-3: add defaults
-			return HashEnum.New();
+			return PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders();
 		}
 		
 		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringLegacyMemberIdentifierBuilders()
 		{
-			// (06.10.2018 TM)FIXME: OGS-3: add defaults
-			return HashEnum.New();
+			return PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders();
 		}
 		
 		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringCurrentMemberIdentifierBuilders()
 		{
-			// (06.10.2018 TM)FIXME: OGS-3: add defaults
-			return HashEnum.New();
+			return PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringCurrentMemberIdentifierBuilders();
 		}
 		
 		protected TypeMapping<Float> createTypeSimilarity()

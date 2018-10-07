@@ -2344,5 +2344,21 @@ Kompliziert ...\par
 \par
 Tats\'e4chlich wird die Methode letztendlich nur von EmbeddedStorageManager#createLegacyTypeMappings aus aufgerufen.\par
 Das hei\'dft aber nicht, dass die Methode f\'fcr sich genommen nicht checken braucht. Wenn es keine Diskrepanz gibt, dann braucht auch kein Legacy Handler erzeugt werden.\par
+\par
+Damit hat sich das resolve runtime Zeugs im Legacy Mapper erledigt.\par
+\par
+Dann w\'e4re jetzt noch der Punkt mit den default identifier builders.\par
+Am besten gleich in einer static Methode machen, damit man sich die auch unabh\'e4ngig von Instanzen geben lassen kann.\par
+\par
+Hehe. Das ist im Wesentlichen nur das wieder reinkopieren des alten Codes daf\'fcr, nur diesmal ohne die TODOs. Die sind nun erledigt.\par
+\par
+Ach, in der StorageFoundation fehlt ja noch die Generics Typisierung f\'fcr weniger Setter Overrideoverkill.\par
+Dabei gleich noch eine coole "onConnectionFoundation" deep-chaining" Method einbauen.\par
+\par
+Damit w\'e4re jetzt nur noch die Baustelle im Similator offen, dann ist das RefactoringResolving fertig erweitert/gefixt/abgerundet.\par
+\par
+\par
+\par
+\par
 }
  

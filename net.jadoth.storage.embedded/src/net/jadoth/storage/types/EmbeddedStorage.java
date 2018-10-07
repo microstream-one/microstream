@@ -13,9 +13,9 @@ import net.jadoth.persistence.types.Persistence;
 
 public final class EmbeddedStorage
 {
-	public static final EmbeddedStorageFoundation createFoundationBlank()
+	public static final EmbeddedStorageFoundation<?> createFoundationBlank()
 	{
-		return new EmbeddedStorageFoundation.Implementation();
+		return new EmbeddedStorageFoundation.Implementation<>();
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
@@ -53,7 +53,7 @@ public final class EmbeddedStorage
 
 	
 	
-	public static final EmbeddedStorageFoundation createFoundation(
+	public static final EmbeddedStorageFoundation<?> createFoundation(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
@@ -68,7 +68,7 @@ public final class EmbeddedStorage
 		;
 	}
 	
-	public static final EmbeddedStorageFoundation createFoundation(
+	public static final EmbeddedStorageFoundation<?> createFoundation(
 		final StorageFileProvider                    fileProvider        ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
@@ -81,7 +81,7 @@ public final class EmbeddedStorage
 		;
 	}
 	
-	public static final EmbeddedStorageFoundation createFoundation(final File directory)
+	public static final EmbeddedStorageFoundation<?> createFoundation(final File directory)
 	{
 		XFiles.ensureDirectory(notNull(directory));
 
@@ -91,12 +91,12 @@ public final class EmbeddedStorage
 		);
 	}
 
-	public static final EmbeddedStorageFoundation createFoundation()
+	public static final EmbeddedStorageFoundation<?> createFoundation()
 	{
 		return createFoundation(new File(Storage.defaultDirectoryName()));
 	}
 	
-	public static final EmbeddedStorageFoundation createFoundation(
+	public static final EmbeddedStorageFoundation<?> createFoundation(
 		final File                          directory             ,
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
