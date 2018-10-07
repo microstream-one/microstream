@@ -1,10 +1,12 @@
 package net.jadoth.storage.types;
 
+import java.util.function.Consumer;
+
 import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceRefactoringResolverProvider;
+import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
@@ -13,9 +15,12 @@ import net.jadoth.reference.Reference;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
-public interface EmbeddedStorageFoundation extends StorageFoundation
+public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
 	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
+	
+	// next level method chaining 8-)
+	public F onConnectionFoundation(Consumer<? super EmbeddedStorageConnectionFoundation<?>> logic);
 
 	public default EmbeddedStorageManager createEmbeddedStorageManager()
 	{
@@ -36,56 +41,20 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		esm.start();
 		return esm;
 	}
+
+	public F setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
+
+	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
-	@Override
-	public EmbeddedStorageFoundation setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
-
-	@Override
-	public EmbeddedStorageFoundation setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
-
-	@Override
-	public EmbeddedStorageFoundation setDataChunkValidatorProvider(
-		StorageValidatorDataChunk.Provider dataChunkValidatorProvider
-	);
-
-	@Override
-	public EmbeddedStorageFoundation setChannelCreator(StorageChannel.Creator channelCreator);
-
-	@Override
-	public EmbeddedStorageFoundation setTaskCreator(StorageRequestTaskCreator taskCreator);
-
-	@Override
-	public EmbeddedStorageFoundation setTypeDictionary(StorageTypeDictionary typeDictionary);
-
-	@Override
-	public EmbeddedStorageFoundation setConfiguration(StorageConfiguration configuration);
-
-	@Override
-	public EmbeddedStorageFoundation setTimestampProvider(StorageTimestampProvider storageTimestampProvider);
-
-	@Override
-	public EmbeddedStorageFoundation setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
-
-	public EmbeddedStorageFoundation setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
-
-	public EmbeddedStorageFoundation setRootResolver(PersistenceRootResolver rootResolver);
+	public F setRoot(Object root);
 	
-	public default EmbeddedStorageFoundation setRoot(final Object root)
-	{
-		this.setRootResolver(
-			Persistence.RootResolver(root)
-		);
-		
-		return this;
-	}
-	
-	
-	public EmbeddedStorageFoundation setRefactoringMappingProvider(
-		PersistenceRefactoringResolverProvider refactoringMappingProvider
-	);
+	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
+	
 
-	public class Implementation extends StorageFoundation.Implementation implements EmbeddedStorageFoundation
+	public class Implementation<F extends EmbeddedStorageFoundation.Implementation<?>>
+	extends StorageFoundation.Implementation<F>
+	implements EmbeddedStorageFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -98,6 +67,27 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public F onConnectionFoundation(
+			final Consumer<? super EmbeddedStorageConnectionFoundation<?>> logic
+		)
+		{
+			final EmbeddedStorageConnectionFoundation<?> escf = this.getConnectionFoundation();
+			logic.accept(escf);
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setRoot(final Object root)
+		{
+			this.setRootResolver(
+				Persistence.RootResolver(root)
+			);
+			
+			return this.$();
+		}
 		
 		protected EmbeddedStorageConnectionFoundation<?> createConnectionFoundation()
 		{
@@ -140,101 +130,101 @@ public interface EmbeddedStorageFoundation extends StorageFoundation
 		 *  An initialization tree diagram should be created to asses the initialization dependancies.
 		 */
 		@Override
-		public EmbeddedStorageFoundation.Implementation setConfiguration(final StorageConfiguration configuration)
+		public F setConfiguration(final StorageConfiguration configuration)
 		{
 			super.setConfiguration(configuration);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setRequestAcceptorCreator(
+		public F setRequestAcceptorCreator(
 			final StorageRequestAcceptor.Creator requestAcceptorCreator
 		)
 		{
 			super.setRequestAcceptorCreator(requestAcceptorCreator);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setTaskBrokerCreator(
+		public F setTaskBrokerCreator(
 			final StorageTaskBroker.Creator taskBrokerCreator
 		)
 		{
 			super.setTaskBrokerCreator(taskBrokerCreator);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setDataChunkValidatorProvider(
+		public F setDataChunkValidatorProvider(
 			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
 		)
 		{
 			super.setDataChunkValidatorProvider(dataChunkValidatorProvider);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setChannelCreator(final StorageChannel.Creator channelCreator)
+		public F setChannelCreator(final StorageChannel.Creator channelCreator)
 		{
 			super.setChannelCreator(channelCreator);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setTaskCreator(final StorageRequestTaskCreator taskCreator)
+		public F setTaskCreator(final StorageRequestTaskCreator taskCreator)
 		{
 			super.setTaskCreator(taskCreator);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setTypeDictionary(final StorageTypeDictionary typeDictionary)
+		public F setTypeDictionary(final StorageTypeDictionary typeDictionary)
 		{
 			super.setTypeDictionary(typeDictionary);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setRootTypeIdProvider(
+		public F setRootTypeIdProvider(
 			final StorageRootTypeIdProvider rootTypeIdProvider
 		)
 		{
 			super.setRootTypeIdProvider(rootTypeIdProvider);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setConnectionFoundation(
+		public F setConnectionFoundation(
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 		)
 		{
 			this.connectionFoundation = connectionFoundation;
-			return this;
+			return this.$();
 		}
 		
 		@Override
-		public EmbeddedStorageFoundation setRootResolver(final PersistenceRootResolver rootResolver)
+		public F setRootResolver(final PersistenceRootResolver rootResolver)
 		{
 			this.getConnectionFoundation().setRootResolver(rootResolver);
-			return this;
+			return this.$();
 		}
 		
 		@Override
-		public EmbeddedStorageFoundation setRefactoringMappingProvider(
-			final PersistenceRefactoringResolverProvider refactoringMappingProvider
+		public F setRefactoringMappingProvider(
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
 		{
 			this.getConnectionFoundation().setRefactoringMappingProvider(refactoringMappingProvider);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public EmbeddedStorageFoundation.Implementation setTimestampProvider(
+		public F setTimestampProvider(
 			final StorageTimestampProvider timestampProvider
 		)
 		{
 			super.setTimestampProvider(timestampProvider);
-			return this;
+			return this.$();
 		}
 
 		private void initializeEmbeddedStorageRootTypeIdProvider(
