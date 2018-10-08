@@ -92,7 +92,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 			final long    persistentMaximumLength
 		)
 		{
-			super(null, typeName, name, false, false, false, hasReferences, persistentMinimumLength, persistentMaximumLength);
+			super(typeName, name, false, false, false, hasReferences, persistentMinimumLength, persistentMaximumLength);
 		}
 
 

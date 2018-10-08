@@ -13,13 +13,6 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 
 public interface PersistenceTypeDescriptionMember
 {
-	/**
-	 * The runtime type used by this description member, if possible. Otherwise <code>null</code>.
-	 * 
-	 * @return
-	 */
-	public Class<?> type();
-	
 	public String typeName();
 
 	/**
@@ -261,7 +254,6 @@ public interface PersistenceTypeDescriptionMember
 		// instance fields //
 		////////////////////
 
-		private final Class<?> type                   ;
 		private final String   typeName               ;
 		private final String   name                   ;
 		private final boolean  isReference            ;
@@ -278,7 +270,6 @@ public interface PersistenceTypeDescriptionMember
 		/////////////////
 
 		protected AbstractImplementation(
-			final Class<?> type                   ,
 			final String   typeName               ,
 			final String   name                   ,
 			final boolean  isReference            ,
@@ -290,7 +281,6 @@ public interface PersistenceTypeDescriptionMember
 		)
 		{
 			super();
-			this.type                    = type                   ;
 			this.typeName                = typeName               ;
 			this.name                    = name                   ;
 			this.isReference             = isReference            ;
@@ -308,12 +298,6 @@ public interface PersistenceTypeDescriptionMember
 		// methods //
 		////////////
 		
-		@Override
-		public final Class<?> type()
-		{
-			return this.type;
-		}
-
 		@Override
 		public final String typeName()
 		{

@@ -613,7 +613,6 @@ public interface PersistenceTypeDictionaryParser
 
 			return PersistenceTypeDescriptionMemberPseudoFieldSimple.New(
 				this.fieldName,
-				XReflect.tryClassForName(this.typeName),
 				this.typeName,
 				!XReflect.isPrimitiveTypeName(this.typeName),
 				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
