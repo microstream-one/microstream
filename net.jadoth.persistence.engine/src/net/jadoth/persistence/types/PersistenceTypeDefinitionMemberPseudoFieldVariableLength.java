@@ -1,8 +1,24 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 public interface PersistenceTypeDefinitionMemberPseudoFieldVariableLength
 extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 {
+
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
+		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
+	)
+	{
+		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.New(
+			description.typeName()               ,
+			description.name()                   ,
+			description.persistentMinimumLength(),
+			description.persistentMaximumLength()
+		);
+	}
+	
 	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
 		final String typeName               ,
 		final String name                   ,
@@ -11,11 +27,11 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	)
 	{
 		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
-			typeName               ,
-			name                   ,
-			false                  ,
-			persistentMinimumLength,
-			persistentMaximumLength
+			notNull(typeName)                ,
+			notNull(name)                    ,
+			false                            ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
 

@@ -7,7 +7,7 @@ import static net.jadoth.math.XMath.positive;
 public interface PersistenceTypeDefinitionMemberPseudoFieldSimple
 extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldSimple
 {
-	public static PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation New(
+	public static PersistenceTypeDefinitionMemberPseudoFieldSimple New(
 		final String   name                   ,
 		final String   typeName               ,
 		final Class<?> type                   ,

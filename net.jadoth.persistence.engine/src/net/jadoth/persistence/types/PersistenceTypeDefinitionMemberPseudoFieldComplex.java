@@ -8,6 +8,17 @@ import net.jadoth.collections.types.XGettingSequence;
 public interface PersistenceTypeDefinitionMemberPseudoFieldComplex
 extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTypeDescriptionMemberPseudoFieldComplex
 {
+	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
+		final PersistenceTypeDescriptionMemberPseudoFieldComplex description
+	)
+	{
+		return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(
+			description.typeName()               ,
+			description.members()                ,
+			description.persistentMinimumLength(),
+			description.persistentMaximumLength()
+		);
+	}
 	
 	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
 		final String                                                        name                   ,

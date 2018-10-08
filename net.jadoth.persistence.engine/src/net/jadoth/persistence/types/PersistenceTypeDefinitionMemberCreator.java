@@ -2,8 +2,6 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.swizzling.types.Swizzle;
-
 public interface PersistenceTypeDefinitionMemberCreator
 {
 	public PersistenceTypeDefinitionMemberPrimitiveDefinition createDefinitionMember(
@@ -76,20 +74,20 @@ public interface PersistenceTypeDefinitionMemberCreator
 		////////////
 
 		@Override
-		public PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation createDefinitionMember(
+		public PersistenceTypeDefinitionMemberPrimitiveDefinition createDefinitionMember(
 			final PersistenceTypeDescriptionMemberPrimitiveDefinition description
 		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinitionMemberCreator#createDefinitionMember()
+			return PersistenceTypeDefinitionMemberPrimitiveDefinition.New(description);
 		}
 		
-		private long determineHighestTypeId(
+		private PersistenceTypeDescription determineMostRecentType(
 			final Iterable<PersistenceTypeDescription> ascendingOrderTypeIdEntries,
 			final long                                 upperBoundTypeId           ,
 			final String                               typeName
 		)
 		{
-			long highestFoundTypeId = Swizzle.nullId();
+			PersistenceTypeDescription mostRecentType = null;
 			
 			for(final PersistenceTypeDescription entry : ascendingOrderTypeIdEntries)
 			{
@@ -97,17 +95,17 @@ public interface PersistenceTypeDefinitionMemberCreator
 				{
 					break;
 				}
-				if(entry.typeName().equals(typeName))
+				if(typeName.equals(entry.typeName()))
 				{
-					highestFoundTypeId = entry.typeId();
+					mostRecentType = entry;
 				}
 			}
 			
-			return highestFoundTypeId;
+			return mostRecentType;
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberField.Implementation createDefinitionMember(
+		public PersistenceTypeDefinitionMemberField createDefinitionMember(
 			final PersistenceTypeDescriptionMemberField description
 		)
 		{
@@ -122,7 +120,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation createDefinitionMember(
+		public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
 			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
 		)
 		{
@@ -130,19 +128,19 @@ public interface PersistenceTypeDefinitionMemberCreator
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation createDefinitionMember(
+		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
 			final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
 		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinitionMemberCreator#createDefinitionMember()
+			return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.New(description);
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldComplex.Implementation createDefinitionMember(
+		public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
 			final PersistenceTypeDescriptionMemberPseudoFieldComplex description
 		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinitionMemberCreator#createDefinitionMember()
+			return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(description);
 		}
 		
 	}
