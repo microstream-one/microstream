@@ -2,14 +2,14 @@ package net.jadoth.persistence.types;
 
 import java.lang.reflect.Field;
 
-public interface PersistenceTypeDefinitionMemberField<O>
-extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberField
+public interface PersistenceTypeDefinitionMemberField
+extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 {
 	public Class<?> declaringClass();
 	
 	public Field field();
 		
-	public static <O>  PersistenceTypeDefinitionMemberField<O> New(
+	public static PersistenceTypeDefinitionMemberField New(
 		final Class<?> declaringClass         ,
 		final Field    field                  ,
 		final Class<?> type                   ,
@@ -21,7 +21,7 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberField.Implementation<>(
+		return new PersistenceTypeDefinitionMemberField.Implementation(
 			declaringClass         ,
 			field                  ,
 			type                   ,
@@ -34,14 +34,14 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		);
 	}
 	
-	public static <O> PersistenceTypeDefinitionMemberField<O> New(
-		final PersistenceTypeDefinition<O> ownerType              ,
-		final Field                        field                  ,
-		final long                         persistentMinimumLength,
-		final long                         persistentMaximumLength
+	public static PersistenceTypeDefinitionMemberField New(
+		final PersistenceTypeDefinition ownerType              ,
+		final Field                     field                  ,
+		final long                      persistentMinimumLength,
+		final long                      persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberField.Implementation<>(
+		return new PersistenceTypeDefinitionMemberField.Implementation(
 			field.getDeclaringClass()          ,
 			field                              ,
 			field.getType()                    ,
@@ -54,11 +54,11 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		);
 	}
 
-	public final class Implementation<O>
+	public final class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements
-	PersistenceTypeDefinitionMemberField<O>,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
+	PersistenceTypeDefinitionMemberField,
+	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -66,7 +66,7 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
 		private final Class<?>                     type             ;
-		private /*f*/ PersistenceTypeDefinition<O> ownerType        ;
+		private /*f*/ PersistenceTypeDefinition ownerType        ;
 		private final Class<?>                     declaringClass   ;
 		private final Field                        field            ;
 		private final String                       declaringTypeName;
@@ -116,13 +116,13 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		////////////
 		
 		@Override
-		public final PersistenceTypeDefinition<O> ownerType()
+		public final PersistenceTypeDefinition ownerType()
 		{
 			return this.ownerType;
 		}
 		
 		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			this.ownerType = ownerType;
 		}

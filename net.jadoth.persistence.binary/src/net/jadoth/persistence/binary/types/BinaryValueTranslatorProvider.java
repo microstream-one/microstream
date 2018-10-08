@@ -22,7 +22,7 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideValueTranslator(
-		PersistenceTypeDefinition<?>      sourceLegacyType ,
+		PersistenceTypeDefinition      sourceLegacyType ,
 		PersistenceTypeDescriptionMember  sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
 		PersistenceTypeDescriptionMember  targetMember
@@ -36,7 +36,7 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
-		PersistenceTypeDefinition<?>      sourceLegacyType ,
+		PersistenceTypeDefinition      sourceLegacyType ,
 		PersistenceTypeDescriptionMember  sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
 		PersistenceTypeDescriptionMember  targetMember
@@ -257,7 +257,7 @@ public interface BinaryValueTranslatorProvider
 		}
 		
 		private BinaryValueSetter lookupCustomValueSetter(
-			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDefinition      sourceLegacyType ,
 			final PersistenceTypeDescriptionMember  sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
 			final PersistenceTypeDescriptionMember  targetMember
@@ -292,7 +292,7 @@ public interface BinaryValueTranslatorProvider
 		
 		@Override
 		public BinaryValueSetter provideValueTranslator(
-			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDefinition      sourceLegacyType ,
 			final PersistenceTypeDescriptionMember  sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
 			final PersistenceTypeDescriptionMember  targetMember
@@ -329,7 +329,7 @@ public interface BinaryValueTranslatorProvider
 		
 		@Override
 		public final BinaryValueSetter provideBinaryValueTranslator(
-			final PersistenceTypeDefinition<?>      sourceLegacyType ,
+			final PersistenceTypeDefinition      sourceLegacyType ,
 			final PersistenceTypeDescriptionMember  sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
 			final PersistenceTypeDescriptionMember  targetMember

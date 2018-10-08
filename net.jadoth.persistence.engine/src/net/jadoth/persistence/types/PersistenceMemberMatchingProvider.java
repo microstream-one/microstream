@@ -8,21 +8,20 @@ import net.jadoth.util.matching.MatchValidator;
 //@FunctionalInterface - well, lol.
 public interface PersistenceMemberMatchingProvider
 {
-	public default Equalator<PersistenceTypeDescriptionMember> provideMemberMatchingEqualator()
+	public default Equalator<PersistenceTypeDefinitionMember> provideMemberMatchingEqualator()
 	{
 		// optional, null by default.
 		return null;
 	}
 	
-	public default Similator<PersistenceTypeDescriptionMember> provideMemberMatchingSimilator(
-		final PersistenceRefactoringResolver refactoringMapping,
-		final TypeMappingLookup<Float>      typeSimilarity
+	public default Similator<PersistenceTypeDefinitionMember> provideMemberMatchingSimilator(
+		final TypeMappingLookup<Float> typeSimilarity
 	)
 	{
-		return PersistenceMemberSimilator.New(refactoringMapping, typeSimilarity);
+		return PersistenceMemberSimilator.New(typeSimilarity);
 	}
 	
-	public default MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator()
+	public default MatchValidator<PersistenceTypeDefinitionMember> provideMemberMatchValidator()
 	{
 		// optional, null by default.
 		return null;

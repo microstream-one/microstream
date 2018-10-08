@@ -32,6 +32,14 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 	{
 		return m1.primitiveDefinition().equals(m2.primitiveDefinition());
 	}
+	
+	@Override
+	public default <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator<M> creator
+	)
+	{
+		return creator.createDefinitionMember(this);
+	}
 
 
 	public class Implementation

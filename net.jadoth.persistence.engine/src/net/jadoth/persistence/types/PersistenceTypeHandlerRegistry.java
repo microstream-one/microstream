@@ -202,14 +202,14 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validatePossibleTypeMappings(mappings);

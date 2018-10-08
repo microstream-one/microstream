@@ -46,7 +46,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition<?> typeDefinition;
+		private final PersistenceTypeDefinition typeDefinition;
 		
 		
 
@@ -54,7 +54,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final PersistenceTypeDefinition<?> typeDefinition)
+		protected AbstractImplementation(final PersistenceTypeDefinition typeDefinition)
 		{
 			super();
 			this.typeDefinition = typeDefinition;
@@ -92,13 +92,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 
 		// persisted-form-related methods, so the old type definition has be used //
 		
-		public PersistenceTypeDefinition<?> legacyTypeDefinition()
+		public PersistenceTypeDefinition legacyTypeDefinition()
 		{
 			return this.typeDefinition;
 		}
 
 		@Override
-		public final XGettingEnum<? extends PersistenceTypeDefinitionMember<?>> members()
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
 		{
 			return this.typeDefinition.members();
 		}
@@ -139,7 +139,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	
 	public static <M, T> PersistenceLegacyTypeHandler<M, T> Wrap(
-		final PersistenceTypeDefinition<?> legacyTypeDefinition,
+		final PersistenceTypeDefinition legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T> typeHandler
 	)
 	{
@@ -164,7 +164,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		/////////////////
 
 		public DirectWrapper(
-			final PersistenceTypeDefinition<?> typeDefinition           ,
+			final PersistenceTypeDefinition typeDefinition           ,
 			final PersistenceTypeHandler<M, T> fittingCurrentTypeHandler
 		)
 		{

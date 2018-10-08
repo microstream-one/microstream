@@ -117,7 +117,7 @@ public final class DEBUG_BinaryPersistence
 		return vc.toString();
 	}
 
-	public static final String typeToString(final SwizzleTypeLink<?> typeLink)
+	public static final String typeToString(final SwizzleTypeLink typeLink)
 	{
 		return "Type = " + typeLink.type() + " " + tidToString(typeLink.typeId());
 	}

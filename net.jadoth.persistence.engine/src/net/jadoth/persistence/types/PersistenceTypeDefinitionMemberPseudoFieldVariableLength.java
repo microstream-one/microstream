@@ -1,16 +1,16 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldVariableLength<O>
-extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+public interface PersistenceTypeDefinitionMemberPseudoFieldVariableLength
+extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 {
-	public static <O> PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation<O> New(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
 		final String typeName               ,
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation<>(
+		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
 			typeName               ,
 			name                   ,
 			false                  ,
@@ -20,7 +20,7 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 	}
 
 
-	public static <O> PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation<O> Bytes(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Bytes(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -34,7 +34,7 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 		);
 	}
 
-	public static <O> PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation<O> Chars(
+	public static  PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Chars(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -50,18 +50,18 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 
 
 
-	public class Implementation<O>
+	public class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
 	implements
-	PersistenceTypeDefinitionMemberPseudoFieldVariableLength<O>,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
+	PersistenceTypeDefinitionMemberPseudoFieldVariableLength,
+	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private /*f*/ PersistenceTypeDefinition<O> ownerType;
+		private /*f*/ PersistenceTypeDefinition ownerType;
 		
 		
 		
@@ -87,13 +87,13 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 		////////////
 		
 		@Override
-		public final PersistenceTypeDefinition<O> ownerType()
+		public final PersistenceTypeDefinition ownerType()
 		{
 			return this.ownerType;
 		}
 		
 		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			this.ownerType = ownerType;
 		}

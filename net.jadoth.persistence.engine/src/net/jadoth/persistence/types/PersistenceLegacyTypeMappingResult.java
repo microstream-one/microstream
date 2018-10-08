@@ -9,24 +9,24 @@ import net.jadoth.collections.types.XGettingSet;
 public interface PersistenceLegacyTypeMappingResult<M, T>
 {
 	// the legacy type might potentially or usually be another type, maybe one that no more has a runtime type.
-	public PersistenceTypeDefinition<?> legacyTypeDefinition();
+	public PersistenceTypeDefinition legacyTypeDefinition();
 	
 	public PersistenceTypeHandler<M, T> currentTypeHandler();
 	
-	public XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers();
+	public XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers();
 
-	public XGettingSet<PersistenceTypeDescriptionMember> deletedLegacyMembers();
+	public XGettingSet<PersistenceTypeDefinitionMember> deletedLegacyMembers();
 	
-	public XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers();
+	public XGettingSet<PersistenceTypeDefinitionMember> newCurrentMembers();
 	
 	
 	
 	public static <M, T> PersistenceLegacyTypeMappingResult<M, T> New(
-		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition  ,
-		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
-		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers,
-		final XGettingSet<PersistenceTypeDescriptionMember>                                   deletedLegacyMembers  ,
-		final XGettingSet<PersistenceTypeDescriptionMember>                                   newCurrentMembers
+		final PersistenceTypeDefinition                                                     legacyTypeDefinition  ,
+		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler    ,
+		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  deletedLegacyMembers  ,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  newCurrentMembers
 	)
 	{
 		return new PersistenceLegacyTypeMappingResult.Implementation<>(
@@ -44,11 +44,11 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition<?>                  legacyTypeDefinition;
-		private final PersistenceTypeHandler<M, T>                  currentTypeHandler  ;
-		private final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers;
-		private final XGettingSet<PersistenceTypeDescriptionMember> deletedLegacyMembers;
-		private final XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers   ;
+		private final PersistenceTypeDefinition                    legacyTypeDefinition;
+		private final PersistenceTypeHandler<M, T>                 currentTypeHandler  ;
+		private final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
+		private final XGettingSet<PersistenceTypeDefinitionMember> deletedLegacyMembers;
+		private final XGettingSet<PersistenceTypeDefinitionMember> newCurrentMembers   ;
 		
 		
 		
@@ -57,11 +57,11 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition  ,
-			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
-			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers,
-			final XGettingSet<PersistenceTypeDescriptionMember>                                   deletedLegacyMembers  ,
-			final XGettingSet<PersistenceTypeDescriptionMember>                                   newCurrentMembers
+			final PersistenceTypeDefinition                                                     legacyTypeDefinition  ,
+			final PersistenceTypeHandler<M, T>                                                  currentTypeHandler    ,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
+			final XGettingSet<PersistenceTypeDefinitionMember>                                  deletedLegacyMembers  ,
+			final XGettingSet<PersistenceTypeDefinitionMember>                                  newCurrentMembers
 		)
 		{
 			super();
@@ -79,7 +79,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		////////////
 		
 		@Override
-		public PersistenceTypeDefinition<?> legacyTypeDefinition()
+		public PersistenceTypeDefinition legacyTypeDefinition()
 		{
 			return this.legacyTypeDefinition;
 		}
@@ -91,19 +91,19 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		}
 
 		@Override
-		public XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers()
+		public XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers()
 		{
 			return this.legacyToCurrentMembers;
 		}
 		
 		@Override
-		public XGettingSet<PersistenceTypeDescriptionMember> deletedLegacyMembers()
+		public XGettingSet<PersistenceTypeDefinitionMember> deletedLegacyMembers()
 		{
 			return this.deletedLegacyMembers;
 		}
 
 		@Override
-		public XGettingSet<PersistenceTypeDescriptionMember> newCurrentMembers()
+		public XGettingSet<PersistenceTypeDefinitionMember> newCurrentMembers()
 		{
 			return this.newCurrentMembers;
 		}

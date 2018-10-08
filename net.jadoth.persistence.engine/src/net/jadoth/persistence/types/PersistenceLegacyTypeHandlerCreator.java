@@ -48,21 +48,21 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				return false;
 			}
 
-			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> map =
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> map =
 				result.legacyToCurrentMembers()
 			;
-			final Iterator<? extends PersistenceTypeDescriptionMember> legacy =
+			final Iterator<? extends PersistenceTypeDefinitionMember> legacy =
 				result.legacyTypeDefinition().members().iterator()
 			;
-			final Iterator<? extends PersistenceTypeDescriptionMember> current =
+			final Iterator<? extends PersistenceTypeDefinitionMember> current =
 				result.currentTypeHandler().members().iterator()
 			;
 			
 			// check as long as both collections have order-wise corresponding entries (ensured by size check above)
 			while(legacy.hasNext())
 			{
-				final PersistenceTypeDescriptionMember legacyMember  = legacy.next() ;
-				final PersistenceTypeDescriptionMember currentMember = current.next();
+				final PersistenceTypeDefinitionMember legacyMember  = legacy.next() ;
+				final PersistenceTypeDefinitionMember currentMember = current.next();
 				
 				// all legacy members must be directly mapped to their order-wise corresponding current member.
 				if(map.get(legacyMember) != currentMember)

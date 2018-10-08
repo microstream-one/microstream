@@ -133,14 +133,14 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		this.typeManager.validateExistingTypeMappings(mappings);
 	}
 
 	@Override
-	public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		this.typeManager.validatePossibleTypeMappings(mappings);

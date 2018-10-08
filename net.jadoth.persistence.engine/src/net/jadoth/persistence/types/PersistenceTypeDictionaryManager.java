@@ -4,19 +4,19 @@ import static net.jadoth.X.notNull;
 
 public interface PersistenceTypeDictionaryManager extends PersistenceTypeDictionaryProvider
 {
-	public PersistenceTypeDictionaryManager validateTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public PersistenceTypeDictionaryManager validateTypeDefinition(PersistenceTypeDefinition typeDefinition);
 	
 	public PersistenceTypeDictionaryManager validateTypeDefinitions(
-		Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
+		Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 	);
 
-	public boolean registerTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public boolean registerTypeDefinition(PersistenceTypeDefinition typeDefinition);
 
-	public boolean registerTypeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+	public boolean registerTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
 
-	public boolean registerRuntimeTypeDefinition(PersistenceTypeDefinition<?> typeDefinition);
+	public boolean registerRuntimeTypeDefinition(PersistenceTypeDefinition typeDefinition);
 
-	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions);
+	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
 		
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
 
@@ -84,13 +84,13 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public synchronized PersistenceTypeDictionaryManager validateTypeDefinition(
-			final PersistenceTypeDefinition<?> typeDefinition
+			final PersistenceTypeDefinition typeDefinition
 		)
 		{
 			final PersistenceTypeDictionary dictionary = this.cachedTypeDictionary();
 			
 			// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
-			final PersistenceTypeDefinition<?> registered = dictionary.lookupTypeById(typeDefinition.typeId());
+			final PersistenceTypeDefinition registered = dictionary.lookupTypeById(typeDefinition.typeId());
 
 			// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
 			if(registered != null && !PersistenceTypeDescription.equalDescription(registered, typeDefinition))
@@ -126,7 +126,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		}
 		
 		@Override
-		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition<?> typeDefinition)
+		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
 			this.validateTypeDefinition(typeDefinition);
 			final boolean hasChanged = this.cachedTypeDictionary().registerTypeDefinition(typeDefinition);
@@ -141,7 +141,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public synchronized boolean registerTypeDefinitions(
-			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
@@ -157,7 +157,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public synchronized boolean registerRuntimeTypeDefinition(
-			final PersistenceTypeDefinition<?> typeDefinition
+			final PersistenceTypeDefinition typeDefinition
 		)
 		{
 			this.validateTypeDefinition(typeDefinition);
@@ -174,7 +174,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public final synchronized boolean registerRuntimeTypeDefinitions(
-			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
@@ -190,7 +190,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 		@Override
 		public final synchronized PersistenceTypeDictionaryManager.Implementation validateTypeDefinitions(
-			final Iterable<? extends PersistenceTypeDefinition<?>> typeDefinitions
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
 			typeDefinitions.forEach(this::validateTypeDefinition);

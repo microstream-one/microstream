@@ -23,6 +23,14 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		// currently no specific checking logic
 		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
 	}
+	
+	@Override
+	public default <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator<M> creator
+	)
+	{
+		return creator.createDefinitionMember(this);
+	}
 
 	
 	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(

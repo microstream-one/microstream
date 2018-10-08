@@ -54,7 +54,7 @@ extends SwizzleObjectRegistry, SwizzleTypeRegistry, Sized, Clearable, SwizzleTyp
 	public <T> Class<T> lookupType(long tid);
 
 	@Override
-	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency;
 
 	@Override

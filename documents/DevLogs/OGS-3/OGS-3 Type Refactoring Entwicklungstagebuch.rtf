@@ -2404,6 +2404,26 @@ PersistenceTypeHandler h\'e4lt sich selber ein Class<T>, anstatt die an eine ~De
 \par
 Hei\'dft: Alle Typparameter von ~Definition~s, ~DefinitionMember~s und sogar von den TypeLineages k\'f6nnen raus. Die braucht kein Mensch und machen nur alles komplizierter.\par
 \par
+Ah. Das zieht sich bis in SwizzleTypeLink rein. Und man kann leider nicht extends SwizzleTypeLink<?> schreiben.\par
+Aber wenn ich den Type Parameter  dort auch l\'f6sche, kann ich ihn PersistenceTypeHandler wieder Class<T> spezifizieren.\par
+Das w\'fcrde passen.\par
+Sofern die "Type Kastratation" von SwizzleTypeLink nirgends Probleme macht ...\par
+Recherchieren ...\par
+Alle Vorkommen von SwizzleTypeLink sind eh immer nur mit <?>. Haha.\par
+\par
+Lustig, wie so ein kleines Detail, dass ein LegacyTypeHandler eine Diskrepanz von Members zu Laufzeit Typ hat, eine \'c4nderung quer durch alle Framework Ebenen ausl\'f6st bzw. eine Ineffizienz aufdeckt.\par
+\par
+Haha. Dabei hat sich Eclipse verschluckt. Findet im TypeDictionary "referenced type parameter K", obwohl es dort gar kein K gibt und auch sonst nirgends im Persistence Projekt. Und Typen, die nur einmal da sind, sieht es doppelt und wirft Compilerfehler. Mal alle Projekte cleanen, dann gehts hoffentlich wieder.\par
+\par
+Okay, hat gepasst. Damit sind jetzt alle Compilerfehler weg, bis auf echte offene Baustellen.\par
+\par
+PersistenceTypeDictionaryBuilder#buildTypeDictionary anpassen.\par
+\par
+Ouch: Wenn die Instanzen vom Typ EffectiveFinalOwnerTypeHolder sein sollen, ohne instanceof und Herumgecaste, dann wird das knifflig.\par
+PersistenceTypeDefinitionMemberCreator erstellen und entsprechend reinverkn\'fcpfen.\par
+\par
+\par
+\par
 \par
 }
  

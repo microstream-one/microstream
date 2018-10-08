@@ -12,10 +12,10 @@ public interface SwizzleTypeLookup extends SwizzleTypeIdLookup
 
 	public void validateExistingTypeMapping(long typeId, Class<?> type);
 
-	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency;
 
-	public void validatePossibleTypeMappings(Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public void validatePossibleTypeMappings(Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency;
 
 }

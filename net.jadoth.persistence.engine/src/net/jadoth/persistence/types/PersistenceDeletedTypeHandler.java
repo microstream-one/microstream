@@ -80,7 +80,7 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 	
 	
 	public static <M, T> PersistenceDeletedTypeHandler<M, T> New(
-		final PersistenceTypeDefinition<?> typeDefinition
+		final PersistenceTypeDefinition typeDefinition
 	)
 	{
 		return new PersistenceDeletedTypeHandler.Implementation<>(
@@ -96,7 +96,7 @@ public interface PersistenceDeletedTypeHandler<M, T> extends PersistenceLegacyTy
 		// constructors //
 		/////////////////
 
-		protected Implementation(final PersistenceTypeDefinition<?> typeDefinition)
+		protected Implementation(final PersistenceTypeDefinition typeDefinition)
 		{
 			super(typeDefinition);
 		}
