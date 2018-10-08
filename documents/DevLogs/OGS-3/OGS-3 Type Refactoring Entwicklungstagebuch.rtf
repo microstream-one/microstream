@@ -2362,8 +2362,20 @@ Damit w\'e4re jetzt nur noch die Baustelle im Similator offen, dann ist das Refa
 \par
 Similator Zeug weitermachen. Letzter Compilerfehler durch die Refactoring Resolver Verbesserung.\par
 \par
+Das ist gar nicht so einfach:\par
+Die Declaring Class kann ja nicht einfach so f\'fcr den \'c4hnlichkeitsvergleich verwendet werden, weil sie ja evtl. auf einen ge\'e4nderten Typ umgemappt werden muss.\par
+Das bedeutet aber zwei Punkte:\line 1.) Die "Mal versuchen"-Runtime-Type-Aufl\'f6sung in PersistenceTypeDescriptionMemberField#New ist Quatsch. Da w\'fcrde ja wieder zu einem potenziell umbenannten Typ (falsch) aufgel\'f6st werden.\par
+2.) So wirklich eindeutig kann man den declaring type gar nicht feststellen, weil der full qualified field name ja keine TypeId enth\'e4lt.\par
+Bl\'f6d.\par
 \par
+Es g\'e4be schon ans\'e4tze, das aufzul\'f6sen:\par
+- In PersistenceTypeDictionaryBuilder#buildTypeDictionary nicht nur den parent type resolven, sondern auch declaring types.\par
+- dann m\'fcsste aber die "richtige" TypeId ermittelt werden (h\'f6chste des Typs mit selbem namen, die niedriger ist als die TypeId des parent types)\par
+- Die naiven Aufl\'f6seversuche aus dem #New raus machen.\par
+- Evtl. sogar alle Members in neue Instanzen umpacken, die dann sogar ihre parent type definition kennen k\'f6nnten. Hm... Also ein PersistenceTypeDefinitionMemberField.\par
 \par
+Damit w\'e4re der DeclaringType sauber aufl\'f6sbar.\par
+Und das w\'fcrde bedeuten, dass der similator den declaring type ordentlich verwenden kann f\'fcr die \'c4hnlichkeitsbestimmung eines legacy type members im Vergleich zu einem current type member.\par
 \par
 }
  

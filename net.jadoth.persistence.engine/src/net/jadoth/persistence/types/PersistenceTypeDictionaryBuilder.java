@@ -68,6 +68,10 @@ public interface PersistenceTypeDictionaryBuilder
 			 * Without refactoring mapping, the name "A" could still be resolved to a valid runtime class,
 			 * but it would be the wrong one.
 			 */
+			
+			/* (08.10.2018 TM)FIXME: OGS-3: Maybe resolve declaring types of field members here, as well?
+			 * Maybe even re-package all member instances into ones knowing their parent type def...? Hm ...
+			 */
 			final Class<?>                     type    = typeResolver.resolveType(e);
 			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
 				e.typeId()  ,
