@@ -2,6 +2,12 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
+import java.lang.reflect.Field;
+
+import net.jadoth.collections.XUtilsCollection;
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.reflect.XReflect;
+
 public interface PersistenceTypeDefinitionMemberCreator
 {
 	public PersistenceTypeDefinitionMemberPrimitiveDefinition createDefinitionMember(
@@ -27,14 +33,12 @@ public interface PersistenceTypeDefinitionMemberCreator
 	
 	
 	public static PersistenceTypeDefinitionMemberCreator.Implementation New(
-		final Iterable<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries,
-		final PersistenceTypeDescription                     ownerType                  ,
-		final PersistenceTypeResolver                        typeResolver
+		final XGettingSequence<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries,
+		final PersistenceTypeResolver                                typeResolver
 	)
 	{
 		return new PersistenceTypeDefinitionMemberCreator.Implementation(
-			notNull(ascendingOrderTypeIdEntries),
-			notNull(ownerType)                  ,
+			XUtilsCollection.toArray(ascendingOrderTypeIdEntries, PersistenceTypeDescription.class),
 			notNull(typeResolver)
 		);
 	}
@@ -45,9 +49,8 @@ public interface PersistenceTypeDefinitionMemberCreator
 		// instance fields //
 		////////////////////
 
-		private final Iterable<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries;
-		private final PersistenceTypeDescription                     ownerType                  ;
-		private final PersistenceTypeResolver                        typeResolver               ;
+		private final PersistenceTypeDescription[] ascendingOrderTypeIdEntries;
+		private final PersistenceTypeResolver      typeResolver               ;
 
 		
 		
@@ -56,14 +59,12 @@ public interface PersistenceTypeDefinitionMemberCreator
 		/////////////////
 		
 		Implementation(
-			final Iterable<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries,
-			final PersistenceTypeDescription                     ownerType                  ,
-			final PersistenceTypeResolver                        typeResolver
+			final PersistenceTypeDescription[] ascendingOrderTypeIdEntries,
+			final PersistenceTypeResolver      typeResolver
 		)
 		{
 			super();
 			this.ascendingOrderTypeIdEntries = ascendingOrderTypeIdEntries;
-			this.ownerType                   = ownerType                  ;
 			this.typeResolver                = typeResolver               ;
 		}
 
@@ -81,42 +82,73 @@ public interface PersistenceTypeDefinitionMemberCreator
 			return PersistenceTypeDefinitionMemberPrimitiveDefinition.New(description);
 		}
 		
-		private PersistenceTypeDescription determineMostRecentType(
-			final Iterable<PersistenceTypeDescription> ascendingOrderTypeIdEntries,
-			final long                                 upperBoundTypeId           ,
-			final String                               typeName
-		)
+		private PersistenceTypeDescription determineLatestType(final String typeName)
 		{
-			PersistenceTypeDescription mostRecentType = null;
-			
-			for(final PersistenceTypeDescription entry : ascendingOrderTypeIdEntries)
+			final PersistenceTypeDescription[] ascendingOrderTypeIdEntries = this.ascendingOrderTypeIdEntries;
+			for(int i = ascendingOrderTypeIdEntries.length; i --> 0;)
 			{
-				if(entry.typeId() >= upperBoundTypeId)
+				if(typeName.equals(ascendingOrderTypeIdEntries[i].typeName()))
 				{
-					break;
-				}
-				if(typeName.equals(entry.typeName()))
-				{
-					mostRecentType = entry;
+					return ascendingOrderTypeIdEntries[i];
 				}
 			}
 			
-			return mostRecentType;
+			return null;
 		}
-
+		
+		private Class<?> resolveCurrentType(final String typeName)
+		{
+			final PersistenceTypeDescription latestType = this.determineLatestType(typeName);
+			final String effectiveLatestTypeName = this.typeResolver.resolveRuntimeTypeName(latestType);
+			
+			return effectiveLatestTypeName == null
+				? null
+				: this.typeResolver.resolveType(effectiveLatestTypeName)
+			;
+		}
+		
+		private String resolveRuntimeTypeName(final String typeName)
+		{
+			final PersistenceTypeDescription latestDeclaringType = this.determineLatestType(typeName);
+			final String runtimeTypeName = this.typeResolver.resolveRuntimeTypeName(latestDeclaringType);
+			
+			return runtimeTypeName;
+		}
+		
+		private Field resolveField(final String declaringClassName, final String fieldName)
+		{
+			final Class<?> declaringClass = this.typeResolver.resolveType(declaringClassName);
+			final Field field = XReflect.getDeclaredField(declaringClass, fieldName);
+			
+			return field;
+		}
+		
 		@Override
 		public PersistenceTypeDefinitionMemberField createDefinitionMember(
 			final PersistenceTypeDescriptionMemberField description
 		)
 		{
-			/* (08.10.2018 TM)FIXME: OGS-3: tricky declaring class resolution:
-			 * 1.) determine the declaring class typeId using ascendingOrderTypeIdEntries
-			 * 2.) resolve the declaring class current name using the typeResolver
-			 * 3.) resolve tht declaring class current name to a runtime Class is possible
-			 * 4.) construct a definition member field instance with the mapped-to-current declaring class
-			 * uff
-			 */
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinitionMemberCreator#createDefinitionMember()
+			final Class<?> currentType = this.resolveCurrentType(description.typeName());
+			
+			final String runtimeDeclaringType = this.resolveRuntimeTypeName(description.declaringTypeName());
+
+			// if the declaring type does not stay the same, there is no sense in resolving a field.
+			final Field field = description.declaringTypeName().equals(runtimeDeclaringType)
+				? this.resolveField(runtimeDeclaringType, description.name())
+				: null
+			;
+			
+			return PersistenceTypeDefinitionMemberField.New(
+				field == null ? null : field.getDeclaringClass(),
+				field                                ,
+				currentType                          ,
+				description.typeName()               ,
+				description.name()                   ,
+				runtimeDeclaringType                 , // necessary to have comparability in similarity calculations
+				description.isReference()            ,
+				description.persistentMinimumLength(),
+				description.persistentMaximumLength()
+			);
 		}
 
 		@Override
@@ -124,7 +156,16 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
 		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinitionMemberCreator#createDefinitionMember()
+			final Class<?> currentType = this.resolveCurrentType(description.typeName());
+			
+			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
+				description.name()                   ,
+				description.typeName()               ,
+				currentType                          ,
+				description.isReference()            ,
+				description.persistentMinimumLength(),
+				description.persistentMaximumLength()
+			);
 		}
 
 		@Override

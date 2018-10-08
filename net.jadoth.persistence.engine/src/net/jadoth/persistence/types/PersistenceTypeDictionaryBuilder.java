@@ -50,10 +50,12 @@ public interface PersistenceTypeDictionaryBuilder
 	{
 		final XGettingTable<Long, PersistenceTypeDictionaryEntry> uniqueTypeIdEntries = ensureUniqueTypeIds(entries);
 		
-		final Iterable<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries = uniqueTypeIdEntries.values();
-				
+		final PersistenceTypeDefinitionMemberCreator memberCreator =
+			PersistenceTypeDefinitionMemberCreator.New(uniqueTypeIdEntries.values(), typeResolver)
+		;
+						
 		final BulkList<PersistenceTypeDefinition> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
-		for(final PersistenceTypeDescription e : ascendingOrderTypeIdEntries)
+		for(final PersistenceTypeDescription e : uniqueTypeIdEntries.values())
 		{
 			/*
 			 * The type entry just contains all member entries as they are written in the dictionary,
@@ -73,9 +75,7 @@ public interface PersistenceTypeDictionaryBuilder
 			 * but it would be the wrong one.
 			 */
 			
-			final PersistenceTypeDefinitionMemberCreator memberCreator =
-				PersistenceTypeDefinitionMemberCreator.New(ascendingOrderTypeIdEntries, e, typeResolver)
-			;
+			
 			
 			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members = buildDefinitionMembers(
 				memberCreator,

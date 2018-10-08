@@ -5,7 +5,12 @@ import static net.jadoth.X.notNull;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
+import net.jadoth.X;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XImmutableEnum;
+import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.Swizzle;
@@ -77,6 +82,48 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+
+		public static <M extends PersistenceTypeDefinitionMember> XImmutableEnum<M> validateAndImmure(
+			final XGettingSequence<M> members
+		)
+		{
+			final EqHashEnum<M> validatedMembers = EqHashEnum.New(
+				PersistenceTypeDescriptionMember.identityHashEqualator()
+			);
+			validatedMembers.addAll(members);
+			if(validatedMembers.size() != members.size())
+			{
+				// (07.09.2018 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency("Duplicate member descriptions.");
+			}
+			
+			return validatedMembers.immure();
+		}
+		
+		public static final PersistenceTypeDefinitionMemberField declaredField(
+			final Field                          field         ,
+			final PersistenceFieldLengthResolver lengthResolver
+		)
+		{
+			return PersistenceTypeDefinitionMemberField.New(
+				field                                              ,
+				lengthResolver.resolveMinimumLengthFromField(field),
+				lengthResolver.resolveMaximumLengthFromField(field)
+			);
+		}
+
+		public static final XImmutableSequence<PersistenceTypeDescriptionMemberField> declaredFields(
+			final PersistenceTypeDescriptionMemberField... declaredFields
+		)
+		{
+			return X.ConstList(declaredFields);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
@@ -87,6 +134,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		private long           typeId = Swizzle.nullId();
 
 
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
