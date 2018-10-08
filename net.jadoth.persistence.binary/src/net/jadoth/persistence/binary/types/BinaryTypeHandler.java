@@ -21,7 +21,10 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		// static methods //
 		///////////////////
 		
-		public static final PersistenceTypeDescriptionMemberField declaredField(final Class<?> clazz, final String fieldName)
+		public static final PersistenceTypeDescriptionMemberField declaredField(
+			final Class<?> clazz,
+			final String fieldName
+		)
 		{
 			final Field field = XReflect.getDeclaredField(clazz, fieldName);
 			return declaredField(field, new BinaryFieldLengthResolver.Implementation());
