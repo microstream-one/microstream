@@ -26,6 +26,14 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 			&& PersistenceTypeDescriptionMember.equalDescriptions(m1.members(), m2.members())
 		;
 	}
+	
+	@Override
+	public default PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator creator
+	)
+	{
+		return creator.createDefinitionMember(this);
+	}
 
 
 	public class Implementation

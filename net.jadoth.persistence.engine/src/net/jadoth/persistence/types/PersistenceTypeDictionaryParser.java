@@ -659,7 +659,7 @@ public interface PersistenceTypeDictionaryParser
 		final long resolveMinimumPrimitiveLength()
 		{
 			return this.lengthResolver.resolveMinimumLengthFromPrimitiveType(
-				PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
+				PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
 					this.primitiveDefinition
 				)
 			);
@@ -668,7 +668,7 @@ public interface PersistenceTypeDictionaryParser
 		final long resolveMaximumPrimitiveLength()
 		{
 			return this.lengthResolver.resolveMaximumLengthFromPrimitiveType(
-				PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
+				PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
 					this.primitiveDefinition
 				)
 			);

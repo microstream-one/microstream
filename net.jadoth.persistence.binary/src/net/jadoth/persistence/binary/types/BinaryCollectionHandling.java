@@ -7,7 +7,7 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.typing.KeyValue;
@@ -33,8 +33,8 @@ public final class BinaryCollectionHandling
 	// static methods //
 	///////////////////
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> sizedArrayPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return elementsPseudoFields(
 			XArrays.add(
@@ -44,8 +44,8 @@ public final class BinaryCollectionHandling
 		);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> elementsPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> elementsPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
 			XArrays.add(
@@ -57,8 +57,8 @@ public final class BinaryCollectionHandling
 		);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> simpleArrayPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
 			XArrays.add(

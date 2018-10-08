@@ -22,13 +22,13 @@ import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public abstract class AbstractBinaryHandlerReflective<T>
 extends BinaryTypeHandler.AbstractImplementation<T>
@@ -109,12 +109,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return r * BinaryPersistence.oidLength() + primitiveTotalBinaryLength;
 	}
 	
-	protected static final XImmutableEnum<PersistenceTypeDescriptionMemberField> createTypeDescriptionMembers(
+	protected static final XImmutableEnum<PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
 		final Field[]                        persistentOrderFields,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		final BulkList<PersistenceTypeDescriptionMemberField> members = BulkList.New(persistentOrderFields.length);
+		final BulkList<PersistenceTypeDefinitionMemberField> members = BulkList.New(persistentOrderFields.length);
 		
 		for(final Field field : persistentOrderFields)
 		{
@@ -131,18 +131,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	/////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>                                instanceFields         ;
-	private final EqConstHashEnum<Field>                                instanceReferenceFields;
-	private final EqConstHashEnum<Field>                                instancePrimitiveFields;
-	private final long[]                                                allBinaryOffsets       ;
-	private final long[]                                                refBinaryOffsets       ;
-	private final long                                                  referenceOffsetStart   ;
-	private final long                                                  referenceOffsetBound   ;
-	private final long                                                  binaryContentLength    ;
-	private final BinaryValueStorer[]                                   binaryStorers          ;
-	private final BinaryValueSetter[]                                   memorySetters          ;
-	private final XImmutableEnum<PersistenceTypeDescriptionMemberField> members                ;
-	private final boolean                                               hasReferences          ;
+	private final EqConstHashEnum<Field>                               instanceFields         ;
+	private final EqConstHashEnum<Field>                               instanceReferenceFields;
+	private final EqConstHashEnum<Field>                               instancePrimitiveFields;
+	private final long[]                                               allBinaryOffsets       ;
+	private final long[]                                               refBinaryOffsets       ;
+	private final long                                                 referenceOffsetStart   ;
+	private final long                                                 referenceOffsetBound   ;
+	private final long                                                 binaryContentLength    ;
+	private final BinaryValueStorer[]                                  binaryStorers          ;
+	private final BinaryValueSetter[]                                  memorySetters          ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> members                ;
+	private final boolean                                              hasReferences          ;
 
 
 
@@ -229,7 +229,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDescriptionMemberField> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberField> members()
 	{
 		return this.members;
 	}

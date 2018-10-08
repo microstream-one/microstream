@@ -20,9 +20,9 @@ public final class StorageBackupHelper
 	// (30.06.2016 TM)TODO: https://www.xdevissues.com/browse/OGS-21
 
 	public static void backup(
-		final EmbeddedStorageManager    storageManager   ,
-		final EmbeddedStorageFoundation storageFoundation,
-		final File                      targetDirectory
+		final EmbeddedStorageManager       storageManager   ,
+		final EmbeddedStorageFoundation<?> storageFoundation,
+		final File                         targetDirectory
 	)
 	{
 		backupData(storageManager, targetDirectory);

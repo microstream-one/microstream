@@ -35,8 +35,8 @@ public interface StorageTaskBroker
 	}
 	
 	public StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 	)
 		throws InterruptedException;
 	
@@ -305,8 +305,8 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 			throws InterruptedException
 		{

@@ -327,7 +327,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.rebuildTidHashTable();
 			}
 			
-			final StorageEntityTypeHandler<?> typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
+			final StorageEntityTypeHandler typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
 			if(typeHandler == null)
 			{
 				// (09.06.2017 TM)EXCP: proper exception

@@ -7,6 +7,7 @@ import net.jadoth.collections.XUtilsCollection;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.typing.TypeMappingLookup;
@@ -22,10 +23,10 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideValueTranslator(
-		PersistenceTypeDefinition      sourceLegacyType ,
-		PersistenceTypeDescriptionMember  sourceMember     ,
+		PersistenceTypeDefinition         sourceLegacyType ,
+		PersistenceTypeDefinitionMember   sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
-		PersistenceTypeDescriptionMember  targetMember
+		PersistenceTypeDefinitionMember   targetMember
 	);
 	
 	/**
@@ -36,10 +37,10 @@ public interface BinaryValueTranslatorProvider
 	 * @return
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
-		PersistenceTypeDefinition      sourceLegacyType ,
-		PersistenceTypeDescriptionMember  sourceMember     ,
+		PersistenceTypeDefinition         sourceLegacyType ,
+		PersistenceTypeDefinitionMember   sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
-		PersistenceTypeDescriptionMember  targetMember
+		PersistenceTypeDefinitionMember   targetMember
 	);
 	
 	
@@ -113,7 +114,7 @@ public interface BinaryValueTranslatorProvider
 			return this.translatorLookup;
 		}
 		
-		private BinaryValueSetter provideValueSkipper(final PersistenceTypeDescriptionMember sourceMember)
+		private BinaryValueSetter provideValueSkipper(final PersistenceTypeDefinitionMember sourceMember)
 		{
 			if(sourceMember.isReference())
 			{
@@ -128,7 +129,7 @@ public interface BinaryValueTranslatorProvider
 			return resolvePrimitiveSkipper(sourceMember);
 		}
 		
-		private static void validateIsPrimitiveType(final PersistenceTypeDescriptionMember member)
+		private static void validateIsPrimitiveType(final PersistenceTypeDefinitionMember member)
 		{
 			final Class<?> memberType = member.type();
 			if(memberType == null || !memberType.isPrimitive())
@@ -139,7 +140,7 @@ public interface BinaryValueTranslatorProvider
 		}
 		
 		private static BinaryValueSetter resolvePrimitiveSkipper(
-			final PersistenceTypeDescriptionMember sourceMember
+			final PersistenceTypeDefinitionMember sourceMember
 		)
 		{
 			validateIsPrimitiveType(sourceMember);
@@ -292,10 +293,10 @@ public interface BinaryValueTranslatorProvider
 		
 		@Override
 		public BinaryValueSetter provideValueTranslator(
-			final PersistenceTypeDefinition      sourceLegacyType ,
-			final PersistenceTypeDescriptionMember  sourceMember     ,
+			final PersistenceTypeDefinition         sourceLegacyType ,
+			final PersistenceTypeDefinitionMember   sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
-			final PersistenceTypeDescriptionMember  targetMember
+			final PersistenceTypeDefinitionMember   targetMember
 		)
 		{
 			if(targetMember == null)
@@ -329,10 +330,10 @@ public interface BinaryValueTranslatorProvider
 		
 		@Override
 		public final BinaryValueSetter provideBinaryValueTranslator(
-			final PersistenceTypeDefinition      sourceLegacyType ,
-			final PersistenceTypeDescriptionMember  sourceMember     ,
+			final PersistenceTypeDefinition         sourceLegacyType ,
+			final PersistenceTypeDefinitionMember   sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
-			final PersistenceTypeDescriptionMember  targetMember
+			final PersistenceTypeDefinitionMember   targetMember
 		)
 		{
 			if(sourceMember.isReference())

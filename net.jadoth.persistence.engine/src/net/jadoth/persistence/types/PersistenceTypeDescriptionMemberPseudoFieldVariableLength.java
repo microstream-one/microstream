@@ -28,8 +28,8 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	}
 	
 	@Override
-	public default <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
-		final PersistenceTypeDefinitionMemberCreator<M> creator
+	public default PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
 		return creator.createDefinitionMember(this);

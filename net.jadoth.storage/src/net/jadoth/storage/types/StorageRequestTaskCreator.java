@@ -33,9 +33,9 @@ public interface StorageRequestTaskCreator
 	}
 	
 	public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-		int                                            channelCount      ,
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		int                                         channelCount      ,
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 	);
 
 	public StorageRequestTaskExportChannels createTaskExportChannels(
@@ -180,9 +180,9 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-			final int                                            channelCount      ,
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final int                                         channelCount      ,
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
 			return new StorageRequestTaskExportEntitiesByType.Implementation(

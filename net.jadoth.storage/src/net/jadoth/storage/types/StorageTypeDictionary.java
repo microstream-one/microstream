@@ -14,13 +14,13 @@ import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationObserver
 {
-	public <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(P procedure);
+	public <P extends Consumer<? super StorageEntityTypeHandler>> P iterateTypeHandlers(P procedure);
 
-	public StorageEntityTypeHandler<?> lookupTypeHandler(long typeId);
+	public StorageEntityTypeHandler lookupTypeHandler(long typeId);
 
 	public void validateEntityTypeId(long typeId);
 
-	public StorageEntityTypeHandler<?> validateEntity(long length, long typeId, long objectId);
+	public StorageEntityTypeHandler validateEntity(long length, long typeId, long objectId);
 
 	public void validate(PersistenceTypeDictionary typeDictionary);
 	
@@ -34,8 +34,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// instance fields  //
 		/////////////////////
 
-		private final HashMapIdObject<StorageEntityTypeHandler<?>> registry = HashMapIdObject.New();
-		private       PersistenceTypeDictionary                    dictionary;
+		private final HashMapIdObject<StorageEntityTypeHandler> registry = HashMapIdObject.New();
+		private       PersistenceTypeDictionary                 dictionary;
 
 		
 		
@@ -60,7 +60,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				this.registry.put(
 					typeDefinition.typeId(),
-					new StorageEntityTypeHandler.Implementation<>(typeDefinition)
+					new StorageEntityTypeHandler.Implementation(typeDefinition)
 				);
 			}
 		}
@@ -72,7 +72,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		////////////
 
 		@Override
-		public final <P extends Consumer<? super StorageEntityTypeHandler<?>>> P iterateTypeHandlers(
+		public final <P extends Consumer<? super StorageEntityTypeHandler>> P iterateTypeHandlers(
 			final P procedure
 		)
 		{
@@ -84,7 +84,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final StorageEntityTypeHandler<?> lookupTypeHandler(final long typeId)
+		public final StorageEntityTypeHandler lookupTypeHandler(final long typeId)
 		{
 			synchronized(this.registry)
 			{
@@ -162,7 +162,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final StorageEntityTypeHandler<?> validateEntity(
+		public final StorageEntityTypeHandler validateEntity(
 			final long length  ,
 			final long typeId  ,
 			final long objectId
@@ -170,7 +170,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				final StorageEntityTypeHandler<?> typeHandler = this.lookupTypeHandler(typeId);
+				final StorageEntityTypeHandler typeHandler = this.lookupTypeHandler(typeId);
 				if(typeHandler == null)
 				{
 					// (05.05.2014)EXCP: proper exception

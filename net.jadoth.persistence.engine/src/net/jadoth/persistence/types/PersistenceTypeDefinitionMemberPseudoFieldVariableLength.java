@@ -19,7 +19,6 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 
-
 	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Bytes(
 		final String name                   ,
 		final long   persistentMinimumLength,
@@ -52,19 +51,8 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 
 	public class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
-	implements
-	PersistenceTypeDefinitionMemberPseudoFieldVariableLength,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
+	implements PersistenceTypeDefinitionMemberPseudoFieldVariableLength
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private /*f*/ PersistenceTypeDefinition ownerType;
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
@@ -85,19 +73,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public final PersistenceTypeDefinition ownerType()
-		{
-			return this.ownerType;
-		}
-		
-		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
-		{
-			this.ownerType = ownerType;
-		}
-		
+				
 		@Override
 		public final Class<?> type()
 		{

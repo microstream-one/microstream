@@ -7,7 +7,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -55,7 +55,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
 	{
 		return X.empty();
 	}

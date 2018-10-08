@@ -73,11 +73,11 @@ public interface PersistenceTypeDictionaryBuilder
 			 * but it would be the wrong one.
 			 */
 			
-			final PersistenceTypeDefinitionMemberCreator<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> memberCreator =
+			final PersistenceTypeDefinitionMemberCreator memberCreator =
 				PersistenceTypeDefinitionMemberCreator.New(ascendingOrderTypeIdEntries, e, typeResolver)
 			;
 			
-			final XGettingEnum<? extends PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> members =
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members =
 				buildDefinitionMembers(memberCreator, e.members())
 			;
 			
@@ -88,7 +88,6 @@ public interface PersistenceTypeDictionaryBuilder
 				type        ,
 				members
 			);
-			members.iterate(m -> m.initializeOwnerType(typeDef));
 			
 			typeDefs.add(typeDef);
 		}
@@ -100,20 +99,18 @@ public interface PersistenceTypeDictionaryBuilder
 		return typeDictionary;
 	}
 	
-	public static XGettingEnum<? extends PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> buildDefinitionMembers(
-		final PersistenceTypeDefinitionMemberCreator<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> memberCreator,
+	public static XGettingEnum<? extends PersistenceTypeDefinitionMember> buildDefinitionMembers(
+		final PersistenceTypeDefinitionMemberCreator                       memberCreator,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		final EqHashEnum<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> definitionMembers =
+		final EqHashEnum<PersistenceTypeDefinitionMember> definitionMembers =
 			EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
 		;
 		
 		for(final PersistenceTypeDescriptionMember member : members)
 		{
-			final PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder definitionMember =
-				member.createDefinitionMember(memberCreator)
-			;
+			final PersistenceTypeDefinitionMember definitionMember = member.createDefinitionMember(memberCreator);
 			if(!definitionMembers.add(definitionMember))
 			{
 				// (08.10.2018 TM)EXCP: proper exception

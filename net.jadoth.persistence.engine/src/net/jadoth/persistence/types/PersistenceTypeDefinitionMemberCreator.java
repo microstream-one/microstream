@@ -4,17 +4,27 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.swizzling.types.Swizzle;
 
-public interface PersistenceTypeDefinitionMemberCreator<M extends PersistenceTypeDefinitionMember>
+public interface PersistenceTypeDefinitionMemberCreator
 {
-	public M createDefinitionMember(PersistenceTypeDescriptionMemberPrimitiveDefinition description);
+	public PersistenceTypeDefinitionMemberPrimitiveDefinition createDefinitionMember(
+		PersistenceTypeDescriptionMemberPrimitiveDefinition description
+	);
 	
-	public M createDefinitionMember(PersistenceTypeDescriptionMemberField description);
+	public PersistenceTypeDefinitionMemberField createDefinitionMember(
+		PersistenceTypeDescriptionMemberField description
+	);
 	
-	public M createDefinitionMember(PersistenceTypeDescriptionMemberPseudoFieldSimple description);
+	public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
+		PersistenceTypeDescriptionMemberPseudoFieldSimple description
+	);
 	
-	public M createDefinitionMember(PersistenceTypeDescriptionMemberPseudoFieldVariableLength description);
+	public PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
+		PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
+	);
 	
-	public M createDefinitionMember(PersistenceTypeDescriptionMemberPseudoFieldComplex description);
+	public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
+		PersistenceTypeDescriptionMemberPseudoFieldComplex description
+	);
 	
 	
 	
@@ -31,8 +41,7 @@ public interface PersistenceTypeDefinitionMemberCreator<M extends PersistenceTyp
 		);
 	}
 	
-	public final class Implementation
-	implements PersistenceTypeDefinitionMemberCreator<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder>
+	public final class Implementation implements PersistenceTypeDefinitionMemberCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

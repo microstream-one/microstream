@@ -15,8 +15,8 @@ import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 
@@ -66,13 +66,13 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		// methods //
 		////////////
 					
-		private static HashTable<PersistenceTypeDescriptionMember, Long> createBinaryOffsetMap(
-			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
+		private static HashTable<PersistenceTypeDefinitionMember, Long> createBinaryOffsetMap(
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, Long> memberOffsets = HashTable.New();
+			final HashTable<PersistenceTypeDefinitionMember, Long> memberOffsets = HashTable.New();
 			long totalOffset = 0;
-			for(final PersistenceTypeDescriptionMember member : members)
+			for(final PersistenceTypeDefinitionMember member : members)
 			{
 				memberOffsets.add(member, totalOffset);
 				totalOffset += member.persistentMaximumLength();
@@ -81,12 +81,12 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			return memberOffsets;
 		}
 				
-		private static HashTable<PersistenceTypeDescriptionMember, Long> createFieldOffsetMap(
-			final XGettingEnum<? extends PersistenceTypeDescriptionMemberField> members
+		private static HashTable<PersistenceTypeDefinitionMember, Long> createFieldOffsetMap(
+			final XGettingEnum<? extends PersistenceTypeDefinitionMemberField> members
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, Long> memberOffsets = HashTable.New();
-			for(final PersistenceTypeDescriptionMemberField member : members)
+			final HashTable<PersistenceTypeDefinitionMember, Long> memberOffsets = HashTable.New();
+			for(final PersistenceTypeDefinitionMemberField member : members)
 			{
 				final Field field = notNull(member.field());
 				final long fieldOffset = XVM.objectFieldOffset(field);
@@ -97,21 +97,21 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 		
 		private XGettingTable<BinaryValueSetter, Long> deriveValueTranslators(
-			final PersistenceTypeDefinition                                                    legacyTypeDefinition ,
-			final PersistenceTypeHandler<Binary, ?>                                               currentTypeHandler   ,
-			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToTargetMembers,
-			final HashTable<PersistenceTypeDescriptionMember, Long>                               targetMemberOffsets  ,
-			final boolean                                                                         resolveReferences
+			final PersistenceTypeDefinition                                                     legacyTypeDefinition ,
+			final PersistenceTypeHandler<Binary, ?>                                             currentTypeHandler   ,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToTargetMembers,
+			final HashTable<PersistenceTypeDefinitionMember, Long>                              targetMemberOffsets  ,
+			final boolean                                                                       resolveReferences
 		)
 		{
 			final HashTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = HashTable.New();
 			
 			final BinaryValueTranslatorProvider creator = this.valueTranslatorProvider;
 
-			for(final PersistenceTypeDescriptionMember legacyMember : legacyTypeDefinition.members())
+			for(final PersistenceTypeDefinitionMember legacyMember : legacyTypeDefinition.members())
 			{
 				// currentMember null means the value is to be discarded.
-				final PersistenceTypeDescriptionMember currentMember = legacyToTargetMembers.get(legacyMember);
+				final PersistenceTypeDefinitionMember currentMember = legacyToTargetMembers.get(legacyMember);
 				
 				final BinaryValueSetter translator = resolveReferences
 					? creator.provideValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
@@ -139,7 +139,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				);
 			}
 			
-			final HashTable<PersistenceTypeDescriptionMember, Long> targetMemberOffsets = createBinaryOffsetMap(
+			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createBinaryOffsetMap(
 				mappingResult.currentTypeHandler().members()
 			);
 			
@@ -165,7 +165,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler
 		)
 		{
-			final HashTable<PersistenceTypeDescriptionMember, Long> targetMemberOffsets = createFieldOffsetMap(
+			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createFieldOffsetMap(
 				typeHandler.members()
 			);
 			

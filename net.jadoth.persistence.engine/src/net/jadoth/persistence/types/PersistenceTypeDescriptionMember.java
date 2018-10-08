@@ -144,6 +144,7 @@ public interface PersistenceTypeDescriptionMember
 		return IdentityHashEqualator.SINGLETON;
 	}
 	
+	// (08.10.2018 TM)FIXME: OGS-3: move/refactor odd method
 	public static <M extends PersistenceTypeDescriptionMember>
 	XImmutableEnum<M> validateAndImmure(final XGettingSequence<M> members)
 	{
@@ -245,9 +246,7 @@ public interface PersistenceTypeDescriptionMember
 	}
 
 	
-	public <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
-		PersistenceTypeDefinitionMemberCreator<M> creator
-	);
+	public PersistenceTypeDefinitionMember createDefinitionMember(PersistenceTypeDefinitionMemberCreator creator);
 
 
 	public abstract class AbstractImplementation implements PersistenceTypeDescriptionMember

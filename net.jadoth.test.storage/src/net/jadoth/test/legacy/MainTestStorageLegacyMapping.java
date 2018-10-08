@@ -10,7 +10,7 @@ import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.PersistenceMemberMatchingProvider;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
@@ -63,9 +63,9 @@ public class MainTestStorageLegacyMapping
 	}
 		
 	static void printMatchedMapping(
-		final PersistenceTypeDefinition<?>                 legacyTypeDefinition,
-		final PersistenceTypeHandler<Binary, ?>            currentTypeHandler  ,
-		final MultiMatch<PersistenceTypeDescriptionMember> match
+		final PersistenceTypeDefinition                   legacyTypeDefinition,
+		final PersistenceTypeHandler<Binary, ?>           currentTypeHandler  ,
+		final MultiMatch<PersistenceTypeDefinitionMember> match
 	)
 	{
 		System.out.println("INPUT:");
@@ -80,10 +80,10 @@ public class MainTestStorageLegacyMapping
 	{
 		@Override
 		public <T> PersistenceLegacyTypeMappingResult<Binary, T> createMappingResult(
-			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
-			final PersistenceTypeHandler<Binary, T>                                               currentTypeHandler  ,
-			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings    ,
-			final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
+			final PersistenceTypeDefinition                                                     legacyTypeDefinition,
+			final PersistenceTypeHandler<Binary, T>                                             currentTypeHandler  ,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 		)
 		{
 			printMatchedMapping(legacyTypeDefinition, currentTypeHandler, matchedMembers);
@@ -93,16 +93,16 @@ public class MainTestStorageLegacyMapping
 		}
 	}
 	
-	static class MatchValidator1 implements MatchValidator<PersistenceTypeDescriptionMember>
+	static class MatchValidator1 implements MatchValidator<PersistenceTypeDefinitionMember>
 	{
 
 		@Override
 		public boolean isValidMatch(
-			final PersistenceTypeDescriptionMember source              ,
-			final PersistenceTypeDescriptionMember target              ,
-			final double                           similarity          ,
-			final int                              sourceCandidateCount,
-			final int                              targetCandidateCount
+			final PersistenceTypeDefinitionMember source              ,
+			final PersistenceTypeDefinitionMember target              ,
+			final double                          similarity          ,
+			final int                             sourceCandidateCount,
+			final int                             targetCandidateCount
 		)
 		{
 			XDebug.debugln(
@@ -119,7 +119,7 @@ public class MainTestStorageLegacyMapping
 	static class MatchProvider implements PersistenceMemberMatchingProvider
 	{
 		@Override
-		public MatchValidator<PersistenceTypeDescriptionMember> provideMemberMatchValidator()
+		public MatchValidator<PersistenceTypeDefinitionMember> provideMemberMatchValidator()
 		{
 			return new MatchValidator1();
 		}

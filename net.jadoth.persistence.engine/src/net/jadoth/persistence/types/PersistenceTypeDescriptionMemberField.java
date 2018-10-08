@@ -31,8 +31,8 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	}
 	
 	@Override
-	public default <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
-		final PersistenceTypeDefinitionMemberCreator<M> creator
+	public default PersistenceTypeDefinitionMemberField createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
 		return creator.createDefinitionMember(this);

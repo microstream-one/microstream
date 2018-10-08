@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public StorageLockedFile provideExportFile(StorageEntityTypeHandler<?> entityType);
+	public StorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
 
 
 
@@ -55,7 +55,7 @@ public interface StorageEntityTypeExportFileProvider
 		////////////
 
 		@Override
-		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler<?> entityType)
+		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
 			final File file = new File(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);

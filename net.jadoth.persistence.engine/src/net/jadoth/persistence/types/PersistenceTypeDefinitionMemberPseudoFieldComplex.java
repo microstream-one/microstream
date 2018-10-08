@@ -1,31 +1,38 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 import net.jadoth.collections.types.XGettingSequence;
 
 public interface PersistenceTypeDefinitionMemberPseudoFieldComplex
 extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTypeDescriptionMemberPseudoFieldComplex
 {
 	
-	public final class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation
-	implements
-	PersistenceTypeDefinitionMemberPseudoFieldComplex,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
+	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
+		final String                                                        name                   ,
+		final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
+		final long                                                          persistentMinimumLength,
+		final long                                                          persistentMaximumLength
+	)
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private /*f*/ PersistenceTypeDefinition ownerType;
-		
-		
-
+		return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Implementation(
+			 notNull(name)                   ,
+			 notNull(members)                ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
+		);
+	}
+	
+	public class Implementation
+	extends PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation
+	implements PersistenceTypeDefinitionMemberPseudoFieldComplex
+	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		protected Implementation(
 			final String                                                        name                   ,
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
 			final long                                                          persistentMinimumLength,
@@ -45,19 +52,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public final PersistenceTypeDefinition ownerType()
-		{
-			return this.ownerType;
-		}
-		
-		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
-		{
-			this.ownerType = ownerType;
-		}
-		
+				
 		@Override
 		public final Class<?> type()
 		{

@@ -35,7 +35,6 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 	}
 	
 	public static PersistenceTypeDefinitionMemberField New(
-		final PersistenceTypeDefinition ownerType              ,
 		final Field                     field                  ,
 		final long                      persistentMinimumLength,
 		final long                      persistentMaximumLength
@@ -56,20 +55,17 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 
 	public final class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
-	implements
-	PersistenceTypeDefinitionMemberField,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
+	implements PersistenceTypeDefinitionMemberField
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?>                     type             ;
-		private /*f*/ PersistenceTypeDefinition ownerType        ;
-		private final Class<?>                     declaringClass   ;
-		private final Field                        field            ;
-		private final String                       declaringTypeName;
+		private final Class<?> type             ;
+		private final Class<?> declaringClass   ;
+		private final Field    field            ;
+		private final String   declaringTypeName;
 		
 		private final transient String qualifiedFieldName;
 
@@ -114,19 +110,7 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public final PersistenceTypeDefinition ownerType()
-		{
-			return this.ownerType;
-		}
-		
-		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
-		{
-			this.ownerType = ownerType;
-		}
-		
+				
 		@Override
 		public final Class<?> declaringClass()
 		{
