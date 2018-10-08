@@ -112,7 +112,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 				return entry.value();
 			}
 			
-			// if no refacting entry could be found, the original type name still applies.
+			// if no refactoring entry could be found, the original type name still applies.
 			return typeDescription.typeName();
 		}
 

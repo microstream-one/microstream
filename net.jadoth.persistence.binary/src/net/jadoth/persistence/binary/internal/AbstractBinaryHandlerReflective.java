@@ -23,7 +23,6 @@ import net.jadoth.persistence.binary.types.BinaryValueStorer;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -121,7 +120,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			members.add(declaredField(field, lengthResolver));
 		}
 		
-		return PersistenceTypeDescriptionMember.validateAndImmure(members);
+		return validateAndImmure(members);
 	}
 
 

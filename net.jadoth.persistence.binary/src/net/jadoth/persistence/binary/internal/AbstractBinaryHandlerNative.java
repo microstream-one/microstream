@@ -111,7 +111,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	)
 	{
 		super(type);
-		this.members = PersistenceTypeDescriptionMember.validateAndImmure(members);
+		this.members = validateAndImmure(members);
 		
 		long binaryLengthMinimum = 0, binaryLengthMaximum = 0;
 		for(final PersistenceTypeDescriptionMember member : this.members)

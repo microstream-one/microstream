@@ -3,12 +3,9 @@ package net.jadoth.persistence.types;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.equality.Equalator;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 
 
 public interface PersistenceTypeDescriptionMember
@@ -142,23 +139,6 @@ public interface PersistenceTypeDescriptionMember
 	public static IdentityHashEqualator identityHashEqualator()
 	{
 		return IdentityHashEqualator.SINGLETON;
-	}
-	
-	// (08.10.2018 TM)FIXME: OGS-3: move/refactor odd method
-	public static <M extends PersistenceTypeDescriptionMember>
-	XImmutableEnum<M> validateAndImmure(final XGettingSequence<M> members)
-	{
-		final EqHashEnum<M> validatedMembers = EqHashEnum.New(
-			PersistenceTypeDescriptionMember.identityHashEqualator()
-		);
-		validatedMembers.addAll(members);
-		if(validatedMembers.size() != members.size())
-		{
-			// (07.09.2018 TM)EXCP: proper exception
-			throw new PersistenceExceptionTypeConsistency("Duplicate member descriptions.");
-		}
-		
-		return validatedMembers.immure();
 	}
 	
 	public final class IdentityHashEqualator implements HashEqualator<PersistenceTypeDescriptionMember>
