@@ -2,22 +2,22 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.collections.types.XGettingSequence;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldComplex<O>
-extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength<O>, PersistenceTypeDescriptionMemberPseudoFieldComplex
+public interface PersistenceTypeDefinitionMemberPseudoFieldComplex
+extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTypeDescriptionMemberPseudoFieldComplex
 {
 	
-	public final class Implementation<O>
+	public final class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation
 	implements
-	PersistenceTypeDefinitionMemberPseudoFieldComplex<O>,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
+	PersistenceTypeDefinitionMemberPseudoFieldComplex,
+	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private /*f*/ PersistenceTypeDefinition<O> ownerType;
+		private /*f*/ PersistenceTypeDefinition ownerType;
 		
 		
 
@@ -47,13 +47,13 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength<O>, Persistence
 		////////////
 		
 		@Override
-		public final PersistenceTypeDefinition<O> ownerType()
+		public final PersistenceTypeDefinition ownerType()
 		{
 			return this.ownerType;
 		}
 		
 		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			this.ownerType = ownerType;
 		}

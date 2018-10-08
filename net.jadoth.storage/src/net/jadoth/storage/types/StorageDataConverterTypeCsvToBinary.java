@@ -135,7 +135,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		      StorageLockedFile                       targetFile                     ;
 		      FileChannel                             targetFileChannel              ;
 		      long                                    targetFileActualLength         ;
-		      PersistenceTypeDefinition<?>           currentType                    ;
+		      PersistenceTypeDefinition           currentType                    ;
 		      long                                    currentTypeEntityInitLength    ;
 		      ValueHandler[]                          valueHandler                   ;
 

@@ -2,8 +2,8 @@ package net.jadoth.persistence.types;
 
 
 
-public interface PersistenceTypeDefinitionMemberPseudoField<O>
-extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberPseudoField
+public interface PersistenceTypeDefinitionMemberPseudoField
+extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberPseudoField
 {
 	// only typing interface so far
 }

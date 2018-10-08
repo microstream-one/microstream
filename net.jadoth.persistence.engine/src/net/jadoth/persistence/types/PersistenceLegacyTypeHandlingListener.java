@@ -5,7 +5,7 @@ public interface PersistenceLegacyTypeHandlingListener<M>
 	public <T> void registerLegacyTypeHandlingCreation(
 		long                         objectId             ,
 		T                            instance             ,
-		PersistenceTypeDefinition<?> legacyTypeDescription,
+		PersistenceTypeDefinition legacyTypeDescription,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	

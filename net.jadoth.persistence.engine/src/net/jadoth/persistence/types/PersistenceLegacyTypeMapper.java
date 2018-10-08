@@ -16,7 +16,7 @@ import net.jadoth.util.matching.MultiMatcher;
 public interface PersistenceLegacyTypeMapper<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-		PersistenceTypeDefinition<?> legacyTypeDefinition,
+		PersistenceTypeDefinition legacyTypeDefinition,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
@@ -90,17 +90,17 @@ public interface PersistenceLegacyTypeMapper<M>
 		////////////
 				
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceTypeDefinition<?> legacyTypeDefinition,
+			final PersistenceTypeDefinition legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
 			// explicit mappings take precedence
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings =
 				this.createExplicitMappings(legacyTypeDefinition, currentTypeHandler)
 			;
 
 			// heuristical matching is a applied to the remaining unmapped members
-			final MultiMatch<PersistenceTypeDescriptionMember> match = match(
+			final MultiMatch<PersistenceTypeDefinitionMember> match = match(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
 				explicitMappings
@@ -118,21 +118,21 @@ public interface PersistenceLegacyTypeMapper<M>
 			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(validResult);
 		}
 		
-		private HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> createExplicitMappings(
-			final PersistenceTypeDefinition<?> legacyTypeDefinition,
+		private HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> createExplicitMappings(
+			final PersistenceTypeDefinition legacyTypeDefinition,
 			final PersistenceTypeHandler<M, ?> currentTypeHandler
 		)
 		{
 			final PersistenceRefactoringResolver resolver = this.refactoringResolverProvider.provideResolver();
 
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings =
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings =
 				HashTable.New()
 			;
 			
-			for(final PersistenceTypeDescriptionMember sourceMember : legacyTypeDefinition.members())
+			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.members())
 			{
 				// value might be null to indicate deletion. Member might not be resolvable (= mapped) at all.
-				final KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolved =
+				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolved =
 					resolver.resolveMember(legacyTypeDefinition, sourceMember, currentTypeHandler)
 				;
 				
@@ -153,16 +153,16 @@ public interface PersistenceLegacyTypeMapper<M>
 			return explicitMappings;
 		}
 				
-		private MultiMatch<PersistenceTypeDescriptionMember> match(
-			final PersistenceTypeDefinition<?>                                                  legacyTypeDefinition,
-			final PersistenceTypeHandler<M, ?>                                                  currentTypeHandler  ,
-			final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolvedMembers
+		private MultiMatch<PersistenceTypeDefinitionMember> match(
+			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
+			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler  ,
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolvedMembers
 		)
 		{
-			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers = BulkList.New(
+			final BulkList<? extends PersistenceTypeDefinitionMember> sourceMembers = BulkList.New(
 				legacyTypeDefinition.members()
 			);
-			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers = BulkList.New(
+			final BulkList<? extends PersistenceTypeDefinitionMember> targetMembers = BulkList.New(
 				currentTypeHandler.members()
 			);
 			
@@ -176,40 +176,38 @@ public interface PersistenceLegacyTypeMapper<M>
 				null
 			);
 			
-			final MultiMatch<PersistenceTypeDescriptionMember> match = this.match(sourceMembers, targetMembers);
+			final MultiMatch<PersistenceTypeDefinitionMember> match = this.match(sourceMembers, targetMembers);
 			
 			return match;
 		}
 		
-		private MultiMatch<PersistenceTypeDescriptionMember> match(
-			final BulkList<? extends PersistenceTypeDescriptionMember> sourceMembers,
-			final BulkList<? extends PersistenceTypeDescriptionMember> targetMembers
+		private MultiMatch<PersistenceTypeDefinitionMember> match(
+			final BulkList<? extends PersistenceTypeDefinitionMember> sourceMembers,
+			final BulkList<? extends PersistenceTypeDefinitionMember> targetMembers
 		)
 		{
-			final PersistenceRefactoringResolver              resolver  = this.refactoringResolverProvider.provideResolver();
-			final PersistenceMemberMatchingProvider           provider  = this.memberMatchingProvider;
-			final TypeMappingLookup<Float>                    typeSimis = this.typeSimilarity;
-			final Equalator<PersistenceTypeDescriptionMember> equalator = provider.provideMemberMatchingEqualator();
-			final Similator<PersistenceTypeDescriptionMember> similator = provider.provideMemberMatchingSimilator(
-				resolver,
+			final PersistenceMemberMatchingProvider          provider  = this.memberMatchingProvider;
+			final TypeMappingLookup<Float>                   typeSimis = this.typeSimilarity;
+			final Equalator<PersistenceTypeDefinitionMember> equalator = provider.provideMemberMatchingEqualator();
+			final Similator<PersistenceTypeDefinitionMember> similator = provider.provideMemberMatchingSimilator(
 				typeSimis
 			);
-			final MatchValidator<PersistenceTypeDescriptionMember> validator = provider.provideMemberMatchValidator();
+			final MatchValidator<PersistenceTypeDefinitionMember> validator = provider.provideMemberMatchValidator();
 			
-			final MultiMatcher<PersistenceTypeDescriptionMember> matcher =
-				MultiMatcher.<PersistenceTypeDescriptionMember>New()
+			final MultiMatcher<PersistenceTypeDefinitionMember> matcher =
+				MultiMatcher.<PersistenceTypeDefinitionMember>New()
 				.setEqualator(equalator)
 				.setSimilator(similator)
 				.setValidator(validator)
 			;
 			
-			final MultiMatch<PersistenceTypeDescriptionMember> match = matcher.match(sourceMembers, targetMembers);
+			final MultiMatch<PersistenceTypeDefinitionMember> match = matcher.match(sourceMembers, targetMembers);
 			
 			return match;
 		}
 				
 		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
-			final PersistenceTypeDefinition<?> legacyTypeDefinition
+			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
 			// cast safety ensured by checking the typename, which "is" the T.
@@ -226,7 +224,7 @@ public interface PersistenceLegacyTypeMapper<M>
 						
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-			final PersistenceTypeDefinition<?> legacyTypeDefinition,
+			final PersistenceTypeDefinition legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> properTypeHandler
 		)
 		{

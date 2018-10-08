@@ -9,7 +9,7 @@ import net.jadoth.persistence.types.PersistenceTypeDefinition;
 
 public interface StorageEntityTypeConversionFileProvider
 {
-	public File provideConversionFile(PersistenceTypeDefinition<?> typeDescription, File sourceFile);
+	public File provideConversionFile(PersistenceTypeDefinition typeDescription, File sourceFile);
 
 
 
@@ -56,7 +56,7 @@ public interface StorageEntityTypeConversionFileProvider
 		////////////
 
 		@Override
-		public File provideConversionFile(final PersistenceTypeDefinition<?> typeDescription, final File sourceFile)
+		public File provideConversionFile(final PersistenceTypeDefinition typeDescription, final File sourceFile)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
 			return new File(this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix);

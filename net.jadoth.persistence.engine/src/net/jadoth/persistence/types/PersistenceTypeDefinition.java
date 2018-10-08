@@ -8,7 +8,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
-public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription, SwizzleTypeLink<T>
+public interface PersistenceTypeDefinition extends PersistenceTypeDescription, SwizzleTypeLink
 {
 	/**
 	 * The biuniquely associated id value identifying a type description.
@@ -24,7 +24,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 	public String typeName();
 	
 	@Override
-	public Class<T> type();
+	public Class<?> type();
 	
 	/**
 	 * The name of the corresponding runtime type.
@@ -61,7 +61,7 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 	 * @return
 	 */
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDescriptionMember> members();
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
 
 	public boolean hasPersistedReferences();
 
@@ -143,11 +143,11 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 	}
 	
 	
-	public static <T> PersistenceTypeDefinition<T> New(
-		final long                                                     typeId            ,
-		final String                                                   dictionaryTypeName,
-		final Class<T>                                                 type              ,
-		final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
+	public static PersistenceTypeDefinition New(
+		final long                                                    typeId            ,
+		final String                                                  dictionaryTypeName,
+		final Class<?>                                                type              ,
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 	)
 	{
 		// as defined by interface contract.
@@ -158,8 +158,8 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 		
 		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
 		// type may be null for the sole case of an explicitely mapped to be deleted type.
-		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> internalMembers = members.immure();
-		return new PersistenceTypeDefinition.Implementation<>(
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> internalMembers = members.immure();
+		return new PersistenceTypeDefinition.Implementation(
 			                                                         typeId             ,
 			                                                 notNull(dictionaryTypeName),
 			                                                 mayNull(type)              ,
@@ -172,22 +172,22 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 
 
 
-	public final class Implementation<T> implements PersistenceTypeDefinition<T>
+	public final class Implementation implements PersistenceTypeDefinition
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final long                                                       typeId              ;
-		final String                                                     typeName            ;
-		final Class<T>                                                   runtimeType         ;
-		final String                                                     runtimeTypeName     ;
-		final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members             ;
-		final long                                                       membersLengthMinimum;
-		final long                                                       membersLengthMaximum;
-		final boolean                                                    hasReferences       ;
-		final boolean                                                    isPrimitive         ;
-		final boolean                                                    variableLength      ;
+		final long                                                      typeId              ;
+		final String                                                    typeName            ;
+		final Class<?>                                                  runtimeType         ;
+		final String                                                    runtimeTypeName     ;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members             ;
+		final long                                                      membersLengthMinimum;
+		final long                                                      membersLengthMaximum;
+		final boolean                                                   hasReferences       ;
+		final boolean                                                   isPrimitive         ;
+		final boolean                                                   variableLength      ;
 
 
 
@@ -196,13 +196,13 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 		/////////////////
 
 		Implementation(
-			final long                                                       typeId       ,
-			final String                                                     typeName     ,
-			final Class<T>                                                   runtimeType  ,
-			final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members      ,
-			final boolean                                                    hasReferences,
-			final boolean                                                    isPrimitive  ,
-			final boolean                                                    variableLength
+			final long                                                      typeId       ,
+			final String                                                    typeName     ,
+			final Class<?>                                                  runtimeType  ,
+			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members      ,
+			final boolean                                                   hasReferences,
+			final boolean                                                   isPrimitive  ,
+			final boolean                                                   variableLength
 		)
 		{
 			super();
@@ -250,13 +250,13 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDescription
 		}
 		
 		@Override
-		public final Class<T> type()
+		public final Class<?> type()
 		{
 			return this.runtimeType;
 		}
 		
 		@Override
-		public final XImmutableEnum<? extends PersistenceTypeDescriptionMember> members()
+		public final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members()
 		{
 			return this.members;
 		}

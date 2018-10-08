@@ -7,7 +7,7 @@ public interface SwizzleTypeRegistry extends SwizzleTypeLookup
 {
 	public boolean registerType(long tid, Class<?> type) throws SwizzleExceptionConsistency;
 	
-	public default boolean registerTypes(final Iterable<? extends SwizzleTypeLink<?>> types)
+	public default boolean registerTypes(final Iterable<? extends SwizzleTypeLink> types)
 		throws SwizzleExceptionConsistency
 	{
 		// validate all type mappings before registering anything

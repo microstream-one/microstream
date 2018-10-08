@@ -6,7 +6,7 @@ import net.jadoth.reflect.XReflect;
 
 public interface PersistenceRefactoringMemberIdentifierBuilder
 {
-	public String buildMemberIdentifier(PersistenceTypeDefinition<?> typeDef, PersistenceTypeDescriptionMember member);
+	public String buildMemberIdentifier(PersistenceTypeDefinition typeDef, PersistenceTypeDescriptionMember member);
 	
 	
 	public static XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createDefaultRefactoringLegacyMemberIdentifierBuilders()
@@ -34,7 +34,7 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	}
 	
 	public static String toTypeIdIdentifier(
-		final PersistenceTypeDefinition<?>     typeDefinition,
+		final PersistenceTypeDefinition     typeDefinition,
 		final PersistenceTypeDescriptionMember member
 	)
 	{
@@ -42,7 +42,7 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	}
 	
 	public static String toGlobalNameIdentifier(
-		final PersistenceTypeDefinition<?>     typeDefinition,
+		final PersistenceTypeDefinition     typeDefinition,
 		final PersistenceTypeDescriptionMember member
 	)
 	{
@@ -50,7 +50,7 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	}
 	
 	public static String toTypeInternalIdentifier(
-		final PersistenceTypeDefinition<?>     typeDefinition,
+		final PersistenceTypeDefinition     typeDefinition,
 		final PersistenceTypeDescriptionMember member
 	)
 	{
@@ -63,7 +63,7 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	}
 	
 	public static String toUniqueUnqualifiedIdentifier(
-		final PersistenceTypeDefinition<?>     typeDefinition,
+		final PersistenceTypeDefinition     typeDefinition,
 		final PersistenceTypeDescriptionMember member
 	)
 	{

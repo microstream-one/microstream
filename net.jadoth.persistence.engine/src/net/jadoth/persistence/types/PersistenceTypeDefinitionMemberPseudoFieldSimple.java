@@ -4,10 +4,10 @@ import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 import static net.jadoth.math.XMath.positive;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldSimple<O>
-extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptionMemberPseudoFieldSimple
+public interface PersistenceTypeDefinitionMemberPseudoFieldSimple
+extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldSimple
 {
-	public static <O> PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation<O> New(
+	public static PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation New(
 		final String   name                   ,
 		final String   typeName               ,
 		final Class<?> type                   ,
@@ -16,7 +16,7 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation<>(
+		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation(
 			 notNull(name)                   ,
 			 notNull(typeName)               ,
 			 mayNull(type)                   ,
@@ -26,19 +26,19 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 		);
 	}
 	
-	public final class Implementation<O>
+	public final class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
 	implements
-	PersistenceTypeDefinitionMemberPseudoFieldSimple<O>,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
+	PersistenceTypeDefinitionMemberPseudoFieldSimple,
+	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?>                     type     ;
-		private /*f*/ PersistenceTypeDefinition<O> ownerType;
+		private final Class<?>                  type     ;
+		private /*f*/ PersistenceTypeDefinition ownerType;
 		
 		
 		
@@ -66,13 +66,13 @@ extends PersistenceTypeDefinitionMemberPseudoField<O>, PersistenceTypeDescriptio
 		////////////
 		
 		@Override
-		public final PersistenceTypeDefinition<O> ownerType()
+		public final PersistenceTypeDefinition ownerType()
 		{
 			return this.ownerType;
 		}
 		
 		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			this.ownerType = ownerType;
 		}

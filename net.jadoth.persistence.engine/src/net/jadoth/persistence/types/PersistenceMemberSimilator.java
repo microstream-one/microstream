@@ -10,15 +10,11 @@ import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
 
-public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDescriptionMember>
+public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDefinitionMember>
 {
-	public static PersistenceMemberSimilator New(
-		final PersistenceRefactoringResolver refactoringMapping,
-		final TypeMappingLookup<Float>      typeSimilarity
-	)
+	public static PersistenceMemberSimilator New(final TypeMappingLookup<Float>  typeSimilarity)
 	{
 		return new PersistenceMemberSimilator.Implementation(
-			notNull(refactoringMapping),
 			notNull(typeSimilarity)
 		);
 	}
@@ -29,8 +25,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		// instance fields //
 		////////////////////
 		
-		final PersistenceRefactoringResolver refactoringMapping;
-		final TypeMappingLookup<Float>      typeSimilarity    ;
+		final TypeMappingLookup<Float> typeSimilarity;
 		
 		
 		
@@ -38,13 +33,9 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final PersistenceRefactoringResolver refactoringMapping,
-			final TypeMappingLookup<Float>      typeSimilarity
-		)
+		Implementation(final TypeMappingLookup<Float>typeSimilarity)
 		{
 			super();
-			this.refactoringMapping = refactoringMapping;
 			this.typeSimilarity     = typeSimilarity    ;
 		}
 		
@@ -56,8 +47,8 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 
 		@Override
 		public final double evaluate(
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDescriptionMember targetMember
+			final PersistenceTypeDefinitionMember sourceMember,
+			final PersistenceTypeDefinitionMember targetMember
 		)
 		{
 			final float nameSimilarity = this.calculateSimilarityByName(sourceMember, targetMember);
@@ -131,8 +122,8 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDes
 		}
 		
 		private float calculateSimilaritybyType(
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDescriptionMember targetMember
+			final PersistenceTypeDefinitionMember sourceMember,
+			final PersistenceTypeDefinitionMember targetMember
 		)
 		{
 			final Class<?> sourceType = sourceMember.type();

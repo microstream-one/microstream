@@ -13,10 +13,13 @@ import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleHandler;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 {
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember<T>> members();
+	public Class<T> type();
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
 	
 	public boolean hasInstanceReferences();
 	

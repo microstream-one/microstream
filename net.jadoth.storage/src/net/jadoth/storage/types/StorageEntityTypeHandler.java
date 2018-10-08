@@ -7,7 +7,7 @@ import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
-public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T>
+public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition
 {
 	public long simpleReferenceCount();
 
@@ -37,7 +37,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// static methods    //
 		/////////////////////
 
-		static long calculateMinimumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
+		static long calculateMinimumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
 			long minimumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -50,7 +50,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			return minimumEntityLength;
 		}
 
-		static long calculateMaximumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
+		static long calculateMaximumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
 			long maximumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -74,7 +74,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDefinition<T> typeDefinition      ;
+		private final PersistenceTypeDefinition typeDefinition      ;
 		private final BinaryReferenceTraverser[]   referenceTraversers ;
 		private final int                          simpleReferenceCount;
 		private final long                         simpleReferenceRange;
@@ -90,7 +90,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceTypeDefinition<T> typeDefinition)
+		public Implementation(final PersistenceTypeDefinition typeDefinition)
 		{
 			super();
 

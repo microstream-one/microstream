@@ -32,10 +32,10 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	 * @return
 	 */
 	public default <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
-		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
-		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings    ,
-		final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
+		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
+		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
 		return createLegacyTypeMappingResult(legacyTypeDefinition, currentTypeHandler, explicitMappings, matchedMembers);
@@ -44,15 +44,15 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	
 	
 	public static <M, T> PersistenceLegacyTypeMappingResult<M, T> createLegacyTypeMappingResult(
-		final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler  ,
-		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings    ,
-		final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
+		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
+		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		final HashTable<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToCurrentMembers;
-		final HashEnum<PersistenceTypeDescriptionMember>                                    deletedLegacyMembers  ;
-		final HashEnum<PersistenceTypeDescriptionMember>                                    newCurrentMembers     ;
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
+		final HashEnum<PersistenceTypeDefinitionMember>                                   deletedLegacyMembers  ;
+		final HashEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers     ;
 		
 		combineMappings(
 			legacyToCurrentMembers = HashTable.New(),
@@ -73,21 +73,21 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	}
 	
 	public static void combineMappings(
-		final XMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember>        legacyToCurrentMembers,
-		final XSet<PersistenceTypeDescriptionMember>                                          deletedLegacyMembers  ,
-		final XSet<PersistenceTypeDescriptionMember>                                          newCurrentMembers     ,
-		final PersistenceTypeHandler<?, ?>                                                    currentTypeHandler    ,
-		final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> explicitMappings      ,
-		final MultiMatch<PersistenceTypeDescriptionMember>                                    matchedMembers
+		final XMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>        legacyToCurrentMembers,
+		final XSet<PersistenceTypeDefinitionMember>                                         deletedLegacyMembers  ,
+		final XSet<PersistenceTypeDefinitionMember>                                         newCurrentMembers     ,
+		final PersistenceTypeHandler<?, ?>                                                  currentTypeHandler    ,
+		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
+		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
 		legacyToCurrentMembers.addAll(explicitMappings);
 		
-		final XGettingSequence<KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember>> matches =
+		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
 			matchedMembers.result().sourceMatches()
 		;
 		
-		for(final KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> match : matches)
+		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
 		{
 			if(!legacyToCurrentMembers.add(match.key(), match.value()))
 			{
@@ -98,7 +98,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		
 		// initialized to all current type members and reduced according to the mapping. The remaining are new.
 		newCurrentMembers.addAll(currentTypeHandler.members());
-		for(final KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> mapping : legacyToCurrentMembers)
+		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> mapping : legacyToCurrentMembers)
 		{
 			if(mapping.value() == null)
 			{

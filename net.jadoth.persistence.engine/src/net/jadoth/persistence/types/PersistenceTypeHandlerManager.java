@@ -34,9 +34,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
 	
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(PersistenceTypeDefinition<T> typeDefinition);
+	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
 	
-	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition<?>> typeDefinitions);
+	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition> typeDefinitions);
 
 	public void ensureTypeHandlersByTypeIds(XGettingEnum<Long> typeIds);
 
@@ -207,7 +207,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			final PersistenceTypeDefinition<?> registeredTd =
+			final PersistenceTypeDefinition registeredTd =
 				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
@@ -274,7 +274,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 		
 		@Override
-		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition<T> typeDefinition)
+		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
 			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(typeDefinition.typeId())) != null)
@@ -317,31 +317,35 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		 * @return
 		 */
 		private <T> PersistenceTypeHandler<M, T> determineRuntimeTypeHandler(
-			final PersistenceTypeDefinition<T> typeDefinition
+			final PersistenceTypeDefinition typeDefinition
 		)
 		{
 			// can only be null if an explicit mapping marked the type as deleted.
-			final Class<T> runtimeType = typeDefinition.type();
+			final Class<?> runtimeType = typeDefinition.type();
 			if(runtimeType == null)
 			{
 				// return null to indicate deleted type.
 				return null;
 			}
 			
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			@SuppressWarnings("unchecked") // cast safety is guaranteed by the type itself ("runtimeType" IS the "T")
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler =
+				(PersistenceTypeHandler<M, T>)this.ensureTypeHandler(runtimeType)
+			;
+			
 			return runtimeTypeHandler;
 		}
 		
 		@Override
 		public void ensureTypeHandlersByTypeIds(final XGettingEnum<Long> typeIds)
 		{
-			final HashEnum<PersistenceTypeDefinition<?>> resolvedTypeDefinitions = HashEnum.New();
+			final HashEnum<PersistenceTypeDefinition> resolvedTypeDefinitions = HashEnum.New();
 			this.typeDictionaryManager.provideTypeDictionary().resolveTypeIds(typeIds, resolvedTypeDefinitions);
 			this.ensureTypeHandlers(resolvedTypeDefinitions);
 		}
 				
 		@Override
-		public void ensureTypeHandlers(final XGettingEnum<PersistenceTypeDefinition<?>> typeDefinitions)
+		public void ensureTypeHandlers(final XGettingEnum<PersistenceTypeDefinition> typeDefinitions)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
@@ -462,14 +466,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
@@ -525,14 +529,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
 		)
 		{
-			final HashEnum<PersistenceTypeLineage<?>> runtimeTypeLineages = HashEnum.New();
+			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages = HashEnum.New();
 			
 			this.filterRuntimeTypeLineages(typeDictionary, runtimeTypeLineages);
 			
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeHandler<M, ?>> matches = HashTable.New();
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matches = HashTable.New();
 
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
-			for(final PersistenceTypeLineage<?> typeLineage : runtimeTypeLineages)
+			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
 			{
 				this.deriveTypeHandler(typeLineage, matches, newTypeHandlers);
 			}
@@ -544,7 +548,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.internalUpdateCurrentHighestTypeId(typeDictionary);
 			
 			// initialize all matches to the associated TypeId
-			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeHandler<M, ?>> match : matches)
+			for(final KeyValue<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> match : matches)
 			{
 				final long typeId = match.key().typeId();
 				final PersistenceTypeHandler<M, ?> ith = match.value().initializeTypeId(typeId);
@@ -582,7 +586,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				
 		private void filterRuntimeTypeLineages(
 			final PersistenceTypeDictionary           typeDictionary     ,
-			final HashEnum<PersistenceTypeLineage<?>> runtimeTypeLineages
+			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages
 		)
 		{
 			typeDictionary.iterateTypeLineages(td ->
@@ -595,14 +599,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 		
 		private <T> void deriveTypeHandler(
-			final PersistenceTypeLineage<T>                                             typeLineage            ,
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
+			final PersistenceTypeLineage                                             typeLineage            ,
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
 			final HashEnum<PersistenceTypeHandler<M, ?>>                                unmatchableTypeHandlers
 		)
 		{
 			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(typeLineage.type());
 						
-			for(final PersistenceTypeDefinition<?> typeDefinition : typeLineage.entries().values())
+			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{
 				// exact match including field order
 				final boolean isMatched = PersistenceTypeDescriptionMember.equalDescriptions(

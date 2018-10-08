@@ -4,23 +4,23 @@ import net.jadoth.chars.VarString;
 
 
 
-public interface PersistenceTypeDefinitionMemberPrimitiveDefinition<O>
-extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefinitionMember<O>
+public interface PersistenceTypeDefinitionMemberPrimitiveDefinition
+extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefinitionMember
 {
 
 
-	public final class Implementation<O>
+	public final class Implementation
 	extends PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation
 	implements
-	PersistenceTypeDefinitionMemberPrimitiveDefinition<O>,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
+	PersistenceTypeDefinitionMemberPrimitiveDefinition,
+	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private /*f*/ PersistenceTypeDefinition<O> ownerType;
+		private /*f*/ PersistenceTypeDefinition ownerType;
 
 
 
@@ -57,13 +57,13 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		////////////
 		
 		@Override
-		public final PersistenceTypeDefinition<O> ownerType()
+		public final PersistenceTypeDefinition ownerType()
 		{
 			return this.ownerType;
 		}
 		
 		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			this.ownerType = ownerType;
 		}

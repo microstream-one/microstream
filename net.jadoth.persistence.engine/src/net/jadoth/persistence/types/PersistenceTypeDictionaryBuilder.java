@@ -3,11 +3,12 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.swizzling.types.Swizzle;
 
 
 @FunctionalInterface
@@ -39,30 +40,7 @@ public interface PersistenceTypeDictionaryBuilder
 		
 		return uniqueTypeIdEntries;
 	}
-	
-	public static long determineHighestTypeId(
-		final Iterable<PersistenceTypeDictionaryEntry> ascendingOrderTypeIdEntries,
-		final long                                     upperBoundTypeId           ,
-		final String                                   typeName
-	)
-	{
-		long highestFoundTypeId = Swizzle.nullId();
 		
-		for(final PersistenceTypeDictionaryEntry entry : ascendingOrderTypeIdEntries)
-		{
-			if(entry.typeId() >= upperBoundTypeId)
-			{
-				break;
-			}
-			if(entry.typeName().equals(typeName))
-			{
-				highestFoundTypeId = entry.typeId();
-			}
-		}
-		
-		return highestFoundTypeId;
-	}
-	
 	public static PersistenceTypeDictionary buildTypeDictionary(
 		final PersistenceTypeDictionaryCreator                           typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator,
@@ -71,9 +49,11 @@ public interface PersistenceTypeDictionaryBuilder
 	)
 	{
 		final XGettingTable<Long, PersistenceTypeDictionaryEntry> uniqueTypeIdEntries = ensureUniqueTypeIds(entries);
+		
+		final Iterable<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries = uniqueTypeIdEntries.values();
 				
-		final BulkList<PersistenceTypeDefinition<?>> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
-		for(final PersistenceTypeDictionaryEntry e : uniqueTypeIdEntries.values())
+		final BulkList<PersistenceTypeDefinition> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
+		for(final PersistenceTypeDescription e : ascendingOrderTypeIdEntries)
 		{
 			/*
 			 * The type entry just contains all member entries as they are written in the dictionary,
@@ -93,16 +73,23 @@ public interface PersistenceTypeDictionaryBuilder
 			 * but it would be the wrong one.
 			 */
 			
-			/* (08.10.2018 TM)FIXME: OGS-3: Maybe resolve declaring types of field members here, as well?
-			 * Maybe even re-package all member instances into ones knowing their parent type def...? Hm ...
-			 */
-			final Class<?>                     type    = typeResolver.resolveType(e);
-			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
+			final PersistenceTypeDefinitionMemberCreator<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> memberCreator =
+				PersistenceTypeDefinitionMemberCreator.New(ascendingOrderTypeIdEntries, e, typeResolver)
+			;
+			
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> members =
+				buildDefinitionMembers(memberCreator, e.members())
+			;
+			
+			final Class<?>                  type    = typeResolver.resolveType(e);
+			final PersistenceTypeDefinition typeDef = typeDefinitionCreator.createTypeDefinition(
 				e.typeId()  ,
 				e.typeName(),
 				type        ,
-				PersistenceTypeDescriptionMember.validateAndImmure(e.members())
+				members
 			);
+			members.iterate(m -> m.initializeOwnerType(typeDef));
+			
 			typeDefs.add(typeDef);
 		}
 
@@ -111,6 +98,30 @@ public interface PersistenceTypeDictionaryBuilder
 		typeDictionary.registerTypeDefinitions(typeDefs);
 				
 		return typeDictionary;
+	}
+	
+	public static XGettingEnum<? extends PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> buildDefinitionMembers(
+		final PersistenceTypeDefinitionMemberCreator<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> memberCreator,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		final EqHashEnum<PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder> definitionMembers =
+			EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
+		;
+		
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			final PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder definitionMember =
+				member.createDefinitionMember(memberCreator)
+			;
+			if(!definitionMembers.add(definitionMember))
+			{
+				// (08.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Duplicate type member entry: " + member.uniqueName());
+			}
+		}
+		
+		return definitionMembers;
 	}
 	
 	

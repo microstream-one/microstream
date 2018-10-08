@@ -38,8 +38,7 @@ public interface PersistenceTypeDescriptionMember
 	{
 		return equalDescriptions(this, other);
 	}
-	
-	
+		
 	public static boolean equalDescription(
 		final PersistenceTypeDescriptionMember m1,
 		final PersistenceTypeDescriptionMember m2
@@ -192,7 +191,6 @@ public interface PersistenceTypeDescriptionMember
 		;
 	}
 	
-
 	public static boolean determineHasReferences(final Iterable<? extends PersistenceTypeDescriptionMember> members)
 	{
 		for(final PersistenceTypeDescriptionMember member : members)
@@ -246,6 +244,10 @@ public interface PersistenceTypeDescriptionMember
 		return true;
 	}
 
+	
+	public <M extends PersistenceTypeDefinitionMember> M createDefinitionMember(
+		PersistenceTypeDefinitionMemberCreator<M> creator
+	);
 
 
 	public abstract class AbstractImplementation implements PersistenceTypeDescriptionMember

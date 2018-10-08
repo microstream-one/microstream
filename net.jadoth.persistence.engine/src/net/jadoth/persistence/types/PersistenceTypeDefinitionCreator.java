@@ -5,11 +5,11 @@ import net.jadoth.collections.types.XGettingEnum;
 @FunctionalInterface
 public interface PersistenceTypeDefinitionCreator
 {
-	public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-		long                                                     typeId  ,
-		String                                                   typeName,
-		Class<T>                                                 type    ,
-		XGettingEnum<? extends PersistenceTypeDescriptionMember> members
+	public PersistenceTypeDefinition createTypeDefinition(
+		long                                                    typeId  ,
+		String                                                  typeName,
+		Class<?>                                                type    ,
+		XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 	);
 	
 	
@@ -37,11 +37,11 @@ public interface PersistenceTypeDefinitionCreator
 		////////////
 
 		@Override
-		public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-			final long                                                     typeId  ,
-			final String                                                   typeName,
-			final Class<T>                                                 type    ,
-			final XGettingEnum<? extends PersistenceTypeDescriptionMember> members
+		public PersistenceTypeDefinition createTypeDefinition(
+			final long                                                    typeId  ,
+			final String                                                  typeName,
+			final Class<?>                                                type    ,
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 		)
 		{
 			return PersistenceTypeDefinition.New(typeId, typeName, type, members);

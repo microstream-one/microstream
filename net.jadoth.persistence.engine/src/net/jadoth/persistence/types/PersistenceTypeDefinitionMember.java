@@ -1,14 +1,14 @@
 package net.jadoth.persistence.types;
 
 
-public interface PersistenceTypeDefinitionMember<O> extends PersistenceTypeDescriptionMember
+public interface PersistenceTypeDefinitionMember extends PersistenceTypeDescriptionMember
 {
 	/**
 	 * The {@link PersistenceTypeDefinition} that owns this member.
 	 * Note: this is not necessarily the type definition of the declaring type.
 	 * @return
 	 */
-	public PersistenceTypeDefinition<O> ownerType();
+	public PersistenceTypeDefinition ownerType();
 	
 	/**
 	 * The runtime type used by this description member, if possible. Otherwise <code>null</code>.
@@ -19,9 +19,9 @@ public interface PersistenceTypeDefinitionMember<O> extends PersistenceTypeDescr
 
 	
 	
-	public interface EffectiveFinalOwnerTypeHolder<O> extends PersistenceTypeDefinitionMember<O>
+	public interface EffectiveFinalOwnerTypeHolder extends PersistenceTypeDefinitionMember
 	{
-		public default void initializeOwnerType(final PersistenceTypeDefinition<O> ownerType)
+		public default void initializeOwnerType(final PersistenceTypeDefinition ownerType)
 		{
 			synchronized(this)
 			{
@@ -41,7 +41,7 @@ public interface PersistenceTypeDefinitionMember<O> extends PersistenceTypeDescr
 			
 		}
 		
-		public void internalSetValidatedOwnerType(PersistenceTypeDefinition<O> ownerType);
+		public void internalSetValidatedOwnerType(PersistenceTypeDefinition ownerType);
 	}
 
 }

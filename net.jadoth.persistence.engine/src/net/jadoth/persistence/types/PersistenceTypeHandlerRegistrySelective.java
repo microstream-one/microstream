@@ -155,14 +155,14 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validatePossibleTypeMappings(mappings);

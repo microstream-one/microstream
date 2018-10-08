@@ -77,7 +77,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
@@ -87,7 +87,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead

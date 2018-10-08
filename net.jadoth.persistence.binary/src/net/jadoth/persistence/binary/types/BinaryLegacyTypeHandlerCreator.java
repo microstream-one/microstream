@@ -97,7 +97,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 		
 		private XGettingTable<BinaryValueSetter, Long> deriveValueTranslators(
-			final PersistenceTypeDefinition<?>                                                    legacyTypeDefinition ,
+			final PersistenceTypeDefinition                                                    legacyTypeDefinition ,
 			final PersistenceTypeHandler<Binary, ?>                                               currentTypeHandler   ,
 			final XGettingMap<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> legacyToTargetMembers,
 			final HashTable<PersistenceTypeDescriptionMember, Long>                               targetMemberOffsets  ,

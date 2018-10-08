@@ -7,7 +7,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 public interface BinaryValueTranslatorKeyBuilder
 {
 	public String buildTranslatorLookupKey(
-		PersistenceTypeDefinition<?>      sourceLegacyType ,
+		PersistenceTypeDefinition      sourceLegacyType ,
 		PersistenceTypeDescriptionMember  sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
 		PersistenceTypeDescriptionMember  targetMember

@@ -36,16 +36,16 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	 * @param targetType
 	 * @return
 	 */
-	public KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolveMember(
-		PersistenceTypeDefinition<?>     sourceType  ,
-		PersistenceTypeDescriptionMember sourceMember,
-		PersistenceTypeDefinition<?>     targetType
+	public KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolveMember(
+		PersistenceTypeDefinition       sourceType  ,
+		PersistenceTypeDefinitionMember sourceMember,
+		PersistenceTypeDefinition       targetType
 	);
 	
 
 		
 	public static PersistenceRefactoringResolver New(
-		final PersistenceRefactoringMapping                                         refactoringMapping                     ,
+		final PersistenceRefactoringMapping                                         refactoringMapping            ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
@@ -146,10 +146,10 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		}
 
 		@Override
-		public KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolveMember(
-			final PersistenceTypeDefinition<?>     sourceType  ,
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDefinition<?>     targetType
+		public KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolveMember(
+			final PersistenceTypeDefinition       sourceType  ,
+			final PersistenceTypeDefinitionMember sourceMember,
+			final PersistenceTypeDefinition       targetType
 		)
 		{
 			// search for a mapping entry with identifier builders in descending order of priority.
@@ -170,11 +170,11 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 			return null;
 		}
 		
-		private KeyValue<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember> resolveTarget(
-			final PersistenceTypeDefinition<?>     sourceType            ,
-			final PersistenceTypeDescriptionMember sourceMember          ,
-			final PersistenceTypeDefinition<?>     targetType            ,
-			final String                           targetMemberIdentifier
+		private KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolveTarget(
+			final PersistenceTypeDefinition       sourceType            ,
+			final PersistenceTypeDefinitionMember sourceMember          ,
+			final PersistenceTypeDefinition       targetType            ,
+			final String                          targetMemberIdentifier
 		)
 		{
 			if(targetMemberIdentifier == null)
@@ -183,7 +183,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 				return X.KeyValue(sourceMember, null);
 			}
 			
-			for(final PersistenceTypeDescriptionMember targetMember : targetType.members())
+			for(final PersistenceTypeDefinitionMember targetMember : targetType.members())
 			{
 				for(final PersistenceRefactoringMemberIdentifierBuilder idBuilder : this.targetMemberIdentifierBuilders)
 				{

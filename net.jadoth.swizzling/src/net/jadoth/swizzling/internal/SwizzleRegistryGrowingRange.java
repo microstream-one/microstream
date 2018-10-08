@@ -130,19 +130,19 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	private int       capacity   ;
 	private int       modulo     ; // shortcut for "slots.length - 1" (yields around 3% performance in put tests)
 
-	private final Consumer<SwizzleTypeLink<?>> typeExistsValidator = new Consumer<SwizzleTypeLink<?>>()
+	private final Consumer<SwizzleTypeLink> typeExistsValidator = new Consumer<SwizzleTypeLink>()
 	{
 		@Override
-		public void accept(final SwizzleTypeLink<?> e)
+		public void accept(final SwizzleTypeLink e)
 		{
 			SwizzleRegistryGrowingRange.this.validateExistingMapping(e.type(), e.typeId());
 		}
 	};
 
-	private final Consumer<SwizzleTypeLink<?>> typePossibleValidator = new Consumer<SwizzleTypeLink<?>>()
+	private final Consumer<SwizzleTypeLink> typePossibleValidator = new Consumer<SwizzleTypeLink>()
 	{
 		@Override
-		public void accept(final SwizzleTypeLink<?> e)
+		public void accept(final SwizzleTypeLink e)
 		{
 			SwizzleRegistryGrowingRange.this.validatePossibleMapping(e.type(), e.typeId());
 		}
@@ -817,14 +817,14 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public synchronized void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public synchronized void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		mappings.forEach(this.typeExistsValidator);
 	}
 
 	@Override
-	public synchronized void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink<?>> mappings)
+	public synchronized void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 		throws SwizzleExceptionConsistency
 	{
 		mappings.forEach(this.typePossibleValidator);
