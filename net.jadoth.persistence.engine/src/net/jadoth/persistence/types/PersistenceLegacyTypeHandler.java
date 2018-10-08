@@ -98,7 +98,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember<?>> members()
 		{
 			return this.typeDefinition.members();
 		}
@@ -149,7 +149,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		);
 	}
 	
-	public final class DirectWrapper<M, T> extends AbstractImplementation<M, T>
+	public final class DirectWrapper<M, T> extends PersistenceLegacyTypeHandler.AbstractImplementation<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

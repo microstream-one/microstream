@@ -2384,6 +2384,26 @@ Hilft nix, dann muss das Class<?> type redundant in jede ~DefinitionMember~ Klas
 Um wenigstens die Logik nicht redundant schreiben zu m\'fcssen cooles Interface EffectiveFinalOwnerTypeHolder<O> gebaut 8-).\par
 Und durch das Interface-Implementation Pattern ist es trotz public Methoden nicht public sichtbar. H\'f6h\'f6.\par
 \par
+Ein paar kleinere Indizien, dass das eine gute, vielleicht sogar wichtige und n\'f6tige Verbesserung ist:\par
+- MemberPrimitiveDefinition hatte als type() den definierten primitive Type zur\'fcckgegeben. Das ist falsch. Die Definition ist nur ein String. Der definierte Type steckt im Owner Type.\par
+- An verschiedenen Stellen sind Class resolving Aufrufe rausgeflogen. Das ist jetzt alles Zentral \'fcber den Resolver und sonst nirgends. Nice.\par
+\par
+Haha. Die tolle Typisierung der ~DefinitionMember~ Typen auf ihren Owner Type <O> macht im Legacy Handler Probleme:\par
+Das <T> dort bezieht sich auf den current Type, aber die Members sind die des Legacy Types.\par
+Das ist compilerm\'e4\'dfig nicht aufl\'f6sbar. Mist.\par
+Mal \'fcberlegen, ob das <O> wirklich einen Mehrwert bringt ...\par
+\par
+Also das <T> im der Definition ist eigentlich einzig und allein daf\'fcr gut, dass man sich Class<T> type() zur\'fcckgeben lassen kann.\par
+Das ist schon mal sinnvoll, kein Problem.\par
+Hm. Oder? Sinnvoll ist es in den TypeHandlern. Aber die simplen Definitions haben mit Java Typisierung nicht viel am Hut.\par
+Mal recherchieren ...\par
+Alle Vorkommen von PersistenceTypeDefinition.type() sind nur entweder in TypeHandlern oder sowieso nur mit Class<?>. Hm.\par
+\par
+Haha, die einzige bedachte Problemstelle gibt es gar nicht:\par
+PersistenceTypeHandler h\'e4lt sich selber ein Class<T>, anstatt die an eine ~Definition Superklasse weiterzugeben und sich sp\'e4ter auf dessen Typisierung zu verlassen.\par
+\par
+Hei\'dft: Alle Typparameter von ~Definition~s, ~DefinitionMember~s und sogar von den TypeLineages k\'f6nnen raus. Die braucht kein Mensch und machen nur alles komplizierter.\par
+\par
 \par
 }
  

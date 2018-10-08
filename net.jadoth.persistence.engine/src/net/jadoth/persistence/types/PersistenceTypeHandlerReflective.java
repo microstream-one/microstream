@@ -7,7 +7,7 @@ import net.jadoth.collections.types.XGettingEnum;
 public interface PersistenceTypeHandlerReflective<M, T> extends PersistenceTypeHandlerGeneric<M, T>
 {
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDescriptionMemberField> members();
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberField<T>> members();
 	
 	public XGettingEnum<Field> instanceFields();
 
