@@ -1,13 +1,7 @@
 package net.jadoth.persistence.types;
 
-import java.lang.reflect.Field;
-
-import net.jadoth.reflect.XReflect;
-
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
-	public Field field();
-	
 	public String declaringTypeName();
 
 	@Override
@@ -45,13 +39,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		final long     persistentMaximumLength
 	)
 	{
-		final Class<?> declaringClass = XReflect.tryClassForName(declaringTypeName);
-		final Field    field          = XReflect.tryGetDeclaredField(declaringClass, name);
-		final Class<?> fieldType      = XReflect.tryClassForName(typeName);
-		
 		return new PersistenceTypeDescriptionMemberField.Implementation(
-			field                  ,
-			fieldType              ,
 			typeName               ,
 			name                   ,
 			declaringTypeName      ,
@@ -61,24 +49,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		);
 	}
 	
-	public static PersistenceTypeDescriptionMemberField New(
-		final Field field                  ,
-		final long  persistentMinimumLength,
-		final long  persistentMaximumLength
-	)
-	{
-		return new PersistenceTypeDescriptionMemberField.Implementation(
-			field                              ,
-			field.getType()                    ,
-			field.getType().getName()          ,
-			field.getName()                    ,
-			field.getDeclaringClass().getName(),
-			!field.getType().isPrimitive()     ,
-			persistentMinimumLength            ,
-			persistentMaximumLength
-		);
-	}
-
 	public final class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberField
@@ -87,7 +57,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		// instance fields //
 		////////////////////
 
-		private final           Field  field             ;
 		private final           String declaringTypeName ;
 		private final transient String qualifiedFieldName;
 
@@ -98,8 +67,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		/////////////////
 
 		protected Implementation(
-			final Field    field              ,
-			final Class<?> fieldType          ,
 			final String   typeName           ,
 			final String   name               ,
 			final String   declaringTypeName  ,
@@ -109,7 +76,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		)
 		{
 			super(
-				fieldType          ,
 				typeName           ,
 				name               ,
 				isReference        ,
@@ -120,7 +86,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 				persistentMaxLength
 			);
 			
-			this.field              = field            ;
 			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
 		}
@@ -131,12 +96,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		// methods //
 		////////////
 		
-		@Override
-		public Field field()
-		{
-			return this.field;
-		}
-
 		@Override
 		public String declaringTypeName()
 		{
@@ -154,9 +113,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		{
 			assembler.appendTypeMemberDescription(this);
 		}
-
-
-
+		
 	}
 
 }

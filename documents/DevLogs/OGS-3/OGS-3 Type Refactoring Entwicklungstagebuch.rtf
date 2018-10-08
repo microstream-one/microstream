@@ -2377,5 +2377,13 @@ Es g\'e4be schon Ans\'e4tze, das aufzul\'f6sen:\par
 Damit w\'e4re der DeclaringType sauber aufl\'f6sbar.\par
 Und das w\'fcrde bedeuten, dass der similator den declaring type ordentlich verwenden kann f\'fcr die \'c4hnlichkeitsbestimmung eines legacy type members im Vergleich zu einem current type member.\par
 \par
+Jup. So implementier ich das. Dauert zwar etwas, alle ~Member Typen in zwei Schichten aufzutrennen, aber das ist es wert.\par
+\par
+Hm. Kleines Problem: Die zwei Ebenen w\'fcrden jetzt Klassen-Mehrfachvererbung erfordern.\par
+Hilft nix, dann muss das Class<?> type redundant in jede ~DefinitionMember~ Klasse rein.\par
+Um wenigstens die Logik nicht redundant schreiben zu m\'fcssen cooles Interface EffectiveFinalOwnerTypeHolder<O> gebaut 8-).\par
+Und durch das Interface-Implementation Pattern ist es trotz public Methoden nicht public sichtbar. H\'f6h\'f6.\par
+\par
+\par
 }
  

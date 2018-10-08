@@ -34,7 +34,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 	}
 
 
-	public final class Implementation
+	public class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberPrimitiveDefinition
 	{
@@ -167,26 +167,13 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		// constructors //
 		/////////////////
 
-		public Implementation(
-			final Class<?> primitiveType          ,
-			final long     persistentMinimumLength,
-			final long     persistentMaximumLength
-		)
-		{
-			this(
-				assemblePrimitiveDefinition(VarString.New(), primitiveType).toString(),
-				persistentMinimumLength,
-				persistentMaximumLength
-			);
-		}
-
-		public Implementation(
+		Implementation(
 			final String primitiveDefinition    ,
 			final long   persistentMinimumLength,
 			final long   persistentMaximumLength
 		)
 		{
-			super(null, null, null, false, false, true, false, persistentMinimumLength, persistentMaximumLength);
+			super(null, null, false, false, true, false, persistentMinimumLength, persistentMaximumLength);
 			this.primitiveDefinition = primitiveDefinition;
 		}
 

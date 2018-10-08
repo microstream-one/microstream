@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
 
 public interface PersistenceTypeDescriptionMemberPseudoFieldSimple
 extends PersistenceTypeDescriptionMemberPseudoField
@@ -23,27 +23,10 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		// currently no specific checking logic
 		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
 	}
+
 	
 	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
 		final String   name                   ,
-		final Class<?> type                   ,
-		final long     persistentMinimumLength,
-		final long     persistentMaximumLength
-	)
-	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
-			notNull(name)          ,
-			type.getName()         ,
-			notNull(type)          ,
-			!type.isPrimitive()    ,
-			persistentMinimumLength,
-			persistentMaximumLength
-		);
-	}
-	
-	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
-		final String   name                   ,
-		final Class<?> optionalType           ,
 		final String   typeName               ,
 		final boolean  isReference            ,
 		final long     persistentMinimumLength,
@@ -51,12 +34,11 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	)
 	{
 		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
-			notNull(name)          ,
-			notNull(typeName)      ,
-			mayNull(optionalType)  ,
-			isReference            ,
-			persistentMinimumLength,
-			persistentMaximumLength
+			 notNull(name)                   ,
+			 notNull(typeName)               ,
+			         isReference             ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
 	
@@ -69,15 +51,14 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		/////////////////
 
 		Implementation(
-			final String   name               ,
-			final String   typeName           ,
-			final Class<?> type               ,
-			final boolean  isReference        ,
-			final long     persistentMinLength,
-			final long     persistentMaxLength
+			final String  name               ,
+			final String  typeName           ,
+			final boolean isReference        ,
+			final long    persistentMinLength,
+			final long    persistentMaxLength
 		)
 		{
-			super(type, typeName, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
+			super(typeName, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
 		}
 
 

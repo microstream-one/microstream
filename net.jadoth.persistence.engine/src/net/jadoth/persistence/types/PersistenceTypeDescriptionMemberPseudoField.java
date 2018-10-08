@@ -13,17 +13,16 @@ public interface PersistenceTypeDescriptionMemberPseudoField extends Persistence
 		/////////////////
 
 		public AbstractImplementation(
-			final Class<?> type               ,
-			final String   typeName           ,
-			final String   name               ,
-			final boolean  isReference        ,
-			final boolean  isPrimitive        ,
-			final boolean  hasReferences      ,
-			final long     persistentMinLength,
-			final long     persistentMaxLength
+			final String  typeName           ,
+			final String  name               ,
+			final boolean isReference        ,
+			final boolean isPrimitive        ,
+			final boolean hasReferences      ,
+			final long    persistentMinLength,
+			final long    persistentMaxLength
 		)
 		{
-			super(type, typeName, name, isReference, isPrimitive, false, hasReferences, persistentMinLength, persistentMaxLength);
+			super(typeName, name, isReference, isPrimitive, false, hasReferences, persistentMinLength, persistentMaxLength);
 		}
 
 	}
