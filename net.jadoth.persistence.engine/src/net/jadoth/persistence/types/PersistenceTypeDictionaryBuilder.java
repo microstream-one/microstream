@@ -77,11 +77,12 @@ public interface PersistenceTypeDictionaryBuilder
 				PersistenceTypeDefinitionMemberCreator.New(ascendingOrderTypeIdEntries, e, typeResolver)
 			;
 			
-			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members =
-				buildDefinitionMembers(memberCreator, e.members())
-			;
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members = buildDefinitionMembers(
+				memberCreator,
+				e.members()
+			);
 			
-			final Class<?>                  type    = typeResolver.resolveType(e);
+			final Class<?>                  type    = typeResolver.resolveRuntimeType(e);
 			final PersistenceTypeDefinition typeDef = typeDefinitionCreator.createTypeDefinition(
 				e.typeId()  ,
 				e.typeName(),

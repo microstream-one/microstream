@@ -3,8 +3,6 @@ package net.jadoth.persistence.types;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 
 /**
@@ -95,8 +93,9 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		private String ensureActualTypeString(final PersistenceTypeDescription typeDescription)
+				
+		@Override
+		public String resolveRuntimeTypeName(final PersistenceTypeDescription typeDescription)
 		{
 			// search for a mapping entry with identifier builders in descending order of priority.
 			final PersistenceRefactoringMapping refactoringMapping = this.refactoringMapping;
@@ -115,28 +114,6 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 			
 			// if no refacting entry could be found, the original type name still applies.
 			return typeDescription.typeName();
-		}
-		
-		@Override
-		public final Class<?> resolveType(final PersistenceTypeDescription typeDescription)
-		{
-			// can be null for the sole case of an explicit mapping to be deleted.
-			final String actualTypeString = this.ensureActualTypeString(typeDescription);
-			if(actualTypeString == null)
-			{
-				// special case: mapped to null to indicate deletion, so return null.
-				return null;
-			}
-			
-			// every non-null type string MUST be resolvable or something is irreparably wrong (e.g. outdated mappings)
-			try
-			{
-				return XReflect.classForName(actualTypeString);
-			}
-			catch(final ClassNotFoundException e)
-			{
-				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(actualTypeString, e);
-			}
 		}
 
 		@Override

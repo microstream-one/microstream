@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 
@@ -66,6 +67,60 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 			&& td1.typeName().equals(td1.typeName())
 			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
 		;
+	}
+	
+	
+	public static PersistenceTypeDescription Identity(final long typeId, final String typeName)
+	{
+		return new PersistenceTypeDescription.IdentityImplementation(typeId, typeName);
+	}
+	
+	public final class IdentityImplementation implements PersistenceTypeDescription
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final long   typeId  ;
+		private final String typeName;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		IdentityImplementation(final long typeId, final String typeName)
+		{
+			super();
+			this.typeId   = typeId  ;
+			this.typeName = typeName;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
+		@Override
+		public final long typeId()
+		{
+			return this.typeId;
+		}
+
+		@Override
+		public final String typeName()
+		{
+			return this.typeName;
+		}
+
+		@Override
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		{
+			return X.empty();
+		}
+		
 	}
 	
 }

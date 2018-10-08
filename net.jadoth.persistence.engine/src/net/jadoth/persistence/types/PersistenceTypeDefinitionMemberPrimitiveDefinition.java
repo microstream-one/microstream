@@ -10,6 +10,17 @@ public interface PersistenceTypeDefinitionMemberPrimitiveDefinition
 extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefinitionMember
 {
 	public static PersistenceTypeDefinitionMemberPrimitiveDefinition New(
+		final PersistenceTypeDescriptionMemberPrimitiveDefinition description
+	)
+	{
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
+			description.name()                   ,
+			description.persistentMinimumLength(),
+			description.persistentMaximumLength()
+		);
+	}
+	
+	public static PersistenceTypeDefinitionMemberPrimitiveDefinition New(
 		final Class<?> primitiveType          ,
 		final long     persistentMinimumLength,
 		final long     persistentMaximumLength
