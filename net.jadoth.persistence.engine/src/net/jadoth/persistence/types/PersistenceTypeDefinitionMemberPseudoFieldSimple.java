@@ -26,19 +26,15 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 	
-	public final class Implementation
+	public class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
-	implements
-	PersistenceTypeDefinitionMemberPseudoFieldSimple,
-	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder
+	implements PersistenceTypeDefinitionMemberPseudoFieldSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?>                  type     ;
-		private /*f*/ PersistenceTypeDefinition ownerType;
+		private final Class<?> type;
 		
 		
 		
@@ -46,7 +42,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		// constructors //
 		/////////////////
 
-		Implementation(
+		protected Implementation(
 			final String   name               ,
 			final String   typeName           ,
 			final Class<?> type               ,
@@ -64,19 +60,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public final PersistenceTypeDefinition ownerType()
-		{
-			return this.ownerType;
-		}
-		
-		@Override
-		public final void internalSetValidatedOwnerType(final PersistenceTypeDefinition ownerType)
-		{
-			this.ownerType = ownerType;
-		}
-		
+			
 		@Override
 		public final Class<?> type()
 		{

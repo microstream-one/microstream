@@ -2,11 +2,9 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.X;
 import net.jadoth.chars.Levenshtein;
 import net.jadoth.functional.Similator;
 import net.jadoth.meta.XDebug;
-import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
 
@@ -99,25 +97,14 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			final String targetQualifier
 		)
 		{
-			if(sourceQualifier == null && targetQualifier == null)
-			{
-				// effectively "no factor".
-				return 1.0f;
-			}
-			else if(X.isNull(targetQualifier) != X.isNull(targetQualifier))
-			{
-				// simply a qualifier mismatch, so name similarity reduced to 50%.
-				return 0.5f;
-			}
-			
-			final String effectiveSourceDeclaringType = X.coalesce(
-				this.refactoringMapping.entries().get(sourceQualifier),
-				sourceQualifier
-			);
-			
-			return effectiveSourceDeclaringType.equals(targetQualifier)
-				? 1.0f
-				: 0.5f
+			// not much point in calculating similarity between qualifiers. Either they are equal or not.
+			return sourceQualifier == null
+				? targetQualifier == null
+					? 1.0f
+					: 0.5f
+				: sourceQualifier.equals(targetQualifier)
+					? 1.0f
+					: 0.5f
 			;
 		}
 		
@@ -133,24 +120,12 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			{
 				return this.calculateTypeSimilarity(sourceType, targetType);
 			}
-			
-			// (02.10.2018 TM)TODO: Legacy Type Mapping: This should not be done again here, but looked up instead.
-			final String sourceTypeNameReplacement = this.refactoringMapping.entries().get(sourceMember.typeName());
-			if(sourceTypeNameReplacement == null)
-			{
-				// not much point in doing half-wise guessing here.
-				return 0.0f;
-			}
-			
-			final Class<?> sourceTypeReplacement = XReflect.tryClassForName(sourceTypeNameReplacement);
-			if(sourceTypeReplacement == null)
-			{
-				// not much point in doing half-wise guessing here.
-				return 0.0f;
-			}
 
-			return this.calculateTypeSimilarity(sourceTypeReplacement, targetType);
-			
+			// not much point in calculating similarity between unresolvable types. Either they are equal or not.
+			return sourceMember.typeName().equals(targetMember.typeName())
+				? 1.0f
+				: 0.5f
+			;
 		}
 		
 		private float calculateTypeSimilarity(final Class<?> type1, final Class<?> type2)

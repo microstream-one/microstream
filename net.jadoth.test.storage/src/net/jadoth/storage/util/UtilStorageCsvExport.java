@@ -70,9 +70,9 @@ public class UtilStorageCsvExport
 	 * @see UtilStorageCsvExport#exportCsv(EmbeddedStorageManager, File)
 	 */
 	public static StorageEntityTypeExportStatistics exportCsv(
-		final EmbeddedStorageManager                         storage         ,
-		final File                                           targetDirectory ,
-		final Predicate<? super StorageEntityTypeHandler<?>> exportTypeFilter
+		final EmbeddedStorageManager                      storage         ,
+		final File                                        targetDirectory ,
+		final Predicate<? super StorageEntityTypeHandler> exportTypeFilter
 	)
 	{
 		return internalExportBinaryAndConvert(storage, targetDirectory, exportTypeFilter);
@@ -85,9 +85,9 @@ public class UtilStorageCsvExport
 	//////////////
 	
 	static StorageEntityTypeExportStatistics internalExportBinaryAndConvert(
-		final EmbeddedStorageManager                         storage        ,
-		final File                                           targetDirectory,
-		final Predicate<? super StorageEntityTypeHandler<?>> exportFilter
+		final EmbeddedStorageManager                      storage        ,
+		final File                                        targetDirectory,
+		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
 		final File binDirectory = ensureDirectory(new File(targetDirectory, SUB_DIRECTORY_BIN));
@@ -112,11 +112,11 @@ public class UtilStorageCsvExport
 	}
 	
 	static final StorageEntityTypeExportStatistics internalExportTypes(
-		final StorageConnection                              storageConnection  ,
-		final Predicate<? super StorageEntityTypeHandler<?>> isExportType       ,
-		final File                                           targetDirectory    ,
-		final Consumer<? super File>                         exportFileCollector,
-		final String                                         fileSuffix
+		final StorageConnection                           storageConnection  ,
+		final Predicate<? super StorageEntityTypeHandler> isExportType       ,
+		final File                                        targetDirectory    ,
+		final Consumer<? super File>                      exportFileCollector,
+		final String                                      fileSuffix
 	)
 	{
 		final StorageEntityTypeExportStatistics result = storageConnection.exportTypes(

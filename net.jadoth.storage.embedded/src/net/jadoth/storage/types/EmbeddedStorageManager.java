@@ -388,8 +388,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		@Override
 		public StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
 			return this.singletonConnection().exportTypes(exportFileProvider, isExportType);

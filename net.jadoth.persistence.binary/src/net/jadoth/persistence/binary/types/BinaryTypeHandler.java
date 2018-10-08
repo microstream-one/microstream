@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import net.jadoth.X;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.reflect.XReflect;
@@ -21,7 +22,7 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		// static methods //
 		///////////////////
 		
-		public static final PersistenceTypeDescriptionMemberField declaredField(
+		public static final PersistenceTypeDefinitionMemberField declaredField(
 			final Class<?> declaringClass,
 			final String   fieldName
 		)
@@ -30,17 +31,17 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 			return declaredField(field, new BinaryFieldLengthResolver.Implementation());
 		}
 		
-		public static final PersistenceTypeDescriptionMemberField declaredField(final Field field)
+		public static final PersistenceTypeDefinitionMemberField declaredField(final Field field)
 		{
 			return declaredField(field, new BinaryFieldLengthResolver.Implementation());
 		}
 		
-		public static final PersistenceTypeDescriptionMemberField declaredField(
+		public static final PersistenceTypeDefinitionMemberField declaredField(
 			final Field                          field         ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
-			return PersistenceTypeDescriptionMemberField.New(
+			return PersistenceTypeDefinitionMemberField.New(
 				field                                              ,
 				lengthResolver.resolveMinimumLengthFromField(field),
 				lengthResolver.resolveMaximumLengthFromField(field)

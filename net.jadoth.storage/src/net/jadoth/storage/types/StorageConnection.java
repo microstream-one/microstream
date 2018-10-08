@@ -102,8 +102,8 @@ public interface StorageConnection extends PersistenceStoring
 	}
 	
 	public StorageEntityTypeExportStatistics exportTypes(
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 	);
 	
 
@@ -394,9 +394,9 @@ public interface StorageConnection extends PersistenceStoring
 
 		@Override
 		public StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
-			)
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
+		)
 		{
 			try
 			{

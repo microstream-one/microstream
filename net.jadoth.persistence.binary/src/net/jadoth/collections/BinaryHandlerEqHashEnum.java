@@ -12,7 +12,7 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
@@ -160,7 +160,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields()
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()
 	{
 		return BinaryCollectionHandling.elementsPseudoFields(
 			pseudoField(HashEqualator.class, "hashEqualator"),

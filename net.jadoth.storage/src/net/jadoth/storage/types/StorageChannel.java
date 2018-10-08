@@ -60,11 +60,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler<?> type, StorageLockedFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageLockedFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
-		StorageEntityTypeHandler<?>      type           ,
+		StorageEntityTypeHandler         type           ,
 		StorageLockedFile                file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
@@ -478,7 +478,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
-			final StorageEntityTypeHandler<?>         type           ,
+			final StorageEntityTypeHandler         type           ,
 			final StorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
@@ -513,8 +513,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// intentionally implemented redundantly to the other exportTypeEntities for performance reasons
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
-			final StorageEntityTypeHandler<?> type,
-			final StorageLockedFile           file
+			final StorageEntityTypeHandler type,
+			final StorageLockedFile        file
 		)
 			throws IOException
 		{

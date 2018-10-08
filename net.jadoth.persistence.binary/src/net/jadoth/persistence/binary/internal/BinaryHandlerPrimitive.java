@@ -6,10 +6,9 @@ import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPrimitiveDefinition;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
@@ -18,7 +17,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// instance fields //
 	////////////////////
 	
-	private final Constant<PersistenceTypeDescriptionMemberPrimitiveDefinition> member;
+	private final Constant<PersistenceTypeDefinitionMemberPrimitiveDefinition> member;
 	
 	
 	
@@ -32,7 +31,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
 		this.member = X.Constant(
-			new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
+			PersistenceTypeDefinitionMemberPrimitiveDefinition.New(
 				type,
 				primitiveBinaryLength,
 				primitiveBinaryLength
@@ -47,7 +46,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	////////////
 
 	@Override
-	public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
+	public final XGettingEnum<? extends PersistenceTypeDefinitionMemberPrimitiveDefinition> members()
 	{
 		return this.member;
 	}

@@ -5,9 +5,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
-public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition
+public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 {
 	public long simpleReferenceCount();
 
@@ -31,7 +32,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition
 
 
 
-	public final class Implementation<T> implements StorageEntityTypeHandler<T>
+	public final class Implementation implements StorageEntityTypeHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods    //
@@ -74,15 +75,15 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDefinition typeDefinition      ;
-		private final BinaryReferenceTraverser[]   referenceTraversers ;
-		private final int                          simpleReferenceCount;
-		private final long                         simpleReferenceRange;
-		private final long                         minimumEntityLength ;
-		private final long                         maximumEntityLength ;
-		private final boolean                      hasReferences       ;
-		private final boolean                      isPrimitive         ;
-		private final boolean                      hasVariableLength   ;
+		private final PersistenceTypeDefinition  typeDefinition      ;
+		private final BinaryReferenceTraverser[] referenceTraversers ;
+		private final int                        simpleReferenceCount;
+		private final long                       simpleReferenceRange;
+		private final long                       minimumEntityLength ;
+		private final long                       maximumEntityLength ;
+		private final boolean                    hasReferences       ;
+		private final boolean                    isPrimitive         ;
+		private final boolean                    hasVariableLength   ;
 
 
 
@@ -128,13 +129,13 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition
 		}
 		
 		@Override
-		public final Class<T> type()
+		public final Class<?> type()
 		{
 			return this.typeDefinition.type();
 		}
 
 		@Override
-		public final XGettingEnum<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
 		{
 			return this.typeDefinition.members();
 		}

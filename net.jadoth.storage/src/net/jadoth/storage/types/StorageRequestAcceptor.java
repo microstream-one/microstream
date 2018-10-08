@@ -68,8 +68,8 @@ public interface StorageRequestAcceptor
 	}
 	
 	public StorageEntityTypeExportStatistics exportTypes(
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 		
 	)
 		throws InterruptedException
@@ -214,8 +214,8 @@ public interface StorageRequestAcceptor
 
 		@Override
 		public final StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 			throws InterruptedException
 		{
