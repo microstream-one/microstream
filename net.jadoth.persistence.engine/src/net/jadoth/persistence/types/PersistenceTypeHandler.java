@@ -5,15 +5,19 @@ import static net.jadoth.X.notNull;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>
 {
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember<T>> members();
+	
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow

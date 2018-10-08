@@ -28,7 +28,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	}
 
 
-	public final class Implementation
+	public class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
 	implements PersistenceTypeDescriptionMemberPseudoFieldComplex
 	{
@@ -68,7 +68,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		////////////
 
 		@Override
-		public XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members()
+		public final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members()
 		{
 			return this.members;
 		}

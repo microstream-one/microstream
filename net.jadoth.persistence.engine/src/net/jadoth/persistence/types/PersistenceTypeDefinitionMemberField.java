@@ -54,7 +54,8 @@ extends PersistenceTypeDefinitionMember<O>, PersistenceTypeDescriptionMemberFiel
 		);
 	}
 
-	public final class Implementation<O> extends PersistenceTypeDescriptionMember.AbstractImplementation
+	public final class Implementation<O>
+	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements
 	PersistenceTypeDefinitionMemberField<O>,
 	PersistenceTypeDefinitionMember.EffectiveFinalOwnerTypeHolder<O>
