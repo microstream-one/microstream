@@ -7,6 +7,7 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.swizzling.types.Swizzle;
 
 
 @FunctionalInterface
@@ -39,6 +40,29 @@ public interface PersistenceTypeDictionaryBuilder
 		return uniqueTypeIdEntries;
 	}
 	
+	public static long determineHighestTypeId(
+		final Iterable<PersistenceTypeDictionaryEntry> ascendingOrderTypeIdEntries,
+		final long                                     upperBoundTypeId           ,
+		final String                                   typeName
+	)
+	{
+		long highestFoundTypeId = Swizzle.nullId();
+		
+		for(final PersistenceTypeDictionaryEntry entry : ascendingOrderTypeIdEntries)
+		{
+			if(entry.typeId() >= upperBoundTypeId)
+			{
+				break;
+			}
+			if(entry.typeName().equals(typeName))
+			{
+				highestFoundTypeId = entry.typeId();
+			}
+		}
+		
+		return highestFoundTypeId;
+	}
+	
 	public static PersistenceTypeDictionary buildTypeDictionary(
 		final PersistenceTypeDictionaryCreator                           typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator,
@@ -47,7 +71,7 @@ public interface PersistenceTypeDictionaryBuilder
 	)
 	{
 		final XGettingTable<Long, PersistenceTypeDictionaryEntry> uniqueTypeIdEntries = ensureUniqueTypeIds(entries);
-		
+				
 		final BulkList<PersistenceTypeDefinition<?>> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
 		for(final PersistenceTypeDictionaryEntry e : uniqueTypeIdEntries.values())
 		{
