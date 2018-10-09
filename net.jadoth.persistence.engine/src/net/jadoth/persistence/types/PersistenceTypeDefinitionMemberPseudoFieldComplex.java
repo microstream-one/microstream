@@ -13,7 +13,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 	)
 	{
 		return New(
-			description.typeName()               ,
+			description.name()                   ,
 			description.members()                ,
 			description.persistentMinimumLength(),
 			description.persistentMaximumLength()

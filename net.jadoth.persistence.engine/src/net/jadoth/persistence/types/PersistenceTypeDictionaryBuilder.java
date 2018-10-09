@@ -75,8 +75,6 @@ public interface PersistenceTypeDictionaryBuilder
 			 * but it would be the wrong one.
 			 */
 			
-			
-			
 			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members = buildDefinitionMembers(
 				memberCreator,
 				e.members()

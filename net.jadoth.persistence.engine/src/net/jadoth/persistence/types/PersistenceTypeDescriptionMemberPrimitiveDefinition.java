@@ -75,7 +75,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		)
 		{
 			super(null, null, false, false, true, false, persistentMinimumLength, persistentMaximumLength);
-			this.primitiveDefinition = primitiveDefinition;
+			this.primitiveDefinition = notNull(primitiveDefinition);
 		}
 
 

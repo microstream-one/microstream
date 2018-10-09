@@ -2403,23 +2403,12 @@ public final class XChars
 		return false;
 	}
 
-
-	private XChars()
-	{
-		// static only
-		throw new UnsupportedOperationException();
-	}
-
 	/**
 	 * Utility method that replicates the JVM's intrinsic system string as defined in {@link Object#toString()}.
 	 * (It's funny how much functionality is missing in the JDK API).
 	 * 
 	 * @param instance the instance whose system string shall be generated.
 	 * @return the system string for the passed instance.
-	 */
-	/**
-	 * @param instance
-	 * @return
 	 */
 	public static String systemString(final Object instance)
 	{
@@ -2456,4 +2445,17 @@ public final class XChars
 	{
 		return value == null ? null : value.toString();
 	}
+	
+
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private XChars()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }

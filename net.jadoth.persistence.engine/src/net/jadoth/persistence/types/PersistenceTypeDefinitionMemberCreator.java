@@ -82,7 +82,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			return PersistenceTypeDefinitionMemberPrimitiveDefinition.New(description);
 		}
 		
-		private PersistenceTypeDescription determineLatestType(final String typeName)
+		private PersistenceTypeDescription determineLatestTypeEntry(final String typeName)
 		{
 			final PersistenceTypeDescription[] ascendingOrderTypeIdEntries = this.ascendingOrderTypeIdEntries;
 			for(int i = ascendingOrderTypeIdEntries.length; i --> 0;)
@@ -93,13 +93,22 @@ public interface PersistenceTypeDefinitionMemberCreator
 				}
 			}
 			
+			/*
+			 * Can / may only happen if the type name is an interface
+			 * Interfaces can never have fields or instances, so they are not registered in the type dictionary.
+			 */
 			return null;
 		}
 		
 		private Class<?> resolveCurrentType(final String typeName)
 		{
-			final PersistenceTypeDescription latestType = this.determineLatestType(typeName);
-			final String effectiveLatestTypeName = this.typeResolver.resolveRuntimeTypeName(latestType);
+			// can be null for interfaces, in which case the typeName is implicitely the effective one.
+			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
+			
+			final String effectiveLatestTypeName = latestTypeEntry == null
+				? typeName
+				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
+			;
 			
 			return effectiveLatestTypeName == null
 				? null
@@ -109,7 +118,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		private String resolveRuntimeTypeName(final String typeName)
 		{
-			final PersistenceTypeDescription latestDeclaringType = this.determineLatestType(typeName);
+			final PersistenceTypeDescription latestDeclaringType = this.determineLatestTypeEntry(typeName);
 			final String runtimeTypeName = this.typeResolver.resolveRuntimeTypeName(latestDeclaringType);
 			
 			return runtimeTypeName;

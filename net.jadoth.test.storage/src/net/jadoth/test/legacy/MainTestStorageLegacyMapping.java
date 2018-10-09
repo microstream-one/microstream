@@ -15,7 +15,6 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
-import net.jadoth.test.Person;
 import net.jadoth.test.corp.logic.Test;
 import net.jadoth.util.matching.MatchValidator;
 import net.jadoth.util.matching.MultiMatch;
@@ -40,7 +39,8 @@ public class MainTestStorageLegacyMapping
 	
 	static XList<Object> createTestModel()
 	{
-		return X.List(new Person());
+		return X.List(new SimpleClass(1, 3.14f), new SimpleClass(2, 9.81f));
+//		return X.List(new Person());
 //		return X.List(new NewClass(), new ChangedClass());
 	}
 
