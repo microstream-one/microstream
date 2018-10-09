@@ -16,7 +16,7 @@ import net.jadoth.util.matching.MultiMatcher;
 public interface PersistenceLegacyTypeMapper<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-		PersistenceTypeDefinition legacyTypeDefinition,
+		PersistenceTypeDefinition    legacyTypeDefinition,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
@@ -26,7 +26,6 @@ public interface PersistenceLegacyTypeMapper<M>
 		final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
 		final TypeMappingLookup<Float>                typeSimilarity             ,
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
-		final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ,
 		final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
 		final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
 		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
@@ -36,7 +35,6 @@ public interface PersistenceLegacyTypeMapper<M>
 			notNull(refactoringResolverProvider),
 			notNull(typeSimilarity)             ,
 			notNull(customTypeHandlerRegistry)  ,
-			notNull(deletedTypeHandlerCreator)  ,
 			notNull(memberMatchingProvider)     ,
 			notNull(resultor)                   ,
 			notNull(legacyTypeHandlerCreator)
@@ -52,7 +50,6 @@ public interface PersistenceLegacyTypeMapper<M>
 		private final PersistenceRefactoringResolverProvider  refactoringResolverProvider;
 		private final TypeMappingLookup<Float>                typeSimilarity             ;
 		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
-		private final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ;
 		private final PersistenceMemberMatchingProvider       memberMatchingProvider     ;
 		private final PersistenceLegacyTypeMappingResultor<M> resultor                   ;
 		private final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator   ;
@@ -67,7 +64,6 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
 			final TypeMappingLookup<Float>                typeSimilarity             ,
 			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator  ,
 			final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
 			final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
 			final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
@@ -77,7 +73,6 @@ public interface PersistenceLegacyTypeMapper<M>
 			this.refactoringResolverProvider = refactoringResolverProvider;
 			this.typeSimilarity              = typeSimilarity             ;
 			this.customTypeHandlerRegistry   = customTypeHandlerRegistry  ;
-			this.deletedTypeHandlerCreator   = deletedTypeHandlerCreator  ;
 			this.memberMatchingProvider      = memberMatchingProvider     ;
 			this.resultor                    = resultor                   ;
 			this.legacyTypeHandlerCreator    = legacyTypeHandlerCreator   ;
@@ -90,7 +85,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		////////////
 				
 		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceTypeDefinition legacyTypeDefinition,
+			final PersistenceTypeDefinition    legacyTypeDefinition,
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
@@ -224,8 +219,8 @@ public interface PersistenceLegacyTypeMapper<M>
 						
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
-			final PersistenceTypeDefinition legacyTypeDefinition,
-			final PersistenceTypeHandler<M, T> properTypeHandler
+			final PersistenceTypeDefinition    legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
 			// check for a custom handler with matching structure
@@ -235,14 +230,8 @@ public interface PersistenceLegacyTypeMapper<M>
 				return customHandler;
 			}
 			
-			if(properTypeHandler == null)
-			{
-				// null indicates that the type has explicitely been mapped to nothing, i.e. shall be seen as deleted.
-				return this.deletedTypeHandlerCreator.createDeletedTypeHandler(legacyTypeDefinition);
-			}
-			
 			// at this point a legacy handler must be creatable or something went wrong.
-			return this.createLegacyTypeHandler(legacyTypeDefinition, properTypeHandler);
+			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
 		}
 				
 	}

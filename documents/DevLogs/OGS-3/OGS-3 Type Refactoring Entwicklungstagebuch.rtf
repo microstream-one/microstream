@@ -1267,7 +1267,7 @@ Refactorings Mapping Eintrag bauen. Hm. Convenience Setter in EmbeddedStorageFou
 Testen.\par
 Ahja, Registrierung des Deleted Handlers fehlt noch. Bissl recherchieren, einbauen.\par
 Testen.\par
-Haha, Mist. Die PersistenceTypeHandlerRegistry will den type registrieren, um die Konsistenz zu \'fcberpr\'fcfen und zu wahren. Aber die Deleted Dumm Handler haben keinen Typ. Darum ja Deleted.\par
+Haha, Mist. Die PersistenceTypeHandlerRegistry will den type registrieren, um die Konsistenz zu \'fcberpr\'fcfen und zu wahren. Aber die Deleted Type Handler haben keinen Typ. Darum ja Deleted.\par
 Eigentlich kann das nur \'fcber eine "Hintert\'fcr"-Registrierm\'f6glichkeit in der Registry gel\'f6st werden. Aber das ist gef\'e4hrlich. Oder ich mach einen expliziten Typ "DeletedTypeHandler" und nur solche kann man dort registrieren.\par
 Ich glaub, so mach ichs.\par
 \par
@@ -2528,5 +2528,56 @@ Nur falls es welche gibt, wird einer erzeugt, damit der beim Laden eine exceptio
 Hm. Aber warum erst beim Laden? Warum kann nicht gleich in der Methode, die alle Typen mit LegacyHandler Bedarf sammelt, bei gel\'f6schten Typen eine Exception werfen?\par
 Jetzt bin ich verwirrt x_x.\par
 \par
+Was ist eigentlich der Sinn davon, einen Type als Deleted zu markieren?\par
+Der Hintergrund davon war mal eine Beschwerde von JM, aber irgendwie war das eh Bl\'f6dsinn.\par
+\par
+Was w\'e4ren Anwendungsf\'e4lle davon?\par
+\par
+1.)\par
+Der Entwickler bestimmt, dass ein Typ "gel\'f6scht" sein soll.\par
+Aber was bringt das? Wenn noch mindestens eine Instanz davon in der Datenbank ist, wird das einfach nur zu einer Exception f\'fchren.\par
+Man darf nicht einfach irgendwas willk\'fcrlich als gel\'f6scht definieren. Solange es Instanzen gibt, ist der Typ noch nicht l\'f6schbar.\par
+Und wenn es keine Instanzen dieses Typs mehr gibt? Siehe n\'e4chster Punkt.\par
+\par
+2.)\par
+Es gibt von einem bestimmten Typ keine Instanzen mehr. Damit ist der Typ \'fcberfl\'fcssig bzw. in der Datenbank effektiv "gel\'f6scht".\par
+\par
+Dann ist der Typ einfach nur ein Eintrag im TypeDictionary, der ein paar Byte belegt und ansonsten niemanden interessiert.\par
+Vielleicht braucht man ihn f\'fcr \'e4ltere St\'e4nde der Datenbank sogar mal wieder. Oder es gibt mal wieder Instanzen von genau diesem Typ. Oder er muss aufgehoben werden aus Kompatibilit\'e4tsgr\'fcnden zu anderen Systemen (DB oder Netzwerkkommunikation).\par
+Und wenn das alles nicht zutrifft und man sich bei einem bestimmten Typ absolut sicher ist, dann kann man um Himmels Willen den Eintrag einfach per Hand rausl\'f6schen, wenn man ihn unbedingt loswerden will.\par
+\par
+3.)\par
+Es gibt noch Instanzen, aber die sollen beim Laden ignoriert werden.\par
+Macht vielleicht Sinn, aber das ist dann kein "Deleted Type", sondern eher ein "Type Suppressing" oder sowas.\par
+Wobei die Sinnhaftigkeit davon stark bezweifelt werden sollte:\par
+In der Datenbank sind die Instanzen ja trotzdem noch drin. Die belegen weiterhin Platz, dienen als Garbage Collection Nodes, usw.\par
+Das alles w\'fcrde man durch so ein Unterdr\'fccken vor der Anwendung verbergen. Anwendung und Datenbank w\'fcrden bzgl. der referenziellen Integrit\'e4t des Entity Graphs auseinanderlaufen und die eine Seite w\'fcrde sich in manchen F\'e4llen nicht mehr so verhalten, wie erwartet. Wer will sowas? Wenn eine Instanz unterdr\'fcckt werden soll, dann nullt man die Referenz darauf aus und speichert die referenzierende Instanz wieder ab.\par
+Bzw: warum w\'fcrde man \'fcberhaupt irgendwas unterdr\'fccken wollen, das Teil der Anwendung ist? Komisch, oder?\par
+\par
+Ich glaub die Beschwerde war damals: Es gibt einen im Type Dictionary definierten Type nicht mehr in den runtime Klassen.\par
+Damit f\'fchrte der Versuch, den TypeName zu resolven, zu einer Exception.\par
+Rausl\'f6schen aus dem Dictionary brachte auch nichts, weil es ja noch Instanzen dieses Typs gab.\par
+Kurz gesagt: Das war eine Type Refactoring Situation. Die ist inzwischen l\'e4ngst gel\'f6st. Ein nicht mehr vorhandener Typ kann (und muss) auf einen vorhandenen umgemappt werden.\par
+\par
+Aach, aber moment mal. Folgender Anwendungsfall macht Sinn:\par
+Alle im TypeDictionary definierten Typen m\'fcssen zu einem Runtime Type aufgel\'f6st werden k\'f6nnen. Sonst Exception (und zwar m\'f6glichst fr\'fch, schon beim Initialisieren, nicht erst beim Laden), weil ja sonst die Instanzen so eines nicht aufl\'f6sbaren Typen nicht mehr gehandelt werden k\'f6nnen.\par
+Es gibt nur eine Ausnahme: Typen, f\'fcr die es keine Instanzen mehr in der Datenbank gibt. F\'fcr diese Typen, und nur f\'fcr die, braucht es keinen Runtime Type mehr geben.\par
+Hm, ne: Das ist aber trotzdem kein DeletedTypeHandler. Sondern das l\'e4uft so:\par
+- Es wird versucht, mit Hilfe des Refactoring Mappings jeden Type aus dem Dictionary zu einem Runtime Type aufzul\'f6sen.\par
+- Wenn das nicht klappt, bleibt der Runtime Type null.\par
+- Beim Storage Initialisieren werden alle vorkommenden TypeIds gesammelt (StorageManager#initializationIdAnalysis).\par
+- F\'fcr all jene TypeIds muss es einen TypeHandler mit einem not-null runtime Type geben, sonst Exception. Je nach Notwendigkeit einen normalen TypeHandler oder einen LegacyTypeHandler (wie gehabt).\par
+- Alle anderen TypeDefinitions sind egal. Die werden nie benutzt werden und brauchen darum keinen TypeHandler. Die k\'f6nnen sozusagen als runtime-type-m\'e4\'dfig "kopflose" Definitions f\'fcr immer rumliegen.\par
+Selbst im weiteren Verlauf der Anwendung werden immer nur neue Runtime Types behandelt werden, aber nie unaufl\'f6sbare Namen aus dem Dictionary.\par
+Einen "DeletedTypeHandler", der dann nur rumliegt, aber nie verwendet werden darf, muss es hier nicht geben.\par
+\par
+So mach ich das.\par
+\par
+DeletedTypeHandler rausl\'f6schen. Das ist schnell passiert. Sind nur 2-3 Stellen.\par
+\par
+Jetzt PersistenceTypeLineageCreator umbauen: eigenm\'e4chtiges resolveTypeOptional rausmachen. Stattdessen muss zu einem typeName immer ein type mit\'fcbergeben werden.\par
+Beide stammen aus einer vorher gebauten TypeDefinition. Und deren Type-Informationen wurden auf regul\'e4rem Weg gehandelt: mit Lookup im Refactoring Mapping, ggf. mit type null wenn nicht aufl\'f6sbar.\par
+\par
+Fast fertig, aber den Rest mach ich morgen. FIXMEs sind an den entsprechenden Stellen.\par
 }
  

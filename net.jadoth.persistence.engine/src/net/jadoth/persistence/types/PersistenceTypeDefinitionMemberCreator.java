@@ -100,20 +100,16 @@ public interface PersistenceTypeDefinitionMemberCreator
 			return null;
 		}
 		
-		private Class<?> resolveCurrentType(final String typeName)
+		private Class<?> tryResolveCurrentType(final String typeName)
 		{
-			// can be null for interfaces, in which case the typeName is implicitely the effective one.
+			// can be null for interface types, in which case the typeName is implicitely the effective one.
 			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
-			
 			final String effectiveLatestTypeName = latestTypeEntry == null
 				? typeName
 				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
 			;
 			
-			return effectiveLatestTypeName == null
-				? null
-				: this.typeResolver.resolveType(effectiveLatestTypeName)
-			;
+			return this.typeResolver.resolveTypeOptional(effectiveLatestTypeName);
 		}
 		
 		private String resolveRuntimeTypeName(final String typeName)
@@ -137,11 +133,16 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberField description
 		)
 		{
-			final Class<?> currentType = this.resolveCurrentType(description.typeName());
+			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
 			final String runtimeDeclaringType = this.resolveRuntimeTypeName(description.declaringTypeName());
 
-			// if the declaring type does not stay the same, there is no sense in resolving a field.
+			/*
+			 * if the declaring type does not stay the same, there is no sense in resolving a field.
+			 * There might have been created a class with equal name and even a field with equal name in the meantime,
+			 * but with a different meaning in the design. It would be logically wrong to resolve the old definition
+			 * member to that current type field.
+			 */
 			final Field field = description.declaringTypeName().equals(runtimeDeclaringType)
 				? this.resolveField(runtimeDeclaringType, description.name())
 				: null
@@ -165,7 +166,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
 		)
 		{
-			final Class<?> currentType = this.resolveCurrentType(description.typeName());
+			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
 			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
 				description.name()                   ,

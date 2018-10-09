@@ -28,13 +28,13 @@ public interface PersistenceTypeLineage
 	
 	
 	public static PersistenceTypeLineage.Implementation New(
-		final String   typeName   ,
+		final String   runtimeTypeName,
 		final Class<?> runtimeType
 	)
 	{
 		return new PersistenceTypeLineage.Implementation(
-			notNull(typeName)   , // may never be null as this is the lineage's identity.
-			mayNull(runtimeType)  // can be null if the type cannot be resolved into a runtime class.
+			notNull(runtimeTypeName), // may never be null as this is the lineage's identity.
+			mayNull(runtimeType)      // can be null if the type name cannot be resolved to a runtime class.
 		);
 	}
 		
@@ -44,7 +44,7 @@ public interface PersistenceTypeLineage
 		// instance fields //
 		////////////////////
 
-		final String                                       typeName         ;
+		final String                                       runtimeTypeName  ;
 		final Class<?>                                     runtimeType      ;
 		final EqHashTable<Long, PersistenceTypeDefinition> entries          ;
 		      PersistenceTypeDefinition                    runtimeDefinition; // initialized effectively final
@@ -55,12 +55,12 @@ public interface PersistenceTypeLineage
 		// constructors //
 		/////////////////
 
-		Implementation(final String typeName, final Class<?> runtimeType)
+		Implementation(final String runtimeTypeName, final Class<?> runtimeType)
 		{
 			super();
-			this.typeName    = typeName         ;
-			this.runtimeType = runtimeType      ;
-			this.entries     = EqHashTable.New();
+			this.runtimeTypeName = runtimeTypeName  ;
+			this.runtimeType     = runtimeType      ;
+			this.entries         = EqHashTable.New();
 		}
 
 
@@ -72,7 +72,7 @@ public interface PersistenceTypeLineage
 		@Override
 		public final String typeName()
 		{
-			return this.typeName;
+			return this.runtimeTypeName;
 		}
 
 		@Override
@@ -110,12 +110,12 @@ public interface PersistenceTypeLineage
 			}
 			
 			// (12.10.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName);
+			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName());
 		}
 		
 		private boolean isValid(final PersistenceTypeDefinition typeDefinition)
 		{
-			if(!this.typeName.equals(typeDefinition.typeName()))
+			if(!this.runtimeTypeName.equals(typeDefinition.typeName()))
 			{
 				return false;
 			}

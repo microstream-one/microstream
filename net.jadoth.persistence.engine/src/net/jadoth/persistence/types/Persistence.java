@@ -15,6 +15,7 @@ import net.jadoth.collections.XArrays;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.files.XFiles;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.typing.Composition;
@@ -164,13 +165,26 @@ public class Persistence extends Swizzle
 			false
 		;
 	}
-	
+
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveTypeOptional(final String typename)
+	public static <T> Class<T> resolveType(final String typeName)
 	{
 		try
 		{
-			return (Class<T>)XReflect.classForName(typename);
+			return (Class<T>)XReflect.classForName(typeName);
+		}
+		catch(final ClassNotFoundException e)
+		{
+			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName, e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
+	public static <T> Class<T> resolveTypeOptional(final String typeName)
+	{
+		try
+		{
+			return (Class<T>)XReflect.classForName(typeName);
 		}
 		catch (final ClassNotFoundException e)
 		{
