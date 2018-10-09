@@ -14,7 +14,7 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 	)
 	{
 		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
-			description.name()                   ,
+			description.primitiveDefinition()    ,
 			description.persistentMinimumLength(),
 			description.persistentMaximumLength()
 		);

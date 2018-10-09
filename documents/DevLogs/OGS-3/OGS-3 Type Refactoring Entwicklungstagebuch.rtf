@@ -2460,7 +2460,24 @@ Paar Superklassen passen auch noch nicht.\par
 \par
 So, jetzt passts. Und \'fcberall notNull dabei.\par
 \par
-Ich denk, ich mach jetzt erst mal einen ganz simplen Fall\par
+Ich denk, ich mach jetzt erst mal einen ganz simplen Fall: Simple Klasse mit einem Feld. Ein zweites kommt dazu. Und dann schauen, ob der Legacy Handler richtig gebaut wird usw.\par
+\par
+Paar Exceptions beim Starten durch die \'c4nderungen.\par
+Untersuchen, fixen.\par
+\par
+Oh, interessant. Das hatte ich gar nicht bedacht: Feld Typen, von denen nie eine Instanz persistiert worden ist, haben nat\'fcrlich keinen Dictionary Eintrag.\par
+Also interface Typen, z.B. HashEqualator.\par
+Dadurch wirft der neu dazugekommene TypeId Lookup in den Dictionary Entries eine NPE.\par
+Die Frage ist jetzt: soll das so bleiben oder m\'fcssen die da mit rein?\par
+Typen, die keine Felder haben und auch nie welche haben k\'f6nnen, zu registrieren, w\'e4r nat\'fcrlich ein bisschen d\'e4mlich.\par
+Da sie nie Felder und nie Instanzen haben k\'f6nnen, gibt es niemals was zu validieren oder matchen oder mappen oder so.\line Das hei\'dft man braucht eh nur den Namen davon und mehr nicht.\par
+Hei\'dft: Wenn der TypeId Lookup fehlschl\'e4gt, dann wird einfach der typeName verwendet.\par
+\par
+So mach ichs.\par
+\par
+Noch bissl Fl\'fcchtigkeitsfehler fixen.\par
+Start l\'e4uft wieder durch. Passt.\par
+\par
 \par
 }
  
