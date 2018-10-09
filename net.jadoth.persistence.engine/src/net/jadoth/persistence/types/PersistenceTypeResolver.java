@@ -1,8 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
-import net.jadoth.reflect.XReflect;
-
 @FunctionalInterface
 public interface PersistenceTypeResolver
 {
@@ -11,23 +8,23 @@ public interface PersistenceTypeResolver
 	public default Class<?> resolveRuntimeType(final PersistenceTypeDescription typeDescription)
 	{
 		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
-		
-		return runtimeTypeName == null
-			? null
-			: this.resolveType(runtimeTypeName)
-		;
+		return this.resolveType(runtimeTypeName);
+	}
+	
+	public default Class<?> resolveRuntimeTypeOptional(final PersistenceTypeDescription typeDescription)
+	{
+		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
+		return this.resolveTypeOptional(runtimeTypeName);
 	}
 	
 	public default Class<?> resolveType(final String typeName)
 	{
-		try
-		{
-			return XReflect.classForName(typeName);
-		}
-		catch(final ClassNotFoundException e)
-		{
-			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName, e);
-		}
+		return Persistence.resolveType(typeName);
+	}
+	
+	public default Class<?> resolveTypeOptional(final String typeName)
+	{
+		return Persistence.resolveTypeOptional(typeName);
 	}
 		
 }

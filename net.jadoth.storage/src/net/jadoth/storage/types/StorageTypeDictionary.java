@@ -274,19 +274,13 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public <T> PersistenceTypeLineage ensureTypeLineage(final Class<T> type)
+		public PersistenceTypeLineage ensureTypeLineage(final Class<?> type)
 		{
 			return this.dictionary.ensureTypeLineage(type);
 		}
 
 		@Override
-		public PersistenceTypeLineage ensureTypeLineage(final String typeName)
-		{
-			return this.dictionary.ensureTypeLineage(typeName);
-		}
-
-		@Override
-		public <T> PersistenceTypeLineage lookupTypeLineage(final Class<T> type)
+		public PersistenceTypeLineage lookupTypeLineage(final Class<?> type)
 		{
 			return this.dictionary.lookupTypeLineage(type);
 		}

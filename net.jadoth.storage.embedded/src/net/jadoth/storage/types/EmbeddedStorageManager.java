@@ -156,7 +156,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				this.initialImport(initialImportFiles);
 			}
 
-			this.createLegacyTypeMappings();
+			this.ensureRequiredTypeHandlers();
 			this.initialize();
 			
 			return this;
@@ -197,11 +197,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 		
 		
-		private void createLegacyTypeMappings()
+		private void ensureRequiredTypeHandlers()
 		{
+			// make sure a functional type handler is present for every occuring type id or throw an exception.
 			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
-						
 			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
 

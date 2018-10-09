@@ -270,12 +270,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		{
-			// (09.10.2018 TM)FIXME: /!\ DEBUG
-			if(type.getName().contains("ToBeDeleted"))
-			{
-				XDebug.debugln("ToBeDeleted");
-			}
-			
 //			XDebug.debugln("ensureTypeHandler(" + type + ")");
 			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
@@ -289,11 +283,13 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		@Override
 		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
-			// (09.10.2018 TM)FIXME: /!\ DEBUG
-			if(typeDefinition.typeName().contains("ToBeDeleted"))
-			{
-				XDebug.debugln("ToBeDeleted");
-			}
+			/* (09.10.2018 TM)FIXME: OGS-3: ensure required TypeHandlers
+			 * This method must make sure that the passed typeDefinition gets a functional type handler,
+			 * which means it must have a non-null runtime type.
+			 * Refactoring mappings have already been considered at the type definition's creation time,
+			 * meaning if it has no non-null runtime type by now, it is an error.
+			 * see task in determineRuntimeTypeHandler.
+			 */
 			
 			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(typeDefinition.typeId())) != null)
@@ -302,8 +298,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				final PersistenceTypeHandler<M, T> typedHandler = (PersistenceTypeHandler<M, T>)handler;
 				return typedHandler;
 			}
-						
-			// can only be null if an explicit mapping marked the type as deleted. Otherwise, an exception is thrown.
+			
 			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.determineRuntimeTypeHandler(typeDefinition);
 			
 			/*
@@ -314,7 +309,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * However, the method in general should very well check if such a legacy handler is required at all.
 			 * Just in case it gets called from another context in the future.
 			 */
-			if(runtimeTypeHandler != null && runtimeTypeHandler.typeId() == typeDefinition.typeId())
+			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
 			{
 				return runtimeTypeHandler;
 			}
@@ -339,6 +334,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
+			// (09.10.2018 TM)FIXME: OGS-3: runtime Type may never be null for a required type
+			
 			// can only be null if an explicit mapping marked the type as deleted.
 			final Class<?> runtimeType = typeDefinition.type();
 			if(runtimeType == null)

@@ -80,11 +80,13 @@ public interface PersistenceTypeDictionaryBuilder
 				e.members()
 			);
 			
-			final Class<?>                  type    = typeResolver.resolveRuntimeType(e);
-			final PersistenceTypeDefinition typeDef = typeDefinitionCreator.createTypeDefinition(
-				e.typeId()  ,
-				e.typeName(),
-				type        ,
+			final String                    runtimeTypeName = typeResolver.resolveRuntimeTypeName(e);
+			final Class<?>                  type            = typeResolver.resolveTypeOptional(runtimeTypeName);
+			final PersistenceTypeDefinition typeDef         = typeDefinitionCreator.createTypeDefinition(
+				e.typeId()     ,
+				e.typeName()   ,
+				runtimeTypeName,
+				type           ,
 				members
 			);
 			

@@ -43,11 +43,9 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver();
 	
-	public <T> PersistenceTypeLineage ensureTypeLineage(Class<T> type);
-		
-	public PersistenceTypeLineage ensureTypeLineage(String typeName);
+	public PersistenceTypeLineage ensureTypeLineage(Class<?> type);
 	
-	public <T> PersistenceTypeLineage lookupTypeLineage(Class<T> type);
+	public PersistenceTypeLineage lookupTypeLineage(Class<?> type);
 	
 	public PersistenceTypeLineage lookupTypeLineage(String typeName);
 	
@@ -138,11 +136,11 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		/////////////////////
 
 		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
-		private final PersistenceTypeLineageCreator                     typeLineageCreator;
+		private final PersistenceTypeLineageCreator                  typeLineageCreator;
 		private final EqHashTable<String, PersistenceTypeLineage>    typeLineages       = EqHashTable.New();
 		
 		private final EqHashTable<Long  , PersistenceTypeDefinition> allTypesPerTypeId  = EqHashTable.New();
-		private       PersistenceTypeDefinitionRegistrationObserver     registrationObserver;
+		private       PersistenceTypeDefinitionRegistrationObserver  registrationObserver;
 
 
 
@@ -169,7 +167,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 		
 		@Override
-		public synchronized <T> PersistenceTypeLineage lookupTypeLineage(final Class<T> type)
+		public synchronized PersistenceTypeLineage lookupTypeLineage(final Class<?> type)
 		{
 			return this.synchLookupTypeLineage(type.getName());
 		}
@@ -188,7 +186,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		
 		
 		@Override
-		public synchronized <T> PersistenceTypeLineage ensureTypeLineage(final Class<T> type)
+		public synchronized PersistenceTypeLineage ensureTypeLineage(final Class<?> type)
 		{
 			final PersistenceTypeLineage lineage = this.lookupTypeLineage(type);
 			if(lineage != null)
@@ -207,34 +205,24 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 			return lineage;
 		}
 		
-		@Override
-		public synchronized PersistenceTypeLineage ensureTypeLineage(final String typeName)
-		{
-			PersistenceTypeLineage lineage = this.lookupTypeLineage(typeName);
-			if(lineage == null)
-			{
-				lineage = synchRegisterTypeLineage(this.typeLineageCreator.createTypeLineage(typeName));
-			}
-
-			return lineage;
-		}
-
-		public synchronized <T> PersistenceTypeLineage ensureTypeLineage(
+		public synchronized PersistenceTypeLineage ensureTypeLineage(
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			PersistenceTypeLineage lineage = this.lookupTypeLineage(
-				typeDefinition.typeName()
+			PersistenceTypeLineage typeLineage = this.lookupTypeLineage(
+				typeDefinition.runtimeTypeName()
 			);
 			
-			if(lineage == null)
+			if(typeLineage == null)
 			{
-				lineage = synchRegisterTypeLineage(
-					this.typeLineageCreator.createTypeLineage(typeDefinition.typeName())
+				typeLineage = this.typeLineageCreator.createTypeLineage(
+					typeDefinition.runtimeTypeName(),
+					typeDefinition.type()
 				);
+				synchRegisterTypeLineage(typeLineage);
 			}
 
-			return lineage;
+			return typeLineage;
 		}
 
 		final <T> boolean synchRegisterType(final PersistenceTypeDefinition typeDefinition)
@@ -361,7 +349,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		
 		private <T> void synchSetRuntimeTypeDefinition(final PersistenceTypeDefinition td)
 		{
-			final PersistenceTypeLineage lineage = this.lookupTypeLineage(td.type());
+			final PersistenceTypeLineage lineage = this.lookupTypeLineage(td.runtimeTypeName());
 			lineage.setRuntimeTypeDefinition(td);
 		}
 

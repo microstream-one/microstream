@@ -117,8 +117,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public TypeMapping<Float> getTypeSimilarity();
 	
-	public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator();
-
 	public PersistenceMemberMatchingProvider getLegacyMemberMatchingProvider();
 	
 	public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor();
@@ -239,10 +237,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setRefactoringCurrentMemberIdentifierBuilders(
 		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
 	);
-	
-	public F setDeletedTypeHandlerCreator(
-		PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
-	);
 		
 	public F setLegacyMemberMatchingProvider(
 		PersistenceMemberMatchingProvider legacyMemberMatchingProvider
@@ -329,7 +323,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringCurrentMemberIdentifierBuilders;
 		
 		private TypeMapping<Float>                       typeSimilarity              ;
-		private PersistenceDeletedTypeHandlerCreator<M>  deletedTypeHandlerCreator   ;
 		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
 		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
@@ -790,17 +783,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.typeSimilarity;
-		}
-		
-		@Override
-		public PersistenceDeletedTypeHandlerCreator<M> getDeletedTypeHandlerCreator()
-		{
-			if(this.deletedTypeHandlerCreator == null)
-			{
-				this.deletedTypeHandlerCreator = this.dispatch(this.createDeletedTypeHandlerCreator());
-			}
-			
-			return this.deletedTypeHandlerCreator;
 		}
 		
 		@Override
@@ -1283,15 +1265,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public F setDeletedTypeHandlerCreator(
-			final PersistenceDeletedTypeHandlerCreator<M> deletedTypeHandlerCreator
-		)
-		{
-			this.deletedTypeHandlerCreator = deletedTypeHandlerCreator;
-			return this.$();
-		}
-		
-		@Override
 		public F setLegacyMemberMatchingProvider(
 			final PersistenceMemberMatchingProvider legacyMemberMatchingProvider
 		)
@@ -1537,7 +1510,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 				this.getRefactoringResolverProvider() ,
 				this.getTypeSimilarity()              ,
 				this.getCustomTypeHandlerRegistry()   ,
-				this.getDeletedTypeHandlerCreator()   ,
 				this.getLegacyMemberMatchingProvider(),
 				this.getLegacyTypeMappingResultor()   ,
 				this.getLegacyTypeHandlerCreator()
@@ -1578,11 +1550,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected TypeMapping<Float> createTypeSimilarity()
 		{
 			return XTypes.createDefaultTypeSimilarity();
-		}
-		
-		protected PersistenceDeletedTypeHandlerCreator<M> createDeletedTypeHandlerCreator()
-		{
-			return PersistenceDeletedTypeHandlerCreator.New();
 		}
 				
 		protected PersistenceMemberMatchingProvider createLegacyMemberMatchingProvider()

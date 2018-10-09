@@ -2015,6 +2015,22 @@ public final class XChars
 
 		return new String(input, low, upper - low + 1);
 	}
+	
+	
+	/**
+	 * Calls {@link String#trim()} on a non-null argument, returns <code>null</code> otherwise.
+	 * (this is nothing but a static {@link String#trim()})
+	 * 
+	 * @param s the {@link String} instance to be trimmed, potentially <code>null</code>.
+	 * @return a potentially <code>null</code> trimmed {@link String} instance.
+	 */
+	public static String trim(final String s)
+	{
+		return s == null
+			? null
+			: s.trim()
+		;
+	}
 
 	public static final int[] parseTo_intArray(final String... intStrings)
 	{

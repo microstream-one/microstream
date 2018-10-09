@@ -146,6 +146,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 	public static PersistenceTypeDefinition New(
 		final long                                                    typeId            ,
 		final String                                                  dictionaryTypeName,
+		final String                                                  runtimeTypeName   ,
 		final Class<?>                                                type              ,
 		final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 	)
@@ -162,6 +163,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 		return new PersistenceTypeDefinition.Implementation(
 			                                                         typeId             ,
 			                                                 notNull(dictionaryTypeName),
+			                                                 notNull(runtimeTypeName)   ,
 			                                                 mayNull(type)              ,
 			                                                         internalMembers    ,
 			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers)   ,
@@ -180,8 +182,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 
 		final long                                                      typeId              ;
 		final String                                                    typeName            ;
-		final Class<?>                                                  runtimeType         ;
 		final String                                                    runtimeTypeName     ;
+		final Class<?>                                                  runtimeType         ;
 		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members             ;
 		final long                                                      membersLengthMinimum;
 		final long                                                      membersLengthMaximum;
@@ -196,24 +198,25 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 		/////////////////
 
 		Implementation(
-			final long                                                      typeId       ,
-			final String                                                    typeName     ,
-			final Class<?>                                                  runtimeType  ,
-			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members      ,
-			final boolean                                                   hasReferences,
-			final boolean                                                   isPrimitive  ,
+			final long                                                      typeId         ,
+			final String                                                    typeName       ,
+			final String                                                    runtimeTypeName,
+			final Class<?>                                                  runtimeType    ,
+			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members        ,
+			final boolean                                                   hasReferences  ,
+			final boolean                                                   isPrimitive    ,
 			final boolean                                                   variableLength
 		)
 		{
 			super();
-			this.typeId          = typeId        ;
-			this.typeName        = typeName      ;
-			this.runtimeType     = runtimeType   ;
-			this.runtimeTypeName = runtimeType == null ? null : runtimeType.getName();
-			this.members         = members       ;
-			this.hasReferences   = hasReferences ;
-			this.isPrimitive     = isPrimitive   ;
-			this.variableLength  = variableLength;
+			this.typeId          = typeId         ;
+			this.typeName        = typeName       ;
+			this.runtimeTypeName = runtimeTypeName;
+			this.runtimeType     = runtimeType    ;
+			this.members         = members        ;
+			this.hasReferences   = hasReferences  ;
+			this.isPrimitive     = isPrimitive    ;
+			this.variableLength  = variableLength ;
 			
 			long membersLengthMinimum = 0, membersLengthMaximum = 0;
 			for(final PersistenceTypeDescriptionMember member : this.members)
