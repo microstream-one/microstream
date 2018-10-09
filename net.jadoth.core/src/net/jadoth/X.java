@@ -1010,6 +1010,7 @@ public final class X
 	}
 	
 	/**
+	 * Abbreviation for "execute on". Read as "on [subject] execute [logic]"
 	 * Nifty little helper logic that allows to execute custom logic on a subject instance but still return that
 	 * instance. Useful for method chaining.
 	 * 
@@ -1017,7 +1018,7 @@ public final class X
 	 * @param logic
 	 * @return
 	 */
-	public static final <S> S executeOn(final S subject, final Consumer<? super S> logic)
+	public static final <S> S on(final S subject, final Consumer<? super S> logic)
 	{
 		logic.accept(subject);
 		return subject;

@@ -4,10 +4,16 @@ import net.jadoth.chars.XChars;
 
 public class SimpleClass
 {
-	int   first ;
-	char  third ;
-	float second;
+	int    first ;
+	char   third ;
+	float  second;
+	Object fourth;
 
+	public SimpleClass()
+	{
+		super();
+	}
+		
 	public SimpleClass(final int first, final float second, final char third)
 	{
 		super();
@@ -19,8 +25,12 @@ public class SimpleClass
 	@Override
 	public String toString()
 	{
-		return XChars.systemString(this) + ": first = " + this.first + ", second = " + this.second + ", third = " + this.third;
+		return XChars.systemString(this)
+			+ ": first = " + this.first
+			+ ", second = " + this.second
+			+ ", third = " + this.third
+			+ ", fourth = " + this.fourth
+		;
 	}
-	
 	
 }
