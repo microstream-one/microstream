@@ -171,8 +171,10 @@ public final class BinaryValueTranslators
 		 * StringBuilder stuffs?
 		 * Primitive arrays?? (char[] is obvious, but then why not the other 7?)
 		 * 
-		 * Hm... writing and mapping converters for 20 types among each other would yield a
-		 * whopping 400 methods. With arrays, it would be near 800.
+		 * Hm... writing and mapping converters for 20 types (8 primitives, 8 primitive wrappers plus the above)
+		 * among each other would yield a whopping 400 methods.
+		 * With primitive arrays, it would be near 800.
+		 * With primitive wrapper arrays, near 1300.
 		 * Hm...
 		 */
 	}

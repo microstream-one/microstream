@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends PersistenceTypeDescriptionMember
 {
 	public String primitiveDefinition();
@@ -35,6 +38,19 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		return creator.createDefinitionMember(this);
 	}
 
+	
+	public static PersistenceTypeDescriptionMemberPrimitiveDefinition New(
+		final String primitiveDefinition    ,
+		final long   persistentMinimumLength,
+		final long   persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
+			 notNull(primitiveDefinition)    ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
+		);
+	}
 
 	public class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
@@ -52,7 +68,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		// constructors //
 		/////////////////
 
-		Implementation(
+		protected Implementation(
 			final String primitiveDefinition    ,
 			final long   persistentMinimumLength,
 			final long   persistentMaximumLength

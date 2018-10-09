@@ -139,7 +139,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	
 	public static <M, T> PersistenceLegacyTypeHandler<M, T> Wrap(
-		final PersistenceTypeDefinition legacyTypeDefinition,
+		final PersistenceTypeDefinition    legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T> typeHandler
 	)
 	{

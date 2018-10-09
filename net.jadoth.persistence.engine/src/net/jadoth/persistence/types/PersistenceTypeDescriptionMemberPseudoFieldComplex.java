@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 
@@ -35,6 +38,21 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		return creator.createDefinitionMember(this);
 	}
 
+	
+	public static PersistenceTypeDescriptionMemberPseudoFieldComplex New(
+		final String                                                        name                   ,
+		final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
+		final long                                                          persistentMinimumLength,
+		final long                                                          persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation(
+			 notNull(name)                   ,
+			 notNull(members)                ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
+		);
+	}
 
 	public class Implementation
 	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
@@ -52,7 +70,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		Implementation(
 			final String                                                        name                   ,
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
 			final long                                                          persistentMinimumLength,

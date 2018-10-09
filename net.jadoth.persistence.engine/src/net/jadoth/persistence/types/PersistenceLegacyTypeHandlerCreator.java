@@ -69,6 +69,12 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				{
 					return false;
 				}
+				
+				// and the types must be the same, of course. Member names are sound and smoke.
+				if(!legacyMember.typeName().equals(currentMember.typeName()))
+				{
+					return false;
+				}
 			}
 			
 			// no need to check for remaining elements since size was checked above

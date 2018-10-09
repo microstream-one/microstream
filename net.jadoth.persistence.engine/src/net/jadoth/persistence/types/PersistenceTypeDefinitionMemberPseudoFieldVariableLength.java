@@ -27,9 +27,9 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	)
 	{
 		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
-			notNull(typeName)                ,
-			notNull(name)                    ,
-			false                            ,
+			 notNull(typeName)               ,
+			 notNull(name)                   ,
+			         false                   ,
 			positive(persistentMinimumLength),
 			positive(persistentMaximumLength)
 		);
@@ -43,13 +43,13 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	{
 		return New(
 			PersistenceTypeDictionary.Symbols.TYPE_BYTES,
-			name,
+			name                   ,
 			persistentMinimumLength,
 			persistentMaximumLength
 		);
 	}
 
-	public static  PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Chars(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Chars(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -57,7 +57,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	{
 		return New(
 			PersistenceTypeDictionary.Symbols.TYPE_CHARS,
-			name,
+			name                   ,
 			persistentMinimumLength,
 			persistentMaximumLength
 		);

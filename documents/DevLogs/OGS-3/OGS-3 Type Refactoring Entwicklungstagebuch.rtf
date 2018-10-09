@@ -2448,6 +2448,19 @@ Morgen explizite Tests.\par
 \par
 Jetzt Testen und mir ist beim Aufstehen auch gleich was eingefallen: Der DirectMapper Fall muss ganz genau Offsets pr\'fcfen, nicht nur gleiche Typen in Reihenfolge. Sonst kann das ein fataler Fehler sein.\par
 Mal checken...\par
+Jup, da wird f\'fcr jedes Member gecheckt, ob das auf das gleiche in Reihenfolge gemappt ist.\par
+Passt.\par
+\par
+Hm, aber moment mal: da wird ja noch gar nicht gepr\'fcft, ob bei jedem Member die typen identisch sind. Reihenfolge alleine hei\'dft nicht v\'f6llige gleichheit der Struktur ...\par
+Mal einbauen.\par
+Pr\'fcfen, ob in allen F\'e4llen sichergestellt ist, dass typeName nicht null ist.\par
+\par
+Dabei aufgefallen: bei den einigen member Konstruktoren fehlen die checks. Nachtragen ...\par
+Paar Superklassen passen auch noch nicht.\par
+\par
+So, jetzt passts. Und \'fcberall notNull dabei.\par
+\par
+Ich denk, ich mach jetzt erst mal einen ganz simplen Fall\par
 \par
 }
  
