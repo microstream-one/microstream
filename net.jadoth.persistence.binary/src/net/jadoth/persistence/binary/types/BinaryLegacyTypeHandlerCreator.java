@@ -114,7 +114,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				final PersistenceTypeDefinitionMember currentMember = legacyToTargetMembers.get(legacyMember);
 				
 				final BinaryValueSetter translator = resolveReferences
-					? creator.provideValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
+					? creator.provideTargetValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 					: creator.provideBinaryValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 				;
 				final Long targetOffset = targetMemberOffsets.get(currentMember);

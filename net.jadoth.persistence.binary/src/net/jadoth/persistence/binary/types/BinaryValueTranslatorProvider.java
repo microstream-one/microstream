@@ -22,7 +22,7 @@ public interface BinaryValueTranslatorProvider
 	 * @param targetMember
 	 * @return
 	 */
-	public BinaryValueSetter provideValueTranslator(
+	public BinaryValueSetter provideTargetValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,
 		PersistenceTypeDefinitionMember   sourceMember     ,
 		PersistenceTypeHandler<Binary, ?> targetCurrentType,
@@ -292,7 +292,7 @@ public interface BinaryValueTranslatorProvider
 		}
 		
 		@Override
-		public BinaryValueSetter provideValueTranslator(
+		public BinaryValueSetter provideTargetValueTranslator(
 			final PersistenceTypeDefinition         sourceLegacyType ,
 			final PersistenceTypeDefinitionMember   sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
@@ -315,6 +315,8 @@ public interface BinaryValueTranslatorProvider
 			{
 				return customValueSetter;
 			}
+			
+			// note: see #validateCompatibleTargetType for target field type compatability validation.
 			
 			// check for generically handleable types on both sides
 			final Class<?> sourceType = sourceMember.type();
@@ -350,7 +352,7 @@ public interface BinaryValueTranslatorProvider
 			}
 
 			// primitives can be handled the normal way: copy/translate the bytes from source to target.
-			return this.provideValueTranslator(sourceLegacyType, sourceMember, targetCurrentType, targetMember);
+			return this.provideTargetValueTranslator(sourceLegacyType, sourceMember, targetCurrentType, targetMember);
 		}
 		
 	}

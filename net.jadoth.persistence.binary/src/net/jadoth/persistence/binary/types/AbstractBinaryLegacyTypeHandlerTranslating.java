@@ -66,7 +66,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	/////////////////
 	
 	protected AbstractBinaryLegacyTypeHandlerTranslating(
-		final PersistenceTypeDefinition                  typeDefinition  ,
+		final PersistenceTypeDefinition                     typeDefinition  ,
 		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
