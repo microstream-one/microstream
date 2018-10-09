@@ -291,7 +291,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		/*
-		 * Explicite type check to avoid memory getting overwritten with bytes not fitting to the actual type.
+		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
 		 * This can be especially critical if a custom roo resolver returns an instance that does not match
 		 * the type defined by the typeId.
 		 */

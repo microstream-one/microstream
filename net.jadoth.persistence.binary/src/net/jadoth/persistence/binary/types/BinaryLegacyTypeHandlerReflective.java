@@ -40,7 +40,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	/////////////////
 
 	BinaryLegacyTypeHandlerReflective(
-		final PersistenceTypeDefinition                  typeDefinition  ,
+		final PersistenceTypeDefinition                     typeDefinition  ,
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
@@ -73,7 +73,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	public final void update(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
 	{
 		/*
-		 * Explicite type check to avoid memory getting overwritten with bytes not fitting to the actual type.
+		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
 		 * This can be especially critical if a custom roo resolver returns an instance that does not match
 		 * the type defined by the typeId.
 		 */

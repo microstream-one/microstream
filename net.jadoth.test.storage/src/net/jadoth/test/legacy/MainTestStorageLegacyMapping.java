@@ -39,7 +39,7 @@ public class MainTestStorageLegacyMapping
 	
 	static XList<Object> createTestModel()
 	{
-		return X.List(new SimpleClass(1, 3.14f), new SimpleClass(2, 9.81f));
+		return X.List(new SimpleClass(1, 3.14f, 'A'), new SimpleClass(2, 9.81f, 'B'));
 //		return X.List(new Person());
 //		return X.List(new NewClass(), new ChangedClass());
 	}
