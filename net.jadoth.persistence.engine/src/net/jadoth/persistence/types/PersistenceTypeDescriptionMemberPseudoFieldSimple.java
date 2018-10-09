@@ -34,11 +34,11 @@ extends PersistenceTypeDescriptionMemberPseudoField
 
 	
 	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
-		final String   name                   ,
-		final String   typeName               ,
-		final boolean  isReference            ,
-		final long     persistentMinimumLength,
-		final long     persistentMaximumLength
+		final String  name                   ,
+		final String  typeName               ,
+		final boolean isReference            ,
+		final long    persistentMinimumLength,
+		final long    persistentMaximumLength
 	)
 	{
 		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(

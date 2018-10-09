@@ -35,8 +35,7 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 
 	public class Implementation
 	extends PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation
-	implements
-	PersistenceTypeDefinitionMemberPrimitiveDefinition
+	implements PersistenceTypeDefinitionMemberPrimitiveDefinition
 	{
 		// CHECKSTYLE.OFF: ConstantName: literals and type names are intentionally unchanged
 		

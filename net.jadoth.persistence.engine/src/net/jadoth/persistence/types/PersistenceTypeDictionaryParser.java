@@ -596,7 +596,7 @@ public interface PersistenceTypeDictionaryParser
 			if(this.isVariableLength)
 			{
 				return this.isComplex
-					? new PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation(
+					? PersistenceTypeDescriptionMemberPseudoFieldComplex.New(
 						this.fieldName,
 						this.nestedMembers,
 						this.lengthResolver.resolveComplexMemberMinimumLength(this.fieldName, this.typeName, this.nestedMembers),
@@ -691,7 +691,7 @@ public interface PersistenceTypeDictionaryParser
 		
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition buildMemberPrimitiveDefinition()
 		{
-			return new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
+			return PersistenceTypeDescriptionMemberPrimitiveDefinition.New(
 				this.primitiveDefinition,
 				this.resolveMinimumPrimitiveLength(),
 				this.resolveMaximumPrimitiveLength()

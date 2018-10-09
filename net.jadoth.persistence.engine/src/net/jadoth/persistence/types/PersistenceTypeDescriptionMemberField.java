@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
 	public String declaringTypeName();
@@ -41,25 +44,25 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	
 	
 	public static PersistenceTypeDescriptionMemberField New(
-		final String   typeName               ,
-		final String   name                   ,
-		final String   declaringTypeName      ,
-		final boolean  isReference            ,
-		final long     persistentMinimumLength,
-		final long     persistentMaximumLength
+		final String  typeName               ,
+		final String  name                   ,
+		final String  declaringTypeName      ,
+		final boolean isReference            ,
+		final long    persistentMinimumLength,
+		final long    persistentMaximumLength
 	)
 	{
 		return new PersistenceTypeDescriptionMemberField.Implementation(
-			typeName               ,
-			name                   ,
-			declaringTypeName      ,
-			isReference            ,
-			persistentMinimumLength,
-			persistentMaximumLength
+			 notNull(typeName)               ,
+			 notNull(name)                   ,
+			 notNull(declaringTypeName)      ,
+			         isReference             ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
 	
-	public final class Implementation
+	public class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberField
 	{
@@ -107,13 +110,13 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		////////////
 		
 		@Override
-		public String declaringTypeName()
+		public final String declaringTypeName()
 		{
 			return this.declaringTypeName;
 		}
 
 		@Override
-		public String uniqueName()
+		public final String uniqueName()
 		{
 			return this.qualifiedFieldName;
 		}

@@ -12,7 +12,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		final PersistenceTypeDescriptionMemberPseudoFieldComplex description
 	)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(
+		return New(
 			description.typeName()               ,
 			description.members()                ,
 			description.persistentMinimumLength(),

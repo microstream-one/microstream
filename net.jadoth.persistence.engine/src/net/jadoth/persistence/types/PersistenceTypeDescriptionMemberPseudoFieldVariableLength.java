@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 public interface PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 extends PersistenceTypeDescriptionMemberPseudoField
 {
@@ -45,47 +48,16 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	)
 	{
 		return new PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation(
-			typeName,
-			name,
-			false,
-			persistentMinimumLength,
-			persistentMaximumLength
+			 notNull(typeName),
+			 notNull(name),
+			         false,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
-
-
-	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation Bytes(
-		final String name                   ,
-		final long   persistentMinimumLength,
-		final long   persistentMaximumLength
-	)
-	{
-		return New(
-			PersistenceTypeDictionary.Symbols.TYPE_BYTES,
-			name,
-			persistentMinimumLength,
-			persistentMaximumLength
-		);
-	}
-
-	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation Chars(
-		final String name                   ,
-		final long   persistentMinimumLength,
-		final long   persistentMaximumLength
-	)
-	{
-		return New(
-			PersistenceTypeDictionary.Symbols.TYPE_CHARS,
-			name,
-			persistentMinimumLength,
-			persistentMaximumLength
-		);
-	}
-
-
 
 	public class Implementation
-	extends PersistenceTypeDescriptionMember.AbstractImplementation
+	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -100,7 +72,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 			final long    persistentMaximumLength
 		)
 		{
-			super(typeName, name, false, false, false, hasReferences, persistentMinimumLength, persistentMaximumLength);
+			super(typeName, name, false, false, hasReferences, persistentMinimumLength, persistentMaximumLength);
 		}
 
 

@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 import java.lang.reflect.Field;
 
 public interface PersistenceTypeDefinitionMemberField
@@ -22,25 +25,25 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 	)
 	{
 		return new PersistenceTypeDefinitionMemberField.Implementation(
-			declaringClass         ,
-			field                  ,
-			type                   ,
-			typeName               ,
-			name                   ,
-			declaringTypeName      ,
-			isReference            ,
-			persistentMinimumLength,
-			persistentMaximumLength
+			         declaringClass          ,
+			         field                   ,
+			         type                    ,
+			 notNull(typeName)               ,
+			 notNull(name)                   ,
+			 notNull(declaringTypeName)      ,
+			         isReference             ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
 	
 	public static PersistenceTypeDefinitionMemberField New(
-		final Field                     field                  ,
-		final long                      persistentMinimumLength,
-		final long                      persistentMaximumLength
+		final Field field                  ,
+		final long  persistentMinimumLength,
+		final long  persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberField.Implementation(
+		return New(
 			field.getDeclaringClass()          ,
 			field                              ,
 			field.getType()                    ,
@@ -48,13 +51,13 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 			field.getName()                    ,
 			field.getDeclaringClass().getName(),
 			!field.getType().isPrimitive()     ,
-			persistentMinimumLength            ,
-			persistentMaximumLength
+			positive(persistentMinimumLength)  ,
+			positive(persistentMaximumLength)
 		);
 	}
 
 	public final class Implementation
-	extends PersistenceTypeDescriptionMember.AbstractImplementation
+	extends PersistenceTypeDescriptionMemberField.Implementation
 	implements PersistenceTypeDefinitionMemberField
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -62,12 +65,9 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		////////////////////
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?> type             ;
-		private final Class<?> declaringClass   ;
-		private final Field    field            ;
-		private final String   declaringTypeName;
-		
-		private final transient String qualifiedFieldName;
+		private final Class<?> type          ;
+		private final Class<?> declaringClass;
+		private final Field    field         ;
 
 
 
@@ -90,19 +90,15 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 			super(
 				typeName           ,
 				name               ,
-				isReference        ,
-				!isReference       ,
-				false              ,
+				declaringTypeName  ,
 				isReference        ,
 				persistentMinLength,
 				persistentMaxLength
 			);
 
-			this.declaringClass     = declaringClass   ;
-			this.field              = field            ;
-			this.type               = type             ;
-			this.declaringTypeName  = declaringTypeName;
-			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
+			this.declaringClass = declaringClass;
+			this.field          = field         ;
+			this.type           = type          ;
 		}
 
 
@@ -127,24 +123,6 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		public final Class<?> type()
 		{
 			return this.type;
-		}
-
-		@Override
-		public final String declaringTypeName()
-		{
-			return this.declaringTypeName;
-		}
-
-		@Override
-		public final String uniqueName()
-		{
-			return this.qualifiedFieldName;
-		}
-
-		@Override
-		public void assembleTypeDescription(final Appender assembler)
-		{
-			assembler.appendTypeMemberDescription(this);
 		}
 
 	}
