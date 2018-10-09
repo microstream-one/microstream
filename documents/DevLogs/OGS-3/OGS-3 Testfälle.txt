@@ -50,6 +50,10 @@ OGS-3 Testfälle
 
 
 - References und Primitives.
+- Legacy Handling listener
+- deleted Markierung mit erreichbaren Instanzen (muss exception werfen) und ohne (muss ohne exception durchlaufen)
+- Instanz mit legacy type mapping laden, abspeichern, wieder laden: diesmal mit aktuellem TypeHandler und aktueller TypeId.
+
 
 
 

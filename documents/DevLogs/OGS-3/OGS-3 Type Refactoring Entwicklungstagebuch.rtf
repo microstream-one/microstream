@@ -2485,5 +2485,48 @@ Notizen machen zu den zu testenden F\'e4llen.\par
 Muss ich am besten als eigene Datei machen: OGS-3 Testf\'e4lle.txt\par
 \par
 Nachricht an MK schreiben.\par
+\par
+\par
+Eine gute Idee w\'e4re vielleicht, die F\'e4lle anhand des Sourcecodes durchzugehen. Von Fallunterscheidung zu Fallunterscheidung Notizen machen.\par
+Hm. Erster Fall ist schon mal (laut PersistenceTypeHandlerManager#ensureTypeHandler): Wo wird das mapping f\'fcr einen deleted type ausgelesen. Das ist ja jetzt im DictionaryBuilder. Dort gehts eigentlich schon los.\par
+\par
+Also mal einen "ToBeDeleted" Type bauen und ausprobieren.\par
+\par
+Hehe, cool: In SimpleClass einfach noch v\'f6llig unbedacht ein viertes Feld rein und draufgedr\'fcckt. Wird sauber gemappt, passt.\par
+Viertes Feld mit Refrenz auf ToBeDeleted und SimpleClass Instanz gespeichert und wieder geladen: Wird schon nach dem Laden richtig angezeigt.\par
+Und, interessant: Legacy Type Mapping springt trotzdem an. Warum? Weil es noch eine zweite SimpleClass Instanz in der List gibt und die wurde noch nicht mit dem neuen Format gespeichert.\par
+Die auch noch speichern. Und nochmal neu laden: Kein LegacyTypeMapping mehr, weil keine Instanzen mehr mit veraltetem Typ vorkommen.\par
+Das ist schon cool 8-).\par
+Und schon irgendwie magic: Einfach irgendwelche Felder reinbauen, abspeichern, alles wurscht und das Programm funktioniert trotzdem korrekt. Hrhr.\par
+\par
+Ah, was gefunden: ToBeDeleted wird korrekt ausgelesen als gel\'f6scht, aber es gibt trotzdem keinen DeletedHandler. Mal debuggen.\par
+\par
+Hm. Es gibt ein PersistenceTypeHandlerManager#deriveTypeHandler mit einer (iterativ alle) TypeLineage als Argument.\par
+F\'fcr dessen type() wird ein TypeHandler angelegt.\par
+\par
+Das ist jetzt alles bissl komisch, daran erinnere ich mich gar nicht mehr:\par
+- Wieso ist das n\'f6tig?\par
+- Dieser Weg ist ein Hintert\'fcrchen an dem normalen TypeHandling vorbei. Das ist nicht gut. Z.B. eben bzgl. gel\'f6schte Typen. Die type() Class Instanz dort d\'fcrfte gar nicht nicht-null sein, weil der Type ja deleted ist.\par
+Mal anschauen, ob die ganze Methode nicht weg sollte.\par
+Bzw. warum die TypeLineage \'fcberhaupt einen Referenz auf einen Runtime Type haben muss und warum die dann nicht die regul\'e4re Logik verwendet. Aber redundant da reinbauen w\'e4r eh bl\'f6d. Naja, mal schauen ...\par
+\par
+Aaachja, es ist ja so:\par
+Es muss unabh\'e4ngig von type descriptions erst mal ein type handler f\'fcr den aktuellen runtime type erzeugt werden.\par
+Anhand von dem wird dann versucht, eine passende type description zu matchen.\par
+Wenn eine passende gefunden wurde, wird deren TypeId im TypeHandler verwendet (effective final verz\'f6gerte initialisierung)\par
+Wenn keine passende gefunden wird, kommt der TypeHandler in eine "newTypeHandlers" Collection rein, bekommt eine neue TypeId zugewiesen und das f\'fchrt sp\'e4ter letztendlich zu eine, Legacy Type Handler f\'fcr Instanzen der anderen TypeDescriptions.\par
+\par
+Also es macht Sinn, ausgehend von der TypeLineage TypeHandlers zu erzeugen.\par
+Die Frage ist jetzt nur:\par
+- braucht die TypeLineage wirklich eine Class Instanz f\'fcr den type oder reicht der TypeName?\par
+- Falls ja, dann muss auch das deleted type mapping hier ber\'fccksichtigt werden.\par
+- Falls nein bzw. unabh\'e4ngig davon: soll der type name das type name refactoring mapping ber\'fccksichtigen?\par
+Falls nein, dann ist halt bl\'f6d, dass designm\'e4\'dfig unterschiedliche typen unter demselben TypeName, also in derselben "Familie" verwaltet werden.\par
+Besser w\'e4re eigentlich, wenn die TypeLineage den gemappten Type Name verwenden w\'fcrde. Denn laut aktuellem Design geh\'f6ren die veralteten TypeDescriptions familienm\'e4\'dfig unter dessen "Dach".\par
+F\'fcr als deleted markierte Types w\'fcrde dann automatisch keine TypeLineage und kein normaler TypeHandler erstellt werden. Passt auch bzw. das muss ja zwangsl\'e4ufig so sein. Gel\'f6schte Typen sollen im aktuellen "normalen" Typegef\'fcge nicht mehr vorkommen und normaler TypeHandler darf ja eh nicht erstellt werden. Hm. Eigentlich muss auch gar kein DeletedTypeHandler erstellt werden, falls es gar keine Instanzen mehr davon gibt.\par
+Nur falls es welche gibt, wird einer erzeugt, damit der beim Laden eine exception wirft.\par
+Hm. Aber warum erst beim Laden? Warum kann nicht gleich in der Methode, die alle Typen mit LegacyHandler Bedarf sammelt, bei gel\'f6schten Typen eine Exception werfen?\par
+Jetzt bin ich verwirrt x_x.\par
+\par
 }
  

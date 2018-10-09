@@ -9,6 +9,7 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.equality.Equalator;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
@@ -124,6 +125,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		
 		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
 		{
+			// (09.10.2018 TM)FIXME: /!\ DEBUG
+			if(type.getName().contains("ToBeDeleted"))
+			{
+				XDebug.debugln("ToBeDeleted");
+			}
+			
 			PersistenceTypeHandler<M, T> handler;
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
@@ -263,6 +270,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		{
+			// (09.10.2018 TM)FIXME: /!\ DEBUG
+			if(type.getName().contains("ToBeDeleted"))
+			{
+				XDebug.debugln("ToBeDeleted");
+			}
+			
 //			XDebug.debugln("ensureTypeHandler(" + type + ")");
 			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
@@ -276,6 +289,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		@Override
 		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
+			// (09.10.2018 TM)FIXME: /!\ DEBUG
+			if(typeDefinition.typeName().contains("ToBeDeleted"))
+			{
+				XDebug.debugln("ToBeDeleted");
+			}
+			
 			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(typeDefinition.typeId())) != null)
 			{
@@ -601,7 +620,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private <T> void deriveTypeHandler(
 			final PersistenceTypeLineage                                             typeLineage            ,
 			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
-			final HashEnum<PersistenceTypeHandler<M, ?>>                                unmatchableTypeHandlers
+			final HashEnum<PersistenceTypeHandler<M, ?>>                             unmatchableTypeHandlers
 		)
 		{
 			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(typeLineage.type());
