@@ -1,7 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.meta.XDebug;
-
 public interface PersistenceUnreachableTypeHandlerCreator<M>
 {
 	public <T> PersistenceUnreachableTypeHandler<M, T> createUnreachableTypeHandler(
@@ -22,8 +20,7 @@ public interface PersistenceUnreachableTypeHandlerCreator<M>
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			// (10.10.2018 TM)FIXME: OGS-3: DEBUG
-			XDebug.println("Unreachable handler for " + typeDefinition.toTypeIdentifier());
+//			XDebug.println("Creating unreachable type handler for " + typeDefinition.toTypeIdentifier());
 			return PersistenceUnreachableTypeHandler.New(typeDefinition);
 		}
 		

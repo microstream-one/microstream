@@ -73,14 +73,14 @@ public class MainTestStorageLegacyMapping
 			ROOT.get().iterate(System.out::println);
 			X.on(ROOT.get().get(), e -> {
 				e.third = 'M';
-//				e.fourth = new ToBeDeleted();
-				e.fourth = null;
+//				e.fourth = null;
+				e.fourth = new ToBeDeleted();
 				STORAGE.store(e);
 			});
 			X.on(ROOT.get().at(1), e -> {
 				e.third = '2';
-//				e.fourth = new ToBeDeleted();
-				e.fourth = null;
+//				e.fourth = null;
+				e.fourth = new ToBeDeleted();
 				STORAGE.store(e);
 			});
 			ROOT.get().iterate(System.out::println);

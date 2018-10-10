@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 
@@ -38,7 +39,8 @@ public interface PersistenceTypeDescription extends SwizzleTypeIdentity
 	
 	public static String buildTypeIdentifier(final long typeId, final String typeName)
 	{
-		return typeId + typeIdentifierSeparator() + typeName;
+		// simple string concatenation syntax messes up the char adding.
+		return VarString.New(100).add(typeId).add(typeIdentifierSeparator()).add(typeName).toString();
 	}
 	
 	public static String buildTypeIdentifier(final PersistenceTypeDescription typeDescription)

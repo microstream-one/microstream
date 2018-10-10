@@ -2,6 +2,7 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.mayNull;
 
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
@@ -115,8 +116,7 @@ public interface PersistenceTypeLineage
 		private boolean isValid(final PersistenceTypeDefinition typeDefinition)
 		{
 			// checking runtimeTypeName is more precise than checking the type, as the prior might not be resolvable.
-			if(this.runtimeTypeName == null && typeDefinition.runtimeTypeName() != null
-			|| !this.runtimeTypeName.equals(typeDefinition.runtimeTypeName()))
+			if(!XChars.isEqual(this.runtimeTypeName, typeDefinition.runtimeTypeName()))
 			{
 				return false;
 			}

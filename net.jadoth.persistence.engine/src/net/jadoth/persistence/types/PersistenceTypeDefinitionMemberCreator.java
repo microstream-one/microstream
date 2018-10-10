@@ -100,14 +100,14 @@ public interface PersistenceTypeDefinitionMemberCreator
 			return null;
 		}
 		
-		private Class<?> resolveCurrentTypeOptional(final String typeName)
+		private Class<?> tryResolveCurrentType(final String typeName)
 		{
 			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
 			final String effectiveLatestTypeName = this.resolveRuntimeTypeName(typeName);
 			
 			return effectiveLatestTypeName == null
 				? null
-				: this.typeResolver.resolveTypeOptional(effectiveLatestTypeName)
+				: this.typeResolver.tryResolveType(effectiveLatestTypeName)
 			;
 		}
 		
@@ -138,7 +138,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberField description
 		)
 		{
-			final Class<?> currentType = this.resolveCurrentTypeOptional(description.typeName());
+			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
 			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeDeclaringType = this.resolveRuntimeTypeName(description.declaringTypeName());
@@ -174,7 +174,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
 		)
 		{
-			final Class<?> currentType = this.resolveCurrentTypeOptional(description.typeName());
+			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
 			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
 				description.name()                   ,
