@@ -2622,5 +2622,20 @@ Der Lookup schaut in PersistenceTypeHandlerRegistry#handlersByTypeId rein.\par
 Ah, ich wei\'df, warum! ICh hab zwar einen U.Handler erzeugt, aber nicht registriert. Haha.\par
 Fixen. Testen. Passt.\par
 \par
+\par
+Jetzt um zwei FIXMEs k\'fcmmern, die bei den Arbeiten aufgetaucht sind:\par
+1.) PersistenceTypeDefinitionMemberCreator#resolveRuntimeTypeName sollte den typeName selbst auch im Refactoring nachschlagen.\par
+2.) Die Resultor Callback Sache von oben.\par
+\par
+Hurra, der seltsame Scanner macht beim ersten nextLine() was er soll und beim zweiten kommt sofort eine exception.\par
+Recherchieren...\par
+\par
+Ach, lol. Der verbl\'f6dete Scanner schlie\'dft den System.in und die Compiler settings motzen rum, wenn man das Ding nicht schlie\'dft.\par
+Ohne try-with-resource bauen und daf\'fcr wieder mal einen flamigen JDK-Kommentar neben die suppression annotation schreiben.\par
+... und schon funktionierts!\par
+\par
+Das hardgecodete Konsolenzeug m\'f6glichst sch\'f6n kapseln.\par
+\par
+Jetzt noch eine m\'f6glichst \'fcbersichtliche Konsolenausgabe des vorgeschlagenen Mappings bauen.\par
 }
  

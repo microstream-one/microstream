@@ -8,6 +8,7 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XList;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
@@ -31,7 +32,7 @@ public class MainTestStorageLegacyMapping
 	static final EmbeddedStorageManager STORAGE = X.on(EmbeddedStorage
 		.createFoundation(),
 		ecf -> ecf.getConnectionFoundation()
-			.setLegacyTypeMappingResultor(new MappingPrinter())
+			.setLegacyTypeMappingResultor(InquiringLegacyTypeMappingResultor.New(new MappingPrinter()))
 			.setLegacyMemberMatchingProvider(new MatchProvider())
 		)
 		.setRefactoringMappingProvider(
