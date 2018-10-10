@@ -2462,6 +2462,28 @@ public final class XChars
 		return value == null ? null : value.toString();
 	}
 	
+	public static String trimEmptyToNull(final String s)
+	{
+		// if the string is null in the first place, null is returned.
+		if(s == null)
+		{
+			return null;
+		}
+		
+		// if the string contains only one non-whitespace, a trimmed string (potentially itself) is returned
+		final int length = s.length();
+		for(int i = 0; i < length; i++)
+		{
+			if(s.charAt(i) > ' ')
+			{
+				return s.trim();
+			}
+		}
+		
+		// string contains solely whitespaces, hence return null
+		return null;
+	}
+	
 
 	
 	///////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import net.jadoth.chars.StringTable;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.types.XGettingTable;
@@ -274,9 +275,9 @@ public class Persistence extends Swizzle
 		final StringTable stringTable                     = StringTable.Static.parse(fileContent);
 		final XGettingTable<String, String> keyValueTable = stringTable.toKeyValueTable(
 			row ->
-				row[0], // debuggability linebreak, do not reformat!
+				XChars.trimEmptyToNull(row[0]), // debuggability linebreak, do not reformat!
 			row ->
-				row[1] // debuggability linebreak, do not reformat!
+				XChars.trimEmptyToNull(row[1])  // debuggability linebreak, do not reformat!
 		);
 		
 		return keyValueTable;

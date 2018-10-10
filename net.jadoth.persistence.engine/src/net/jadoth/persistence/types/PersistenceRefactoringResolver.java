@@ -1,7 +1,6 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.X;
-import net.jadoth.chars.XChars;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.typing.KeyValue;
@@ -109,13 +108,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 					continue;
 				}
 				
-				if(XChars.isEmpty(XChars.trim(entry.value())))
-				{
-					// (09.10.2018 TM)EXCP: proper exception
-					throw new RuntimeException("Invalid empty mapping for type " + typeDescription.toTypeIdentifier());
-				}
-				
-				// guaranteed non-empty value
+				// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
 				return entry.value();
 			}
 			

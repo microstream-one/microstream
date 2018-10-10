@@ -61,12 +61,12 @@ public final class XDebug
 		return new DecimalFormat("00,000,000,000").format(timestamp);
 	}
 
-	public static final void debugln(final String s)
+	public static final void println(final String s)
 	{
-		debugln(s, 1);
+		println(s, 1);
 	}
 
-	public static final void debugln(final String s, final int stackTraceCut)
+	public static final void println(final String s, final int stackTraceCut)
 	{
 		// index 1 is always safely this method call itself, index 2 is always safely the calling context
 		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
@@ -87,15 +87,6 @@ public final class XDebug
 		return s.substring(s.lastIndexOf('.', s.lastIndexOf('.') - 1));
 	}
 
-	public static final void printlnElapsedNanos(final long elapsedTime)
-	{
-		/*
-		 * JDK people are not capable of programming thread safe utility classes, so a new instance
-		 * must be created on every call.
-		 */
-		System.out.println("Elapsed Time: " + formatTimestamp(elapsedTime));
-	}
-
 	public static final void printCollection(
 		final XGettingCollection<?> collection,
 		final String                start     ,
@@ -106,21 +97,21 @@ public final class XDebug
 	{
 		final char[] sepp = separator != null ? separator.toCharArray() : null;
 
-		final VarString vc = VarString.New();
+		final VarString vs = VarString.New();
 		if(start != null)
 		{
-			vc.add(start);
+			vs.add(start);
 		}
 		
-		final int vcOldLength = vc.length();
+		final int vsOldLength = vs.length();
 		if(limit == null)
 		{
 			collection.iterate(e ->
 			{
-				vc.add(e);
+				vs.add(e);
 				if(sepp != null)
 				{
-					vc.add(sepp);
+					vs.add(sepp);
 				}
 			});
 		}
@@ -136,25 +127,25 @@ public final class XDebug
 					{
 						throw X.BREAK();
 					}
-					vc.add(e);
+					vs.add(e);
 					if(sepp != null)
 					{
-						vc.add(sepp);
+						vs.add(sepp);
 					}
 				}
 			});
 		}
-		if(sepp != null && vc.length() > vcOldLength)
+		if(sepp != null && vs.length() > vsOldLength)
 		{
-			vc.deleteLast(sepp.length);
+			vs.deleteLast(sepp.length);
 		}
 
 		if(end != null)
 		{
-			vc.add(end);
+			vs.add(end);
 		}
 
-		System.out.println(vc.toString());
+		System.out.println(vs.toString());
 		System.out.flush();
 	}
 
@@ -449,7 +440,7 @@ public final class XDebug
 			{
 				if(output)
 				{
-					debugln("Deleting "+f);
+					println("Deleting "+f);
 				}
 				Files.deleteIfExists(f.toPath());
 			}

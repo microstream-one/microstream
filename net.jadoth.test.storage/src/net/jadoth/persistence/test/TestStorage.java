@@ -434,15 +434,15 @@ public class TestStorage extends TestComponentProvider
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		XDebug.debugln("GC#1");
+		XDebug.println("GC#1");
 		connection.issueFullGarbageCollection();
-		XDebug.debugln("GC#2");
+		XDebug.println("GC#2");
 		connection.issueFullGarbageCollection();
-		XDebug.debugln("cache check");
+		XDebug.println("cache check");
 		connection.issueFullCacheCheck();
-		XDebug.debugln("file check");
+		XDebug.println("file check");
 		connection.issueFullFileCheck();
-		XDebug.debugln("Done cleanup");
+		XDebug.println("Done cleanup");
 	}
 
 	static void testContinuousHouseKeeping()
@@ -451,7 +451,7 @@ public class TestStorage extends TestComponentProvider
 
 		for(int i = 0; i < 100; i++)
 		{
-			XDebug.debugln("Continuous Call #" + i);
+			XDebug.println("Continuous Call #" + i);
 			connection.store(ROOT);
 			storageCleanup(connection);
 		}

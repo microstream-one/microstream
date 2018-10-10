@@ -24,7 +24,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testPersist(final PersistenceManager<Binary> persistenceManager)
 	{
-		XDebug.debugln("Persisting...");
+		XDebug.println("Persisting...");
 //		new TestPerson(5);
 		for(int i = 1; i --> 0;)
 		{
@@ -94,7 +94,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static Object testBuilding(final PersistenceManager<Binary> persistenceManager)
 	{
-		XDebug.debugln("Loading...");
+		XDebug.println("Loading...");
 		final Object loaded = persistenceManager.get(1100000000000070001L);
 		System.out.println(loaded);
 //		System.out.println(Arrays.toString((int[])loaded));
@@ -103,7 +103,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 //		objRegistry.iterate(System_out_println);
 //
-		XDebug.debugln("printing arrays:");
+		XDebug.println("printing arrays:");
 //		System.out.println("---");
 //		System.out.println("orignl: "+Arrays.toString(TestBinaryObjects.indices));
 //		System.out.println("loaded: "+Arrays.toString((int[])((Object[])loaded)[0]));
@@ -136,7 +136,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 	static void testReadStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
 		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideTypeDictionary();
-		XDebug.debugln('\n'+typeDictionary.toString());
+		XDebug.println('\n'+typeDictionary.toString());
 	}
 
 	static void resetRegistries(final BinaryPersistenceFoundation<?> factory)

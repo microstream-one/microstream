@@ -21,20 +21,20 @@ public class MainTestNetworkPersistenceClient
 		// Send n messages to the server, each in an exclusive connection (simplicity's sake)
 		for(int i = 1; i <= REQUEST_COUNT; i++)
 		{
-			XDebug.debugln("Client opens channel ...");
+			XDebug.println("Client opens channel ...");
 			try(final SocketChannel channel = UtilTestNetworkPersistence.openChannelLocalhost())
 			{
-				XDebug.debugln("Client opened channel. Sleeping ...");
+				XDebug.println("Client opened channel. Sleeping ...");
 				Thread.sleep(REQUEST_DELAY);
 
-				XDebug.debugln("Client initializing " + PersistenceManager.class.getSimpleName());
+				XDebug.println("Client initializing " + PersistenceManager.class.getSimpleName());
 				final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
 					channel,
 					new File(MainTestNetworkPersistenceClient.class.getSimpleName()),
 					true
 				);
 
-				XDebug.debugln("Client sending data ... "); // arbitrary graph
+				XDebug.println("Client sending data ... "); // arbitrary graph
 				cc.send(
 					OldCollections.ArrayList(
 						"Request " +CLIENT_ID + ":"+ i,
@@ -42,11 +42,11 @@ public class MainTestNetworkPersistenceClient
 						OldCollections.ArrayList(1, 2, 3)
 					)
 				);
-				XDebug.debugln("* Client completed sending.");
+				XDebug.println("* Client completed sending.");
 				
-				XDebug.debugln("Client reading data ... ");
+				XDebug.println("Client reading data ... ");
 				System.out.println("Server answered: " + cc.receive());
-				XDebug.debugln("* Client completed reading.");
+				XDebug.println("* Client completed reading.");
 			}
 		}
 	}

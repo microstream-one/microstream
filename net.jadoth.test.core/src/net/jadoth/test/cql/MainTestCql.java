@@ -160,7 +160,7 @@ public class MainTestCql
 
 	static void print(final XGettingCollection<?> elements)
 	{
-		XDebug.debugln(elements.toString(), 1);
+		XDebug.println(elements.toString(), 1);
 	}
 
 }

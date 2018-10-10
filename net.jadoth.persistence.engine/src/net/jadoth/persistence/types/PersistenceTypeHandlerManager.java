@@ -66,7 +66,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		final PersistenceTypeDictionaryManager    typeDictionaryManager,
 		final PersistenceTypeEvaluator            typeEvaluator        ,
 		final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-		final PersistenceLegacyTypeMapper<M>      legacyTypeMapper
+		final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ,
+		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 	)
 	{
 		return new PersistenceTypeHandlerManager.Implementation<>(
@@ -75,7 +76,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			notNull(typeDictionaryManager),
 			notNull(typeEvaluator)        ,
 			notNull(typeMismatchValidator),
-			notNull(legacyTypeMapper)
+			notNull(legacyTypeMapper)     ,
+			notNull(unreachableTypeHandlerCreator)
 		);
 	}
 
@@ -91,7 +93,9 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		private final PersistenceTypeEvaluator            typeEvaluator        ;
 		private final PersistenceTypeMismatchValidator<M> typeMismatchValidator;
 		private final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ;
-		private       boolean                             initialized          ;
+		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
+		
+		private boolean initialized;
 
 
 
@@ -105,7 +109,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			final PersistenceTypeDictionaryManager    typeDictionaryManager,
 			final PersistenceTypeEvaluator            typeEvaluator        ,
 			final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-			final PersistenceLegacyTypeMapper<M>      legacyTypeMapper
+			final PersistenceLegacyTypeMapper<M>      legacyTypeMapper,
+			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 		)
 		{
 			super();
@@ -115,6 +120,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.typeEvaluator         = typeEvaluator        ;
 			this.typeMismatchValidator = typeMismatchValidator;
 			this.legacyTypeMapper      = legacyTypeMapper     ;
+			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
 		}
 
 
@@ -125,12 +131,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		
 		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
 		{
-			// (09.10.2018 TM)FIXME: /!\ DEBUG
-			if(type.getName().contains("ToBeDeleted"))
-			{
-				XDebug.debugln("ToBeDeleted");
-			}
-			
 			PersistenceTypeHandler<M, T> handler;
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
@@ -295,6 +295,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			);
 		}
 		
+		private <T> PersistenceTypeHandler<M, T> checkForUnreachableType(final PersistenceTypeDefinition typeDef)
+		{
+			if(typeDef.runtimeTypeName() != null)
+			{
+				return null;
+			}
+			
+			// must check for an already existing type handler before creating a new one
+			final PersistenceTypeHandler<M, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
+			if(alreadyRegisteredTypeHandler != null)
+			{
+				@SuppressWarnings("unchecked")
+				final PersistenceTypeHandler<M, T> casted = (PersistenceTypeHandler<M, T>)alreadyRegisteredTypeHandler;
+				return casted;
+			}
+			
+			return this.unreachableTypeHandlerCreator.createUnreachableTypeHandler(typeDef);
+		}
+		
 		@Override
 		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
@@ -306,17 +325,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * or maybe even a type that has been deleted in the design without replacement that should not have been.
 			 */
 			
+			
+			final PersistenceTypeHandler<M, T> unreachableHandler = this.checkForUnreachableType(typeDefinition);
+			if(unreachableHandler != null)
+			{
+				return unreachableHandler;
+			}
+			
+			// for all types not explicitely marked as unreachable, the runtime type is essential.
 			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
 			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// check if the type definition is up to date or if a legacy type handler is needed
 			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
 			{
-				XDebug.debugln("Up to date type handler : " + typeDefinition.runtimeTypeName());
+				XDebug.println("Up to date type handler : " + typeDefinition.runtimeTypeName());
 				return runtimeTypeHandler;
 			}
 			
-			XDebug.debugln("Requires legacy type handler : " + typeDefinition.typeName());
+			XDebug.println("Requires legacy type handler : " + typeDefinition.typeName());
 			
 			// for non-up-to-date type definitions, a legacy type handler must be ensured (looked up or created)
 			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);

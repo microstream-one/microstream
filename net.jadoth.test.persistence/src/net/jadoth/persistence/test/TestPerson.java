@@ -79,7 +79,7 @@ class TestPerson extends AbstractPerson
 	public static void DEBUG_printStaticState()
 	{
 		final String n = "\n";
-		XDebug.debugln(
+		XDebug.println(
 		"static final boolean TEST_PERSON_CONST_PRIM_BOOLEAN1  = "+TEST_PERSON_CONST_PRIM_BOOLEAN1 +n+
 		"static final Boolean TEST_PERSON_CONST_REFR_BOOLEAN2  = "+TEST_PERSON_CONST_REFR_BOOLEAN2 +n+
 		"static final char    TEST_PERSON_CONST_PRIM_CHAR1     = "+TEST_PERSON_CONST_PRIM_CHAR1    +n+

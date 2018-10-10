@@ -1,7 +1,6 @@
 package net.jadoth.persistence.types;
 
 import static net.jadoth.X.mayNull;
-import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
@@ -33,7 +32,7 @@ public interface PersistenceTypeLineage
 	)
 	{
 		return new PersistenceTypeLineage.Implementation(
-			notNull(runtimeTypeName), // may never be null as this is the lineage's identity.
+			mayNull(runtimeTypeName), // can be null for types explicitely mapped as having no runtime type.
 			mayNull(runtimeType)      // can be null if the type name cannot be resolved to a runtime class.
 		);
 	}
@@ -115,16 +114,12 @@ public interface PersistenceTypeLineage
 		
 		private boolean isValid(final PersistenceTypeDefinition typeDefinition)
 		{
-			if(!this.runtimeTypeName.equals(typeDefinition.typeName()))
+			// checking runtimeTypeName is more precise than checking the type, as the prior might not be resolvable.
+			if(this.runtimeTypeName == null && typeDefinition.runtimeTypeName() != null
+			|| !this.runtimeTypeName.equals(typeDefinition.runtimeTypeName()))
 			{
 				return false;
 			}
-			
-			// a type check would not be correct here: the type may have been refactoring-mapped to another runtime type.
-//			if(this.runtimeType != typeDefinition.type())
-//			{
-//				return false;
-//			}
 			
 			final PersistenceTypeDefinition alreadyRegistered = this.entries.get(typeDefinition.typeId());
 			if(alreadyRegistered == null)
