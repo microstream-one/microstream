@@ -18,7 +18,7 @@ public final class DEBUGStorage
 	{
 		if(ENABLED)
 		{
-			XDebug.debugln(s, 2);
+			XDebug.println(s, 2);
 		}
 
 	}

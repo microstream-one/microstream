@@ -19,7 +19,7 @@ public interface NetworkSessionTimeoutHandler<S extends NetworkSession<?>>
 		@Override
 		public void handleTimeout(final S session, final NetworkSessionManager<S> sessionManager)
 		{
-			XDebug.debugln("Timeouting " + session);
+			XDebug.println("Timeouting " + session);
 			sessionManager.removeSession(session);
 		}
 

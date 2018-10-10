@@ -23,7 +23,7 @@ public class TestBinaryObjects
 //			0,
 //			objects = new Object[orig_objects.length]
 //		);
-		XDebug.debugln(
+		XDebug.println(
 			"Test Arrays:\n"
 			+Arrays.toString(orig_objects)+"\n"
 			+Arrays.toString(indices)+"\n"

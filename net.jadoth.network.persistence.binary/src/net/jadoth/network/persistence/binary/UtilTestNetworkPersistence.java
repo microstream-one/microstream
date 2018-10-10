@@ -135,7 +135,7 @@ public class UtilTestNetworkPersistence
 		.initialize()
 		;
 		
-		XDebug.debugln("OID: " + idProvider.currentObjectId());
+		XDebug.println("OID: " + idProvider.currentObjectId());
 		
 		return BinaryPersistenceFoundation.New()
 			.setTypeDictionaryStorage      (dictionaryStorage            )

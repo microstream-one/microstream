@@ -61,7 +61,7 @@ public class MainTestStorage extends TestStorage
 
 	static void createBigGraph(final int p6size, final StorageConnection connection)
 	{
-		XDebug.debugln("big graph initialization ("+p6size+")");
+		XDebug.println("big graph initialization ("+p6size+")");
 		final Integer[][][][][][] ints0 = new Integer[p6size][p6size][p6size][p6size][p6size][p6size];
 		for(int i0 = 0; i0 < ints0.length; i0++)
 		{
@@ -88,9 +88,9 @@ public class MainTestStorage extends TestStorage
 			}
 		}
 		ROOT.set(Lazy.Reference(ints0));
-		XDebug.debugln("store big graph ...");
+		XDebug.println("store big graph ...");
 		connection.store(ROOT);
-		XDebug.debugln("store big graph done");
+		XDebug.println("store big graph done");
 	}
 
 
@@ -99,7 +99,7 @@ public class MainTestStorage extends TestStorage
 //		XThreads.sleep(2000);
 		for(int i = 1000; i --> 0;)
 		{
-			XDebug.debugln("round "+i);
+			XDebug.println("round "+i);
 
 			// do one round of explicitely issued house keeping
 			connection.store(instance);
@@ -124,15 +124,15 @@ public class MainTestStorage extends TestStorage
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		XDebug.debugln("GC#1");
+		XDebug.println("GC#1");
 		connection.issueFullGarbageCollection();
-		XDebug.debugln("GC#2");
+		XDebug.println("GC#2");
 		connection.issueFullGarbageCollection();
-		XDebug.debugln("cache check");
+		XDebug.println("cache check");
 		connection.issueFullCacheCheck();
-		XDebug.debugln("file check");
+		XDebug.println("file check");
 		connection.issueFullFileCheck();
-		XDebug.debugln("Done cleanup");
+		XDebug.println("Done cleanup");
 	}
 
 	static void oldTestStuff()
@@ -288,7 +288,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<Integer> ints = BulkList.New();
 		ROOT.set(ints);
-		XDebug.debugln("initial storing root...");
+		XDebug.println("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		createIntegers(ints, 100_000);
@@ -319,7 +319,7 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		XDebug.debugln("initial storing root...");
+		XDebug.println("initial storing root...");
 		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		for(int i = 0; i < 100; i++)
@@ -442,7 +442,7 @@ public class MainTestStorage extends TestStorage
 		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
-		XDebug.debugln(s.toString());
+		XDebug.println(s.toString());
 	}
 
 }

@@ -87,7 +87,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		protected void synchCheckTimeout(final S session)
 		{
-			XDebug.debugln("Checking session " + session + " with " + this.regulatorSessionTimeout.sessionTimeout());
+			XDebug.println("Checking session " + session + " with " + this.regulatorSessionTimeout.sessionTimeout());
 			try
 			{
 				if(!session.isTimedOut(this.regulatorSessionTimeout.sessionTimeout()))
@@ -114,7 +114,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		protected void iterateSessions(final Consumer<? super S> procedure)
 		{
-			XDebug.debugln("" + XTypes.to_int(this.sessions.size()));
+			XDebug.println("" + XTypes.to_int(this.sessions.size()));
 			this.sessions.iterate(procedure);
 		}
 
@@ -131,11 +131,11 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		@Override
 		public void removeSession(final S session)
 		{
-			XDebug.debugln("Removing session " + session);
+			XDebug.println("Removing session " + session);
 			this.messageManager.remove(session);
-			XDebug.debugln(Thread.currentThread() + " Session manager removing session " + session);
+			XDebug.println(Thread.currentThread() + " Session manager removing session " + session);
 			this.sessionsPerConnection.removeFor(session.channel());
-			XDebug.debugln(Thread.currentThread() + " Registered sessions now " + this.sessionsPerConnection.size());
+			XDebug.println(Thread.currentThread() + " Registered sessions now " + this.sessionsPerConnection.size());
 		}
 
 		/**
@@ -145,9 +145,9 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		 */
 		protected void registerSession(final S session)
 		{
-			XDebug.debugln("Thread " + Thread.currentThread() + " registering session " + session);
+			XDebug.println("Thread " + Thread.currentThread() + " registering session " + session);
 			this.sessionsPerConnection.put(session.channel(), session);
-			XDebug.debugln("Thread " + Thread.currentThread() + " now registered sessions: \n" + this.sessionsPerConnection);
+			XDebug.println("Thread " + Thread.currentThread() + " now registered sessions: \n" + this.sessionsPerConnection);
 			this.messageManager.register(session);
 		}
 
@@ -222,7 +222,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 				try
 				{
 					Thread.sleep(this.sessionCheckInterval.checkInterval());
-					XDebug.debugln("Checking sessions...");
+					XDebug.println("Checking sessions...");
 					sm.synchCheckSessionTimeouts();
 				}
 				catch(final InterruptedException e)

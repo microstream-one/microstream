@@ -16,13 +16,13 @@ public class MainTestNetworkPersistenceServer
 		
 		run(serverSocketChannel, cc ->
 		{
-			XDebug.debugln("Server is reading data ...");
+			XDebug.println("Server is reading data ...");
 			final Object root = cc.receive();
-			XDebug.debugln("* Server completed reading.");
+			XDebug.println("* Server completed reading.");
 			System.out.println(root);
-			XDebug.debugln("Server is sending response ...");
+			XDebug.println("Server is sending response ...");
 			cc.send("You said: " + root);
-			XDebug.debugln("* Server completed responding.");
+			XDebug.println("* Server completed responding.");
 		});
 	}
 	
@@ -31,9 +31,9 @@ public class MainTestNetworkPersistenceServer
 		while(true)
 		{
 			// accept (wait for) the next client connection, process the request/data sent via it and then close it.
-			XDebug.debugln("Server awaiting connection ...");
+			XDebug.println("Server awaiting connection ...");
 			final SocketChannel socketChannel = UtilTestNetworkPersistence.accept(serverSocketChannel);
-			XDebug.debugln("Server accepted connection. Processing.");
+			XDebug.println("Server accepted connection. Processing.");
 			processNextRequest(socketChannel, logic);
 			UtilTestNetworkPersistence.close(socketChannel);
 		}
@@ -41,7 +41,7 @@ public class MainTestNetworkPersistenceServer
 	
 	public static void processNextRequest(final SocketChannel socketChannel, final Consumer<ComChannel> logic)
 	{
-		XDebug.debugln("Server initializing " + PersistenceManager.class.getSimpleName());
+		XDebug.println("Server initializing " + PersistenceManager.class.getSimpleName());
 		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
 		final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
 			socketChannel,

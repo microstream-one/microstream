@@ -100,22 +100,27 @@ public interface PersistenceTypeDefinitionMemberCreator
 			return null;
 		}
 		
-		private Class<?> tryResolveCurrentType(final String typeName)
+		private Class<?> resolveCurrentTypeOptional(final String typeName)
 		{
-			// can be null for interface types, in which case the typeName is implicitely the effective one.
-			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
-			final String effectiveLatestTypeName = latestTypeEntry == null
-				? typeName
-				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
-			;
+			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+			final String effectiveLatestTypeName = this.resolveRuntimeTypeName(typeName);
 			
-			return this.typeResolver.resolveTypeOptional(effectiveLatestTypeName);
+			return effectiveLatestTypeName == null
+				? null
+				: this.typeResolver.resolveTypeOptional(effectiveLatestTypeName)
+			;
 		}
 		
 		private String resolveRuntimeTypeName(final String typeName)
 		{
-			final PersistenceTypeDescription latestDeclaringType = this.determineLatestTypeEntry(typeName);
-			final String runtimeTypeName = this.typeResolver.resolveRuntimeTypeName(latestDeclaringType);
+			// can be null for interface types, in which case the typeName is implicitely the effective one.
+			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
+			
+			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+			final String runtimeTypeName = latestTypeEntry == null
+				? typeName // (10.10.2018 TM)FIXME: OGS-3: shouldn't the direct type be looked up in the mapping here, too?
+				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
+			;
 			
 			return runtimeTypeName;
 		}
@@ -133,8 +138,9 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberField description
 		)
 		{
-			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
+			final Class<?> currentType = this.resolveCurrentTypeOptional(description.typeName());
 			
+			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeDeclaringType = this.resolveRuntimeTypeName(description.declaringTypeName());
 
 			/*
@@ -149,7 +155,9 @@ public interface PersistenceTypeDefinitionMemberCreator
 			;
 			
 			return PersistenceTypeDefinitionMemberField.New(
-				field == null ? null : field.getDeclaringClass(),
+				field == null
+					? null
+					: field.getDeclaringClass()      ,
 				field                                ,
 				currentType                          ,
 				description.typeName()               ,
@@ -166,7 +174,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
 		)
 		{
-			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
+			final Class<?> currentType = this.resolveCurrentTypeOptional(description.typeName());
 			
 			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
 				description.name()                   ,

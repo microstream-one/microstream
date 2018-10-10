@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
@@ -116,7 +117,10 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 	
 	public default String toRuntimeTypeIdentifier()
 	{
-		return PersistenceTypeDescription.buildTypeIdentifier(this.typeId(), this.runtimeTypeName());
+		return PersistenceTypeDescription.buildTypeIdentifier(
+			this.typeId(),
+			X.coalesce(this.runtimeTypeName(), "[no runtime type]")
+		);
 	}
 	
 	
@@ -144,10 +148,10 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 	
 	
 	public static PersistenceTypeDefinition New(
-		final long                                                    typeId            ,
-		final String                                                  dictionaryTypeName,
-		final String                                                  runtimeTypeName   ,
-		final Class<?>                                                type              ,
+		final long                                                    typeId         ,
+		final String                                                  typeName       ,
+		final String                                                  runtimeTypeName,
+		final Class<?>                                                type           ,
 		final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 	)
 	{
@@ -161,13 +165,13 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, S
 		// type may be null for the sole case of an explicitely mapped to be deleted type.
 		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> internalMembers = members.immure();
 		return new PersistenceTypeDefinition.Implementation(
-			                                                         typeId             ,
-			                                                 notNull(dictionaryTypeName),
-			                                                 notNull(runtimeTypeName)   ,
-			                                                 mayNull(type)              ,
-			                                                         internalMembers    ,
-			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers)   ,
-			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers)   ,
+			                                                         typeId          ,
+			                                                 notNull(typeName)       ,
+			                                                 mayNull(runtimeTypeName),
+			                                                 mayNull(type)           ,
+			                                                         internalMembers ,
+			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers),
+			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers),
 			PersistenceTypeDefinition       .determineVariableLength(internalMembers)
 		);
 	}

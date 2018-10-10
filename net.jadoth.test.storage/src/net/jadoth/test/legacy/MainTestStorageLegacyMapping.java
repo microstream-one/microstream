@@ -131,7 +131,7 @@ public class MainTestStorageLegacyMapping
 			final int                             targetCandidateCount
 		)
 		{
-			XDebug.debugln(
+			XDebug.println(
 				"matching " + source.name()
 				+ "\t<--"+ similarity+", "+sourceCandidateCount+"/"+targetCandidateCount+"-->\t"
 				+ target.name()

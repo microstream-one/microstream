@@ -152,7 +152,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 		 */
 		protected boolean evaluateSessionException(final S session, final Exception e)
 		{
-			XDebug.debugln("Error in session " + session + ": " + e);
+			XDebug.println("Error in session " + session + ": " + e);
 			e.printStackTrace();
 			// simply kick out erroneous session in basic implementation and swallow exception
 			return true;

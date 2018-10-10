@@ -52,7 +52,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			final float nameSimilarity = this.calculateSimilarityByName(sourceMember, targetMember);
 			final float typeSimilarity = this.calculateSimilaritybyType(sourceMember, targetMember);
 			
-			XDebug.debugln(
+			XDebug.println(
 				sourceMember.name()
 				+" ---["+nameSimilarity+","+typeSimilarity+"="+(nameSimilarity + typeSimilarity ) / 2.0f
 				+"]---> "

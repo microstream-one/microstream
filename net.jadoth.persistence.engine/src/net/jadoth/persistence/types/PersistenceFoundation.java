@@ -103,6 +103,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public PersistenceRootsProvider<M> getRootsProvider();
 	
+	public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator();
+	
 	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
@@ -214,17 +216,15 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
+	public F setUnreachableTypeHandlerCreator(PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator);
+	
 	public F setLegacyTypeMapper(PersistenceLegacyTypeMapper<M> legacyTypeMapper);
 	
 	public F setTypeSimilarity(TypeMapping<Float> typeSimilarity);
 	
-	public F setRefactoringMappingProvider(
-		PersistenceRefactoringMappingProvider refactoringMappingProvider
-	);
+	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 	
-	public F setRefactoringResolverProvider(
-		PersistenceRefactoringResolverProvider refactoringResolverProvider
-	);
+	public F setRefactoringResolverProvider(PersistenceRefactoringResolverProvider refactoringResolverProvider);
 	
 	public F setRefactoringLegacyTypeIdentifierBuilders(
 		XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> typeIdentifierBuilders
@@ -238,21 +238,13 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
 	);
 		
-	public F setLegacyMemberMatchingProvider(
-		PersistenceMemberMatchingProvider legacyMemberMatchingProvider
-	);
+	public F setLegacyMemberMatchingProvider(PersistenceMemberMatchingProvider legacyMemberMatchingProvider);
 		
-	public F setLegacyTypeMappingResultor(
-		PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
-	);
+	public F setLegacyTypeMappingResultor(PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor);
 	
-	public F setLegacyTypeHandlerCreator(
-		PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator
-	);
+	public F setLegacyTypeHandlerCreator(PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator);
 	
-	public F setLegacyTypeHandlingListener(
-		PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
-	);
+	public F setLegacyTypeHandlingListener(PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener);
 
 	public F setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
 
@@ -314,9 +306,10 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
-		private PersistenceLegacyTypeMapper<M>           legacyTypeMapper            ;
-		private PersistenceRefactoringMappingProvider    refactoringMappingProvider  ;
-		private PersistenceRefactoringResolverProvider   refactoringResolverProvider ;
+		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
+		private PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
+		private PersistenceRefactoringMappingProvider       refactoringMappingProvider   ;
+		private PersistenceRefactoringResolverProvider      refactoringResolverProvider  ;
 
 		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
@@ -706,6 +699,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.rootResolver;
+		}
+		
+		@Override
+		public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator()
+		{
+			if(this.unreachableTypeHandlerCreator == null)
+			{
+				this.unreachableTypeHandlerCreator = this.dispatch(this.createUnreachableTypeHandlerCreator());
+			}
+			
+			return this.unreachableTypeHandlerCreator;
 		}
 		
 		@Override
@@ -1204,6 +1208,15 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
+		public F setUnreachableTypeHandlerCreator(
+			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+		)
+		{
+			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
+			return this.$();
+		}
+		
+		@Override
 		public F setLegacyTypeMapper(
 			final PersistenceLegacyTypeMapper<M> legacyTypeMapper
 		)
@@ -1347,12 +1360,13 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		{
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
-					this.getTypeHandlerRegistry(),
-					this.getTypeHandlerProvider(),
-					this.getTypeDictionaryManager(),
+					this.getTypeHandlerRegistry()        ,
+					this.getTypeHandlerProvider()        ,
+					this.getTypeDictionaryManager()      ,
 					this.getTypeEvaluatorTypeIdMappable(),
-					this.getTypeMismatchValidator(),
-					this.getLegacyTypeMapper()
+					this.getTypeMismatchValidator()      ,
+					this.getLegacyTypeMapper()           ,
+					this.getUnreachableTypeHandlerCreator()
 				)
 			;
 			return newTypeHandlerManager;
@@ -1502,6 +1516,11 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected PersistenceEagerStoringFieldEvaluator createReferenceFieldMandatoryEvaluator()
 		{
 			return Persistence.defaultReferenceFieldMandatoryEvaluator();
+		}
+		
+		protected PersistenceUnreachableTypeHandlerCreator<M> createUnreachableTypeHandlerCreator()
+		{
+			return PersistenceUnreachableTypeHandlerCreator.New();
 		}
 		
 		protected PersistenceLegacyTypeMapper<M> createLegacyTypeMapper()
