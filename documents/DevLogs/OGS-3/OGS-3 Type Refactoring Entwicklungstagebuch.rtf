@@ -2588,5 +2588,19 @@ Eingefallen: Es muss defaultm\'e4\'dfig irgendeine Form von Callback an den User
 Aber erst mal die TypeHandler ensuring \'c4nderung weitermachen.\par
 Testen. Passt.\par
 \par
+\'c4hm ... hehe ... beim Testen ist mir was zu dem DeletedTypeHandler aufgefallen:\par
+Was oben steht ist alles richtig. In allen diesen F\'e4llen macht so ein Konzept keinen Sinn.\par
+Aber es gibt noch einen Fall:\par
+- man hat programmatisch bereits sichergestellt, dass keine Instanz eines nicht mehr ben\'f6tigten Typs erreichbar ist.\par
+- man l\'f6scht den Typ aus dem Design raus.\par
+- trotzdem liegen aber noch welche davon in der Datenbank, sofern nicht ein l\'fcckenloser file cleanup gemacht wurde.\par
+- die tragen bei der initialisierung ihre TypeId zu den in der Datenbank vorkommenden TypeIds bei.\par
+- f\'fcr alle vorkommenden TypeIds wird w\'e4hrend der Initialisierung ein TypeHandler sichergestellt.\par
+- das scheitert aber, denn es gibt ja den runtime type daf\'fcr nicht mehr.\par
+Bl\'f6d.\par
+DAS war der Usecase f\'fcr den DeletedHandler!\par
+\par
+Also muss der doch wieder rein. Liegt ja noch in einer alten Version im git, kein Problem.\par
+Aber diesmal besser kommentiert. Vielleicht sogar anders benannt. Sowas wie "UnreachableTypeHandler".\par
 }
  
