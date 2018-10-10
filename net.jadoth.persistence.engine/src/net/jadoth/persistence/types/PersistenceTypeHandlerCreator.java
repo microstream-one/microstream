@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 public interface PersistenceTypeHandlerCreator<M>
@@ -62,13 +61,6 @@ public interface PersistenceTypeHandlerCreator<M>
 		@Override
 		public <T> PersistenceTypeHandler<M, T> createTypeHandler(final Class<T> type)
 		{
-
-			// (09.10.2018 TM)FIXME: /!\ DEBUG
-			if(type.getName().contains("ToBeDeleted"))
-			{
-				XDebug.debugln("ToBeDeleted");
-			}
-			
 			// should never happen or more precisely: should only happen for unhandled primitives
 			if(type.isPrimitive())
 			{
