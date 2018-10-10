@@ -8,6 +8,7 @@ public class SimpleClass
 	char   third ;
 	float  second;
 	Object fourth;
+	String fifth ;
 
 	public SimpleClass()
 	{

@@ -47,7 +47,8 @@ public class MainTestStorageLegacyMapping
 				e.first  = 1;
 				e.second = 3.14f;
 				e.third  = 'A';
-				e.fourth = new ToBeDeleted();
+				e.fourth = null;
+				e.fifth  = "String 1";
 			}),
 //			new SimpleClass(1, 3.14f, 'A')
 			new SimpleClass(2, 9.81f, 'B')
@@ -72,12 +73,14 @@ public class MainTestStorageLegacyMapping
 			ROOT.get().iterate(System.out::println);
 			X.on(ROOT.get().get(), e -> {
 				e.third = 'M';
-				e.fourth = new ToBeDeleted();
+//				e.fourth = new ToBeDeleted();
+				e.fourth = null;
 				STORAGE.store(e);
 			});
 			X.on(ROOT.get().at(1), e -> {
 				e.third = '2';
-				e.fourth = new ToBeDeleted();
+//				e.fourth = new ToBeDeleted();
+				e.fourth = null;
 				STORAGE.store(e);
 			});
 			ROOT.get().iterate(System.out::println);

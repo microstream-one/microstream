@@ -280,78 +280,62 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			return this.internalEnsureTypeHandler(type);
 		}
 		
+		private <T> Class<T> validateExistingType(final PersistenceTypeDefinition typeDefinition)
+		{
+			@SuppressWarnings("unchecked") // cast safety is ensured by the type itself and the logic handling it.
+			final Class<T> runtimeType = (Class<T>)typeDefinition.type();
+			if(runtimeType != null)
+			{
+				return runtimeType;
+			}
+			
+			// (10.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Missing runtime type for required type handler for type: " + typeDefinition.runtimeTypeName()
+			);
+		}
+		
 		@Override
 		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
-			/* (09.10.2018 TM)FIXME: OGS-3: ensure required TypeHandlers
+			/*
 			 * This method must make sure that the passed typeDefinition gets a functional type handler,
 			 * which means it must have a non-null runtime type.
 			 * Refactoring mappings have already been considered at the type definition's creation time,
-			 * meaning if it has no non-null runtime type by now, it is an error.
-			 * see task in determineRuntimeTypeHandler.
+			 * meaning if it has no runtime type by now, it is an error. Either a missing refactoring mapping
+			 * or maybe even a type that has been deleted in the design without replacement that should not have been.
 			 */
 			
-			final PersistenceTypeHandler<M, ?> handler; // quick read-only check for already registered type
-			if((handler = this.typeHandlerRegistry.lookupTypeHandler(typeDefinition.typeId())) != null)
-			{
-				@SuppressWarnings("unchecked" ) // cast safety ensured by TypeDefinition concept logic.
-				final PersistenceTypeHandler<M, T> typedHandler = (PersistenceTypeHandler<M, T>)handler;
-				return typedHandler;
-			}
+			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.determineRuntimeTypeHandler(typeDefinition);
-			
-			/*
-			 * check if a legacy type handler is needed
-			 * Note:
-			 * This method is currently only called for creating legacy type mappings, so this check will
-			 * (... should ... must) always fail and a legacy type handler will (must) be created.
-			 * However, the method in general should very well check if such a legacy handler is required at all.
-			 * Just in case it gets called from another context in the future.
-			 */
+			// check if the type definition is up to date or if a legacy type handler is needed
 			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
 			{
+				XDebug.debugln("Up to date type handler : " + typeDefinition.runtimeTypeName());
 				return runtimeTypeHandler;
 			}
 			
-			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
-				typeDefinition,
-				runtimeTypeHandler
-			);
+			XDebug.debugln("Requires legacy type handler : " + typeDefinition.typeName());
 			
+			// for non-up-to-date type definitions, a legacy type handler must be ensured (looked up or created)
+			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
+			final PersistenceTypeDefinition    legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T> currentTypeHandler
+		)
+		{
+			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
+				legacyTypeDefinition,
+				currentTypeHandler
+			);
 			this.registerLegacyTypeHandler(legacyTypeHandler);
 			
 			return legacyTypeHandler;
 		}
-		
-		/**
-		 * Determines the TypeHandler for the runtime type is present.
-		 * 
-		 * @param typeDefinition
-		 * @return
-		 */
-		private <T> PersistenceTypeHandler<M, T> determineRuntimeTypeHandler(
-			final PersistenceTypeDefinition typeDefinition
-		)
-		{
-			// (09.10.2018 TM)FIXME: OGS-3: runtime Type may never be null for a required type
-			
-			// can only be null if an explicit mapping marked the type as deleted.
-			final Class<?> runtimeType = typeDefinition.type();
-			if(runtimeType == null)
-			{
-				// return null to indicate deleted type.
-				return null;
-			}
-			
-			@SuppressWarnings("unchecked") // cast safety is guaranteed by the type itself ("runtimeType" IS the "T")
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler =
-				(PersistenceTypeHandler<M, T>)this.ensureTypeHandler(runtimeType)
-			;
-			
-			return runtimeTypeHandler;
-		}
-		
+				
 		@Override
 		public void ensureTypeHandlersByTypeIds(final XGettingEnum<Long> typeIds)
 		{
@@ -554,7 +538,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
 			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
 			{
-				this.deriveTypeHandler(typeLineage, matches, newTypeHandlers);
+				this.deriveRuntimeTypeHandler(typeLineage, matches, newTypeHandlers);
 			}
 			
 			// pass all misfits and the typeDictionary to a PersistenceTypeMismatchEvaluator
@@ -614,13 +598,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			});
 		}
 		
-		private <T> void deriveTypeHandler(
+		private <T> void deriveRuntimeTypeHandler(
 			final PersistenceTypeLineage                                             typeLineage            ,
 			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
 			final HashEnum<PersistenceTypeHandler<M, ?>>                             unmatchableTypeHandlers
 		)
 		{
-			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(typeLineage.type());
+			final Class<?> runtimeType = typeLineage.type();
+			if(runtimeType == null)
+			{
+				/*
+				 * Type lineage has no runtime type, so there can't be a runtime type handler derived for it.
+				 * This does not have to be an error. If the type lineage represents an outdated type that is not
+				 * used anymore, it can remain without runtime type. The ensuring of required runtime type handlers
+				 * later in the initialization will validate that.
+				 */
+				return;
+			}
+			
+			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(runtimeType);
 						
 			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{

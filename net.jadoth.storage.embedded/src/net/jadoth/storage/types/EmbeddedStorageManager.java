@@ -196,7 +196,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			return !loadedRoots.hasChanged();
 		}
 		
-		
 		private void ensureRequiredTypeHandlers()
 		{
 			// make sure a functional type handler is present for every occuring type id or throw an exception.
