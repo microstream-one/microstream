@@ -5,7 +5,11 @@ import static net.jadoth.X.notNull;
 import java.util.Scanner;
 
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -91,8 +95,8 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		@SuppressWarnings("resource") // the bloody scanner would auto-close System.in. Hilarious JDK code again.
 		final Scanner scanner = new Scanner(System.in);
 		
-		final String inputLine = scanner.nextLine();
-		if('y' == Character.toLowerCase(inputLine.trim().charAt(0)))
+		final String input = XChars.trimEmptyToNull(scanner.nextLine());
+		if(input != null && 'y' == Character.toLowerCase(input.charAt(0)))
 		{
 			return true;
 		}
@@ -120,9 +124,18 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResult<M, ?> result
 	)
 	{
-		vs.add(result.legacyTypeDefinition().toTypeIdentifier()).lf();
+		vs
+		.lf()
+		.add("Legacy type mapping required for legacy type ").lf()
+		.add(result.legacyTypeDefinition().toTypeIdentifier()).lf()
+		;
 		
 		return vs;
+	}
+	
+	private static void assembleMember(final VarString vs, final PersistenceTypeDefinitionMember member)
+	{
+		vs.add(member.typeName()).blank().add(member.uniqueName());
 	}
 	
 	protected VarString assembleMapping(
@@ -132,8 +145,45 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResult<M, ?>                                      result
 	)
 	{
-		// (10.10.2018 TM)FIXME: OGS-3: print mapping
-		vs.add("old ---magic--> current");
+		// (11.10.2018 TM)FIXME: OGS-3: 1005001#field2 is missing in the mapping.
+		// (11.10.2018 TM)FIXME: /!\ DEBUG
+		if(result.legacyTypeDefinition().typeId() == 1005001)
+		{
+			XDebug.println("1005001");
+		}
+		
+		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers =
+			result.currentToLegacyMembers()
+		;
+		final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers = result.newCurrentMembers();
+		
+		for(final PersistenceTypeDefinitionMember member : result.currentTypeHandler().membersInDeclaredOrder())
+		{
+			final PersistenceTypeDefinitionMember mappedLegacyMember = currentToLegacyMembers.get(member);
+			if(mappedLegacyMember != null)
+			{
+				assembleMember(vs, mappedLegacyMember);
+				vs.add("\t-> ");
+				assembleMember(vs, member);
+				vs.lf();
+				continue;
+			}
+			if(newCurrentMembers.contains(member))
+			{
+				vs.add("[new]\t");
+				assembleMember(vs, member);
+				vs.lf();
+				continue;
+			}
+			// (11.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException("Inconsistent current type member mapping: " + member.uniqueName());
+		}
+		
+		for(final PersistenceTypeDefinitionMember e : result.deletedLegacyMembers())
+		{
+			assembleMember(vs, e);
+			vs.add("\t[discarded]").lf();
+		}
 		
 		return vs;
 	}
@@ -143,7 +193,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResult<M, ?> result
 	)
 	{
-		vs.lf().add("You like? (y/n)");
+		vs.add("Write 'y' to accept the mapping.");
 		
 		return vs;
 	}

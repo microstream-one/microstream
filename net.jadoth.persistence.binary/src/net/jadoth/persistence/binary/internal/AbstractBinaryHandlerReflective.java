@@ -7,9 +7,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.ConstHashEnum;
 import net.jadoth.collections.EqConstHashEnum;
 import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
@@ -22,6 +25,7 @@ import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.reflect.XReflect;
@@ -108,19 +112,19 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return r * BinaryPersistence.oidLength() + primitiveTotalBinaryLength;
 	}
 	
-	protected static final XImmutableEnum<PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
+	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
 		final Field[]                        persistentOrderFields,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		final BulkList<PersistenceTypeDefinitionMemberField> members = BulkList.New(persistentOrderFields.length);
+		final HashTable<Field, PersistenceTypeDefinitionMemberField> members = HashTable.New();
 		
 		for(final Field field : persistentOrderFields)
 		{
-			members.add(declaredField(field, lengthResolver));
+			members.add(field, declaredField(field, lengthResolver));
 		}
 		
-		return validateAndImmure(members);
+		return members;
 	}
 
 
@@ -140,7 +144,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	private final long                                                 binaryContentLength    ;
 	private final BinaryValueStorer[]                                  binaryStorers          ;
 	private final BinaryValueSetter[]                                  memorySetters          ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> members                ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInPersistdOrder                ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInDeclaredOrder ;
 	private final boolean                                              hasReferences          ;
 
 
@@ -185,8 +190,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			eagerStoringFieldEvaluator
 		);
 		
+		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembers =
+			createTypeDescriptionMembers(fieldsPersistdOrder, lengthResolver)
+		;
+		
 		// member fields are created in persistent order, collected, validated and immured.
-		this.members = createTypeDescriptionMembers(fieldsPersistdOrder, lengthResolver);
+		this.membersInPersistdOrder = validateAndImmure(typeDescriptionMembers.values());
+		this.membersInDeclaredOrder = resolveMembersInDeclaredOrder(fieldsDeclaredOrder, typeDescriptionMembers);
 		
 		// reference field offsets fit either way, because the relative order of reference fields is maintained.
 		this.allBinaryOffsets = XVM.objectFieldOffsets(fieldsPersistdOrder);
@@ -202,6 +212,21 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	protected static XImmutableEnum<PersistenceTypeDefinitionMemberField> resolveMembersInDeclaredOrder(
+		final Field[]                                                    fieldsDeclaredOrder                 ,
+		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembersPersistedOrder
+	)
+	{
+		final BulkList<PersistenceTypeDefinitionMemberField> membersDeclaredOrder = BulkList.New(fieldsDeclaredOrder.length);
+		
+		for(final Field field : fieldsDeclaredOrder)
+		{
+			membersDeclaredOrder.add(typeDescriptionMembersPersistedOrder.get(field));
+		}
+		
+		return ConstHashEnum.New(membersDeclaredOrder);
+	}
 	
 	@Override
 	public XGettingEnum<Field> instanceFields()
@@ -230,7 +255,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMemberField> members()
 	{
-		return this.members;
+		return this.membersInPersistdOrder;
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+	{
+		return this.membersInDeclaredOrder;
 	}
 
 	@Override
