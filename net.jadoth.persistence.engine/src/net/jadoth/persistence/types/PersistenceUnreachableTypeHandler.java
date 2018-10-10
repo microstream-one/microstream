@@ -24,7 +24,7 @@ import net.jadoth.swizzling.types.SwizzleFunction;
  * @param <M>
  * @param <T>
  */
-public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
+public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLegacyTypeHandler<M, T>
 {
 	@Override
 	public default boolean hasInstanceReferences()
@@ -35,13 +35,13 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceType
 	@Override
 	public default void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
 	{
-		// no-op (or throw exception?)
+		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}
 
 	@Override
 	public default void iteratePersistedReferences(final M medium, final _longProcedure iterator)
 	{
-		// no-op: whatever bytes representing references have been loaded for the instance, they shall be ignored.
+		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}
 	
 	@Override

@@ -2604,5 +2604,23 @@ Also muss der doch wieder rein. Liegt ja noch in einer alten Version im git, kei
 Aber diesmal besser kommentiert. Vielleicht sogar anders benannt. Sowas wie "UnreachableTypeHandler".\par
 \par
 So, fertig. Jetzt dann noch testen.\par
+\par
+\par
+\par
+Testen:\par
+Paar Kleinigkeiten, dann passts.\par
+\par
+Auch gleich testen, dass die richtige Exception kommt, wenn man einen Unreachable/Deleted Type eintr\'e4gt, obwohl es noch instanzen davon gibt.\par
+\par
+Seltsamerweise wirre Exception:\par
+Anstatt beim Laden den UnreachableHandler zu verwenden und die exception dort drin zu werfen, kommt als exception, dass gar kein TypeHandler gefunden werden konnte.\par
+Schlecht.\par
+Debuggen.\par
+\par
+Der Lookup schaut in PersistenceTypeHandlerRegistry#handlersByTypeId rein.\par
+\par
+Ah, ich wei\'df, warum! ICh hab zwar einen U.Handler erzeugt, aber nicht registriert. Haha.\par
+Fixen. Testen. Passt.\par
+\par
 }
  

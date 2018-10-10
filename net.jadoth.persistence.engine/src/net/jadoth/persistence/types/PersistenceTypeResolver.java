@@ -11,10 +11,10 @@ public interface PersistenceTypeResolver
 		return this.resolveType(runtimeTypeName);
 	}
 	
-	public default Class<?> resolveRuntimeTypeOptional(final PersistenceTypeDescription typeDescription)
+	public default Class<?> tryResolveRuntimeType(final PersistenceTypeDescription typeDescription)
 	{
 		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
-		return this.resolveTypeOptional(runtimeTypeName);
+		return this.tryResolveType(runtimeTypeName);
 	}
 	
 	public default Class<?> resolveType(final String typeName)
@@ -22,9 +22,9 @@ public interface PersistenceTypeResolver
 		return Persistence.resolveType(typeName);
 	}
 	
-	public default Class<?> resolveTypeOptional(final String typeName)
+	public default Class<?> tryResolveType(final String typeName)
 	{
-		return Persistence.resolveTypeOptional(typeName);
+		return Persistence.tryResolveType(typeName);
 	}
 		
 }

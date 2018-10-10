@@ -9,7 +9,6 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.equality.Equalator;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
@@ -302,16 +301,25 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return null;
 			}
 			
-			// must check for an already existing type handler before creating a new one
-			final PersistenceTypeHandler<M, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
-			if(alreadyRegisteredTypeHandler != null)
+			synchronized(this.typeHandlerRegistry)
 			{
-				@SuppressWarnings("unchecked")
-				final PersistenceTypeHandler<M, T> casted = (PersistenceTypeHandler<M, T>)alreadyRegisteredTypeHandler;
-				return casted;
+				// must check for an already existing type handler before creating a new one
+				final PersistenceTypeHandler<M, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
+				if(alreadyRegisteredTypeHandler != null)
+				{
+					@SuppressWarnings("unchecked")
+					final PersistenceTypeHandler<M, T> casted = (PersistenceTypeHandler<M, T>)alreadyRegisteredTypeHandler;
+					return casted;
+				}
+				
+				final PersistenceUnreachableTypeHandler<M, T> newHandler =
+					this.unreachableTypeHandlerCreator.createUnreachableTypeHandler(typeDef)
+				;
+				this.registerLegacyTypeHandler(newHandler);
+				
+				return newHandler;
 			}
 			
-			return this.unreachableTypeHandlerCreator.createUnreachableTypeHandler(typeDef);
 		}
 		
 		@Override
@@ -324,8 +332,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			 * meaning if it has no runtime type by now, it is an error. Either a missing refactoring mapping
 			 * or maybe even a type that has been deleted in the design without replacement that should not have been.
 			 */
-			
-			
+						
 			final PersistenceTypeHandler<M, T> unreachableHandler = this.checkForUnreachableType(typeDefinition);
 			if(unreachableHandler != null)
 			{
@@ -339,11 +346,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// check if the type definition is up to date or if a legacy type handler is needed
 			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
 			{
-				XDebug.println("Up to date type handler : " + typeDefinition.runtimeTypeName());
+//				XDebug.println("Up to date type handler : " + typeDefinition.runtimeTypeName());
 				return runtimeTypeHandler;
 			}
 			
-			XDebug.println("Requires legacy type handler : " + typeDefinition.typeName());
+//			XDebug.println("Requires legacy type handler : " + typeDefinition.typeName());
 			
 			// for non-up-to-date type definitions, a legacy type handler must be ensured (looked up or created)
 			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);

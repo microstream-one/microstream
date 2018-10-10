@@ -181,7 +181,7 @@ public class Persistence extends Swizzle
 	}
 	
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveTypeOptional(final String typeName)
+	public static <T> Class<T> tryResolveType(final String typeName)
 	{
 		try
 		{

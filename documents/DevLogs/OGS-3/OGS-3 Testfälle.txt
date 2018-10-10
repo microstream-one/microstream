@@ -46,12 +46,12 @@ OGS-3 Testfälle
 
 4.) Sonderfälle:
 4.1.) unchanged structure (PersistenceLegacyTypeHandler.Wrap)
-4.2.) deleted handler
+4.2.) unreachable handler
 
 
 - References und Primitives.
 - Legacy Handling listener
-- deleted Markierung mit erreichbaren Instanzen (muss exception werfen) und ohne (muss ohne exception durchlaufen)
+- unreachable Markierung mit erreichbaren Instanzen (muss exception werfen) und ohne (muss ohne exception durchlaufen)
 - Instanz mit legacy type mapping laden, abspeichern, wieder laden: diesmal mit aktuellem TypeHandler und aktueller TypeId.
 
 
