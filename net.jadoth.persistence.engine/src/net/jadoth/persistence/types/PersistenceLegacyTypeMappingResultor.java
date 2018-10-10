@@ -38,11 +38,6 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		/* (10.10.2018 TM)FIXME: OGS-3: Callback LegacyTypeMappingResultor
-		 * An - optional - implementation is required that does some form of callback to the user to acknowledge
-		 * a potential mapping. In the most simple form (and to avoid dependencies), printing to the console and
-		 * asking for a y/n would suffice. It can easily be replaced by an implementation using a GUI or whatever.
-		 */
 		return createLegacyTypeMappingResult(legacyTypeDefinition, currentTypeHandler, explicitMappings, matchedMembers);
 	}
 	

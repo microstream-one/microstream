@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
+import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
 import net.jadoth.swizzling.types.Swizzle;
@@ -1578,7 +1579,9 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 				
 		protected PersistenceLegacyTypeMappingResultor<M> createLegacyTypeMappingResultor()
 		{
-			return PersistenceLegacyTypeMappingResultor.New();
+			return InquiringLegacyTypeMappingResultor.New(
+				PersistenceLegacyTypeMappingResultor.New()
+			);
 		}
 		
 		protected PersistenceLegacyTypeHandlerCreator<M> createLegacyTypeHandlerCreator()
