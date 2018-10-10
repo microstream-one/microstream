@@ -2,10 +2,10 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
+import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XMap;
-import net.jadoth.collections.types.XSet;
+import net.jadoth.collections.types.XTable;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.matching.MultiMatch;
 
@@ -51,11 +51,13 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	)
 	{
 		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers;
 		final HashEnum<PersistenceTypeDefinitionMember>                                   deletedLegacyMembers  ;
 		final HashEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers     ;
 		
 		combineMappings(
 			legacyToCurrentMembers = HashTable.New(),
+			currentToLegacyMembers = HashTable.New(),
 			deletedLegacyMembers   = HashEnum.New() ,
 			newCurrentMembers      = HashEnum.New() ,
 			currentTypeHandler                      ,
@@ -67,15 +69,17 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			legacyTypeDefinition  ,
 			currentTypeHandler    ,
 			legacyToCurrentMembers,
+			currentToLegacyMembers,
 			deletedLegacyMembers  ,
 			newCurrentMembers
 		);
 	}
 	
 	public static void combineMappings(
-		final XMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>        legacyToCurrentMembers,
-		final XSet<PersistenceTypeDefinitionMember>                                         deletedLegacyMembers  ,
-		final XSet<PersistenceTypeDefinitionMember>                                         newCurrentMembers     ,
+		final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      legacyToCurrentMembers,
+		final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      currentToLegacyMembers,
+		final XEnum<PersistenceTypeDefinitionMember>                                        deletedLegacyMembers  ,
+		final XEnum<PersistenceTypeDefinitionMember>                                        newCurrentMembers     ,
 		final PersistenceTypeHandler<?, ?>                                                  currentTypeHandler    ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
@@ -83,16 +87,27 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	{
 		legacyToCurrentMembers.addAll(explicitMappings);
 		
-		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
+		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> sourceMatches =
 			matchedMembers.result().sourceMatches()
 		;
-		
-		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
+		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : sourceMatches)
 		{
 			if(!legacyToCurrentMembers.add(match.key(), match.value()))
 			{
 				// (04.10.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Inconsistency for legacy type member " + match.key().uniqueName());
+			}
+		}
+		
+		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> targetMatches =
+			matchedMembers.result().targetMatches()
+		;
+		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : targetMatches)
+		{
+			if(!currentToLegacyMembers.add(match.value(), match.key()))
+			{
+				// (04.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Inconsistency for current type member " + match.value().uniqueName());
 			}
 		}
 		

@@ -26,6 +26,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
 	
+	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+	{
+		// by default, there is no difference between members (in persisted order) and members in declared order.
+		return this.members();
+	}
+	
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow

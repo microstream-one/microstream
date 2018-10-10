@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.XUtilsCollection;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.reflect.XReflect;
 
 public interface PersistenceTypeDefinitionMemberCreator
 {
@@ -127,10 +126,24 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		private Field resolveField(final String declaringClassName, final String fieldName)
 		{
-			final Class<?> declaringClass = this.typeResolver.resolveType(declaringClassName);
-			final Field field = XReflect.getDeclaredField(declaringClass, fieldName);
+			final Class<?> declaringClass = this.typeResolver.tryResolveType(declaringClassName);
+			if(declaringClass == null)
+			{
+				// declaring class name might no longer be resolvable
+				return null;
+			}
 			
-			return field;
+			final Field field;
+			try
+			{
+				field = declaringClass.getDeclaredField(fieldName);
+				return field;
+			}
+			catch(final NoSuchFieldException e)
+			{
+				// field name might no longer be resolvable
+				return null;
+			}
 		}
 		
 		@Override
