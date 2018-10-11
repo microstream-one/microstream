@@ -6,7 +6,6 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.HashTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
@@ -90,13 +89,6 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			// (11.10.2018 TM)FIXME: OGS-3: 1005001#field2 is missing in the mapping.
-			// (11.10.2018 TM)FIXME: /!\ DEBUG
-			if(legacyTypeDefinition.typeId() == 1005001)
-			{
-				XDebug.println("1005001");
-			}
-			
 			// explicit mappings take precedence
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings =
 				this.createExplicitMappings(legacyTypeDefinition, currentTypeHandler)

@@ -24,6 +24,21 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	 */
 	public KeyValue<String, String> lookup(String sourceIdentifier);
 	
+	@Override
+	public default String resolveRuntimeTypeName(final String descriptionTypeName)
+	{
+		final KeyValue<String, String> entry = this.lookup(descriptionTypeName);
+		
+		if(entry == null)
+		{
+			// no mapping entry, return the descriptionTypeName itself
+			return descriptionTypeName;
+		}
+
+		// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+		return entry.value();
+	}
+	
 	/**
 	 * Returns a key-value pair with the passed source member as the key and a mapped target member
 	 * as the value. The value can be potentially null to indicate deletion.
