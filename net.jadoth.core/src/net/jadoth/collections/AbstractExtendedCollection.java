@@ -17,7 +17,7 @@ import net.jadoth.exceptions.IndexBoundsException;
  * All code using the optimisation methods in here has to ensure that it can only be legally called for implementations
  * of {@link XAddingCollection}, for example by using {@link XAddingCollection} as the concrete parameter type.
  * <p>
- * Note that this technique of using {@link UnsupportedOperationException} is explicitely not comparable to the
+ * Note that this technique of using {@link UnsupportedOperationException} is explicitly not comparable to the
  * JDK's approach like in {@link java.util.Collections#unmodifiableCollection(java.util.Collection)} where a
  * general pupose type (java.util.Collection) is implemented intentionally broken to achieve a certain reduced
  * behavior,

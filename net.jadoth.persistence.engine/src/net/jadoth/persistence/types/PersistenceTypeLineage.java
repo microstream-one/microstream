@@ -33,7 +33,7 @@ public interface PersistenceTypeLineage
 	)
 	{
 		return new PersistenceTypeLineage.Implementation(
-			mayNull(runtimeTypeName), // can be null for types explicitely mapped as having no runtime type.
+			mayNull(runtimeTypeName), // can be null for types explicitly mapped as having no runtime type.
 			mayNull(runtimeType)      // can be null if the type name cannot be resolved to a runtime class.
 		);
 	}

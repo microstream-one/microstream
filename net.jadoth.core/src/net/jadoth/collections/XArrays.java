@@ -1235,7 +1235,7 @@ public final class XArrays
 		{
 			if(indices[i] >= targetLength)
 			{
-				// indices < 0 explicitely valid for allowing items to be skipped
+				// indices < 0 explicitly valid for allowing items to be skipped
 				throw new ArrayIndexOutOfBoundsException(indices[i]);
 			}
 		}

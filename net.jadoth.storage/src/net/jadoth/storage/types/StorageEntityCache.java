@@ -788,7 +788,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// (17.11.2016 TM)NOTE: moved outside
 //			this.markEntityForChangedData(entity);
 
-			// must explicitely touch the entity to overwrite initial timestamp
+			// must explicitly touch the entity to overwrite initial timestamp
 			entity.touch();
 
 			return entity;

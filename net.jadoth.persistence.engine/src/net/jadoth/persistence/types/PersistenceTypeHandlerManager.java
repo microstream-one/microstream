@@ -202,7 +202,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				/* Note about interfaces:
 				 * (Regarding a classe's directly implemented interfaces as well as all super interfaces
 				 * of an interface type)
-				 * As long as an interface doesn't get passed here explicitely (e.g. as a field's type),
+				 * As long as an interface doesn't get passed here explicitly (e.g. as a field's type),
 				 * it is ignored intentionally because it can be assumed that it is of no concern for
 				 * persistence (i.e. a consistent persistent type hierarchy).
 				 * If this will be proved to be wrong, ensuring type's interfaces can be inserted here.
@@ -339,7 +339,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return unreachableHandler;
 			}
 			
-			// for all types not explicitely marked as unreachable, the runtime type is essential.
+			// for all types not explicitly marked as unreachable, the runtime type is essential.
 			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
 			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			

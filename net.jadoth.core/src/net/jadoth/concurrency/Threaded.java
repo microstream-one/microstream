@@ -51,7 +51,7 @@ import net.jadoth.reference.Referencing;
  * <p>
  * The striking feature about this class is that only those procedures are synchronized that modify the internal storage
  * commonly used for all threads, while procedures that don't modify shared structures (like {@link #get()} or
- * {@link #set(E)} to modify an existing association) are explicitely NOT synchronized, yet still thread-safe due to
+ * {@link #set(E)} to modify an existing association) are explicitly NOT synchronized, yet still thread-safe due to
  * exploiting special characteristics of {@link Thread} identities that avoid concurrency issues (simple example:
  * by using the {@link Thread} instance itself as the hash key for associations, each thread can only find its own
  * association and never reach the others).<br>

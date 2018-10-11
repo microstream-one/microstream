@@ -215,7 +215,7 @@ public abstract class AbstractConfig implements Config
 
 			final String variable = elements[i + 1];
 
-			// custom variable explicitely allow equal names as they serve as a kind of loop stopper.
+			// custom variable explicitly allow equal names as they serve as a kind of loop stopper.
 			String resolved = customVariables == null
 				? null
 				: customVariables.get(variable)

@@ -170,7 +170,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		{
 			for(int i = 0; i < oids.length; i++)
 			{
-				// instances can be null when they are explicitely registered to be null in the refactoring
+				// instances can be null when they are explicitly registered to be null in the refactoring
 				if(instances[i] == null)
 				{
 					continue;

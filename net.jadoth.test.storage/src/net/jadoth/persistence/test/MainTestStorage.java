@@ -101,7 +101,7 @@ public class MainTestStorage extends TestStorage
 		{
 			XDebug.println("round "+i);
 
-			// do one round of explicitely issued house keeping
+			// do one round of explicitly issued house keeping
 			connection.store(instance);
 			storageCleanup(connection);
 

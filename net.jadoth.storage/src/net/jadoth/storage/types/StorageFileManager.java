@@ -1298,7 +1298,7 @@ public interface StorageFileManager
 //			);
 
 			/*
-			 * An explicitely issues file cleanup check has to reset the cursor (start from beginning) and no matter
+			 * An explicitly issues file cleanup check has to reset the cursor (start from beginning) and no matter
 			 * if it completes or not, the cursor has to be reset again at the end.
 			 * Rationale:
 			 * 1.)

@@ -203,7 +203,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 					currentToLegacyMembers.add(trgMember, explicitSourceMember);
 					continue;
 				}
-				// no such thing as an explicitely defined new current member. Failure to map means new implicitly.
+				// no such thing as an explicitly defined new current member. Failure to map means new implicitly.
 				/* (11.10.2018 TM)TODO: Legacy Type Mapping: explicit new current member definition?
 				 * unmatched current members are new, sure, but how to tell the multi matching logic
 				 * to ignore a new member that is VERY similar, yet not related to a legacy member?

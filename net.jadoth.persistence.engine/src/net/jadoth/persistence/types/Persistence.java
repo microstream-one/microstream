@@ -68,7 +68,7 @@ public class Persistence extends Swizzle
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return new Class<?>[]
 		{
-			// types that are explicitely marked as unpersistable. E.g. the persistence logic itself!
+			// types that are explicitly marked as unpersistable. E.g. the persistence logic itself!
 			Unpersistable.class,
 			
 			// system stuff (cannot be restored intrinsically due to ties to JVM internals)

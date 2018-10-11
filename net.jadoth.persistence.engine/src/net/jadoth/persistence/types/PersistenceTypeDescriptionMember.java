@@ -205,7 +205,7 @@ public interface PersistenceTypeDescriptionMember
 		final Equalator<PersistenceTypeDescriptionMember>                  equalator
 	)
 	{
-		// (01.07.2015 TM)NOTE: must iterate explicitely to guarantee equalator calls (avoid size-based early-aborting)
+		// (01.07.2015 TM)NOTE: must iterate explicitly to guarantee equalator calls (avoid size-based early-aborting)
 		final Iterator<? extends PersistenceTypeDescriptionMember> it1 = members1.iterator();
 		final Iterator<? extends PersistenceTypeDescriptionMember> it2 = members2.iterator();
 

@@ -115,7 +115,7 @@ public interface CsvRecordParserCharArray
 			// skip white spaces and do a quick check for comment start symbol before setting up all the symbol stuff
 			while(i < iBound)
 			{
-				// check control chars explicitely before skipping whitespaces as they might be whitespaces themselves
+				// check control chars explicitly before skipping whitespaces as they might be whitespaces themselves
 				if(input[i] == terminator || input[i] == valueSeparator || input[i] == recordSeparator)
 				{
 					return i;
