@@ -114,10 +114,10 @@ public interface PersistenceTypeDefinitionMemberCreator
 		{
 			// can be null for interface types, in which case the typeName is implicitely the effective one.
 			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
-			
+						
 			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeTypeName = latestTypeEntry == null
-				? typeName // (10.10.2018 TM)FIXME: OGS-3: shouldn't the direct type be looked up in the mapping here, too?
+				? this.typeResolver.resolveRuntimeTypeName(typeName)
 				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
 			;
 			

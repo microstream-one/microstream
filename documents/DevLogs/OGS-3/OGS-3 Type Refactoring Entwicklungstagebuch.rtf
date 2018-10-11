@@ -2669,5 +2669,15 @@ TODO durch entsprechenden Kommentar ersetzen.\par
 \'dcberarbeitetes result building testen.\par
 Passt auf Anhieb.\par
 \par
+\par
+Jetzt den Punkt von oben anschauen:\par
+1.) PersistenceTypeDefinitionMemberCreator#resolveRuntimeTypeName sollte den typeName selbst auch im Refactoring nachschlagen.\par
+\par
+Da es hier nur um einen blanken typeName geht, braucht man hier nicht wieder mords IdentifierBuilder, sondern es reicht ein simpler String lookup.\par
+Den bietet der TypeResolver eh schon. Genauer gesagt der RefactoringResolver, aber dann zieh ich eine entsprechende Methode einfach hoch. Hehe.\par
+Schnell implementieren.\par
+Passt.\par
+\par
+Hm. Dann w\'e4r der letzte offene Punkt, den ich aktuell sehe, die Sache mit dem explicit new current member definition.\par
 }
  
