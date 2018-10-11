@@ -1,0 +1,143 @@
+OGS Legacy Type Mapping
+2018-10-11 TM.
+
+Kurze Einführung: Was ist das?
+
+Es geht schlicht um folgendes:
+Wenn man in der Entwicklungsumgebung die Felder einer Klasse verändert, passt die Datenstruktur der Klasse nicht mehr zu der Datenstruktur, wie die abgespeicherten Datensätze in der Datenbank liegen. Ganz einfaches Beispiel: vor der Änderung war ein Datensatz 40 Bytes lang. Danach, mit sagen wir einem int Feld zusätzlich, müsste er 44 Bytes lang sein. In den Datenbankdateien liegen die Datensätze dieses Typs aber nach wie vor mit 40 Bytes Länge. Das ist doof. Das lässt nämlich Datenbank und Anwendung zur Laufzeit inkompatibel zueinander werden. Bisher prüft die OGS Initialisierung auf solche Fälle und bricht dann hart mit einem Fehler ab.
+Das heißt zwar auch bisher nicht, dass sich mit OGS Klassen nie wieder ändern dürfen. Es gab schon Möglichkeit, das zu ändern, aber die waren mühsam und wenn man nicht ganz genau aufgepasst hat, auch gefährlich.
+Besser wäre, wenn man die Typänderung irgendwie in die OGS Typ-Verwaltung "reinbringen" könnte. Am besten schön automatisch.
+Heißt: Ein "Type Refactoring" muss her.
+So wie in der Entwicklungsumgebung auch: Man ändert die Klasse an einer Stelle und das System kümmert sich automatisch um den Rest. Das Dumme bei einer Datenbank ist, dass der "Rest" unter Umständen viele Gigabyte an Datensätzen sind, die bei jeder Änderung einmal umkopiert und umgeformt werden müssten, um sie auf den aktuellen Stand zu bringen. Kann man machen, ist aber nicht so toll.
+Besser ist: Die alten Typen ("Altlasten", "Altdaten", "Hinterlassenschaften", englisch "Legacy") erst live beim Laden so uminterpretieren, dass sie zu dem jeweils aktuellen Typ passen. Also "mappen". Eben ein "Legacy Type Mapping".
+Damit muss überhaupt nichts umkopiert werden. Alle Datensätze sind, so wie sie mal abgespeichert wurden, kompatibel mit allen anderen Versionen ihres Typs. Einfach, indem beim Laden uminterpretiert wird.
+
+Man könnte das mit einem ziemlich manuellen Ansatz machen. So ähnlich wie ALTER TABLE bei SQL. Aber auf Dauer ist das ja lästig. Bei jeder kleinen Änderung immer manuell ein Mapping eintippen, mitpflegen, ausführen, bei der Entwicklung und auf dem Produktivsystem nochmal. Bäh. Viel cooler wäre doch, wenn der Typabgleich ein bisschen "mitdenken" könnte, oder? Das heißt: Änderungen selbst analysieren und erkennen. Wenn die aktuelle Klasse ein zusätzliches Feld "String note" hat, dann wird das wohl neu dazugekommen sein und alle bisherigen Datensätze werden halt so interpretiert, dass dieses Feld beim Laden null ist. Ähnlich bei weggefallenen Feldern oder bei einer Reihenfolgenänderung. Noch cooler: Wenn sich ein Feld von "int count" auf "int articleCount" ändert, dann, mei, muss man als Software halt ein bisschen "mitdenken" und erkennen, dass das eigentlich das gleiche Feld ist, nur umbenannt. Menschen können das. Programme auch. Nennt sich "Heuristik". In diesem Fall Ähnlichkeitsabschätzung.
+Genau das macht das Legacy Type Mapping.
+
+Das bedeutet: Im einfachsten Fall muss man für eine Typänderung ... gar nichts machen.
+
+Die Typanalyse versucht, automatisch zu erkennen, welche Felder neu sind, weggefallen sind, an anderer Stelle stehen oder nur geringfügig geändert wurden.
+
+Ich habe das mal mit einem Beispiel auf die Spitze getrieben:
+
+[TODO: Person Beispiel und Screenshot mit Erklärung]
+
+
+Allerdings:
+Genau wie Menschen, die Ähnlichkeiten abschätzen, dabei Fehler machen können, können auch Programme Fehler machen, wenn sie sich mal auf logisch gesehen so "dünnes Eis" begeben. Da ist nichts mehr mit absoluter Korrektheit, die man eigentlich von Software kennt. Sondern so ein Ähnlichkeitsmatching wird in den "meisten" Fällen richtig sein, aber manchmal wird es auch daneben fassen.
+
+Darum gibt es im Legacy Type Mapping zwei Mechanismen, die verhindern, dass etwas schief läuft:
+1.) Bei der Initialisierung wird jedes vermutete Mapping einmal dem Benutzer zur Kontrolle vorgelegt.
+2.) Man kann optional auch ein explizites Mapping vorgeben, das dann dem heuristischen Ansatz vorgezogen wird.
+
+
+Zu 1.) ist noch wichtig, anzumerken:
+Eigentlich ist das gar kein Feature, sondern ein Customizing, das ich nur per Default eingebaut habe.
+Irgendwo wird aus explizitem Mapping und heuristischem Matching mal ein "result" zusammengestellt. Die Logik, die das macht, habe ich als Interface modularisiert. Heißt "PersistenceLegacyTypeMappingResultor".
+Irgendwo stand mal "return PersistenceLegacyTypeMappingResultor.New();", um so eine Logikinstanz mal zurückzugeben.
+Das habe ich einfach in eine "Wrapping" Resultor verpackt, der sich das Ergebnis via Konsole erst bestätigen lässt.
+return InquiringLegacyTypeMappingResultor.New(PersistenceLegacyTypeMappingResultor.New());
+Wer das nicht will, kann einfach einen anderen Resultor setzen. Z.B. nur wieder die blanke Logik, ohne Rückfrage-Wrapper.
+Oder mit einem Wrapper, der ein GUI-Fenster aufgehen lässt. Alles ist hier möglich und es braucht nur einen Setter-Aufruf.
+
+Jetzt zu dem expliziten Mapping:
+Alles, was man braucht, sind zwei Spalten mit Strings: von alt auf neu.
+Ich habe dafür defaultmäßig eine CSV-Datei verwendet, aber man kann sich auch irgendwas anderes schreiben. Letztendlich müssen jedenfalls irgendwoher zwei Spalten an "alt -> neu"-Mapping ins Programm kommen.
+Das Konzept ist brutal einfach:
+Stehen in einer Zeile zwei Strings, wird das als Mapping von einem alten Ding auf ein neues Ding interpretiert.
+Fehlt der zweite Wert, wird es als zu löschendes altes Ding interpretiert.
+Und fehlt der erste Wert, dann dementsprechend als neues Ding.
+Warum schreib ich immer "Ding"? Weil das für mehrere Strukturelemente gilt:
+- Konstanten-Identifier
+- Klassennamen
+- Feldnamen in einer Klasse
+
+Beispiel:
+"count;articleCount" heißt: das früher "count" benannte Feld heißt in der aktuellen Version der Klasse "articleCount".
+"count;" heißt: das früher Feld "count" soll beim Mapping ignoriert werden. Bzw genauer gesagt die Werte dieses Felds je Datensatz.
+";articleCount" heißt: Das ist ein neu dazugekommenes Feld, NICHT versuchen, es mit irgendwas zu matchen.
+
+Man kann auch explizites Mapping und Heuristik mischen: Nur so viele Änderungen explizit vorgeben, bis die Analyse den Rest von selber richtig hinbekommt. Meist sollte gar nichts nötig sein oder vielleicht mal 1-2 Angaben, um Fehl-Matches zu vermeiden.
+Wer aber strikt jede Änderung lieber explizit vorgibt, anstatt einer "herumratenden" Software zu vertrauen, der kann das auch machen. Kein Problem.
+
+Syntax:
+Man muss natürlich so ein Feld irgendwie eindeutig bezeichnen. Einfach nur "count" wird wahrscheinlich schnell zu Problemen führen. Also muss sicherheitshalber der Klassenname mit rein.
+So:
+"com.my.App.entities.Order#count;com.my.App.entities.Order#articleCount"
+Das "#" ist an offizielle Java Syntax angelehnt. Siehe z.B. JavaDoc. Irgendwann werden wir vielleicht sogar Field Literals bekommen, damit die lästige Plain String Schreiberei im Code für diverse Pfuscher-Frameworks mal ein Ende hat. Wahrscheinlich wird die Java Sourcecode Syntax dafür dann auch mit "#" sein.
+
+Wenn Vererbung dazu kommt, die eindeutig aufgelöst werden muss (jede Klasse kann ein Feld "count" haben), muss man die Declaring Class auch noch mit angeben. Etwa so:
+"com.my.App.entities.Order#com.my.App.entities.ArticleHolder#count;com.my.App.entities.Order#com.my.App.entities.ArticleHolder#articleCount"
+
+Für Klassen selbst gilt das natürlich auch:
+"com.my.App.entities.Order;com.my.App.entities.OrderImplementation"
+Damit weiß die Datenbankschicht: Aha, "Order" heißt jetzt "OrderImplementation".
+
+Übrigens muss man Änderungen an Klassennamen IMMER explizit angeben. Hier gibt es keine Heuristik.
+Warum nicht? Faul geworden?
+Ne, nicht ganz. Sondern das geht nicht. JVM-seitig. Die JVM kennt nicht "Alle Entity Klassen". Sie kennt nur eine Startklasse und immer, wenn eine unbekannte Klasse referenziert wird, versucht sie, die dynamisch nachzuladen. Es gibt kein "iterateClasses" oder "getAllClasses" oder sowas in der Art. Darum kann man auch nichts bauen, das eine Klassendefinition mit "allen aktuellen" abgleicht, bis es eine passende findet.
+FH hat mal hingewiesen auf Frameworks, die das "können", aber letztendlich suchen die eigentlich den Classpath auf der Festplatte durch. Ich hab in diese Richtung mal nichts eingebaut, um nicht lästige Abhängigkeiten zu Drittanbieter Frameworks zu schaffen, die im Zweifel irgendwelche Probleme machen. Die Erfahrung zeigt: Es ist jedes mal so. Wenn man nicht alles selber programmiert, kriegt man üblicherweise nur halb funktionierenden Schrott. Hübsch verpackt als ultimativer Heilsbringer.
+Vielleicht wäre das sowieso eher ein Job für die IDE. Die kennt alle Entity Klassen und kann aus einem Ähnlichkeitsabgleich so ein Mapping ableiten. Mal sehen.
+
+[TODO: Beispielklassen und Datei mit gängigen Fällen möglicher Syntax]
+
+Also soweit so gut: Es werden also Klassen und Felder von vollautomatisch bis voll manuell von alt auf neu gemappt.
+
+Aber das ist ja nur die halbe Miete. Die andere Hälfte ist: Wie kommen denn jetzt die Daten aus dem Alt-Datensatz in die Instanz der aktuellen Klasse?
+Technisch läuft das natürlich vollautomatisch und damit muss ich hier nicht langweilen.
+
+Und abgesehen von der Mapping-Nachfrage oben gibt es auch nichts zu zeigen. Keine GUI, keine Logs. Das ist ja auch die Idee davon: es funktioniert einfach. Deine Datensätze werden geladen, so wie du es erwartest. Total unspektakulär. Also sozusagen: "Es ist so langweilig, dass es schon wieder geil ist."
+
+Aber ein paar interessante Fragen gibt es:
+
+1.) Was ist, wenn sich der Typ ändert?
+Sagen wir von int auf float. Einfach die 4 Bytes stur umkopieren würde mit Sicherheit einen blödsinnigen Wert ergeben. Das muss konvertiert werden. So wie "float floatValue = (float)intValue".
+Geht das?
+Antwort: Ja, das geht. Vollautomatisch.
+Es gibt von jedem Primitive zu jedem Primitive eine Konverter-Funktion. 64 Stück sind das. Bei Interesse einfach mal in die Klasse "BinaryValueTranslators" schauen. 1000 Zeilen schmerzhafter Schema-F Code.
+Von denen wird je nach Typen der richtige rausgesucht und angewendet.
+
+2.) Geht auch Primitive <-> Referenz?
+Antwort: bedingt. Technisch ja. Ich habs nur nicht implementiert.
+WAS?! Warum nicht? Faul?
+Hehe. Das Problem ist:
+Sagen wir die 8 Primitive Typen. Plus deren 8 Wrapper Typen. Plus 8 Primitive Array Typen. Die 8 Wrapper-Array dann der Vollständigkeit halber auch noch. Und dann noch ein paar gängige Value Types wie String, BigInteger, BigDecimal, Date, usw.
+Das wäre schon mal 36 Typen und die Liste ist bestimmt noch nicht vollständig.
+Ja und?
+Konverterfunktionen für 36 Typen UNTEREINANDER schreiben, würde heißen: 36 * 36 = knapp 1300 Konverterfunktionen.
+Das wäre uferlos. Sowohl an Entwicklungszeit als auch an Speicherbedarf für den Programmcode.
+
+Man kann das schlecht abstrahieren. Es gibt halt keinen gemeinsamen Nenner für all diese Typen.
+Beziehungsweise: für die 8+8+2 Zahlentypen könnte man als gemeinsamen Nenner den BigDecimal nehmen.
+Also einen Konverter von jedem Zahlentyp zu BigDecimal und dann einen Konverter von BigDecimal zu dem Zieltyp. Das wären dann nur 36 Konverter. Aber die Performance ist dann im Eimer. Einen int erst in einem BigDecimal umrechnen und dann wieder zurück in einen Float dauert vergleichsweise ewig. Sicher, wenn man sich schnell eine kleine main() schreibt und das mal ausführt, dann passiert das SOFORT. Aber was ist, wenn das beim Lesen aus einer Datenbank nicht einmal oder zehn mal, sondern eine MILLION mal gemacht werden muss? Dann werden aus 2 Sekunden Ladezeit ganz schnell mehrere Minuten oder sowas. Das muss man im Auge behalten.
+Ich fände das eine furchtbare Lösung. Darum hab ich es erst mal nicht gemacht.
+
+Aktuell ist mein Ansatz:
+Primitives sind alle abgedeckt und für Objekte kann sich sehr leicht ValueTransators registrieren, wenn man welche braucht.
+Je nach Anwendung baut und registriert man sich dann die 2, 3, 10, 20, 50, die man braucht und gut is'.
+Sehr viel sinnvoller als vorsichtshalber mal 1300 oder sogar noch mehr ValueTransators vorab zu implementieren.
+Man kann die sogar völlig frei registrieren nach einer eigenen Regel, die man sich selbst ausdenken kann: Für einen bestimmten Entitytyp, für ein bestimmtes Feld eines bestimmten Entitytyps, usw. Aber das würde hier den Rahmen sprengen, das lass ich mal weg.
+
+3.) Wie schnell ist das so?
+Die Typanalysierei passiert nur einmalig bei der Initialisierung. Wenn dabei keine Exception fliegt, ist das Legacy Type Mapping für jeden nötigen Typ fertig zusammenkonfiguriert und wird dann bei Bedarf nur noch aufgerufen.
+Für "normale" Entityklassen, die per Reflection analysiert werden, ist das Laden mit Legacy Type Mapping genauso schnell, wie ein normales Laden. Es wird einmalig ein Array solcher ValueTranslator Funktionen zusammengestellt und die werden bei jedem Laden durchlaufen. Beim Legacy Mapping sind nur die Reihenfolge und die Zieloffsets anders, aber das Prinzip ist das selbe.
+Für Entityklassen "Custom Handler" ist ein Zwischenschritt nötig: Erst alle alten Werte in eine Reihenfolge zusammenkopieren, die der Custom Handler erwartet und dann kann der die Binärdaten normal auslesen, als würde er einen Datensatz im aktuellen Format laden. Das ist nötig, weil man ja nicht wissen kann, was so ein Custom Handler an Logik treibt. Falls jemand überhaupt so einen Custom Handler verwendet, dürfte der kleine Umweg aber performancemäßig nicht auffallen. Und falls es unter Umständen doch der Fall sein sollte und es sich negativ auf den Produktivbetrieb auswirkt: Kein Problem. Man kann natürlich auch einen CustomLegacyTypeHandler schreiben. Der hätte dann wieder volle Geschwindigkeit.
+
+
+Und sonst noch so ...
+
+Es gibt natürlich, wie immer, die Möglichkeit, in die Maschinerie massiv mit Customizing einzugreifen.
+Der InquiringLegacyTypeMappingResultor ist ein Beispiel, wo ich das defaultmäßig selbst verwende.
+CustomLegacyHandler hab ich auch schon erwähnt. Falls man für manche Fälle höchstmögliche Performance braucht. Oder für Logging/Debugging. Oder wie auch immer.
+Beliebige ValueTranslator Implementierungen registrieren. Im einfachsten Fall ist das 1 Zeile Code.
+Das RefactoringMapping selber auf andere Weise als eine CSV-Datei angeben zu können ist ein anderes.
+Man kann sogar die Strategie customizen (erweitern oder ganz ersetzen), mit der im Refactoring Mapping nachgeschaut wird.
+
+Desweiteren kann man z.B. auch die Heuristik Logik durch eine eigene ersetzen. Das ist einfacher, als es klingt.
+Das ist nur ein primitives kleines Interface ("PersistenceMemberSimilator") und die Defaultimplementierung davon ruft z.B. für Namen einfach nur einen Levenshtein (mal googeln) Algorithmus auf. Das kann man bestimmt noch 10 mal cleverer bauen. Oder "passender" für eine bestimmte Anwendung oder einen bestimmten Programmierstil. Beispiel: Annotations auslesen.
+
+Die Grundaussage ist:
+Falls es mal irgendwo ein Problem gibt, egal ob mit der Heuristik oder eine Sonderfallanforderung oder Performanceproblem beim Laden von 2343543 Millionen Entities auf einmal oder es mal einen Debuggingbedarf in die Tiefe oder so gibt: Keine Panik. Höchstwahrscheinlich ist das mit ein paar Zeilen selber implementiertem Interface leicht möglich.
+(Interfaces for the win)
+

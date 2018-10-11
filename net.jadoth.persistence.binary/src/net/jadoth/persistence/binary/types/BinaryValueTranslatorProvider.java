@@ -257,8 +257,8 @@ public interface BinaryValueTranslatorProvider
 			;
 		}
 		
-		private BinaryValueSetter lookupCustomValueSetter(
-			final PersistenceTypeDefinition      sourceLegacyType ,
+		private BinaryValueSetter lookupCustomValueTranslator(
+			final PersistenceTypeDefinition         sourceLegacyType ,
 			final PersistenceTypeDescriptionMember  sourceMember     ,
 			final PersistenceTypeHandler<Binary, ?> targetCurrentType,
 			final PersistenceTypeDescriptionMember  targetMember
@@ -305,7 +305,7 @@ public interface BinaryValueTranslatorProvider
 			}
 			
 			// check for potential custom value translator
-			final BinaryValueSetter customValueSetter = this.lookupCustomValueSetter(
+			final BinaryValueSetter customValueSetter = this.lookupCustomValueTranslator(
 				sourceLegacyType ,
 				sourceMember     ,
 				targetCurrentType,

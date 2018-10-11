@@ -54,7 +54,7 @@ public final class BinaryValueTranslators
 	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslators()
 	{
 		final TypeMapping<BinaryValueSetter> mapping = TypeMapping.New();
-		registerPrimitivesToPrimives(mapping);
+		registerPrimitivesToPrimitives(mapping);
 		registerPrimitivesToWrappers(mapping);
 		registerWrappersToPrimitives(mapping);
 		registerWrappersToWrappers(mapping);
@@ -63,7 +63,7 @@ public final class BinaryValueTranslators
 		return mapping;
 	}
 	
-	private static void registerPrimitivesToPrimives(final TypeMapping<BinaryValueSetter> mapping)
+	private static void registerPrimitivesToPrimitives(final TypeMapping<BinaryValueSetter> mapping)
 	{
 		mapping
 		.register(byte.class, byte   .class, BinaryValueTranslators::copy_byteTo_byte   )
