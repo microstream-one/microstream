@@ -1,5 +1,7 @@
 package net.jadoth.test.legacy;
 
+import java.io.File;
+
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingMap;
@@ -7,6 +9,7 @@ import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XList;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.PersistenceMemberMatchingProvider;
@@ -31,10 +34,10 @@ public class MainTestStorageLegacyMapping
 		ecf -> ecf.getConnectionFoundation()
 //			.setLegacyTypeMappingResultor(InquiringLegacyTypeMappingResultor.New(new MappingPrinter()))
 //			.setLegacyMemberMatchingProvider(new MatchProvider())
+			.setRefactoringMappingProvider(
+				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+			)
 		)
-//		.setRefactoringMappingProvider(
-//			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
-//		)
 		.start(ROOT)
 	;
 	

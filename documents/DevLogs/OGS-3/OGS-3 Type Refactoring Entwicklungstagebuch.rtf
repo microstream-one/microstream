@@ -2691,6 +2691,18 @@ Fertig.\par
 \par
 Jetzt noch verschiedene F\'e4lle testen. Wenn ich da nichts mehr finde, ist das Feature fertig.\par
 \par
+Hm. Explicit unreachable Type Refactoring Entry wirkt nicht. Viel kann das nicht sein, weil ich das ja eingebaut hab.\par
+Mal debuggen.\par
 \par
+Ah, unglaublicher Grund: Wenn man in der Testklasse die Datei mit dem Refactoring Mapping auskommentiert, dann wird sie nicht ber\'fccksichtigt. Unglaublich!\par
+Einkommentiert, geht.\par
+\par
+Gleich mal explizit definiertes neues Feld testen.\par
+Hehe, passt. Es gibt ein "int field2", aber das wird von altem zu neuem Typ nicht gematcht, weil im Refactoring Mapping drin steht, dass das ein neues Feld sein muss. Also wird das alte discardet, trotz identischer definition.\par
+Neiss.\par
+\par
+Nachricht an MK.\par
+\par
+Groben Guide \'fcber Verwendung und Einflussm\'f6glichkeiten schreiben.\par
 }
  
