@@ -55,6 +55,11 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		PersistenceTypeDefinition       targetType
 	);
 	
+	public boolean isNewCurrentTypeMember(
+		PersistenceTypeDefinition       currentTypeDefinition,
+		PersistenceTypeDefinitionMember currentTypeMember
+	);
+	
 
 		
 	public static PersistenceRefactoringResolver New(
@@ -135,6 +140,24 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		public final KeyValue<String, String> lookup(final String sourceIdentifier)
 		{
 			return this.refactoringMapping.lookup(sourceIdentifier);
+		}
+		
+		@Override
+		public boolean isNewCurrentTypeMember(
+			final PersistenceTypeDefinition       currentTypeDefinition,
+			final PersistenceTypeDefinitionMember currentTypeMember
+		)
+		{
+			for(final PersistenceRefactoringMemberIdentifierBuilder idBuilder : this.targetMemberIdentifierBuilders)
+			{
+				final String identifier = idBuilder.buildMemberIdentifier(currentTypeDefinition, currentTypeMember);
+				if(this.refactoringMapping.isNewElement(identifier))
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		@Override

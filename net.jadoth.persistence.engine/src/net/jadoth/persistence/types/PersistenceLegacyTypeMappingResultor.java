@@ -5,6 +5,7 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.matching.MultiMatch;
@@ -35,10 +36,17 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		return createLegacyTypeMappingResult(legacyTypeDefinition, currentTypeHandler, explicitMappings, matchedMembers);
+		return createLegacyTypeMappingResult(
+			legacyTypeDefinition,
+			currentTypeHandler  ,
+			explicitMappings    ,
+			explicitNewMembers  ,
+			matchedMembers
+		);
 	}
 	
 	
@@ -47,6 +55,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
@@ -63,6 +72,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			legacyTypeDefinition                    ,
 			currentTypeHandler                      ,
 			explicitMappings                        ,
+			explicitNewMembers                      ,
 			matchedMembers
 		);
 		
@@ -84,6 +94,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition  ,
 		final PersistenceTypeHandler<?, ?>                                                  currentTypeHandler    ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers    ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
@@ -93,8 +104,14 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		// and another temporary reverse lookup table
 		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> trgExplicits = HashTable.New();
 		
-		Static.fillLookupTables(srcLookup, trgLookup, trgExplicits, explicitMappings, matchedMembers);
-		
+		Static.fillLookupTables(
+			srcLookup         ,
+			trgLookup         ,
+			trgExplicits      ,
+			explicitMappings  ,
+			explicitNewMembers,
+			matchedMembers
+		);
 		Static.buildLegacyToCurrentMembersMapping(
 			legacyTypeDefinition  ,
 			srcLookup             ,
@@ -130,6 +147,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   targetToSourceLookup  ,
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   targetExplicitMappings,
 			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
+			final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers    ,
 			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 		)
 		{
@@ -146,6 +164,10 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			{
 				targetExplicitMappings.add(e.value(), e.key());
 			}
+			for(final PersistenceTypeDefinitionMember e : explicitNewMembers)
+			{
+				targetExplicitMappings.add(e, null);
+			}
 		}
 		
 		static void buildLegacyToCurrentMembersMapping(
@@ -159,27 +181,30 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			for(final PersistenceTypeDefinitionMember srcMember : legacyTypeDefinition.members())
 			{
 				// explicit mappings take precedence
-				final PersistenceTypeDefinitionMember explicitTargetMember = sourceExplicitMappings.get(srcMember);
-				if(explicitTargetMember != null)
+				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitEntry =
+					sourceExplicitMappings.lookup(srcMember)
+				;
+				if(explicitEntry != null)
 				{
-					legacyToCurrentMembers.add(srcMember, explicitTargetMember);
-					continue;
+					if(explicitEntry.value() != null)
+					{
+						legacyToCurrentMembers.add(srcMember, explicitEntry.value());
+						continue;
+					}
+					// else fall through to discarded member registration
 				}
-				if(sourceExplicitMappings.keys().contains(srcMember))
+				else
 				{
-					legacyToCurrentMembers.add(srcMember, null);
-					discardedLegacyMembers.add(srcMember); // just a convenience collection
-					continue;
+					// matching matches are a secondary (fallback / safety net) mapping
+					final PersistenceTypeDefinitionMember matchedTargetMember = sourceToTargetLookup.get(srcMember);
+					if(matchedTargetMember != null)
+					{
+						legacyToCurrentMembers.add(srcMember, matchedTargetMember);
+						continue;
+					}
+					// else fall through to discarded member registration
 				}
 
-				// matching matches are a secondary (fallback / safety net) mapping
-				final PersistenceTypeDefinitionMember matchedTargetMember = sourceToTargetLookup.get(srcMember);
-				if(matchedTargetMember != null)
-				{
-					legacyToCurrentMembers.add(srcMember, matchedTargetMember);
-					continue;
-				}
-				
 				// if no mapping was found, the source member gets discarded
 				legacyToCurrentMembers.add(srcMember, null);
 				discardedLegacyMembers.add(srcMember); // just a convenience collection
@@ -197,28 +222,31 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			for(final PersistenceTypeDefinitionMember trgMember : currentTypeHandler.members())
 			{
 				// explicit mappings take precedence
-				final PersistenceTypeDefinitionMember explicitSourceMember = targetExplicitMappings.get(trgMember);
-				if(explicitSourceMember != null)
+				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitEntry =
+					targetExplicitMappings.lookup(trgMember)
+				;
+				if(explicitEntry != null)
 				{
-					currentToLegacyMembers.add(trgMember, explicitSourceMember);
-					continue;
+					if(explicitEntry.value() != null)
+					{
+						currentToLegacyMembers.add(trgMember, explicitEntry.value());
+						continue;
+					}
+					// else fall through to new member registration
 				}
-				// no such thing as an explicitly defined new current member. Failure to map means new implicitly.
-				/* (11.10.2018 TM)TODO: Legacy Type Mapping: explicit new current member definition?
-				 * unmatched current members are new, sure, but how to tell the multi matching logic
-				 * to ignore a new member that is VERY similar, yet not related to a legacy member?
-				 * Hm...
-				 */
+				else
+				{
+					// matching matches are a secondary (fallback / safety net) mapping
+					final PersistenceTypeDefinitionMember matchedSourceMember = targetToSourceLookup.get(trgMember);
+					if(matchedSourceMember != null)
+					{
+						currentToLegacyMembers.add(trgMember, matchedSourceMember);
+						continue;
+					}
+					// else fall through to new member registration
+				}
 
-				// matching matches are a secondary (fallback / safety net) mapping
-				final PersistenceTypeDefinitionMember matchedSourceMember = targetToSourceLookup.get(trgMember);
-				if(matchedSourceMember != null)
-				{
-					currentToLegacyMembers.add(trgMember, matchedSourceMember);
-					continue;
-				}
-				
-				// if no mapping was found, the target member must be new
+				// if no mapping was found, the source member gets discarded
 				currentToLegacyMembers.add(trgMember, null);
 				newCurrentMembers.add(trgMember); // just a convenience collection
 			}
