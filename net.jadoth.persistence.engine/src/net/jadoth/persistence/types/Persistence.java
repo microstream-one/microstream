@@ -10,16 +10,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.chars.StringTable;
 import net.jadoth.chars.XChars;
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.interfaces.ChainStorage;
-import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 
 public class Persistence extends Swizzle
@@ -258,13 +261,13 @@ public class Persistence extends Swizzle
 	}
 	
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
-		final XGettingTable<String, String> refactoringMappings
+		final XGettingSequence<KeyValue<String, String>> refactoringMappings
 	)
 	{
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
-	public static XGettingTable<String, String> readRefactoringMappings(final File file)
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
 		final String fileContent = XFiles.readStringFromFile(
@@ -272,15 +275,19 @@ public class Persistence extends Swizzle
 			Persistence.standardCharset(),
 			RuntimeException::new
 		);
-		final StringTable stringTable                     = StringTable.Static.parse(fileContent);
-		final XGettingTable<String, String> keyValueTable = stringTable.toKeyValueTable(
+		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
+		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());
+		
+		stringTable.mapTo(
+			(k, v) ->
+				entries.add(X.KeyValue(k, v)),
 			row ->
 				XChars.trimEmptyToNull(row[0]), // debuggability linebreak, do not reformat!
 			row ->
 				XChars.trimEmptyToNull(row[1])  // debuggability linebreak, do not reformat!
 		);
 		
-		return keyValueTable;
+		return entries;
 	}
 
 	

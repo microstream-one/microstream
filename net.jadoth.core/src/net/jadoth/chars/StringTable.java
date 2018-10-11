@@ -2,18 +2,17 @@ package net.jadoth.chars;
 
 import static net.jadoth.math.XMath.notNegative;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.branching.ThrowBreak;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqConstHashEnum;
-import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.low.XVM;
@@ -39,7 +38,8 @@ public interface StringTable
 
 	public XGettingList<String[]> rows();
 	
-	public XGettingTable<String, String> toKeyValueTable(
+	public <C extends BiConsumer<String, String>> C mapTo(
+		C                          target     ,
 		Function<String[], String> keyMapper  ,
 		Function<String[], String> valueMapper
 	);
@@ -315,19 +315,18 @@ public interface StringTable
 		}
 		
 		@Override
-		public final XGettingTable<String, String> toKeyValueTable(
+		public <C extends BiConsumer<String, String>> C mapTo(
+			final C                          target     ,
 			final Function<String[], String> keyMapper  ,
 			final Function<String[], String> valueMapper
 		)
 		{
-			final EqHashTable<String, String> table = EqHashTable.New();
-			
 			for(final String[] row : this.rows)
 			{
-				table.add(keyMapper.apply(row), valueMapper.apply(row));
+				target.accept(keyMapper.apply(row), valueMapper.apply(row));
 			}
 
-			return table;
+			return target;
 		}
 
 

@@ -8,6 +8,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
@@ -62,6 +63,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
 		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
@@ -69,6 +71,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			legacyTypeDefinition,
 			currentTypeHandler  ,
 			explicitMappings    ,
+			explicitNewMembers  ,
 			matchedMembers
 		);
 		

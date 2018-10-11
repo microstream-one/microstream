@@ -3,6 +3,7 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Similator;
@@ -90,15 +91,22 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			// explicit mappings take precedence
-			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings =
-				this.createExplicitMappings(legacyTypeDefinition, currentTypeHandler)
-			;
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings  ;
+			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers;
+			
+			this.createExplicitMappings(
+				explicitMappings   = HashTable.New(),
+				explicitNewMembers = HashEnum.New() ,
+				legacyTypeDefinition,
+				currentTypeHandler
+			);
 
 			// heuristical matching is a applied to the remaining unmapped members
 			final MultiMatch<PersistenceTypeDefinitionMember> match = match(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
-				explicitMappings
+				explicitMappings    ,
+				explicitNewMembers
 			);
 			
 			// bundle the mappings into a result, potentially with user callback, validation, modification, logging, etc.
@@ -106,6 +114,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				legacyTypeDefinition,
 				currentTypeHandler  ,
 				explicitMappings    ,
+				explicitNewMembers  ,
 				match
 			);
 			
@@ -113,16 +122,22 @@ public interface PersistenceLegacyTypeMapper<M>
 			return this.legacyTypeHandlerCreator.createLegacyTypeHandler(validResult);
 		}
 		
-		private HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> createExplicitMappings(
-			final PersistenceTypeDefinition legacyTypeDefinition,
-			final PersistenceTypeHandler<M, ?> currentTypeHandler
+		private void createExplicitMappings(
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers  ,
+			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
+			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler
 		)
 		{
 			final PersistenceRefactoringResolver resolver = this.refactoringResolverProvider.provideResolver();
-
-			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings =
-				HashTable.New()
-			;
+			
+			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.members())
+			{
+				if(resolver.isNewCurrentTypeMember(currentTypeHandler, currentMember))
+				{
+					explicitNewMembers.add(currentMember);
+				}
+			}
 			
 			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.members())
 			{
@@ -135,6 +150,14 @@ public interface PersistenceLegacyTypeMapper<M>
 				{
 					continue;
 				}
+				if(explicitNewMembers.contains(resolved.value()))
+				{
+					// (11.10.2018 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Duplicate target entry " + resolved.value().uniqueName()
+						+ " for type " + currentTypeHandler.toTypeIdentifier() + "."
+					);
+				}
 				if(!explicitMappings.add(resolved))
 				{
 					// (10.09.2018 TM)EXCP: proper exception
@@ -144,14 +167,13 @@ public interface PersistenceLegacyTypeMapper<M>
 					);
 				}
 			}
-
-			return explicitMappings;
 		}
 				
 		private MultiMatch<PersistenceTypeDefinitionMember> match(
 			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
 			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler  ,
-			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolvedMembers
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers
 		)
 		{
 			final BulkList<? extends PersistenceTypeDefinitionMember> sourceMembers = BulkList.New(
@@ -163,11 +185,11 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			// null out all explicitly mapped members before matching
 			sourceMembers.replace(m ->
-				resolvedMembers.keys().contains(m),
+				explicitMappings.keys().contains(m),
 				null
 			);
 			targetMembers.replace(m ->
-				resolvedMembers.values().contains(m),
+				explicitNewMembers.contains(m) || explicitMappings.values().contains(m),
 				null
 			);
 			
