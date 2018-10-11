@@ -5,9 +5,15 @@ public interface PersistenceLegacyTypeHandlingListener<M>
 	public <T> void registerLegacyTypeHandlingCreation(
 		long                         objectId             ,
 		T                            instance             ,
-		PersistenceTypeDefinition legacyTypeDescription,
+		PersistenceTypeDefinition    legacyTypeDescription,
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
-	// (28.09.2018 TM)TODO: Legacy Type Mapping: What about register~Completion to have completed instances?
+	/* note:
+	 * further listening wishes (before creation, before/after update or completion, or whatever)
+	 * can be implemented by using a LegacyTypeHandler wrapper implementing inserted by a
+	 * wrapping LegacyTypeHandlerCreator. That approach makes this explicit listener almost redundant,
+	 * but it is a little easier and nicer to have the basic creation listening in this concrete way.
+	 * All beyond-basic needs are better implemented with the wrapping approach.
+	 */
 }

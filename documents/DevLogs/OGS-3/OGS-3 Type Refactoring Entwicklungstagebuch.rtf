@@ -2648,7 +2648,26 @@ Muss ich morgen checken.\par
 \par
 2018-10-11\par
 \par
-Fehlendes Feld im type mapping checken.\par
+Fehlendes Feld im type mapping checken. Debuggen...\par
+\par
+Ahja: Das wird in PersistenceLegacyTypeMappingResultor#combineMappings nie geaddet. Also stimmt der Algorithmus darin nicht. Mal durchdenken. Die Methode ist eh zu lang und zu kompliziert... aufr\'e4umen.\par
+\par
+Hm. Dabei aufgefallen:\par
+Sollte es nicht doch auch ein explizites Mapping f\'fcr neu dazugekommene Felder geben?\par
+Alles nicht mapbare auf der current Seite ist automatisch neu, klar, aber wie bringt man dem MultiMatching bei, ein SEHR \'e4hnliches neu dazugekommenes Feld zu ignorieren?\par
+Das geht eigentlich nur \'fcber so ein new field mapping.\par
+Das w\'fcrde aber hei\'dfen, dass das RefactoringMapping extra eine zweite Collection daf\'fcr br\'e4uchte.\par
+Hm. Erst mal ein TODO machen und dr\'fcber nachdenken.\par
+\par
+Gleich mal noch zu dem TODO in PersistenceLegacyTypeHandlingListener \'fcberlegen.\par
+Eigentlich kann man die Funktionalit\'e4t mit einem TypeHandler Wrapper genauso realisieren, ohne eigenen Typ.\par
+Ist der Listener dann ganz \'fcberfl\'fcssig?\par
+Wobei, nicht ganz: die OID aus dem medium rausziehen ist dann schon ziemliches Spezialwissen. Das ist mit einem expliziten Listener schon deutlich einfacher.\par
+Aber f\'fcr update und complete gilt das dann: das kann man mit einem Wrapper machen und falls man dort die OID auch wieder gern h\'e4tte, muss man sie sich halt im listener merken oder nachschauen, wie das Rausziehen geht.\par
+TODO durch entsprechenden Kommentar ersetzen.\par
+\par
+\'dcberarbeitetes result building testen.\par
+Passt auf Anhieb.\par
 \par
 }
  

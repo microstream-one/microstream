@@ -52,14 +52,15 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	{
 		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
 		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers;
-		final HashEnum<PersistenceTypeDefinitionMember>                                   deletedLegacyMembers  ;
+		final HashEnum<PersistenceTypeDefinitionMember>                                   discardedLegacyMembers;
 		final HashEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers     ;
 		
 		combineMappings(
 			legacyToCurrentMembers = HashTable.New(),
 			currentToLegacyMembers = HashTable.New(),
-			deletedLegacyMembers   = HashEnum.New() ,
+			discardedLegacyMembers = HashEnum.New() ,
 			newCurrentMembers      = HashEnum.New() ,
+			legacyTypeDefinition                    ,
 			currentTypeHandler                      ,
 			explicitMappings                        ,
 			matchedMembers
@@ -70,61 +71,44 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			currentTypeHandler    ,
 			legacyToCurrentMembers,
 			currentToLegacyMembers,
-			deletedLegacyMembers  ,
+			discardedLegacyMembers  ,
 			newCurrentMembers
 		);
 	}
-	
+		
 	public static void combineMappings(
 		final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      legacyToCurrentMembers,
 		final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      currentToLegacyMembers,
-		final XEnum<PersistenceTypeDefinitionMember>                                        deletedLegacyMembers  ,
+		final XEnum<PersistenceTypeDefinitionMember>                                        discardedLegacyMembers,
 		final XEnum<PersistenceTypeDefinitionMember>                                        newCurrentMembers     ,
+		final PersistenceTypeDefinition                                                     legacyTypeDefinition  ,
 		final PersistenceTypeHandler<?, ?>                                                  currentTypeHandler    ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		legacyToCurrentMembers.addAll(explicitMappings);
+		// no idea right now why the multi match result ~Matches are not tables, so build them here temporarily
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> srcLookup = HashTable.New();
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> trgLookup = HashTable.New();
+		// and another temporary reverse lookup table
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> trgExplicits = HashTable.New();
 		
-		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> sourceMatches =
-			matchedMembers.result().sourceMatches()
-		;
-		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : sourceMatches)
-		{
-			if(!legacyToCurrentMembers.add(match.key(), match.value()))
-			{
-				// (04.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Inconsistency for legacy type member " + match.key().uniqueName());
-			}
-		}
+		Static.fillLookupTables(srcLookup, trgLookup, trgExplicits, explicitMappings, matchedMembers);
 		
-		final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> targetMatches =
-			matchedMembers.result().targetMatches()
-		;
-		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : targetMatches)
-		{
-			if(!currentToLegacyMembers.add(match.value(), match.key()))
-			{
-				// (04.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Inconsistency for current type member " + match.value().uniqueName());
-			}
-		}
-		
-		// initialized to all current type members and reduced according to the mapping. The remaining are new.
-		newCurrentMembers.addAll(currentTypeHandler.members());
-		for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> mapping : legacyToCurrentMembers)
-		{
-			if(mapping.value() == null)
-			{
-				deletedLegacyMembers.add(mapping.key());
-			}
-			else
-			{
-				// remove mapped current member from the set of potentially new current members.
-				newCurrentMembers.remove(mapping.value());
-			}
-		}
+		Static.buildLegacyToCurrentMembersMapping(
+			legacyTypeDefinition  ,
+			srcLookup             ,
+			explicitMappings      ,
+			legacyToCurrentMembers,
+			discardedLegacyMembers
+		);
+		Static.buildCurrentToLegacyMembersMapping(
+			currentTypeHandler    ,
+			trgLookup             ,
+			trgExplicits          ,
+			currentToLegacyMembers,
+			newCurrentMembers
+		);
 	}
 		
 	public static <M> PersistenceLegacyTypeMappingResultor<M> New()
@@ -135,6 +119,123 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	public final class Implementation<M> implements PersistenceLegacyTypeMappingResultor<M>
 	{
 		// since default methods, the ability to instantiate stateless instances from interfaces is missing
+	}
+	
+	public final class Static
+	{
+		// also, it is not comprehensible why non-public static methods of interface logic have to be "hidden" like this
+		
+		static void fillLookupTables(
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   sourceToTargetLookup  ,
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   targetToSourceLookup  ,
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   targetExplicitMappings,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings      ,
+			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
+		)
+		{
+			final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
+				matchedMembers.result().sourceMatches()
+			;
+			for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
+			{
+				sourceToTargetLookup.add(match.key(), match.value());
+				targetToSourceLookup.add(match.value(), match.key());
+			}
+			
+			for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> e : explicitMappings)
+			{
+				targetExplicitMappings.add(e.value(), e.key());
+			}
+		}
+		
+		static void buildLegacyToCurrentMembersMapping(
+			final PersistenceTypeDefinition                                                     legacyTypeDefinition  ,
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   sourceToTargetLookup  ,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> sourceExplicitMappings,
+			final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      legacyToCurrentMembers,
+			final XEnum<PersistenceTypeDefinitionMember>                                        discardedLegacyMembers
+		)
+		{
+			for(final PersistenceTypeDefinitionMember srcMember : legacyTypeDefinition.members())
+			{
+				// explicit mappings take precedence
+				final PersistenceTypeDefinitionMember explicitTargetMember = sourceExplicitMappings.get(srcMember);
+				if(explicitTargetMember != null)
+				{
+					legacyToCurrentMembers.add(srcMember, explicitTargetMember);
+					continue;
+				}
+				if(sourceExplicitMappings.keys().contains(srcMember))
+				{
+					legacyToCurrentMembers.add(srcMember, null);
+					discardedLegacyMembers.add(srcMember); // just a convenience collection
+					continue;
+				}
+
+				// matching matches are a secondary (fallback / safety net) mapping
+				final PersistenceTypeDefinitionMember matchedTargetMember = sourceToTargetLookup.get(srcMember);
+				if(matchedTargetMember != null)
+				{
+					legacyToCurrentMembers.add(srcMember, matchedTargetMember);
+					continue;
+				}
+				
+				// if no mapping was found, the source member gets discarded
+				legacyToCurrentMembers.add(srcMember, null);
+				discardedLegacyMembers.add(srcMember); // just a convenience collection
+			}
+		}
+		
+		static void buildCurrentToLegacyMembersMapping(
+			final PersistenceTypeHandler<?, ?>                                                  currentTypeHandler    ,
+			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>   targetToSourceLookup  ,
+			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> targetExplicitMappings,
+			final XTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>      currentToLegacyMembers,
+			final XEnum<PersistenceTypeDefinitionMember>                                        newCurrentMembers
+		)
+		{
+			for(final PersistenceTypeDefinitionMember trgMember : currentTypeHandler.members())
+			{
+				// explicit mappings take precedence
+				final PersistenceTypeDefinitionMember explicitSourceMember = targetExplicitMappings.get(trgMember);
+				if(explicitSourceMember != null)
+				{
+					currentToLegacyMembers.add(trgMember, explicitSourceMember);
+					continue;
+				}
+				// no such thing as an explicitely defined new current member. Failure to map means new implicitly.
+				/* (11.10.2018 TM)TODO: Legacy Type Mapping: explicit new current member definition?
+				 * unmatched current members are new, sure, but how to tell the multi matching logic
+				 * to ignore a new member that is VERY similar, yet not related to a legacy member?
+				 * Hm...
+				 */
+
+				// matching matches are a secondary (fallback / safety net) mapping
+				final PersistenceTypeDefinitionMember matchedSourceMember = targetToSourceLookup.get(trgMember);
+				if(matchedSourceMember != null)
+				{
+					currentToLegacyMembers.add(trgMember, matchedSourceMember);
+					continue;
+				}
+				
+				// if no mapping was found, the target member must be new
+				currentToLegacyMembers.add(trgMember, null);
+				newCurrentMembers.add(trgMember); // just a convenience collection
+			}
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		private Static()
+		{
+			// static only
+			throw new UnsupportedOperationException();
+		}
+		
 	}
 	
 }
