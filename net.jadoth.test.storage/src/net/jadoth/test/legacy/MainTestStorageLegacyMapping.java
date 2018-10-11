@@ -3,6 +3,7 @@ package net.jadoth.test.legacy;
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingMap;
+import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XList;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
@@ -106,12 +107,13 @@ public class MainTestStorageLegacyMapping
 			final PersistenceTypeDefinition                                                     legacyTypeDefinition,
 			final PersistenceTypeHandler<Binary, T>                                             currentTypeHandler  ,
 			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
+			final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 		)
 		{
 			printMatchedMapping(legacyTypeDefinition, currentTypeHandler, matchedMembers);
 			return PersistenceLegacyTypeMappingResultor.super.createMappingResult(
-				legacyTypeDefinition, currentTypeHandler, explicitMappings, matchedMembers
+				legacyTypeDefinition, currentTypeHandler, explicitMappings, explicitNewMembers, matchedMembers
 			);
 		}
 	}
