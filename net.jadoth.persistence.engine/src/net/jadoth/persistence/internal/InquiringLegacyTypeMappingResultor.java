@@ -9,7 +9,6 @@ import net.jadoth.chars.XChars;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResult;
 import net.jadoth.persistence.types.PersistenceLegacyTypeMappingResultor;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -145,13 +144,6 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResult<M, ?>                                      result
 	)
 	{
-		// (11.10.2018 TM)FIXME: OGS-3: 1005001#field2 is missing in the mapping.
-		// (11.10.2018 TM)FIXME: /!\ DEBUG
-		if(result.legacyTypeDefinition().typeId() == 1005001)
-		{
-			XDebug.println("1005001");
-		}
-		
 		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers =
 			result.currentToLegacyMembers()
 		;
@@ -179,7 +171,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			throw new RuntimeException("Inconsistent current type member mapping: " + member.uniqueName());
 		}
 		
-		for(final PersistenceTypeDefinitionMember e : result.deletedLegacyMembers())
+		for(final PersistenceTypeDefinitionMember e : result.discardedLegacyMembers())
 		{
 			assembleMember(vs, e);
 			vs.add("\t[discarded]").lf();

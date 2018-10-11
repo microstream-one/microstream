@@ -17,7 +17,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 	
 	public XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers();
 
-	public XGettingEnum<PersistenceTypeDefinitionMember> deletedLegacyMembers();
+	public XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers();
 	
 	public XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers();
 	
@@ -28,7 +28,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
 		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
 		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers,
-		final XGettingEnum<PersistenceTypeDefinitionMember>                                   deletedLegacyMembers  ,
+		final XGettingEnum<PersistenceTypeDefinitionMember>                                   discardedLegacyMembers,
 		final XGettingEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers
 	)
 	{
@@ -37,7 +37,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 			notNull(currentTypeHandler)    ,
 			notNull(legacyToCurrentMembers),
 			notNull(currentToLegacyMembers),
-			notNull(deletedLegacyMembers)  ,
+			notNull(discardedLegacyMembers),
 			notNull(newCurrentMembers)
 		);
 	}
@@ -48,12 +48,12 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceTypeDefinition                     legacyTypeDefinition;
-		private final PersistenceTypeHandler<M, T>                  currentTypeHandler  ;
-		private final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
-		private final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers;
-		private final XGettingEnum<PersistenceTypeDefinitionMember> deletedLegacyMembers;
-		private final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers   ;
+		final PersistenceTypeDefinition                     legacyTypeDefinition  ;
+		final PersistenceTypeHandler<M, T>                  currentTypeHandler    ;
+		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
+		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers;
+		final XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers;
+		final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers     ;
 		
 		
 		
@@ -66,7 +66,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
 			final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
 			final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers,
-			final XGettingEnum<PersistenceTypeDefinitionMember>                                   deletedLegacyMembers  ,
+			final XGettingEnum<PersistenceTypeDefinitionMember>                                   discardedLegacyMembers,
 			final XGettingEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers
 		)
 		{
@@ -75,7 +75,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 			this.currentTypeHandler     = currentTypeHandler    ;
 			this.legacyToCurrentMembers = legacyToCurrentMembers;
 			this.currentToLegacyMembers = currentToLegacyMembers;
-			this.deletedLegacyMembers   = deletedLegacyMembers  ;
+			this.discardedLegacyMembers = discardedLegacyMembers;
 			this.newCurrentMembers      = newCurrentMembers     ;
 		}
 		
@@ -110,9 +110,9 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		}
 		
 		@Override
-		public XGettingEnum<PersistenceTypeDefinitionMember> deletedLegacyMembers()
+		public XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers()
 		{
-			return this.deletedLegacyMembers;
+			return this.discardedLegacyMembers;
 		}
 
 		@Override
