@@ -101,7 +101,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		private Class<?> tryResolveCurrentType(final String typeName)
 		{
-			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+			// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 			final String effectiveLatestTypeName = this.resolveRuntimeTypeName(typeName);
 			
 			return effectiveLatestTypeName == null
@@ -115,7 +115,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			// can be null for interface types, in which case the typeName is implicitely the effective one.
 			final PersistenceTypeDescription latestTypeEntry = this.determineLatestTypeEntry(typeName);
 						
-			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+			// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeTypeName = latestTypeEntry == null
 				? this.typeResolver.resolveRuntimeTypeName(typeName)
 				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
@@ -153,7 +153,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		{
 			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
-			// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+			// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeDeclaringType = this.resolveRuntimeTypeName(description.declaringTypeName());
 
 			/*

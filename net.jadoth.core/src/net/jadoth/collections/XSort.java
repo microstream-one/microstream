@@ -769,7 +769,7 @@ public final class XSort
 	 * <p>
 	 * Due to sorting the passed array in a stable and fast (O(n log(n)) fashion, each call of this method instantiates
 	 * an internal buffer array with the same size as the passed array. If the repeated creation of buffer arrays shall
-	 * be prevented, use {@link #bufferedAdaptiveMergeSort(E[], E[], Comparator)} to explicitely provide a reusable buffer.
+	 * be prevented, use {@link #bufferedAdaptiveMergeSort(E[], E[], Comparator)} to explicitly provide a reusable buffer.
 	 * <p>
 	 * If maintaining the orginal order of equal elements (stability) is not required,
 	 * {@link #valueSort(Object[], Comparator)} usually yields better performance and also does not require additional

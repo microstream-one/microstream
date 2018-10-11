@@ -16,7 +16,7 @@ import net.jadoth.swizzling.types.SwizzleFunction;
  * itself should be kind of "unreachable", too, in the sense that it may never be necessary to access and use it.
  * Without such a handler, a class could never be removed at the design level without replacement
  * until the last instance of it has been cleaned up the the storage housekeeping. That is an unpleasent dependency.
- * The preferable way is to explicitely tell the typing system to "ignore" those types. That is done by registering
+ * The preferable way is to explicitly tell the typing system to "ignore" those types. That is done by registering
  * a kind of dummy type handler. That dummy handler is this type here.
  * 
  * @author TM
@@ -55,7 +55,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	{
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
-			"Cannot create an instance of a type explicitely marked as unreachable: " + this.toTypeIdentifier()
+			"Cannot create an instance of a type explicitly marked as unreachable: " + this.toTypeIdentifier()
 		);
 	}
 

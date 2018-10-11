@@ -19,7 +19,7 @@ import net.jadoth.math.XMath;
 /**
  * Faster implementation of a StringBuilder with richer functionality.
  * Note that this class is NOT synchronized and only meant for single-threaded or thread-safe
- * (i.e. read only or explicitely synchronized) use.
+ * (i.e. read only or explicitly synchronized) use.
  *
  * @author Thomas Muenz
  */

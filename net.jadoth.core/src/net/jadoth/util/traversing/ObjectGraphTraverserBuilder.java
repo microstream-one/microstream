@@ -212,7 +212,7 @@ public interface ObjectGraphTraverserBuilder
 		 * System types that are hardly ever desired to be iterated further. If they have to be, they can be
 		 * counter-registered as a full, node or leaf type.
 		 *
-		 * This list is provisional and definitely not complete. Missing types can be added explicitely in the builder.
+		 * This list is provisional and definitely not complete. Missing types can be added explicitly in the builder.
 		 */
 		return ConstHashEnum.New(
 			Byte.class         ,
@@ -244,7 +244,7 @@ public interface ObjectGraphTraverserBuilder
 		 * System types that are hardly ever desired to be iterated further. If they have to be, they can be
 		 * counter-registered as a full, node or leaf type.
 		 *
-		 * This list is provisional and definitely not complete. Missing types can be added explicitely in the builder.
+		 * This list is provisional and definitely not complete. Missing types can be added explicitly in the builder.
 		 */
 		return ConstHashEnum.New(
 			BigInteger.class   ,

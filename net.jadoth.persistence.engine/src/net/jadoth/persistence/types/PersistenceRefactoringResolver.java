@@ -35,7 +35,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 			return descriptionTypeName;
 		}
 
-		// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+		// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 		return entry.value();
 	}
 	
@@ -123,7 +123,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 					continue;
 				}
 				
-				// can be null for types explicitely marked as no more having a runtime type (unreachable / "deleted")
+				// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 				return entry.value();
 			}
 			

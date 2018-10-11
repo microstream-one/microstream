@@ -44,7 +44,7 @@ public final class CharConversion_double
 	 * <p>
 	 * Note that this method is intended as an implementation detail and a "know-what-you-are-doing" tool that does
 	 * not perform array bound checks. If array bound checking is desired, use {@link VarString#add(double)} or use
-	 * {@link #validateIndex(int, char[])} and {@link #maxCharCount_double()} explicitely.
+	 * {@link #validateIndex(int, char[])} and {@link #maxCharCount_double()} explicitly .
 	 *
 	 * @param value the value to be represented as a character sequence.
 	 * @param target the array to receive the character sequence at the given offset.

@@ -86,7 +86,7 @@ public interface Storer extends PersistenceStoring
 
 	/**
 	 * Ensures that the instance's internal state is prepared for handling an amount of unique instance equal to
-	 * the passed value. Note that is explicitely does not have to mean that the instance's internal state actually
+	 * the passed value. Note that is explicitly does not have to mean that the instance's internal state actually
 	 * reserves as much space, only makes a best effort to prepare for that amount. Example: an internal hash table's
 	 * hash length might still remain at 2^30, despite the passed value being much higher.
 	 *

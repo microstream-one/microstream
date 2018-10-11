@@ -47,7 +47,7 @@ import net.jadoth.util.iterables.GenericListIterator;
  * <p>
  * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
- * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
+ * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
  * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection

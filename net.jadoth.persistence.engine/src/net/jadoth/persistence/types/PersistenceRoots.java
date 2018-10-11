@@ -96,7 +96,7 @@ public interface PersistenceRoots
 				final PersistenceRootEntry rootEntry  = resolvedRoot.value();
 				final Object               instance   = rootEntry.instance(); // call supplier logic only once.
 				
-				// explicitely removed entry special case. Also represents a change. Index must be kept consistent!
+				// explicitly removed entry special case. Also represents a change. Index must be kept consistent!
 				if((instances[i++] = instance) == null)
 				{
 					hasChanged = true;

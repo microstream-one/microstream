@@ -631,7 +631,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			public final Boolean yield()
 			{
 				/*
-				 * no explicitely unequal pair may have been found (obviously)
+				 * no explicitly unequal pair may have been found (obviously)
 				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */

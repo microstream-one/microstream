@@ -189,7 +189,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
 			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
 			 * There are 3 possible cases for a change:
-			 * 1.) An entry has been explicitely removed by a refactoring mapping.
+			 * 1.) An entry has been explicitly removed by a refactoring mapping.
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */

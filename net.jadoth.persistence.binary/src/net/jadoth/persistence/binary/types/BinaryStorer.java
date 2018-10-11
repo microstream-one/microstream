@@ -101,7 +101,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/*
 		 * item hashing structures get initialized lazily for the following reasons:
 		 * - the storer instance can commit (be cleared) and be reinitialized multiple times.
-		 * - the storer instance can be explicitely initialized to a certain capacity.
+		 * - the storer instance can be explicitly initialized to a certain capacity.
 		 * - clearing after committing can simply null the array reference, easing garbage collection.
 		 */
 		final   Item   head      = new Item(null, 0L, null, null);
@@ -362,7 +362,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			for(int i = 0; i < chunks.length; i++)
 			{
 				/* Note:
-				 * may explicitely NOT clear (deallocate) the current chunks
+				 * may explicitly NOT clear (deallocate) the current chunks
 				 * because in use with embedded (in-process) storage the chunks
 				 * might still be used by the storage worker threads to update their entity caches.
 				 * The released chunks must be handled by those threads if existing

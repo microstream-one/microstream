@@ -406,7 +406,7 @@ public interface PersistenceRootResolver
 			// normal case: the sourceIdentifier has been mapped to a non-null targetIdentifier. So resolve it.
 			final PersistenceRootEntry mappedEntry = this.actualRootResolver.resolveRootInstance(targetIdentifier);
 			
-			// but there is a catch: an unresolveable explicitely provided targetIdentifier is an error.
+			// but there is a catch: an unresolveable explicitly provided targetIdentifier is an error.
 			if(mappedEntry == null)
 			{
 				// (19.04.2018 TM)EXCP: proper exception

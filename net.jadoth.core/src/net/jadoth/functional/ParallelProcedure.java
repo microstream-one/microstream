@@ -293,7 +293,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			if((this.isTimedOut() || this.isOversized()) && XTypes.to_int(this.threads.size()) > 0)
 			{
 				this.touch();                    // touch here to make threads shutdown one by one over time
-				this.threads.last().interrupt(); // intentionally no pick() because thread gets removed explicitely
+				this.threads.last().interrupt(); // intentionally no pick() because thread gets removed explicitly 
 			}
 		}
 

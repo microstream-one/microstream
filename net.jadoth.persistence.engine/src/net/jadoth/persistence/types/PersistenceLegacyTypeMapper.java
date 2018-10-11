@@ -161,7 +161,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				currentTypeHandler.members()
 			);
 			
-			// null out all explicitely mapped members before matching
+			// null out all explicitly mapped members before matching
 			sourceMembers.replace(m ->
 				resolvedMembers.keys().contains(m),
 				null

@@ -42,7 +42,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 			public Implementation(final NetworkConnectionProblemHandler.Provider problemHandlerProvider)
 			{
 				super();
-				this.problemHandlerProvider = problemHandlerProvider; // may explicitely be null
+				this.problemHandlerProvider = problemHandlerProvider; // may explicitly be null
 			}
 
 
