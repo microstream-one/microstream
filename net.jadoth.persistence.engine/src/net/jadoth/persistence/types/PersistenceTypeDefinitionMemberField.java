@@ -1,20 +1,31 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 import static net.jadoth.math.XMath.positive;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.meta.XDebug;
-
 public interface PersistenceTypeDefinitionMemberField
 extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 {
+	public String runtimeDeclaringClassName();
+	
+	@Override
+	public default String runtimeQualifier()
+	{
+		return this.runtimeDeclaringClassName();
+	}
+	
 	public Class<?> declaringClass();
 	
+	@Override
 	public Field field();
+	
+	
 		
 	public static PersistenceTypeDefinitionMemberField New(
+		final String   runtimeDeclaringClass  ,
 		final Class<?> declaringClass         ,
 		final Field    field                  ,
 		final Class<?> type                   ,
@@ -26,17 +37,11 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		final long     persistentMaximumLength
 	)
 	{
-
-		// (12.10.2018 TM)FIXME: /!\ DEBUG
-		if(name.equals("link"))
-		{
-			XDebug.println("def link");
-		}
-		
 		return new PersistenceTypeDefinitionMemberField.Implementation(
-			         declaringClass          ,
-			         field                   ,
-			         type                    ,
+			 mayNull(runtimeDeclaringClass)  ,
+			 mayNull(declaringClass)         ,
+			 mayNull(field)                  ,
+			 mayNull(type)                   ,
 			 notNull(typeName)               ,
 			 notNull(name)                   ,
 			 notNull(declaringTypeName)      ,
@@ -53,6 +58,7 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 	)
 	{
 		return New(
+			field.getDeclaringClass().getName(),
 			field.getDeclaringClass()          ,
 			field                              ,
 			field.getType()                    ,
@@ -74,9 +80,10 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		////////////////////
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?> type          ;
-		private final Class<?> declaringClass;
-		private final Field    field         ;
+		private final Class<?> type                 ;
+		private final String   runtimeDeclaringClassName;
+		private final Class<?> declaringClass       ;
+		private final Field    field                ;
 
 
 
@@ -85,14 +92,15 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		/////////////////
 
 		protected Implementation(
-			final Class<?> declaringClass     ,
-			final Field    field              ,
-			final Class<?> type               ,
-			final String   typeName           ,
-			final String   name               ,
-			final String   declaringTypeName  ,
-			final boolean  isReference        ,
-			final long     persistentMinLength,
+			final String   runtimeDeclClassName,
+			final Class<?> declaringClass      ,
+			final Field    field               ,
+			final Class<?> type                ,
+			final String   typeName            ,
+			final String   name                ,
+			final String   declaringTypeName   ,
+			final boolean  isReference         ,
+			final long     persistentMinLength ,
 			final long     persistentMaxLength
 		)
 		{
@@ -105,9 +113,10 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 				persistentMaxLength
 			);
 
-			this.declaringClass = declaringClass;
-			this.field          = field         ;
-			this.type           = type          ;
+			this.runtimeDeclaringClassName = runtimeDeclClassName;
+			this.declaringClass            = declaringClass      ;
+			this.field                     = field               ;
+			this.type                      = type                ;
 		}
 
 
@@ -115,6 +124,12 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public String runtimeDeclaringClassName()
+		{
+			return this.runtimeDeclaringClassName;
+		}
 				
 		@Override
 		public final Class<?> declaringClass()

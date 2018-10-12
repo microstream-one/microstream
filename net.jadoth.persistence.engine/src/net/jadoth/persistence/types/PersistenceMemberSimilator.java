@@ -4,7 +4,6 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.chars.Levenshtein;
 import net.jadoth.functional.Similator;
-import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.TypeMappingLookup;
 
 public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDefinitionMember>
@@ -62,8 +61,8 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 		}
 		
 		private float calculateSimilarityByName(
-			final PersistenceTypeDescriptionMember sourceMember,
-			final PersistenceTypeDescriptionMember targetMember
+			final PersistenceTypeDefinitionMember sourceMember,
+			final PersistenceTypeDefinitionMember targetMember
 		)
 		{
 			/*
@@ -72,20 +71,13 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			 * Doing a quick check on simple equality might cause an ambiguity for such cases.
 			 */
 			
-			final KeyValue<String, String> sourceUniqueName = PersistenceTypeDictionary.splitFullQualifiedFieldName(
-				sourceMember.uniqueName()
-			);
-			final KeyValue<String, String> targetUniqueName = PersistenceTypeDictionary.splitFullQualifiedFieldName(
-				targetMember.uniqueName()
-			);
-			
 			final float nameSimilarity = Levenshtein.similarity(
-				sourceUniqueName.value(),
-				targetUniqueName.value()
+				sourceMember.name(),
+				targetMember.name()
 			);
 			final float qualifierFactor = calculateQualifierSimilarityFactor(
-				sourceUniqueName.key(),
-				targetUniqueName.key()
+				sourceMember.runtimeQualifier(),
+				targetMember.runtimeQualifier()
 			);
 			
 			return qualifierFactor * nameSimilarity;

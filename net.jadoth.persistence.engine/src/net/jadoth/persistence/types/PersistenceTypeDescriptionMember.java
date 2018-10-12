@@ -11,6 +11,18 @@ import net.jadoth.hashing.HashEqualator;
 public interface PersistenceTypeDescriptionMember
 {
 	public String typeName();
+	
+	/**
+	 * A type-internal qualifier. Despite this abstract description, this virtually only makes sense for
+	 * reflection-based type handling where fields names are only unique in combination with their declaring class.
+	 * But who knows what a type-internal qualifier might be useful for, too.
+	 * 
+	 * @return
+	 */
+	public default String qualifier()
+	{
+		return null;
+	}
 
 	/**
 	 * The direct, simple name of the member. E.g. "lastName".
