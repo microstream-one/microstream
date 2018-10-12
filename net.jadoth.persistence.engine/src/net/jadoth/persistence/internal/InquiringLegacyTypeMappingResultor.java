@@ -162,14 +162,14 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			if(mappedLegacyMember != null)
 			{
 				assembleMember(vs, mappedLegacyMember);
-				vs.add("\t-> ");
+				vs.add("\t----> ");
 				assembleMember(vs, member);
 				vs.lf();
 				continue;
 			}
 			if(newCurrentMembers.contains(member))
 			{
-				vs.add("[new]\t");
+				vs.add("\t[new] ");
 				assembleMember(vs, member);
 				vs.lf();
 				continue;

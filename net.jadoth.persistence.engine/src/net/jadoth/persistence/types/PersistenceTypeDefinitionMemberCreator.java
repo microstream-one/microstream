@@ -168,6 +168,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			;
 			
 			return PersistenceTypeDefinitionMemberField.New(
+				runtimeDeclaringType                 ,
 				field == null
 					? null
 					: field.getDeclaringClass()      ,
@@ -175,7 +176,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 				currentType                          ,
 				description.typeName()               ,
 				description.name()                   ,
-				runtimeDeclaringType                 , // necessary to have comparability in similarity calculations
+				description.declaringTypeName()      ,
 				description.isReference()            ,
 				description.persistentMinimumLength(),
 				description.persistentMaximumLength()
