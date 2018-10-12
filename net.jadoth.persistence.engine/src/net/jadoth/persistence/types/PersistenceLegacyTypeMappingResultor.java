@@ -81,7 +81,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			currentTypeHandler    ,
 			legacyToCurrentMembers,
 			currentToLegacyMembers,
-			discardedLegacyMembers  ,
+			discardedLegacyMembers,
 			newCurrentMembers
 		);
 	}
@@ -151,13 +151,16 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 		)
 		{
-			final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
-				matchedMembers.result().sourceMatches()
-			;
-			for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
+			if(matchedMembers != null)
 			{
-				sourceToTargetLookup.add(match.key(), match.value());
-				targetToSourceLookup.add(match.value(), match.key());
+				final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
+					matchedMembers.result().sourceMatches()
+				;
+				for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
+				{
+					sourceToTargetLookup.add(match.key(), match.value());
+					targetToSourceLookup.add(match.value(), match.key());
+				}
 			}
 			
 			for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> e : explicitMappings)
