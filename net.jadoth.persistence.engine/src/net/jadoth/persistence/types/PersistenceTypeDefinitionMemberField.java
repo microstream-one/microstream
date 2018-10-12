@@ -5,6 +5,8 @@ import static net.jadoth.math.XMath.positive;
 
 import java.lang.reflect.Field;
 
+import net.jadoth.meta.XDebug;
+
 public interface PersistenceTypeDefinitionMemberField
 extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 {
@@ -24,6 +26,13 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		final long     persistentMaximumLength
 	)
 	{
+
+		// (12.10.2018 TM)FIXME: /!\ DEBUG
+		if(name.equals("link"))
+		{
+			XDebug.println("def link");
+		}
+		
 		return new PersistenceTypeDefinitionMemberField.Implementation(
 			         declaringClass          ,
 			         field                   ,

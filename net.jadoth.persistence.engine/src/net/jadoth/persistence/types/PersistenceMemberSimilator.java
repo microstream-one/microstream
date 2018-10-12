@@ -33,7 +33,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 		Implementation(final TypeMappingLookup<Float>typeSimilarity)
 		{
 			super();
-			this.typeSimilarity     = typeSimilarity    ;
+			this.typeSimilarity = typeSimilarity;
 		}
 		
 		

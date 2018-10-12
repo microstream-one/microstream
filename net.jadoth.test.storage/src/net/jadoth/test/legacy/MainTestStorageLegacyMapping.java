@@ -26,7 +26,7 @@ import net.jadoth.util.matching.MultiMatch;
 
 public class MainTestStorageLegacyMapping
 {
-	static final Reference<XList<SimpleClass>> ROOT = X.Reference(null);
+	static final Reference<XList<OldContact>> ROOT = X.Reference(null);
 	
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = X.on(EmbeddedStorage
@@ -35,25 +35,25 @@ public class MainTestStorageLegacyMapping
 //			.setLegacyTypeMappingResultor(InquiringLegacyTypeMappingResultor.New(new MappingPrinter()))
 //			.setLegacyMemberMatchingProvider(new MatchProvider())
 			.setRefactoringMappingProvider(
-				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+				Persistence.RefactoringMapping(new File("Refactorings.csv"))
 			)
 		)
 		.start(ROOT)
 	;
 	
-	static XList<SimpleClass> createTestModel()
+	static XList<OldContact> createTestModel()
 	{
-		return X.List(
-			X.on(new SimpleClass(), e -> {
-				e.first  = 1;
-				e.second = 3.14f;
-				e.third  = 'A';
-				e.fourth = null;
-				e.fifth  = "String 1";
-			}),
-//			new SimpleClass(1, 3.14f, 'A')
-			new SimpleClass(2, 9.81f, 'B')
-		);
+		return X.List(new OldContact());
+//		return X.List(
+//			X.on(new SimpleClass(), e -> {
+//				e.first  = 1;
+//				e.second = 3.14f;
+//				e.third  = 'A';
+//				e.fourth = null;
+//				e.fifth  = "String 1";
+//			}),
+//			new SimpleClass(2, 9.81f, 'B')
+//		);
 //		return X.List(new Person());
 //		return X.List(new NewClass(), new ChangedClass());
 	}
@@ -72,21 +72,26 @@ public class MainTestStorageLegacyMapping
 		else
 		{
 			ROOT.get().iterate(System.out::println);
-			X.on(ROOT.get().get(), e -> {
-				e.third = 'M';
-//				e.fourth = null;
-				e.fourth = new ToBeDeleted();
-				STORAGE.store(e);
-			});
-			X.on(ROOT.get().at(1), e -> {
-				e.third = '2';
-//				e.fourth = null;
-				e.fourth = new ToBeDeleted();
-				STORAGE.store(e);
-			});
+//			handleLoadedSimpleClass(ROOT.get());
 			ROOT.get().iterate(System.out::println);
 		}
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
+	}
+	
+	static void handleLoadedSimpleClass(final XList<SimpleClass> entities)
+	{
+		X.on(entities.get(), e -> {
+			e.third = 'M';
+//			e.fourth = null;
+			e.fourth = new ToBeDeleted();
+			STORAGE.store(e);
+		});
+		X.on(entities.at(1), e -> {
+			e.third = '2';
+//			e.fourth = null;
+			e.fourth = new ToBeDeleted();
+			STORAGE.store(e);
+		});
 	}
 		
 	static void printMatchedMapping(

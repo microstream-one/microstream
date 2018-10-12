@@ -2720,5 +2720,24 @@ Also weiterarbeiten: MatchingResult null.\par
 War schnell gemacht. Jetzt Guide erweitern um "Unreachable Type" Absatz.\par
 \par
 Jetzt die Beispiele bauen.\par
+\par
+Oh, interessant: Bug: Durch das Mapping haben die members eines legacy types als declaring class die gemappte. Mal schauen. Evtl. ist das nur ein Versehen, ansonsten muss die declaring class doppelt gef\'fchrt werden.\par
+Ach, das steht ja so im dictionary ...\par
+Seltsam. DB l\'f6schen, untersuchen.\par
+\par
+Also beim ersten mal schreiben steht da \'fcberall OldContact drin. Passt. Wird das dann beim n\'e4chsten Start \'fcberschrieben?\par
+Ah, klar: in PersistenceTypeDefinitionMemberCreator#createDefinitionMember wird die declaringClass auf den runtime type gemappt.\par
+Danach wird das dictionary assemblet, dann steht der dort drin.\par
+Das mappen der declaring class macht schon Sinn, aber halt nur f\'fcr das Matching. Das Mapping wieder wie zu Beginn ins Matching verschieben ist doof, weil dann muss man das aus dem uniqueName wieder raussplitten und bla.\par
+Vielleicht dann doch lieber eine declaringClass und eine extra runtimeDeclaringClass.\par
+\par
+Mal im Similator checken...\par
+Ach lol: da wird ja trotzdem rumgesplitted, weil man die declaringClass ja trotzdem vom name trennen muss.\par
+\par
+Also dann mach ich das jetzt gleich anders bei den Member definitions:\par
+- TypeName (extern)\par
+- Type-internal qualifier (aktuell nur declaringClass)\par
+- runtime Type-internal qualifier (aktuell nur mapped declaringClass)\par
+- Member Name\par
 }
  

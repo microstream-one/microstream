@@ -3,6 +3,8 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 import static net.jadoth.math.XMath.positive;
 
+import net.jadoth.meta.XDebug;
+
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
 	public String declaringTypeName();
@@ -98,6 +100,13 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 				persistentMinLength,
 				persistentMaxLength
 			);
+			
+			
+			// (12.10.2018 TM)FIXME: /!\ DEBUG
+			if(name.equals("link"))
+			{
+				XDebug.println("desc link");
+			}
 			
 			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
