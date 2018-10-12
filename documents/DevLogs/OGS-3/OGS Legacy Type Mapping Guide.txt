@@ -61,7 +61,41 @@ Beispiel:
 Man kann auch explizites Mapping und Heuristik mischen: Nur so viele Änderungen explizit vorgeben, bis die Analyse den Rest von selber richtig hinbekommt. Meist sollte gar nichts nötig sein oder vielleicht mal 1-2 Angaben, um Fehl-Matches zu vermeiden.
 Wer aber strikt jede Änderung lieber explizit vorgibt, anstatt einer "herumratenden" Software zu vertrauen, der kann das auch machen. Kein Problem.
 
-Syntax:
+
+
+Bei Klassennamen sind die drei Varianten mappen/hinzugefügt/weggefallen etwas knifflig in der Bedeutung:
+
+Mappen ist normal: Alt -> Neu. Gilt für Klassen genauso wie für Felder.
+
+Eine hinzugefügte Klasse eintragen macht keinen Sinn. Das steht durch die vorhandenen Klassen eh schon fest. Kann man zwar machen, wird aber keinen Effekt haben.
+
+Eine Klasse als weggefallen, quasi "gelöscht" einzutragen macht FAST keinen Sinn, bis auf einen Sonderfall.
+Zunächst mal: Warum macht es eigentlich keinen Sinn?
+Weil das Type-Handling damit nichts anfangen kann. Man kann nicht einfach so Klassen als gelöscht bezeichnen. Solange es noch Datensätze eines bestimmten Typs in der Datenbank gibt, muss auch die entsprechende Klasse vorhanden sein, damit die Instanzen in die Datenbank geladen werden können. Wenn es keine Datensätze mehr gibt, dann heißt das ja, dass nur noch ein paar Bytes Beschreibung im TypeDictionary rumliegen, die aber niemanden interessieren. Kann man per Hand rauslöschen (oder lieber nicht, gibt gute Gründe dagegen) oder kann man auch einfach ignorieren und für immer liegen lassen. In beiden Fällen muss bzw. darf man nicht eine Klasse als gelöscht eintragen.
+Nun zum Sonderfall:
+Im Entity Graph (root Instanzen und alle von dort aus rekursiv erreichbaren Instanzen) werden alle Referenzen auf Instanzen eines bestimmten Typs ausgenullt. Also von der Anwendungslogik oder evtl. von einem extra dafür geschriebenen Skript oder so. Das heißt: Alle Instanzen dieses Typs sind unerreichbar. Keine Instanz ist mehr erreichbar, keine Instanz kann jemals wieder geladen werden. Damit ist der Typ auf der logischen Ebene gesehen aus der Datenbank "gelöscht". Muss man auch gar nirgends eintragen, das ist implizit einfach so.
+Die entsprechende Java Klasse kann man aus dem Anwendungsprojekt löschen, weil sie ja nie wieder gebraucht werden wird.
+Soweit so gut. Es gibt nur ein Problem: Auch wenn die Instanzen Graph-logisch nie wieder erreichbar sind: Die Datensätze dafür liegen nach wie vor in den Datenbankdateien rum. Die Initialisierung scannt über alle Datenbankdateien drüber, sammelt dabei alle vorkommenden TypeIds und stellt für jede TypeId sicher, dass es einen TypeHandler dafür gibt. Bei Bedarf einen LegacyTypeHandler mit Mapping, aber trotzdem: Es muss für jede TypeId einen TypeHandler geben. Und ein TypeHandler braucht einen Runtime Type.
+Das heißt: Von hinten durch die Brust ins Auge, über Datensätze, die logisch gesehen eigentlich schon gelöscht sind, aber nur physikalisch noch rumliegen (Zombies, uuaa!), wird nun doch wieder erzwungen, dass es die eigentlich löschbare Klasse geben muss. Saublöd.
+Man kann das verhindern: Es gibt eine "cleanup" Funktion in der Datenbank Management Logik, die alle "logischen" "Lücken" in den Datenbankdateien "aufräumt" (eigentlich alle nicht-Lücken in eine neue Datei kopiert und damit die alte Datei insgesamt löscht). Die müsste man aufrufen, dann verschwinden alle physikalischen Vorkommen der unerreichbaren Datensätze und man könnte die dazugehörige Klasse problemlos löschen.
+Aber das ist lästig.
+Darum macht es für diese Fälle - und NUR für diese - Sinn, folgendes machen zu können:
+Wenn man sich als Entwickler absolut sicher ist, dass von einer bestimmten Klasse keine einzige Instanz jemals wieder erreichbar ist, d.h. geladen werden muss, dann kann man einen Typ als "gelöscht" (eher "unerreichbar") ins Refactoring Mapping eintragen.
+Dann wird das TypeHandling dafür einen Dummy TypeHandler anlegen, der keine Runtime Klasse braucht. Siehe "PersistenceUnreachableTypeHandler".
+Aber Obacht: Sollte man sich geirrt haben und es wird eine Instanz so eines Typs trotzdem noch irgendwo erreichbar referenziert und irgendwann später zur Laufzeit geladen, dann wird der "Unreachable" Handler eine Exception werfen.
+Wirkliche Sicherheit liefert der cleanup: Alle logischen "Lücken" rauswerfen lassen und wenn dann auch mit gelöschter Klasse kein Fehler mehr bei der Initialisierung kommt, ist sie wirklich überflüssig.
+Alle Ideen, im Dummy TypeHandler anstatt einer Instanz einfach null zurückzugeben und weiterzumachen, sind brandgefährlich: Das mag ein paar lästige Situationen angenehm in Luft auflösen, aber es würde auch heißen, dass existierende Datensätze, potenziell ganze Subgraphen, vor der Anwendung "verborgen" werden. Die Datenbank würde die aber trotzdem immer weiter mitziehen, vielleicht dadurch unerklärlich groß werden und jede Recherche nach dem Grund würde nichts ergeben, weil der Dummy TypeHandler die Datensätze verschweigt. Kurzsichtig toll, aber langfristig katastrophal. Sowas ist nicht gut. Die einzig saubere Lösung ist: Man muss wissen, was man mit seinem Datenmodell tut. Solang es noch erreichbare Instanzen gibt, müssen die auch ladbar sein. Der nervige Sonderfall oben ist nebenwirkungsfrei entschärfbar. Aber mehr darf es nicht sein, sonst kommt irgendwann Gewurschtel rein und damit Chaos und Probleme.
+
+
+Mapping Syntax:
+
+Klassen werden einfach mit dem full qualified class name eingetragen.
+Also so: "com.my.App.entities.Order"
+Wenn man es noch genauer braucht, nämlich auch die genaue Version (kann vorkommen), dann kann man auch noch die TypeId voranstellen.
+So: "1012345:com.my.App.entities.Order".
+
+Für Klassen war es das schon. Für Felder ist es, java-bedingt, etwas komplizierter:
+
 Man muss natürlich so ein Feld irgendwie eindeutig bezeichnen. Einfach nur "count" wird wahrscheinlich schnell zu Problemen führen. Also muss sicherheitshalber der Klassenname mit rein.
 So:
 "com.my.App.entities.Order#count;com.my.App.entities.Order#articleCount"
@@ -128,16 +162,16 @@ Für Entityklassen "Custom Handler" ist ein Zwischenschritt nötig: Erst alle al
 Und sonst noch so ...
 
 Es gibt natürlich, wie immer, die Möglichkeit, in die Maschinerie massiv mit Customizing einzugreifen.
-Der InquiringLegacyTypeMappingResultor ist ein Beispiel, wo ich das defaultmäßig selbst verwende.
+Der InquiringLegacyTypeMappingResultor ist ein Beispiel, wo ich das defaultmäßig selbst verwendet habe, um es nicht hardgecodet reinzubauen.
 CustomLegacyHandler hab ich auch schon erwähnt. Falls man für manche Fälle höchstmögliche Performance braucht. Oder für Logging/Debugging. Oder wie auch immer.
-Beliebige ValueTranslator Implementierungen registrieren. Im einfachsten Fall ist das 1 Zeile Code.
-Das RefactoringMapping selber auf andere Weise als eine CSV-Datei angeben zu können ist ein anderes.
+Beliebige ValueTranslator Implementierungen registrieren. Im einfachsten Fall ist das 1 Zeile Code, also keine Angst.
+Das RefactoringMapping selber auf andere Weise als eine CSV-Datei angeben zu können ist ein weitere Beispiel
 Man kann sogar die Strategie customizen (erweitern oder ganz ersetzen), mit der im Refactoring Mapping nachgeschaut wird.
 
 Desweiteren kann man z.B. auch die Heuristik Logik durch eine eigene ersetzen. Das ist einfacher, als es klingt.
 Das ist nur ein primitives kleines Interface ("PersistenceMemberSimilator") und die Defaultimplementierung davon ruft z.B. für Namen einfach nur einen Levenshtein (mal googeln) Algorithmus auf. Das kann man bestimmt noch 10 mal cleverer bauen. Oder "passender" für eine bestimmte Anwendung oder einen bestimmten Programmierstil. Beispiel: Annotations auslesen.
 
 Die Grundaussage ist:
-Falls es mal irgendwo ein Problem gibt, egal ob mit der Heuristik oder eine Sonderfallanforderung oder Performanceproblem beim Laden von 2343543 Millionen Entities auf einmal oder es mal einen Debuggingbedarf in die Tiefe oder so gibt: Keine Panik. Höchstwahrscheinlich ist das mit ein paar Zeilen selber implementiertem Interface leicht möglich.
+Falls es mal irgendwo ein Problem gibt, egal ob mit der Heuristik oder eine Sonderfallanforderung oder Performanceproblem beim Laden von 2343543 Millionen Entities auf einmal oder es mal einen Debuggingbedarf in die Tiefe oder so gibt: Keine Panik. Höchstwahrscheinlich ist das mit ein paar Zeilen custom implementiertem Interface leicht möglich.
 (Interfaces for the win)
 
