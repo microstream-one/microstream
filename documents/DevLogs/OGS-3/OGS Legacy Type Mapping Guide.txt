@@ -19,13 +19,21 @@ Das bedeutet: Im einfachsten Fall muss man für eine Typänderung ... gar nichts
 
 Die Typanalyse versucht, automatisch zu erkennen, welche Felder neu sind, weggefallen sind, an anderer Stelle stehen oder nur geringfügig geändert wurden.
 
-Ich habe das mal mit einem Beispiel auf die Spitze getrieben:
+Ich hab dazu mal ein Beispiel gebaut:
 
-[TODO: Person Beispiel und Screenshot mit Erklärung]
+[Legacy Type Mapping.png]
 
+Die Felder in einer "Contact" Entity-Klasse werden ein bisschen besser benannt, umgeordnet, eins fällt weg, eins kommt dazu.
+(Die Code-Kommentare sind natürlich nur für den Screenshot. Die werden nicht irgendwie ausgelesen oder so).
+
+Was die Heuristik da jetzt macht, ist in etwa folgendes:
+String firstname gibts in beiden Klassen gleich, also wird das wohl das gleiche Feld sein. Bei age ebenso.
+"name" und "lastname" schreibt sich ganz ähnlich, der Typ ist auch gleich. Wenn sich für die beiden nichts besseres findet, gehören die wohl auch zusammen. So ähnlich mit den beiden anderen Feldern. Am Ende bleibt das ominöse "link" Feld und das "postalAddress". Auf die kann sich die Heuristik keinen Reim machen, darum nimmt sie an, dass das eine wegfällt und das andere neu dazukommt.
+In diesem Beispiel hat das perfekt geklappt. Gut mitgedacht, Programm.
 
 Allerdings:
-Genau wie Menschen, die Ähnlichkeiten abschätzen, dabei Fehler machen können, können auch Programme Fehler machen, wenn sie sich mal auf logisch gesehen so "dünnes Eis" begeben. Da ist nichts mehr mit absoluter Korrektheit, die man eigentlich von Software kennt. Sondern so ein Ähnlichkeitsmatching wird in den "meisten" Fällen richtig sein, aber manchmal wird es auch daneben fassen.
+Genau wie Menschen beim Abschätzen von Ähnlichkeiten Fehler machen können ("Ich hätte gedacht ..."), können auch Programme Fehler machen, sobald sie sich einmal auf logisch gesehen so "dünnes Eis" begeben. Da ist nichts mehr mit absoluter Korrektheit, die man eigentlich von (bugfreier) Software kennt. Sondern so ein Ähnlichkeitsmatching wird in den "meisten" Fällen richtig sein, aber manchmal wird es auch daneben fassen.
+Beispiel: Vielleicht wurden in der Anwendung bisher unter "link" immer nur PostalAddress Instanzen referenziert und die beiden Felder wären eigentlich doch dasselbe, nur ordentlich typisiert und benannt. Woher soll die Heuristik das wissen können? Das kann auch kein Mensch wissen, wenn er nicht gerade in die Details der konkreten Anwendung eingeweiht ist.
 
 Darum gibt es im Legacy Type Mapping zwei Mechanismen, die verhindern, dass etwas schief läuft:
 1.) Bei der Initialisierung wird jedes vermutete Mapping einmal dem Benutzer zur Kontrolle vorgelegt.
@@ -33,7 +41,7 @@ Darum gibt es im Legacy Type Mapping zwei Mechanismen, die verhindern, dass etwa
 
 
 Zu 1.) ist noch wichtig, anzumerken:
-Eigentlich ist das gar kein Feature, sondern ein Customizing, das ich nur per Default eingebaut habe.
+Eigentlich ist das technisch gar kein Feature, sondern ein Customizing, das ich nur per Default eingebaut habe.
 Irgendwo wird aus explizitem Mapping und heuristischem Matching mal ein "result" zusammengestellt. Die Logik, die das macht, habe ich als Interface modularisiert. Heißt "PersistenceLegacyTypeMappingResultor".
 Irgendwo stand mal "return PersistenceLegacyTypeMappingResultor.New();", um so eine Logikinstanz mal zurückzugeben.
 Das habe ich einfach in eine "Wrapping" Resultor verpackt, der sich das Ergebnis via Konsole erst bestätigen lässt.
@@ -108,13 +116,19 @@ Für Klassen selbst gilt das natürlich auch:
 "com.my.App.entities.Order;com.my.App.entities.OrderImplementation"
 Damit weiß die Datenbankschicht: Aha, "Order" heißt jetzt "OrderImplementation".
 
-Übrigens muss man Änderungen an Klassennamen IMMER explizit angeben. Hier gibt es keine Heuristik.
-Warum nicht? Faul geworden?
-Ne, nicht ganz. Sondern das geht nicht. JVM-seitig. Die JVM kennt nicht "Alle Entity Klassen". Sie kennt nur eine Startklasse und immer, wenn eine unbekannte Klasse referenziert wird, versucht sie, die dynamisch nachzuladen. Es gibt kein "iterateClasses" oder "getAllClasses" oder sowas in der Art. Darum kann man auch nichts bauen, das eine Klassendefinition mit "allen aktuellen" abgleicht, bis es eine passende findet.
-FH hat mal hingewiesen auf Frameworks, die das "können", aber letztendlich suchen die eigentlich den Classpath auf der Festplatte durch. Ich hab in diese Richtung mal nichts eingebaut, um nicht lästige Abhängigkeiten zu Drittanbieter Frameworks zu schaffen, die im Zweifel irgendwelche Probleme machen. Die Erfahrung zeigt: Es ist jedes mal so. Wenn man nicht alles selber programmiert, kriegt man üblicherweise nur halb funktionierenden Schrott. Hübsch verpackt als ultimativer Heilsbringer.
-Vielleicht wäre das sowieso eher ein Job für die IDE. Die kennt alle Entity Klassen und kann aus einem Ähnlichkeitsabgleich so ein Mapping ableiten. Mal sehen.
+
+Hier ein Beispiel, wie das Mapping von oben explizit angegeben werden kann. Ziemlich simpel:
 
 [TODO: Beispielklassen und Datei mit gängigen Fällen möglicher Syntax]
+
+
+
+Übrigens muss man Änderungen an Klassennamen IMMER explizit angeben. Hier gibt es keine Heuristik.
+Warum nicht? War ich da faul geworden?
+Ne, nicht ganz hat mal hingewiesen auf Frameworks, die das "können", aber letztendlich suchen die eigentlich den Classpath auf der Festplatte durch. Ich hab in diese Richtung mal nichts eingebaut, um nicht lästige Abhängigkeiten zu Drittanbieter Frameworks zu schaffen, die im Zweifel irgendwelche Probleme machen. Die Erfahrung zeigt: Es ist jedes mal so. Wenn man nicht alles selber programmiert, kriegt man üblicherweise nur halb funktionierenden Schrott. Hübsch verpackt als ultimativer Heilsbringer.
+Vielleicht wäre das sowieso eher ein Job für die IDE. Die kennt alle Entity Klassen und kann aus einem Ähnlichkeitsabgleich so ein Mapping ableiten. Mal sehen.
+
+
 
 Also soweit so gut: Es werden also Klassen und Felder von vollautomatisch bis voll manuell von alt auf neu gemappt.
 
