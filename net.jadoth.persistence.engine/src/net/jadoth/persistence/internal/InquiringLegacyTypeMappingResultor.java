@@ -128,8 +128,12 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	{
 		vs
 		.lf()
+		.add("----------").lf()
 		.add("Legacy type mapping required for legacy type ").lf()
 		.add(result.legacyTypeDefinition().toTypeIdentifier()).lf()
+		.add("to current type ").lf()
+		.add(result.currentTypeHandler().toTypeIdentifier()).lf()
+		.add("Fields:").lf()
 		;
 		
 		return vs;
@@ -188,8 +192,10 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResult<M, ?> result
 	)
 	{
-		vs.add("Write 'y' to accept the mapping.");
-		
+		vs
+		.add("---").lf()
+		.add("Write 'y' to accept the mapping.")
+		;
 		return vs;
 	}
 	
