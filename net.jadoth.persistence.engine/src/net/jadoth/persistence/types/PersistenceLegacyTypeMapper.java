@@ -168,6 +168,11 @@ public interface PersistenceLegacyTypeMapper<M>
 				}
 			}
 		}
+		
+		private static boolean hasNoElements(final BulkList<?> list)
+		{
+			return list.applies(e -> e == null);
+		}
 				
 		private MultiMatch<PersistenceTypeDefinitionMember> match(
 			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
@@ -192,6 +197,12 @@ public interface PersistenceLegacyTypeMapper<M>
 				explicitNewMembers.contains(m) || explicitMappings.values().contains(m),
 				null
 			);
+			
+			// if no more elements are left to be matched, return null to signal no matching at all.
+			if(hasNoElements(sourceMembers) || hasNoElements(targetMembers))
+			{
+				return null;
+			}
 			
 			final MultiMatch<PersistenceTypeDefinitionMember> match = this.match(sourceMembers, targetMembers);
 			
