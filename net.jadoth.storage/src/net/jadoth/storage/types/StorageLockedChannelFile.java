@@ -11,10 +11,7 @@ public interface StorageLockedChannelFile extends StorageLockedFile, StorageHash
 	public int channelIndex();
 
 	@Override
-	public File file();
-
-	@Override
-	public FileChannel fileChannel();
+	public FileChannel channel();
 
 
 

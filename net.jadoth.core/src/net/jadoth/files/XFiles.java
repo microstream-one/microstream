@@ -251,14 +251,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return new File(parent, buildFilePath(items));
 	}
 
-	public static final String getSuffixlessFileName(final File file)
-	{
-		final String filename = file.getName();
-		final int    dotIndex = filename.lastIndexOf('.');
-		return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
-	}
-
-
 
 	@SuppressWarnings("resource") // channel handles the closing, unjustified warning
 	public static void copyFile(final File in, final File out) throws IOException

@@ -2,7 +2,6 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Date;
 
@@ -197,7 +196,7 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 	{
 		public long fileNumber();
 
-		public File file();
+		public String file();
 
 
 
@@ -209,8 +208,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 			// instance fields  //
 			/////////////////////
 
-			final long fileNumber;
-			final File file      ;
+			final long   fileNumber;
+			final String file      ;
 
 
 
@@ -219,10 +218,10 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 			/////////////////////
 
 			public Implementation(
-				final long fileNumber     ,
-				final File file           ,
-				final long liveDataLength ,
-				final long totalDataLength
+				final long   fileNumber     ,
+				final String file           ,
+				final long   liveDataLength ,
+				final long   totalDataLength
 			)
 			{
 				super(1, liveDataLength, totalDataLength);
@@ -238,7 +237,7 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 			}
 
 			@Override
-			public final File file()
+			public final String file()
 			{
 				return this.file;
 			}

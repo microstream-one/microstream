@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 
 import net.jadoth.X;
 import net.jadoth.chars.CharConversion_float;
@@ -39,7 +40,7 @@ import net.jadoth.util.csv.CsvConfiguration;
 
 public interface StorageDataConverterTypeBinaryToCsv
 {
-	public void convertDataFile(File file);
+	public void convertDataFile(StorageFile file);
 
 
 
@@ -191,7 +192,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private final StorageEntityTypeConversionFileProvider fileProvider          ;
 		private final PersistenceTypeDictionary               typeDictionary        ;
-		private       File                                    currentSourceFile     ;
+		private       StorageFile                             currentSourceFile     ;
 
 		private final int                                     readBufferSize        ;
 		private final ByteBuffer                              readBufferNormal      ;
@@ -353,9 +354,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void openChannel() throws IOException
 		{
-			final File file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			XFiles.ensureDirectory(file.getParentFile());
-			this.fileChannel = XFiles.createWritingFileChannel(file);
+			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
+			final File directory = new File(file.qualifier());
+			XFiles.ensureDirectory(directory);
+			this.fileChannel = file.channel();
 		}
 
 		private ValueWriter deriveOtherValueWriter(final PersistenceTypeDescriptionMember field)
@@ -539,14 +541,15 @@ public interface StorageDataConverterTypeBinaryToCsv
 		////////////
 
 		@Override
-		public final void convertDataFile(final File file)
+		public final void convertDataFile(final StorageFile file)
 		{
 			if(file.length() == 0)
 			{
 				return;
 			}
 
-			try(FileChannel inputChannel = XFiles.createReadingFileChannel(this.currentSourceFile = file))
+			// (13.10.2018 TM)FIXME: /!\ replace autoclose by external closing
+			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).channel())
 			{
 				try
 				{

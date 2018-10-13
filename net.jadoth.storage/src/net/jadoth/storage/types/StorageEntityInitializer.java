@@ -250,7 +250,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		{
 			try
 			{
-				final FileChannel fileChannel = file.fileChannel();
+				final FileChannel fileChannel = file.channel();
 				fileChannel.position(0);
 
 				buffer.clear();
@@ -292,7 +292,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 					 * And wait for a proper solution, of course. Maybe a self-built tailored IO via JNI.
 					 */
 					throw new StorageExceptionIoReading(
-						"File size exceeds Java technical IO limitations: " + file.file()
+						"Storage file size exceeds Java technical IO limitations: " + file.identifier()
 					);
 				}
 				

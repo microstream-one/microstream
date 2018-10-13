@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -113,8 +114,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				try
 				{
 					// channel must be closed by StorageChannel after copying has been completed.
-					final FileChannel channel = StorageLockedFile.openFileChannel(file).channel();
-					itemReader.setSourceFile(file, channel);
+					final FileLock fileLock = StorageLockedFile.openFileChannel(file);
+					itemReader.setSourceFile(file, fileLock);
+					final FileChannel channel = fileLock.channel();
 					iterator.iterateStoredItems(channel, 0, channel.size());
 					itemReader.completeCurrentSourceFile();
 				}
@@ -141,7 +143,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			private final ChannelItem[]                       channelItems             ;
 			private final int                                 channelHash              ;
 			private       File                                file                     ;
-			private       FileChannel                         sourceFileChannel        ;
+			private       FileLock                            fileLock                 ;
 			private       int                                 currentBatchChannel      ;
 			private       long                                currentSourceFilePosition;
 			private       long                                maxObjectId              ;
@@ -154,7 +156,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			
 			public ItemReader(
 				final StorageEntityCache.Implementation[] entityCaches   ,
-				final SourceFileSlice[]                        sourceFileHeads
+				final SourceFileSlice[]                   sourceFileHeads
 			)
 			{
 				super();
@@ -271,13 +273,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				item.tailBatch.batchLength += length;
 			}
 
-			final void setSourceFile(final File file, final FileChannel fileChannel)
+			final void setSourceFile(final File file, final FileLock fileLock)
 			{
 				// next source file is set up
-				this.currentBatchChannel       =          -1; // invalid value to guarantee change on first entity.
-				this.currentSourceFilePosition =           0; // source file starts at 0, of course.
-				this.file                      =        file;
-				this.sourceFileChannel         = fileChannel; // keep file channel reference.
+				this.currentBatchChannel       =       -1; // invalid value to guarantee change on first entity.
+				this.currentSourceFilePosition =        0; // source file starts at 0, of course.
+				this.file                      =     file;
+				this.fileLock                  = fileLock; // keep file lock&channel reference.
 			}
 
 			final void completeCurrentSourceFile()
@@ -290,7 +292,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 					final ChannelItem currentItem       = channelItems[i];
 
 					sourceFileHeads[i] = sourceFileHeads[i].next =
-						new SourceFileSlice(i, this.file, this.sourceFileChannel, currentItem.headBatch.batchNext)
+						new SourceFileSlice(i, this.file, this.fileLock, currentItem.headBatch.batchNext)
 					;
 					currentItem.resetChains();
 
@@ -441,38 +443,22 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		}
 	}
 
-	static final class SourceFileSlice implements StorageChannelImportSourceFile
+	static final class SourceFileSlice
+	extends StorageLockedChannelFile.Implementation
+	implements StorageChannelImportSourceFile
 	{
-		final int             channelIndex;
-		final File            file        ;
-		final FileChannel     fileChannel ;
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
 
 		SourceFileSlice(
 			final int         channelIndex,
 			final File        file        ,
-			final FileChannel fileChannel ,
+			final FileLock    fileLock    ,
 			final ImportBatch headBatch
 		)
 		{
-			super();
-			this.channelIndex = channelIndex;
-			this.file         = file        ;
-			this.fileChannel  = fileChannel ;
+			super(channelIndex, file, fileLock);
 			this.headBatch    = headBatch   ;
-		}
-
-		@Override
-		public File file()
-		{
-			return this.file;
-		}
-
-		@Override
-		public final FileChannel fileChannel()
-		{
-			return this.fileChannel;
 		}
 
 		@Override
