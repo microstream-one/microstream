@@ -11,6 +11,7 @@ public interface StorageFile
 	 * using the StorageFile type of this supertype and and writer abstraction.
 	 * Maybe even to a point of defining a StorageDirectory or probably leave the directory concept away.
 	 */
+	// (13.10.2018 TM)TODO: remove references to File and FileChannel from all storage interfaces.
 	
 	public File file();
 
