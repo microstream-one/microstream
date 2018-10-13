@@ -125,7 +125,8 @@ Hier ein Beispiel, wie das Mapping von oben explizit angegeben werden kann. Ziem
 
 Übrigens muss man Änderungen an Klassennamen IMMER explizit angeben. Hier gibt es keine Heuristik.
 Warum nicht? War ich da faul geworden?
-Ne, nicht ganz hat mal hingewiesen auf Frameworks, die das "können", aber letztendlich suchen die eigentlich den Classpath auf der Festplatte durch. Ich hab in diese Richtung mal nichts eingebaut, um nicht lästige Abhängigkeiten zu Drittanbieter Frameworks zu schaffen, die im Zweifel irgendwelche Probleme machen. Die Erfahrung zeigt: Es ist jedes mal so. Wenn man nicht alles selber programmiert, kriegt man üblicherweise nur halb funktionierenden Schrott. Hübsch verpackt als ultimativer Heilsbringer.
+Ne, nicht ganz. Sondern das geht nicht. JVM-seitig. Die JVM kennt nicht "Alle Entity Klassen". Sie kennt nur eine Startklasse und immer, wenn eine unbekannte Klasse referenziert wird, versucht sie, die dynamisch nachzuladen. Es gibt kein "iterateClasses" oder "getAllClasses" oder sowas in der Art. Darum kann man auch nichts bauen, das eine Klassendefinition mit "allen aktuellen" abgleicht, bis es eine passende findet.
+FH hat mal hingewiesen auf Frameworks, die das "können", aber letztendlich suchen die eigentlich den Classpath auf der Festplatte durch. Ich hab in diese Richtung mal nichts eingebaut, um nicht lästige Abhängigkeiten zu Drittanbieter Frameworks zu schaffen, die im Zweifel irgendwelche Probleme machen. Die Erfahrung zeigt: Es ist jedes mal so. Wenn man nicht alles selber programmiert, kriegt man üblicherweise nur halb funktionierenden Schrott. Hübsch verpackt als ultimativer Heilsbringer.
 Vielleicht wäre das sowieso eher ein Job für die IDE. Die kennt alle Entity Klassen und kann aus einem Ähnlichkeitsabgleich so ein Mapping ableiten. Mal sehen.
 
 
