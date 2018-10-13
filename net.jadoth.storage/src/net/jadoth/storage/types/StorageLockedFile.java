@@ -9,17 +9,13 @@ import java.nio.channels.FileLock;
 import net.jadoth.files.XFiles;
 
 
-public interface StorageLockedFile extends StorageFile, AutoCloseable
+public interface StorageLockedFile extends StorageFile //, AutoCloseable
 {
+	// can't implement AutoCloseable because the naive resource warnings are idiotic.
+	
 	@Override
 	public FileChannel channel();
 	
-	@Override
-	public default void close() throws RuntimeException // moronic checked exceptions
-	{
-		StorageFile.super.close();
-	}
-
 
 
 	public static StorageLockedFile New(final File file, final FileLock lock)

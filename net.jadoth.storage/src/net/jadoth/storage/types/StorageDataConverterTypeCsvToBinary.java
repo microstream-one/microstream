@@ -1529,7 +1529,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// no idea if this is necessary, especially on such tiny buffers, but completeness must be guaranteed.
 				while(byteBuffer.hasRemaining())
 				{
-					this.targetFileChannel.write(byteBuffer, filePosition + byteBuffer.position());
+					// (13.10.2018 TM)NOTE: the pure write() call should already implicitely always append.
+					this.targetFileChannel.write(byteBuffer);
+//					this.targetFileChannel.write(byteBuffer, filePosition + byteBuffer.position());
 				}
 			}
 			catch(final IOException e)
