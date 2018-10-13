@@ -116,13 +116,19 @@ public class TestStorage extends TestComponentProvider
 			{
 				continue;
 			}
-			try(final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file))
+			
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			try
 			{
 				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
 				throw new RuntimeException("Exception while converting file " + file, e);
+			}
+			finally
+			{
+				storageFile.close();
 			}
 		}
 		return dir;

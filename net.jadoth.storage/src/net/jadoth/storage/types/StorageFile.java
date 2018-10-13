@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 
+/**
+ * Type that symbolizes any entity that allows physically persisting and reading a randomly accessible sequence
+ * of bytes. This might typically be a file system file entity, but not necessarily.
+ * 
+ * @author Thomas Münz
+ */
 public interface StorageFile
 {
 	/* (13.10.2018 TM)TODO: much better improved file abstraction.
@@ -23,14 +29,20 @@ public interface StorageFile
 	 * - A row in an RDBMS table containing a BLOB.
 	 * - A full qualified mysterious cloud binary storage whathaveyou item
 	 * 
-	 * Not yet clear:
-	 * Should StorageDirectory-s be recursive like file system directories?
-	 * Why should the have to be?
+	 * Directories can be used not just for channel directories, but also for import/export locations, etc.
 	 * 
-	 * Maybe even abstract the SeekableByteChannel sh*t because the idiotic NIO interfaces and exception make me sick.
+	 * Including
+	 * - StorageInputChannel
+	 * - StorageOutputChannel
+	 * - StorageIoChannel extends StorageInputChannel, StorageOutputChannel
+	 * plus implementations wrapping specific means (e.g. a FileChannel)
+	 * because the idiotic nio interfaces and exceptions make me sick.
 	 * (seriously: how hard can it be for the "elite" java developers themselves to properly harness the
 	 * language's basic typing concept?)
 	 * 
+	 * Not yet clear:
+	 * Should StorageDirectory-s be recursive like file system directories?
+	 * Why should they have to be?
 	 */
 	
 	public FileChannel channel();
