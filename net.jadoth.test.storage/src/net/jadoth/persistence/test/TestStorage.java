@@ -28,7 +28,9 @@ import net.jadoth.storage.types.StorageDataConverterTypeCsvToBinary;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
+import net.jadoth.storage.types.StorageFile;
 import net.jadoth.storage.types.StorageFileProvider;
+import net.jadoth.storage.types.StorageLockedFile;
 import net.jadoth.util.cql.CQL;
 
 public class TestStorage extends TestComponentProvider
@@ -114,13 +116,13 @@ public class TestStorage extends TestComponentProvider
 			{
 				continue;
 			}
-			try
+			try(final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file))
 			{
-				converter.convertDataFile(file);
+				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception while converting file "+file, e);
+				throw new RuntimeException("Exception while converting file " + file, e);
 			}
 		}
 		return dir;
@@ -133,12 +135,11 @@ public class TestStorage extends TestComponentProvider
 
 	protected static void convertCsvToBin(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
 	{
-		final StorageDataConverterTypeCsvToBinary<File> converter = StorageDataConverterTypeCsvToBinary.New(
+		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "bin2");
+		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
-			new StorageEntityTypeConversionFileProvider.Implementation(
-				new File(binaryFiles.get().getParentFile().getParentFile(), "bin2"), "dat2"
-			)
+			new StorageEntityTypeConversionFileProvider.Implementation(directory, "dat2")
 		);
 
 		for(final File file : binaryFiles)
@@ -147,7 +148,9 @@ public class TestStorage extends TestComponentProvider
 			{
 				continue;
 			}
-			converter.convertCsv(file);
+
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			converter.convertCsv(storageFile);
 		}
 	}
 
@@ -164,7 +167,7 @@ public class TestStorage extends TestComponentProvider
 
 		final XSequence<File> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> s.file().file())
+			.project(s -> new File(s.file().identifier()))
 			.execute()
 		;
 

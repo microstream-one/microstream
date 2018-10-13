@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -169,11 +170,11 @@ public interface StorageDataFileItemIterator
 		}
 
 		public static <P extends ItemProcessor> P processInputFile(
-			final FileChannel     fileChannel    ,
-			final BufferProvider  bufferProvider ,
-			final P               itemProcessor  ,
-			final long            startPosition  ,
-			final long            length
+			final SeekableByteChannel fileChannel    ,
+			final BufferProvider      bufferProvider ,
+			final P                   itemProcessor  ,
+			final long                startPosition  ,
+			final long                length
 		)
 			throws IOException
 		{
@@ -242,10 +243,10 @@ public interface StorageDataFileItemIterator
 		}
 
 		private static long processBufferedEntities(
-			final long          startAddress    ,
-			final long          bufferDataLength,
-			final FileChannel   fileChannel     ,
-			final ItemProcessor entityProcessor
+			final long                startAddress    ,
+			final long                bufferDataLength,
+			final SeekableByteChannel fileChannel     ,
+			final ItemProcessor       entityProcessor
 		)
 			throws IOException
 		{

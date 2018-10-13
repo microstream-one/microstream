@@ -15,6 +15,8 @@ import net.jadoth.storage.types.StorageDataConverterTypeCsvToBinary;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
+import net.jadoth.storage.types.StorageFile;
+import net.jadoth.storage.types.StorageLockedFile;
 import net.jadoth.storage.types.StorageTypeDictionary;
 import net.jadoth.util.cql.CQL;
 
@@ -86,7 +88,7 @@ public class TestImportExport
 
 		final XSequence<File> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> s.file().file())
+			.project(s -> new File(s.file().identifier()))
 			.execute()
 		;
 
@@ -117,7 +119,8 @@ public class TestImportExport
 			}
 			try
 			{
-				converter.convertDataFile(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
@@ -134,7 +137,7 @@ public class TestImportExport
 		final Predicate<? super File>   filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<File> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Implementation(
@@ -150,7 +153,8 @@ public class TestImportExport
 			}
 			try
 			{
-				converter.convertCsv(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertCsv(storageFile);
 			}
 			catch(final Exception e)
 			{

@@ -49,7 +49,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 
 
-	public static StorageDataConverterTypeCsvToBinary<File> New(
+	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider
@@ -58,7 +58,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		return New(configuration, typeDictionary, fileProvider, 0);
 	}
 
-	public static StorageDataConverterTypeCsvToBinary<File> New(
+	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider  ,
@@ -76,7 +76,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 	public final class Implementation
 	implements
-	StorageDataConverterTypeCsvToBinary<File>,
+	StorageDataConverterTypeCsvToBinary<StorageFile>,
 	CsvSegmentsParser.Provider<_charArrayRange>,
 	CsvSegmentsParser<_charArrayRange>,
 	CsvRecordParserCharArray.Provider,
@@ -131,11 +131,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final long                                    addressEntityLengthUpdateBuffer;
 		final ValueHandler                            objectIdValueHandler           ;
 
-		      File                                    sourceFile                     ;
+		      StorageFile                             sourceFile                     ;
 		      StorageLockedFile                       targetFile                     ;
 		      FileChannel                             targetFileChannel              ;
 		      long                                    targetFileActualLength         ;
-		      PersistenceTypeDefinition           currentType                    ;
+		      PersistenceTypeDefinition               currentType                    ;
 		      long                                    currentTypeEntityInitLength    ;
 		      ValueHandler[]                          valueHandler                   ;
 
@@ -1041,20 +1041,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		private void setTargetFile()
 		{
-			final File targetFile = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
-			final StorageLockedFile currentTargetFile;
-			try
-			{
-				XFiles.ensureDirectory(targetFile.getParentFile());
-				currentTargetFile = StorageLockedFile.openLockedFile(XFiles.ensureWriteableFile(targetFile));
-			}
-			catch(final Exception e)
-			{
-				throw new RuntimeException(e); // (01.10.2014 TM)EXCP: proper exception
-			}
-
-			this.targetFile        = currentTargetFile;
-			this.targetFileChannel = this.targetFile.fileChannel();
+			this.targetFile        = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
+			this.targetFileChannel = this.targetFile.channel();
 			try
 			{
 				this.targetFileActualLength = this.targetFileChannel.size();
@@ -1066,7 +1054,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 		}
 
-		private void setSourceFile(final File file)
+		private void setSourceFile(final StorageFile file)
 		{
 			this.clearCurrentFileState();
 
@@ -1077,7 +1065,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final void parseCurrentFile()
 		{
 			final char[] input = XFiles.readCharsFromFileUtf8(
-				this.sourceFile,
+				new File(this.sourceFile.identifier()),
 				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
 				 * Copied from StorageRequestTaskImportData#internalProcessBy:
 				 * if it is a normal problem, there should be a proper wrapping exception for it
@@ -1668,11 +1656,18 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		////////////
 
 		@Override
-		public void convertCsv(final File file)
+		public void convertCsv(final StorageFile file)
 		{
 			this.setSourceFile(file);
 			this.parseCurrentFile();
 			this.clearCurrentFileState();
+		}
+		
+		static final String getSuffixlessFileName(final StorageFile file)
+		{
+			final String filename = file.name();
+			final int    dotIndex = filename.lastIndexOf('.');
+			return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
 		}
 
 		@Override
@@ -1684,7 +1679,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			final String typeName = tableName != null
 				? tableName
-				: XFiles.getSuffixlessFileName(this.sourceFile)
+				: getSuffixlessFileName(this.sourceFile)
 			;
 			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
 			{

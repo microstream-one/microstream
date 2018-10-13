@@ -11,6 +11,8 @@ import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeCsvToBinary;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
+import net.jadoth.storage.types.StorageFile;
+import net.jadoth.storage.types.StorageLockedFile;
 
 public class MainTestConvertCsvToBin
 {
@@ -31,7 +33,7 @@ public class MainTestConvertCsvToBin
 		final Predicate<? super File>   filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<File> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Implementation(
@@ -47,7 +49,8 @@ public class MainTestConvertCsvToBin
 			}
 			try
 			{
-				converter.convertCsv(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertCsv(storageFile);
 			}
 			catch(final Exception e)
 			{

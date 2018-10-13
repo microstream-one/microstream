@@ -749,7 +749,7 @@ public interface StorageFileManager
 		{
 			final StorageLockedChannelFile file = this.createTransactionsFile();
 
-			if(!file.file().exists())
+			if(!file.exists())
 			{
 				/* (11.09.2014 TM)TODO: missing transactions file handler function
 				 * default implementation just returns null.
@@ -761,7 +761,7 @@ public interface StorageFileManager
 			FileChannel channel = null;
 			try
 			{
-				channel = file.fileChannel();
+				channel = file.channel();
 
 				final EntryAggregator aggregator = StorageTransactionsFileAnalysis.Logic.processInputFile(
 					channel,
@@ -794,7 +794,7 @@ public interface StorageFileManager
 
 			for(final StorageInventoryFile file : dataFiles)
 			{
-				final long actualFileLength = file.file().length();
+				final long actualFileLength = file.length();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
 				final StorageTransactionFile entryFile = fileEntries.removeFor(file.number());
@@ -981,7 +981,7 @@ public interface StorageFileManager
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().last().file().length();
+				return storageInventory.dataFiles().last().length();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{
@@ -1075,9 +1075,9 @@ public interface StorageFileManager
 				{
 					buffer.clear();
 					StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
-						address             ,
-						file.file().length(),
-						++timestamp         ,
+						address      ,
+						file.length(),
+						++timestamp  ,
 						file.number()
 					);
 					writer.write(tfile, buffer);
@@ -1198,7 +1198,7 @@ public interface StorageFileManager
 			final long                 lastFileLength
 		)
 		{
-			if(lastFileLength != lastFile.file().length())
+			if(lastFileLength != lastFile.length())
 			{
 //				XDebug.debugln(
 //					this.channelIndex()
@@ -1216,7 +1216,7 @@ public interface StorageFileManager
 					lastFileLength                               ,
 					this.timestampProvider.currentNanoTimestamp(),
 					lastFile.number()                            ,
-					lastFile.file().length()
+					lastFile.length()
 				);
 				this.writer.flush(this.fileTransactions);
 
@@ -1256,8 +1256,8 @@ public interface StorageFileManager
 				totalDataLength += file.totalLength();
 				fileStatistics.add(
 					new FileStatistics.Implementation(
-						file.number(),
-						file.file(),
+						file.number()    ,
+						file.identifier(),
 						file.dataLength(),
 						file.totalLength()
 					)

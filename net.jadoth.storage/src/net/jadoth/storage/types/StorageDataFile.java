@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
@@ -37,10 +36,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 	public boolean isHeadFile();
 
-
-
-	@Override
-	public File file();
 
 	/**
 	 * Querying method to check if a storage file consists of only one singular live entity.
@@ -241,7 +236,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			 */
 			try
 			{
-				return this.fileChannel().transferTo(sourceOffset, length, file.fileChannel());
+				return this.channel().transferTo(sourceOffset, length, file.channel());
 			}
 			catch(final IOException e)
 			{
@@ -381,23 +376,48 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			return this.file.channelIndex();
 		}
-
+		
 		@Override
-		public FileChannel fileChannel()
+		public String qualifier()
 		{
-			return this.file.fileChannel();
+			return this.file.qualifier();
+		}
+		
+		@Override
+		public String identifier()
+		{
+			return this.file.identifier();
+		}
+		
+		@Override
+		public String name()
+		{
+			return this.file.name();
+		}
+		
+		@Override
+		public boolean delete()
+		{
+			this.close();
+			return this.file.delete();
+		}
+		
+		@Override
+		public boolean exists()
+		{
+			return this.file.exists();
 		}
 
 		@Override
-		public File file()
+		public FileChannel channel()
 		{
-			return this.file.file();
+			return this.file.channel();
 		}
 
 		@Override
 		public final String toString()
 		{
-			return this.getClass().getSimpleName() + " " + this.file.file()
+			return this.getClass().getSimpleName() + " " + this.file.identifier()
 				+ " (" + this.fileDataLength + " / " + this.fileTotalLength
 				+ ", " + XMath.fractionToPercent(this.dataFillRatio()) + ")"
 			;

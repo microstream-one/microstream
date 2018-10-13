@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -10,13 +9,16 @@ import java.nio.channels.FileLock;
 import net.jadoth.files.XFiles;
 
 
-public interface StorageLockedFile extends StorageFile
+public interface StorageLockedFile extends StorageFile, AutoCloseable
 {
 	@Override
-	public File file();
-
+	public FileChannel channel();
+	
 	@Override
-	public FileChannel fileChannel();
+	public default void close() throws RuntimeException // moronic checked exceptions
+	{
+		StorageFile.super.close();
+	}
 
 
 
@@ -61,7 +63,7 @@ public interface StorageLockedFile extends StorageFile
 		return lock;
 	}
 
-	public static StorageLockedFile openLockedFile(final File file) throws FileNotFoundException
+	public static StorageLockedFile openLockedFile(final File file)
 	{
 		return StorageLockedFile.New(file, openFileChannel(file));
 	}
@@ -88,10 +90,7 @@ public interface StorageLockedFile extends StorageFile
 		// constructors //
 		/////////////////
 
-		public Implementation(
-			final File     file,
-			final FileLock lock
-		)
+		public Implementation(final File file, final FileLock lock)
 		{
 			super();
 			this.file         = file          ;
@@ -105,16 +104,46 @@ public interface StorageLockedFile extends StorageFile
 		// methods //
 		////////////
 
-		@Override
 		public final File file()
 		{
 			return this.file;
 		}
 
 		@Override
-		public final FileChannel fileChannel()
+		public final FileChannel channel()
 		{
 			return this.fileChannel;
+		}
+		
+		@Override
+		public String qualifier()
+		{
+			return this.file.getParent();
+		}
+		
+		@Override
+		public String identifier()
+		{
+			return this.file.getPath();
+		}
+		
+		@Override
+		public String name()
+		{
+			return this.file.getName();
+		}
+		
+		@Override
+		public boolean delete()
+		{
+			this.close();
+			return this.file.delete();
+		}
+		
+		@Override
+		public boolean exists()
+		{
+			return this.file.exists();
 		}
 
 		@Override

@@ -10,6 +10,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeBinaryToCsv;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
+import net.jadoth.storage.types.StorageLockedFile;
 
 public class MainTestConvertBinToCsv
 {
@@ -21,7 +22,10 @@ public class MainTestConvertBinToCsv
 		);
 	}
 
-	static void convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
+	static void convertBinToCsv(
+		final XGettingCollection<File> binaryFiles,
+		final Predicate<? super File> filter
+	)
 	{
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
@@ -40,7 +44,9 @@ public class MainTestConvertBinToCsv
 			{
 				continue;
 			}
-			converter.convertDataFile(file);
+			
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			converter.convertDataFile(storageFile);
 		}
 	}
 

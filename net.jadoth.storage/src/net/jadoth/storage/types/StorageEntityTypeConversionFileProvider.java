@@ -4,12 +4,13 @@ import static net.jadoth.X.notNull;
 
 import java.io.File;
 
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 
 
 public interface StorageEntityTypeConversionFileProvider
 {
-	public File provideConversionFile(PersistenceTypeDefinition typeDescription, File sourceFile);
+	public StorageLockedFile provideConversionFile(PersistenceTypeDefinition typeDescription, StorageFile sourceFile);
 
 
 
@@ -56,10 +57,18 @@ public interface StorageEntityTypeConversionFileProvider
 		////////////
 
 		@Override
-		public File provideConversionFile(final PersistenceTypeDefinition typeDescription, final File sourceFile)
+		public StorageLockedFile provideConversionFile(
+			final PersistenceTypeDefinition typeDescription,
+			final StorageFile               sourceFile
+		)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
-			return new File(this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix);
+			final File file = new File(
+				this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix
+			);
+			XFiles.ensureDirectory(this.directory);
+			
+			return StorageLockedFile.openLockedFile(file);
 		}
 
 	}

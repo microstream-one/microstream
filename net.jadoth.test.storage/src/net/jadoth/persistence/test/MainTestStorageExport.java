@@ -65,10 +65,12 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
+		final File directory = XFiles.ensureDirectory(new File("C:/Files/export/bin"));
+		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			XFiles.ensureDirectory(new File("C:/Files/export/bin")),
+			directory,
 			"dat"
 		);
 		convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));

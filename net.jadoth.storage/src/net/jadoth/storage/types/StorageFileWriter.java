@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import net.jadoth.files.XFiles;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
@@ -25,7 +26,7 @@ public interface StorageFileWriter
 
 		try
 		{
-			file.fileChannel().write(byteBuffer);
+			file.channel().write(byteBuffer);
 //			file.fileChannel().force(false); // (12.02.2015 TM)NOTE: replaced by explicit flush() calls on all usesites
 		}
 		catch(final IOException e)
@@ -38,7 +39,7 @@ public interface StorageFileWriter
 	{
 		try
 		{
-			targetfile.fileChannel().force(false);
+			targetfile.channel().force(false);
 		}
 		catch(final IOException e)
 		{
@@ -51,7 +52,7 @@ public interface StorageFileWriter
 //		DEBUGStorage.println("storage write multiple buffers");
 
 		final ByteBuffer  last    = byteBuffers[byteBuffers.length - 1];
-		final FileChannel channel = file.fileChannel();
+		final FileChannel channel = file.channel();
 
 		try
 		{
@@ -83,7 +84,7 @@ public interface StorageFileWriter
 
 		try
 		{
-			return sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
+			return sourceFile.channel().transferTo(sourceOffset, length, targetfile.channel());
 		}
 		catch(final IOException e)
 		{
@@ -97,7 +98,7 @@ public interface StorageFileWriter
 
 		try
 		{
-			file.fileChannel().truncate(newLength);
+			file.channel().truncate(newLength);
 		}
 		catch(final IOException e)
 		{
@@ -109,7 +110,7 @@ public interface StorageFileWriter
 	{
 //		DEBUGStorage.println("storage file deletion");
 
-		if(file.file().delete())
+		if(file.delete())
 		{
 			return;
 		}
@@ -157,8 +158,10 @@ public interface StorageFileWriter
 		@Override
 		public void delete(final StorageLockedChannelFile file)
 		{
-			final Path source = file.file().toPath()                     ;
-			final Path target = this.grave.resolve(file.file().getName());
+			// (13.10.2018 TM)NOTE: replacement to decouple concrete references to File.
+			final Path source = Paths.get(file.identifier());
+//			final Path source = file.file().toPath()           ;
+			final Path target = this.grave.resolve(file.name());
 
 			try
 			{
@@ -177,15 +180,15 @@ public interface StorageFileWriter
 			 * truncation is the only possibility where data can be deleted.
 			 * As a safety net, those files are backupped in full before truncated, now.
 			 */
-			this.createTruncationBak(file.file(), newLength);
+			this.createTruncationBak(file, newLength);
 			StorageFileWriter.super.truncate(file, newLength);
 		}
 		
-		public final void createTruncationBak(final File file, final long newLength)
+		public final void createTruncationBak(final StorageFile file, final long newLength)
 		{
 			final File dirBak = new File(this.grave.toFile(), "bak");
 			
-			final String bakFileName = file.getName() + "_truncated_from_" + file.length() + "_to_" + newLength
+			final String bakFileName = file.name() + "_truncated_from_" + file.length() + "_to_" + newLength
 				+ "_@" + System.currentTimeMillis() + ".bak"
 			;
 //			XDebug.debugln("Creating truncation bak file: " + bakFileName);
@@ -193,7 +196,7 @@ public interface StorageFileWriter
 			try
 			{
 				Files.copy(
-					file.toPath(),
+					Paths.get(file.identifier()),
 					dirBak.toPath().resolve(bakFileName)
 				);
 //				XDebug.debugln("* bak file created: " + bakFileName);
