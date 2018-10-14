@@ -14,7 +14,7 @@ public final class BinaryHandlerNativeByte extends AbstractBinaryHandlerNativeCu
 	{
 		super(Byte.class, defineValueType(byte.class));
 	}
-	
+
 
 
 	///////////////////////////////////////////////////////////////////////////

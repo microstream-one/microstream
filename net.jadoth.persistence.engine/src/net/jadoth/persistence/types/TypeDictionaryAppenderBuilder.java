@@ -26,8 +26,8 @@ implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderIm
 	public TypeDictionaryAppenderBuilder(final VarString vc, final int level)
 	{
 		super();
-		this.vc    = vc   ;
-		this.level = level;
+		this.vc             = vc            ;
+		this.level          = level         ;
 	}
 
 

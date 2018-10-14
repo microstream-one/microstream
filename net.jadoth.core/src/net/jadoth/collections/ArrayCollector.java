@@ -1411,21 +1411,12 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			throw new IndexBoundsException(this.size, index);
 		}
 
-		final Object[] elementsToAdd;
-		final int      lengthToAdd  ;
-		if(elements instanceof AbstractSimpleArrayCollection)
-		{
-			elementsToAdd = ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray();
-			lengthToAdd   = ((AbstractSimpleArrayCollection<?>)elements).internalSize();
-		}
-		else
-		{
-			// anything else is probably not worth the hassle
-			elementsToAdd = elements.toArray();
-			lengthToAdd   = elementsToAdd.length;
-		}
+		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
+			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
+			: elements.toArray() // anything else is probably not worth the hassle
+		;
 
-		return this.internalInsertArray((int)index, elementsToAdd, lengthToAdd);
+		return this.internalInsertArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
 	@Override
@@ -1506,21 +1497,12 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			throw new IndexBoundsException(this.size, index);
 		}
 
-		final Object[] elementsToAdd;
-		final int      lengthToAdd  ;
-		if(elements instanceof AbstractSimpleArrayCollection)
-		{
-			elementsToAdd = ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray();
-			lengthToAdd   = ((AbstractSimpleArrayCollection<?>)elements).internalSize();
-		}
-		else
-		{
-			// anything else is probably not worth the hassle
-			elementsToAdd = elements.toArray();
-			lengthToAdd   = elementsToAdd.length;
-		}
+		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection<?>
+			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
+			: elements.toArray() // anything else is probably not worth the hassle
+		;
 
-		return this.internalInputArray((int)index, elementsToAdd, lengthToAdd);
+		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
 	}
 
 	@Override
