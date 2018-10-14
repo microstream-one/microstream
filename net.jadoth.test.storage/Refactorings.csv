@@ -1,0 +1,9 @@
+old	current
+net.jadoth.test.legacy.OldContact	net.jadoth.test.legacy.NewContact
+net.jadoth.test.legacy.OldContact#firstname	net.jadoth.test.legacy.NewContact#firstname
+net.jadoth.test.legacy.OldContact#name	net.jadoth.test.legacy.NewContact#lastname
+net.jadoth.test.legacy.OldContact#email	net.jadoth.test.legacy.NewContact#emailAddress
+net.jadoth.test.legacy.OldContact#note	net.jadoth.test.legacy.NewContact#supportNote
+	net.jadoth.test.legacy.NewContact#postalAddress
+net.jadoth.test.legacy.OldContact#age	net.jadoth.test.legacy.NewContact#age
+net.jadoth.test.legacy.OldContact#link	

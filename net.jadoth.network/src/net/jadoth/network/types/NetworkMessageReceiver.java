@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 public interface NetworkMessageReceiver<S extends NetworkSession<?>>
 {

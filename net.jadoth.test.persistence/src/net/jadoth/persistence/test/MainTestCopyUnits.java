@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import sun.misc.Unsafe;
 
 public class MainTestCopyUnits
@@ -26,6 +26,6 @@ public class MainTestCopyUnits
 
 	public static void copy(final long size)
 	{
-		Memory.copyRange(BYTES0, BABO, BYTES1, BABO, size);
+		XVM.copyRange(BYTES0, BABO, BYTES1, BABO, size);
 	}
 }

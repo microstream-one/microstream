@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.files.XFiles;
 
 
 public class MainCollectFiles
@@ -40,7 +40,7 @@ public class MainCollectFiles
 			fileSuffix,
 			filePath -> {
 				System.out.println(filePath);
-				JadothFiles.ensureDirectoryAndFile(new File(targetDir, filePath));
+				XFiles.ensureDirectoryAndFile(new File(targetDir, filePath));
 			}
 		);
 	}

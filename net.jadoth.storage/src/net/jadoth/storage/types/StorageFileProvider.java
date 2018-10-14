@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +8,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.VarString;
+import net.jadoth.files.XFiles;
 
 public interface StorageFileProvider
 {
@@ -132,7 +131,7 @@ public interface StorageFileProvider
 			}
 			catch(final IOException e)
 			{
-				closeSilent(channel);
+				XFiles.closeSilent(channel);
 				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
 			}
 		}
@@ -187,7 +186,7 @@ public interface StorageFileProvider
 
 		public final File provideChannelDirectory(final File parentDirectory, final int hashIndex)
 		{
-			return JadothFiles.ensureDirectory(
+			return XFiles.ensureDirectory(
 				new File(parentDirectory, this.channelDirectoryBaseName + hashIndex)
 			);
 		}
@@ -210,8 +209,8 @@ public interface StorageFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)

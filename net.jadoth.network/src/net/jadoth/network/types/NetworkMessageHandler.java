@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import net.jadoth.collections.functions.ParallelProcedure;
+import net.jadoth.functional.ParallelProcedure;
 
 
 
@@ -80,8 +80,8 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void handleMessage(final S messageSession)

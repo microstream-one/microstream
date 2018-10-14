@@ -3,8 +3,8 @@
  */
 package net.jadoth.test.math;
 
-import static net.jadoth.math.JadothMath.bigInt;
-import static net.jadoth.math.JadothMath.factorial;
+import static net.jadoth.math.XMath.bigInt;
+import static net.jadoth.math.XMath.factorial;
 
 /**
  * @author Thomas Muenz

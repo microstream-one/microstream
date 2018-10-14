@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
+import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceBuildItem;
 import net.jadoth.persistence.types.PersistenceBuilder;
@@ -99,7 +99,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		private void createInstanceBuildItems(final long startAddress, final long boundAddress)
 		{
-			for(long address = startAddress; address < boundAddress; address += Memory.get_long(address))
+			for(long address = startAddress; address < boundAddress; address += XVM.get_long(address))
 			{
 				this.createInstanceBuildItem(address);
 			}
@@ -129,35 +129,33 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				? entry.districtInstance
 				: (entry.districtInstance = this.district.optionalRegisterObject(
 					entry.oid,
-					entry.handler.typeId(),
 					entry.localInstance
 				))
 			;
 		}
 
-		protected Object registerTypeIdForObjectId(final long oid, final long tid)
+		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long oid, final long tid)
 		{
-			return this.district.registerTypeIdForObjectId(oid, tid);
-		}
-
-		protected PersistenceTypeHandler<Binary, Object> lookupTypeHandler(final long oid, final long tid)
-		{
-			final PersistenceTypeHandler<Binary, Object> handler;
+			final PersistenceTypeHandler<Binary, ?> handler;
+			
 			if((handler = this.district.lookupTypeHandler(oid, tid)) == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
 			}
+			
 			return handler;
 		}
 
 		protected Entry createBuildItem(final long objectId, final long typeId)
 		{
 			final Entry buildItem = this.district.createBuildItem(this, objectId, typeId);
+			
 			if(buildItem.handler == null)
 			{
 				// at this point, a handler must definitely be present
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 			}
+			
 			return buildItem;
 		}
 
@@ -169,10 +167,11 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				BinaryPersistence.getEntityObjectId(address),
 				BinaryPersistence.getEntityTypeId(address)
 			);
+			
 			// content of item begins after instance header
-			buildItem.entityContentAddress = BinaryPersistence.entityDataAddress(address);
+			buildItem.entityContentAddress = BinaryPersistence.entityContentAddress(address);
 
-//			JadothConsole.debugln("Item @ " + address + ":\n" +
+//			XDebug.debugln("Item @ " + address + ":\n" +
 //				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
 //				"TID=" + BinaryPersistence.getEntityTypeId(address) + "\n" +
 //				"OID=" + BinaryPersistence.getEntityObjectId(address) + "\n" +
@@ -180,15 +179,14 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 //			);
 
 			/* (08.07.2015 TM)TODO: unnecessary local instance
-			 * created an unnecessary local instance because the district instance could not have found before.
-			 * The instance was an enum constants array, so it should have been findable already.
+			 * there was a case where an unnecessary local instance was created because the district instance could not
+			 * have been found before. The instance was an enum constants array, so it should have been findable already.
 			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
 			 * special case (constant registration or whatever)
 			 */
 			if(buildItem.districtInstance == null)
 			{
-				// kind of redundant type check, only purpose is to harden against faulty custom handler implementations
-				buildItem.localInstance = buildItem.handler.type().cast(buildItem.handler.create(buildItem));
+				buildItem.localInstance = buildItem.handler.create(buildItem);
 			}
 
 			// register build item
@@ -197,12 +195,13 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		protected void handleReferences(final Entry entry)
 		{
-			/* custom handler implementation can decide wether references of a particular field shall be loaded.
+			/*
+			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
 			 * Note that the handler has been provided by the district instance, so it can already be a
 			 * district-specific handler implementation.
 			 */
 
-//			JadothConsole.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
+//			XDebug.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
 
 			entry.handler.iteratePersistedReferences(entry, this);
 		}
@@ -280,12 +279,12 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 					continue;
 				}
 				// MARKER: BinaryBuilder#buildInstance()
-//				JadothConsole.debugln("building instance " + entry.oid + " of type " + entry.handler.typeName());
+//				XDebug.debugln("building instance " + entry.oid + " of type " + entry.handler.typeName());
 				// all buildItems that have a handler must be complete and valid to be updated.
 				/* (10.09.2015 TM)TODO: already existing instance gets updated (error for a DB situation)
 				 * Why does the global instance have to be updated?
 				 * Isn't this a bug?
-				 * If the process memory is almost the most current and the DB is only a receiving storer of
+				 * If the data in memory is the most current and the DB is only a receiving storer of
 				 * information, how can there ever be a situation where an already existing instance has to be
 				 * (or even MAY be!) updated?
 				 * The persistence layer is NOT a data modification reverting tool, it is a persistence layer.
@@ -303,10 +302,22 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				 * building time, the already present instance gets updated, which is wrong. So the code below must
 				 * be changed
 				 *
-				 * However: constants MUST be updated on the initial load of a database if they containt mutable fields.
+				 * However: constants MUST be updated on the initial load of a database if they contain mutable fields.
 				 * So maybe a persistence layer must use two different concepts:
 				 * - one for initially loading (updating existing instances)
 				 * - one for normal loading after initialization (never updating existing instances)
+				 * 
+				 * (19.09.2018 TM)NOTE:
+				 * Another use case where it is valid to update instances from the persisted data is to keep
+				 * replicating server nodes ("shadow server" or "read-only node" or whatever) up to date.
+				 * 
+				 * It is also conceivable that a read from the database shall be used to reset modified instances
+				 * to their latest persisted state. While this is generally a rather bad design (an application
+				 * should be able to produce consistent states or store its resetting state on its own), this
+				 * might be a valid approach for specific applications.
+				 * 
+				 * In any case, there should be a distinction between logic to initially restore persisted state
+				 * and logic for regular runtime uses. The latter might be the same thing, but not always.
 				 */
 				entry.handler.update(
 					entry,
@@ -320,8 +331,10 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			/* (29.07.2015 TM)TODO: binary builder: complex completion cases
 			 * what if completing one instance properly depends on completing another instance first?
-			 * E.g. HashCollection of HashCollections with the hash value determined by the HashCollections content?
-			 * Stupid idea, but general implementation in JDK.
+			 * E.g. hash collection of hash collections with the hash value depending on the inner
+			 * hash collection's content?
+			 * Stupid idea in the first place, but a general implementation pattern in JDK with its naive equals&hash
+			 * concept.
 			 * What if two such instances have a circular dependency between each other?
 			 * Possible solutions:
 			 * - complete entries in reverse order. Should cover more, although not all cases
@@ -366,9 +379,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		@Override
 		public final Entry createBuildItem(
-			final long oid,
+			final long                                   oid        ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final Object instance
+			final Object                                 instance
 		)
 		{
 			return new Entry(oid, instance, typeHandler);
@@ -404,7 +417,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		private void rebuildBuildItems()
 		{
 			// moreless academic check for more than 1 billion entries
-			if(JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.buildItemsHashSlots.length))
+			if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.buildItemsHashSlots.length))
 			{
 				return; // note that aborting rebuild does not ruin anything, only performance degrades
 			}
@@ -521,8 +534,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		/////////////////////
 
 		final long oid;
-		Object districtInstance, localInstance;
 		PersistenceTypeHandler<Binary, Object> handler;
+		Object districtInstance, localInstance;
 		Entry next, link;
 
 
@@ -534,30 +547,34 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		Entry()
 		{
 			super();
-			this.oid              = 0L  ;
-			this.districtInstance = null;
-			this.localInstance    = null;
-			this.handler          = null;
-			this.link             = null;
-			this.next             = null;
+			this.oid = 0L;
+			
+			// fields are already initialized to null by the JVM. No need to do the work twice.
+//			this.handler          = null;
+//			this.districtInstance = null;
+//			this.localInstance    = null;
+//			this.link             = null;
+//			this.next             = null;
 		}
 
 		Entry(final long oid, final Object districtInstance, final PersistenceTypeHandler<Binary, Object> handler)
 		{
 			super();
 			this.oid              = oid    ;
-			this.districtInstance = districtInstance;
-			this.localInstance    = null   ;
 			this.handler          = handler;
-			this.link             = null   ;
-			this.next             = null   ;
+			this.districtInstance = districtInstance;
+			
+			// fields are already initialized to null by the JVM. No need to do the work twice.
+//			this.localInstance    = null   ;
+//			this.link             = null   ;
+//			this.next             = null   ;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long storeEntityHeader(
@@ -600,7 +617,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			{
 				throw new IllegalStateException();
 			}
-			return new long[]{this.entityContentAddress + Memory.get_long(this.entityContentAddress)};
+			return new long[]{this.entityContentAddress + XVM.get_long(this.entityContentAddress)};
 		}
 
 		@Override
@@ -632,9 +649,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			throw new UnsupportedOperationException();
 		}
-
+		
 		@Override
-		public final long entityCount()
+		public final long totalLength()
 		{
 			throw new UnsupportedOperationException();
 		}

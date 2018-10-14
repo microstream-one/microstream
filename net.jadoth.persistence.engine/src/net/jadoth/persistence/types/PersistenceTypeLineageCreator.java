@@ -2,37 +2,26 @@ package net.jadoth.persistence.types;
 
 public interface PersistenceTypeLineageCreator
 {
-	public <T> PersistenceTypeLineage<T> createTypeLineage(String typeName, Class<T> type);
+	public PersistenceTypeLineage createTypeLineage(Class<?> type);
 	
+	public PersistenceTypeLineage createTypeLineage(String typeName, Class<?> type);
 	
+		
 	
-	public static PersistenceTypeLineageCreator.Implementation New(
-//		final PersistenceTypeDefinitionCreator typeDefinitionCreator
-	)
+	public static PersistenceTypeLineageCreator.Implementation New()
 	{
-		return new PersistenceTypeLineageCreator.Implementation(
-//			notNull(typeDefinitionCreator)
-		);
+		return new PersistenceTypeLineageCreator.Implementation();
 	}
 	
 	public final class Implementation implements PersistenceTypeLineageCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-//		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(/*final PersistenceTypeDefinitionCreator typeDefinitionCreator*/)
+		Implementation()
 		{
 			super();
-//			this.typeDefinitionCreator = typeDefinitionCreator;
 		}
 		
 		
@@ -40,17 +29,19 @@ public interface PersistenceTypeLineageCreator
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-				
-//		private <T> PersistenceTypeLineage<T> internalBuildTypeLineage(final String typeName, final Class<T> type)
-//		{
-//			return PersistenceTypeLineage.New(typeName, type/*, this.typeDefinitionCreator*/);
-//		}
 		
 		@Override
-		public <T> PersistenceTypeLineage<T> createTypeLineage(final String typeName, final Class<T> type)
+		public PersistenceTypeLineage createTypeLineage(final String typeName, final Class<?> type)
 		{
-			return PersistenceTypeLineage.New(typeName, type/*, this.typeDefinitionCreator*/);
+			return PersistenceTypeLineage.New(typeName, type);
+		}
+		
+		@Override
+		public PersistenceTypeLineage createTypeLineage(final Class<?> type)
+		{
+			return this.createTypeLineage(type.getName(), type);
 		}
 				
 	}
+	
 }

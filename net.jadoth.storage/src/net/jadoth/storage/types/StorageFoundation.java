@@ -1,10 +1,11 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.exceptions.MissingFoundationPartException;
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
 import net.jadoth.util.InstanceDispatcher;
-import net.jadoth.util.MissingAssemblyPartException;
 
-public interface StorageFoundation
+public interface StorageFoundation<F extends StorageFoundation<?>>
 {
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 
@@ -48,45 +49,45 @@ public interface StorageFoundation
 
 
 
-	public StorageFoundation setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
+	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
 
-	public StorageFoundation setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
+	public F setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
 
-	public StorageFoundation setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
+	public F setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
 
-	public StorageFoundation setDataChunkValidatorProvider(StorageValidatorDataChunk.Provider chunkValidatorProvider);
+	public F setDataChunkValidatorProvider(StorageValidatorDataChunk.Provider chunkValidatorProvider);
 
-	public StorageFoundation setChannelCreator(StorageChannel.Creator channelCreator);
+	public F setChannelCreator(StorageChannel.Creator channelCreator);
 
-	public StorageFoundation setThreadProvider(StorageThreadProvider threadProvider);
+	public F setThreadProvider(StorageThreadProvider threadProvider);
 
-	public StorageFoundation setTaskCreator(StorageRequestTaskCreator taskCreator);
+	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
 
-	public StorageFoundation setTypeDictionary(StorageTypeDictionary typeDictionary);
+	public F setTypeDictionary(StorageTypeDictionary typeDictionary);
 
-	public StorageFoundation setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
+	public F setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
 
-	public StorageFoundation setConfiguration(StorageConfiguration configuration);
+	public F setConfiguration(StorageConfiguration configuration);
 
-	public StorageFoundation setStorageTimestampProvider(StorageTimestampProvider storageTimestampProvider);
+	public F setTimestampProvider(StorageTimestampProvider timestampProvider);
 
-	public StorageFoundation setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
+	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
 
-	public StorageFoundation setReaderProvider(StorageFileReader.Provider readerProvider);
+	public F setReaderProvider(StorageFileReader.Provider readerProvider);
 
-	public StorageFoundation setWriterProvider(StorageFileWriter.Provider writerProvider);
+	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
 
-	public StorageFoundation setWriteListenerProvider(StorageWriteListener.Provider writeListenerProvider);
+	public F setWriteListenerProvider(StorageWriteListener.Provider writeListenerProvider);
 
-	public StorageFoundation setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
+	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 
-	public StorageFoundation setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
+	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 
-	public StorageFoundation setExceptionHandler(StorageExceptionHandler exceptionHandler);
+	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
-	public StorageFoundation setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
+	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
 
-	public StorageFoundation setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
+	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 
 
 
@@ -94,7 +95,9 @@ public interface StorageFoundation
 
 
 
-	public class Implementation extends InstanceDispatcher.Implementation implements StorageFoundation
+	public class Implementation<F extends StorageFoundation.Implementation<?>>
+	extends InstanceDispatcher.Implementation
+	implements StorageFoundation<F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -124,8 +127,14 @@ public interface StorageFoundation
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		@SuppressWarnings("unchecked") // magic self-type.
+		protected final F $()
+		{
+			return (F)this;
+		}
 
 		protected StorageGCZombieOidHandler createStorageGCZombieOidHandler()
 		{
@@ -191,7 +200,7 @@ public interface StorageFoundation
 
 		protected StorageRootTypeIdProvider createRootTypeIdProvider()
 		{
-			throw new MissingAssemblyPartException(StorageRootTypeIdProvider.class);
+			throw new MissingFoundationPartException(StorageRootTypeIdProvider.class);
 		}
 
 		protected StorageTimestampProvider createTimestampProvider()
@@ -440,157 +449,157 @@ public interface StorageFoundation
 		}
 
 		@Override
-		public StorageFoundation setInitialDataFileNumberProvider(
+		public F setInitialDataFileNumberProvider(
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider
 		)
 		{
 			this.initialDataFileNumberProvider = initialDataFileNumberProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setRequestAcceptorCreator(
+		public F setRequestAcceptorCreator(
 			final StorageRequestAcceptor.Creator requestAcceptorCreator
 		)
 		{
 			this.requestAcceptorCreator = requestAcceptorCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setTaskBrokerCreator(final StorageTaskBroker.Creator taskBrokerCreator)
+		public F setTaskBrokerCreator(final StorageTaskBroker.Creator taskBrokerCreator)
 		{
 			this.taskBrokerCreator = taskBrokerCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setDataChunkValidatorProvider(
+		public F setDataChunkValidatorProvider(
 			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
 		)
 		{
 			this.dataChunkValidatorProvider = dataChunkValidatorProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setChannelCreator(final StorageChannel.Creator channelCreator)
+		public F setChannelCreator(final StorageChannel.Creator channelCreator)
 		{
 			this.channelCreator = channelCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation setThreadProvider(final StorageThreadProvider threadProvider)
+		public F setThreadProvider(final StorageThreadProvider threadProvider)
 		{
 			this.threadProvider = threadProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setTaskCreator(final StorageRequestTaskCreator taskCreator)
+		public F setTaskCreator(final StorageRequestTaskCreator taskCreator)
 		{
 			this.requestTaskCreator = taskCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setTypeDictionary(final StorageTypeDictionary typeDictionary)
+		public F setTypeDictionary(final StorageTypeDictionary typeDictionary)
 		{
 			this.typeDictionary = typeDictionary;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setRootTypeIdProvider(final StorageRootTypeIdProvider rootTIDProvider)
+		public F setRootTypeIdProvider(final StorageRootTypeIdProvider rootTypeIdProvider)
 		{
-			this.rootTypeIdProvider = rootTIDProvider;
-			return this;
+			this.rootTypeIdProvider = rootTypeIdProvider;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setConfiguration(final StorageConfiguration configuration)
+		public F setConfiguration(final StorageConfiguration configuration)
 		{
 			this.configuration = configuration;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setStorageTimestampProvider(
-			final StorageTimestampProvider storageTimestampProvider
+		public F setTimestampProvider(
+			final StorageTimestampProvider timestampProvider
 		)
 		{
-			this.timestampProvider = storageTimestampProvider;
-			return this;
+			this.timestampProvider = timestampProvider;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setObjectIdRangeEvaluator(
+		public F setObjectIdRangeEvaluator(
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator
 		)
 		{
 			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation setReaderProvider(final StorageFileReader.Provider readerProvider)
+		public F setReaderProvider(final StorageFileReader.Provider readerProvider)
 		{
 			this.readerProvider = readerProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setWriterProvider(final Provider writerProvider)
+		public F setWriterProvider(final Provider writerProvider)
 		{
 			this.writerProvider = writerProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setWriteListenerProvider(
+		public F setWriteListenerProvider(
 			final StorageWriteListener.Provider writeListenerProvider
 		)
 		{
 			this.writeListenerProvider = writeListenerProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setGCZombieOidHandler(final StorageGCZombieOidHandler gCZombieOidHandler)
+		public F setGCZombieOidHandler(final StorageGCZombieOidHandler gCZombieOidHandler)
 		{
 			this.gCZombieOidHandler = gCZombieOidHandler;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setRootOidSelectorProvider(
+		public F setRootOidSelectorProvider(
 			final StorageRootOidSelector.Provider rootOidSelectorProvider
 		)
 		{
 			this.rootOidSelectorProvider = rootOidSelectorProvider;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setOidMarkQueueCreator(final StorageOidMarkQueue.Creator oidMarkQueueCreator)
+		public F setOidMarkQueueCreator(final StorageOidMarkQueue.Creator oidMarkQueueCreator)
 		{
 			this.oidMarkQueueCreator = oidMarkQueueCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation.Implementation setEntityMarkMonitorCreator(final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator)
+		public F setEntityMarkMonitorCreator(final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator)
 		{
 			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public StorageFoundation setExceptionHandler(final StorageExceptionHandler exceptionHandler)
+		public F setExceptionHandler(final StorageExceptionHandler exceptionHandler)
 		{
 			this.exceptionHandler = exceptionHandler;
-			return this;
+			return this.$();
 		}
 
 		@Override

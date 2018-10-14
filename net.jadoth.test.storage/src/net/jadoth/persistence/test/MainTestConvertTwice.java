@@ -2,11 +2,12 @@ package net.jadoth.persistence.test;
 
 import java.io.File;
 
-import net.jadoth.collections.X;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.X;
+import net.jadoth.functional.XFunc;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeBinaryToCsv;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
+import net.jadoth.storage.types.StorageLockedFile;
 
 @SuppressWarnings("unused")
 public class MainTestConvertTwice extends TestStorage
@@ -24,14 +25,17 @@ public class MainTestConvertTwice extends TestStorage
 			4096,
 			4096
 		);
-		converter.convertDataFile(new File(new File(dir, "bin"), filename+".dat"));
+		final StorageLockedFile file = StorageLockedFile.openLockedFile(
+			new File(new File(dir, "bin"), filename + ".dat")
+		);
+		converter.convertDataFile(file);
 
 
 		final File bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
 			STORAGE.typeDictionary(),
-			X.List(new File(new File(dir, "csv"), filename+".csv")),
+			X.List(new File(new File(dir, "csv"), filename + ".csv")),
 			new File(dir, "bin2"),
-			JadothPredicates.all()
+			XFunc.all()
 		);
 	}
 }

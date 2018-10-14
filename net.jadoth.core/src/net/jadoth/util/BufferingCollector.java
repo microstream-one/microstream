@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
@@ -69,8 +69,8 @@ public interface BufferingCollector<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void accept(final E element)

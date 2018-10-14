@@ -2,23 +2,23 @@ package net.jadoth.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.chars.VarString;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional.TriConsumer;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
 
 public class MainSearchStringInFiles
 {
-	static final BiProcedure<File, Consumer<? super File>> LOGGING = (f, p) ->
+	static final BiConsumer<File, Consumer<? super File>> LOGGING = (f, p) ->
 	{
 		System.out.println("Processing "+f);
 		p.accept(f);
 		System.out.println(" * done processing "+f);
 	};
 
-	static final BiProcedure<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
+	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
 
 	public static void main(final String[] args) throws Exception
 	{
@@ -42,7 +42,7 @@ public class MainSearchStringInFiles
 
 	static String[] loadIds(final File file, final String separator) throws Exception
 	{
-		final String fileContent = JadothFiles.readStringFromFile(file);
+		final String fileContent = XFiles.readStringFromFile(file);
 
 		final String[] parts = fileContent.split(separator);
 
@@ -81,7 +81,7 @@ public class MainSearchStringInFiles
 	}
 
 	static void searchStringsInFiles(
-		final BiProcedure<File, Consumer<? super File>> logic        ,
+		final BiConsumer<File, Consumer<? super File>> logic        ,
 		final File[]                                    files        ,
 		final TriConsumer<String, Integer, Integer>     matchCallback,
 		final String...                                 strings
@@ -106,7 +106,7 @@ public class MainSearchStringInFiles
 	{
 		try
 		{
-			final String fileContent = JadothFiles.readStringFromFile(f);
+			final String fileContent = XFiles.readStringFromFile(f);
 			for(final String s : strings)
 			{
 				final int index = fileContent.indexOf(s);

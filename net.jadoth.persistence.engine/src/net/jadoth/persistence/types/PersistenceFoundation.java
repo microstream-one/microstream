@@ -1,17 +1,20 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
-
+import net.jadoth.collections.types.XEnum;
+import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
+import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleFoundation;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.MissingAssemblyPartException;
+import net.jadoth.typing.TypeMapping;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -25,14 +28,12 @@ import net.jadoth.util.MissingAssemblyPartException;
  * @author Thomas Muenz
  * @param <M>
  */
-public interface PersistenceFoundation<M> extends SwizzleFoundation
+public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>> extends SwizzleFoundation<F>
 {
-	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
-
-	public PersistenceTypeSovereignty getTypeSovereignty();
-
+	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
+	
+	// (31.05.2018 TM)TODO: rename ALL get~ methods in ALL foundations to provide~? Because that is what they do.
+	
 	public SwizzleRegistry getSwizzleRegistry();
 
 	public SwizzleObjectManager getObjectManager();
@@ -53,12 +54,14 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public SwizzleTypeManager getTypeManager();
 
+	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
+
 	public PersistenceTypeHandlerRegistry<M> getTypeHandlerRegistry();
 
 	public PersistenceTypeDictionaryManager getTypeDictionaryManager();
-
-	public PersistenceTypeDictionaryImporter getTypeDictionaryImporter();
 	
+	public PersistenceTypeDictionaryCreator getTypeDictionaryCreator();
+
 	public PersistenceTypeDictionaryProvider getTypeDictionaryProvider();
 
 	public PersistenceTypeDictionaryExporter getTypeDictionaryExporter();
@@ -66,10 +69,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 	public PersistenceTypeDictionaryParser getTypeDictionaryParser();
 
 	public PersistenceTypeDictionaryLoader getTypeDictionaryLoader();
+	
+	public PersistenceTypeDictionaryBuilder getTypeDictionaryBuilder();
 
 	public PersistenceTypeDictionaryAssembler getTypeDictionaryAssembler();
 
 	public PersistenceTypeDictionaryStorer getTypeDictionaryStorer();
+	
+	public PersistenceTypeLineageCreator getTypeLineageCreator();
+
+	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
 
 	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
 
@@ -77,115 +86,170 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 	public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable();
 	
-	public PersistenceTypeChangeCallback getTypeChangeCallback();
-
-	public PersistenceTypeResolver getTypeResolver();
+	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
 	
-	public PersistenceTypeDictionaryBuilder getTypeDictionaryBuilder();
+	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
 
 	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 
 	public PersistenceFieldLengthResolver getFieldFixedLengthResolver();
+	
+	public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator();
 
-	public BufferSizeProvider getBufferSizeProvider();
+	public BufferSizeProviderIncremental getBufferSizeProvider();
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
 	
-	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
+	public PersistenceRootResolver getRootResolver();
 	
-	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
+	public PersistenceRootsProvider<M> getRootsProvider();
 	
-	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
+	public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator();
 	
-	public PersistenceTypeLineageCreator getTypeLineageCreator();
+	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
 
+	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
+
+	public PersistenceRefactoringResolverProvider getRefactoringResolverProvider();
+
+	public XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>  getRefactoringLegacyTypeIdentifierBuilders();
+	
+	public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringLegacyMemberIdentifierBuilders();
+	
+	public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringCurrentMemberIdentifierBuilders();
+	
+	public TypeMapping<Float> getTypeSimilarity();
+	
+	public PersistenceMemberMatchingProvider getLegacyMemberMatchingProvider();
+	
+	public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor();
+	
+	public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator();
+	
+	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
+
+	public PersistenceRootResolver rootResolver();
+	
+	
+	
+	public F setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
+
+	public F setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
+
+	public F setObjectManager(SwizzleObjectManager objectManager);
+
+	public F setStorerCreator(PersistenceStorer.Creator<M> storerCreator);
+
+	public F setTypeHandlerManager(PersistenceTypeHandlerManager<M> typeHandlerManager);
+
+	public F setTypeManager(SwizzleTypeManager typeManager);
+
+	public F setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup);
+	
+	public F setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
+
+	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
+
+	public F setTypeHandlerProvider(PersistenceTypeHandlerProvider<M> typeHandlerProvider);
+
+	public F setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
+
+	public F setBuilderCreator(PersistenceLoader.Creator<M> builderCreator);
+
+	public F setPersistenceTarget(PersistenceTarget<M> target);
+
+	public F setPersistenceSource(PersistenceSource<M> source);
+
+	public F setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
+	
+	public F setTypeDictionaryCreator(PersistenceTypeDictionaryCreator typeDictionaryCreator);
+		
+	public F setTypeDictionaryProvider(PersistenceTypeDictionaryProvider typeDictionaryProvider);
+	
+	public F setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
+	
+	public F setTypeDictionaryParser(PersistenceTypeDictionaryParser typeDictionaryParser);
+	
+	public F setTypeDictionaryAssembler(PersistenceTypeDictionaryAssembler typeDictionaryAssembler);
+	
+	public F setTypeDictionaryLoader(PersistenceTypeDictionaryLoader typeDictionaryLoader);
+	
+	public F setTypeDictionaryBuilder(PersistenceTypeDictionaryBuilder typeDictionaryBuilder);
+	
+	public F setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
+
+	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryStorage(
+		H typeDictionaryStorage
+	);
+	
+	public F setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
+
+	public F setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
+	
+	public F setTypeMismatchValidator(PersistenceTypeMismatchValidator<M> typeMismatchValidator);
+	
+	public F setTypeDescriptionBuilder(PersistenceTypeDefinitionCreator typeDefinitionCreator);
+
+	/* (29.10.2013 TM)TODO: rename to "TypeEvaluatorAnalyzable" & keep comment
+	 * rationale (keep as documentation afterwards)
+	 *
+	 * The difference between not persistable and not analyzable is:
+	 * Many implementations are very well persistable in a generic way (created by the analyzer), however that
+	 * way would be very inefficient (e.g. double linked list, storing every entry as an instance is a total overkill).
+	 * So there has to a way to only throw an exception of no custom handler was found before (this mechanism already
+	 * works that way). As a consequence, this means that the logik behind the mechanism does not "just" evaluate
+	 * persistabilty, but generic analyzability.
+	 * Unpersistable types can still end up there and still throw an exception.
+	 * Or they might even get assigned a custom handler and cause no problem at all (e.g. if someone implements
+	 * a handler for java.lang.Thread that is sufficient for a specific project, then why not).
+	 */
+	public F setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
+
+	public F setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
+
+	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
+
+	public F setFieldEvaluator(PersistenceFieldEvaluator fieldEvaluator);
+
+	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
+
+	public F setRootResolver(PersistenceRootResolver rootResolver);
+
+	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
+	
+	public F setUnreachableTypeHandlerCreator(PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator);
+	
+	public F setLegacyTypeMapper(PersistenceLegacyTypeMapper<M> legacyTypeMapper);
+	
+	public F setTypeSimilarity(TypeMapping<Float> typeSimilarity);
+	
+	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
+	
+	public F setRefactoringResolverProvider(PersistenceRefactoringResolverProvider refactoringResolverProvider);
+	
+	public F setRefactoringLegacyTypeIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> typeIdentifierBuilders
+	);
+	
+	public F setRefactoringLegacyMemberIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
+	);
+	
+	public F setRefactoringCurrentMemberIdentifierBuilders(
+		XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> memberIdentifierBuilders
+	);
+		
+	public F setLegacyMemberMatchingProvider(PersistenceMemberMatchingProvider legacyMemberMatchingProvider);
+		
+	public F setLegacyTypeMappingResultor(PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor);
+	
+	public F setLegacyTypeHandlerCreator(PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator);
+	
+	public F setLegacyTypeHandlingListener(PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener);
+
+	public F setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
 
 	
-	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
-
-	@Override
-	public PersistenceFoundation<M> setObjectIdProvider(SwizzleObjectIdProvider oidProvider);
-
-	@Override
-	public PersistenceFoundation<M> setTypeIdProvider(SwizzleTypeIdProvider tidProvider);
-
-	public PersistenceFoundation<M> setTypeSovereignty(PersistenceTypeSovereignty typeSovereignty);
-
-	public PersistenceFoundation<M> setSwizzleRegistry(SwizzleRegistry swizzleRegistry);
-
-	public PersistenceFoundation<M> setObjectManager(SwizzleObjectManager objectManager);
-
-	public PersistenceFoundation<M> setStorerCreator(PersistenceStorer.Creator<M> persisterCreator);
-
-	public PersistenceFoundation<M> setTypeHandlerManager(PersistenceTypeHandlerManager<M> typeHandlerManager);
-
-	public PersistenceFoundation<M> setTypeManager(SwizzleTypeManager typeManager);
-
-	public PersistenceFoundation<M> setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
-
-	public PersistenceFoundation<M> setTypeHandlerProvider(PersistenceTypeHandlerProvider<M> typeHandlerProvider);
-
-	public PersistenceFoundation<M> setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
-
-	public PersistenceFoundation<M> setLoaderCreator(PersistenceLoader.Creator<M> builderCreator);
-
-	public PersistenceFoundation<M> setPersistenceTarget(PersistenceTarget<M> target);
-
-	public PersistenceFoundation<M> setPersistenceSource(PersistenceSource<M> source);
-
-	public PersistenceFoundation<M> setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
-
-	public PersistenceFoundation<M> setTypeDictionaryImporter(PersistenceTypeDictionaryImporter typeDictionaryImporter);
-
-	public PersistenceFoundation<M> setTypeDictionaryExporter(PersistenceTypeDictionaryExporter typeDictionaryExporter);
-
-	public PersistenceFoundation<M> setTypeDictionaryParser(PersistenceTypeDictionaryParser typeDictionaryParser);
-
-	public PersistenceFoundation<M> setTypeDictionaryAssembler(PersistenceTypeDictionaryAssembler typeDictionaryAssembler);
-
-	public PersistenceFoundation<M> setTypeDictionaryLoader(PersistenceTypeDictionaryLoader typeDictionaryLoader);
-
-	public PersistenceFoundation<M> setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
-
-	public PersistenceFoundation<M> setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
-
-	public PersistenceFoundation<M> setTypeResolver(PersistenceTypeResolver typeResolver);
-	
-	public PersistenceFoundation<M> setTypeDictionaryBuilder(PersistenceTypeDictionaryBuilder typeDictionaryBuilder);
-	
-	public PersistenceFoundation<M> setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
-
-	public PersistenceFoundation<M> setBufferSizeProvider(BufferSizeProvider bufferSizeProvider);
-
-	public PersistenceFoundation<M> setFieldFixedLengthResolver(PersistenceFieldLengthResolver resolver);
-
-	public PersistenceFoundation<M> setFieldEvaluator(PersistenceFieldEvaluator fieldEvaluator);
-
-	@Override
-	public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
-	PersistenceFoundation<M> setSwizzleIdProvider(P swizzleTypeIdProvider);
-
-	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer>
-	PersistenceFoundation<M> setDictionaryStorage(H typeDictionaryStorageHandler);
-
-	public <S extends PersistenceTarget<M> & PersistenceSource<M>>
-	PersistenceFoundation<M> setPersistenceStorage(S persistenceStorage);
-	
-	public PersistenceFoundation<M> setTypeDefinitionCreator(PersistenceTypeDefinitionCreator typeDefinitionCreator);
-	
-	public PersistenceFoundation<M> setTypeHandlerEnsurer(PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer);
-	
-	public PersistenceFoundation<M> setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
-	
-	public PersistenceFoundation<M> setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// declared methods //
-	/////////////////////
 
 	/*
 	 * generic name is intentional as the role of the created instance may change in extended types
@@ -195,15 +259,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 
 
-	public abstract class AbstractImplementation<M>
-	extends SwizzleFoundation.Implementation
-	implements PersistenceFoundation<M>
+	public abstract class AbstractImplementation<M, F extends PersistenceFoundation.AbstractImplementation<M, ?>>
+	extends SwizzleFoundation.Implementation<F>
+	implements PersistenceFoundation<M, F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
-
-		private PersistenceTypeSovereignty              typeSovereignty             = PersistenceTypeSovereignty.MASTER;
+		// instance fields //
+		////////////////////
 
 		// first level assembly parts (used directly to build manager instance) \\
 		private SwizzleRegistry                         swizzleRegistry            ;
@@ -217,52 +279,64 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
 		private SwizzleTypeManager                      typeManager                ;
+		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
 		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
 		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
 		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
+		private PersistenceTypeDictionaryCreator        typeDictionaryCreator      ;
 		private PersistenceTypeDictionaryProvider       typeDictionaryProvider     ;
-		private PersistenceTypeDictionaryImporter       typeDictionaryImporter     ;
 		private PersistenceTypeDictionaryExporter       typeDictionaryExporter     ;
 		private PersistenceTypeDictionaryLoader         typeDictionaryLoader       ;
 		private PersistenceTypeDictionaryParser         typeDictionaryParser       ;
 		private PersistenceTypeDictionaryBuilder        typeDictionaryBuilder      ;
 		private PersistenceTypeDictionaryAssembler      typeDictionaryAssembler    ;
 		private PersistenceTypeDictionaryStorer         typeDictionaryStorer       ;
-		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
+		private PersistenceTypeLineageCreator           typeLineageCreator         ;
 		private PersistenceTypeHandlerCreator<M>        typeHandlerCreator         ;
 		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
 		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
-		private PersistenceTypeChangeCallback           typeChangeCallback         ;
-		private PersistenceTypeResolver                 typeResolver               ;
+		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
+		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
-		private BufferSizeProvider                      bufferSizeProvider         ;
+		private BufferSizeProviderIncremental           bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluator             ;
-		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
-		private PersistenceTypeLineageCreator           typeLineageCreator         ;
+		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
+		private PersistenceRootResolver                 rootResolver               ;
+		private PersistenceRootsProvider<M>             rootsProvider              ;
+		
+		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
+		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
+		private PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
+		private PersistenceRefactoringMappingProvider       refactoringMappingProvider   ;
+		private PersistenceRefactoringResolverProvider      refactoringResolverProvider  ;
+
+		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
+		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
+		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringCurrentMemberIdentifierBuilders;
+		
+		private TypeMapping<Float>                       typeSimilarity              ;
+		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
+		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
+		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
+		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
+		
 
 		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		protected AbstractImplementation()
-		{
-			super();
-		}
-
-		
-
 		///////////////////////////////////////////////////////////////////////////
 		// getters          //
 		/////////////////////
-
+		
 		@Override
-		public PersistenceTypeSovereignty getTypeSovereignty()
+		public PersistenceTypeLineageCreator getTypeLineageCreator()
 		{
-			return this.typeSovereignty;
+			if(this.typeLineageCreator == null)
+			{
+				this.typeLineageCreator = this.dispatch(this.createTypeLineageCreator());
+			}
+			
+			return this.typeLineageCreator;
 		}
 
 		@Override
@@ -272,6 +346,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.swizzleRegistry = this.dispatch(this.createSwizzleRegistry());
 			}
+			
 			return this.swizzleRegistry;
 		}
 
@@ -282,6 +357,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.objectManager = this.dispatch(this.createObjectManager());
 			}
+			
 			return this.objectManager;
 		}
 
@@ -292,6 +368,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerManager = this.dispatch(this.createTypeHandlerManager());
 			}
+			
 			return this.typeHandlerManager;
 		}
 
@@ -302,6 +379,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.storerCreator = this.dispatch(this.createStorerCreator());
 			}
+			
 			return this.storerCreator;
 		}
 
@@ -312,6 +390,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.registererCreator = this.dispatch(this.createRegistererCreator());
 			}
+			
 			return this.registererCreator;
 		}
 
@@ -322,6 +401,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.builderCreator = this.dispatch(this.createBuilderCreator());
 			}
+			
 			return this.builderCreator;
 		}
 
@@ -332,6 +412,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.target = this.dispatch(this.createPersistenceTarget());
 			}
+			
 			return this.target;
 		}
 
@@ -342,6 +423,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.source = this.dispatch(this.createPersistenceSource());
 			}
+			
 			return this.source;
 		}
 
@@ -352,6 +434,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerRegistry = this.dispatch(this.createTypeHandlerRegistry());
 			}
+			
 			return this.typeHandlerRegistry;
 		}
 
@@ -362,39 +445,32 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerProvider = this.dispatch(this.createTypeHandlerProvider());
 			}
+			
 			return this.typeHandlerProvider;
 		}
 
 		@Override
 		public SwizzleTypeManager getTypeManager()
 		{
-			/* this is tricky!
-			 * (a type slave may not use an actual sovereign typeId-assigning creating master manager,
-			 * but only a type-retrieving manager, which is the TypeHandlerManager assembled with the
-			 * appropriate type handler provider)
-			 */
-			if(this.typeSovereignty == PersistenceTypeSovereignty.SLAVE)
-			{
-				return this.getTypeHandlerManager();
-			}
-
 			if(this.typeManager == null)
 			{
 				this.typeManager = this.dispatch(this.createTypeManager());
 			}
+			
 			return this.typeManager;
 		}
-		
+
 		@Override
-		public PersistenceTypeDictionaryImporter getTypeDictionaryImporter()
+		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer()
 		{
-			if(this.typeDictionaryImporter == null)
+			if(this.typeHandlerEnsurer == null)
 			{
-				this.typeDictionaryImporter = this.dispatch(this.createTypeDictionaryImporter());
+				this.typeHandlerEnsurer = this.dispatch(this.createTypeHandlerEnsurer());
 			}
-			return this.typeDictionaryImporter;
+			
+			return this.typeHandlerEnsurer;
 		}
-		
+
 		@Override
 		public PersistenceTypeDictionaryProvider getTypeDictionaryProvider()
 		{
@@ -402,6 +478,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryProvider = this.dispatch(this.createTypeDictionaryProvider());
 			}
+			
 			return this.typeDictionaryProvider;
 		}
 
@@ -412,9 +489,21 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryManager = this.dispatch(this.createTypeDictionaryManager());
 			}
+			
 			return this.typeDictionaryManager;
 		}
-
+		
+		@Override
+		public PersistenceTypeDictionaryCreator getTypeDictionaryCreator()
+		{
+			if(this.typeDictionaryCreator == null)
+			{
+				this.typeDictionaryCreator = this.dispatch(this.createTypeDictionaryCreator());
+			}
+			
+			return this.typeDictionaryCreator;
+		}
+		
 		@Override
 		public PersistenceTypeDictionaryExporter getTypeDictionaryExporter()
 		{
@@ -422,6 +511,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryExporter = this.dispatch(this.createTypeDictionaryExporter());
 			}
+			
 			return this.typeDictionaryExporter;
 		}
 
@@ -432,6 +522,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryParser = this.dispatch(this.createTypeDictionaryParser());
 			}
+			
 			return this.typeDictionaryParser;
 		}
 
@@ -442,7 +533,19 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryLoader = this.dispatch(this.createTypeDictionaryLoader());
 			}
+			
 			return this.typeDictionaryLoader;
+		}
+		
+		@Override
+		public PersistenceTypeDictionaryBuilder getTypeDictionaryBuilder()
+		{
+			if(this.typeDictionaryBuilder == null)
+			{
+				this.typeDictionaryBuilder = this.dispatch(this.createTypeDictionaryBuilder());
+			}
+			
+			return this.typeDictionaryBuilder;
 		}
 
 		@Override
@@ -452,6 +555,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryAssembler = this.dispatch(this.createTypeDictionaryAssembler());
 			}
+			
 			return this.typeDictionaryAssembler;
 		}
 
@@ -462,19 +566,10 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeDictionaryStorer = this.dispatch(this.createTypeDictionaryStorer());
 			}
+			
 			return this.typeDictionaryStorer;
 		}
 
-		@Override
-		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer()
-		{
-			if(this.typeHandlerEnsurer == null)
-			{
-				this.typeHandlerEnsurer = this.dispatch(this.createTypeHandlerEnsurer());
-			}
-			return this.typeHandlerEnsurer;
-		}
-		
 		@Override
 		public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator()
 		{
@@ -482,6 +577,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeHandlerCreator = this.dispatch(this.createTypeHandlerCreator());
 			}
+			
 			return this.typeHandlerCreator;
 		}
 
@@ -492,6 +588,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.customTypeHandlerRegistry = this.dispatch(this.createCustomTypeHandlerRegistry());
 			}
+			
 			return this.customTypeHandlerRegistry;
 		}
 
@@ -502,6 +599,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeAnalyzer = this.dispatch(this.createTypeAnalyzer());
 			}
+			
 			return this.typeAnalyzer;
 		}
 
@@ -512,40 +610,32 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeEvaluatorTypeIdMappable = this.dispatch(this.createTypeEvaluatorTypeIdMappable());
 			}
+			
 			return this.typeEvaluatorTypeIdMappable;
 		}
 		
 		@Override
-		public PersistenceTypeChangeCallback getTypeChangeCallback()
+		public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator()
 		{
-			if(this.typeChangeCallback == null)
+			if(this.typeMismatchValidator == null)
 			{
-				this.typeChangeCallback = this.dispatch(this.createTypeChangeCallback());
+				this.typeMismatchValidator = this.dispatch(this.createTypeMismatchValidator());
 			}
-			return this.typeChangeCallback;
+			
+			return this.typeMismatchValidator;
+		}
+		
+		@Override
+		public PersistenceTypeDefinitionCreator getTypeDefinitionCreator()
+		{
+			if(this.typeDefinitionCreator == null)
+			{
+				this.typeDefinitionCreator = this.dispatch(this.createTypeDefinitionCreator());
+			}
+			
+			return this.typeDefinitionCreator;
 		}
 
-		@Override
-		public PersistenceTypeResolver getTypeResolver()
-		{
-			if(this.typeResolver == null)
-			{
-				this.typeResolver = this.dispatch(this.createTypeResolver());
-			}
-			return this.typeResolver;
-		}
-		
-		
-		@Override
-		public PersistenceTypeDictionaryBuilder getTypeDictionaryBuilder()
-		{
-			if(this.typeDictionaryBuilder == null)
-			{
-				this.typeDictionaryBuilder = this.dispatch(this.createTypeDictionaryBuilder());
-			}
-			return this.typeDictionaryBuilder;
-		}
-		
 		@Override
 		public PersistenceTypeEvaluator getTypeEvaluatorPersistable()
 		{
@@ -553,6 +643,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.typeEvaluatorPersistable = this.dispatch(this.createTypeEvaluatorPersistable());
 			}
+			
 			return this.typeEvaluatorPersistable;
 		}
 
@@ -563,16 +654,18 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.fieldFixedLengthResolver = this.dispatch(this.createFieldFixedLengthResolver());
 			}
+			
 			return this.fieldFixedLengthResolver;
 		}
 
 		@Override
-		public BufferSizeProvider getBufferSizeProvider()
+		public BufferSizeProviderIncremental getBufferSizeProvider()
 		{
 			if(this.bufferSizeProvider == null)
 			{
 				this.bufferSizeProvider = this.dispatch(this.createBufferSizeProvider());
 			}
+			
 			return this.bufferSizeProvider;
 		}
 
@@ -583,333 +676,664 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			{
 				this.fieldEvaluator = this.dispatch(this.createFieldEvaluator());
 			}
+			
 			return this.fieldEvaluator;
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionCreator getTypeDefinitionCreator()
+		public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator()
 		{
-			if(this.typeDefinitionCreator == null)
+			if(this.eagerStoringFieldEvaluator == null)
 			{
-				this.typeDefinitionCreator = this.dispatch(this.createTypeDefinitionCreator());
+				this.eagerStoringFieldEvaluator = this.dispatch(this.createReferenceFieldMandatoryEvaluator());
 			}
-			return this.typeDefinitionCreator;
+			
+			return this.eagerStoringFieldEvaluator;
+		}
+
+		@Override
+		public PersistenceRootResolver getRootResolver()
+		{
+			if(this.rootResolver == null)
+			{
+				this.rootResolver = this.dispatch(this.createRootResolver());
+			}
+			
+			return this.rootResolver;
 		}
 		
 		@Override
-		public PersistenceTypeLineageCreator getTypeLineageCreator()
+		public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator()
 		{
-			if(this.typeLineageCreator == null)
+			if(this.unreachableTypeHandlerCreator == null)
 			{
-				this.typeLineageCreator = this.dispatch(this.createTypeLineageCreator());
+				this.unreachableTypeHandlerCreator = this.dispatch(this.createUnreachableTypeHandlerCreator());
 			}
-			return this.typeLineageCreator;
+			
+			return this.unreachableTypeHandlerCreator;
 		}
 		
+		@Override
+		public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper()
+		{
+			if(this.legacyTypeMapper == null)
+			{
+				this.legacyTypeMapper = this.dispatch(this.createLegacyTypeMapper());
+			}
+			
+			return this.legacyTypeMapper;
+		}
 		
+		@Override
+		public PersistenceRefactoringMappingProvider getRefactoringMappingProvider()
+		{
+			if(this.refactoringMappingProvider == null)
+			{
+				this.refactoringMappingProvider = this.dispatch(this.createRefactoringMappingProvider());
+			}
+			
+			return this.refactoringMappingProvider;
+		}
+		
+		@Override
+		public PersistenceRefactoringResolverProvider getRefactoringResolverProvider()
+		{
+			if(this.refactoringResolverProvider == null)
+			{
+				this.refactoringResolverProvider = this.dispatch(this.createRefactoringResolverProvider());
+			}
+			
+			return this.refactoringResolverProvider;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> getRefactoringLegacyTypeIdentifierBuilders()
+		{
+			if(this.refactoringLegacyTypeIdentifierBuilders == null)
+			{
+				this.refactoringLegacyTypeIdentifierBuilders = this.dispatch(this.createRefactoringLegacyTypeIdentifierBuilders());
+			}
+			
+			return this.refactoringLegacyTypeIdentifierBuilders;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringLegacyMemberIdentifierBuilders()
+		{
+			if(this.refactoringLegacyMemberIdentifierBuilders == null)
+			{
+				this.refactoringLegacyMemberIdentifierBuilders = this.dispatch(this.createRefactoringLegacyMemberIdentifierBuilders());
+			}
+			
+			return this.refactoringLegacyMemberIdentifierBuilders;
+		}
+		
+		@Override
+		public XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> getRefactoringCurrentMemberIdentifierBuilders()
+		{
+			if(this.refactoringCurrentMemberIdentifierBuilders == null)
+			{
+				this.refactoringCurrentMemberIdentifierBuilders = this.dispatch(this.createRefactoringCurrentMemberIdentifierBuilders());
+			}
+			
+			return this.refactoringCurrentMemberIdentifierBuilders;
+		}
+		
+		@Override
+		public TypeMapping<Float> getTypeSimilarity()
+		{
+			if(this.typeSimilarity == null)
+			{
+				this.typeSimilarity = this.dispatch(this.createTypeSimilarity());
+			}
+			
+			return this.typeSimilarity;
+		}
+		
+		@Override
+		public PersistenceMemberMatchingProvider getLegacyMemberMatchingProvider()
+		{
+			if(this.legacyMemberMatchingProvider == null)
+			{
+				this.legacyMemberMatchingProvider = this.dispatch(this.createLegacyMemberMatchingProvider());
+			}
+			
+			return this.legacyMemberMatchingProvider;
+		}
+				
+		@Override
+		public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor()
+		{
+			if(this.legacyTypeMappingResultor == null)
+			{
+				this.legacyTypeMappingResultor = this.dispatch(this.createLegacyTypeMappingResultor());
+			}
+			
+			return this.legacyTypeMappingResultor;
+		}
+		
+		@Override
+		public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator()
+		{
+			if(this.legacyTypeHandlerCreator == null)
+			{
+				this.legacyTypeHandlerCreator = this.dispatch(this.createLegacyTypeHandlerCreator());
+			}
+			
+			return this.legacyTypeHandlerCreator;
+		}
+		
+		@Override
+		public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener()
+		{
+			if(this.legacyTypeHandlingListener == null)
+			{
+				this.legacyTypeHandlingListener = this.dispatch(this.createLegacyTypeHandlingListener());
+			}
+			
+			return this.legacyTypeHandlingListener;
+		}
+		
+		@Override
+		public PersistenceRootResolver rootResolver()
+		{
+			return this.rootResolver;
+		}
+
+		@Override
+		public PersistenceRootsProvider<M> getRootsProvider()
+		{
+			if(this.rootsProvider == null)
+			{
+				this.rootsProvider = this.dispatch(this.createRootsProvider());
+			}
+			return this.rootsProvider;
+		}
+		
+
 
 		///////////////////////////////////////////////////////////////////////////
 		// setters          //
 		/////////////////////
 
 		@Override
-		public SwizzleFoundation setInstanceDispatcherLogic(final InstanceDispatcherLogic logic)
-		{
-			super.setInstanceDispatcherLogic(logic);
-			return this;
-		}
-				
-		@Override
-		public PersistenceFoundation<M> setTypeDictionaryManager(
-			final PersistenceTypeDictionaryManager typeDictionaryManager
+		public F setInstanceDispatcher(
+			final InstanceDispatcherLogic instanceDispatcher
 		)
 		{
-			this.typeDictionaryManager = typeDictionaryManager;
-			return this;
+			super.setInstanceDispatcherLogic(instanceDispatcher);
+			return this.$();
+		}
+
+		@Override
+		public F setObjectManager(
+			final SwizzleObjectManager objectManager
+		)
+		{
+			this.objectManager = objectManager;
+			return this.$();
+		}
+
+		@Override
+		public F setStorerCreator(
+			final PersistenceStorer.Creator<M> storerCreator
+		)
+		{
+			this.storerCreator = storerCreator;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeHandlerCreatorLookup(
+			final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
+		)
+		{
+			this.typeHandlerEnsurer = typeHandlerCreatorLookup;
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryExporter(
-			final PersistenceTypeDictionaryExporter typeDictionaryExporter
+		public F setTypeHandlerCreator(
+			final PersistenceTypeHandlerCreator<M> typeHandlerCreator
 		)
 		{
-			this.typeDictionaryExporter = typeDictionaryExporter;
-			return this;
-		}
-		
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryParser(
-			final PersistenceTypeDictionaryParser typeDictionaryParser
-		)
-		{
-			this.typeDictionaryParser = typeDictionaryParser;
-			return this;
-		}
-		
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryLoader(
-			final PersistenceTypeDictionaryLoader typeDictionaryLoader
-		)
-		{
-			this.typeDictionaryLoader = typeDictionaryLoader;
-			return this;
-		}
-		
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryStorer(
-			final PersistenceTypeDictionaryStorer dictionaryStorer
-		)
-		{
-			this.typeDictionaryStorer = dictionaryStorer;
-			return this;
+			this.typeHandlerCreator = typeHandlerCreator;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeSovereignty(
-			final PersistenceTypeSovereignty typeSovereignty
+		public F setTypeHandlerManager(
+			final PersistenceTypeHandlerManager<M> typeHandlerManager
 		)
 		{
-			this.typeSovereignty = notNull(typeSovereignty);
-			return this;
+			this.typeHandlerManager = typeHandlerManager;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setObjectManager(
-			final SwizzleObjectManager manager
+		public F setSwizzleRegistry(
+			final SwizzleRegistry swizzleRegistry
 		)
 		{
-			this.objectManager = manager;
-			return this;
+			this.swizzleRegistry = swizzleRegistry;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setStorerCreator(
-			final PersistenceStorer.Creator<M> creator
-		)
-		{
-			this.storerCreator = creator;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeHandlerManager(
-			final PersistenceTypeHandlerManager<M> manager
-		)
-		{
-			this.typeHandlerManager = manager;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setSwizzleRegistry(
-			final SwizzleRegistry registry
-		)
-		{
-			this.swizzleRegistry = registry;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setObjectIdProvider(
+		public F setObjectIdProvider(
 			final SwizzleObjectIdProvider oidProvider
 		)
 		{
 			super.setObjectIdProvider(oidProvider);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeIdProvider(
+		public F setTypeIdProvider(
 			final SwizzleTypeIdProvider tidProvider
 		)
 		{
 			super.setTypeIdProvider(tidProvider);
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
-		PersistenceFoundation.AbstractImplementation<M> setSwizzleIdProvider(
+		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider> F setSwizzleIdProvider(
 			final P swizzleTypeIdProvider
 		)
 		{
-			super.setSwizzleIdProvider(swizzleTypeIdProvider);
-			return this;
+			this.setObjectIdProvider(swizzleTypeIdProvider);
+			this.setTypeIdProvider  (swizzleTypeIdProvider);
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeManager(
+		public F setTypeManager(
 			final SwizzleTypeManager typeManager
 		)
 		{
 			this.typeManager = typeManager;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeHandlerRegistry(
-			final PersistenceTypeHandlerRegistry<M> registry
+		public F setTypeHandlerRegistry(
+			final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry
 		)
 		{
-			this.typeHandlerRegistry = registry;
-			return this;
+			this.typeHandlerRegistry = typeHandlerRegistry;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeHandlerProvider(
-			final PersistenceTypeHandlerProvider<M> provider
+		public F setTypeHandlerProvider(
+			final PersistenceTypeHandlerProvider<M> typeHandlerProvider
 		)
 		{
-			this.typeHandlerProvider = provider;
-			return this;
+			this.typeHandlerProvider = typeHandlerProvider;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setRegistererCreator(
-			final PersistenceRegisterer.Creator creator
+		public F setRegistererCreator(
+			final PersistenceRegisterer.Creator registererCreator
 		)
 		{
-			this.registererCreator = creator;
-			return this;
+			this.registererCreator = registererCreator;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setLoaderCreator(
-			final PersistenceLoader.Creator<M> creator
+		public F setBuilderCreator(
+			final PersistenceLoader.Creator<M> builderCreator
 		)
 		{
-			this.builderCreator = creator;
-			return this;
+			this.builderCreator = builderCreator;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setPersistenceTarget(final PersistenceTarget<M> target)
+		public F setPersistenceTarget(
+			final PersistenceTarget<M> target
+		)
 		{
 			this.target = target;
-			return this;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setPersistenceSource(final PersistenceSource<M> source)
+		public F setPersistenceSource(
+			final PersistenceSource<M> source
+		)
 		{
 			this.source = source;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryAssembler(
-			final PersistenceTypeDictionaryAssembler assembler
-		)
-		{
-			this.typeDictionaryAssembler = assembler;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryImporter(
-			final PersistenceTypeDictionaryImporter provider
-		)
-		{
-			this.typeDictionaryImporter = provider;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeEvaluatorTypeIdMappable(
-			final PersistenceTypeEvaluator evaluator
-		)
-		{
-			this.typeEvaluatorTypeIdMappable = evaluator;
-			return this;
-		}
-
-		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeResolver(final PersistenceTypeResolver resolver)
-		{
-			this.typeResolver = resolver;
-			return this;
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeDictionaryBuilder(
-			final PersistenceTypeDictionaryBuilder builder
-		)
+		public F setPersistenceChannel(final PersistenceChannel<M> persistenceChannel)
 		{
-			this.typeDictionaryBuilder = builder;
-			return this;
+			this.setPersistenceSource(persistenceChannel);
+			this.setPersistenceTarget(persistenceChannel);
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setTypeEvaluatorPersistable(
-			final PersistenceTypeEvaluator evaluator
+		public F setTypeDictionaryManager(
+			final PersistenceTypeDictionaryManager typeDictionaryManager
 		)
 		{
-			this.typeEvaluatorPersistable = evaluator;
-			return this;
+			this.typeDictionaryManager = typeDictionaryManager;
+			return this.$();
 		}
-
+				
 		@Override
-		public PersistenceFoundation.AbstractImplementation<M> setBufferSizeProvider(final BufferSizeProvider provider)
+		public F setTypeDictionaryCreator(
+			final PersistenceTypeDictionaryCreator typeDictionaryCreator
+		)
 		{
-			this.bufferSizeProvider = provider;
-			return this;
+			this.typeDictionaryCreator = typeDictionaryCreator;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation<M> setFieldFixedLengthResolver(final PersistenceFieldLengthResolver resolver)
+		public F setTypeDictionaryProvider(
+			final PersistenceTypeDictionaryProvider typeDictionaryProvider
+		)
 		{
-			this.fieldFixedLengthResolver = resolver;
-			return this;
+			this.typeDictionaryProvider = typeDictionaryProvider;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation<M> setFieldEvaluator(final PersistenceFieldEvaluator fieldEvaluator)
+		public F setTypeDictionaryExporter(
+			final PersistenceTypeDictionaryExporter typeDictionaryExporter
+		)
+		{
+			this.typeDictionaryExporter = typeDictionaryExporter;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeDictionaryParser(
+			final PersistenceTypeDictionaryParser typeDictionaryParser
+		)
+		{
+			this.typeDictionaryParser = typeDictionaryParser;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeDictionaryAssembler(
+			final PersistenceTypeDictionaryAssembler typeDictionaryAssembler
+		)
+		{
+			this.typeDictionaryAssembler = typeDictionaryAssembler;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeDictionaryLoader(
+			final PersistenceTypeDictionaryLoader typeDictionaryLoader
+		)
+		{
+			this.typeDictionaryLoader = typeDictionaryLoader;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeDictionaryBuilder(
+			final PersistenceTypeDictionaryBuilder typeDictionaryBuilder
+		)
+		{
+			this.typeDictionaryBuilder = typeDictionaryBuilder;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeDictionaryStorer(
+			final PersistenceTypeDictionaryStorer typeDictionaryStorer
+		)
+		{
+			this.typeDictionaryStorer = typeDictionaryStorer;
+			return this.$();
+		}
+		
+		@Override
+		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryStorage(
+			final H typeDictionaryStorageHandler
+		)
+		{
+			this.setTypeDictionaryLoader(typeDictionaryStorageHandler);
+			this.setTypeDictionaryStorer(typeDictionaryStorageHandler);
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeLineageCreator(
+			final PersistenceTypeLineageCreator typeLineageCreator
+		)
+		{
+			this.typeLineageCreator = typeLineageCreator;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeEvaluatorTypeIdMappable(
+			final PersistenceTypeEvaluator typeEvaluatorTypeIdMappable
+		)
+		{
+			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeMismatchValidator(
+			final PersistenceTypeMismatchValidator<M> typeMismatchValidator
+		)
+		{
+			this.typeMismatchValidator = typeMismatchValidator;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeDescriptionBuilder(
+			final PersistenceTypeDefinitionCreator typeDefinitionCreator
+		)
+		{
+			this.typeDefinitionCreator = typeDefinitionCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeEvaluatorPersistable(
+			final PersistenceTypeEvaluator typeEvaluatorPersistable
+		)
+		{
+			this.typeEvaluatorPersistable = typeEvaluatorPersistable;
+			return this.$();
+		}
+
+		@Override
+		public F setBufferSizeProvider(
+			final BufferSizeProviderIncremental bufferSizeProvider
+		)
+		{
+			this.bufferSizeProvider = bufferSizeProvider;
+			return this.$();
+		}
+
+		@Override
+		public F setFieldFixedLengthResolver(
+			final PersistenceFieldLengthResolver fieldFixedLengthResolver
+		)
+		{
+			this.fieldFixedLengthResolver = fieldFixedLengthResolver;
+			return this.$();
+		}
+
+		@Override
+		public F setFieldEvaluator(
+			final PersistenceFieldEvaluator fieldEvaluator
+		)
 		{
 			this.fieldEvaluator = fieldEvaluator;
-			return this;
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeDefinitionCreator(final PersistenceTypeDefinitionCreator builder)
+		public F setReferenceFieldMandatoryEvaluator(
+			final PersistenceEagerStoringFieldEvaluator evaluator
+		)
 		{
-			this.typeDefinitionCreator = builder;
-			return this;
+			this.eagerStoringFieldEvaluator = evaluator;
+			return this.$();
 		}
 
 		@Override
-		public PersistenceFoundation<M> setTypeHandlerEnsurer(final PersistenceTypeHandlerEnsurer<M> ensurer)
+		public F setRootResolver(
+			final PersistenceRootResolver rootResolver
+		)
 		{
-			this.typeHandlerEnsurer = ensurer;
-			return this;
+			this.rootResolver = rootResolver;
+			return this.$();
+		}
+
+		@Override
+		public F setRootsProvider(
+			final PersistenceRootsProvider<M> rootsProvider
+		)
+		{
+			this.rootsProvider = rootsProvider;
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeHandlerCreator(final PersistenceTypeHandlerCreator<M> creator)
+		public F setUnreachableTypeHandlerCreator(
+			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+		)
 		{
-			this.typeHandlerCreator = creator;
-			return this;
+			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
+			return this.$();
 		}
 		
 		@Override
-		public PersistenceFoundation<M> setTypeLineageCreator(final PersistenceTypeLineageCreator builder)
+		public F setLegacyTypeMapper(
+			final PersistenceLegacyTypeMapper<M> legacyTypeMapper
+		)
 		{
-			this.typeLineageCreator = builder;
-			return this;
+			this.legacyTypeMapper = legacyTypeMapper;
+			return this.$();
 		}
 		
+		@Override
+		public F setRefactoringMappingProvider(
+			final PersistenceRefactoringMappingProvider refactoringMappingProvider
+		)
+		{
+			this.refactoringMappingProvider = refactoringMappingProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringResolverProvider(
+			final PersistenceRefactoringResolverProvider refactoringResolverProvider
+		)
+		{
+			this.refactoringResolverProvider = refactoringResolverProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringLegacyTypeIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> refactoringTypeIdentifierBuilders
+		)
+		{
+			this.refactoringLegacyTypeIdentifierBuilders = refactoringTypeIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringLegacyMemberIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringMemberIdentifierBuilders
+		)
+		{
+			this.refactoringLegacyMemberIdentifierBuilders = refactoringMemberIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setRefactoringCurrentMemberIdentifierBuilders(
+			final XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringMemberIdentifierBuilders
+		)
+		{
+			this.refactoringCurrentMemberIdentifierBuilders = refactoringMemberIdentifierBuilders;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeSimilarity(final TypeMapping<Float> typeSimilarity)
+		{
+			this.typeSimilarity = typeSimilarity;
+			return this.$();
+		}
+		
+		@Override
+		public F setLegacyMemberMatchingProvider(
+			final PersistenceMemberMatchingProvider legacyMemberMatchingProvider
+		)
+		{
+			this.legacyMemberMatchingProvider = legacyMemberMatchingProvider;
+			return this.$();
+		}
+				
+		@Override
+		public F setLegacyTypeMappingResultor(
+			final PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
+		)
+		{
+			this.legacyTypeMappingResultor = legacyTypeMappingResultor;
+			return this.$();
+		}
+		
+		@Override
+		public F setLegacyTypeHandlerCreator(
+			final PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator
+		)
+		{
+			this.legacyTypeHandlerCreator = legacyTypeHandlerCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setLegacyTypeHandlingListener(
+			final PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
+		)
+		{
+			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
+			return this.$();
+		}
 
 
+		
 		///////////////////////////////////////////////////////////////////////////
-		// creators         //
-		/////////////////////
+		// creators //
+		/////////////
 
 		protected SwizzleRegistry createSwizzleRegistry()
 		{
-			final SwizzleRegistryGrowingRange newSwizzleRegistry = SwizzleRegistryGrowingRange.New();
-			
-			// (11.10.2017 TM)NOTE: registering of defaults moved / split into and after type initialization
-//			Swizzle.registerDefaults(newSwizzleRegistry);
+			final SwizzleRegistryGrowingRange newSwizzleRegistry = new SwizzleRegistryGrowingRange();
+			Swizzle.registerJavaBasicTypes(newSwizzleRegistry);
+			Swizzle.registerJavaConstants(newSwizzleRegistry);
 			return newSwizzleRegistry;
+		}
+		
+		protected PersistenceTypeLineageCreator createTypeLineageCreator()
+		{
+			final PersistenceTypeLineageCreator newTypeLineageCreator =
+				PersistenceTypeLineageCreator.New()
+			;
+			return newTypeLineageCreator;
 		}
 
 		protected SwizzleObjectManager createObjectManager()
@@ -937,12 +1361,13 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
-					this.getTypeHandlerRegistry(),
-					this.getTypeHandlerProvider(),
-					this.getTypeDictionaryImporter(),
-					this.getTypeDictionaryManager(),
+					this.getTypeHandlerRegistry()        ,
+					this.getTypeHandlerProvider()        ,
+					this.getTypeDictionaryManager()      ,
 					this.getTypeEvaluatorTypeIdMappable(),
-					this.getTypeChangeCallback()
+					this.getTypeMismatchValidator()      ,
+					this.getLegacyTypeMapper()           ,
+					this.getUnreachableTypeHandlerCreator()
 				)
 			;
 			return newTypeHandlerManager;
@@ -964,7 +1389,7 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 
 		protected PersistenceTypeHandlerProvider<M> createTypeHandlerProvider()
 		{
-			return new PersistenceTypeHandlerProviderCreating<>(
+			return PersistenceTypeHandlerProviderCreating.New(
 				this.getTypeManager(),
 				this.getTypeHandlerEnsurer()
 			);
@@ -974,33 +1399,33 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 		{
 			final PersistenceTypeDictionaryManager newTypeDictionaryManager =
 				new PersistenceTypeDictionaryManager.Implementation(
-					this.getTypeDictionaryProvider().provideTypeDictionary(),
+					this.getTypeDictionaryProvider(),
 					this.getTypeDictionaryExporter()
 				)
 			;
 			return newTypeDictionaryManager;
 		}
-
-		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
+		
+		protected PersistenceTypeDictionaryCreator createTypeDictionaryCreator()
 		{
-			final PersistenceTypeDictionaryProvider newPersistenceTypeDictionaryProvider =
-				PersistenceTypeDictionaryProvider.New(
+			final PersistenceTypeDictionaryCreator newTypeDictionaryCreator =
+				PersistenceTypeDictionaryCreator.New(
 					this.getTypeLineageCreator()
 				)
 			;
-			return newPersistenceTypeDictionaryProvider;
+			return newTypeDictionaryCreator;
 		}
-		
-		protected PersistenceTypeDictionaryImporter createTypeDictionaryImporter()
+
+		protected PersistenceTypeDictionaryProvider createTypeDictionaryProvider()
 		{
-			final PersistenceTypeDictionaryImporter newTypeDictionaryImporter =
-				PersistenceTypeDictionaryImporter.New(
-					this.getTypeDictionaryLoader() ,
-					this.getTypeDictionaryParser() ,
+			final PersistenceTypeDictionaryProvider newTypeDictionaryProvider =
+				PersistenceTypeDictionaryProvider.New(
+					this.getTypeDictionaryLoader(),
+					this.getTypeDictionaryParser(),
 					this.getTypeDictionaryBuilder()
 				)
 			;
-			return new PersistenceTypeDictionaryImporter.Caching(newTypeDictionaryImporter);
+			return new PersistenceTypeDictionaryProvider.Caching(newTypeDictionaryProvider);
 		}
 
 		protected PersistenceTypeDictionaryExporter createTypeDictionaryExporter()
@@ -1040,49 +1465,6 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			);
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// pseudo-abstract creators //
-		/////////////////////////////
-
-		/* Explanation:
-		 * These methods are not actually abstract because it is not necessaryly required
-		 * to create new instances of these types. Instead, apropriate instances can be set.
-		 * These methods exist in order to allow sub classes to implement them optionally
-		 * and throw an exception if neither implementation nor set instance is available.
-		 */
-
-		protected PersistenceStorer.Creator<M> createStorerCreator()
-		{
-			throw new MissingAssemblyPartException(PersistenceStorer.Creator.class);
-		}
-
-		protected PersistenceLoader.Creator<M> createBuilderCreator()
-		{
-			throw new MissingAssemblyPartException(PersistenceLoader.Creator.class);
-		}
-
-		protected PersistenceTarget<M> createPersistenceTarget()
-		{
-			throw new MissingAssemblyPartException(PersistenceTarget.class);
-		}
-
-		protected PersistenceSource<M> createPersistenceSource()
-		{
-			throw new MissingAssemblyPartException(PersistenceSource.class);
-		}
-
-		protected PersistenceTypeDictionaryLoader createTypeDictionaryLoader()
-		{
-			throw new MissingAssemblyPartException(PersistenceTypeDictionaryLoader.class);
-		}
-
-		protected PersistenceTypeDictionaryStorer createTypeDictionaryStorer()
-		{
-			throw new MissingAssemblyPartException(PersistenceTypeDictionaryStorer.class);
-		}
-
 		protected PersistenceTypeHandlerEnsurer<M> createTypeHandlerEnsurer()
 		{
 			return PersistenceTypeHandlerEnsurer.New(
@@ -1090,15 +1472,14 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 				this.getTypeHandlerCreator()
 			);
 		}
-		
-		protected PersistenceTypeHandlerCreator<M> createTypeHandlerCreator()
-		{
-			throw new MissingAssemblyPartException(PersistenceTypeHandlerCreator.class);
-		}
 
-		protected PersistenceCustomTypeHandlerRegistry<M> createCustomTypeHandlerRegistry()
+		protected PersistenceTypeDictionaryBuilder createTypeDictionaryBuilder()
 		{
-			throw new MissingAssemblyPartException(PersistenceCustomTypeHandlerRegistry.class);
+			return PersistenceTypeDictionaryBuilder.New(
+				this.getTypeDictionaryCreator(),
+				this.getTypeDefinitionCreator(),
+				this.getRefactoringResolverProvider()
+			);
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorTypeIdMappable()
@@ -1106,23 +1487,16 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultTypeEvaluatorTypeIdMappable();
 		}
 		
-		protected PersistenceTypeChangeCallback createTypeChangeCallback()
+		protected PersistenceTypeMismatchValidator<M> createTypeMismatchValidator()
 		{
-			// (06.10.2017 TM)NOTE: by default, type changes cause the initialization to abort with an exception
-			return PersistenceTypeChangeCallback.Failing();
+			// (13.09.2018 TM)NOTE: changed for Legacy Type Mapping. Still a valid callback for monitoring purposes.
+			return Persistence.typeMismatchValidatorNoOp();
+//			return Persistence.typeMismatchValidatorFailing();
 		}
-
-		protected PersistenceTypeResolver createTypeResolver()
+		
+		protected PersistenceTypeDefinitionCreator createTypeDefinitionCreator()
 		{
-			return PersistenceTypeResolver.Failing();
-		}
-				
-		protected PersistenceTypeDictionaryBuilder createTypeDictionaryBuilder()
-		{
-			return PersistenceTypeDictionaryBuilder.New(
-				this.getTypeDictionaryProvider(),
-				this.getTypeDefinitionCreator()
-			);
+			return PersistenceTypeDefinitionCreator.New();
 		}
 
 		protected PersistenceTypeEvaluator createTypeEvaluatorPersistable()
@@ -1130,37 +1504,179 @@ public interface PersistenceFoundation<M> extends SwizzleFoundation
 			return Persistence.defaultTypeEvaluatorPersistable();
 		}
 
-		protected PersistenceFieldLengthResolver createFieldFixedLengthResolver()
+		protected BufferSizeProviderIncremental createBufferSizeProvider()
 		{
-			throw new MissingAssemblyPartException(PersistenceFieldLengthResolver.class);
-		}
-
-		protected BufferSizeProvider createBufferSizeProvider()
-		{
-			return new BufferSizeProvider.Default();
+			return new BufferSizeProviderIncremental.Default();
 		}
 
 		protected PersistenceFieldEvaluator createFieldEvaluator()
 		{
 			return Persistence.defaultFieldEvaluator();
 		}
+		
+		protected PersistenceEagerStoringFieldEvaluator createReferenceFieldMandatoryEvaluator()
+		{
+			return Persistence.defaultReferenceFieldMandatoryEvaluator();
+		}
+		
+		protected PersistenceUnreachableTypeHandlerCreator<M> createUnreachableTypeHandlerCreator()
+		{
+			return PersistenceUnreachableTypeHandlerCreator.New();
+		}
+		
+		protected PersistenceLegacyTypeMapper<M> createLegacyTypeMapper()
+		{
+			return PersistenceLegacyTypeMapper.New(
+				this.getRefactoringResolverProvider() ,
+				this.getTypeSimilarity()              ,
+				this.getCustomTypeHandlerRegistry()   ,
+				this.getLegacyMemberMatchingProvider(),
+				this.getLegacyTypeMappingResultor()   ,
+				this.getLegacyTypeHandlerCreator()
+			);
+		}
 				
-		protected PersistenceTypeDefinitionCreator createTypeDefinitionCreator()
+		protected PersistenceRefactoringMappingProvider createRefactoringMappingProvider()
 		{
-			return PersistenceTypeDefinitionCreator.New();
+			// empty (= dummy) mapping by default
+			return PersistenceRefactoringMappingProvider.NewEmpty();
 		}
 		
-		protected PersistenceTypeLineageCreator createTypeLineageCreator()
+		protected PersistenceRefactoringResolverProvider createRefactoringResolverProvider()
 		{
-			return PersistenceTypeLineageCreator.New();
+			return PersistenceRefactoringResolverProvider.Caching(
+				this.getRefactoringMappingProvider()                ,
+				this.getRefactoringLegacyTypeIdentifierBuilders()   ,
+				this.getRefactoringLegacyMemberIdentifierBuilders() ,
+				this.getRefactoringCurrentMemberIdentifierBuilders()
+			);
 		}
 		
+		protected XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> createRefactoringLegacyTypeIdentifierBuilders()
+		{
+			return PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders();
+		}
+		
+		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringLegacyMemberIdentifierBuilders()
+		{
+			return PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders();
+		}
+		
+		protected XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> createRefactoringCurrentMemberIdentifierBuilders()
+		{
+			return PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringCurrentMemberIdentifierBuilders();
+		}
+		
+		protected TypeMapping<Float> createTypeSimilarity()
+		{
+			return XTypes.createDefaultTypeSimilarity();
+		}
+				
+		protected PersistenceMemberMatchingProvider createLegacyMemberMatchingProvider()
+		{
+			return PersistenceMemberMatchingProvider.New();
+		}
+				
+		protected PersistenceLegacyTypeMappingResultor<M> createLegacyTypeMappingResultor()
+		{
+			return InquiringLegacyTypeMappingResultor.New(
+				PersistenceLegacyTypeMappingResultor.New()
+			);
+		}
+		
+		protected PersistenceLegacyTypeHandlerCreator<M> createLegacyTypeHandlerCreator()
+		{
+			throw new MissingFoundationPartException(PersistenceLegacyTypeHandlerCreator.class);
+		}
+		
+		protected PersistenceLegacyTypeHandlingListener<M> createLegacyTypeHandlingListener()
+		{
+			/*
+			 * this listener is purely optional, so by default, nothing is created.
+			 * This method is just a stub for sub classes to override.
+			 */
+			return null;
+		}
+
+		/* Explanation:
+		 * These methods are not actually abstract because it is not necessarily required to
+		 * create new instances of these types here. Instead, apropriate instances can be set.
+		 * These methods exist in order to allow sub classes to implement them optionally and
+		 * throw an exception if neither implementation nor set instance is available.
+		 */
+
+		protected PersistenceStorer.Creator<M> createStorerCreator()
+		{
+			throw new MissingFoundationPartException(PersistenceStorer.Creator.class);
+		}
+
+		protected PersistenceLoader.Creator<M> createBuilderCreator()
+		{
+			throw new MissingFoundationPartException(PersistenceLoader.Creator.class);
+		}
+
+		protected PersistenceTarget<M> createPersistenceTarget()
+		{
+			throw new MissingFoundationPartException(PersistenceTarget.class);
+		}
+
+		protected PersistenceSource<M> createPersistenceSource()
+		{
+			throw new MissingFoundationPartException(PersistenceSource.class);
+		}
+
+		protected PersistenceTypeDictionaryLoader createTypeDictionaryLoader()
+		{
+			throw new MissingFoundationPartException(PersistenceTypeDictionaryLoader.class);
+		}
+		
+		protected PersistenceTypeDictionaryStorer createTypeDictionaryStorer()
+		{
+			throw new MissingFoundationPartException(PersistenceTypeDictionaryStorer.class);
+		}
+
+		protected PersistenceTypeHandlerCreator<M> createTypeHandlerCreator()
+		{
+			throw new MissingFoundationPartException(PersistenceTypeHandlerCreator.class);
+		}
+
+		protected PersistenceCustomTypeHandlerRegistry<M> createCustomTypeHandlerRegistry()
+		{
+			throw new MissingFoundationPartException(PersistenceCustomTypeHandlerRegistry.class);
+		}
+
+		protected PersistenceFieldLengthResolver createFieldFixedLengthResolver()
+		{
+			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
+		}
+		
+		protected PersistenceRootResolver createRootResolver()
+		{
+			throw new MissingFoundationPartException(PersistenceRootResolver.class);
+		}
+		
+		protected PersistenceRootsProvider<M> createRootsProviderInternal()
+		{
+			throw new MissingFoundationPartException(PersistenceRootsProvider.class);
+		}
+
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods // (with logic worth mentioning)
+		////////////
 
+		protected PersistenceRootsProvider<M> createRootsProvider()
+		{
+			final PersistenceRootsProvider<M> rootsProvider = this.createRootsProviderInternal();
+			rootsProvider.registerRootsTypeHandlerCreator(
+				this.getCustomTypeHandlerRegistry(),
+				this.getSwizzleRegistry()
+			);
+			
+			return rootsProvider;
+		}
+		
 		@Override
 		public PersistenceManager<M> createPersistenceManager()
 		{

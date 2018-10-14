@@ -45,8 +45,8 @@ public interface Customer extends Contact
 
 
 		////////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final XTable<String, Order> orders()

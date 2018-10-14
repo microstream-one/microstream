@@ -1,13 +1,11 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
-import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyWrongHandler;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownObject;
@@ -49,7 +47,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 		public Implementation(
 			final PersistenceTypeHandlerRegistry<M> handlerRegistry,
-			final SwizzleObjectLookup               objectLookup
+			final SwizzleObjectLookup objectLookup
 		)
 		{
 			super();
@@ -60,8 +58,8 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)
@@ -74,7 +72,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.lookupType(typeId);
 		}
-		
+
 		@Override
 		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
@@ -82,15 +80,15 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public void validatePossibleTypeMapping(final long typeId, final Class<?> type)
+		public boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> type)
 		{
-			this.handlerRegistry.validatePossibleTypeMapping(typeId, type);
+			return this.handlerRegistry.registerTypeHandler(type);
 		}
-
+		
 		@Override
-		public boolean register(final PersistenceTypeHandler<M, ?> type)
+		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
 		{
-			return this.handlerRegistry.register(type);
+			return this.handlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
 		}
 
 		@Override
@@ -100,15 +98,9 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.handlerRegistry.lookupTypeHandler(typeId);
-		}
-		
-		@Override
-		public final long typeCount()
-		{
-			return this.handlerRegistry.typeCount();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -123,16 +115,15 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 			return (PersistenceTypeHandler<M, T>)handler;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			PersistenceTypeHandler<M, ?> handler;
 			if((handler = this.oidToHandler.get(objectId)) == null)
 			{
 				handler = this.handlerRegistry.lookupTypeHandler(objectId, typeId);
 			}
-			return (PersistenceTypeHandler<M, T>)handler;
+			return handler;
 		}
 
 		@Override
@@ -162,37 +153,26 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.registerType(tid, type);
 		}
-		
-		@Override
-		public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
-		{
-			return this.handlerRegistry.ensureRegisteredType(type, tid);
-		}
-		
-		@Override
-		public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
-		{
-			return this.handlerRegistry.ensureRegisteredTypes(typeMapping);
-		}
 
 		@Override
-		public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.handlerRegistry.validatePossibleTypeMappings(mappings);
 		}
-		
+
 		@Override
 		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			return this.handlerRegistry.iterateTypeHandlers(iterator);
+			this.handlerRegistry.iterateTypeHandlers(iterator);
+			return iterator;
 		}
 
 	}

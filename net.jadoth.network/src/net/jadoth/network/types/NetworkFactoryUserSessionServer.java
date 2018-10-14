@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import net.jadoth.util.MissingAssemblyPartException;
+import net.jadoth.exceptions.MissingFoundationPartException;
 
 
 
@@ -22,8 +22,8 @@ extends NetworkFactoryServerSessionful<S>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageListenerMaxThreadCount(
@@ -149,7 +149,7 @@ extends NetworkFactoryServerSessionful<S>
 
 		protected NetworkUserSessionProtocol<U, ?, S> provideUserSessionProtocol()
 		{
-			throw new MissingAssemblyPartException(NetworkUserSession.Creator.class);
+			throw new MissingFoundationPartException(NetworkUserSession.Creator.class);
 		}
 
 		@SuppressWarnings("unchecked") // safety of cast type paramters ensured by logic

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.XIterable;
+import net.jadoth.collections.types.XIterable;
 
 public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>, TransactionContext
 {

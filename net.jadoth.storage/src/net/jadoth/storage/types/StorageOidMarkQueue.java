@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public interface StorageOidMarkQueue
 {
@@ -73,7 +73,7 @@ public interface StorageOidMarkQueue
 		Implementation(final int segmentLength)
 		{
 			super();
-			this.root = new Segment(JadothMath.positive(segmentLength), null);
+			this.root = new Segment(XMath.positive(segmentLength), null);
 			this.reset();
 		}
 
@@ -194,7 +194,7 @@ public interface StorageOidMarkQueue
 			Segment(final int length, final Segment next)
 			{
 				super();
-				this.oids = new long[this.length = JadothMath.positive(length)];
+				this.oids = new long[this.length = XMath.positive(length)];
 				this.next = next;
 //				debugln("new segment");
 			}

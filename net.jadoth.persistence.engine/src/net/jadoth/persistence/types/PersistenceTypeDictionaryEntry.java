@@ -1,8 +1,8 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.types.SwizzleTypeIdentity;
-import net.jadoth.util.chars.VarString;
 
 /**
  * Data that ties a {@link PersistenceTypeDescription} to a biunique type id, aka a {@link SwizzleTypeIdentity}.
@@ -10,7 +10,7 @@ import net.jadoth.util.chars.VarString;
  * @author TM
  *
  */
-public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescription, SwizzleTypeIdentity
+public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescription
 {
 	@Override
 	public long   typeId();
@@ -23,23 +23,29 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 
 	
 	
-	public static boolean isEqual(
-		final PersistenceTypeDictionaryEntry type1,
-		final PersistenceTypeDictionaryEntry type2
-	)
+	/* (05.10.2018 TM)TODO: Type Dictionary: consolidate PersistenceTypeDictionaryEntry assembling
+	 * The assembling should not be here and not with hard-coded meta characters.
+	 */
+	public static VarString assembleDictionaryString(final VarString vs, final PersistenceTypeDictionaryEntry e)
 	{
-		return type1 == type2
-			|| type1 != null && type2 != null
-			&& SwizzleTypeIdentity.equals(type1, type2)
-			&& PersistenceTypeDescriptionMember.equalMembers(
-				type1.members(),
-				type2.members()
-			)
-		;
+		vs.add(e.typeId()).blank().add(e.typeName()).blank().add('{');
+		if(!e.members().isEmpty())
+		{
+			vs.lf();
+			for(final PersistenceTypeDescriptionMember member : e.members())
+			{
+				vs.tab().add(member).add(';').lf();
+			}
+		}
+		vs.add('}');
+		
+		return vs;
 	}
-
 	
-	
+	public static String assembleDictionaryString(final PersistenceTypeDictionaryEntry e)
+	{
+		return assembleDictionaryString(VarString.New(), e).toString();
+	}
 	
 	public abstract class AbstractImplementation implements PersistenceTypeDictionaryEntry
 	{
@@ -51,24 +57,17 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 		{
 			super();
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public final String toString()
+		public String toString()
 		{
-			final VarString vc = VarString.New();
-			
-			vc.add(this.typeId()).blank().add(this.typeName()).blank().add('{');
-			if(!this.members().isEmpty())
-			{
-				vc.lf();
-				for(final PersistenceTypeDescriptionMember member : this.members())
-				{
-					vc.tab().add(member).add(';').lf();
-				}
-			}
-			vc.add('}');
-			
-			return vc.toString();
+			return PersistenceTypeDictionaryEntry.assembleDictionaryString(this);
 		}
 
 	}

@@ -1,14 +1,17 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 public interface PersistenceTypeHandlerCreator<M>
 {
-	public <T> PersistenceTypeHandler<M, T> createTypeHandler(Class<T> type);
-	
+	public <T> PersistenceTypeHandler<M, T> createTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+
 	
 	
 	public abstract class AbstractImplementation<M> implements PersistenceTypeHandlerCreator<M>
@@ -17,8 +20,9 @@ public interface PersistenceTypeHandlerCreator<M>
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeAnalyzer        typeAnalyzer  ;
-		final PersistenceFieldLengthResolver lengthResolver;
+		final PersistenceTypeAnalyzer               typeAnalyzer           ;
+		final PersistenceFieldLengthResolver        lengthResolver         ;
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator;
 		
 		
 		
@@ -27,16 +31,32 @@ public interface PersistenceTypeHandlerCreator<M>
 		/////////////////
 		
 		protected AbstractImplementation(
-			final PersistenceTypeAnalyzer        typeAnalyzer  ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final PersistenceTypeAnalyzer               typeAnalyzer           ,
+			final PersistenceFieldLengthResolver        lengthResolver         ,
+			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 		)
 		{
 			super();
-			this.typeAnalyzer   = typeAnalyzer  ;
-			this.lengthResolver = lengthResolver;
+			this.typeAnalyzer            = notNull(typeAnalyzer)           ;
+			this.lengthResolver          = notNull(lengthResolver)         ;
+			this.mandatoryFieldEvaluator = notNull(mandatoryFieldEvaluator);
 		}
 
 
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		public PersistenceFieldLengthResolver lengthResolver()
+		{
+			return this.lengthResolver;
+		}
+		
+		public PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator()
+		{
+			return this.mandatoryFieldEvaluator;
+		}
 
 		@Override
 		public <T> PersistenceTypeHandler<M, T> createTypeHandler(final Class<T> type)
@@ -45,7 +65,20 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Primitive types must be handled by default (dummy) handler implementations.");
+				throw new RuntimeException(
+					"Primitive types must be handled by default (dummy) handler implementations."
+				);
+			}
+			
+			// since type refactoring, the old and simple strategy to handle Class instances does not work any more.
+			if(type == Class.class)
+			{
+				// (18.09.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Class instances are system meta data and should not be stored as user data in a database. "
+					+ "Register a custom handler if you absolutely must and accept full responsibility "
+					+ "for all details and problems associated with it."
+				);
 			}
 			
 			// array special casing
@@ -55,7 +88,9 @@ public interface PersistenceTypeHandlerCreator<M>
 				if(type.getComponentType().isPrimitive())
 				{
 					// (01.04.2013)EXCP: proper exception
-					throw new RuntimeException("Primitive component type arrays must be handled by default handler implementations.");
+					throw new RuntimeException(
+						"Primitive component type arrays must be handled by default handler implementations."
+					);
 				}
 				
 				// array types can never change and therefore can never have obsolete types.
@@ -74,15 +109,14 @@ public interface PersistenceTypeHandlerCreator<M>
 				this.typeAnalyzer.collectPersistableFields(type, fieldDescriptions)
 			;
 			
-			return this.createTypeHandlerReflective(type, persistableFields, this.lengthResolver);
+			return this.createTypeHandlerReflective(type, persistableFields);
 		}
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(Class<T> type);
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerReflective(
-			Class<T>                       type             ,
-			XGettingEnum<Field>            persistableFields,
-			PersistenceFieldLengthResolver lengthResolver
+			Class<T>            type             ,
+			XGettingEnum<Field> persistableFields
 		);
 		
 	}

@@ -1,11 +1,14 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.XSort;
 import net.jadoth.swizzling.types.Swizzle;
 
 public interface StorageChannelTaskInitialize extends StorageChannelTask
 {
-	public StorageIdRangeAnalysis getIdRangeAnalysis();
+	public StorageIdAnalysis idAnalysis();
 
 
 
@@ -17,10 +20,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		// instance fields  //
 		/////////////////////
 
-		private final StorageChannelController    channelController               ;
-		private final StorageInventory[]          result                          ;
-		private final StorageEntityCacheEvaluator entityInitializingCacheEvaluator;
-		private final StorageTypeDictionary       oldTypes                        ;
+		private final StorageChannelController channelController;
+		private final StorageInventory[]       result           ;
 
 		private Long consistentStoreTimestamp   ;
 		private Long commonTaskHeadFileTimestamp;
@@ -28,6 +29,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		private long maxEntityObjectOid  ;
 		private long maxEntityConstantOid;
 		private long maxEntityTypeOid    ; // this is NOT the highest TID, but the highest TID used as an entity ID
+		
+		private final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
 
 
 
@@ -36,18 +39,14 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		/////////////////////
 
 		public Implementation(
-			final long                        timestamp                       ,
-			final int                         channelCount                    ,
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final long                     timestamp        ,
+			final int                      channelCount     ,
+			final StorageChannelController channelController
 		)
 		{
 			super(timestamp, channelCount);
-			this.channelController                = notNull(channelController);
-			this.entityInitializingCacheEvaluator = entityInitializingCacheEvaluator; // may be null
-			this.oldTypes                         = oldTypes                        ; // may be null
-			this.result = new StorageInventory[channelCount];
+			this.channelController = notNull(channelController)        ;
+			this.result            = new StorageInventory[channelCount];
 		}
 
 		private synchronized long getConsistentStoreTimestamp()
@@ -80,25 +79,28 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		}
 
 
-		private synchronized void updateHighestAssignedObjectOid(final StorageIdRangeAnalysis idRangeAnalysis)
+		private synchronized void updateIdAnalysis(final StorageIdAnalysis idAnalysis)
 		{
-			final Long typeMaxTid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
+			final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
 			if(typeMaxTid != null && typeMaxTid >= this.maxEntityTypeOid)
 			{
 				this.maxEntityTypeOid = typeMaxTid;
 			}
 
-			final Long typeMaxOid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+			final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 			if(typeMaxOid != null && typeMaxOid >= this.maxEntityObjectOid)
 			{
 				this.maxEntityObjectOid = typeMaxOid;
 			}
 
-			final Long typeMaxCid = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
+			final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
 			if(typeMaxCid != null && typeMaxCid >= this.maxEntityConstantOid)
 			{
 				this.maxEntityConstantOid = typeMaxCid;
 			}
+			
+			this.occuringTypeIds.addAll(idAnalysis.occuringTypeIds());
+			this.occuringTypeIds.sort(XSort::compare);
 		}
 
 
@@ -176,8 +178,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final StorageInventory[] internalProcessBy(final StorageChannel channel)
@@ -192,16 +194,14 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		{
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " successfully completed initialization task, initialization storage");
 
-			final StorageIdRangeAnalysis idRangeAnalysis = channel.initializeStorage(
+			final StorageIdAnalysis idAnalysis = channel.initializeStorage(
 				this.getCommonTaskHeadFileTimestamp(),
 				this.getConsistentStoreTimestamp()   ,
-				result[channel.channelIndex()]       ,
-				this.entityInitializingCacheEvaluator,
-				this.oldTypes
+				result[channel.channelIndex()]
 			);
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " initialized storage, activating controller");
 
-			this.updateHighestAssignedObjectOid(idRangeAnalysis);
+			this.updateIdAnalysis(idAnalysis);
 
 			this.channelController.activate();
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " completed initialization");
@@ -215,12 +215,13 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		}
 
 		@Override
-		public synchronized StorageIdRangeAnalysis getIdRangeAnalysis()
+		public synchronized StorageIdAnalysis idAnalysis()
 		{
-			return StorageIdRangeAnalysis.New(
+			return StorageIdAnalysis.New(
 				this.maxEntityTypeOid    ,
 				this.maxEntityObjectOid  ,
-				this.maxEntityConstantOid
+				this.maxEntityConstantOid,
+				this.occuringTypeIds
 			);
 		}
 

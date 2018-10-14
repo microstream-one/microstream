@@ -2,33 +2,33 @@ package net.jadoth.test.sorting;
 
 import net.jadoth.TestSortUtils;
 import net.jadoth.math.FastRandom;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class Sort
 {
 	static int[] alreadySorted(final int size)
 	{
-		return JadothMath.sequence(1, size);
+		return XMath.sequence(1, size);
 	}
 	static int[] reverseSorted(final int size)
 	{
-		return JadothMath.sequence(size, 1);
+		return XMath.sequence(size, 1);
 	}
 
 	static int[] randomUniques(final int size)
 	{
 		final FastRandom rnd = new FastRandom();
-		final int[] values = JadothMath.sequence(1, size);
+		final int[] values = XMath.sequence(1, size);
 		for(int i = 0; i < size; i++) swap(values, i, rnd.nextInt(size));
 		return values;
 	}
 	static int[] random(final int size)
 	{
-		return JadothMath.randoming(size);
+		return XMath.randoming(size);
 	}
 	static int[] fewUnique(final int size, final int distinctAmount)
 	{
-		return JadothMath.randoming(size, 1, distinctAmount+1);
+		return XMath.randoming(size, 1, distinctAmount+1);
 	}
 	static int[] fewUniqueBulk(final int size, final int distinctAmount)
 	{
@@ -47,11 +47,11 @@ public class Sort
 	}
 	static int[] uniques(final int size, final int distinctAmount)
 	{
-		return JadothMath.randoming(size, 1, distinctAmount);
+		return XMath.randoming(size, 1, distinctAmount);
 	}
 	static int[] multipleEquals(final int size, final int roughEqualAmount)
 	{
-		return JadothMath.randoming(size, 1, size/roughEqualAmount);
+		return XMath.randoming(size, 1, size/roughEqualAmount);
 	}
 
 	static int[] sawtoothForward(final int size, final int toothCount)
@@ -80,7 +80,7 @@ public class Sort
 
 	static int[] nearlySorted(final int size)
 	{
-		final int[] ints = JadothMath.sequence(1, size);
+		final int[] ints = XMath.sequence(1, size);
 		final FastRandom rnd = new FastRandom();
 
 		for(int i = 1, len = size-3; i < len; i+=3)

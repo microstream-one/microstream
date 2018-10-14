@@ -1,6 +1,6 @@
 
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 
 

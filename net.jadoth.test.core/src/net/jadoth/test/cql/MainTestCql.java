@@ -1,24 +1,23 @@
 package net.jadoth.test.cql;
 
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.cql.CQL.not;
+import static net.jadoth.util.cql.CQL.not;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.X;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
-import net.jadoth.cql.CqlAggregation;
-import net.jadoth.cql.CqlProjection;
-import net.jadoth.cql.CqlQuery;
-import net.jadoth.cql.CqlSelection;
-import net.jadoth.cql.CqlTransfer;
-import net.jadoth.meta.JadothConsole;
-import net.jadoth.util.KeyValue;
+import net.jadoth.meta.XDebug;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.util.cql.CQL;
+import net.jadoth.util.cql.CqlAggregation;
+import net.jadoth.util.cql.CqlProjection;
+import net.jadoth.util.cql.CqlQuery;
+import net.jadoth.util.cql.CqlSelection;
+import net.jadoth.util.cql.CqlTransfer;
 
 public class MainTestCql
 {
@@ -36,10 +35,10 @@ public class MainTestCql
 			.limit(3)
 		;
 		final XSequence<String> r_qs1 = qs.executeOn(STRINGS);
-		print(r_qs1.sort(JadothSort::compareLength));
+		print(r_qs1.sort(XSort::compareLength));
 
 		final BulkList<String> r_qs2 = qs.executeInto(STRINGS, BulkList.<String>New());
-		print(r_qs2.sort(JadothSort::compareLength));
+		print(r_qs2.sort(XSort::compareLength));
 
 		
 
@@ -58,7 +57,7 @@ public class MainTestCql
 		final CqlSelection<String> qsf = CQL
 			.select (CQL.not(String::isEmpty))
 			.from   (STRINGS)
-			.orderBy(JadothSort::compareLength)
+			.orderBy(XSort::compareLength)
 		;
 		final XGettingCollection<String> r_qsf = qsf.execute();
 		print(r_qsf);
@@ -129,7 +128,7 @@ public class MainTestCql
 				CQL
 				.select(not(String::isEmpty))
 				.from(STRINGS)
-				.project(e -> keyValue(e.length(), e))
+				.project(e -> X.KeyValue(e.length(), e))
 			)
 			.execute()
 		;
@@ -161,7 +160,7 @@ public class MainTestCql
 
 	static void print(final XGettingCollection<?> elements)
 	{
-		JadothConsole.debugln(elements.toString(), 1);
+		XDebug.println(elements.toString(), 1);
 	}
 
 }

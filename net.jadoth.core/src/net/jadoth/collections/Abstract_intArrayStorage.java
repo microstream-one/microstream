@@ -1,21 +1,20 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
-import java.lang.reflect.Array;
 import java.util.Random;
+import java.util.function.BiConsumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.ChainStorage;
 import net.jadoth.collections.interfaces._intCollecting;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional._intFunction;
 import net.jadoth.functional._intIndexProcedure;
 import net.jadoth.functional._intPredicate;
 import net.jadoth.functional._intProcedure;
 import net.jadoth.math.FastRandom;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -1357,7 +1356,7 @@ public abstract class Abstract_intArrayStorage
 		finally
 		{
 			//even if predicate throws an execption, the remove markers have to be cleared
-			removeCount = JadothArrays.removeAllFromArray(data, 0, i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1455,7 +1454,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1561,7 +1560,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1712,7 +1711,7 @@ public abstract class Abstract_intArrayStorage
 		finally
 		{
 			//can't return until remove markers are cleared, so do this in any case
-			removeCount = JadothArrays.removeAllFromArray(data, 0, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, 0, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1813,7 +1812,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, (int)min, (int)++max, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1871,7 +1870,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -1995,7 +1994,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, removeStartIndex, ++i, removeMarker);
 		}
 		return removeCount;
 	}
@@ -2185,7 +2184,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = JadothArrays.removeAllFromArray(data, min, ++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, min, ++max, removeMarker);
 		}
 		return removeCount;
 	}
@@ -3232,7 +3231,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender
+		final BiConsumer<VarString, Integer> appender
 	)
 	{
 		if(size == 0)
@@ -3250,7 +3249,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final char separator
 	)
 	{
@@ -3271,7 +3270,7 @@ public abstract class Abstract_intArrayStorage
 		final int[] data,
 		final int size,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final String separator
 	)
 	{
@@ -3384,7 +3383,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender
+		final BiConsumer<VarString, Integer> appender
 	)
 	{
 		final int d; // bi - directional index movement
@@ -3407,7 +3406,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final char separator
 	)
 	{
@@ -3433,7 +3432,7 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, Integer> appender,
+		final BiConsumer<VarString, Integer> appender,
 		final String separator
 	)
 	{
@@ -3542,7 +3541,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		final int endIndex = offset + length - d;
 
-		final Random r = JadothMath.random();
+		final Random r = XMath.random();
 		for(int i = offset - d, j; i != endIndex;)
 		{
 			final int t = data[i += d];
@@ -3553,7 +3552,7 @@ public abstract class Abstract_intArrayStorage
 
 	public static final int[] toReversed(final int[] array, final int size)
 	{
-		final int[] rArray = (int[])Array.newInstance(array.getClass().getComponentType(), size);
+		final int[] rArray = new int[size];
 		for(int i = 0, r = size; i < size; i++)
 		{
 			rArray[--r] = array[i];
@@ -3710,7 +3709,7 @@ public abstract class Abstract_intArrayStorage
 		{
 			if(a.length < length)
 			{
-				a = (int[])Array.newInstance(a.getClass().getComponentType(), length);
+				a = new int[length];
 			}
 			// convenient and more performant case: increasing iteration direction, arraycopy can be used
 			System.arraycopy(data, offset, a, 0, length);
@@ -3725,7 +3724,7 @@ public abstract class Abstract_intArrayStorage
 			}
 			if(a.length < -length)
 			{
-				a = (int[])Array.newInstance(a.getClass().getComponentType(), -length);
+				a = new int[-length];
 			}
 
 			for(int i = offset, j = 0; i > boundIndex; i--)

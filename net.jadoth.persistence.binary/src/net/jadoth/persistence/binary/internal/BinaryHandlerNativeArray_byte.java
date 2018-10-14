@@ -1,12 +1,9 @@
 package net.jadoth.persistence.binary.internal;
 
-import java.util.Arrays;
-
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNativeArrayPrimitive<byte[]>
 {
@@ -26,7 +23,7 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final byte[] array, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final byte[] array, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeArray_byte(bytes, this.typeId(), oid, array);
 	}
@@ -41,16 +38,6 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 	public void update(final Binary bytes, final byte[] instance, final SwizzleBuildLinker builder)
 	{
 		BinaryPersistence.updateArray_byte(instance, bytes);
-	}
-
-	@Override
-	public boolean isEqual(
-		final byte[]                   source                    ,
-		final byte[]                   target                    ,
-		final ObjectStateHandlerLookup instanceStateHandlerLookup
-	)
-	{
-		return Arrays.equals(source, target);
 	}
 
 }

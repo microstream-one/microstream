@@ -1,15 +1,13 @@
 package net.jadoth.collections;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -66,10 +64,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes   ,
-		final LimitList<?>       instance,
-		final long               oid     ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final LimitList<?>   instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -79,7 +77,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,
-			linker
+			handler
 		);
 	}
 
@@ -112,18 +110,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final LimitList<?>             source            ,
-		final LimitList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.size == target.size
-			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
-		;
 	}
 
 }

@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.swizzling.types.Lazy;
 import net.jadoth.swizzling.types.LazyReferenceManager;

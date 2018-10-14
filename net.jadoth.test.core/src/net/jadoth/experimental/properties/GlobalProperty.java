@@ -1,6 +1,6 @@
 package net.jadoth.experimental.properties;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 public interface GlobalProperty
 {

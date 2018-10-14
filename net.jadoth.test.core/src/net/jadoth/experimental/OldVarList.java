@@ -1,13 +1,13 @@
 package net.jadoth.experimental;
 
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.XTypes;
 
 public final class OldVarList<E>
 {
@@ -419,7 +419,7 @@ public final class OldVarList<E>
 		{
 			return this;
 		}
-		if(Integer.MAX_VALUE - Jadoth.to_int(elements.size()) < this.size)
+		if(Integer.MAX_VALUE - XTypes.to_int(elements.size()) < this.size)
 		{
 			throw new IndexOutOfBoundsException();
 		}

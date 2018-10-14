@@ -3,7 +3,7 @@
  */
 package net.jadoth.test.lang;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 /**
  * @author Thomas Muenz
@@ -34,7 +34,7 @@ public class MainTestPow2
 				for(int i = 1; i < 31; i++)
 				{
 //					result = JaMath.log2Bound(1<<i);
-					result = JadothMath.log2pow2(1<<i);
+					result = XMath.log2pow2(1<<i);
 				}			
 			}
 			tStop = System.nanoTime();

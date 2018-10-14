@@ -1,5 +1,5 @@
-import net.jadoth.collections.JadothSort;
-import net.jadoth.math.JadothMath;
+import net.jadoth.collections.XSort;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -102,10 +102,10 @@ public class MainTestQuicksort
 			final int[] ints1 = new int[size];
 			for(int i = size; i --> 0;)
 			{
-				ints1[i] = JadothMath.random(Integer.MAX_VALUE);
+				ints1[i] = XMath.random(Integer.MAX_VALUE);
 			}
 			tStart = System.nanoTime();
-			JadothSort.sort(ints1, 0, ints1.length-1);
+			XSort.sort(ints1, 0, ints1.length-1);
 			tStop = System.nanoTime();
 			if(tStop - tStart < currentMin) currentMin = tStop - tStart;
 		}

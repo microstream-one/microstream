@@ -1,7 +1,8 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.BulkList;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 
 public class MainTestSplitAndTrim
 {
@@ -21,6 +22,6 @@ public class MainTestSplitAndTrim
 
 	static void test(final String s)
 	{
-		System.out.println(JadothChars.splitAndTrimToStrings(Memory.accessChars(s), ';', new BulkList<String>()));
+		System.out.println(XChars.splitAndTrimToStrings(XVM.accessChars(s), ';', new BulkList<String>()));
 	}
 }

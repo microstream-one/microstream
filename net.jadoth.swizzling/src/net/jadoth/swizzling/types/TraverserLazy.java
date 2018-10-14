@@ -1,11 +1,11 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.traversal.AbstractTraversalSkipSignal;
-import net.jadoth.traversal.MutationListener;
-import net.jadoth.traversal.TraversalAcceptor;
-import net.jadoth.traversal.TraversalEnqueuer;
-import net.jadoth.traversal.TraversalMutator;
-import net.jadoth.traversal.TypeTraverser;
+import net.jadoth.util.traversing.AbstractTraversalSkipSignal;
+import net.jadoth.util.traversing.MutationListener;
+import net.jadoth.util.traversing.TraversalAcceptor;
+import net.jadoth.util.traversing.TraversalEnqueuer;
+import net.jadoth.util.traversing.TraversalMutator;
+import net.jadoth.util.traversing.TypeTraverser;
 
 public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 {

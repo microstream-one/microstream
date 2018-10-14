@@ -1,16 +1,18 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 
 @FunctionalInterface
 public interface PersistenceTypeDefinitionCreator
 {
-	public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-		String                                                       typeName,
-		Class<T>                                                     type    ,
-		long                                                         typeId ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	public PersistenceTypeDefinition createTypeDefinition(
+		long                                                    typeId         ,
+		String                                                  typeName       ,
+		String                                                  runtimeTypeName,
+		Class<?>                                                runtimeType    ,
+		XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 	);
+	
 	
 	
 	public static PersistenceTypeDefinitionCreator.Implementation New()
@@ -36,14 +38,15 @@ public interface PersistenceTypeDefinitionCreator
 		////////////
 
 		@Override
-		public <T> PersistenceTypeDefinition<T> createTypeDefinition(
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
-			final long                                                         typeId ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		public PersistenceTypeDefinition createTypeDefinition(
+			final long                                                    typeId         ,
+			final String                                                  typeName       ,
+			final String                                                  runtimeTypeName,
+			final Class<?>                                                runtimeType    ,
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 		)
 		{
-			return PersistenceTypeDefinition.New(typeName, type, typeId, members);
+			return PersistenceTypeDefinition.New(typeId, typeName, runtimeTypeName, runtimeType, members);
 		}
 		
 	}

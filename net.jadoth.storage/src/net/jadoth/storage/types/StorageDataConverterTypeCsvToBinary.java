@@ -1,39 +1,36 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.chars.CsvParserCharArray;
+import net.jadoth.chars.EscapeHandler;
+import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
+import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.csv.CsvConfiguration;
-import net.jadoth.csv.CsvRowCollector;
-import net.jadoth.csv.CsvSegmentsParser;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.util.VMUtils;
-import net.jadoth.util.chars.CsvParserCharArray;
-import net.jadoth.util.chars.CsvRecordParserCharArray;
-import net.jadoth.util.chars.EscapeHandler;
-import net.jadoth.util.chars.JadothChars;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.chars._charArrayRange;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.util.csv.CsvConfiguration;
+import net.jadoth.util.csv.CsvRecordParserCharArray;
+import net.jadoth.util.csv.CsvRowCollector;
+import net.jadoth.util.csv.CsvSegmentsParser;
 
 public interface StorageDataConverterTypeCsvToBinary<S>
 {
@@ -52,7 +49,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 
 
-	public static StorageDataConverterTypeCsvToBinary<File> New(
+	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider
@@ -61,7 +58,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		return New(configuration, typeDictionary, fileProvider, 0);
 	}
 
-	public static StorageDataConverterTypeCsvToBinary<File> New(
+	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider  ,
@@ -79,7 +76,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 	public final class Implementation
 	implements
-	StorageDataConverterTypeCsvToBinary<File>,
+	StorageDataConverterTypeCsvToBinary<StorageFile>,
 	CsvSegmentsParser.Provider<_charArrayRange>,
 	CsvSegmentsParser<_charArrayRange>,
 	CsvRecordParserCharArray.Provider,
@@ -134,11 +131,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final long                                    addressEntityLengthUpdateBuffer;
 		final ValueHandler                            objectIdValueHandler           ;
 
-		      File                                    sourceFile                     ;
+		      StorageFile                             sourceFile                     ;
 		      StorageLockedFile                       targetFile                     ;
 		      FileChannel                             targetFileChannel              ;
 		      long                                    targetFileActualLength         ;
-		      PersistenceTypeDefinition<?>           currentType                    ;
+		      PersistenceTypeDefinition               currentType                    ;
 		      long                                    currentTypeEntityInitLength    ;
 		      ValueHandler[]                          valueHandler                   ;
 
@@ -169,10 +166,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.typeDictionary                  = typeDictionary                                                 ;
 			this.fileProvider                    = fileProvider                                                   ;
 			// the * 2 is important for simplifying the flush check
-			this.bufferSize                      = Math.max(bufferSize, 2 * Memory.defaultBufferSize())           ;
+			this.bufferSize                      = Math.max(bufferSize, 2 * XVM.defaultBufferSize())           ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = Memory.directByteBufferAddress(this.byteBuffer)                ;
-			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + Memory.defaultBufferSize()       ;
+			this.byteBufferStartAddress          = XVM.getDirectByteBufferAddress(this.byteBuffer)                ;
+			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XVM.defaultBufferSize()       ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
 			this.literalTrue                     = configuration.literalBooleanTrue().toCharArray()               ;
@@ -185,9 +182,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
 			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.lengthListHeader());
-			this.addressListHeaderUpdateBuffer   = Memory.directByteBufferAddress(this.listHeaderUpdateBuffer)    ;
+			this.addressListHeaderUpdateBuffer   = XVM.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
-			this.addressEntityLengthUpdateBuffer = Memory.directByteBufferAddress(this.entityLengthUpdateBuffer)  ;
+			this.addressEntityLengthUpdateBuffer = XVM.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
 		}
@@ -203,14 +200,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				keyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
-				keyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
-				keyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
-				keyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
-				keyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
-				keyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
-				keyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
-				keyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
+				X.KeyValue(byte   .class.getName(), valueWriters.get(byte[]   .class.getName())),
+				X.KeyValue(boolean.class.getName(), valueWriters.get(boolean[].class.getName())),
+				X.KeyValue(short  .class.getName(), valueWriters.get(short[]  .class.getName())),
+				X.KeyValue(char   .class.getName(), valueWriters.get(char[]   .class.getName())),
+				X.KeyValue(int    .class.getName(), valueWriters.get(int[]    .class.getName())),
+				X.KeyValue(float  .class.getName(), valueWriters.get(float[]  .class.getName())),
+				X.KeyValue(long   .class.getName(), valueWriters.get(long[]   .class.getName())),
+				X.KeyValue(double .class.getName(), valueWriters.get(double[] .class.getName()))
 			);
 		}
 
@@ -219,24 +216,24 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			return EqConstHashTable.New(
-				keyValue(byte     .class.getName()                    , this::parse_byte        ),
-				keyValue(boolean  .class.getName()                    , this::parse_boolean     ),
-				keyValue(short    .class.getName()                    , this::parse_short       ),
-				keyValue(char     .class.getName()                    , this::parse_char        ),
-				keyValue(int      .class.getName()                    , this::parse_int         ),
-				keyValue(float    .class.getName()                    , this::parse_float       ),
-				keyValue(long     .class.getName()                    , this::parse_long        ),
-				keyValue(double   .class.getName()                    , this::parse_double      ),
-				keyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
-				keyValue(boolean[].class.getName()                    , this::parseArray_boolean),
-				keyValue(short[]  .class.getName()                    , this::parseArray_short  ),
-				keyValue(char[]   .class.getName()                    , this::parseChars        ),
-				keyValue(int[]    .class.getName()                    , this::parseArray_int    ),
-				keyValue(float[]  .class.getName()                    , this::parseArray_float  ),
-				keyValue(long[]   .class.getName()                    , this::parseArray_long   ),
-				keyValue(double[] .class.getName()                    , this::parseArray_double ),
-				keyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
-				keyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
+				X.KeyValue(byte     .class.getName()                    , this::parse_byte        ),
+				X.KeyValue(boolean  .class.getName()                    , this::parse_boolean     ),
+				X.KeyValue(short    .class.getName()                    , this::parse_short       ),
+				X.KeyValue(char     .class.getName()                    , this::parse_char        ),
+				X.KeyValue(int      .class.getName()                    , this::parse_int         ),
+				X.KeyValue(float    .class.getName()                    , this::parse_float       ),
+				X.KeyValue(long     .class.getName()                    , this::parse_long        ),
+				X.KeyValue(double   .class.getName()                    , this::parse_double      ),
+				X.KeyValue(byte[]   .class.getName()                    , this::parseArray_byte   ),
+				X.KeyValue(boolean[].class.getName()                    , this::parseArray_boolean),
+				X.KeyValue(short[]  .class.getName()                    , this::parseArray_short  ),
+				X.KeyValue(char[]   .class.getName()                    , this::parseChars        ),
+				X.KeyValue(int[]    .class.getName()                    , this::parseArray_int    ),
+				X.KeyValue(float[]  .class.getName()                    , this::parseArray_float  ),
+				X.KeyValue(long[]   .class.getName()                    , this::parseArray_long   ),
+				X.KeyValue(double[] .class.getName()                    , this::parseArray_double ),
+				X.KeyValue(PersistenceTypeDictionary.Symbols.typeChars(), this::parseChars        ),
+				X.KeyValue(PersistenceTypeDictionary.Symbols.typeBytes(), this::parseBytes        )
 			);
 		}
 
@@ -258,7 +255,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_byte(JadothChars.parse_byteDecimal(data, offset, j - offset + 1));
+			this.write_byte(XChars.parse_byteDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -283,14 +280,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 			final int literalLength = j - offset + 1;
 			if(literalLength == this.literalTrue.length
-			&& JadothChars.equals(data, offset, this.literalTrue, 0, this.literalTrue.length)
+			&& XChars.equals(data, offset, this.literalTrue, 0, this.literalTrue.length)
 			)
 			{
 				this.write_boolean(true);
 				return i;
 			}
 			if(literalLength == this.literalFalse.length
-			&& JadothChars.equals(data, offset, this.literalFalse, 0, this.literalFalse.length)
+			&& XChars.equals(data, offset, this.literalFalse, 0, this.literalFalse.length)
 			)
 			{
 				this.write_boolean(false);
@@ -319,7 +316,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_short(JadothChars.parse_shortDecimal(data, offset, j - offset + 1));
+			this.write_short(XChars.parse_shortDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -409,7 +406,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_int(JadothChars.parse_intDecimal(data, offset, j - offset + 1));
+			this.write_int(XChars.parse_intDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -431,7 +428,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_float(JadothChars.parse_float(data, offset, j - offset + 1));
+			this.write_float(XChars.parse_float(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -453,7 +450,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_long(JadothChars.parse_longDecimal(data, offset, j - offset + 1));
+			this.write_long(XChars.parse_longDecimal(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -475,7 +472,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_double(JadothChars.parse_double(data, offset, j - offset + 1));
+			this.write_double(XChars.parse_double(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -621,7 +618,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_byte(JadothChars.parse_byteDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_byte(XChars.parse_byteDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -669,12 +666,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
 
 				// parse literal. A little more complex for boolean literals.
-				if(i - elementStart == lengthTrue && JadothChars.equals(data, elementStart, literalTrue, 0, lengthTrue))
+				if(i - elementStart == lengthTrue && XChars.equals(data, elementStart, literalTrue, 0, lengthTrue))
 				{
 					this.write_boolean(true);
 				}
 				else if(i - elementStart == lengthFalse
-					&& JadothChars.equals(data, elementStart, literalFalse, 0, lengthFalse)
+					&& XChars.equals(data, elementStart, literalFalse, 0, lengthFalse)
 				)
 				{
 					this.write_boolean(false);
@@ -693,7 +690,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// update list header in binary form
 			this.retroUpdateListHeader(
 				currentFileOffset,
-				BinaryPersistence.calculateBinaryArrayByteLength(elementCount * Memory.byteSize_boolean()),
+				BinaryPersistence.calculateBinaryArrayByteLength(elementCount * XVM.byteSize_boolean()),
 				elementCount
 			);
 
@@ -726,7 +723,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_short(JadothChars.parse_shortDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_short(XChars.parse_shortDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -764,7 +761,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_int(JadothChars.parse_intDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_int(XChars.parse_intDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -802,7 +799,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_float(JadothChars.parse_float(data, currentElementStart, i - currentElementStart));
+				this.write_float(XChars.parse_float(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -840,7 +837,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_long(JadothChars.parse_longDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_long(XChars.parse_longDecimal(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -878,7 +875,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_double(JadothChars.parse_double(data, currentElementStart, i - currentElementStart));
+				this.write_double(XChars.parse_double(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
@@ -916,11 +913,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// must check for flush to guarantee the header is never split between flushes!
 			this.checkForFlush();
 			// list binary length. Intentionally invalid initial length value.
-			Memory.set_long(this.currentBufferAddress                         , 0);
+			XVM.set_long(this.currentBufferAddress                         , 0);
 			// list element count. None so far.
-			Memory.set_long(this.currentBufferAddress + Memory.byteSize_long(), 0);
+			XVM.set_long(this.currentBufferAddress + XVM.byteSize_long(), 0);
 			
-			this.currentBufferAddress += 2 * Memory.byteSize_long();
+			this.currentBufferAddress += 2 * XVM.byteSize_long();
 
 			return currentFileOffset;
 		}
@@ -1044,20 +1041,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		private void setTargetFile()
 		{
-			final File targetFile = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
-			final StorageLockedFile currentTargetFile;
-			try
-			{
-				JadothFiles.ensureDirectory(targetFile.getParentFile());
-				currentTargetFile = StorageLockedFile.openLockedFile(JadothFiles.ensureWriteableFile(targetFile));
-			}
-			catch(final Exception e)
-			{
-				throw new RuntimeException(e); // (01.10.2014 TM)EXCP: proper exception
-			}
-
-			this.targetFile        = currentTargetFile;
-			this.targetFileChannel = this.targetFile.fileChannel();
+			this.targetFile        = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
+			this.targetFileChannel = this.targetFile.channel();
 			try
 			{
 				this.targetFileActualLength = this.targetFileChannel.size();
@@ -1069,7 +1054,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 		}
 
-		private void setSourceFile(final File file)
+		private void setSourceFile(final StorageFile file)
 		{
 			this.clearCurrentFileState();
 
@@ -1079,13 +1064,22 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void parseCurrentFile()
 		{
-			final char[]             input  = JadothFiles.readCharsFromFile(
-				this.sourceFile,
-				Charset.forName("UTF-8"),
-				VMUtils::throwUnchecked
+			final char[] input = XFiles.readCharsFromFileUtf8(
+				new File(this.sourceFile.identifier()),
+				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
+				 * Copied from StorageRequestTaskImportData#internalProcessBy:
+				 * if it is a normal problem, there should be a proper wrapping exception for it
+				 * instead of hacking the JVM.
+				 */
+				e -> handleIoException(e)
 			);
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
+		}
+		
+		static final void handleIoException(final IOException e)
+		{
+			throw new RuntimeException(e);
 		}
 
 		final void clearCurrentFileState()
@@ -1094,7 +1088,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushBuffer();
 
 			StorageFile.closeSilent(this.targetFile);
-			Jadoth.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
+			XFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;
 			this.targetFile            = null;
@@ -1148,7 +1142,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final void deriveValueHandlers()
 		{
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
-			final ValueHandler[] valueHandlers = new ValueHandler[Jadoth.checkArrayRange(members.size()) + 1];
+			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size()) + 1];
 			valueHandlers[0] = this.objectIdValueHandler;
 			int i = 1;
 			boolean hasVariableLength = false;
@@ -1229,7 +1223,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members
 		)
 		{
-			final ValueHandler[] valueHandlers = new ValueHandler[Jadoth.checkArrayRange(members.size())];
+			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size())];
 
 			int i = 0;
 			for(final PersistenceTypeDescriptionMemberPseudoField member : members)
@@ -1500,12 +1494,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(filePosition - this.targetFileActualLength >= 0)
 			{
 				// simple case: the position to be updated is still in the buffer, so just set the value in-memory
-				Memory.set_long(this.byteBufferStartAddress + filePosition - this.targetFileActualLength, entityTotalLength);
+				XVM.set_long(this.byteBufferStartAddress + filePosition - this.targetFileActualLength, entityTotalLength);
 			}
 			else
 			{
 				// not so simple case: target position was already flushed to the file, hence update there
-				Memory.set_long(this.addressEntityLengthUpdateBuffer, entityTotalLength);
+				XVM.set_long(this.addressEntityLengthUpdateBuffer, entityTotalLength);
 				this.writeBuffer(this.entityLengthUpdateBuffer, filePosition);
 			}
 		}
@@ -1516,14 +1510,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				// simple case: the position to be updated is still in the buffer, so just set the values in-memory
 				final long offset = filePosition - this.targetFileActualLength;
-				Memory.set_long(this.byteBufferStartAddress + offset, length);
-				Memory.set_long(this.byteBufferStartAddress + offset + Memory.byteSize_long(), elementCount);
+				XVM.set_long(this.byteBufferStartAddress + offset, length);
+				XVM.set_long(this.byteBufferStartAddress + offset + XVM.byteSize_long(), elementCount);
 			}
 			else
 			{
 				// not so simple case: target position was already flushed to the file, hence update there
-				Memory.set_long(this.addressListHeaderUpdateBuffer, length);
-				Memory.set_long(this.addressListHeaderUpdateBuffer + Memory.byteSize_long(), elementCount);
+				XVM.set_long(this.addressListHeaderUpdateBuffer, length);
+				XVM.set_long(this.addressListHeaderUpdateBuffer + XVM.byteSize_long(), elementCount);
 				this.writeBuffer(this.listHeaderUpdateBuffer, filePosition);
 			}
 		}
@@ -1535,12 +1529,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// no idea if this is necessary, especially on such tiny buffers, but completeness must be guaranteed.
 				while(byteBuffer.hasRemaining())
 				{
-					this.targetFileChannel.write(byteBuffer, filePosition + byteBuffer.position());
+					// (13.10.2018 TM)NOTE: the pure write() call should already implicitely always append.
+					this.targetFileChannel.write(byteBuffer);
+//					this.targetFileChannel.write(byteBuffer, filePosition + byteBuffer.position());
 				}
 			}
 			catch(final IOException e)
 			{
-				Jadoth.closeSilent(this.targetFileChannel);
+				XFiles.closeSilent(this.targetFileChannel);
 				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally
@@ -1602,71 +1598,78 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final void write_byte(final byte value)
 		{
 			this.checkForFlush();
-			Memory.set_byte(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_byte();
+			XVM.set_byte(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_byte();
 		}
 
 		final void write_boolean(final boolean value)
 		{
 			this.checkForFlush();
-			Memory.set_boolean(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_boolean();
+			XVM.set_boolean(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_boolean();
 		}
 
 		final void write_short(final short value)
 		{
 			this.checkForFlush();
-			Memory.set_short(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_short();
+			XVM.set_short(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_short();
 		}
 
 		final void write_char(final char value)
 		{
 			this.checkForFlush();
-			Memory.set_char(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_char();
+			XVM.set_char(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_char();
 		}
 
 		final void write_int(final int value)
 		{
 			this.checkForFlush();
-			Memory.set_int(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_int();
+			XVM.set_int(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_int();
 		}
 
 		final void write_float(final float value)
 		{
 			this.checkForFlush();
-			Memory.set_float(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_float();
+			XVM.set_float(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_float();
 		}
 
 		final void write_long(final long value)
 		{
 			this.checkForFlush();
-			Memory.set_long(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_long();
+			XVM.set_long(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_long();
 		}
 
 		final void write_double(final double value)
 		{
 			this.checkForFlush();
-			Memory.set_double(this.currentBufferAddress, value);
-			this.currentBufferAddress += Memory.byteSize_double();
+			XVM.set_double(this.currentBufferAddress, value);
+			this.currentBufferAddress += XVM.byteSize_double();
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public void convertCsv(final File file)
+		public void convertCsv(final StorageFile file)
 		{
 			this.setSourceFile(file);
 			this.parseCurrentFile();
 			this.clearCurrentFileState();
+		}
+		
+		static final String getSuffixlessFileName(final StorageFile file)
+		{
+			final String filename = file.name();
+			final int    dotIndex = filename.lastIndexOf('.');
+			return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
 		}
 
 		@Override
@@ -1678,7 +1681,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			final String typeName = tableName != null
 				? tableName
-				: JadothFiles.getSuffixlessFileName(this.sourceFile)
+				: getSuffixlessFileName(this.sourceFile)
 			;
 			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
 			{

@@ -3,11 +3,12 @@ package net.jadoth.util.chars;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.jadoth.collections.X;
-import net.jadoth.csv.CSV;
-import net.jadoth.csv.CsvAssembler;
-import net.jadoth.csv.CsvRowAssembler;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.X;
+import net.jadoth.chars.VarString;
+import net.jadoth.time.XTime;
+import net.jadoth.util.csv.CSV;
+import net.jadoth.util.csv.CsvAssembler;
+import net.jadoth.util.csv.CsvRowAssembler;
 
 class CsvTestPerson
 {
@@ -72,8 +73,8 @@ class CsvTestPerson
 		);
 		CSV.assembleRows(csvAssembler, CsvTestPerson::toCsvRow,
 			X.List(
-				new CsvTestPerson("Simon", "Simple", JadothTime.now(), 75.5, 182.8, null),
-				new CsvTestPerson("Sophie", "Sophisticated Very", JadothTime.now(), 59.6, 169.9, "text with newlines\n & \"stuff\"")
+				new CsvTestPerson("Simon", "Simple", XTime.now(), 75.5, 182.8, null),
+				new CsvTestPerson("Sophie", "Sophisticated Very", XTime.now(), 59.6, 169.9, "text with newlines\n & \"stuff\"")
 			)
 		);
 		System.out.println(vs);

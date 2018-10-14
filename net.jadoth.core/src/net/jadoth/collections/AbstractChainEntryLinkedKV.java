@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
+import net.jadoth.typing.KeyValue;
 
 
 public abstract class AbstractChainEntryLinkedKV<K, V, EN extends AbstractChainEntryLinkedKV<K, V, EN>>

@@ -2,9 +2,9 @@ package net.jadoth.test.collections;
 
 import java.util.Comparator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.XFunc;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -57,7 +57,7 @@ public class MainTestSetAddPerformance
 		for(int k = 0; k < LOOPS; k++)
 		{
 			tStart = System.nanoTime();
-			ints.applies(JadothPredicates.any());
+			ints.applies(XFunc.any());
 			tStop = System.nanoTime();
 			current = tStop - tStart;
 //			System.out.println("VarSet.newEntry = "+VarSet.newEntry);
@@ -140,9 +140,9 @@ public class MainTestSetAddPerformance
 		}
 
 		final Integer[] intArray = ints.toArray(Integer.class);
-		if(Jadoth.to_int(ints.size()) != SIZE)
+		if(XTypes.to_int(ints.size()) != SIZE)
 		{
-			throw new RuntimeException("ints.size() "+Jadoth.to_int(ints.size())+" != SIZE " + SIZE);
+			throw new RuntimeException("ints.size() "+XTypes.to_int(ints.size())+" != SIZE " + SIZE);
 		}
 		if(intArray.length != SIZE)
 		{

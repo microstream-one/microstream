@@ -2,7 +2,7 @@ package net.jadoth.collections.types;
 
 import java.util.Comparator;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 

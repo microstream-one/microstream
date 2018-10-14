@@ -6,23 +6,23 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldSettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -42,9 +42,9 @@ import net.jadoth.util.iterables.ReadOnlyListIterator;
  * <p>
  * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
- * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
+ * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -142,7 +142,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		public Creator(final int initialCapacity)
 		{
 			super();
-			this.initialCapacity = JadothMath.pow2BoundMaxed(initialCapacity);
+			this.initialCapacity = XMath.pow2BoundMaxed(initialCapacity);
 		}
 
 		public int getInitialCapacity()
@@ -186,7 +186,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -262,7 +262,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.data.length);
+		final E[] array = X.Array(type, this.data.length);
 		System.arraycopy(this.data, 0, array, 0, this.data.length);
 		return array;
 	}
@@ -287,7 +287,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join((E[])this.data, this.data.length, joiner, aggregate);
 		return aggregate;
@@ -510,7 +510,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof FixedList<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof FixedList<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -521,14 +521,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((FixedList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((FixedList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -648,9 +648,9 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 		AbstractArrayStorage.swap(
 			(E[])this.data                ,
 			this.data.length              ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -686,7 +686,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.data.length, offset, offset + elements.length - 1));
 		}
 
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 
 		return this;
 	}
@@ -695,14 +695,14 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public FixedList<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set((E[])this.data, this.data.length, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set((E[])this.data, this.data.length, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
 	@Override
 	public FixedList<E> set(final long offset, final XGettingSequence<? extends E> elements, final long elementsOffset, final long elementsLength)
 	{
-		AbstractArrayStorage.set(this.data, this.data.length, Jadoth.checkArrayRange(offset), elements, elementsOffset, elementsLength);
+		AbstractArrayStorage.set(this.data, this.data.length, X.checkArrayRange(offset), elements, elementsOffset, elementsLength);
 		return this;
 	}
 
@@ -710,7 +710,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public FixedList<E> fill(final long offset, final long length, final E element)
 	{
-		AbstractArrayStorage.fill((E[])this.data, this.data.length, Jadoth.checkArrayRange(offset), Jadoth.checkArrayRange(length), element);
+		AbstractArrayStorage.fill((E[])this.data, this.data.length, X.checkArrayRange(offset), X.checkArrayRange(length), element);
 		return this;
 	}
 
@@ -720,7 +720,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public FixedList<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.data.length, (Comparator<Object>)comparator);
+		XSort.mergesort(this.data, 0, this.data.length, (Comparator<Object>)comparator);
 		return this;
 	}
 
@@ -1025,7 +1025,7 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

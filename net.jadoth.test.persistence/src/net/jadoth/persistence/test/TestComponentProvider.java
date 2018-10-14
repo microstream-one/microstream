@@ -1,14 +1,14 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.util.file.JadothFiles.ensureDirectory;
+import static net.jadoth.X.notNull;
+import static net.jadoth.files.XFiles.ensureDirectory;
 
 import java.io.File;
 
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FileSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
@@ -49,7 +49,7 @@ public class TestComponentProvider extends InvocationLogging
 
 	private String filenameData;
 
-	private transient FileSwizzleIdProvider         swizzleIdProvider  = null;
+	private transient CompositeSwizzleIdProvider         swizzleIdProvider  = null;
 	private transient BinaryFileStorage             persistenceStorage = null;
 	private transient PersistenceTypeDictionaryFileHandler dictionaryStorage  = null;
 
@@ -103,11 +103,11 @@ public class TestComponentProvider extends InvocationLogging
 		return this;
 	}
 
-	final FileSwizzleIdProvider swizzleIdProvider()
+	final CompositeSwizzleIdProvider swizzleIdProvider()
 	{
 		if(this.swizzleIdProvider == null)
 		{
-			this.swizzleIdProvider = new FileSwizzleIdProvider(
+			this.swizzleIdProvider = new CompositeSwizzleIdProvider(
 				dispatch(new FileTypeIdProvider    (new File(this.directory, this.filenameTypeId    ))),
 				dispatch(new FileObjectIdProvider  (new File(this.directory, this.filenameObjectId  )))
 			).initialize();
@@ -138,12 +138,12 @@ public class TestComponentProvider extends InvocationLogging
 		return this.dictionaryStorage;
 	}
 
-	public final <F extends PersistenceFoundation<Binary>> F initialize(final F foundation)
+	public final <F extends PersistenceFoundation<Binary, ?>> F initialize(final F foundation)
 	{
 		foundation
 			.setSwizzleIdProvider          (this.swizzleIdProvider()     )
-			.setDictionaryStorage          (this.dictionaryStorage()     )
-			.setPersistenceStorage         (this.persistenceStorage()    )
+			.setTypeDictionaryStorage      (this.dictionaryStorage()     )
+			.setPersistenceChannel         (this.persistenceStorage()    )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
 		;

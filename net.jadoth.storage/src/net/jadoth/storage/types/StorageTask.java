@@ -50,8 +50,8 @@ public interface StorageTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final synchronized StorageTask awaitNext(final long ms) throws InterruptedException
@@ -62,13 +62,13 @@ public interface StorageTask
 			// if no immediate next task is available, wait for it a little, but then switch back to do housekeeping
 			while(this.next == null && (waitTime = targetTime - System.currentTimeMillis()) > 0)
 			{
-//				JadothConsole.debugln(
+//				XDebug.debugln(
 //					Thread.currentThread().getName() + " waiting for next task " + waitTime
 //					+ " @" + System.currentTimeMillis()
 //				);
 				this.wait(waitTime);
 			}
-//			JadothConsole.debugln(Thread.currentThread().getName() + " done waiting");
+//			XDebug.debugln(Thread.currentThread().getName() + " done waiting");
 			return this.next;
 		}
 

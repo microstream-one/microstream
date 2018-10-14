@@ -1,10 +1,10 @@
 package net.jadoth.collections;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional._intProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
 
 
 /**
@@ -31,7 +31,7 @@ public final class _intSet implements Composition
 
 	public static final _intSet NewCustom(final int initialCapacity)
 	{
-		return new _intSet(JadothMath.pow2BoundCapped(initialCapacity));
+		return new _intSet(XMath.pow2BoundCapped(initialCapacity));
 	}
 
 	public static final _intSet NewCustom(final int initialCapacity, final int... values)
@@ -95,7 +95,7 @@ public final class _intSet implements Composition
 	{
 		super();
 		this.capLower = uncheckedInitialCapacity >>> 1; // capacity 1 yields 0, which is correct.
-		this.capUpper = JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(uncheckedInitialCapacity)
+		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2Integer(uncheckedInitialCapacity)
 			? Integer.MAX_VALUE
 			: uncheckedInitialCapacity
 		;
@@ -145,7 +145,7 @@ public final class _intSet implements Composition
 		this.lines    = newLines;
 		this.range    = newRange;
 		this.capLower = newLength >> 1;
-		this.capUpper = JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(newLength)
+		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2Integer(newLength)
 			? Integer.MAX_VALUE
 			: newLength
 		;
@@ -348,7 +348,7 @@ public final class _intSet implements Composition
 		}
 		if(this.capUpper - freeCapacity < this.size)
 		{
-			this.internalRebuildStorage(JadothMath.pow2BoundCapped(this.size + freeCapacity));
+			this.internalRebuildStorage(XMath.pow2BoundCapped(this.size + freeCapacity));
 		}
 		return this;
 	}

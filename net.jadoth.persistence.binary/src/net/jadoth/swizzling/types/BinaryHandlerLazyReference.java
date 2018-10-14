@@ -1,6 +1,6 @@
 package net.jadoth.swizzling.types;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -29,7 +29,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final SwizzleHandler handler)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:
 		 *
@@ -67,14 +67,14 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		else
 		{
 			// OID validation or updating is done by linking logic
-			referenceOid = linker.apply(referent);
+			referenceOid = handler.apply(referent);
 		}
 
 		// link to object supplier (internal logic can either update, discard or throw exception on mismatch)
-		instance.link(referenceOid, linker.getSwizzleObjectSupplier());
+		instance.link(referenceOid, handler.getSwizzleObjectSupplier());
 
 		// lazy reference instance must be stored in any case
-		Memory.set_long(
+		XVM.set_long(
 			bytes.storeEntityHeader(BinaryPersistence.referenceBinaryLength(1), this.typeId(), oid),
 			referenceOid
 		);
@@ -89,7 +89,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		return Lazy.New(Memory.get_long(bytes.buildItemAddress()), null);
+		return Lazy.New(XVM.get_long(bytes.buildItemAddress()), null);
 	}
 
 	@Override

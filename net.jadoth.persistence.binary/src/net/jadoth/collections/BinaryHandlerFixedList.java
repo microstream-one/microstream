@@ -1,10 +1,8 @@
 package net.jadoth.collections;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -12,7 +10,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -65,10 +63,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 
 	@Override
 	public final void store(
-		final Binary          bytes    ,
-		final FixedList<?>    instance ,
-		final long            oid      ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final FixedList<?>   instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		final Object[] arrayInstance = instance.data;
@@ -77,13 +75,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 			this.typeId(),
 			oid
 		);
-		BinaryPersistence.storeArrayContentAsList(contentAddress, linker, arrayInstance, 0, arrayInstance.length);
+		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, arrayInstance, 0, arrayInstance.length);
 	}
 
 	@Override
 	public final FixedList<?> create(final Binary bytes)
 	{
-		return new FixedList<>(Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return new FixedList<>(X.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
 	}
 
 	@Override
@@ -98,7 +96,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(Memory.get_long(binaryRefOffset + (i << BITS_3)));
+			arrayInstance[i] = builder.lookupObject(XVM.get_long(binaryRefOffset + (i << BITS_3)));
 		}
 	}
 
@@ -112,18 +110,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final FixedList<?>             source            ,
-		final FixedList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.data.length == target.data.length
-			&& ObjectState.isEqual(source.data, target.data, 0, source.data.length, stateHandlerLookup)
-		;
 	}
 
 }

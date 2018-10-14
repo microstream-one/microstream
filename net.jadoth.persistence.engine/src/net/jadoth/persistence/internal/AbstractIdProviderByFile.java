@@ -1,59 +1,47 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.math.JadothMath.notNegative;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.notNegative;
+import static net.jadoth.math.XMath.positive;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
-import net.jadoth.reference._longReference;
-import net.jadoth.util.file.JadothFiles;
 
-public abstract class AbstractIdProviderByFile
+public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
 	protected static final long DEFAULT_INCREASE = 1000;
-
-	protected static final Charset CHARSET = StandardCharsets.UTF_8;
-
-	public static final Charset standardCharset()
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static final void writeId(final File file, final long value) throws PersistenceExceptionTransfer
 	{
-		return CHARSET;
+		write(file, Long.toString(value));
 	}
 
-	public static final void writeId(final File file, final long value)
-	{
-		try
-		{
-			JadothFiles.writeStringToFile(file, Long.toString(value), standardCharset());
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
-	}
-
-	public static final long readId(final File file, final _longReference defaultId)
-	{
-		if(!file.exists())
-		{
-			return defaultId.get();
-		}
-		try
-		{
-			return Long.parseLong(JadothFiles.readStringFromFile(file, standardCharset()));
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceExceptionTransfer(e);
-		}
-	}
+//	public static final long readId(final File file, final _longReference defaultId)
+//	{
+//		if(!file.exists())
+//		{
+//			return defaultId.get();
+//		}
+//		try
+//		{
+//			return Long.parseLong(XFiles.readStringFromFile(file, standardCharset()));
+//		}
+//		catch(final Exception e)
+//		{
+//			throw new PersistenceExceptionTransfer(e);
+//		}
+//	}
+	
 
 
 
@@ -61,7 +49,6 @@ public abstract class AbstractIdProviderByFile
 	// instance fields  //
 	/////////////////////
 
-	private final File file;
 	private final long increase;
 
 	private long id       ;
@@ -85,8 +72,7 @@ public abstract class AbstractIdProviderByFile
 
 	public AbstractIdProviderByFile(final File file, final long increase, final long id)
 	{
-		super();
-		this.file      =     notNull(file    );
+		super(file);
 		this.id        = notNegative(id      );
 		this.increase  =    positive(increase);
 		this.threshold = id + increase        ;
@@ -100,13 +86,21 @@ public abstract class AbstractIdProviderByFile
 
 	private void writeId(final long value)
 	{
-		writeId(this.file, value);
+		this.write(Long.toString(value));
 	}
 
 	protected void internalInitialize()
 	{
-		// either read existing id or write and provide default value ("IT'S SO CONCISE I'M GONNA DIE!!")
-		this.threshold = this.id = readId(this.file, this::provideDefaultId);
+		// either read existing id or write and provide default value
+		this.threshold = this.id = this.canRead()
+			? this.readId()
+			: this.provideDefaultId()
+		;
+	}
+	
+	protected long readId()
+	{
+		return Long.parseLong(this.read());
 	}
 	
 	protected long provideDefaultId()
@@ -152,7 +146,7 @@ public abstract class AbstractIdProviderByFile
 		 * set and write new higher value as id and threshold.
 		 * This means the passed value is stored as the current highest registered value but no further id range
 		 * is reserved for now. This happens only as soon as the next id is actually required.
-		 * The rationale behind this behaviour is that in a stable developed system, no more type ids are
+		 * The rationale behind this behavior is that in a stable developed system, no more type ids are
 		 * required, so reserving some in advance is just a waste of id range.
 		 */
 		this.writeId(this.threshold = this.id = value);

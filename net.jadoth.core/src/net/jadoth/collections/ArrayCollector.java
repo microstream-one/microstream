@@ -1,28 +1,28 @@
 package net.jadoth.collections;
 
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -42,9 +42,9 @@ import net.jadoth.util.iterables.GenericListIterator;
  * <p>
  * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
- * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
+ * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -140,7 +140,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -190,7 +190,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 		final int oldSize = this.size;
@@ -244,7 +244,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -311,7 +311,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
+			XArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
 			this.size -= length;
 			return -length;
 		}
@@ -356,7 +356,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index - length, this.size - index);
-			JadothArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
+			XArrays.reverseArraycopy(elements, offset, elements , index         , -length          );
 			this.size -= length;
 			return -length;
 		}
@@ -419,7 +419,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> toReversed()
 	{
-		final E[] rData = JadothArrays.newArrayBySample(this.data, this.data.length);
+		final E[] rData = X.ArrayOfSameType(this.data, this.data.length);
 		final E[] data = this.data;
 		for(int i = this.size, r = 0; i-- > 0;)
 		{
@@ -431,7 +431,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.size);
+		final E[] array = X.Array(type, this.size);
 		System.arraycopy(this.data, 0, array, 0, this.size);
 		return array;
 	}
@@ -446,7 +446,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.size, joiner, aggregate);
 		return aggregate;
@@ -672,7 +672,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayCollector<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayCollector<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -682,7 +682,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(
+		return XArrays.equals(
 			this.data,
 			0,
 			((ArrayCollector<?>)samples).data,
@@ -694,7 +694,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -901,9 +901,9 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -938,14 +938,14 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			throw new IndexOutOfBoundsException(exceptionStringRange(this.size, offset, offset + elements.length - 1));
 		}
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 		return this;
 	}
 
 	@Override
 	public ArrayCollector<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -957,7 +957,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		final long                          elementsLength
 	)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), elements, elementsOffset, elementsLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), elements, elementsOffset, elementsLength);
 		return this;
 	}
 
@@ -967,8 +967,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.fill(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(offset),
-			Jadoth.checkArrayRange(length),
+			X.checkArrayRange(offset),
+			X.checkArrayRange(length),
 			element
 		);
 
@@ -980,7 +980,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.size, comparator);
+		XSort.mergesort(this.data, 0, this.size, comparator);
 		return this;
 	}
 
@@ -1624,7 +1624,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	public long nullRemove()
 	{
 		final int removeCount;
-		this.size -= removeCount = JadothArrays.removeAllFromArray(this.data, 0, this.size, null);
+		this.size -= removeCount = XArrays.removeAllFromArray(this.data, 0, this.size, null);
 		return removeCount;
 	}
 
@@ -1781,8 +1781,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		this.size -= AbstractArrayStorage.removeRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -1793,8 +1793,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		AbstractArrayStorage.retainRange(
 			this.data                         ,
 			this.size                         ,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		this.size = (int)length;
 
@@ -1975,7 +1975,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -11,7 +11,7 @@ import net.jadoth.collections.XUtilsCollection;
 import net.jadoth.storage.exceptions.StorageExceptionExportFailed;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics.ChannelStatistic;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics.TypeStatistic;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTask
 {
@@ -27,12 +27,12 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// instance fields  //
 		/////////////////////
 
-		private final Predicate<? super StorageEntityTypeHandler<?>>                                  isExportType       ;
-		private final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider;
-		private final StorageEntityTypeExportFileProvider                                             fileProvider        ;
-		private final ChannelStatistic[]                                                              channelResults      ;
-		private       BulkList<ExportItem>                                                            exportTypes         ;
-		private       StorageEntityTypeExportStatistics                                               result              ;
+		private final Predicate<? super StorageEntityTypeHandler>                                  isExportType  ;
+		private final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider;
+		private final StorageEntityTypeExportFileProvider                                          fileProvider  ;
+		private final ChannelStatistic[]                                                           channelResults;
+		private       BulkList<ExportItem>                                                         exportTypes   ;
+		private       StorageEntityTypeExportStatistics                                            result        ;
 
 
 
@@ -41,11 +41,11 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		/////////////////////
 
 		Implementation(
-			final long                                                                            timestamp              ,
-			final int                                                                             channelCount           ,
-			final StorageEntityTypeExportFileProvider                                             fileProvider           ,
-			final Predicate<? super StorageEntityTypeHandler<?>>                                  isExportType          ,
-			final Function<? super StorageEntityTypeHandler<?>, Predicate<? super StorageEntity>> predicateEntityProvider
+			final long                                                                         timestamp              ,
+			final int                                                                          channelCount           ,
+			final StorageEntityTypeExportFileProvider                                          fileProvider           ,
+			final Predicate<? super StorageEntityTypeHandler>                                  isExportType           ,
+			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider
 		)
 		{
 			super(timestamp, channelCount);
@@ -56,10 +56,10 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		}
 		
 		Implementation(
-			final long                                           timestamp   ,
-			final int                                            channelCount,
-			final StorageEntityTypeExportFileProvider            fileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final long                                        timestamp   ,
+			final int                                         channelCount,
+			final StorageEntityTypeExportFileProvider         fileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
 			this(timestamp, channelCount, fileProvider, isExportType, null);
@@ -80,7 +80,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// declared methods //
 		/////////////////////
 
-		final void acceptExportType(final StorageEntityTypeHandler<?> type)
+		final void acceptExportType(final StorageEntityTypeHandler type)
 		{
 			if(!this.isExportType.test(type))
 			{
@@ -110,8 +110,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final ChannelStatistic internalProcessBy(final StorageChannel channel)
@@ -221,7 +221,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final int                              lastChannelIndex;
 		final StorageLockedFile                file            ;
-		final StorageEntityTypeHandler<?>      type            ;
+		final StorageEntityTypeHandler         type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
 		private volatile int currentChannel;
@@ -234,7 +234,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		ExportItem(
 			final int                              channelCount   ,
-			final StorageEntityTypeHandler<?>      type           ,
+			final StorageEntityTypeHandler         type           ,
 			final StorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)

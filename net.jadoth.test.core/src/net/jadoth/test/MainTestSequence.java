@@ -5,7 +5,7 @@ package net.jadoth.test;
 
 import java.util.Arrays;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestSequence
 {
@@ -29,7 +29,7 @@ public class MainTestSequence
 	static void printTestSequence(int from, int to)
 	{
 		System.out.println(
-			(from<0?"":" ")+from+" -> "+(to<0?"":" ")+to+" = "+Arrays.toString(JadothMath.sequence(from, to))
+			(from<0?"":" ")+from+" -> "+(to<0?"":" ")+to+" = "+Arrays.toString(XMath.sequence(from, to))
 		);
 	}
 

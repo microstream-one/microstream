@@ -1,6 +1,6 @@
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 public class MainGen
@@ -63,7 +63,7 @@ public class MainGen
 
 	static char randomChar(final char[] source)
 	{
-		return source[JadothMath.random(source.length)];
+		return source[XMath.random(source.length)];
 	}
 
 	static char randomChar(final char[] source, final char exclude1)

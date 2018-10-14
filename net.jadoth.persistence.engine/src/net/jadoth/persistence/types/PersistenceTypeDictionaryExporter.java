@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.util.chars.VarString.New;
+import static net.jadoth.X.notNull;
+import static net.jadoth.chars.VarString.New;
 
 public interface PersistenceTypeDictionaryExporter
 {
@@ -37,8 +37,8 @@ public interface PersistenceTypeDictionaryExporter
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void exportTypeDictionary(final PersistenceTypeDictionary typeDictionary)
@@ -47,6 +47,7 @@ public interface PersistenceTypeDictionaryExporter
 				New(),
 				typeDictionary
 			).toString();
+			
 			this.storer.storeTypeDictionary(typeDictionaryString);
 		}
 

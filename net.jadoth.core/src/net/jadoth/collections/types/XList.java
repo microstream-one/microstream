@@ -11,7 +11,7 @@ import net.jadoth.functional.Aggregator;
  * element comparison, procedure range specification, higher order (functional) procedures, proper toArray() methods,
  * etc.<br>
  * <br>
- * All {@link XList} implementations have to have {@link RandomAccess} behaviour.<br>
+ * All {@link XList} implementations have to have {@link RandomAccess} behavior.<br>
  * Intelligent implementations make non-random-access implementations like simple linked lists obsolete.
  *
  * @author Thomas Muenz

@@ -1,7 +1,7 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.Jadoth.box;
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.X.box;
+import static net.jadoth.math.XMath.sequence;
 
 import java.util.Arrays;
 import java.util.function.Predicate;

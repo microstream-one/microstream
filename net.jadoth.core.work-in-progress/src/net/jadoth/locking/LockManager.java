@@ -1,10 +1,10 @@
 package net.jadoth.locking;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashTable;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 /* (12.11.2015 TM)TODO: LockManager concept
@@ -93,7 +93,7 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 	 * @param logic
 	 * @return
 	 */
-	public <T1, T2> O transferLock(O owner, T1 current, T2 next, BiProcedure<? super T1, ? super T2> logic);
+	public <T1, T2> O transferLock(O owner, T1 current, T2 next, BiConsumer<? super T1, ? super T2> logic);
 
 	public default <T1, T2> O transferLock(final O owner, final T1 current, final T2 next)
 	{
@@ -169,8 +169,8 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final Class<O> ownerType()
@@ -348,7 +348,7 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 
 		@Override
 		public final synchronized <T1, T2> O transferLock(
-			final O owner, final T1 current, final T2 next, final BiProcedure<? super T1, ? super T2> logic
+			final O owner, final T1 current, final T2 next, final BiConsumer<? super T1, ? super T2> logic
 		)
 		{
 			if(this.lockTable.get(current) != owner)

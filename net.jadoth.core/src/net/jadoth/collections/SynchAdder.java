@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.concurrent.Synchronized;
+import net.jadoth.concurrency.Synchronized;
 
 
 public final class SynchAdder<E> implements XAddingCollection<E>, Synchronized

@@ -8,8 +8,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.JadothPredicates;
-import net.jadoth.functional.JadothProcedures;
+import net.jadoth.functional.XFunc;
 
 /**
  * @author Thomas Muenz
@@ -48,7 +47,7 @@ public class NewHighOrderProgramming
 	 */
 	public static void main(final String[] args)
 	{
-		persons.iterate(JadothProcedures.wrapWithPredicate(doStuff, isAdult));
+		persons.iterate(XFunc.wrapWithPredicate(doStuff, isAdult));
 	}
 
 
@@ -56,7 +55,7 @@ public class NewHighOrderProgramming
 	void evenBetter()
 	{
 		// reuse, pass long, etc. logic-variables
-		final XList<Person> underAged = persons.filterTo(new BulkList<Person>(), JadothPredicates.not(isAdult));
+		final XList<Person> underAged = persons.filterTo(new BulkList<Person>(), XFunc.not(isAdult));
 		System.out.println(underAged);
 	}
 }

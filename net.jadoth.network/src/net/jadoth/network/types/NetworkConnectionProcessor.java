@@ -1,11 +1,11 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
-
-import net.jadoth.collections.functions.ParallelProcedure;
 import java.util.function.Consumer;
+
+import net.jadoth.functional.ParallelProcedure;
 
 public interface NetworkConnectionProcessor extends Consumer<SocketChannel>
 {

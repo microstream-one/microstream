@@ -14,6 +14,7 @@ import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
 import net.jadoth.storage.types.StorageEntityTypeHandler;
+import net.jadoth.storage.types.StorageLockedFile;
 import net.jadoth.storage.types.StorageTypeDictionary;
 
 
@@ -70,9 +71,9 @@ public class UtilStorageCsvExport
 	 * @see UtilStorageCsvExport#exportCsv(EmbeddedStorageManager, File)
 	 */
 	public static StorageEntityTypeExportStatistics exportCsv(
-		final EmbeddedStorageManager                         storage         ,
-		final File                                           targetDirectory ,
-		final Predicate<? super StorageEntityTypeHandler<?>> exportTypeFilter
+		final EmbeddedStorageManager                      storage         ,
+		final File                                        targetDirectory ,
+		final Predicate<? super StorageEntityTypeHandler> exportTypeFilter
 	)
 	{
 		return internalExportBinaryAndConvert(storage, targetDirectory, exportTypeFilter);
@@ -85,9 +86,9 @@ public class UtilStorageCsvExport
 	//////////////
 	
 	static StorageEntityTypeExportStatistics internalExportBinaryAndConvert(
-		final EmbeddedStorageManager                         storage        ,
-		final File                                           targetDirectory,
-		final Predicate<? super StorageEntityTypeHandler<?>> exportFilter
+		final EmbeddedStorageManager                      storage        ,
+		final File                                        targetDirectory,
+		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
 		final File binDirectory = ensureDirectory(new File(targetDirectory, SUB_DIRECTORY_BIN));
@@ -112,11 +113,11 @@ public class UtilStorageCsvExport
 	}
 	
 	static final StorageEntityTypeExportStatistics internalExportTypes(
-		final StorageConnection                              storageConnection  ,
-		final Predicate<? super StorageEntityTypeHandler<?>> isExportType       ,
-		final File                                           targetDirectory    ,
-		final Consumer<? super File>                         exportFileCollector,
-		final String                                         fileSuffix
+		final StorageConnection                           storageConnection  ,
+		final Predicate<? super StorageEntityTypeHandler> isExportType       ,
+		final File                                        targetDirectory    ,
+		final Consumer<? super File>                      exportFileCollector,
+		final String                                      fileSuffix
 	)
 	{
 		final StorageEntityTypeExportStatistics result = storageConnection.exportTypes(
@@ -127,7 +128,9 @@ public class UtilStorageCsvExport
 
 		
 		result.typeStatistics().values().iterate(s ->
-			exportFileCollector.accept(s.file().file())
+			exportFileCollector.accept(
+				new File(s.file().identifier())
+			)
 		);
 		
 		return result;
@@ -198,7 +201,8 @@ public class UtilStorageCsvExport
 			printAction(name, "converting", file);
 			try
 			{
-				converter.convertDataFile(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
@@ -209,7 +213,7 @@ public class UtilStorageCsvExport
 	
 	static void printAction(final String name, final String action, final File file)
 	{
-		System.out.println((name == null ? "" : name + " ") + action + " " + file.getAbsolutePath());
+		System.out.println((name == null ? "" : name + " ") + action + " " + file.getPath());
 	}
 	
 	static final File ensureDirectory(final File directory)

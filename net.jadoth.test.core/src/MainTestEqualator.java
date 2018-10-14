@@ -1,4 +1,4 @@
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
 
 /**
  *

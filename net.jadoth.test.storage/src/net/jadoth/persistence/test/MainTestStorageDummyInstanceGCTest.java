@@ -3,12 +3,12 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.Date;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.util.UtilResetDirectory;
 
 
 /*
@@ -61,7 +61,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -82,7 +82,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 					for(int i3 = 0; i3 < e3.length; i3++)
 					{
 						((TestEntity)e3[i3]).setDate(now);
-						storer.storeRequired(e3[i3]);
+						storer.store(e3[i3]);
 					}
 				}
 			}
@@ -95,7 +95,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -128,7 +128,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 			for(int i3 = 0; i3 < data.length; i3++)
 			{
 				((TestEntity)data[i3]).setDate(now);
-				storer.storeRequired(data[i3]);
+				storer.store(data[i3]);
 			}
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
@@ -139,7 +139,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -149,7 +149,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		ROOT.set(data);
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 		for(int i = 0; i < RUNS; i++)
 		{
@@ -163,7 +163,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 			{
 				data[i3] = Lazy.Reference(now);
 			}
-			storer.storeRequired(data);
+			storer.store(data);
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
 
@@ -173,7 +173,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			DEBUGStorage.println("#" + i + " stored." + " (" + dateOid + ")");
 
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 		}
 	}
 
@@ -258,7 +258,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 	{
 		final File dir = new File("c:/Files");
 		System.out.println("Resetting "+dir);
-		UtilResetDirectory.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir, false);
 		System.out.println("done");
 	}
 

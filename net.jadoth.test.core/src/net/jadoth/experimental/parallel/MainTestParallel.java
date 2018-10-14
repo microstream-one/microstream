@@ -2,8 +2,8 @@ package net.jadoth.experimental.parallel;
 
 import java.util.Arrays;
 
-import net.jadoth.concurrent.JadothThreads;
-import net.jadoth.math.JadothMath;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.math.XMath;
 
 public class MainTestParallel
 {
@@ -19,7 +19,7 @@ public class MainTestParallel
 		{
 			new BoardThread(threadBoard, i){ @Override public void run() {
 				System.out.println("Preparing... "+this.threadBoardIndex);
-				JadothThreads.sleep(JadothMath.random(1000)+1000); // do a lot of work
+				XThreads.sleep(XMath.random(1000)+1000); // do a lot of work
 //				JaThreads.sleep(JaMath.random(50) + 1000 + this.number*100); // do a lot of work
 				System.out.println("Starting "+this.threadBoardIndex);
 				this.complete();

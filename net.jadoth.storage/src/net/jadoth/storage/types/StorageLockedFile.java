@@ -1,23 +1,21 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
+import net.jadoth.files.XFiles;
 
-public interface StorageLockedFile extends StorageFile
+
+public interface StorageLockedFile extends StorageFile //, AutoCloseable
 {
+	// can't implement AutoCloseable because the naive resource warnings are idiotic.
+	
 	@Override
-	public File file();
-
-	@Override
-	public FileChannel fileChannel();
-
+	public FileChannel channel();
+	
 
 
 	public static StorageLockedFile New(final File file, final FileLock lock)
@@ -53,7 +51,7 @@ public interface StorageLockedFile extends StorageFile
 		}
 		catch(final Exception e)
 		{
-			closeSilent(channel);
+			XFiles.closeSilent(channel);
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}
@@ -61,7 +59,7 @@ public interface StorageLockedFile extends StorageFile
 		return lock;
 	}
 
-	public static StorageLockedFile openLockedFile(final File file) throws FileNotFoundException
+	public static StorageLockedFile openLockedFile(final File file)
 	{
 		return StorageLockedFile.New(file, openFileChannel(file));
 	}
@@ -88,10 +86,7 @@ public interface StorageLockedFile extends StorageFile
 		// constructors //
 		/////////////////
 
-		public Implementation(
-			final File     file,
-			final FileLock lock
-		)
+		public Implementation(final File file, final FileLock lock)
 		{
 			super();
 			this.file         = file          ;
@@ -102,19 +97,49 @@ public interface StorageLockedFile extends StorageFile
 
 
 		////////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
-		@Override
 		public final File file()
 		{
 			return this.file;
 		}
 
 		@Override
-		public final FileChannel fileChannel()
+		public final FileChannel channel()
 		{
 			return this.fileChannel;
+		}
+		
+		@Override
+		public String qualifier()
+		{
+			return this.file.getParent();
+		}
+		
+		@Override
+		public String identifier()
+		{
+			return this.file.getPath();
+		}
+		
+		@Override
+		public String name()
+		{
+			return this.file.getName();
+		}
+		
+		@Override
+		public boolean delete()
+		{
+			this.close();
+			return this.file.delete();
+		}
+		
+		@Override
+		public boolean exists()
+		{
+			return this.file.exists();
 		}
 
 		@Override

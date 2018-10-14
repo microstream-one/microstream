@@ -1,9 +1,10 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
+
 import net.jadoth.collections.BulkList;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.equality.Equalator;
+import net.jadoth.functional.XFunc;
 
 public class MainTestEqualatorAsPredicate
 {
@@ -23,8 +24,7 @@ public class MainTestEqualatorAsPredicate
 			found = false;
 			long tStart, tStop;
 			tStart = System.nanoTime();
-//			found = ints.contains(lastValue, Jadoth.equals);
-			found = ints.containsSearched(JadothPredicates.isEqual(lastValue, JadothEqualators.value())); // about as fast as equalator
+			found = ints.containsSearched(XFunc.isEqual(lastValue, Equalator.value())); // about as fast as equalator
 			tStop = System.nanoTime();
 			System.out.print(found);
 			System.out.println(" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));

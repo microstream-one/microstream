@@ -1,26 +1,23 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -37,10 +34,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                          0, // oid for eqltr ref
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidLength(), // offset for one oid
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Memory.byteSize_float()        // offset for one float
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()        // offset for one float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = JadothReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
+	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
 
 
 
@@ -57,7 +54,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)
@@ -85,13 +82,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			persister.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		Memory.set_float(
+		XVM.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -118,9 +115,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_EQULATOR),
+			XVM.objectFieldOffset(FIELD_EQULATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 
@@ -163,7 +160,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields()
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()
 	{
 		return BinaryCollectionHandling.elementsPseudoFields(
 			pseudoField(HashEqualator.class, "hashEqualator"),
@@ -194,13 +191,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final EqHashEnum<?>      instance ,
-		final long               oid      ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final EqHashEnum<?>  instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
-		staticStore(bytes, instance, this.typeId(), oid, linker);
+		staticStore(bytes, instance, this.typeId(), oid, handler);
 	}
 
 	@Override
@@ -231,20 +228,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		staticIteratePersistedReferences(bytes, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final EqHashEnum<?>            source            ,
-		final EqHashEnum<?>            target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		// one enum must be iterated with a stateful iterator while the other one is iterated directly
-		final Iterator<?> srcIterator = source.iterator();
-		return source.size == target.size && target.applies(
-			e -> srcIterator.hasNext() && ObjectState.isEqual(e, srcIterator.next(), stateHandlerLookup)
-		);
 	}
 
 }

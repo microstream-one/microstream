@@ -1,8 +1,8 @@
 package net.jadoth.test.collections;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
 
 /**
  * @author Thomas Muenz
@@ -20,7 +20,7 @@ public class MainTestFastListEquality
 //		}
 //	};
 
-	static final Equalator<String> EQUAL_STRING = JadothEqualators.equality(String.class);
+	static final Equalator<String> EQUAL_STRING = X::equal;
 
 
 	/**

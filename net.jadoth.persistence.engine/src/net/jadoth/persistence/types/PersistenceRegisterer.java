@@ -1,8 +1,9 @@
 package net.jadoth.persistence.types;
 
 import static java.lang.System.identityHashCode;
-import static net.jadoth.Jadoth.notNull;
-import net.jadoth.math.JadothMath;
+import static net.jadoth.X.notNull;
+
+import net.jadoth.math.XMath;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 
@@ -53,15 +54,15 @@ public interface PersistenceRegisterer extends SwizzleFunction
 			super();
 			this.objectManager      = notNull(objectManager);
 			this.typeHandlerManager = notNull(typeManager  );
-			this.oidsSlots          = new Entry[JadothMath.pow2BoundCapped(hashRange)];
+			this.oidsSlots          = new Entry[XMath.pow2BoundCapped(hashRange)];
 			this.oidsModulo         = this.oidsSlots.length - 1;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <T> long apply(final T instance)

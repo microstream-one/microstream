@@ -1,4 +1,4 @@
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 public class CopyTest
@@ -13,7 +13,7 @@ public class CopyTest
 	{		
 		for(int i = 0; i < size; i++)
 		{
-			in[i] = (byte)JadothMath.random(127);
+			in[i] = (byte)XMath.random(127);
 		}
 		
 		final byte[] in = CopyTest.in;

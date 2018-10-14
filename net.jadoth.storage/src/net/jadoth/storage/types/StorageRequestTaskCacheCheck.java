@@ -9,7 +9,7 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
-	implements StorageRequestTaskCacheCheck, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskCacheCheck, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -40,8 +40,8 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)

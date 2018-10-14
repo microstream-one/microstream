@@ -2,11 +2,11 @@ package net.jadoth.csv.internal;
 
 import java.io.File;
 
-import net.jadoth.csv.CsvContent;
-import net.jadoth.util.chars.CsvContentBuilderCharArray;
-import net.jadoth.util.chars.StringTable;
-import net.jadoth.util.chars._charArrayRange;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.StringTable;
+import net.jadoth.chars._charArrayRange;
+import net.jadoth.files.XFiles;
+import net.jadoth.util.csv.CsvContent;
+import net.jadoth.util.csv.CsvContentBuilderCharArray;
 
 
 public class MainTestCsvPerformance
@@ -68,7 +68,7 @@ public class MainTestCsvPerformance
 
 	private static void doit() throws Throwable
 	{
-		final char[]            input  = JadothFiles.readCharsFromFile(
+		final char[]            input  = XFiles.readCharsFromFile(
 			new File("D:/BonusExportTest_2016-02-03_14-30-00.639/csv/de.emverbund.bonus.konz.berechnung.KonzAbschlagAnspruchAhVlUSt$Implementation.csv")
 		);
 

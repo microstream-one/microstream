@@ -3,13 +3,14 @@ package net.jadoth.persistence.test;
 import java.io.File;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.XFunc;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataConverterCsvConfiguration;
 import net.jadoth.storage.types.StorageDataConverterTypeBinaryToCsv;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
+import net.jadoth.storage.types.StorageLockedFile;
 
 public class MainTestConvertBinToCsv
 {
@@ -17,11 +18,14 @@ public class MainTestConvertBinToCsv
 	{
 		convertBinToCsv(
 			X.List(new File("C:/Files/export/bin/de.emverbund.bonus.stammdaten.Datenstand$Implementation.dat")),
-			JadothPredicates.all()
+			XFunc.all()
 		);
 	}
 
-	static void convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
+	static void convertBinToCsv(
+		final XGettingCollection<File> binaryFiles,
+		final Predicate<? super File> filter
+	)
 	{
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
@@ -40,7 +44,9 @@ public class MainTestConvertBinToCsv
 			{
 				continue;
 			}
-			converter.convertDataFile(file);
+			
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			converter.convertDataFile(storageFile);
 		}
 	}
 

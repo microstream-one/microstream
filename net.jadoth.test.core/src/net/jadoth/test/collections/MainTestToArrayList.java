@@ -1,14 +1,14 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.collections.JadothCollections.ArrayList;
-import static net.jadoth.math.JadothMath.sequence;
+import static net.jadoth.math.XMath.sequence;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
+import net.jadoth.X;
+import net.jadoth.collections.old.OldCollections;
 import net.jadoth.collections.types.XList;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -25,7 +25,7 @@ public class MainTestToArrayList
 	public static void main(final String[] args)
 	{
 		final XList<Integer> ints = X.List(intArray);
-		System.out.println(Jadoth.to_int(ints.size()));
+		System.out.println(XTypes.to_int(ints.size()));
 		System.out.println();
 
 		long tStart;
@@ -34,7 +34,7 @@ public class MainTestToArrayList
 		for(int k = 20; k --> 0;)
 		{
 			tStart = System.nanoTime();
-			List<Integer> intArrayList = ArrayList(ints);
+			List<Integer> intArrayList = OldCollections.ArrayList(ints);
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 

@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothPredicates;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.JadothExceptions;
-import net.jadoth.util.chars.JadothChars;
+import net.jadoth.equality.Equalator;
+import net.jadoth.functional.XFunc;
+import net.jadoth.typing.XTypes;
+import net.jadoth.util.UtilStackTrace;
 
 /**
  * @author Thomas Muenz
@@ -23,7 +23,7 @@ public class TestJaList
 	// constants        //
 	/////////////////////
 
-	static final Equalator<String> EQUAL_STRING = JadothEqualators.equality(String.class);
+	static final Equalator<String> EQUAL_STRING = X::equal;
 
 	static final char n = '\n';
 	static final String[] singleAddValues = {
@@ -61,9 +61,9 @@ public class TestJaList
 		testee.removeDuplicates();
 		System.out.println(testee);
 
-		if(Jadoth.to_int(testee.size()) != Jadoth.to_int(collectionAddValues.size()))
+		if(XTypes.to_int(testee.size()) != XTypes.to_int(collectionAddValues.size()))
 		{
-			throw JadothExceptions.cutStacktraceByOne(new TestException());
+			throw UtilStackTrace.cutStacktraceByOne(new TestException());
 		}
 
 		return testee;
@@ -79,7 +79,7 @@ public class TestJaList
 		testee.removeAll(null);
 
 		System.out.println(testee);
-		if(Jadoth.to_int(testee.size()) != 6)
+		if(XTypes.to_int(testee.size()) != 6)
 		{
 			throw new TestException();
 		}
@@ -226,7 +226,7 @@ public class TestJaList
 
 	public TestJaList testIndexOf(final String s)
 	{
-		return this.check("testIndexOf", this.testee.indexBy(JadothPredicates.isEqualTo(s)), this.matcher.indexOf(s));
+		return this.check("testIndexOf", this.testee.indexBy(XFunc.isEqualTo(s)), this.matcher.indexOf(s));
 	}
 	public TestJaList testLastIndexOf(final String s)
 	{
@@ -235,7 +235,7 @@ public class TestJaList
 
 	public TestJaList testProcess()
 	{
-		final int[] ir = Jadoth.ints(0);
+		final int[] ir = X.ints(0);
 		this.testee.iterate(new Consumer<String>(){
 			@Override public void accept(final String element) {
 				ir[0] = TestJaList.this.addLength(ir[0], element);
@@ -329,8 +329,8 @@ public class TestJaList
 		for(int i = 1; i <= 3; i++)
 		{
 			final String s = "insertEnd"+i;
-			this.testee.input(Jadoth.to_int(this.testee.size()), s);
-			this.matcher.input(Jadoth.to_int(this.matcher.size()), s);
+			this.testee.input(XTypes.to_int(this.testee.size()), s);
+			this.matcher.input(XTypes.to_int(this.matcher.size()), s);
 		}
 		return this.check("testInsertAtEnd");
 	}
@@ -341,8 +341,8 @@ public class TestJaList
 		for(int i = 1; i <= 3; i++)
 		{
 			final String s = "insertBeforeEnd"+i;
-			this.testee.input(Jadoth.to_int(this.testee.size())-1, s);
-			this.matcher.input(Jadoth.to_int(this.matcher.size())-1, s);
+			this.testee.input(XTypes.to_int(this.testee.size())-1, s);
+			this.matcher.input(XTypes.to_int(this.matcher.size())-1, s);
 		}
 		return this.check("testInsertBeforeEnd");
 	}
@@ -363,7 +363,7 @@ public class TestJaList
 	{
 		this.testee.clear();
 		this.matcher.clear();
-		return this.check("testClear", Jadoth.to_int(this.testee.size()), Jadoth.to_int(this.matcher.size()));
+		return this.check("testClear", XTypes.to_int(this.testee.size()), XTypes.to_int(this.matcher.size()));
 	}
 
 	public TestJaList testToArray()
@@ -402,7 +402,7 @@ public class TestJaList
 
 	public TestJaList testSize()
 	{
-		return this.check("testSize", Jadoth.to_int(this.testee.size()), Jadoth.to_int(this.matcher.size()));
+		return this.check("testSize", XTypes.to_int(this.testee.size()), XTypes.to_int(this.matcher.size()));
 	}
 
 
@@ -413,8 +413,8 @@ public class TestJaList
 
 	private int ensureSameSize(final String testName)
 	{
-		final int sizeTestee = Jadoth.to_int(this.testee.size());
-		final int sizeMatcher = Jadoth.to_int(this.matcher.size());
+		final int sizeTestee = XTypes.to_int(this.testee.size());
+		final int sizeMatcher = XTypes.to_int(this.matcher.size());
 		this.check(testName == null ?null :testName+" ensureSameSize", sizeTestee, sizeMatcher);
 		return sizeTestee;
 	}
@@ -422,7 +422,7 @@ public class TestJaList
 	private TestJaList check(final String testName)
 	{
 		boolean elementCheck = false;
-		for(int i = 0, size = Math.max(Jadoth.to_int(this.testee.size()), Jadoth.to_int(this.matcher.size())); i < size; i++)
+		for(int i = 0, size = Math.max(XTypes.to_int(this.testee.size()), XTypes.to_int(this.matcher.size())); i < size; i++)
 		{
 			try
 			{
@@ -484,17 +484,17 @@ public class TestJaList
 
 	private void fail(final String checkName) throws TestException
 	{
-		throw JadothExceptions.cutStacktraceByOne(
+		throw UtilStackTrace.cutStacktraceByOne(
 		new TestException(checkName+" failed:"+n+
-			XList.class.getSimpleName()+" ("+this.nameTestee+") size: "+Jadoth.to_int(this.testee.size())+n+
-			this.matcher.getClass().getSimpleName()+"size: "+Jadoth.to_int(this.matcher.size())+n+
+			XList.class.getSimpleName()+" ("+this.nameTestee+") size: "+XTypes.to_int(this.testee.size())+n+
+			this.matcher.getClass().getSimpleName()+"size: "+XTypes.to_int(this.matcher.size())+n+
 			n+
 			this.compareString()
 		));
 	}
 	private void fail(final String checkName, final Throwable cause) throws TestException
 	{
-		throw JadothExceptions.cutStacktraceByN(new TestException(checkName, cause), 2);
+		throw UtilStackTrace.cutStacktraceByN(new TestException(checkName, cause), 2);
 	}
 
 	private void pass(final String checkName)
@@ -518,7 +518,7 @@ public class TestJaList
 
 	private String padTypeName(final String typeName)
 	{
-		return JadothChars.padSpace(typeName, this.nameMaxLength);
+		return XChars.padSpace(typeName, this.nameMaxLength);
 	}
 
 	public TestJaList print()

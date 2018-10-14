@@ -1,22 +1,20 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.collections.X;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerNativeCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-	
-	protected AbstractBinaryHandlerStateless(final Class<T> type)
+
+	public AbstractBinaryHandlerStateless(final Class<T> type)
 	{
-		super(type, X.<PersistenceTypeDescriptionMemberPseudoField>empty());
+		super(type, X.empty());
 	}
 
 
@@ -26,7 +24,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeStateless(bytes, this.typeId(), oid);
 	}
@@ -35,13 +33,6 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	public final void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		// no-op
-	}
-
-	@Override
-	public final boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup stateHandlerLookup)
-	{
-		// the only reasonable equality for stateless instances
-		return source == target;
 	}
 
 	@Override

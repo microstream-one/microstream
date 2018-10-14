@@ -2,21 +2,19 @@ package net.jadoth.collections;
 
 import java.lang.reflect.Field;
 
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
-import net.jadoth.util.Equalator;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -34,7 +32,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	static final long BINARY_OFFSET_SIZED_ARRAY = BinaryPersistence.oidLength(); // space offset for one oid
 
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = JadothReflect.getInstanceFieldOfType(EqBulkList.class, Equalator.class);
+	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqBulkList.class, Equalator.class);
 
 
 
@@ -79,10 +77,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final EqBulkList<?>      instance ,
-		final long               oid      ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final EqBulkList<?>  instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
@@ -93,13 +91,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,
-			linker
+			handler
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
-			linker.apply(instance.equalator)
+			handler.apply(instance.equalator)
 		);
 	}
 
@@ -124,9 +122,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		);
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_EQULATOR),
+			XVM.objectFieldOffset(FIELD_EQULATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 	}
@@ -143,19 +141,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	{
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final EqBulkList<?>            source            ,
-		final EqBulkList<?>            target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.equalator == target.equalator
-			&& source.size == target.size
-			&& ObjectState.isEqual(source.data, target.data, 0, source.size, stateHandlerLookup)
-		;
 	}
 
 }

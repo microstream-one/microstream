@@ -77,8 +77,8 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected R internalProcessBy(final StorageChannel channel)

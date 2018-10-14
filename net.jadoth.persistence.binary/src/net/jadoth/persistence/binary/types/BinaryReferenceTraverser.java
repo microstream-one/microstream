@@ -1,18 +1,17 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.to_int;
-
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
+import net.jadoth.typing.XTypes;
 
 
 @FunctionalInterface
@@ -60,7 +59,7 @@ public interface BinaryReferenceTraverser
 		final long addressBound = address + referenceRange;
 		for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 		{
-			procedure.accept(Memory.get_long(a));
+			procedure.accept(XVM.get_long(a));
 		}
 	}
 
@@ -99,7 +98,7 @@ public interface BinaryReferenceTraverser
 		;
 
 		static final int
-			REFERENCE_LENGTH   = to_int(BinaryPersistence.oidLength()),
+			REFERENCE_LENGTH   = XTypes.to_int(BinaryPersistence.oidLength()),
 			REFERENCE_LENGTH_2 = REFERENCE_LENGTH * C2,
 			REFERENCE_LENGTH_3 = REFERENCE_LENGTH * C3,
 			REFERENCE_LENGTH_4 = REFERENCE_LENGTH * C4,
@@ -238,7 +237,7 @@ public interface BinaryReferenceTraverser
 				public final long apply(final long address, final _longProcedure procedure)
 				{
 					// first 8 bytes of inlined data is its total binary length
-					return address + Memory.get_long(address);
+					return address + XVM.get_long(address);
 				}
 
 			}
@@ -249,7 +248,7 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
+				procedure.accept(XVM.get_long(address));
 				return address + REFERENCE_LENGTH;
 			}
 			
@@ -271,8 +270,8 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH));
+				procedure.accept(XVM.get_long(address));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH));
 				return address + REFERENCE_LENGTH_2;
 			}
 			
@@ -294,9 +293,9 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
 			{
-				procedure.accept(Memory.get_long(address));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH));
-				procedure.accept(Memory.get_long(address + REFERENCE_LENGTH_2));
+				procedure.accept(XVM.get_long(address));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH));
+				procedure.accept(XVM.get_long(address + REFERENCE_LENGTH_2));
 				return address + REFERENCE_LENGTH_3;
 			}
 			
@@ -321,7 +320,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_4;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -347,7 +346,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_5;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -373,7 +372,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_6;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -399,7 +398,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_7;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -425,7 +424,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_8;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -452,7 +451,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + BinaryPersistence.getListBinaryLength(address);
 				for(long a = BinaryPersistence.getListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(Memory.get_long(a));
+					procedure.accept(XVM.get_long(a));
 				}
 				return bound;
 			}
@@ -505,10 +504,10 @@ public interface BinaryReferenceTraverser
 
 		static final int primitiveByteLength(final String typeName)
 		{
-			final Class<?> primitiveType = JadothReflect.primitiveType(typeName);
+			final Class<?> primitiveType = XReflect.primitiveType(typeName);
 			return primitiveType == null
 				? 0
-				: Memory.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class
+				: XVM.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class
 			;
 		}
 
@@ -570,6 +569,12 @@ public interface BinaryReferenceTraverser
 			return traversers[0].count() / Static.REFERENCE_LENGTH;
 		}
 
+		/* important note:
+		 * trailing non-references may NOT be cropped, because nested complex structures
+		 * must skip all their bytes correctly. If the iteration falls only one byte short,
+		 * the reference traversal behavior is undefined (usually a JVM crash).
+		 * Only type-top-level traversers can be cropped!
+		 */
 		public static BinaryReferenceTraverser[] cropToReferences(final BinaryReferenceTraverser[] traversers)
 		{
 			// cut off trailing non-reference traversers at the top level
@@ -583,7 +588,8 @@ public interface BinaryReferenceTraverser
 			}
 
 			// nothing to crop, return transiently
-			if(i == traversers.length)
+			// (25.09.2018 TM)NOTE: "+ 1" because a pre-decremented variable can never reach its initial value again.
+			if(i + 1 == traversers.length)
 			{
 				return traversers;
 			}
@@ -591,7 +597,7 @@ public interface BinaryReferenceTraverser
 			{
 				return Static.EMPTY;
 			}
-			return JadothArrays.subArray(traversers, 0, i + 1);
+			return XArrays.subArray(traversers, 0, i + 1);
 		}
 
 	}
@@ -671,6 +677,13 @@ public interface BinaryReferenceTraverser
 		{
 			this.finishSkipRange();
 			this.finishReferenceRange();
+			
+			/* important note:
+			 * trailing non-references may NOT be cropped here, because nested complex structures
+			 * must skip all their bytes correctly. If the iteration falls only one byte short,
+			 * the reference traversal behavior is undefined (usually a JVM crash).
+			 * Only type-top-level traversers can be cropped!
+			 */
 			return this.traversers.toArray(BinaryReferenceTraverser.class);
 		}
 
@@ -693,7 +706,7 @@ public interface BinaryReferenceTraverser
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
-				procedure.accept(Memory.get_long(a));
+				procedure.accept(XVM.get_long(a));
 			}
 			return addressBound;
 		}
@@ -782,7 +795,7 @@ public interface BinaryReferenceTraverser
 			long a = BinaryPersistence.getListElementsAddress(address);
 			for(long i = 0; i < elementCount; i++)
 			{
-				a = iterateReferences(a, this.traversers, procedure);
+				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, procedure);
 			}
 
 			// return resulting address for recursive continued use

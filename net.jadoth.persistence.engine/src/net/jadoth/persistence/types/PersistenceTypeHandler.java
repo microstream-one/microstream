@@ -1,27 +1,46 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
+import net.jadoth.X;
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XImmutableEnum;
+import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectStateHandler;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<T>, ObjectStateHandler<T>
+public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 {
+	@Override
+	public Class<T> type();
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
+	
+	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+	{
+		// by default, there is no difference between members (in persisted order) and members in declared order.
+		return this.members();
+	}
+	
+	public boolean hasInstanceReferences();
+	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);
 
 	public void iteratePersistedReferences(M medium, _longProcedure iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, SwizzleStoreLinker linker);
+	public void store(M medium, T instance, long objectId, SwizzleHandler linker);
 
 	public T    create(M medium);
 
@@ -51,70 +70,92 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 	 * And what about the existing one that still gets called? What if it gets passed another oidresolver?
 	 * Maybe solve by a PersistenceDomain-specific Builder? Wouldn't even have to have a new interface, just a class
 	 */
-
-//	public void staticUpdate(M medium, SwizzleBuilder builder);
-//	public void staticStore (M medium, PersistenceStorer<M> persister);
-
-	public void validateFields(XGettingSequence<Field> fieldDescriptions);
-
-//	public void validateTypeDefinition(PersistenceTypeDefinition typeDefinition);
-
-//	public PersistenceTypeDescription<T> typeDescription();
-
-//	public XGettingEnum<Field> getAllFields();
-
-//	public XGettingEnum<Field> getStaticFinalFields();
-//	public XGettingEnum<Field> getStaticFinalReferenceFields();
-//	public XGettingEnum<Field> getStaticFinalPrimitiveFields();
-//
-//	public XGettingEnum<Field> getStaticMutableFields();
-//	public XGettingEnum<Field> getStaticMutableReferenceFields();
-//	public XGettingEnum<Field> getStaticMutablePrimitiveFields();
-//
-//	public XGettingEnum<Field> getStaticAllFields();
-//	public XGettingEnum<Field> getStaticAllReferenceFields();
-//	public XGettingEnum<Field> getStaticAllPrimitiveFields();
-
-
-
-//	public static <T> PersistenceTypeDescription<T> getTypeDefinition(final PersistenceTypeHandler<?, T> input)
-//	{
-//		return input.typeDescription();
-//	}
-
-	public void initializeTypeId(long typeId);
-
-
-
+	
+	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
+	
+	/**
+	 * Iterates the types of persistent members (e.g. non-transient {@link Field}s).
+	 * The same type may occur more than once.
+	 * The order in which the types are provided is undefined, i.e. depending on the implementation.
+	 * 
+	 * @param logic
+	 * @return
+	 */
+	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
+	
+	
+	
 	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+
+		public static <M extends PersistenceTypeDefinitionMember> XImmutableEnum<M> validateAndImmure(
+			final XGettingSequence<M> members
+		)
+		{
+			final EqHashEnum<M> validatedMembers = EqHashEnum.New(
+				PersistenceTypeDescriptionMember.identityHashEqualator()
+			);
+			validatedMembers.addAll(members);
+			if(validatedMembers.size() != members.size())
+			{
+				// (07.09.2018 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency("Duplicate member descriptions.");
+			}
+			
+			return validatedMembers.immure();
+		}
+		
+		public static final PersistenceTypeDefinitionMemberField declaredField(
+			final Field                          field         ,
+			final PersistenceFieldLengthResolver lengthResolver
+		)
+		{
+			return PersistenceTypeDefinitionMemberField.New(
+				field                                              ,
+				lengthResolver.resolveMinimumLengthFromField(field),
+				lengthResolver.resolveMaximumLengthFromField(field)
+			);
+		}
+
+		public static final XImmutableSequence<PersistenceTypeDescriptionMemberField> declaredFields(
+			final PersistenceTypeDescriptionMemberField... declaredFields
+		)
+		{
+			return X.ConstList(declaredFields);
+		}
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// basic type swizzling //
-		private final Class<T> type  ;
+		private final Class<T> type;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
 		private long           typeId = Swizzle.nullId();
 
 
-
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		
+
 		protected AbstractImplementation(final Class<T> type)
 		{
 			super();
 			this.type = notNull(type);
 		}
-		
+
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		protected final void validateInstance(final T instance)
 		{
@@ -124,12 +165,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 			}
 			throw new PersistenceExceptionTypeConsistency();
 		}
-
-		
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
 
 		@Override
 		public final Class<T> type()
@@ -150,7 +185,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 		}
 		
 		@Override
-		public synchronized void initializeTypeId(final long typeId)
+		public synchronized PersistenceTypeHandler<M, T> initializeTypeId(final long typeId)
 		{
 			/* note:
 			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.
@@ -162,24 +197,21 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition<
 				if(this.typeId == typeId)
 				{
 					// consistent no-op, abort
-					return;
+					return this;
 				}
 				
 				// (26.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new IllegalArgumentException(
 					"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId
 				);
 			}
 			
 			this.typeId = typeId;
+			
+			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
+			return this;
 		}
-		
-		@Override
-		public String toString()
-		{
-			return this.toTypeString();
-		}
-	
+
 	}
 
 }

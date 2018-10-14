@@ -1,6 +1,6 @@
 package net.jadoth.collections.types;
 
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 public interface XPutGetMap<K, V> extends XPuttingMap<K, V>, XAddGetMap<K, V>

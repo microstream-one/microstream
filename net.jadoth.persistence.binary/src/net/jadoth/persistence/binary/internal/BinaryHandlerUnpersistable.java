@@ -1,10 +1,9 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<T>
 {
@@ -20,11 +19,11 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleHandler handler)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}
@@ -39,16 +38,6 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	public final void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
-	}
-
-	@Override
-	public final boolean isEqual(
-		final T                        source                    ,
-		final T                        target                    ,
-		final ObjectStateHandlerLookup instanceStateHandlerLookup
-	)
-	{
-		return source == target;
 	}
 
 }

@@ -1,6 +1,6 @@
 package net.jadoth.collections;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  * Why is it that one has to write every piece of the JDK in "proper" oneself?

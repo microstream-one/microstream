@@ -1,16 +1,16 @@
 package net.jadoth.persistence.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
 
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
-import net.jadoth.util.file.JadothFiles;
 
 public final class PersistenceTypeDictionaryFileHandler
 implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
@@ -32,7 +32,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 		}
 		try
 		{
-			return JadothFiles.readStringFromFile(file, Persistence.dictionaryCharset());
+			return XFiles.readStringFromFile(file, Persistence.standardCharset());
 		}
 		catch(final IOException e)
 		{
@@ -44,7 +44,7 @@ implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 	{
 		try
 		{
-			JadothFiles.writeStringToFile(file, typeDictionaryString, Persistence.dictionaryCharset());
+			XFiles.writeStringToFile(file, typeDictionaryString, Persistence.standardCharset());
 		}
 		catch(final Exception t)
 		{

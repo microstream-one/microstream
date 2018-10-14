@@ -1,6 +1,6 @@
 package net.jadoth.batchRefactorer;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 public class MainTestLineBreakStrategy
 {

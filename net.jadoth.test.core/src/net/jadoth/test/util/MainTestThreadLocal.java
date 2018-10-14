@@ -1,13 +1,14 @@
 package net.jadoth.test.util;
 
-import static net.jadoth.concurrent.JadothThreads.sleep;
-import static net.jadoth.concurrent.JadothThreads.start;
-import static net.jadoth.concurrent.ThreadedInstantiating.threaded;
-import static net.jadoth.math.JadothMath.random;
+import static net.jadoth.concurrency.XThreads.sleep;
+import static net.jadoth.concurrency.XThreads.start;
+import static net.jadoth.concurrency.ThreadedInstantiating.threaded;
+import static net.jadoth.math.XMath.random;
+
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.LimitList;
-import net.jadoth.concurrent.Threaded;
-import net.jadoth.memory.Instantiator;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.concurrency.Threaded;
+import net.jadoth.functional.Instantiator;
 
 /**
  * This Test shows that although multiple Threads use the same shared static variable, each thread gets his own private

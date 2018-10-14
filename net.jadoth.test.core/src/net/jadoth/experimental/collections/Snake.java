@@ -1,6 +1,6 @@
 package net.jadoth.experimental.collections;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  * Experimental simple collection type
@@ -198,7 +198,7 @@ public interface Snake<E> //extends VarString.Appendable
 			if(this.next == null)
 			{
 				//head
-				final VarString vc = VarString.New().append('Ö');
+				final VarString vc = VarString.New().append('ï¿½');
 				Snake.Implementation<E> link = this;
 				do {
 					vc.append('(').add(link.value).append(')');
@@ -215,7 +215,7 @@ public interface Snake<E> //extends VarString.Appendable
 					vc.append('(').add(link.value).append(')');
 				}
 				while((link = link.next) != null);
-				return vc.append('Ö').toString();
+				return vc.append('ï¿½').toString();
 			}
 			return String.valueOf(this.value);
 		}

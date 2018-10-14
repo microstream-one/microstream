@@ -2,7 +2,6 @@ package net.jadoth.collections;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static net.jadoth.Jadoth.BREAK;
 import static net.jadoth.collections.AbstractChainEntry.HOP_NEXT;
 import static net.jadoth.collections.AbstractChainEntry.HOP_PREV;
 
@@ -14,15 +13,15 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.XTypes;
 
 
 public class ChainStorageStrong<E, K, V, EN extends AbstractChainEntry<E, K, V, EN>>
@@ -540,7 +539,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final long removeSelection(final long... indices)
 	{
 		long s = this.parent.size() - 1;
-		JadothSort.sort(indices);
+		XSort.sort(indices);
 
 		// validate indices before copying the first element
 		if(indices[0] < 0)
@@ -611,27 +610,35 @@ extends AbstractChainStorage<E, K, V, EN>
 		final Aggregator<E, Boolean> agg = new Aggregator<E, Boolean>()
 		{
 			private EN entry = ChainStorageStrong.this.head;
+			private boolean notEqual; // false by default
 
 			@Override
 			public final void accept(final E element)
 			{
 				if((this.entry = this.entry.next) == null)
 				{
-					throw BREAK; // chain is too short
+					this.notEqual = true;
+					throw X.BREAK(); // chain is too short
 				}
 				if(!equalator.equal(element, this.entry.element()))
 				{
-					throw BREAK; // unequal element found
+					this.notEqual = true;
+					throw X.BREAK(); // unequal element found
 				}
 			}
 
 			@Override
 			public final Boolean yield()
 			{
-				/* current entry may not be null (otherwise chain was too short)
+				/*
+				 * no explicitly unequal pair may have been found (obviously)
+				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */
-				return this.entry != null && (this.entry = this.entry.next) == null ? TRUE : FALSE;
+				return this.notEqual || this.entry == null || (this.entry = this.entry.next) != null
+					? FALSE
+					: TRUE
+				;
 			}
 		};
 
@@ -766,7 +773,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final long size()
 	{
-		return Jadoth.to_int(this.parent.size());
+		return XTypes.to_int(this.parent.size());
 	}
 
 	@Override
@@ -1056,7 +1063,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return this.containsAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -1074,7 +1081,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -1377,7 +1384,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -1420,7 +1427,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -1466,7 +1473,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(int i = 0; i < size; i++)
 			{
@@ -1523,7 +1530,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -1576,7 +1583,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -1627,7 +1634,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final E[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ar:
 			for(int i = 0; i < size; i++)
 			{
@@ -1833,7 +1840,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final Object[] toArray()
 	{
 		final Object[] array;
-		this.copyToArray(0, Jadoth.to_int(this.parent.size()), array = new Object[Jadoth.to_int(this.parent.size())], 0);
+		this.copyToArray(0, XTypes.to_int(this.parent.size()), array = new Object[XTypes.to_int(this.parent.size())], 0);
 		return array;
 	}
 
@@ -1841,7 +1848,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final      E[] toArray(final Class<E> type)
 	{
 		final E[] array;
-		this.copyToArray(0, Jadoth.to_int(this.parent.size()), array = JadothArrays.newArray(type, Jadoth.to_int(this.parent.size())), 0);
+		this.copyToArray(0, XTypes.to_int(this.parent.size()), array = X.Array(type, XTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -1857,7 +1864,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final      E[] rngToArray(final long offset, final int length, final Class<E> type)
 	{
 		final E[] array;
-		this.copyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.copyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -2112,7 +2119,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final <A> void join(final BiProcedure<? super E, A> joiner, final A aggregate)
+	public final <A> void join(final BiConsumer<? super E, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -2638,13 +2645,13 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final <C extends Consumer<? super E>> C distinct(final C target)
 	{
-		return this.rngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target);
+		return this.rngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target);
 	}
 
 	@Override
 	public final <C extends Consumer<? super E>> C distinct(final C target, final Equalator<? super E> equalator)
 	{
-		return this.rngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target, equalator);
+		return this.rngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target, equalator);
 	}
 
 	@Override
@@ -2780,7 +2787,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender)
 	{
 		for(EN entry = this.head.next; entry != null; entry = entry.next)
 		{
@@ -2790,7 +2797,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender, final char separator)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender, final char separator)
 	{
 		EN entry;
 		if((entry = this.head.next) == null)
@@ -2806,7 +2813,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString appendTo(final VarString vc, final BiProcedure<VarString, ? super E> appender, final String separator)
+	public final VarString appendTo(final VarString vc, final BiConsumer<VarString, ? super E> appender, final String separator)
 	{
 		if(separator == null || separator.isEmpty())
 		{
@@ -2914,7 +2921,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final VarString rngAppendTo(long offset, final long length, final VarString vc, final BiProcedure<VarString, ? super E> appender)
+	public final VarString rngAppendTo(long offset, final long length, final VarString vc, final BiConsumer<VarString, ? super E> appender)
 	{
 		EN entry;
 		if((entry = this.getRangeChainEntry(offset, length)) == null)
@@ -2945,7 +2952,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      long offset,
 		final long length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final char separator
 	)
 	{
@@ -2978,7 +2985,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      long offset,
 		final long length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super E> appender,
+		final BiConsumer<VarString, ? super E> appender,
 		final String separator
 	)
 	{
@@ -3014,7 +3021,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final String toString()
 	{
-		final VarString vc = VarString.New((int)(Jadoth.to_int(this.parent.size()) * 5.0f));
+		final VarString vc = VarString.New((int)(XTypes.to_int(this.parent.size()) * 5.0f));
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
 			vc.append('(').add(e.element()).add(')', '-');
@@ -3254,7 +3261,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final long remove(final E element)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<E, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -3263,13 +3270,13 @@ extends AbstractChainStorage<E, K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
 	public final long remove(final E sample, final Equalator<? super E> equalator)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<E, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -3278,7 +3285,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
@@ -3357,7 +3364,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -3413,10 +3420,10 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			return this.rngRemoveAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3443,7 +3450,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3783,7 +3790,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return this.retainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3811,7 +3818,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return this.retainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -3842,7 +3849,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3990,7 +3997,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final long moveSelection(final Consumer<? super E> target, final long... indices)
 	{
-		final int indicesLength = indices.length, size = Jadoth.to_int(this.parent.size());
+		final int indicesLength = indices.length, size = XTypes.to_int(this.parent.size());
 
 		// validate all indices before copying the first element
 		for(int i = 0; i < indicesLength; i++)
@@ -4092,7 +4099,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			throw new NullPointerException();
 		}
-		if(Jadoth.to_int(this.parent.size()) <= 1)
+		if(XTypes.to_int(this.parent.size()) <= 1)
 		{
 			return; // empty or trivial chain is always sorted
 		}
@@ -4207,7 +4214,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final void set(final long offset, final E[] elements, final int elementsOffset, final int elementsLength)
 	{
 		EN e = this.getRangeChainEntry(offset, elementsLength);
-		final int d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength);
+		final int d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength);
 		for(int i = elementsOffset, bound = elementsOffset + elementsLength; i != bound; i += d)
 		{
 			e.setElement0(elements[i]);
@@ -4433,7 +4440,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -4488,10 +4495,10 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			return this.rngReplaceAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size()),
+				XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -4524,7 +4531,7 @@ extends AbstractChainStorage<E, K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size()),
+				XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -4929,7 +4936,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return;
 		}
 		eB = this.head.prev;
-		for(int i = Jadoth.to_int(this.parent.size()) >>> 1; i != 0; i--)
+		for(int i = XTypes.to_int(this.parent.size()) >>> 1; i != 0; i--)
 		{
 			nextA = eA.next;
 			nextB = eB.prev;
@@ -4971,7 +4978,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainStorageStrong#rngShuffle()
 //		EN entry;
 //		EN entry = this.head;
-//		int length = Jadoth.to_int(this.parent.size());
+//		int length = XTypes.to_int(this.parent.size());
 //
 //		final FastRandom random = new FastRandom();
 //		for(EN s1, s2; length > 0; entry = entry.next, length--)

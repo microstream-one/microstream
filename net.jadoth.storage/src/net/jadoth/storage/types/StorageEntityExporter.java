@@ -13,8 +13,8 @@ public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 	public final class Implementation implements StorageEntityExporter<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void exportEntities(

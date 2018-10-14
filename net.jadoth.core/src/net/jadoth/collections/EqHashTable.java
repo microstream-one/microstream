@@ -1,8 +1,7 @@
 package net.jadoth.collections;
 
 
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -10,15 +9,17 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.CapacityExtendable;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.old.AbstractOldSettingList;
-import net.jadoth.collections.types.HashCollection;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
@@ -26,20 +27,19 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
+import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingCollection;
 import net.jadoth.collections.types.XTable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 /* (12.07.2012 TM)FIXME: complete EqHashTable implementation
@@ -65,7 +65,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		);
 	}
 
@@ -74,9 +74,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
-			JadothHash.hashEqualityValue()
+			Hashing.hashEqualityValue()
 		);
 	}
 
@@ -86,8 +86,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		);
 	}
 
@@ -97,9 +97,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		);
 	}
 	public static final <K, V> EqHashTable<K, V> New(
@@ -118,9 +118,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 
@@ -149,9 +149,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
-			JadothHash.hashEqualityValue()
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
+			Hashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -172,7 +172,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
 			notNull(hashEqualator)
 		);
@@ -185,7 +185,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -197,8 +197,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -223,8 +223,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(entries);
 	}
@@ -251,8 +251,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity),
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
@@ -477,15 +477,16 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				// set only value, not key, according to inconsistent nonsense behaviour in old collections
+				// set only value, not key, according to inconsistent nonsense behavior in old collections
 				return e.setValue(value);
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 		return null;
 	}
-
-	final KeyValue<K, V> getEntry(final K key)
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		final int hash; // search for key by hash
 		for(ChainMapEntryLinkedHashedStrongStrong<K, V> e = this.slots[(hash = this.hashEqualator.hash(key)) & this.range]; e != null; e = e.link)
@@ -787,7 +788,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		final int requiredSlotLength = (int)(minimalCapacity / this.hashDensity);
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -818,7 +819,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		final int requiredSlotLength = (int)((this.size + requiredFreeCapacity) / this.hashDensity);
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -837,7 +838,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final long optimize()
 	{
 		final int requiredCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
 		{
 			// (technical) magic value
 			if(this.slots.length != Integer.MAX_VALUE)
@@ -847,7 +848,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			return this.capacity;
 		}
 
-		final int newCapacity = JadothHash.padHashLength(requiredCapacity);
+		final int newCapacity = Hashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -860,7 +861,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final int rehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                                          reqCapacity   = JadothHash.padHashLength((int)(this.size / this.hashDensity));
+		final int                                          reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots         = ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity);
 		final int                                          range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super K>                     hashEqualator = this.hashEqualator;
@@ -930,7 +931,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = JadothHash.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 
@@ -1088,7 +1089,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 		
-		return keyValue(key, value);
+		return X.KeyValue(key, value);
 	}
 	
 	@Override
@@ -1116,7 +1117,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
@@ -1132,7 +1133,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 
@@ -1153,7 +1154,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			if(e.hash == hash && this.hashEqualator.equal(e.key(), key))
 			{
-				return keyValue(e.setKey(key), e.setValue(value));
+				return X.KeyValue(e.setKey(key), e.setValue(value));
 			}
 		}
 		return null;
@@ -1349,7 +1350,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = this.getEntry(entry.key())) == null)
+			if((kv = this.lookup(entry.key())) == null)
 			{
 				return false;
 			}
@@ -1406,7 +1407,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		EqHashTable.this.chain.join(joiner, aggregate);
 		return aggregate;
@@ -1563,7 +1564,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
 		this.consolidate();
-		if(EqHashTable.this.size != Jadoth.to_int(samples.size()))
+		if(EqHashTable.this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -1661,7 +1662,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final EqHashTable<K, V> addAll(final KeyValue<K, V>[] elements, final int srcIndex, final int srcLength)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 		{
 			return this;
 		}
@@ -1729,7 +1730,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final EqHashTable<K, V> putAll(final KeyValue<K, V>[] elements, final int srcIndex, final int srcLength)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 		{
 			return this;
 		}
@@ -2064,7 +2065,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return JadothHash.<K, V>wrapAsKeyValue(EqHashTable.this.hashEqualator);
+		return Hashing.<K, V>wrapAsKeyValue(EqHashTable.this.hashEqualator);
 	}
 
 	@Override
@@ -2268,8 +2269,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final class Keys implements XTable.Keys<K, V>, HashCollection<K>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int hashDistributionRange()
@@ -2321,7 +2322,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		 * This is necessary to ensure that the {@link EqConstHashEnum} instance is really constant and does not
 		 * (can not!) lose elements over time.<br>
 		 * If a {@link EqConstHashEnum} with volatile elements is needed (e.g. as a "read-only weak set"),
-		 * an appropriate custom behaviour {@link EqConstHashEnum} instance can be created via the various
+		 * an appropriate custom behavior {@link EqConstHashEnum} instance can be created via the various
 		 * copy constructors.
 		 *
 		 * @return a new {@link EqConstHashEnum} instance strongly referencing this set's current elements.
@@ -2371,7 +2372,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super K, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super K, ? super A> joiner, final A aggregate)
 		{
 			EqHashTable.this.chain.keyJoin(joiner, aggregate);
 			return aggregate;
@@ -2533,7 +2534,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
 			this.consolidate();
-			if(EqHashTable.this.size != Jadoth.to_int(samples.size()))
+			if(EqHashTable.this.size != XTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -2684,7 +2685,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final Keys addAll(final K[] elements, final int srcIndex, final int srcLength)
 		{
 			final int d;
-			if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+			if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 			{
 				return this;
 			}
@@ -2764,7 +2765,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		public final Keys putAll(final K[] elements, final int srcIndex, final int srcLength)
 		{
 			final int d;
-			if((d = JadothArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
+			if((d = XArrays.validateArrayRange(elements, srcIndex, srcLength)) == 0)
 			{
 				return this;
 			}
@@ -3402,13 +3403,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final Equalator<? super V> equality()
 		{
-			return JadothEqualators.identity();
+			return Equalator.identity();
 		}
 
 		@Override
 		public final XList<V> copy()
 		{
-			return new BulkList<V>(Jadoth.to_int(EqHashTable.this.size())).addAll(this);
+			return new BulkList<V>(XTypes.to_int(EqHashTable.this.size())).addAll(this);
 		}
 
 		@Override
@@ -3419,7 +3420,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super V, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super V, ? super A> joiner, final A aggregate)
 		{
 			EqHashTable.this.chain.valuesJoin(joiner, aggregate);
 			return aggregate;
@@ -3621,13 +3622,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long size()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return XTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return XTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override
@@ -4047,14 +4048,14 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		{
 			// (23.01.2017 TM)NOTE: copyTo() removed. No time for a replacement, atm.
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME EqHashTable.Values#set()
-
+			
 //			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
 //			@SuppressWarnings("unchecked")
 //			final V[] copy = (V[])values.copyTo(
-//				new Object[Jadoth.checkArrayRange(valuesLength)],
+//				new Object[X.checkArrayRange(valuesLength)],
 //				0                                               ,
 //				offset                                          ,
-//				Jadoth.checkArrayRange(valuesLength)
+//				X.checkArrayRange(valuesLength)
 //			);
 //			EqHashTable.this.chain.valuesSet(valuesOffset, copy);
 //
@@ -4291,7 +4292,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(EqHashTable.this.size());
+			return XTypes.to_int(EqHashTable.this.size());
 		}
 
 		@Override

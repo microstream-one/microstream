@@ -1,23 +1,21 @@
 package net.jadoth.collections.old;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.AbstractArrayStorage;
 import net.jadoth.collections.AbstractSimpleArrayCollection;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.ConstList;
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.ListView;
 import net.jadoth.collections.SubList;
 import net.jadoth.collections.SubListView;
@@ -25,11 +23,9 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.Equalator;
+import net.jadoth.reflect.XReflect;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.
@@ -110,14 +106,14 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])JadothReflect.accessArray(this.subject);
+		return (E[])XReflect.accessArray(this.subject);
 	}
 
 	@Override
@@ -312,7 +308,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public boolean insert(final long index, final E element)
 	{
-		this.subject.add(Jadoth.checkArrayRange(index), element);
+		this.subject.add(X.checkArrayRange(index), element);
 		return true;
 	}
 
@@ -350,7 +346,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public boolean input(final long index, final E element)
 	{
-		this.subject.add(Jadoth.checkArrayRange(index), element);
+		this.subject.add(X.checkArrayRange(index), element);
 		return true;
 	}
 
@@ -398,7 +394,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.internalGetStorageArray(), this.subject.size(), joiner, aggregate);
 		return aggregate;
@@ -625,7 +621,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		return this.subject.toArray(JadothArrays.newArray(type, this.subject.size()));
+		return this.subject.toArray(X.Array(type, this.subject.size()));
 	}
 
 	@Override
@@ -788,7 +784,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public E at(final long index)
 	{
-		return this.subject.get(Jadoth.checkArrayRange(index));
+		return this.subject.get(X.checkArrayRange(index));
 	}
 
 	@Override
@@ -890,7 +886,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public E removeAt(final long index)
 	{
-		return this.subject.remove(Jadoth.checkArrayRange(index));
+		return this.subject.remove(X.checkArrayRange(index));
 	}
 
 	@Override
@@ -1035,14 +1031,14 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public boolean set(final long index, final E element)
 	{
-		this.subject.set(Jadoth.checkArrayRange(index), element);
+		this.subject.set(X.checkArrayRange(index), element);
 		return false;
 	}
 
 	@Override
 	public E setGet(final long index, final E element)
 	{
-		return this.subject.set(Jadoth.checkArrayRange(index), element);
+		return this.subject.set(X.checkArrayRange(index), element);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1079,7 +1075,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public XArrayList<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.internalGetStorageArray(), 0, this.subject.size(), comparator);
+		XSort.mergesort(this.internalGetStorageArray(), 0, this.subject.size(), comparator);
 		return this;
 	}
 
@@ -1131,8 +1127,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		AbstractArrayStorage.swap(
 			this.internalGetStorageArray(),
 			this.subject.size()           ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB)
 		);
 
 		return this;
@@ -1144,9 +1140,9 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		AbstractArrayStorage.swap(
 			this.internalGetStorageArray(),
 			this.subject.size(),
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -1161,7 +1157,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	public ListIterator<E> listIterator(final long index)
 	{
-		return this.subject.listIterator(checkArrayRange(index));
+		return this.subject.listIterator(X.checkArrayRange(index));
 	}
 
 	@Override

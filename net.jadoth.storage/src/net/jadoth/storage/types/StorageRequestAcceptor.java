@@ -1,13 +1,13 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.memory.Chunks;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.storage.exceptions.StorageExceptionRequest;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
@@ -68,8 +68,8 @@ public interface StorageRequestAcceptor
 	}
 	
 	public StorageEntityTypeExportStatistics exportTypes(
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 		
 	)
 		throws InterruptedException
@@ -89,7 +89,7 @@ public interface StorageRequestAcceptor
 
 	public interface Creator
 	{
-		public StorageRequestAcceptor createCommunicator(
+		public StorageRequestAcceptor createRequestAcceptor(
 			StorageValidatorDataChunk dataChunkValidator,
 			StorageTaskBroker         taskBroker
 		);
@@ -99,7 +99,7 @@ public interface StorageRequestAcceptor
 		{
 
 			@Override
-			public StorageRequestAcceptor createCommunicator(
+			public StorageRequestAcceptor createRequestAcceptor(
 				final StorageValidatorDataChunk dataChunkValidator,
 				final StorageTaskBroker         taskBroker
 			)
@@ -148,8 +148,8 @@ public interface StorageRequestAcceptor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void storeData(final Chunks[] dataMedium) throws InterruptedException
@@ -159,7 +159,7 @@ public interface StorageRequestAcceptor
 			// prevalidate on the caller site before creating and enqueing a task (may be no-op)
 			this.prevalidatorDataChunk.validateDataChunk(dataMedium);
 
-			waitOnTask(this.taskBroker.enqueueSaveTask(dataMedium));
+			waitOnTask(this.taskBroker.enqueueStoreTask(dataMedium));
 		}
 
 		@Override
@@ -214,8 +214,8 @@ public interface StorageRequestAcceptor
 
 		@Override
 		public final StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 			throws InterruptedException
 		{

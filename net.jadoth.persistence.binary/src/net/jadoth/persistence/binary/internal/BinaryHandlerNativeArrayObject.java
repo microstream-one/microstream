@@ -1,21 +1,17 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.util.JadothTypes.validateArrayType;
-import static net.jadoth.util.JadothTypes.validateNonPrimitiveType;
-
 import java.lang.reflect.Array;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
 {
@@ -42,9 +38,12 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 	public BinaryHandlerNativeArrayObject(final Class<A> arrayType)
 	{
-		super(validateArrayType(arrayType), defineElementsType(arrayType.getComponentType()));
+		super(
+			XReflect.validateArrayType(arrayType),
+			defineElementsType(arrayType.getComponentType())
+		);
 		this.arrayType     = arrayType;
-		this.componentType = validateNonPrimitiveType(arrayType.getComponentType());
+		this.componentType = XReflect.validateNonPrimitiveType(arrayType.getComponentType());
 	}
 
 
@@ -65,14 +64,14 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final A instance, final long oid, final SwizzleStoreLinker linker)
+	public final void store(final Binary bytes, final A instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeArrayContentAsList(
 			bytes                      ,
 			this.typeId()              ,
 			oid                        ,
 			0                          ,
-			linker                  ,
+			handler                    ,
 			(Object[])instance         ,
 			0                          ,
 			((Object[])instance).length
@@ -84,7 +83,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	{
 		final long rawElementCount = BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
-			Array.newInstance(this.componentType, Jadoth.checkArrayRange(rawElementCount))
+			Array.newInstance(this.componentType, X.checkArrayRange(rawElementCount))
 		);
 	}
 
@@ -120,14 +119,6 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	public final boolean hasPersistedReferences()
 	{
 		return true;
-	}
-
-	@Override
-	public boolean isEqual(final A source, final A target, final ObjectStateHandlerLookup stateHandlerLookup)
-	{
-		return Array.getLength(source) == Array.getLength(target)
-			&& ObjectState.isEqual((Object[])source, (Object[])target, 0, Array.getLength(source), stateHandlerLookup)
-		;
 	}
 
 }

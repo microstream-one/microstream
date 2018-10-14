@@ -1,9 +1,10 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
+import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldComplex;
 
 
 public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinaryHandlerNativeCustom<A>
@@ -12,10 +13,10 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	// static methods    //
 	/////////////////////
 
-	protected static final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoFieldComplex>
+	protected static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoFieldComplex>
 	defineElementsType(final Class<?> componentType)
 	{
-		// admitted, this is a little crazy :D. But also very compact, if you think about it.
+		// admitted, this is a little crazy. But also very compact.
 		return
 			X.Constant(
 				complex(
@@ -31,10 +32,10 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-	
-	protected AbstractBinaryHandlerNativeArray(
-		final Class<A>                                                                  arrayType   ,
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+
+	public AbstractBinaryHandlerNativeArray(
+		final Class<A>                                                               arrayType   ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
 	)
 	{
 		super(arrayType, pseudoFields);

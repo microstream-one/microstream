@@ -2,8 +2,8 @@ package net.jadoth.test.sorting;
 
 import java.util.Comparator;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.math.FastRandom;
-import net.jadoth.util.chars.VarString;
 
 public final class SortValue
 {

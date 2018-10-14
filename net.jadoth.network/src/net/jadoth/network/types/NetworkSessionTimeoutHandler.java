@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.XDebug;
 
 public interface NetworkSessionTimeoutHandler<S extends NetworkSession<?>>
 {
@@ -19,7 +19,7 @@ public interface NetworkSessionTimeoutHandler<S extends NetworkSession<?>>
 		@Override
 		public void handleTimeout(final S session, final NetworkSessionManager<S> sessionManager)
 		{
-			JadothConsole.debugln("Timeouting " + session);
+			XDebug.println("Timeouting " + session);
 			sessionManager.removeSession(session);
 		}
 

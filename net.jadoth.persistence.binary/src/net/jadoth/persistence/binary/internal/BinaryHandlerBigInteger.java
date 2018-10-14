@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCustomValueVariableLength<BigInteger>
 {
@@ -29,7 +29,7 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final BigInteger instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final BigInteger instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeArray_byte(bytes, this.typeId(), oid, instance.toByteArray());
 	}

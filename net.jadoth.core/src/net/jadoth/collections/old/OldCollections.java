@@ -12,14 +12,20 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.X;
+import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.XTypes;
+import net.jadoth.typing.KeyValue;
 
+/**
+ * Some utility functionality for the old, misdesigned, bugged JDK collections that is so obvious but still
+ * missing in the JDK that even got implemented here despite having a vastly superior collections framework.
+ * 
+ * @author Thomas Muenz
+ */
 public final class OldCollections
 {
-
 	public static final <C extends Collection<T>, T> C addBatch(final C c, final Iterable<T> elements)
 	{
 		if(elements != null)
@@ -32,46 +38,68 @@ public final class OldCollections
 	    return c;
 	}
 
-	/**
-	 * Populate collection.
-	 *
-	 * @param <T> the generic type
-	 * @param c the c
-	 * @param elements the elements
-	 * @return the collection
-	 */
 	@SafeVarargs
-	public static final <C extends Collection<T>, T> C addArray(final C c, final T... elements)
+	public static final <C extends Collection<? super E>, E> C addArray(final C collection, final E... elements)
 	{
 		if(elements != null)
 		{
-			for(final T t : elements)
+			for(final E element : elements)
 			{
-				c.add(t);
+				collection.add(element);
 			}
 		}
-	    return c;
+	    return collection;
 	}
 
 	@SafeVarargs
-	public static final <T> LinkedList<T> LinkedList(final T...elements)
+	public static final <E> ArrayList<E> ArrayList(final E... elements)
 	{
-		return addArray(new LinkedList<T>(), elements);
-	}
-
-	@SafeVarargs
-	public static final <T> ArrayList<T> ArrayList(final T... elements)
-	{
-		if(elements == null || elements.length == 0)
+		if(elements == null)
 		{
 			return new ArrayList<>();
 		}
-		return addArray(new ArrayList<T>(elements.length), elements);
+	
+		// ... because they can't even write the most obvious util methods.
+		final ArrayList<E> list = new ArrayList<>(elements.length);
+		for(int i = 0; i < elements.length; i++)
+		{
+			list.add(elements[i]);
+		}
+		
+		return list;
 	}
 
 	public static final <T> ArrayList<T> ArrayList(final int initialCapacity, final Iterable<T> elements)
 	{
 		return addBatch(new ArrayList<T>(initialCapacity), elements);
+	}
+	
+	@SafeVarargs
+	public static final <E> LinkedList<E> LinkedList(final E... elements)
+	{
+		if(elements == null)
+		{
+			return new LinkedList<>();
+		}
+	
+		// ... because they can't even write the most obvious util methods.
+		final LinkedList<E> list = new LinkedList<>();
+		for(int i = 0; i < elements.length; i++)
+		{
+			list.add(elements[i]);
+		}
+		
+		return list;
+	}
+	
+	public static final <E> LinkedList<E> LinkedList(final XGettingCollection<? extends E> xCollection)
+	{
+		final LinkedList<E> list = new LinkedList<>();
+		xCollection.iterate(e ->
+			list.add(e)
+		);
+		
+		return list;
 	}
 
 	@SafeVarargs
@@ -405,7 +433,7 @@ public final class OldCollections
 	 */
 	public static final <T> T[] toArray(final Collection<? extends T> collection, final Class<T> elementType)
 	{
-		return collection.toArray(JadothArrays.newArray(elementType, collection.size()));
+		return collection.toArray(X.Array(elementType, collection.size()));
 	}
 
 	@SafeVarargs
@@ -438,7 +466,7 @@ public final class OldCollections
 
 	public static final <K, V> LinkedHashMap<K, V> OldLinkedHashMap(final XGettingMap<K, V> map)
 	{
-		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(Jadoth.to_int(map.size()));
+		final LinkedHashMap<K, V> lhm = new LinkedHashMap<>(XTypes.to_int(map.size()));
 		map.iterate(e -> lhm.put(e.key(), e.value()));
 		return lhm;
 	}
@@ -448,5 +476,20 @@ public final class OldCollections
 	{
 		// static only
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Convenience method for <code>new ArrayList<E>(xCollection)</code>.
+	 * <p>
+	 *
+	 * @param <E> the collection element type.
+	 * @param xCollection the extended collection implementation whore content shall be copied a new
+	 *        {@link ArrayList} instance.
+	 * @return a new {@link ArrayList} instance containing all elements of the passed {@link XGettingCollection}.
+	 */
+	public static final <E> ArrayList<E> ArrayList(final XGettingCollection<? extends E> xCollection)
+	{
+		// ArrayList collection constructor already uses toArray() directly as elementData
+		return new ArrayList<>(xCollection.old());
 	}
 }

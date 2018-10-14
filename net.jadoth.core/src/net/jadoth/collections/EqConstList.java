@@ -4,22 +4,23 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.functions.IsCustomEqual;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
+import net.jadoth.functional.IsCustomEqual;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -202,7 +203,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.data.length);
+		final E[] array = X.Array(type, this.data.length);
 		System.arraycopy(this.data, 0, array, 0, this.data.length);
 		return array;
 	}
@@ -224,7 +225,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.data.length, joiner, aggregate);
 		return aggregate;
@@ -420,7 +421,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof EqConstList<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof EqConstList<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -430,13 +431,13 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((EqConstList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((EqConstList<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -663,7 +664,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

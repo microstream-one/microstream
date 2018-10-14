@@ -1,13 +1,13 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.util.chars.VarString.New;
+import static net.jadoth.chars.VarString.New;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.chars.VarString;
+import net.jadoth.low.XVM;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.util.chars.VarString;
 
 // CHECKSTYLE.OFF: MagicNumber: just a deprecated debugging class
 
@@ -17,14 +17,14 @@ public final class DEBUG_BinaryPersistence
 	public static final String oidToString(final long oid)
 	{
 		final byte[] bytes = new byte[8];
-		Memory.putLong(bytes, 0, oid);
+		XVM.putLong(bytes, 0, oid);
 		return "OID = " + oid + " (" + New().addHexDec(bytes) + ")";
 	}
 
 	public static final String tidToString(final long tid)
 	{
 		final byte[] bytes = new byte[8];
-		Memory.putLong(bytes, 0, tid);
+		XVM.putLong(bytes, 0, tid);
 		return "TID = " + tid + " (" + New().addHexDec(bytes) + ")";
 	}
 
@@ -117,7 +117,7 @@ public final class DEBUG_BinaryPersistence
 		return vc.toString();
 	}
 
-	public static final String typeToString(final SwizzleTypeLink<?> typeLink)
+	public static final String typeToString(final SwizzleTypeLink typeLink)
 	{
 		return "Type = " + typeLink.type() + " " + tidToString(typeLink.typeId());
 	}

@@ -1,14 +1,13 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public StorageLockedFile provideExportFile(StorageEntityTypeHandler<?> entityType);
+	public StorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
 
 
 
@@ -51,28 +50,18 @@ public interface StorageEntityTypeExportFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler<?> entityType)
+		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
-			/* don't bother with including a type id.
-			 * TypeId mapping is the type dictionary's concern, not that of an export file.
-			 * Also it messes up sorting files by name.
-			 */
-			final File file = new File(this.directory, entityType.typeName() + this.cachedFileSuffix);
-			try
-			{
-				return StorageLockedFile.openLockedFile(file);
-			}
-			catch(final FileNotFoundException e)
-			{
-				throw new RuntimeException(e); // (10.12.2014)EXCP: proper exception
-			}
+			// TypeId must be included since only that is the unique identifier of a type.
+			final File file = new File(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
+			return StorageLockedFile.openLockedFile(file);
 
 //			final VarString vs = VarString.New()
-//			.padLeft(Long.toString(entityType.typeId()), JadothChars.maxCharCount_long() - 1, '0')
+//			.padLeft(Long.toString(entityType.typeId()), XChars.maxCharCount_long() - 1, '0')
 //			.add('_')
 //			.add(entityType.typeName())
 //			.add(this.cachedFileSuffix)

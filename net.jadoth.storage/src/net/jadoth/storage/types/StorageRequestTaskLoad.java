@@ -33,8 +33,8 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 		
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 		
 		@Override
 		protected void complete(final StorageChannel channel, final Binary result) throws InterruptedException

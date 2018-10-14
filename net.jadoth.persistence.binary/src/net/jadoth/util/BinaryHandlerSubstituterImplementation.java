@@ -2,11 +2,10 @@ package net.jadoth.util;
 
 import net.jadoth.collections.BinaryHandlerEqHashEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -50,15 +49,15 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 
 	@Override
 	public final void store(
-		final Binary                        bytes    ,
-		final Substituter.Implementation<?> instance ,
-		final long                          oid      ,
-		final SwizzleStoreLinker            linker
+		final Binary                        bytes   ,
+		final Substituter.Implementation<?> instance,
+		final long                          oid     ,
+		final SwizzleHandler                handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), oid, linker);
+			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), oid, handler);
 		}
 	}
 
@@ -102,16 +101,6 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	}
 
 	@Override
-	public final boolean isEqual(
-		final Substituter.Implementation<?> source            ,
-		final Substituter.Implementation<?> target            ,
-		final ObjectStateHandlerLookup      stateHandlerLookup
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME BinaryHandlerSubstituterImplementation#isEqual()
-	}
-
-	@Override
 	public final boolean hasInstanceReferences()
 	{
 		return true;
@@ -134,5 +123,13 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	{
 		return true;
 	}
+
+//	@Override
+//	public final void copy(final Substituter.Implementation<?> source, final Substituter.Implementation<?> target)
+//	{
+//		// due to type erasure, there is no way to determine if target is valid.
+//		// this also proces that such a totaly generic copy functionality is not viable here
+//		throw new UnsupportedOperationException();
+//	}
 
 }

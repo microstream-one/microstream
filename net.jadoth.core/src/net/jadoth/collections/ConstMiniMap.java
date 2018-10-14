@@ -1,9 +1,10 @@
 package net.jadoth.collections;
 
 import static java.lang.System.identityHashCode;
-import net.jadoth.collections.types.IdentityEqualityLogic;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.KeyValue;
+
+import net.jadoth.equality.IdentityEqualityLogic;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.KeyValue;
 
 
 /**
@@ -36,7 +37,7 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 		super();
 		final Entry<K, V>[] slots;
 		final int modulo;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(this.size = size)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(this.size = size)]).length - 1;
 		for(int i = 0; i < source.length; i++)
 		{
 			// iterate through all entries and assign them to the new storage
@@ -55,7 +56,7 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 		super();
 		final Entry<K, V>[] slots;
 		final int modulo;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(this.size = size)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(this.size = size)]).length - 1;
 		for(int i = 0; i < source.length; i++)
 		{
 			// iterate through all entries and assign them to the new storage
@@ -84,7 +85,7 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 		super();
 		final Entry<K, V>[] slots;
 		final int modulo;
-		this.modulo = modulo = (this.slots = slots = new Entry[JadothMath.pow2BoundMaxed(data.length)]).length - 1;
+		this.modulo = modulo = (this.slots = slots = new Entry[XMath.pow2BoundMaxed(data.length)]).length - 1;
 		int size = 0;
 		for(int i = 0; i < data.length; i++)
 		{
@@ -159,7 +160,7 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 		{
 			for(Entry<K, V> e = slots[i]; e != null; e = e.link)
 			{
-				array[a++] = new KeyValue.Implementation<>(e.key, e.value);
+				array[a++] = KeyValue.New(e.key, e.value);
 			}
 		}
 

@@ -7,33 +7,33 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.chars.VarString;
+import net.jadoth.collections.interfaces.HashCollection;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.old.OldList;
-import net.jadoth.collections.types.HashCollection;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.functional.JadothFunctions;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.IdentityEqualator;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.functional.XFunc;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 public final class ConstHashTable<K, V>
@@ -88,7 +88,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength)
 	{
 		return new ConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
+			Hashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -97,15 +97,15 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		return new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity)
+			Hashing.hashDensity(hashDensity)
 		);
 	}
 
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength, final float hashDensity)
 	{
 		return new ConstHashTable<>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		);
 	}
 	public static final <K, V> ConstHashTable<K, V> New(
@@ -125,8 +125,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		).internalAddEntries(entries);
 	}
 
@@ -154,8 +154,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			JadothHash.padHashLength(initialHashLength),
-			JadothHash.hashDensity(hashDensity)
+			Hashing.padHashLength(initialHashLength),
+			Hashing.hashDensity(hashDensity)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -168,7 +168,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		final ConstHashTable<KO, VO> newMap = new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			JadothHash.hashDensity(hashDensity)
+			Hashing.hashDensity(hashDensity)
 		);
 		entries.iterate(e->
 		{
@@ -181,7 +181,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		final XGettingCollection<? extends KeyValue<KI, VI>> entries
 	)
 	{
-		return NewProjected(entries, JadothFunctions.<KO>passthrough(), JadothFunctions.<VO>passthrough());
+		return NewProjected(entries, XFunc.<KO>passThrough(), XFunc.<VO>passThrough());
 	}
 
 	public static final <KI, VI, KO, VO> ConstHashTable<KO, VO> NewProjected(
@@ -294,7 +294,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		this.range = modulo;
 	}
 
-	final KeyValue<K, V> getEntry(final K key)
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		// search for key by hash
 		for(ChainMapEntryLinkedStrongStrong<K, V> e = this.slots[System.identityHashCode(key) & this.range]; e != null; e = e.link)
@@ -430,7 +431,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		 * Should this VM implementation detail ever change (which is extremely doubtful as it moreless ruins
 		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
-		return Jadoth.to_int(this.size());
+		return XTypes.to_int(this.size());
 	}
 
 	@Override
@@ -595,7 +596,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<K> hashEquality()
 	{
-		return JadothHash.hashEqualityIdentity();
+		return Hashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -621,7 +622,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		return entry ->
 		{
 			final KeyValue<K, V> kv;
-			if((kv = ConstHashTable.this.getEntry(entry.key())) == null)
+			if((kv = ConstHashTable.this.lookup(entry.key())) == null)
 			{
 				return false;
 			}
@@ -665,7 +666,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		ConstHashTable.this.chain.join(joiner, aggregate);
 		return aggregate;
@@ -821,7 +822,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		if(ConstHashTable.this.size != Jadoth.to_int(samples.size()))
+		if(ConstHashTable.this.size != XTypes.to_int(samples.size()))
 		{
 			return false;
 		}
@@ -1007,7 +1008,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return JadothHash.keyValueHashEqualityKeyIdentity();
+		return Hashing.keyValueHashEqualityKeyIdentity();
 	}
 
 
@@ -1015,8 +1016,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public final class Keys implements XImmutableTable.Keys<K, V>, HashCollection<K>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int hashDistributionRange()
@@ -1068,7 +1069,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		 * This is necessary to ensure that the {@link EqConstHashEnum} instance is really constant and does not
 		 * (can not!) lose elements over time.<br>
 		 * If a {@link EqConstHashEnum} with volatile elements is needed (e.g. as a "read-only weak set"),
-		 * an appropriate custom behaviour {@link EqConstHashEnum} instance can be created via the various
+		 * an appropriate custom behavior {@link EqConstHashEnum} instance can be created via the various
 		 * copy constructors.
 		 *
 		 * @return a new {@link EqConstHashEnum} instance strongly referencing this set's current elements.
@@ -1113,7 +1114,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super K, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super K, ? super A> joiner, final A aggregate)
 		{
 			ConstHashTable.this.chain.keyJoin(joiner, aggregate);
 			return aggregate;
@@ -1273,7 +1274,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final boolean equalsContent(final XGettingCollection<? extends K> samples, final Equalator<? super K> equalator)
 		{
-			if(ConstHashTable.this.size != Jadoth.to_int(samples.size()))
+			if(ConstHashTable.this.size != XTypes.to_int(samples.size()))
 			{
 				return false;
 			}
@@ -1554,7 +1555,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final Equalator<? super V> equality()
 		{
-			return JadothEqualators.identity();
+			return Equalator.identity();
 		}
 
 		@Override
@@ -1571,7 +1572,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super V, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super V, ? super A> joiner, final A aggregate)
 		{
 			ConstHashTable.this.chain.valuesJoin(joiner, aggregate);
 			return aggregate;
@@ -1771,13 +1772,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long size()
 		{
-			return Jadoth.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override
 		public final long maximumCapacity()
 		{
-			return Jadoth.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override
@@ -2079,7 +2080,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(ConstHashTable.this.size());
+			return XTypes.to_int(ConstHashTable.this.size());
 		}
 
 		@Override

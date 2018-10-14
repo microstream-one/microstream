@@ -4,21 +4,21 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldGettingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -96,7 +96,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public ArrayView<E> toReversed()
 	{
-		final E[] rData = JadothArrays.newArrayBySample(this.data, this.size);
+		final E[] rData = X.ArrayOfSameType(this.data, this.size);
 		final E[] data = this.data;
 		for(int i = this.size, r = 0; i-- > 0;)
 		{
@@ -221,7 +221,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.size);
+		final E[] array = X.Array(type, this.size);
 		System.arraycopy(this.data, 0, array, 0, this.size);
 		return array;
 	}
@@ -236,7 +236,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.size, joiner, aggregate);
 		return aggregate;
@@ -461,7 +461,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof ArrayView<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof ArrayView<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -471,7 +471,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(
+		return XArrays.equals(
 			this.data,
 			0,
 			((ArrayView<?>)samples).data,
@@ -484,7 +484,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -707,7 +707,7 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 	@Override

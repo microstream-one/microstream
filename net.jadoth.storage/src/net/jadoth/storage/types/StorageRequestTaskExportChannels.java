@@ -5,7 +5,7 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 {
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
-	implements StorageRequestTaskExportChannels, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskExportChannels, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -33,8 +33,8 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)

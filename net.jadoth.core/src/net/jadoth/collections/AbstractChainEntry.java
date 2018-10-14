@@ -1,8 +1,8 @@
 package net.jadoth.collections;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.ChainStorage;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.KeyValue;
 
 
 

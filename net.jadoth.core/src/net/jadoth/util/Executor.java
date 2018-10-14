@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -222,8 +222,8 @@ public interface Executor<EX extends Throwable>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public Executor.Implementation<EX> reset()

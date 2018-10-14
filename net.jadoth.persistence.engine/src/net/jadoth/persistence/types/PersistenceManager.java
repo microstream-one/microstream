@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
@@ -12,14 +12,18 @@ public interface PersistenceManager<M>
 extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
 {
 	// manager methods //
+	
+	public PersistenceRegisterer createRegisterer();
 
 	public PersistenceLoader<M> createLoader();
 
+	public PersistenceStorer<M> createLazyStorer();
+	
 	public PersistenceStorer<M> createStorer();
 
-	public PersistenceStorer<M> createStorer(BufferSizeProvider bufferSizeProvider);
+	public PersistenceStorer<M> createEagerStorer();
 
-	public PersistenceRegisterer createRegisterer();
+	public PersistenceStorer<M> createStorer(PersistenceStorer.Creator<M> storerCreator);
 
 //	public void updateMetadata(PersistenceTypeDictionary typeDictionary, long highestTypeId, long highestObjectId);
 //
@@ -32,10 +36,12 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 	{
 		storing.storeBy(this.createStorer()).commit();
 	}
+	
+	public SwizzleRegistry swizzleRegistry();
 
 
 
-	public final class Implementation<M> implements PersistenceManager<M>
+	public final class Implementation<M> implements PersistenceManager<M>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -49,8 +55,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		// instance handling components //
 		private final PersistenceTypeHandlerManager<M> typeHandlerManager;
 		private final PersistenceStorer.Creator<M>     storerCreator     ;
-		private final PersistenceLoader.Creator<M>     builderCreator    ;
-		private final BufferSizeProvider               bufferSizeProvider;
+		private final PersistenceLoader.Creator<M>     loaderCreator     ;
+		private final BufferSizeProviderIncremental    bufferSizeProvider;
 
 		// source and target //
 		private final PersistenceSource<M>             source            ;
@@ -67,11 +73,11 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			final SwizzleObjectManager             objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
 			final PersistenceStorer.Creator<M>     storerCreatorDeep ,
-			final PersistenceLoader.Creator<M>     builderCreator    ,
+			final PersistenceLoader.Creator<M>     loaderCreator     ,
 			final PersistenceRegisterer.Creator    registererCreator ,
 			final PersistenceTarget<M>             target            ,
 			final PersistenceSource<M>             source            ,
-			final BufferSizeProvider               bufferSizeProvider
+			final BufferSizeProviderIncremental    bufferSizeProvider
 		)
 		{
 			super();
@@ -80,7 +86,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			this.typeHandlerManager = notNull(typeHandlerManager);
 			this.storerCreator      = notNull(storerCreatorDeep );
 			this.registererCreator  = notNull(registererCreator );
-			this.builderCreator     = notNull(builderCreator    );
+			this.loaderCreator      = notNull(loaderCreator     );
 			this.target             = notNull(target            );
 			this.source             = notNull(source            );
 			this.bufferSizeProvider = notNull(bufferSizeProvider);
@@ -89,19 +95,37 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final SwizzleRegistry swizzleRegistry()
+		{
+			return this.objectRegistry;
+		}
 
 		@Override
 		public final void cleanUp()
 		{
 			this.objectRegistry.cleanUp();
 		}
-
+				
+		@Override
+		public final PersistenceStorer<M> createLazyStorer()
+		{
+			return this.storerCreator.createLazyStorer(
+				this.objectManager     ,
+				this                   ,
+				this.typeHandlerManager,
+				this.target            ,
+				this.bufferSizeProvider
+			);
+		}
+		
 		@Override
 		public final PersistenceStorer<M> createStorer()
 		{
-			return this.storerCreator.createPersistenceStorer(
+			return this.storerCreator.createStorer(
 				this.objectManager     ,
 				this                   ,
 				this.typeHandlerManager,
@@ -111,14 +135,26 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 
 		@Override
-		public final PersistenceStorer<M> createStorer(final BufferSizeProvider bufferSizeProvider)
+		public final PersistenceStorer<M> createEagerStorer()
 		{
-			return this.storerCreator.createPersistenceStorer(
+			return this.storerCreator.createEagerStorer(
 				this.objectManager     ,
 				this                   ,
 				this.typeHandlerManager,
 				this.target            ,
-				bufferSizeProvider
+				this.bufferSizeProvider
+			);
+		}
+		
+		@Override
+		public final PersistenceStorer<M> createStorer(final PersistenceStorer.Creator<M> storerCreator)
+		{
+			return storerCreator.createStorer(
+				this.objectManager     ,
+				this                   ,
+				this.typeHandlerManager,
+				this.target            ,
+				this.bufferSizeProvider
 			);
 		}
 
@@ -129,37 +165,19 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 
 		@Override
-		public final long storeFull(final Object object)
+		public final long store(final Object object)
 		{
 			final PersistenceStorer<M> persister;
-			final long oid = (persister = this.createStorer()).storeFull(object);
+			final long oid = (persister = this.createStorer()).store(object);
 			persister.commit();
 			return oid;
 		}
-
+		
 		@Override
-		public final long storeRequired(final Object object)
+		public final long[] store(final Object... instances)
 		{
 			final PersistenceStorer<M> persister;
-			final long oid = (persister = this.createStorer()).storeRequired(object);
-			persister.commit();
-			return oid;
-		}
-
-		@Override
-		public final long[] storeAllFull(final Object... instances)
-		{
-			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).storeAllFull(instances);
-			persister.commit();
-			return oids;
-		}
-
-		@Override
-		public final long[] storeAllRequired(final Object... instances)
-		{
-			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).storeAllRequired(instances);
+			final long[] oids = (persister = this.createStorer()).store(instances);
 			persister.commit();
 			return oids;
 		}
@@ -190,9 +208,9 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 
 		@Override
-		public final Object initialGet()
+		public final Object get()
 		{
-			return this.createLoader().initialGet();
+			return this.createLoader().get();
 		}
 
 		@Override
@@ -215,7 +233,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		@Override
 		public final PersistenceLoader<M> createLoader()
 		{
-			return this.builderCreator.createBuilder(
+			return this.loaderCreator.createBuilder(
 				this.typeHandlerManager.createDistrict(this.objectRegistry),
 				this
 			);

@@ -1,17 +1,21 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.mayNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XTable;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
-import net.jadoth.util.KeyValue;
+import net.jadoth.persistence.types.Unpersistable;
+import net.jadoth.reference.Reference;
+import net.jadoth.swizzling.types.Swizzle;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -26,42 +30,64 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	@Override
 	public default EmbeddedStorageManager start()
 	{
-		return this.start(null, null);
+		return this.start(null);
 	}
 
-	@Override
-	public default EmbeddedStorageManager start(
-		final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		final StorageTypeDictionary       oldTypes
-	)
-	{
-		return this.start(entityInitializingCacheEvaluator, oldTypes, null);
-	}
-
-	public EmbeddedStorageManager start(
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes                        ,
-		XGettingEnum<File>          initialImportFiles
-	);
+	public EmbeddedStorageManager start(XGettingEnum<File> initialImportFiles);
 
 	@Override
 	public boolean shutdown();
 
 	public void truncateData();
+	
+	/**
+	 * A reference to the application's explicit root. Potentially <code>null</code> if roots are resolved otherwise.
+	 * E.g. via custom {@link PersistenceRootResolver}, static {@link EmbeddedStorage}{@link #root()} or constants.
+	 * 
+	 * @return the explicit root.
+	 */
+	public Reference<Object> root();
+	
+	public default long storeRoot()
+	{
+		final Reference<Object> root = this.root();
+		
+		return root == null
+			? Swizzle.nullId()
+			: this.store(this.root())
+		;
+	}
+
+	
+	
+	public static EmbeddedStorageManager.Implementation New(
+		final StorageConfiguration                   configuration    ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFactory,
+		final PersistenceRoots                       definedRoots     ,
+		final Reference<Object>                      explicitRoot
+	)
+	{
+		return new EmbeddedStorageManager.Implementation(
+			notNull(configuration)    ,
+			notNull(connectionFactory),
+			notNull(definedRoots)     ,
+			mayNull(explicitRoot)
+		);
+	}
 
 
-
-	public final class Implementation implements EmbeddedStorageManager
+	public final class Implementation implements EmbeddedStorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final StorageConfiguration                configuration    ;
-		private final StorageManager                      storageManager   ;
-		private final EmbeddedStorageConnectionFoundation connectionFactory;
-		private final PersistenceRoots                    definedRoots     ;
-
+		private final StorageConfiguration                   configuration    ;
+		private final StorageManager                         storageManager   ;
+		private final EmbeddedStorageConnectionFoundation<?> connectionFactory;
+		private final PersistenceRoots                       definedRoots     ;
+		private final Reference<Object>                      explicitRoot     ;
+		
 		private StorageConnection singletonConnection;
 
 
@@ -70,17 +96,19 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final StorageConfiguration                configuration    ,
-			final EmbeddedStorageConnectionFoundation connectionFactory,
-			final PersistenceRoots                    definedRoots
+		Implementation(
+			final StorageConfiguration                   configuration    ,
+			final EmbeddedStorageConnectionFoundation<?> connectionFactory,
+			final PersistenceRoots                       definedRoots     ,
+			final Reference<Object>                      explicitRoot
 		)
 		{
 			super();
-			this.configuration     = notNull(configuration);
-			this.storageManager    = notNull(connectionFactory.getStorageManager()); // to ensure consistency
-			this.connectionFactory = notNull(connectionFactory);
-			this.definedRoots      = notNull(definedRoots);
+			this.configuration     = configuration                        ;
+			this.storageManager    = connectionFactory.getStorageManager(); // to ensure consistency
+			this.connectionFactory = connectionFactory                    ;
+			this.definedRoots      = definedRoots                         ;
+			this.explicitRoot      = explicitRoot                         ;
 		}
 
 
@@ -96,8 +124,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public Reference<Object> root()
+		{
+			return this.explicitRoot;
+		}
 
 		@Override
 		public PersistenceManager<Binary> persistenceManager()
@@ -112,13 +146,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final EmbeddedStorageManager.Implementation start(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes                        ,
-			final XGettingEnum<File>          initialImportFiles
-		)
+		public final EmbeddedStorageManager.Implementation start(final XGettingEnum<File> initialImportFiles)
 		{
-			this.storageManager.start(entityInitializingCacheEvaluator, oldTypes);
+			this.storageManager.start();
 
 			// special initial import for refactoring purposes: after validation but before roots loading.
 			if(initialImportFiles != null && !initialImportFiles.isEmpty())
@@ -126,7 +156,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				this.initialImport(initialImportFiles);
 			}
 
+			this.ensureRequiredTypeHandlers();
 			this.initialize();
+			
 			return this;
 		}
 
@@ -135,30 +167,41 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			this.connectionFactory.createStorageConnection().importFiles(initialImportFiles);
 		}
 
-		static final boolean equalEntries(final KeyValue<String, Object> e1, final KeyValue<String, Object> e2)
-		{
-			// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
-			return e1.key().equals(e2.key()) && e1.value() == e2.value();
-		}
-
 		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
-			final XTable<String, Object> loadedEntries  = loadedRoots.entries();
-			final XTable<String, Object> definedEntries = this.definedRoots.entries();
+			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
+			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
 
-			// if both have equal content, no updates have to be made.
-			if(loadedEntries.equalsContent(definedEntries, Implementation::equalEntries))
+			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
+				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
+				e1.key().equals(e2.key()) && e1.value() == e2.value()
+			);
+			
+			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
+			if(!equalContent)
 			{
-				return true;
+				loadedRoots.updateEntries(definedEntries);
 			}
-
-			/* to ensure removal of old, addition of new and same order, it is best to simply clear and add all.
-			 * important is: the loaded entries instance has to be updated as the loadedRoots instance has to be
-			 * the one that gets saved to maintain the associated OID.
+			
+			/*
+			 * If the loaded roots had to change in any way to match the runtime state of the application,
+			 * it means that it has to be stored to update the persistent state to the current (changed) one.
+			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
+			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * There are 3 possible cases for a change:
+			 * 1.) An entry has been explicitly removed by a refactoring mapping.
+			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
+			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			loadedEntries.clear();
-			loadedEntries.addAll(definedEntries);
-			return false;
+			return !loadedRoots.hasChanged();
+		}
+		
+		private void ensureRequiredTypeHandlers()
+		{
+			// make sure a functional type handler is present for every occuring type id or throw an exception.
+			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
+			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
+			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
 
 		@Override
@@ -191,17 +234,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 			else if(this.synchronizeRoots(loadedRoots))
 			{
-				return; // loaded roots are equal to defined roots, no store update required
-			}
-			else if(!loadedRoots.entries().isEmpty())
-			{
-				// (14.09.2015 TM)TODO: loaded root mismatch handling should be dynamical (callback).
-				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("Mismatch of loaded roots and defined roots");
+				// loaded roots are perfectly synchronous to defined roots, no store update required.
+				return;
 			}
 
-			// either the loaded roots instance shall be updated or the defined roots have to be stored initially
-			initConnection.storeFull(loadedRoots); // (05.11.2013 TM)TODO: really always deep? Not on demand?
+			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
+			initConnection.store(loadedRoots);
 		}
 
 		@Override
@@ -211,7 +249,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public void truncateData()
+		public final void truncateData()
 		{
 			this.storageManager.truncateData();
 		}
@@ -349,8 +387,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		@Override
 		public StorageEntityTypeExportStatistics exportTypes(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
 			return this.singletonConnection().exportTypes(exportFileProvider, isExportType);

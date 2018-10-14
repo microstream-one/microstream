@@ -3,7 +3,7 @@
  */
 package net.jadoth.test.util;
 
-import static net.jadoth.Jadoth.doubles;
+import net.jadoth.X;
 import net.jadoth.math.Matrix;
 
 /**
@@ -46,7 +46,7 @@ public class MainTestMatrix
 
 
 
-		for(final double r : doubles(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13))
+		for(final double r : X.doubles(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13))
 		{
 			for(final String s : new Matrix<>(data).iterate(4,4,r/3))
 			{

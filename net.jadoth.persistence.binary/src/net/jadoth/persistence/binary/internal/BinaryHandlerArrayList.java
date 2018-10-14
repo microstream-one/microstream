@@ -3,15 +3,13 @@ package net.jadoth.persistence.binary.internal;
 import java.util.ArrayList;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -56,10 +54,10 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	
 	@Override
 	public final void store(
-		final Binary             bytes   ,
-		final ArrayList<?>       instance,
-		final long               oid     ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final ArrayList<?>   instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -67,9 +65,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 			this.typeId(),
 			oid,
 			SIZED_ARRAY_BINARY_OFFSET,
-			Memory.accessStorage(instance),
+			XVM.accessStorage(instance),
 			instance.size(),
-			linker
+			handler
 		);
 	}
 
@@ -88,16 +86,16 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes,
 			SIZED_ARRAY_BINARY_OFFSET,
-			Memory.accessStorage(instance),
+			XVM.accessStorage(instance),
 			builder
 		);
-		Memory.setSize(instance, size);
+		XVM.setSize(instance, size);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(final ArrayList<?> instance, final SwizzleFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, Memory.accessStorage(instance), 0, instance.size());
+		Swizzle.iterateReferences(iterator, XVM.accessStorage(instance), 0, instance.size());
 	}
 
 	@Override
@@ -105,31 +103,5 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	{
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, SIZED_ARRAY_BINARY_OFFSET, iterator);
 	}
-
-	@Override
-	public final boolean isEqual(
-		final ArrayList<?>             source            ,
-		final ArrayList<?>             target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return source.size() == target.size()
-			&& ObjectState.isEqual(
-				Memory.accessStorage(source),
-				Memory.accessStorage(target),
-				0                           ,
-				source.size()               ,
-				stateHandlerLookup
-			)
-		;
-	}
-
-//	@Override
-//	public final void copy(final ArrayList<?> source, final ArrayList<?> target)
-//	{
-//		target.ensureCapacity(source.size());
-//		BinaryCollectionHandling.copyContent(Memory.accessStorage(source), Memory.accessStorage(target), source.size());
-//		Memory.setSize(target, source.size());
-//	}
 
 }

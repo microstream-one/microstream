@@ -1,14 +1,16 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
-public final class BinaryFileStorage implements PersistenceSource<Binary>, PersistenceTarget<Binary>
+public final class BinaryFileStorage implements PersistenceChannel<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
@@ -43,9 +45,9 @@ public final class BinaryFileStorage implements PersistenceSource<Binary>, Persi
 	}
 
 	@Override
-	public final XGettingCollection<? extends Binary> readInitial() throws PersistenceExceptionTransfer
+	public final XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
-		return this.source.readInitial();
+		return this.source.read();
 	}
 
 	@Override

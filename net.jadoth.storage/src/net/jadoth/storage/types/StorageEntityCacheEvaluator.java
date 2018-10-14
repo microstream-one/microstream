@@ -1,8 +1,8 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
 
 /**
  * Function type that evaluates if a live entity (entity with cached data) shall be unloaded (its cache cleared).
@@ -19,10 +19,27 @@ import net.jadoth.util.chars.VarString;
 public interface StorageEntityCacheEvaluator
 {
 	public boolean clearEntityCache(long totalCacheSize, long evaluationTime, StorageEntity entity);
+	
+	public default boolean initiallyCacheEntity(
+		final long          totalCacheSize,
+		final long          evaluationTime,
+		final StorageEntity entity
+	)
+	{
+		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
+	}
 
 
+	
+	public static StorageEntityCacheEvaluator New(final long threshold, final long millisecondTimeout)
+	{
+		return new StorageEntityCacheEvaluator.Implementation(
+			positive(threshold)         ,
+			positive(millisecondTimeout)
+		);
+	}
 
-	public final class Implementation implements StorageEntityCacheEvaluator
+	public class Implementation implements StorageEntityCacheEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -54,7 +71,7 @@ public interface StorageEntityCacheEvaluator
 		 * (e.g. constantly working systems with medium load)
 		 * Can be set to a huge value to like 1 year or max long to disable the timeout and solely rely on the threshold
 		 */
-		private final long msTimeout  ;
+		private final long msTimeout;
 
 
 
@@ -62,18 +79,20 @@ public interface StorageEntityCacheEvaluator
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final long threshold, final long millisecondTimeout)
+		protected Implementation(final long threshold, final long millisecondTimeout)
 		{
 			super();
-			this.threshold = positive(threshold);
-			this.msTimeout = positive(millisecondTimeout)  ;
+			
+			// must perform checks in constructor in case a deriving implementation passes invalid values
+			this.threshold = positive(threshold)         ;
+			this.msTimeout = positive(millisecondTimeout);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final boolean clearEntityCache(

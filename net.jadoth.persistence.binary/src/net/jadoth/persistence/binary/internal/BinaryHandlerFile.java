@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerFile extends AbstractBinaryHandlerNativeCustomValueVariableLength<File>
 {
@@ -29,7 +29,7 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerNativeCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final File instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final File instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeStringValue(bytes, this.typeId(), oid, instance.getPath());
 	}

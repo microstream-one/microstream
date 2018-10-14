@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
@@ -50,8 +50,8 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)

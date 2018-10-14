@@ -1,6 +1,6 @@
 package net.jadoth.network.simplesession;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;

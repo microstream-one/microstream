@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.math.XMath.positive;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProvider
@@ -39,8 +39,8 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long provideRootTypeId()

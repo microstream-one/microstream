@@ -2,10 +2,10 @@ package net.jadoth.collections;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.sorting.Sortable;
-import net.jadoth.functional.BiProcedure;
 
 
 // (04.08.2015 TM)NOTE: experimental playground, not finished by any means.
@@ -27,7 +27,7 @@ public class OuterJoin
 		final Comparator<? super E>                 comparator      ,
 		final Consumer<? super E>                  soleLeftHandler ,
 		final Consumer<? super E>                  soleRightHandler,
-		final BiProcedure<? super E, ? super E> matchHandler
+		final BiConsumer<? super E, ? super E> matchHandler
 	)
 	{
 		leftElements.sort(comparator);
@@ -48,7 +48,7 @@ public class OuterJoin
 		final Comparator<? super E>                 comparator      ,
 		final Consumer<? super E>                  soleLeftHandler ,
 		final Consumer<? super E>                  soleRightHandler,
-		final BiProcedure<? super E, ? super E> matchHandler
+		final BiConsumer<? super E, ? super E> matchHandler
 	)
 	{
 		E left = advance(itrLeft), right = advance(itrRight);

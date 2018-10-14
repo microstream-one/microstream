@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 @FunctionalInterface
 public interface StorageInitialDataFileNumberProvider
@@ -26,14 +26,14 @@ public interface StorageInitialDataFileNumberProvider
 		public Implementation(final int constantInitialFileNumber)
 		{
 			super();
-			this.constantInitialFileNumber = JadothMath.notNegative(constantInitialFileNumber);
+			this.constantInitialFileNumber = XMath.notNegative(constantInitialFileNumber);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 		
 		@Override
 		public int provideInitialDataFileNumber(final int channelIndex)

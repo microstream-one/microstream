@@ -3,7 +3,7 @@
  */
 package net.jadoth.experimental;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.Bresenham;
 
 /**
  * @author Thomas Muenz
@@ -82,7 +82,7 @@ public class MainTestBresenham
 		while(i-->0)
 		{
 			tStart = System.nanoTime();
-			JadothMath.linePointsInt1D(1, 2, 89, 567);
+			Bresenham.linePointsInt1D(1, 2, 89, 567);
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
@@ -111,7 +111,7 @@ public class MainTestBresenham
 
 
 
-		System.out.println(JadothMath.linePointsInt2D(1, 2, 89, 567).length);
+		System.out.println(Bresenham.linePointsInt2D(1, 2, 89, 567).length);
 
 
 

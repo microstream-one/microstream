@@ -1,11 +1,7 @@
 package net.jadoth.collections;
 
-import java.util.Iterator;
-
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -13,7 +9,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -28,7 +24,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	/////////////////////
 
 	static final long BINARY_OFFSET_HASH_DENSITY =                       0;
-	static final long BINARY_OFFSET_ELEMENTS     = Memory.byteSize_float(); // one float offset to sized array
+	static final long BINARY_OFFSET_ELEMENTS     = XVM.byteSize_float(); // one float offset to sized array
 
 
 
@@ -78,10 +74,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final HashEnum<?>        instance ,
-		final long               oid      ,
-		final SwizzleStoreLinker linker
+		final Binary         bytes   ,
+		final HashEnum<?>    instance,
+		final long           oid     ,
+		final SwizzleHandler handler
 	)
 	{
 		// store elements simply as array binary form
@@ -92,11 +88,11 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
 
 		// store hash density as (sole) header value
-		Memory.set_float(contentAddress, instance.hashDensity);
+		XVM.set_float(contentAddress, instance.hashDensity);
 	}
 
 	@Override
@@ -136,20 +132,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
-	}
-
-	@Override
-	public final boolean isEqual(
-		final HashEnum<?>              source            ,
-		final HashEnum<?>              target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		// one enum must be iterated with a stateful iterator while the other one is iterated directly
-		final Iterator<?> srcIterator = source.iterator();
-		return source.size == target.size && target.applies(
-			e -> srcIterator.hasNext() && ObjectState.isEqual(e, srcIterator.next(), stateHandlerLookup)
-		);
 	}
 
 }

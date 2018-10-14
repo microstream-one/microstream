@@ -2,8 +2,6 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 
-import net.jadoth.persistence.types.PersistenceRootResolver;
-
 public final class Storage
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -30,9 +28,9 @@ public final class Storage
 	private static final long   DEFAULT_CACHE_TIMEOUT               =    86_400_000  ; // 1 day default timeout
 
 	// file housekeeping configuration (applies per channel). Relatively small default values
-	private static final int    DEFAULT_MIN_FILESIZE                = 1 * 1024 * 1024    ; // 1 MB
-	private static final int    DEFAULT_MAX_FILESIZE                = 8 * 1024 * 1024    ; // 8 MB
-	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75               ; // 75 %
+	private static final int    DEFAULT_MIN_FILESIZE                = 1 * 1024 * 1024; // 1 MB
+	private static final int    DEFAULT_MAX_FILESIZE                = 8 * 1024 * 1024; // 8 MB
+	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75           ; // 75 %
 
 	private static final long   ONE_MILLION                         = 1_000_000L;
 
@@ -113,6 +111,19 @@ public final class Storage
 			fileProvider           != null ? fileProvider           : FileProvider()          ,
 			fileDissolver          != null ? fileDissolver          : DataFileEvaluator()     ,
 			entityCacheEvaluator   != null ? entityCacheEvaluator   : EntityCacheEvaluator()
+		);
+	}
+	
+	public static final StorageConfiguration Configuration(
+		final StorageFileProvider fileProvider
+	)
+	{
+		return new StorageConfiguration.Implementation(
+			Storage.ChannelCountProvider()  ,
+			Storage.HousekeepingController(),
+			fileProvider                    ,
+			Storage.DataFileEvaluator()     ,
+			Storage.EntityCacheEvaluator()
 		);
 	}
 
@@ -198,7 +209,7 @@ public final class Storage
 		final long millisecondTimeout
 	)
 	{
-		return new StorageEntityCacheEvaluator.Implementation(threshold, millisecondTimeout);
+		return StorageEntityCacheEvaluator.New(threshold, millisecondTimeout);
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator(
@@ -218,16 +229,6 @@ public final class Storage
 	)
 	{
 		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio, dissolveHeadfile);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
-	{
-		return new PersistenceRootResolver.SingleOverride(rootIdentifier, rootInstance);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
-	{
-		return new PersistenceRootResolver.SingleOverride("root", rootInstance);
 	}
 
 	/**
@@ -309,8 +310,7 @@ public final class Storage
 		return milliseconds / ONE_MILLION;
 	}
 	
-
-
+	
 
 	private Storage()
 	{

@@ -1,12 +1,12 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.util.bytes.JadothBytes.parseByteOrder;
+import static net.jadoth.X.notNull;
+import static net.jadoth.bytes.XBytes.parseByteOrder;
 
 import java.nio.ByteOrder;
 
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
+import net.jadoth.math.XMath;
 
 public interface NetworkClientGreeting
 {
@@ -138,7 +138,7 @@ public interface NetworkClientGreeting
 		{
 			super();
 			this.host      = notNull(host)        ;
-			this.port      = JadothMath.positive(port);
+			this.port      = XMath.positive(port);
 			this.byteOrder = notNull(byteOrder)   ;
 			this.sessionId = sessionId            ;
 			this.protocol  = notNull(protocol)    ;
@@ -189,8 +189,8 @@ public interface NetworkClientGreeting
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public String toString()

@@ -2,11 +2,10 @@ package net.jadoth.persistence.test;
 
 import java.io.File;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
-import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;
 
 
@@ -17,11 +16,10 @@ public class StorageTestSimple extends TestStorage
 
 	// configure, create and start embedded storage manager (roughly equivalent to an "embedded object database")
 	static final EmbeddedStorageManager STORAGE =
-		EmbeddedStorage.createFoundation(           // create manager building foundation with mostly defaults
-			new File("c:/simpleTestStorage"),       // set storage directory (instead of using working directory)
-			Storage.RootResolver(ROOT)              // link application's root instance to the storage management
+		EmbeddedStorage.createFoundation(                // create manager building foundation with mostly defaults
+			new File("c:/simpleTestStorage")             // set storage directory (instead of using working directory)
 		)
-		.createEmbeddedStorageManager().start()     // start threads and load all non-lazy referenced instances
+		.start(ROOT) // binding between graph's root instance and the storage
 	;
 
 	public static void main(final String[] args)
@@ -36,7 +34,7 @@ public class StorageTestSimple extends TestStorage
 		ROOT.set(X.List(X.List(11, 12, 13), X.List(21, 22, 23), X.List(31, 32, 33)));
 
 		// store whole graph recursively, starting at root
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 
 		// shutdown is moreless optional, only to stop threads. Storage will always recover from incomplete states.
 		STORAGE.shutdown();

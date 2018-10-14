@@ -3,19 +3,19 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldGettingSet;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableEnum;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -119,7 +119,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -195,7 +195,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.data.length);
+		final E[] array = X.Array(type, this.data.length);
 		System.arraycopy(this.data, 0, array, 0, this.data.length);
 		return array;
 	}
@@ -220,7 +220,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join((E[])this.data, this.data.length, joiner, aggregate);
 		return aggregate;
@@ -456,20 +456,20 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstLinearEnum<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((ConstLinearEnum<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
+		return XArrays.equals(this.data, 0, ((ConstLinearEnum<?>)samples).data, 0, this.data.length, (Equalator<Object>)equalator);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -692,7 +692,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

@@ -3,7 +3,7 @@ package net.jadoth.test.collections;
 import java.util.HashMap;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 /**
  * @author Thomas Muenz
@@ -32,7 +32,7 @@ public class MainTestCompareSets
 		final String[] searchStrings = new String[count];
 		while(count --> 0)
 		{
-			searchStrings[count] = Integer.toString(JadothMath.random(32)); //0% miss chance
+			searchStrings[count] = Integer.toString(XMath.random(32)); //0% miss chance
 		}
 
 

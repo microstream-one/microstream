@@ -2,8 +2,6 @@ package net.jadoth.collections;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static net.jadoth.Jadoth.BREAK;
-import static net.jadoth.Jadoth.checkArrayRange;
 import static net.jadoth.collections.AbstractChainEntry.HOP_NEXT;
 import static net.jadoth.collections.AbstractChainEntry.HOP_PREV;
 
@@ -16,16 +14,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.XTypes;
+import net.jadoth.typing.KeyValue;
 
 
 public final class ChainStrongStrongStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>
@@ -481,14 +479,14 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final boolean keyEqualsContent(final XGettingCollection<? extends K> other, final Equalator<? super K> equalator)
 	{
-		if(Jadoth.to_int(this.parent.size()) != Jadoth.to_int(other.size()))
+		if(XTypes.to_int(this.parent.size()) != XTypes.to_int(other.size()))
 		{
 			return false;
 		}
 
 		if(other instanceof AbstractSimpleArrayCollection<?>)
 		{
-			final int otherSize = Jadoth.to_int(other.size());
+			final int otherSize = XTypes.to_int(other.size());
 			final K[] otherData = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)other);
 			EN entry = this.head.next;
 			for(int i = 0; i < otherSize; i++, entry = entry.next)
@@ -504,27 +502,35 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		final Aggregator<K, Boolean> agg = new Aggregator<K, Boolean>()
 		{
 			private EN entry = ChainStrongStrongStorage.this.head;
+			private boolean notEqual; // false by default
 
 			@Override
 			public final void accept(final K element)
 			{
 				if((this.entry = this.entry.next) == null)
 				{
-					throw BREAK; // chain is too short
+					this.notEqual = true;
+					throw X.BREAK(); // chain is too short
 				}
 				if(!equalator.equal(element, this.entry.key()))
 				{
-					throw BREAK; // unequal element found
+					this.notEqual = true;
+					throw X.BREAK(); // unequal element found
 				}
 			}
 
 			@Override
 			public final Boolean yield()
 			{
-				/* current entry may not be null (otherwise chain was too short)
+				/*
+				 * no explicitly unequal pair may have been found (obviously)
+				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */
-				return this.entry != null && (this.entry = this.entry.next) == null ? TRUE : FALSE;
+				return this.notEqual || this.entry == null || (this.entry = this.entry.next) != null
+					? FALSE
+					: TRUE
+				;
 			}
 		};
 
@@ -788,7 +794,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return this.keyContainsAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -806,7 +812,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return this.keyRngContainsAll(
 				offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -1104,7 +1110,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -1147,7 +1153,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -1193,7 +1199,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(int i = 0; i < size; i++)
 			{
@@ -1250,7 +1256,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -1303,7 +1309,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -1354,7 +1360,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ar:
 			for(int i = 0; i < size; i++)
 			{
@@ -1432,7 +1438,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final <C extends Consumer<? super K>> C keyCopySelection(final C target, final long... indices)
 	{
-		final int length = indices.length, size = Jadoth.to_int(this.parent.size());
+		final int length = indices.length, size = XTypes.to_int(this.parent.size());
 
 		// validate all indices before copying the first element
 		for(int i = 0; i < length; i++)
@@ -1524,7 +1530,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final Object[] keyToArray()
 	{
 		final Object[] array;
-		this.keyCopyToArray(0, Jadoth.to_int(this.parent.size()), array = new Object[Jadoth.to_int(this.parent.size())], 0);
+		this.keyCopyToArray(0, XTypes.to_int(this.parent.size()), array = new Object[XTypes.to_int(this.parent.size())], 0);
 		return array;
 	}
 
@@ -1532,7 +1538,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      K[] keyToArray(final Class<K> type)
 	{
 		final K[] array;
-		this.keyCopyToArray(0, Jadoth.to_int(this.parent.size()), array = JadothArrays.newArray(type, Jadoth.to_int(this.parent.size())), 0);
+		this.keyCopyToArray(0, XTypes.to_int(this.parent.size()), array = X.Array(type, XTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -1548,7 +1554,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      K[] keyRngToArray(final int offset, final int length, final Class<K> type)
 	{
 		final K[] array;
-		this.keyCopyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.keyCopyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -1803,7 +1809,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final <A> void keyJoin(final BiProcedure<? super K, A> joiner, final A aggregate)
+	public final <A> void keyJoin(final BiConsumer<? super K, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -2328,13 +2334,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final <C extends Consumer<? super K>> C keyDistinct(final C target)
 	{
-		return this.keyRngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target);
+		return this.keyRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target);
 	}
 
 	@Override
 	public final <C extends Consumer<? super K>> C keyDistinct(final C target, final Equalator<? super K> equalator)
 	{
-		return this.keyRngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target, equalator);
+		return this.keyRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target, equalator);
 	}
 
 	@Override
@@ -2645,7 +2651,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final int keyRemove(final K element)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -2654,13 +2660,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
 	public final int keyRemove(final K sample, final Equalator<? super K> equalator)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -2669,7 +2675,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
@@ -2750,7 +2756,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -2807,10 +2813,10 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return this.keyRngRemoveAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -2833,7 +2839,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return this.keyRngRemoveAll(offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3176,7 +3182,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return this.keyRetainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3204,7 +3210,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return this.keyRetainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -3231,7 +3237,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// directly check array against array without predicate function or method calls
 			return this.keyRngRetainAll(offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -3380,7 +3386,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final int keyMoveSelection(final Consumer<? super K> target, final long... indices)
 	{
-		final int indicesLength = indices.length, size = Jadoth.to_int(this.parent.size());
+		final int indicesLength = indices.length, size = XTypes.to_int(this.parent.size());
 
 		// validate all indices before copying the first element
 		for(int i = 0; i < indicesLength; i++)
@@ -3483,7 +3489,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			throw new NullPointerException();
 		}
-		if(Jadoth.to_int(this.parent.size()) <= 1)
+		if(XTypes.to_int(this.parent.size()) <= 1)
 		{
 			return; // empty or trivial chain is always sorted
 		}
@@ -3599,7 +3605,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final void keySet(final int offset, final K[] elements, final int elementsOffset, final int elementsLength)
 	{
 		EN e = this.getRangeChainEntry(offset, elementsLength);
-		final int d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength);
+		final int d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength);
 		for(int i = elementsOffset, bound = elementsOffset + elementsLength; i != bound; i += d)
 		{
 			e.setKey(elements[i]);
@@ -3825,7 +3831,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -3881,10 +3887,10 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return this.keyRngReplaceAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size()),
+				XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -3917,7 +3923,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size()),
+				XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -4253,19 +4259,19 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final char separator)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final char separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
 
 	@Override
-	public final VarString keyAppendTo(final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final String separator)
+	public final VarString keyAppendTo(final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final String separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
@@ -4289,19 +4295,19 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final char separator)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final char separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
 
 	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super K> keyAppender, final String separator)
+	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final String separator)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
 	}
@@ -4620,20 +4626,20 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final ListIterator<V> valuesListIterator(final long index)
 	{
-		return new ValueListItr(checkArrayRange(index));
+		return new ValueListItr(X.checkArrayRange(index));
 	}
 
 	@Override
 	public final boolean valuesEqualsContent(final XGettingCollection<? extends V> other, final Equalator<? super V> equalator)
 	{
-		if(Jadoth.to_int(this.parent.size()) != Jadoth.to_int(other.size()))
+		if(XTypes.to_int(this.parent.size()) != XTypes.to_int(other.size()))
 		{
 			return false;
 		}
 
 		if(other instanceof AbstractSimpleArrayCollection<?>)
 		{
-			final int otherSize = Jadoth.to_int(other.size());
+			final int otherSize = XTypes.to_int(other.size());
 			final V[] otherData = AbstractSimpleArrayCollection.internalGetStorageArray(
 				(AbstractSimpleArrayCollection<?>)other
 			);
@@ -4651,27 +4657,35 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		final Aggregator<V, Boolean> agg = new Aggregator<V, Boolean>()
 		{
 			private EN entry = ChainStrongStrongStorage.this.head;
+			private boolean notEqual; // false by default
 
 			@Override
 			public final void accept(final V element)
 			{
 				if((this.entry = this.entry.next) == null)
 				{
-					throw BREAK; // chain is too short
+					this.notEqual = true;
+					throw X.BREAK(); // chain is too short
 				}
 				if(!equalator.equal(element, this.entry.value()))
 				{
-					throw BREAK; // unequal element found
+					this.notEqual = true;
+					throw X.BREAK(); // unequal element found
 				}
 			}
 
 			@Override
 			public final Boolean yield()
 			{
-				/* current entry may not be null (otherwise chain was too short)
+				/*
+				 * no explicitly unequal pair may have been found (obviously)
+				 * current entry may not be null (otherwise chain was too short)
 				 * but next entry in chain must be null (otherwise chain is too long)
 				 */
-				return this.entry != null && (this.entry = this.entry.next) == null ? TRUE : FALSE;
+				return this.notEqual || this.entry == null || (this.entry = this.entry.next) != null
+					? FALSE
+					: TRUE
+				;
 			}
 		};
 
@@ -5135,7 +5149,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// directly check array against array without predicate function or method calls
 			return this.valuesContainsAll(
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -5154,7 +5168,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// directly check array against array without predicate function or method calls
 			return this.valuesContainsAll(
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()),
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size()),
 				equalator
 			);
 		}
@@ -5184,7 +5198,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -5240,7 +5254,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -5565,7 +5579,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -5608,7 +5622,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = this.head.next; entry != null; entry = entry.next)
 			{
@@ -5654,7 +5668,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(int i = 0; i < size; i++)
 			{
@@ -5712,7 +5726,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -5765,7 +5779,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ch:
 			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
 			{
@@ -5816,7 +5830,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
 		{
 			final V[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = Jadoth.to_int(samples.size());
+			final int size = XTypes.to_int(samples.size());
 			ar:
 			for(int i = 0; i < size; i++)
 			{
@@ -5895,7 +5909,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final <C extends Consumer<? super V>> C valuesCopySelection(final C target, final long... indices)
 	{
-		final int length = indices.length, size = Jadoth.to_int(this.parent.size());
+		final int length = indices.length, size = XTypes.to_int(this.parent.size());
 
 		// valuesIdate all indices before copying the first element
 		for(int i = 0; i < length; i++)
@@ -6022,7 +6036,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final Object[] valuesToArray()
 	{
 		final Object[] array;
-		this.valuesCopyToArray(0, Jadoth.to_int(this.parent.size()), array = new Object[Jadoth.to_int(this.parent.size())], 0);
+		this.valuesCopyToArray(0, XTypes.to_int(this.parent.size()), array = new Object[XTypes.to_int(this.parent.size())], 0);
 		return array;
 	}
 
@@ -6030,7 +6044,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      V[] valuesToArray(final Class<V> type)
 	{
 		final V[] array;
-		this.valuesCopyToArray(0, Jadoth.to_int(this.parent.size()), array = JadothArrays.newArray(type, Jadoth.to_int(this.parent.size())), 0);
+		this.valuesCopyToArray(0, XTypes.to_int(this.parent.size()), array = X.Array(type, XTypes.to_int(this.parent.size())), 0);
 		return array;
 	}
 
@@ -6046,7 +6060,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final      V[] valuesRngToArray(final int offset, final int length, final Class<V> type)
 	{
 		final V[] array;
-		this.valuesCopyToArray(offset, length, array = JadothArrays.newArray(type, length < 0 ? -length : length), 0);
+		this.valuesCopyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
 		return array;
 	}
 
@@ -6437,7 +6451,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final <A> void valuesJoin(final BiProcedure<? super V, A> joiner, final A aggregate)
+	public final <A> void valuesJoin(final BiConsumer<? super V, A> joiner, final A aggregate)
 	{
 		try
 		{
@@ -6872,13 +6886,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final <C extends Consumer<? super V>> C valuesDistinct(final C target)
 	{
-		return this.valuesRngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target);
+		return this.valuesRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target);
 	}
 
 	@Override
 	public final <C extends Consumer<? super V>> C valuesDistinct(final C target, final Equalator<? super V> equalator)
 	{
-		return this.valuesRngDistinct(Jadoth.to_int(this.parent.size()) - 1, Jadoth.to_int(this.parent.size()), target, equalator);
+		return this.valuesRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target, equalator);
 	}
 
 	@Override
@@ -7017,7 +7031,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender)
 	{
 		for(EN entry = this.head.next; entry != null; entry = entry.next)
 		{
@@ -7027,7 +7041,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender, final char separator)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender, final char separator)
 	{
 		EN entry;
 		if((entry = this.head.next) == null)
@@ -7043,7 +7057,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesAppendTo(final VarString vc, final BiProcedure<VarString, ? super V> appender, final String separator)
+	public final VarString valuesAppendTo(final VarString vc, final BiConsumer<VarString, ? super V> appender, final String separator)
 	{
 		if(separator == null || separator.isEmpty())
 		{
@@ -7151,7 +7165,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final VarString valuesRngAppendTo(int offset, final int length, final VarString vc, final BiProcedure<VarString, ? super V> appender)
+	public final VarString valuesRngAppendTo(int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super V> appender)
 	{
 		EN entry;
 		if((entry = this.getRangeChainEntry(offset, length)) == null)
@@ -7182,7 +7196,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super V> appender,
+		final BiConsumer<VarString, ? super V> appender,
 		final char separator
 	)
 	{
@@ -7215,7 +7229,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      int offset,
 		final int length,
 		final VarString vc,
-		final BiProcedure<VarString, ? super V> appender,
+		final BiConsumer<VarString, ? super V> appender,
 		final String separator
 	)
 	{
@@ -7251,7 +7265,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final String valuesToString()
 	{
-		final VarString vc = VarString.New((int)(Jadoth.to_int(this.parent.size()) * 5.0f));
+		final VarString vc = VarString.New((int)(XTypes.to_int(this.parent.size()) * 5.0f));
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
 			vc.append('(').add(e.value()).add(')', '-');
@@ -7447,7 +7461,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final int valuesRemove(final V element)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -7456,13 +7470,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
 	public final int valuesRemove(final V sample, final Equalator<? super V> equalator)
 	{
-		final int oldSize = Jadoth.to_int(this.parent.size());
+		final int oldSize = XTypes.to_int(this.parent.size());
 		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
@@ -7471,7 +7485,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				e.removeFrom(parent);
 			}
 		}
-		return oldSize - Jadoth.to_int(this.parent.size());
+		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
 	@Override
@@ -7623,7 +7637,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -7682,7 +7696,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(samples, samplesOffset, samplesLength)) == 0)
+		if((d = XArrays.validateArrayRange(samples, samplesOffset, samplesLength)) == 0)
 		{
 			return 0;
 		}
@@ -7740,8 +7754,8 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.valuesRngRemoveAll(0, Jadoth.to_int(this.parent.size()),
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+			return this.valuesRngRemoveAll(0, XTypes.to_int(this.parent.size()),
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -7765,10 +7779,10 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return this.valuesRngRemoveAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -7793,7 +7807,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return this.valuesRngRemoveAll(offset, length,
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -7825,7 +7839,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -8240,7 +8254,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// directly check array against array without predicate function or method calls
 			return this.valuesRetainAll(
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -8268,7 +8282,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return this.valuesRetainAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -8296,7 +8310,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// directly check array against array without predicate function or method calls
 			return this.valuesRngRetainAll(offset, length,
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size())
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
 			);
 		}
 
@@ -8353,7 +8367,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator
 			);
 		}
@@ -8501,7 +8515,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final int valuesMoveSelection(final Consumer<? super V> target, final long... indices)
 	{
-		final int indicesLength = indices.length, size = Jadoth.to_int(this.parent.size());
+		final int indicesLength = indices.length, size = XTypes.to_int(this.parent.size());
 
 		// valuesIdate all indices before copying the first element
 		for(int i = 0; i < indicesLength; i++)
@@ -8616,7 +8630,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			throw new NullPointerException();
 		}
-		if(Jadoth.to_int(this.parent.size()) <= 1)
+		if(XTypes.to_int(this.parent.size()) <= 1)
 		{
 			// empty or trivial chain is always sorted
 			return;
@@ -8739,7 +8753,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final void valuesSet(final long offset, final V[] elements, final int elementsOffset, final int elementsLength)
 	{
 		EN e = this.getRangeChainEntry(offset, elementsLength);
-		final int d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength);
+		final int d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength);
 		for(int i = elementsOffset, bound = elementsOffset + elementsLength; i != bound; i += d)
 		{
 			e.setValue(elements[i]);
@@ -9068,7 +9082,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
+		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
 		{
 			return 0;
 		}
@@ -9127,7 +9141,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	)
 	{
 		final int d;
-		if((d = JadothArrays.validateArrayRange(samples, samplesOffset, samplesLength)) == 0)
+		if((d = XArrays.validateArrayRange(samples, samplesOffset, samplesLength)) == 0)
 		{
 			return 0;
 		}
@@ -9184,8 +9198,8 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.valuesRngReplaceAll(0, Jadoth.to_int(this.parent.size()),
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()),
+			return this.valuesRngReplaceAll(0, XTypes.to_int(this.parent.size()),
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -9214,10 +9228,10 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return this.valuesRngReplaceAll(
 				0,
-				Jadoth.to_int(this.parent.size()),
+				XTypes.to_int(this.parent.size()),
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator, replacement
 			);
 		}
@@ -9247,7 +9261,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
 			return this.valuesRngReplaceAll(offset, length,
-				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, Jadoth.to_int(elements.size()),
+				(V[])AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size()),
 				replacement
 			);
 		}
@@ -9281,7 +9295,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				length,
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples),
 				0,
-				Jadoth.to_int(samples.size()),
+				XTypes.to_int(samples.size()),
 				equalator, replacement
 			);
 		}

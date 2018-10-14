@@ -1,55 +1,53 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.mayNull;
 
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
-public interface PersistenceTypeLineage<T>
+
+public interface PersistenceTypeLineage
 {
 	public String typeName();
 	
-	public Class<T> runtimeType();
+	public Class<?> type();
 	
-	public XGettingTable<Long, PersistenceTypeDefinition<T>> entries();
+	public XGettingTable<Long, PersistenceTypeDefinition> entries();
 	
-	public PersistenceTypeDefinition<T> latest();
+	public PersistenceTypeDefinition latest();
 	
-	public PersistenceTypeDefinition<T> runtimeDefinition();
-		
-//	public boolean registerTypeDescription(long typeId, XGettingSequence<? extends PersistenceTypeDescriptionMember> members);
+	public PersistenceTypeDefinition runtimeDefinition();
 	
-	public boolean registerTypeDefinition(PersistenceTypeDefinition<T> typeDefinition);
+	public boolean registerTypeDefinition(PersistenceTypeDefinition typeDefinition);
 	
 	
 
-	public boolean initializeRuntimeTypeDefinition(PersistenceTypeDefinition<T> runtimeDefinition);
+	public boolean setRuntimeTypeDefinition(PersistenceTypeDefinition runtimeDefinition);
 	
 	
 	
-	public static <T> PersistenceTypeLineage.Implementation<T> New(
-		final String                           typeName             ,
-		final Class<T>                         runtimeType
-//		final PersistenceTypeDefinitionCreator typeDefinitionCreator
+	public static PersistenceTypeLineage.Implementation New(
+		final String   runtimeTypeName,
+		final Class<?> runtimeType
 	)
 	{
-		return new PersistenceTypeLineage.Implementation<>(
-			notNull(typeName)             , // may never be null as this is the lineage's identity.
-			runtimeType                     // can be null if the type cannot be resolved into a runtime class.
-//			notNull(typeDefinitionCreator)
+		return new PersistenceTypeLineage.Implementation(
+			mayNull(runtimeTypeName), // can be null for types explicitly mapped as having no runtime type.
+			mayNull(runtimeType)      // can be null if the type name cannot be resolved to a runtime class.
 		);
 	}
 		
-	public final class Implementation<T> implements PersistenceTypeLineage<T>
+	public final class Implementation implements PersistenceTypeLineage
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final String                                          typeName             ;
-		final Class<T>                                        runtimeType          ;
-		final EqHashTable<Long, PersistenceTypeDefinition<T>> entries              ;
-		      PersistenceTypeDefinition<T>                    runtimeDefinition   ; // initialized effectively final
+		final String                                       runtimeTypeName  ;
+		final Class<?>                                     runtimeType      ;
+		final EqHashTable<Long, PersistenceTypeDefinition> entries          ;
+		      PersistenceTypeDefinition                    runtimeDefinition; // initialized effectively final
 
 
 
@@ -57,17 +55,12 @@ public interface PersistenceTypeLineage<T>
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final String                           typeName             ,
-			final Class<T>                         runtimeType
-//			final PersistenceTypeDefinitionCreator typeDefinitionCreator
-		)
+		Implementation(final String runtimeTypeName, final Class<?> runtimeType)
 		{
 			super();
-			this.typeName              = typeName             ;
-			this.runtimeType           = runtimeType          ;
-			this.entries               = EqHashTable.New()    ;
-//			this.typeDefinitionCreator = typeDefinitionCreator;
+			this.runtimeTypeName = runtimeTypeName  ;
+			this.runtimeType     = runtimeType      ;
+			this.entries         = EqHashTable.New();
 		}
 
 
@@ -79,29 +72,29 @@ public interface PersistenceTypeLineage<T>
 		@Override
 		public final String typeName()
 		{
-			return this.typeName;
+			return this.runtimeTypeName;
 		}
 
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDefinition<T>> entries()
+		public final XGettingTable<Long, PersistenceTypeDefinition> entries()
 		{
 			return this.entries;
 		}
 
 		@Override
-		public final Class<T> runtimeType()
+		public final Class<?> type()
 		{
 			return this.runtimeType;
 		}
 
 		@Override
-		public final PersistenceTypeDefinition<T> runtimeDefinition()
+		public final PersistenceTypeDefinition runtimeDefinition()
 		{
 			return this.runtimeDefinition;
 		}
 		
 		@Override
-		public final PersistenceTypeDefinition<T> latest()
+		public final PersistenceTypeDefinition latest()
 		{
 			synchronized(this.entries)
 			{
@@ -109,48 +102,67 @@ public interface PersistenceTypeLineage<T>
 			}
 		}
 		
-		private void validate(final PersistenceTypeDefinition<T> typeDefinition)
+		private void validate(final PersistenceTypeDefinition typeDefinition)
 		{
-			if(isValid(typeDefinition))
+			if(this.isValid(typeDefinition))
 			{
 				return;
 			}
 			
 			// (12.10.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName);
+			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName());
 		}
 		
-		private boolean isValid(final PersistenceTypeDefinition<T> typeDefinition)
+		private boolean isValid(final PersistenceTypeDefinition typeDefinition)
 		{
-			return this.typeName.equals(typeDefinition.typeName()) && this.runtimeType == typeDefinition.type();
+			// checking runtimeTypeName is more precise than checking the type, as the prior might not be resolvable.
+			if(!XChars.isEqual(this.runtimeTypeName, typeDefinition.runtimeTypeName()))
+			{
+				return false;
+			}
+			
+			final PersistenceTypeDefinition alreadyRegistered = this.entries.get(typeDefinition.typeId());
+			if(alreadyRegistered == null)
+			{
+				return true;
+			}
+			
+			return PersistenceTypeDescriptionMember.equalDescriptions(
+				typeDefinition.members(),
+				alreadyRegistered.members()
+			);
 		}
 		
 		@Override
-		public boolean registerTypeDefinition(final PersistenceTypeDefinition<T> typeDefinition)
+		public boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
 			this.validate(typeDefinition);
 			return this.internalRegisterTypeDefinition(typeDefinition);
 		}
 		
-		private boolean internalRegisterTypeDefinition(final PersistenceTypeDefinition<T> typeDefinition)
+		private boolean internalRegisterTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
 			synchronized(this.entries)
 			{
-				if(this.entries.add(typeDefinition.typeId(), typeDefinition))
+				// the passed (and already validated) instance is always registered, ...
+				if(this.entries.put(typeDefinition.typeId(), typeDefinition))
 				{
+					// ... but the return value is only true to indicate an actual additional entry.
 					this.entries.keys().sort(Long::compare);
 					return true;
 				}
+				
+				// the definition was already there (and in order), only the instance has been replaced.
 				return false;
 			}
 		}
 				
 		@Override
-		public final boolean initializeRuntimeTypeDefinition(final PersistenceTypeDefinition<T> runtimeDefinition)
+		public final boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
 		{
 			synchronized(this.entries)
 			{
-				// true indicates no-op, actual non-viability causes exceptions
+				// false indicates no-op, actual non-viability causes exceptions
 				if(!this.checkViability(runtimeDefinition))
 				{
 					return false;
@@ -166,7 +178,7 @@ public interface PersistenceTypeLineage<T>
 			}
 		}
 		
-		private boolean checkViability(final PersistenceTypeDefinition<T> runtimeDefinition)
+		private boolean checkViability(final PersistenceTypeDefinition runtimeDefinition)
 		{
 			if(this.runtimeDefinition != null)
 			{
@@ -176,21 +188,19 @@ public interface PersistenceTypeLineage<T>
 					return false;
 				}
 				
-				// conflicting call/usage
+				// conflicting call/usage (runtime types and thus definitions are assumed to be immutable for now)
 				// (26.09.2017 TM)EXCP: proper exception
 				throw new RuntimeException("Runtime definition already initialized");
 			}
 			
-			final Long                         typeId     = runtimeDefinition.typeId();
-			final PersistenceTypeDefinition<T> latest     = this.latest();
-			final PersistenceTypeDefinition<T> equivalent = this.entries.get(typeId);
-			if(equivalent != null && equivalent != latest)
+			if(this.isValid(runtimeDefinition))
 			{
-				// (28.09.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Invalid runtime definition for type id: " + typeId);
+				return true;
 			}
-						
-			return true;
+			
+			throw new RuntimeException(
+				"Invalid runtime definition for " + this.typeName() + " with type id: " + runtimeDefinition.typeId()
+			);
 		}
 		
 	}

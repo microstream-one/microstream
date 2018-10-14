@@ -34,8 +34,8 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void write(final Binary[] data) throws PersistenceExceptionTransfer

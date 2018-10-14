@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.util.VMUtils;
-import net.jadoth.util.chars.JadothChars;
+import net.jadoth.chars.XChars;
+import net.jadoth.low.XVM;
 import sun.misc.Unsafe;
 
 public class MainReadObjectHeader
@@ -10,7 +10,7 @@ public class MainReadObjectHeader
 	static final long OFFSET_CLASS  = 8L;
 
 	static final Object o = new Object();
-	static final Unsafe vm = (Unsafe)VMUtils.getSystemInstance();
+	static final Unsafe vm = (Unsafe)XVM.getSystemInstance();
 
 	public static void main(final String[] args) throws Throwable
 	{
@@ -58,6 +58,6 @@ public class MainReadObjectHeader
 	}
 	static void printPadded(final String bits, final String label)
 	{
-		System.out.println(JadothChars.padLeft0(bits, 64)+" "+label);
+		System.out.println(XChars.padLeft0(bits, 64)+" "+label);
 	}
 }

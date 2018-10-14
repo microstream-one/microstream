@@ -3,12 +3,12 @@ package net.jadoth.csv.internal;
 import java.io.File;
 import java.io.IOException;
 
-import net.jadoth.csv.CsvContent;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.CsvContentBuilderCharArray;
-import net.jadoth.util.chars.StringTable;
-import net.jadoth.util.chars._charArrayRange;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.StringTable;
+import net.jadoth.chars._charArrayRange;
+import net.jadoth.files.XFiles;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.util.csv.CsvContent;
+import net.jadoth.util.csv.CsvContentBuilderCharArray;
 
 public class MainTestCsvFunctionality
 {
@@ -55,7 +55,7 @@ public class MainTestCsvFunctionality
 		System.out.println("||||||||||||||||||||");
 		System.out.println(xcsv);
 		System.out.println("||||||||||||||||||||");
-		final char[] input = JadothFiles.readCharsFromFile(xcsv);
+		final char[] input = XFiles.readCharsFromFile(xcsv);
 
 		for(int i = 1; i --> 0;)
 		{

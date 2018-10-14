@@ -1,24 +1,22 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.memory.Chunks;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
 public interface StorageRequestTaskCreator
 {
 	public StorageChannelTaskInitialize createInitializationTask(
-		int                         channelCount                    ,
-		StorageChannelController    channelController               ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+		int                      channelCount     ,
+		StorageChannelController channelController
 	);
 
-	public StorageRequestTaskSaveEntities createSaveTask(Chunks[] medium);
+	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
 
 	public StorageRequestTaskLoadByOids createLoadTaskByOids(SwizzleIdSet[] loadOids);
 
@@ -35,9 +33,9 @@ public interface StorageRequestTaskCreator
 	}
 	
 	public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-		int                                            channelCount      ,
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		int                                         channelCount      ,
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 	);
 
 	public StorageRequestTaskExportChannels createTaskExportChannels(
@@ -101,23 +99,19 @@ public interface StorageRequestTaskCreator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageChannelTaskInitialize createInitializationTask(
-			final int                         channelCount                    ,
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final int                      channelCount     ,
+			final StorageChannelController channelController
 		)
 		{
 			return new StorageChannelTaskInitialize.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
-				channelController                            ,
-				entityInitializingCacheEvaluator             ,
-				oldTypes
+				channelController
 			);
 		}
 
@@ -148,9 +142,9 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskSaveEntities createSaveTask(final Chunks[] medium)
+		public StorageRequestTaskStoreEntities createSaveTask(final Chunks[] medium)
 		{
-			return new StorageRequestTaskSaveEntities.Implementation(
+			return new StorageRequestTaskStoreEntities.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				medium
 			);
@@ -186,9 +180,9 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-			final int                                            channelCount      ,
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final int                                         channelCount      ,
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
 			return new StorageRequestTaskExportEntitiesByType.Implementation(

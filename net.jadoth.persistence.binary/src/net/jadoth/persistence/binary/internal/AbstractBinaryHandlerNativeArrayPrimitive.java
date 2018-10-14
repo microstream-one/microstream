@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
 public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
@@ -11,10 +11,10 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-	
+
 	public AbstractBinaryHandlerNativeArrayPrimitive(
-		final Class<A>                                                                  arrayType   ,
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMemberPseudoField> pseudoFields
+		final Class<A>                                                                 arrayType   ,
+		final XImmutableSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
 	)
 	{
 		super(arrayType, pseudoFields);

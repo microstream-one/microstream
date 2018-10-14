@@ -1,8 +1,8 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.Jadoth;
-import net.jadoth.concurrent.JadothThreads;
-import net.jadoth.math.JadothMath;
+import net.jadoth.chars.XChars;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.math.XMath;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;
@@ -45,7 +45,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 		final int size = ref.get().length;
 
 		final StorageConnection connection = STORAGE.createConnection();
-		connection.storeRequired(ROOT);
+		connection.store(ROOT);
 
 //		storageCleanup(connection);
 
@@ -57,15 +57,17 @@ public class MainTestStorageGCStresstest extends TestStorage
 //				storageCleanup(connection);
 //			}
 
-			connection.storeFull(ref.get()[JadothMath.random(size)]);
+			// (25.04.2018 TM)FIXME: actually requires a FullStorer#store call now
+			connection.store(ref.get()[XMath.random(size)]);
+//			connection.storeFull(ref.get()[XMath.random(size)]);
 			DEBUGStorage.println("stored #"+i);
 
 			ref.clear();
-			JadothThreads.sleep(WAIT_TIME);
+			XThreads.sleep(WAIT_TIME);
 //			connection.issueFullCacheCheck((a, b, c) -> true);
 //			connection.issueFullFileCheck(fileEvaluatorHard);
 			final Object o = ref.get();
-			DEBUGStorage.println("loaded: "+Jadoth.systemString(o));
+			DEBUGStorage.println("loaded: "+XChars.systemString(o));
 		}
 		exit();
 	}

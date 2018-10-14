@@ -1,52 +1,65 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.persistence.binary.internal.BinaryHandlerEnum;
+import net.jadoth.persistence.binary.internal.BinaryHandlerGenericType;
 import net.jadoth.persistence.binary.internal.BinaryHandlerNativeArrayObject;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeAnalyzer;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 
+
 public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
 {
-	public static BinaryTypeHandlerCreator.Implementation New(
-		final PersistenceTypeAnalyzer        typeAnalyzer  ,
-		final PersistenceFieldLengthResolver lengthResolver
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+
+
+	
+	public static BinaryTypeHandlerCreator New(
+		final PersistenceTypeAnalyzer               typeAnalyzer           ,
+		final PersistenceFieldLengthResolver        lengthResolver         ,
+		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 	)
 	{
 		return new BinaryTypeHandlerCreator.Implementation(
-			notNull(typeAnalyzer)  ,
-			notNull(lengthResolver)
+			notNull(typeAnalyzer)           ,
+			notNull(lengthResolver)         ,
+			notNull(mandatoryFieldEvaluator)
 		);
 	}
-	
-	public final class Implementation
+
+	public class Implementation
 	extends PersistenceTypeHandlerCreator.AbstractImplementation<Binary>
 	implements BinaryTypeHandlerCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
+		// constructors     //
+		/////////////////////
+
 		Implementation(
-			final PersistenceTypeAnalyzer        typeAnalyzer  ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final PersistenceTypeAnalyzer               typeAnalyzer           ,
+			final PersistenceFieldLengthResolver        lengthResolver         ,
+			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
 		)
 		{
-			super(typeAnalyzer, lengthResolver);
-			
+			super(typeAnalyzer, lengthResolver, mandatoryFieldEvaluator);
 		}
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-				
+		
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(final Class<T> type)
 		{
@@ -56,9 +69,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerReflective(
-			final Class<T>                       type             ,
-			final XGettingEnum<Field>            persistableFields,
-			final PersistenceFieldLengthResolver lengthResolver
+			final Class<T>            type             ,
+			final XGettingEnum<Field> persistableFields
 		)
 		{
 			if(type.isEnum())
@@ -66,35 +78,36 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
 				 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
 				 * makes sense in the first place. The whole enum concept (the identity of an instance depending
-				 *  on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
+				 * on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
 				 * Use enums for logic, if you must, but keep them out of proper entity graphs.
 				 */
-//				return this.createEnumHandler(type, persistableFields, this.lengthResolver);
+//				return this.createEnumHandler(type, persistableFields);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
-			return new BinaryHandlerGeneric<>(
+			return BinaryHandlerGenericType.New(
 				type                                           ,
-				BinaryPersistence.blankMemoryInstantiator(type),
 				persistableFields                              ,
-				lengthResolver
+				this.lengthResolver()                          ,
+				this.mandatoryFieldEvaluator()                 ,
+				BinaryPersistence.blankMemoryInstantiator(type)
 			);
 		}
-		
+
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
-		<T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
-			final Class<?>                       type          ,
-			final XGettingEnum<Field>            allFields     ,
-			final PersistenceFieldLengthResolver lengthResolver
+		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
+			final Class<?>            type     ,
+			final XGettingEnum<Field> allFields
 		)
 		{
-			return (PersistenceTypeHandler<Binary, T>)new BinaryHandlerEnum<>(
-				(Class<E>)type     ,
-				allFields          ,
-				lengthResolver
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEnum.New(
+				(Class<E>)type                ,
+				allFields                     ,
+				this.lengthResolver()         ,
+				this.mandatoryFieldEvaluator()
 			);
 		}
-		
+
 	}
-	
+
 }
