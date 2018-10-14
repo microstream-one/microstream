@@ -21,7 +21,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	
 	
 	
-	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
@@ -87,5 +86,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	{
 		throw new UnsupportedOperationException();
 	}
-	
+
+
 }

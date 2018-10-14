@@ -12,7 +12,7 @@ public class MainTestSwizzleRegistry
 
 	public static void main(final String[] args)
 	{
-		final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(COUNT);
+		final SwizzleRegistryGrowingRange reg = new SwizzleRegistryGrowingRange(COUNT);
 
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
