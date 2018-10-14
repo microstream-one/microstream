@@ -31,5 +31,4 @@ public interface Reference<T> extends Referencing<T>
 		return new Singleton<>(object);
 	}
 
-
 }

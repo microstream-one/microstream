@@ -1,6 +1,6 @@
 package net.jadoth.persistence.exceptions;
 
-import net.jadoth.Jadoth;
+import net.jadoth.chars.XChars;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
 
@@ -104,8 +104,8 @@ extends PersistenceExceptionTypeHandlerConsistency
 	public String getMessage()
 	{
 		return "Type id \"" + this.typeId + "\" is already associated to type handler "
-			+ Jadoth.systemString(this.actualTypeHandler)
-			+ ", cannot be associated to type handler \"" + Jadoth.systemString(this.passedTypeHandler) + "\" as well."
+			+ XChars.systemString(this.actualTypeHandler)
+			+ ", cannot be associated to type handler \"" + XChars.systemString(this.passedTypeHandler) + "\" as well."
 			+ (super.getMessage() != null ? " Details: " + super.getMessage() : "")
 		;
 	}

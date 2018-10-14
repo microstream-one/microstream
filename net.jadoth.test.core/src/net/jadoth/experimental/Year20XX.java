@@ -2,8 +2,8 @@ package net.jadoth.experimental;
 
 import java.util.Comparator;
 
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.util.ValueType;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.typing.ValueType;
 
 /**
  * Sample / template value type of questionable practical use on its own.

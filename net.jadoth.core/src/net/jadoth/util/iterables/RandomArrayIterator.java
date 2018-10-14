@@ -2,7 +2,7 @@ package net.jadoth.util.iterables;
 
 import java.util.Iterator;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 /**
  * {@link Iterator} implementation of a random array element retrieval generator.
@@ -171,7 +171,7 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	@Override
 	public E next()
 	{
-		final E e = this.array[JadothMath.random(this.length)];
+		final E e = this.array[XMath.random(this.length)];
 		this.c++;
 		return e;
 	}
@@ -271,8 +271,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		/**
 		 * @return

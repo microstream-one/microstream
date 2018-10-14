@@ -2,30 +2,30 @@ package net.jadoth.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.VarString;
+import net.jadoth.collections.XArrays;
+import net.jadoth.files.XFiles;
+import net.jadoth.low.XVM;
 
 public class MainSearchBinaryStringInFiles
 {
-	static final BiProcedure<File, Consumer<? super File>> LOGGING = (f, p) ->
+	static final BiConsumer<File, Consumer<? super File>> LOGGING = (f, p) ->
 	{
 		System.out.println("Processing "+f);
 		p.accept(f);
 		System.out.println(" * done processing "+f);
 	};
 
-	static final BiProcedure<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
+	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
 
 	public static void main(final String[] args)
 	{
 //		searchStringsInFiles(
 //			DIRECT,
-//			Jadoth.array(new File("D:/Bonus25/storage/graveyard3/channel_3_663.dat")),
+//			X.array(new File("D:/Bonus25/storage/graveyard3/channel_3_663.dat")),
 //			Memory.toByteArray(1000000000039080311L)
 //		);
 
@@ -44,7 +44,7 @@ public class MainSearchBinaryStringInFiles
 		searchStringsInFiles(
 			DIRECT,
 			new File("C:/Bonus25/storage/channel_1").listFiles(),
-			Memory.toByteArray(1000000000034381713L)
+			XVM.toByteArray(1000000000034381713L)
 		);
 	}
 
@@ -55,7 +55,7 @@ public class MainSearchBinaryStringInFiles
 	}
 
 	static void searchStringsInFiles(
-		final BiProcedure<File, Consumer<? super File>> logic  ,
+		final BiConsumer<File, Consumer<? super File>> logic  ,
 		final File[]                                    files  ,
 		final byte[]...                                 strings
 	)
@@ -68,7 +68,7 @@ public class MainSearchBinaryStringInFiles
 	}
 
 	static void innerSearchStringsInFiles(
-		final BiProcedure<File, Consumer<? super File>> logic  ,
+		final BiConsumer<File, Consumer<? super File>> logic  ,
 		final File[]                                     files  ,
 		final byte[]...                                  strings
 	)
@@ -93,11 +93,11 @@ public class MainSearchBinaryStringInFiles
 	{
 		try
 		{
-			final byte[] fileContent = JadothFiles.readBytesFromFile(f);
+			final byte[] fileContent = XFiles.readBytesFromFile(f);
 			for(final byte[] s : strings)
 			{
 				int index = 0;
-				while((index = JadothArrays.indexOf(fileContent, s, index)) >= 0)
+				while((index = XArrays.indexOf(fileContent, s, index)) >= 0)
 				{
 					System.out.println(index+"@"+f+" is "+VarString.New().addHexDec(s));
 					index += s.length;

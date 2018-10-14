@@ -5,13 +5,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XDecreasingList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XSortableSequence;
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -84,7 +84,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -108,29 +108,29 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
 	public final E retrieve(final E element)
 	{
-		final int oldListSize = Jadoth.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		final E e = XUtilsCollection.rngRetrieve((XProcessingList<E>)this.list, this.startIndex, this.length, element);
-		this.decrement(oldListSize - Jadoth.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return e;
 	}
 
 	@Override
 	public final E retrieveBy(final Predicate<? super E> predicate)
 	{
-		final int oldListSize = Jadoth.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		final E e = XUtilsCollection.rngRetrieve(
 			(XProcessingList<E>)this.list,
 			this.startIndex,
 			this.length,
 			predicate
 		);
-		this.decrement(oldListSize - Jadoth.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return e;
 	}
 
@@ -150,7 +150,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -158,7 +158,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -246,9 +246,9 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final SubListProcessor<E> removeRange(final long startIndex, final long length)
 	{
 		this.checkVector(startIndex, length);
-		final int oldListSize = Jadoth.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XProcessingList<E>)this.list).removeRange(this.startIndex + startIndex * this.d, length * this.d);
-		this.decrement(oldListSize - Jadoth.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return this;
 	}
 
@@ -256,19 +256,19 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final SubListProcessor<E> retainRange(final long startIndex, final long length)
 	{
 		this.checkVector(startIndex, length);
-		final int oldListSize = Jadoth.to_int(this.list.size());
+		final int oldListSize = XTypes.to_int(this.list.size());
 		((XProcessingList<E>)this.list).retainRange(this.startIndex + startIndex * this.d, length * this.d);
-		this.decrement(oldListSize - Jadoth.to_int(this.list.size()));
+		this.decrement(oldListSize - XTypes.to_int(this.list.size()));
 		return this;
 	}
 
 	@Override
 	public final long removeSelection(final long[] indices)
 	{
-		final int removeCount, oldListSize = Jadoth.to_int(this.list.size());
+		final int removeCount, oldListSize = XTypes.to_int(this.list.size());
 		((XProcessingList<E>)this.list).removeSelection(this.shiftIndices(indices));
-		this.decrement(removeCount = oldListSize - Jadoth.to_int(this.list.size()));
-		return Jadoth.to_int(removeCount);
+		this.decrement(removeCount = oldListSize - XTypes.to_int(this.list.size()));
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override
@@ -290,7 +290,7 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 //		((XRemovingList<E>)this.list).rngRemoveNull(this.startIndex, this.length);
 
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
-		return Jadoth.to_int(removeCount);
+		return XTypes.to_int(removeCount);
 	}
 
 	@Override

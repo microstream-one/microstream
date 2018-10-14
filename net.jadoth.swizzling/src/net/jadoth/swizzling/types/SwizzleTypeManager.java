@@ -1,9 +1,7 @@
 package net.jadoth.swizzling.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
-import net.jadoth.collections.types.XGettingMap;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownTid;
 
@@ -12,7 +10,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 {
 	public long ensureTypeId(Class<?> type);
 
-	public <T> Class<T> ensureType(long typeId);
+	public Class<?> ensureType(long typeId);
 
 	public long currentTypeId();
 
@@ -78,8 +76,8 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)
@@ -92,7 +90,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		{
 			return this.typeRegistry.lookupType(tid);
 		}
-		
+
 		@Override
 		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
@@ -100,44 +98,20 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		}
 
 		@Override
-		public void validatePossibleTypeMapping(final long typeId, final Class<?> type)
-		{
-			this.typeRegistry.validatePossibleTypeMapping(typeId, type);
-		}
-
-		@Override
 		public boolean registerType(final long tid, final Class<?> type)
 		{
 			return this.typeRegistry.registerType(tid, type);
 		}
-		
-		@Override
-		public long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
-		{
-			return this.typeRegistry.ensureRegisteredType(type, tid);
-		}
-		
-		@Override
-		public long ensureRegisteredTypes(final XGettingMap<Class<?>, Long> typeMapping)
-		{
-			return this.typeRegistry.ensureRegisteredTypes(typeMapping);
-		}
-		
-		@Override
-		public long typeCount()
-		{
-			return this.typeRegistry.typeCount();
-		}
 
 		@Override
-		public void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeRegistry.validatePossibleTypeMappings(mappings);
@@ -151,7 +125,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 			{
 				return tid;
 			}
-//			JadothConsole.debugln("not yet contained type id for " + type);
+//			XDebug.debugln("not yet contained type id for " + type);
 			return this.internalEnsureTypeId(type);
 		}
 
@@ -182,9 +156,9 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		}
 
 		@Override
-		public <T> Class<T> ensureType(final long typeId)
+		public Class<?> ensureType(final long typeId)
 		{
-			Class<T> type;
+			Class<?> type;
 			if((type = this.typeRegistry.lookupType(typeId)) == null)
 			{
 				throw new SwizzleExceptionConsistencyUnknownTid(typeId);

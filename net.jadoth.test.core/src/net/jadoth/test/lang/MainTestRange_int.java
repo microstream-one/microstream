@@ -4,12 +4,12 @@
 package net.jadoth.test.lang;
 
 import static java.lang.System.out;
-import static net.jadoth.math.JadothMath.range;
+import static net.jadoth.math.XMath.range;
 
 import java.util.Arrays;
 
 import net.jadoth.functional._intProcedure;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.math._intRange;
 
 /**
@@ -57,7 +57,7 @@ public class MainTestRange_int
 	
 	static void testRange(final int from, final int to)
 	{
-		_intRange range = JadothMath.range(from, to);		
+		_intRange range = XMath.range(from, to);		
 		System.out.println(range);
 		System.out.println(Arrays.toString(range.toArray()));
 		System.out.println(Arrays.toString(range.toArray(new Integer[range.size()])));

@@ -2,9 +2,9 @@ package net.jadoth.storage.types;
 
 import java.util.function.Supplier;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.util.chars.VarString;
 
 
 /**

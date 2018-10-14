@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.functional.IndexProcedure;
 
 final class Indexer<E> implements IndexProcedure<E>
@@ -55,7 +55,7 @@ final class Indexer<E> implements IndexProcedure<E>
 		{
 			System.arraycopy(this.index, 0, this.index = new int[(int)(this.index.length * 2.0f)], 0, this.size);
 		}
-		this.index[this.size++] = Jadoth.checkArrayRange(index);
+		this.index[this.size++] = X.checkArrayRange(index);
 	}
 
 	public final int[] yield()
@@ -72,7 +72,7 @@ final class Indexer<E> implements IndexProcedure<E>
 
 	public final int[] sortAndYield()
 	{
-		JadothSort.sort(this.index, 0, this.size);
+		XSort.sort(this.index, 0, this.size);
 		return this.yield();
 	}
 

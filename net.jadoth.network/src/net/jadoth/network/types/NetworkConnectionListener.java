@@ -1,7 +1,7 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.coalesce;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.coalesce;
+import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
 
@@ -42,7 +42,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 			public Implementation(final NetworkConnectionProblemHandler.Provider problemHandlerProvider)
 			{
 				super();
-				this.problemHandlerProvider = problemHandlerProvider; // may explicitely be null
+				this.problemHandlerProvider = problemHandlerProvider; // may explicitly be null
 			}
 
 
@@ -159,8 +159,8 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void run() throws NetworkExceptionConnectionAcception

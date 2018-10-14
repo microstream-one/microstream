@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.keyValue;
-import net.jadoth.util.KeyValue;
+import net.jadoth.X;
+import net.jadoth.typing.KeyValue;
 
 final class ChainMapEntryLinkedStrongStrong<K, V>
 extends AbstractChainEntryLinkedKV<K, V, ChainMapEntryLinkedStrongStrong<K, V>>
@@ -149,7 +149,7 @@ extends AbstractChainEntryLinkedKV<K, V, ChainMapEntryLinkedStrongStrong<K, V>>
 	@Override
 	protected final KeyValue<K, V> setElement(final KeyValue<K, V> element)
 	{
-		final KeyValue<K, V> old = keyValue(this.key, this.value);
+		final KeyValue<K, V> old = X.KeyValue(this.key, this.value);
 		this.key   = element.key()  ;
 		this.value = element.value();
 		return old;

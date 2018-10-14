@@ -3,7 +3,7 @@
  */
 package net.jadoth.experimental;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 
 
@@ -21,7 +21,7 @@ public class Candy
 		for(double price = 0.10; funds >= price; price += 0.10)
 		{
 			funds -= price;
-			funds = JadothMath.round(funds, 2); //patch :-D
+			funds = XMath.round(funds, 2); //patch :-D
 			itemsBought++;
 		}		
 		System.out.println(itemsBought + " items bought.");

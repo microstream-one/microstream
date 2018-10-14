@@ -2,14 +2,14 @@ package net.jadoth.collections;
 
 import java.util.function.Consumer;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 /**
  * Primitive (read: fast) synchronized pseudo map implementation that maps long id values to weakly referenced objects.
@@ -36,7 +36,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 
 	public static final <T> HashMapIdObject<T> New(final int initialSlotLength)
 	{
-		return new HashMapIdObject<>(JadothMath.pow2BoundCapped(initialSlotLength));
+		return new HashMapIdObject<>(XMath.pow2BoundCapped(initialSlotLength));
 	}
 
 
@@ -307,7 +307,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 	@Override
 	public final long optimize()
 	{
-		this.rebuild(JadothMath.pow2BoundCapped(this.size));
+		this.rebuild(XMath.pow2BoundCapped(this.size));
 		return this.size;
 	}
 

@@ -3,9 +3,9 @@ package net.jadoth.collections.old;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingSet;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.functional.XFunc;
+import net.jadoth.typing.XTypes;
 
 public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 {
@@ -61,7 +61,7 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	@Override
 	public boolean contains(final Object o)
 	{
-		return this.subject.containsSearched(JadothPredicates.isEqualTo((E)o));
+		return this.subject.containsSearched(XFunc.isEqualTo((E)o));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -70,7 +70,7 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	{
 		for(final Object o : c)
 		{
-			if(!this.subject.containsSearched(JadothPredicates.isEqualTo((E)o)))
+			if(!this.subject.containsSearched(XFunc.isEqualTo((E)o)))
 			{
 				return false;
 			}
@@ -111,7 +111,7 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	@Override
 	public int size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

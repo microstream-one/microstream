@@ -3,7 +3,7 @@
  */
 package net.jadoth.entitydatamapping.test;
 
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.entitydatamapping.EntityDataMapper;
 
 /**
  * @author Thomas Muenz
@@ -19,18 +19,18 @@ public class MainTestEntityDataMapping
 		final TestForm<TestEntity, TestComponent<TestEntity, ?>> form = new TestForm<>(c);
 		
 		final TestComponent<TestEntity, Integer> compInt = new TestComponent<>("compInt", int.class, c);
-		compInt.assignDataGetter(JadothReflect.getAnyMethod(TestEntity.class, "getIntValue"));
-		compInt.assignDataSetter(JadothReflect.getAnyMethod(TestEntity.class, "setIntValue"));
+		compInt.assignDataGetter(EntityDataMapper.getAnyMethod(TestEntity.class, "getIntValue"));
+		compInt.assignDataSetter(EntityDataMapper.getAnyMethod(TestEntity.class, "setIntValue"));
 		form.addMapper(compInt);
 		
 		final TestComponent<TestEntity, Integer> compInteger = new TestComponent<>("compInteger", Integer.class, c);
-		compInteger.assignDataGetter(JadothReflect.getAnyMethod(TestEntity.class, "getIntegerValue"));
-		compInteger.assignDataSetter(JadothReflect.getAnyMethod(TestEntity.class, "setIntegerValue"));
+		compInteger.assignDataGetter(EntityDataMapper.getAnyMethod(TestEntity.class, "getIntegerValue"));
+		compInteger.assignDataSetter(EntityDataMapper.getAnyMethod(TestEntity.class, "setIntegerValue"));
 		form.addMapper(compInteger);
 		
 		final TestComponent<TestEntity, String> compString = new TestComponent<>("compString", String.class, c);
-		compString.assignDataGetter(JadothReflect.getAnyMethod(TestEntity.class, "getStringValue"));
-		compString.assignDataSetter(JadothReflect.getAnyMethod(TestEntity.class, "setStringValue"));
+		compString.assignDataGetter(EntityDataMapper.getAnyMethod(TestEntity.class, "getStringValue"));
+		compString.assignDataSetter(EntityDataMapper.getAnyMethod(TestEntity.class, "setStringValue"));
 		form.addMapper(compString);
 		
 		final TestEntity entity = new TestEntity();

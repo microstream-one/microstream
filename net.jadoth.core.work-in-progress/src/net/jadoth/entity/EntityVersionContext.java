@@ -1,7 +1,7 @@
 package net.jadoth.entity;
 
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.hash.JadothHash;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.hashing.Hashing;
 
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
@@ -11,7 +11,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	
 	public default HashEqualator<? super K> equality()
 	{
-		return JadothHash.hashEqualityValue();
+		return Hashing.hashEqualityValue();
 	}
 	
 	@Override

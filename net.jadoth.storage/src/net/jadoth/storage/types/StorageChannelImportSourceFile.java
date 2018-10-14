@@ -1,17 +1,12 @@
 package net.jadoth.storage.types;
 
-import java.io.File;
 import java.nio.channels.FileChannel;
-
 import java.util.function.Consumer;
 
-public interface StorageChannelImportSourceFile extends StorageFile
+public interface StorageChannelImportSourceFile extends StorageLockedChannelFile
 {
 	@Override
-	public File file();
-
-	@Override
-	public FileChannel fileChannel();
+	public FileChannel channel();
 
 	public void iterateBatches(Consumer<? super StorageChannelImportBatch> iterator);
 

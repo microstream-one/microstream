@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
 
@@ -79,8 +79,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public SocketChannel setNewConnection(final SocketChannel connection)

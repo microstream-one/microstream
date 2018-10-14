@@ -3,12 +3,12 @@ package net.jadoth.experimental;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.ConstList;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.SubListView;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
@@ -17,9 +17,9 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XPuttingList;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -252,7 +252,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -392,7 +392,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	@Override
 	public SortedList<E> toReversed()
 	{
-		return new SortedList<>(this.subject.toReversed(), JadothSort.reverse(this.comparator));
+		return new SortedList<>(this.subject.toReversed(), XSort.reverse(this.comparator));
 	}
 
 	@Override
@@ -692,7 +692,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

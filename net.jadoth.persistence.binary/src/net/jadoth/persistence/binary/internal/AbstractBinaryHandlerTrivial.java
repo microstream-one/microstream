@@ -1,15 +1,13 @@
 package net.jadoth.persistence.binary.internal;
 
-import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 
@@ -19,7 +17,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	// constructors     //
 	/////////////////////
 
-	protected AbstractBinaryHandlerTrivial(final Class<T> type)
+	public AbstractBinaryHandlerTrivial(final Class<T> type)
 	{
 		super(type);
 	}
@@ -27,27 +25,8 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-	@Override
-	public AbstractBinaryHandlerTrivial<T> getStateDescriptor()
-	{
-		return this;
-	}
-
-	@Override
-	public final void validateFields(final XGettingSequence<Field> fieldDescriptions)
-		throws SwizzleExceptionConsistency
-	{
-		if(fieldDescriptions.isEmpty())
-		{
-			return;
-		}
-		throw new SwizzleExceptionConsistency();
-	}
-	
-
+	// methods //
+	////////////
 
 	@Override
 	public void update(final Binary medium, final T instance, final SwizzleBuildLinker builder)
@@ -74,29 +53,23 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	{
 		// no-op, no references
 	}
-
+	
 	@Override
-	public final XGettingEnum<Field> getInstanceFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstancePrimitiveFields()
-	{
-		return X.empty();
-	}
-
-	@Override
-	public final XGettingEnum<Field> getInstanceReferenceFields()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
 	{
 		return X.empty();
 	}
 	
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+	public long membersPersistedLengthMinimum()
 	{
-		return X.empty();
+		return 0;
+	}
+	
+	@Override
+	public long membersPersistedLengthMaximum()
+	{
+		return 0;
 	}
 	
 	@Override
@@ -118,15 +91,16 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public final boolean hasPersistedVariableLength()
-	{
-		return false;
-	}
-
-	@Override
 	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;
 	}
-
+	
+	@Override
+	public final <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		// no member types to iterate in a trivial handler implementation
+		return logic;
+	}
+	
 }

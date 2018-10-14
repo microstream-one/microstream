@@ -2,17 +2,17 @@ package net.jadoth.collections.interfaces;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.Composition;
 
 
 
@@ -282,7 +282,7 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public void iterate(Consumer<? super E> procedure);
 
-	public <A> void join(BiProcedure<? super E, A> joiner, A aggregate);
+	public <A> void join(BiConsumer<? super E, A> joiner, A aggregate);
 
 	public void rngIterate(long offset, long length, Consumer<? super E> procedure);
 
@@ -378,11 +378,11 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public VarString appendTo(VarString vc, String separator);
 
-	public VarString appendTo(VarString vc, BiProcedure<VarString, ? super E> appender);
+	public VarString appendTo(VarString vc, BiConsumer<VarString, ? super E> appender);
 
-	public VarString appendTo(VarString vc, BiProcedure<VarString, ? super E> appender, char separator);
+	public VarString appendTo(VarString vc, BiConsumer<VarString, ? super E> appender, char separator);
 
-	public VarString appendTo(VarString vc, BiProcedure<VarString, ? super E> appender, String separator);
+	public VarString appendTo(VarString vc, BiConsumer<VarString, ? super E> appender, String separator);
 
 	public VarString rngAppendTo(long offset, long length, VarString vc);
 
@@ -390,11 +390,11 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public VarString rngAppendTo(long offset, long length, VarString vc, String separator);
 
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiProcedure<VarString, ? super E> appender);
+	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender);
 
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiProcedure<VarString, ? super E> appender, char separator);
+	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender, char separator);
 
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiProcedure<VarString, ? super E> appender, String separator);
+	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender, String separator);
 
 	@Override
 	public String toString();

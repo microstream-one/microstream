@@ -5,6 +5,9 @@ package net.jadoth.exceptions;
 
 
 /**
+ * Checked exceptions are a moronic concept that ruin functional programming and seduce to swallow exceptions
+ * with a foolish print instead of handling them properly and ignore unchecked exceptions altogether.
+ * 
  * @author Thomas Muenz
  *
  */
@@ -70,7 +73,5 @@ public class WrapperRuntimeException extends RuntimeException
 	{
 		return this;
 	}
-
-
 
 }

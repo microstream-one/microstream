@@ -3,19 +3,21 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 // (17.09.2013)FIXME: EmptyTable: implement all FIX-ME
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>
@@ -35,6 +37,12 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 
 	@Override
 	public final V get(final K key)
+	{
+		return null;
+	}
+	
+	@Override
+	public final KeyValue<K, V> lookup(final K key)
 	{
 		return null;
 	}
@@ -342,7 +350,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	}
 
 	@Override
-	public <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		return aggregate;
 	}
@@ -476,7 +484,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super V, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super V, ? super A> joiner, final A aggregate)
 		{
 			return aggregate;
 		}
@@ -863,7 +871,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <A> A join(final BiProcedure<? super K, ? super A> joiner, final A aggregate)
+		public final <A> A join(final BiConsumer<? super K, ? super A> joiner, final A aggregate)
 		{
 			return aggregate;
 		}

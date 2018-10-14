@@ -1,0 +1,43 @@
+Beschränkungen / TODOs / bekannte Probleme
+2018-08-13
+
+Vieles ist reine Networking Programmierung. Mit Persistence Code hat das nichts zu tun.
+
+1.)
+Netzwerkthema: Blocking/Non-Blocking und/oder Threading
+
+2.)
+Netzwerkthema:
+Timeout Handling müsste für einen Produktivbetrieb komplexer werden.
+Z.B. Zeit seit letztem empfangen Byte, Zeit seit Beginn der Kommunikation, aktuelle Geschwindigkeit, usw.
+
+3.)
+Netzwerkthema:
+Endianess wird ignoriert. D.h. aktuell können nur Little-Endian mit LE und BE mit BE kommunizieren.
+Sinnvoll wäre ein Abgleich beim Verbindungsaufbau: Nicht pauschal alles auf BE umschreiben (das behindert fast die komplette aktuellen Hardware und begünstigt die Nischenhardware), sondern abgleichen, ob gleich oder unterschiedlich. Nur umschreiben, wenn unterschiedlich. Je nach Strategie (Priorität) nur der Server oder nur der Client.
+
+4.)
+Netzwerkthema: 
+Momentan nur Sessionless UND nur mit 1 Nachricht pro Connection (proof-of-concept).
+
+5.)
+TypeDictionary kann eigentlich nicht dynamisch wachsen, sondern muss bei Verbindungsaufbau zwischen beiden Partnern abgeglichen werden und darf sich danach nicht mehr ändern.
+Das würde einen entsprechend anderen TypeManager erfordern: Jeder unbekannte Typ muss eine Exception werfen.
+
+6.)
+Aktuell benutzen alle Verbindungen dieselben ID-Files und schreiben unsynchronisiert hinein. D.h. Inkonsistenz bei mehr als einer gleichzeitigen Verbindung.
+
+7.)
+Jede Verbindung erzeugt den PersistenceManager komplett neu.
+Z.B. auch die SwizzleRegistry. Sollen diese Strukturen für eine Session wiederverwendet werden, müsste ein sinnvoller Reset für die SwizzleRegistry her. Ähnlich wie beim Testen.
+
+8.)
+Momentan muss manuell sichergestellt werden, dass Client und Server disjunkte OID-Bereiche haben, z.B. indem bei jedem der ObjectIdProvider mit extrem weit auseinander liegenden Offsets initialisiert wird. Z.B: Server mit 1000000000000000000, Client mit 2000000000000000000.
+Die automatische Lösung wäre, dass sich der Client vom Server immer wieder OID-Bereiche holen und reservieren muss.
+
+9.)
+Type Refactoring spielt für Netzwerk erfrischenderweise zunächst mal keine Rolle, weil Netzwerkkommunikation an sich keine persistenten Daten erzeugt, die umgeschrieben/uminterpretiert werden müssten.
+Es würde auch gar keinen Sinn machen, da etwas aktualisieren zu wollen, weil ja die Klassen passen müssen.
+D.h. der Punkt ist eher: Der Code beider Teilnehmer muss "gleich genug" (definiert durch das Dictionary) sein, damit sie miteinander reden können.
+Ich seh allerdings schon wieder die Anforderung kommen, dass zwei inkompatible Systeme trotzdem miteinander reden können müssen, indem man einen zwei-Wege-Legacy-Typemapper baut. *seufz*
+

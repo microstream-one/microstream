@@ -1,5 +1,7 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.XChars;
+
 public class MainTestParseByte
 {
 	public static void main(final String[] args)
@@ -59,7 +61,7 @@ public class MainTestParseByte
 	{
 		try
 		{
-			final byte parsedValue = JadothChars.parse_byteDecimal(s.toCharArray());
+			final byte parsedValue = XChars.parse_byteDecimal(s.toCharArray());
 			System.out.println(s+"\t"+parsedValue);
 		}
 		catch(final Exception e)

@@ -10,9 +10,14 @@ import net.jadoth.swizzling.types.Swizzle;
 
 public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 {
-	public StorageEntityTypeHandler<?> typeHandler();
+	public StorageEntityTypeHandler typeHandler();
 
 	public long entityCount();
+	
+	public default boolean isEmpty()
+	{
+		return this.entityCount() == 0;
+	}
 
 	public <T extends Throwable, P extends ThrowingProcedure<? super I, T>> P iterateEntities(P procedure) throws T;
 
@@ -22,12 +27,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 	public void iterateEntityReferenceIds(I entity, _longProcedure procedure);
 
-	public default StorageIdRangeAnalysis validateEntities()
-	{
-		return this.validateEntities(null);
-	}
-
-	public StorageIdRangeAnalysis validateEntities(StorageTypeDictionary oldTypes);
+	public StorageIdAnalysis validateEntities();
 
 
 
@@ -51,16 +51,16 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		// instance fields  //
 		/////////////////////
 
-		        final int                         channelIndex            ;
-		        final long                        typeId                  ;
-		private final StorageEntityTypeHandler<?> typeHandler             ;
-		private final boolean                     hasReferences           ;
-		private final long                        simpleReferenceDataCount;
-
-		private       long                        entityCount             ;
-		StorageEntityType.Implementation          hashNext                ;
-		StorageEntityType.Implementation          next                    ;
-		        final TypeInFile                  dummy                    = new TypeInFile(this, null, null);
+		        final int                      channelIndex            ;
+		        final long                     typeId                  ;
+		private final StorageEntityTypeHandler typeHandler             ;
+		private final boolean                  hasReferences           ;
+		private final long                     simpleReferenceDataCount;
+                                               
+		private       long                     entityCount             ;
+		StorageEntityType.Implementation       hashNext                ;
+		StorageEntityType.Implementation       next                    ;
+		        final TypeInFile               dummy                    = new TypeInFile(this, null, null);
 
 		StorageEntity.Implementation head = StorageEntity.Implementation.createDummy(this.dummy);
 		StorageEntity.Implementation tail = this.head;
@@ -84,19 +84,19 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 		Implementation(
 			final int                              channelIndex,
-			final StorageEntityTypeHandler<?>      typeHandler ,
+			final StorageEntityTypeHandler         typeHandler ,
 			final StorageEntityType.Implementation hashNext    ,
 			final StorageEntityType.Implementation next
 		)
 		{
 			super();
-			this.channelIndex             = channelIndex                      ;
-			this.hasReferences            = typeHandler.hasPersistedReferences()       ;
-			this.simpleReferenceDataCount = typeHandler.simpleReferenceCount();
-			this.typeId                   = typeHandler.typeId()              ;
-			this.typeHandler              = typeHandler                       ;
-			this.hashNext                 = hashNext                          ;
-			this.next                     = next                              ;
+			this.channelIndex             = channelIndex                        ;
+			this.hasReferences            = typeHandler.hasPersistedReferences();
+			this.simpleReferenceDataCount = typeHandler.simpleReferenceCount()  ;
+			this.typeId                   = typeHandler.typeId()                ;
+			this.typeHandler              = typeHandler                         ;
+			this.hashNext                 = hashNext                            ;
+			this.next                     = next                                ;
 		}
 
 
@@ -190,7 +190,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 //		}
 
 		@Override
-		public final StorageEntityTypeHandler<?> typeHandler()
+		public final StorageEntityTypeHandler typeHandler()
 		{
 			return this.typeHandler;
 		}
@@ -220,63 +220,34 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		}
 
 		@Override
-		public final StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
+		public StorageIdAnalysis validateEntities()
 		{
-			final StorageEntityTypeHandler<?> typeHandler = this.typeHandler;
-
-			final StorageEntityTypeHandler<?> oldTypeHandler = oldTypes == null
-				? null
-				: oldTypes.lookupTypeHandler(this.typeId)
-			;
+			final StorageEntityTypeHandler typeHandler = this.typeHandler;
 
 			long maxOid = 0, maxCid = 0, maxTid = 0;
-			final Swizzle.IdType typeCid = Swizzle.IdType.CID;
-			final Swizzle.IdType typeOid = Swizzle.IdType.OID;
-			final Swizzle.IdType typeTid = Swizzle.IdType.TID;
-
 			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
 			{
 				final long entityLength   = entity.length;
 				final long entityObjectId = entity.objectId();
 
-				if(!typeHandler.isValidEntityGuaranteedType(entityLength, entityObjectId))
-				{
-					if(oldTypeHandler != null)
-					{
-//						DEBUGStorage.println("Invalid for current type, trying old type for " + typeHandler.typeName());
-
-						// try again with old type handler
-						if(!oldTypeHandler.isValidEntityGuaranteedType(entityLength, entityObjectId))
-						{
-							// if still not valid, throw exception based on old type definition
-							oldTypeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
-						}
-						// valid by old type at this point, go on without exception
-					}
-					else
-					{
-						// if not valid and no old handler, throw exception based on new type definition
-						typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
-					}
-				}
-				// valid by one way or the other
+				typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
 
 				final long oid = entity.objectId();
-				if(typeOid.isInRange(oid))
+				if(Swizzle.IdType.OID.isInRange(oid))
 				{
 					if(oid >= maxOid)
 					{
 						maxOid = oid;
 					}
 				}
-				else if(typeCid.isInRange(oid))
+				else if(Swizzle.IdType.CID.isInRange(oid))
 				{
 					if(oid >= maxCid)
 					{
 						maxCid = oid;
 					}
 				}
-				else if(typeTid.isInRange(oid))
+				else if(Swizzle.IdType.TID.isInRange(oid))
 				{
 					/* note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
 					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
@@ -292,7 +263,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 				}
 			}
 
-			return StorageIdRangeAnalysis.New(maxTid, maxOid, maxCid);
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid);
 		}
 
 		@Override

@@ -1,8 +1,8 @@
 package net.jadoth.collections;
 
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
 
 
 /**
@@ -24,7 +24,7 @@ public final class PrototypeHashMap<E> implements Composition
 
 	public static final <T> PrototypeHashMap<T> New(final int initialStorageLength)
 	{
-		return new PrototypeHashMap<>(JadothMath.pow2BoundMaxed(initialStorageLength));
+		return new PrototypeHashMap<>(XMath.pow2BoundMaxed(initialStorageLength));
 	}
 
 	@SuppressWarnings("unchecked")

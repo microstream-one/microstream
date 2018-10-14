@@ -2,8 +2,8 @@
 
 import java.util.Comparator;
 
-import net.jadoth.collections.JadothSort;
-import net.jadoth.collections.X;
+import net.jadoth.X;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XList;
 
 public class MainTestSortMulti
@@ -37,7 +37,7 @@ public class MainTestSortMulti
 		);
 		System.out.println(
 			strings1.copy().sort(
-				JadothSort.chain(
+				XSort.chain(
 					(s1, s2) -> Integer.compare(s1.length(), s2.length()),
 					(s1, s2) -> Character.compare(s1.charAt(0), s2.charAt(0))
 				)
@@ -73,7 +73,7 @@ public class MainTestSortMulti
 	 * <p>
 	 * Example:
 	 * <pre>
-	 * return JadothSort.evaluateComparisons(
+	 * return XSort.evaluateComparisons(
 	 *     entity1.valueA().compareTo(entity2.valueA()),
 	 *     entity1.valueB().compareTo(entity2.valueB()),
 	 *     entity1.valueC().compareTo(entity2.valueC())

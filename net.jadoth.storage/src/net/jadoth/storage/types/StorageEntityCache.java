@@ -1,20 +1,23 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.math.JadothMath.log2pow2;
-import static net.jadoth.math.JadothMath.notNegative;
-import static net.jadoth.math.JadothMath.positive;
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.log2pow2;
+import static net.jadoth.math.XMath.notNegative;
+import static net.jadoth.math.XMath.positive;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.ThrowingProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
+import net.jadoth.math.XMath;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.typing.XTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -37,7 +40,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 
-	public final class Implementation implements StorageEntityCache<StorageEntity.Implementation>
+	public final class Implementation
+	implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -85,7 +89,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private       StorageEntity.Implementation        liveCursor          ;
 
 		private       long                                usedCacheSize       ;
-		private       boolean                             hasUpdatePendingSweep     ;
+		private       boolean                             hasUpdatePendingSweep;
 
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
 		private       long                                sweepGeneration     ;
@@ -134,9 +138,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
 		final long sweepGeneration()
 		{
 			return this.sweepGeneration;
@@ -242,7 +246,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			final int newModulo;
 			final StorageEntity.Implementation[] newSlots =
-				JadothMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.oidHashTable.length)
+				XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.oidHashTable.length)
 				? new StorageEntity.Implementation[newModulo = Integer.MAX_VALUE] // perfect hash range special case
 				: new StorageEntity.Implementation[(newModulo = (this.oidModulo + 1 << 1) - 1) + 1] // 1111 :D
 			;
@@ -278,7 +282,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			// if the hash table is unnecessary large, shrink it
-			final int                            newModulo = JadothMath.pow2BoundMaxed((int)this.oidSize) - 1;
+			final int                            newModulo = XMath.pow2BoundMaxed((int)this.oidSize) - 1;
 			final StorageEntity.Implementation[] newSlots  = new StorageEntity.Implementation[newModulo + 1];
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
@@ -323,7 +327,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.rebuildTidHashTable();
 			}
 			
-			final StorageEntityTypeHandler<?> typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
+			final StorageEntityTypeHandler typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
 			if(typeHandler == null)
 			{
 				// (09.06.2017 TM)EXCP: proper exception
@@ -492,32 +496,39 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				throw new RuntimeException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
 			}
 		}
-
-		final StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
+		
+		final StorageIdAnalysis validateEntities()
 		{
 			long maxTid = 0, maxOid = 0, maxCid = 0;
+			
+			final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
 
 			// validate all entities via iteration by type. Simplifies debugging and requires less type pointer chasing
 			for(StorageEntityType.Implementation type : this.tidHashTable)
 			{
 				while(type != null)
 				{
-					final StorageIdRangeAnalysis maxTypeOid = type.validateEntities(oldTypes);
+					if(!type.isEmpty())
+					{
+						occuringTypeIds.add(type.typeId);
+					}
+					
+					final StorageIdAnalysis idAnalysis = type.validateEntities();
 					type = type.hashNext;
 
-					final Long typeMaxTid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.TID);
+					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
 					if(typeMaxTid != null && typeMaxTid >= maxTid)
 					{
 						maxTid = typeMaxTid;
 					}
 
-					final Long typeMaxOid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.OID);
+					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 					if(typeMaxOid != null && typeMaxOid >= maxOid)
 					{
 						maxOid = typeMaxOid;
 					}
 
-					final Long typeMaxCid = maxTypeOid.highestIdsPerType().get(Swizzle.IdType.CID);
+					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
 					if(typeMaxCid != null && typeMaxCid >= maxCid)
 					{
 						maxCid = typeMaxCid;
@@ -525,7 +536,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 			}
 
-			return StorageIdRangeAnalysis.New(maxTid, maxOid, maxCid);
+			return StorageIdAnalysis.New(maxTid, maxOid, maxCid, occuringTypeIds);
 		}
 
 		final StorageEntityType.Implementation validateEntity(
@@ -621,6 +632,16 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				);
 			}
 
+		}
+					
+		final StorageEntity.Implementation initialCreateEntity(final long entityAddress)
+		{
+			final StorageEntity.Implementation entity = this.createEntity(
+				BinaryPersistence.getEntityObjectId(entityAddress),
+				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
+			);
+			
+			return entity;
 		}
 
 		private void resetExistingEntityForUpdate(final StorageEntity.Implementation entry)
@@ -767,7 +788,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// (17.11.2016 TM)NOTE: moved outside
 //			this.markEntityForChangedData(entity);
 
-			// must explicitely touch the entity to overwrite initial timestamp
+			// must explicitly touch the entity to overwrite initial timestamp
 			entity.touch();
 
 			return entity;
@@ -1047,7 +1068,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageDataFile.Implementation file
 		)
 		{
-			final long chunkStartAddress = Memory.directByteBufferAddress(chunk);
+			final long chunkStartAddress = XVM.getDirectByteBufferAddress(chunk);
 			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter
@@ -1060,9 +1081,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				final StorageEntity.Implementation entity = this.putEntity(adr);
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
-					Jadoth.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
+					X.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
 					file,
-					Jadoth.to_int(storageBackset + adr)
+					XTypes.to_int(storageBackset + adr)
 				);
 			}
 		}
@@ -1075,8 +1096,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public int channelIndex()
@@ -1352,7 +1373,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			DEBUGStorage.println(this.channelIndex + " issuedCacheCheck until " + nanoTimeBudget + " at " + System.nanoTime());
 			return this.internalLiveCheck(
 				nanoTimeBudget,
-				Jadoth.coalesce(entityEvaluator, this.entityCacheEvaluator)
+				X.coalesce(entityEvaluator, this.entityCacheEvaluator)
 			);
 		}
 

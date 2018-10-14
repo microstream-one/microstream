@@ -6,20 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Spliterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.OldList;
 import net.jadoth.collections.old.OldSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XReferencing;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
 
@@ -91,7 +91,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		joiner.accept(this.element, aggregate);
 		return aggregate;
@@ -374,7 +374,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -393,7 +393,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		final Equalator<? super E>            equalator
 	)
 	{
-		return Jadoth.to_int(samples.size()) == 1 && equalator.equal(this.element, samples.get());
+		return XTypes.to_int(samples.size()) == 1 && equalator.equal(this.element, samples.get());
 	}
 
 	@Override
@@ -495,7 +495,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, 1);
+		final E[] array = X.Array(type, 1);
 		array[0] = this.element;
 		return array;
 	}
@@ -604,7 +604,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int indexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override
@@ -623,7 +623,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int lastIndexOf(final Object o)
 		{
-			return Jadoth.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referencial comparison
 		}
 
 		@Override
@@ -675,7 +675,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int size()
 		{
-			return Jadoth.to_int(Constant.this.size());
+			return XTypes.to_int(Constant.this.size());
 		}
 
 		@Override

@@ -3,8 +3,9 @@ package net.jadoth.storage.types;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 
@@ -25,10 +26,10 @@ public interface StorageDataFileItemIterator
 		 * Otherwise, the processor processes the entity (e.g. only register header values) and returns {@literal true}.
 		 *
 		 * @param address the address at which the entity data is located (starting with the entity header).
-		 * @param availableItemLength the available entity data, potentially less then the actual entity length.
+		 * @param remaninigBufferedData the remaining entity data in the buffer, potentially less then the actual entity length.
 		 * @return {@literal true} if the entity has been processed, {@literal false} (impliying recall) otherwise.
 		 */
-		public boolean accept(long address, long availableItemLength);
+		public boolean accept(long address, long remaninigBufferedData);
 	}
 
 	@FunctionalInterface
@@ -37,7 +38,7 @@ public interface StorageDataFileItemIterator
 		public default ByteBuffer provideInitialBuffer()
 		{
 			// page-sized direct byte buffer as default
-			return ByteBuffer.allocateDirect(Memory.defaultBufferSize());
+			return ByteBuffer.allocateDirect(XVM.defaultBufferSize());
 		}
 
 		/**
@@ -70,7 +71,7 @@ public interface StorageDataFileItemIterator
 			/* anything below page size is unreasonable and slows down initialization significantly.
 			 * Also, this capping passively / automatically defends against nonsense values (<= header length).
 			 */
-			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, Memory.defaultBufferSize()));
+			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, XVM.defaultBufferSize()));
 		}
 
 		/**
@@ -128,11 +129,8 @@ public interface StorageDataFileItemIterator
 		final ItemProcessor  entityProcessor
 	)
 	{
-		// downward cap at page size to avoid unreasonable small buffer sizes
 		return new Implementation(bufferProvider, entityProcessor);
 	}
-
-
 
 	public final class Implementation implements StorageDataFileItemIterator
 	{
@@ -172,11 +170,11 @@ public interface StorageDataFileItemIterator
 		}
 
 		public static <P extends ItemProcessor> P processInputFile(
-			final FileChannel     fileChannel    ,
-			final BufferProvider  bufferProvider ,
-			final P               itemProcessor  ,
-			final long            startPosition  ,
-			final long            length
+			final SeekableByteChannel fileChannel    ,
+			final BufferProvider      bufferProvider ,
+			final P                   itemProcessor  ,
+			final long                startPosition  ,
+			final long                length
 		)
 			throws IOException
 		{
@@ -224,7 +222,7 @@ public interface StorageDataFileItemIterator
 
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					nextEntityLength = processBufferedEntities(
-						Memory.directByteBufferAddress(buffer),
+						XVM.getDirectByteBufferAddress(buffer),
 						buffer.limit(),
 						fileChannel,
 						itemProcessor
@@ -245,10 +243,10 @@ public interface StorageDataFileItemIterator
 		}
 
 		private static long processBufferedEntities(
-			final long          startAddress    ,
-			final long          bufferDataLength,
-			final FileChannel   fileChannel     ,
-			final ItemProcessor entityProcessor
+			final long                startAddress    ,
+			final long                bufferDataLength,
+			final SeekableByteChannel fileChannel     ,
+			final ItemProcessor       entityProcessor
 		)
 			throws IOException
 		{
@@ -256,7 +254,7 @@ public interface StorageDataFileItemIterator
 			final long bufferBound      = startAddress + bufferDataLength;
 
 			// every entity start must be at least one long size before the actual bound to safely read its length
-			final long entityStartBound = bufferBound - Memory.byteSize_long();
+			final long entityStartBound = bufferBound - XVM.byteSize_long();
 
 			// iteration variable, initialized with the data start address
 			long address = startAddress;
@@ -299,8 +297,8 @@ public interface StorageDataFileItemIterator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void iterateStoredItems(

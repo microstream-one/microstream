@@ -2,12 +2,12 @@ package net.jadoth.persistence.test;
 
 import java.io.File;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.functional.JadothPredicates;
+import net.jadoth.files.XFiles;
+import net.jadoth.functional.XFunc;
 import net.jadoth.storage.types.StorageConnection;
-import net.jadoth.util.file.JadothFiles;
 
 public class MainTestExportConvertImport extends TestStorage
 {
@@ -15,7 +15,7 @@ public class MainTestExportConvertImport extends TestStorage
 	{
 		ROOT.set(testGraphEvenMoreManyType());
 		final StorageConnection storageConnection = STORAGE.createConnection();
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 		testExport(new File("C:/Files/export"));
 		exit();
 	}
@@ -25,7 +25,7 @@ public class MainTestExportConvertImport extends TestStorage
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
 			"dat"
 		);
 		final File csvDir = convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));
@@ -34,7 +34,7 @@ public class MainTestExportConvertImport extends TestStorage
 			STORAGE.typeDictionary(),
 			X.List(csvDir.listFiles()),
 			new File(csvDir.getParent(), "bin2"),
-			JadothPredicates.all()
+			XFunc.all()
 		);
 
 		STORAGE.truncateData();

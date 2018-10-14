@@ -7,9 +7,9 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 import net.jadoth.collections.XUtilsCollection;
+import net.jadoth.files.XFiles;
 import net.jadoth.storage.exceptions.StorageExceptionExportFailed;
-import net.jadoth.util.file.JadothFiles;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.time.XTime;
 
 public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 {
@@ -43,14 +43,14 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		{
 			super(timestamp, channelCount);
 			this.channelResults = new StorageRawFileStatistics.ChannelStatistics[channelCount];
-			this.creationTime = JadothTime.now();
+			this.creationTime = XTime.now();
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final StorageRawFileStatistics.ChannelStatistics internalProcessBy(final StorageChannel channel)
@@ -107,11 +107,11 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// instance fields  //
 		/////////////////////
 
-		        final    int                         channelCount  ;
-		        final    StorageEntityTypeHandler<?> type          ;
-		        final    File                        file          ;
-		private volatile int                         currentChannel;
-		private volatile FileChannel                 channel       ;
+		        final    int                      channelCount  ;
+		        final    StorageEntityTypeHandler type          ;
+		        final    File                     file          ;
+		private volatile int                      currentChannel;
+		private volatile FileChannel              channel       ;
 
 
 
@@ -119,7 +119,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// constructors     //
 		/////////////////////
 
-		ExportItem(final int channelCount, final StorageEntityTypeHandler<?> type, final File file)
+		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final File file)
 		{
 			super();
 			this.channelCount = channelCount;
@@ -160,7 +160,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			{
 				try
 				{
-					this.channel = JadothFiles.createWritingFileChannel(this.file);
+					this.channel = XFiles.createWritingFileChannel(this.file);
 				}
 				catch(final IOException e)
 				{

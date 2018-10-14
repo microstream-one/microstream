@@ -1,13 +1,13 @@
 package net.jadoth.test.collections;
 
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class MainTestEnumPerformance
 {
 	static final int SIZE = 10;
 	static final int RUNS = 1000*10;
-	static final Integer[] ints = JadothMath.sequence((Integer)(SIZE-1));
+	static final Integer[] ints = XMath.sequence((Integer)(SIZE-1));
 
 	public static void main(final String[] args)
 	{

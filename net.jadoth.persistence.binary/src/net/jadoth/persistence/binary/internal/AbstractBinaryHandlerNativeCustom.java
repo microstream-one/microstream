@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeHandlerCustom;
 
 
@@ -13,10 +13,10 @@ implements PersistenceTypeHandlerCustom<Binary, T>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
-	
-	protected AbstractBinaryHandlerNativeCustom(
-		final Class<T>                                                     type  ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> fields
+
+	public AbstractBinaryHandlerNativeCustom(
+		final Class<T>                                                    type  ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMember> fields
 	)
 	{
 		super(type, fields);

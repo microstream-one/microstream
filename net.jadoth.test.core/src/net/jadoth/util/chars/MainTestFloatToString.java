@@ -1,6 +1,7 @@
 package net.jadoth.util.chars;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.chars.XChars;
+import net.jadoth.math.XMath;
 
 
 
@@ -27,7 +28,7 @@ public class MainTestFloatToString
 	{
 		final String s1 = Float.toString(d);
 //		System.out.println("testing "+s1);
-		final String s2 = JadothChars.toString(d);
+		final String s2 = XChars.toString(d);
 		if(s1.equals(s2))
 		{
 			System.out.println(s2);
@@ -79,10 +80,10 @@ public class MainTestFloatToString
 		{
 			test((float)(Math.random() * 1_000_000));
 			test((float)(Math.random() * 5_000));
-			test((float)JadothMath.round(Math.random(), 3));
-			test((float)JadothMath.round(Math.random(), 6));
-			test((float)JadothMath.round(Math.random(), 8));
-			test((float)JadothMath.round(Math.random(), 9));
+			test((float)XMath.round(Math.random(), 3));
+			test((float)XMath.round(Math.random(), 6));
+			test((float)XMath.round(Math.random(), 8));
+			test((float)XMath.round(Math.random(), 9));
 			test((float)(Math.random() * 5E200));
 			test((float)(Math.random() / 100));
 			test((float)(Math.random() / 1000));
@@ -115,7 +116,7 @@ public class MainTestFloatToString
 //	private static String toString(final double value)
 //	{
 //		final char[] buffer;
-//		return new String(buffer = new char[JadothChars.maxCharCount_double()], 0, JadothChars.put(value, buffer, 0));
+//		return new String(buffer = new char[XChars.maxCharCount_double()], 0, XChars.put(value, buffer, 0));
 //	}
 
 }

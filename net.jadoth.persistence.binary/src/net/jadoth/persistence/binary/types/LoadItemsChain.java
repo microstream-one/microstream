@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.collections.JadothArrays.copy;
+import static net.jadoth.collections.XArrays.copy;
+
 import net.jadoth.functional._longProcedure;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
@@ -102,7 +103,7 @@ public interface LoadItemsChain
 
 		private void internalPutNewLoadItem(final long oid)
 		{
-//			JadothConsole.debugln("load " + oid);
+//			XDebug.debugln("load " + oid);
 
 			this.hashSlots[(int)(oid & this.hashRange)] = this.enqueueEntry(oid, this.hashSlots[(int)(oid & this.hashRange)]);
 			if(++this.size >= this.hashRange)
@@ -113,8 +114,8 @@ public interface LoadItemsChain
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void addLoadItem(final long oid)
@@ -177,8 +178,8 @@ public interface LoadItemsChain
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected

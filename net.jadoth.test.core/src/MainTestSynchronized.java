@@ -3,7 +3,7 @@
  */
 
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.XThreads;
 
 /**
  * @author Thomas Muenz
@@ -18,7 +18,7 @@ public class MainTestSynchronized
 			for(int i = 0; i < 10; i++)
 			{
 				System.out.println(Thread.currentThread()+" waiting ("+i+")");
-				JadothThreads.sleep(1000);
+				XThreads.sleep(1000);
 			}
 		}
 	}
@@ -49,7 +49,7 @@ public class MainTestSynchronized
 					for(int i = 0; i < 10; i++)
 					{
 						o.doOtherStuff(); // will NOT be blocked by the 10-sec-long executing waitSynchronized()
-						JadothThreads.sleep(1000);
+						XThreads.sleep(1000);
 					}
 				}
 			}.start();

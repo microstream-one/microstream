@@ -11,8 +11,8 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.old.OldList;
+import net.jadoth.equality.Equalator;
 import net.jadoth.reference.Reference;
-import net.jadoth.util.Equalator;
 
 /**
  * @author Thomas Muenz

@@ -6,20 +6,20 @@ public class MainTestExampleGraphTraversal
 	{
 		// example graph of n entities (~ 3*n instances including value types)
 //		final ClientCorporation corp = Test.generateModelData(5_000);
-		final Object corp = null;
+//		final Object corp = null;
 
 
 
 //		// 1.) print the system string of every instance in the graph
-//		ObjectGraphTraverser.traverseGraph(corp, e -> System.out.println(Jadoth.systemString(e)));
+//		ObjectGraphTraverser.traverseGraph(corp, e -> System.out.println(XChars.systemString(e)));
 //
 //		// 2.) print all strings contained in the graph (~= graph querying)
 //		ObjectGraphTraverser.traverseGraph(corp, String.class::isInstance, System.out::println);
 //
 //		// 3.) print the system string of every instance in the graph except certain types
 //		ObjectGraphTraverser.traverseGraph(corp,
-//			JadothPredicates.notIsInstanceOf(String.class, Number.class, Iterable.class),
-//			e -> System.out.println(Jadoth.systemString(e))
+//			XFunc.notIsInstanceOf(String.class, Number.class, Iterable.class),
+//			e -> System.out.println(XChars.systemString(e))
 //		);
 //
 //		// 4.) collect all instances contained in the graph (once)
@@ -102,7 +102,7 @@ public class MainTestExampleGraphTraversal
 //		final Object root = Test.generateModelData(amount);
 //		final Object root = generateSimpleModel(amount);
 //		final Object root = generateStringArray(amount);
-		final Object root = null;
+//		final Object root = null;
 
 
 		// always at least 2 warmup runs
@@ -112,8 +112,8 @@ public class MainTestExampleGraphTraversal
 
 		System.out.println(runCount + " runs: " + warmupCount + " warm-up, " + measureCount + " measuring.");
 
-		final long lastTime   = 0;
-		final long lastCount  = 0;
+//		final long lastTime   = 0;
+//		final long lastCount  = 0;
 		final long lastXTime  = 0;
 		final long lastXCount = 0;
 		for(int i = runCount; i --> 0;)
@@ -126,7 +126,7 @@ public class MainTestExampleGraphTraversal
 //				.buildObjectGraphTraverser()
 //			;
 //			final long tStart = System.nanoTime();
-//			lastCount = traverser.traverse(root, JadothAggregates.count()).yield();
+//			lastCount = traverser.traverse(root, XFunc.count()).yield();
 //			final long tStop = System.nanoTime();
 //			lastTime = tStop - tStart;
 //			System.out.println(new java.text.DecimalFormat("00,000,000,000").format(lastTime)+" for "+lastCount+" instances. "+lastTime / lastCount + " ns per instance.");

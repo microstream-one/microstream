@@ -1,0 +1,450 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
+\b0\par
+2018-08-07\par
+\par
+Erst mal wieder in mehrere Jahre alten Network Code einlesen ...\par
+\par
+Es gibt einen NetworkConnectionServer.\par
+Dazu gibt es zwei Factory Typen: sessionful und sessionless. Beide instanzieren letztendlich dieselbe Server Klasse, nur mit anderer Konfiguration.\par
+Es gibt ein "NetworkConnectionServer.Implementation.Setup". Das sollte inzwischen wohl besser "Configuration" hei\'dfen.\par
+Und es gibt ein "NetworkSessionServer.Implementation.Setup", das ein ConnectionServer~Setup kapselt und um Sessionanteile erweitert.\par
+\par
+Erst mal nur Sessionless:\par
+\par
+NetworkFactoryServerSessionless:\par
+Braucht:\par
+- NetworkConnectionSocket\par
+- NetworkConnectionProcessor\par
+Das erste definiert und wrappt einen Java nio ServerSocketChannel, der f\'fcr die Kommunikation verwendet wird. Klar.\par
+Das zweite verarbeitet eine reinkommende Connection. Auch klar.\par
+Bei Sessionless ist das direkt die custom Serverlogik, d.h. jede Connection l\'f6st die Logik aus und dann ist auch schon wieder Schluss. Code im Beispiel: Nachricht an den Client zur\'fcck-Echoen.\par
+Bei Sessionful ist der Processor ein Standard-Bestandteil der API und validiert und erzeugt bei Erfolg eine Session.\par
+\par
+Der Rest der Factory sind optionale Werte:\par
+- connectionListenerMaxThreadCount\par
+- connectionListenerCheckInterval\par
+- connectionProcessorMaxThreadCount\par
+- connectionProcessorThreadTimeout\par
+Standardm\'e4\'dfig 1, 1000, 1, 1000.\par
+\par
+Also es gibt 4 Dinger:\par
+- NetworkConnectionSocket    \par
+- NetworkConnectionListener\par
+- NetworkConnectionHandler\par
+- NetworkConnectionProcessor\par
+\par
+Socket ist klar, low-level Verbindung.\par
+ConnectionListener lauscht in eigenen Threads nach neuen Connection\par
+Processor ist auch klar, das ist die Logik, bzw. das Sessionregistrieren.\par
+Was macht der ConnectionHandler?\par
+\par
+ConnectionHandler (defaultimplementierung) erzeugt intern einen ThreadManager, der selbst wiederum einen connectionProcessorProvider hat und zwei "Regulator" Instanzen, um Threadcount und Timeout dynamisch abfragen zu k\'f6nnen, d.h. im simpelsten Fall sind das einfach nur gewrappte ints. Der connectionProcessorProvider ist auch klar: Der liefert bei bedarf einen connectionProcessor. Im trivialen Fall (z.B. Sessionless) gibt der einfach nur die Referenz auf eine singleton ConnectionProcessor Logik zur\'fcck. Im Sessionfall einen "NetworkUserSessionConnectionRegisterer", der die Registrierung macht.\par
+\par
+Ok. Also die Factory erzeugt mit so einem Setup eine Serverinstanz und in der Beispiel Main wird danach active() aufgerufen. Das sollte besser start() hei\'dfen.\par
+\par
+Das NetworkConnectionServer#activate() macht intern im Wesentlichen:\par
+this.connectionManager.activate()\par
+Das macht wiederum:\par
+ListenerController (extends Thread) instanzieren und starten.\par
+Der macht in seinem run() nur:\par
+Zahl der Listener via Regulator checken und entsprechend erh\'f6hen oder reduzieren, danach ein Interval lang schlafen.\par
+Listener erh\'f6hen:\par
+Neue ListenerThread (extends Thread und nested in NetworkConnectionManager) Instanz erzeugen, registrieren und starten.\par
+\par
+ListenerThread#run macht:\par
+vom \'fcbergeordneten NetworkConnectionManager provideConnectionListener() aufrufen.\par
+\par
+Das macht wiederum:\par
+NetworkConnectionListener Instanz (bisher anscheinend immer) erzeugen und dann zur\'fcckgeben.\par
+\par
+NetworkConnectionListener#run macht (mit Exceptionhandling und blabla au\'dfen rum):\par
+SocketChannel newConnection = this.connectionSocket.acceptConnection()\par
+this.connectionHandler.handleConnection(newConnection)\par
+\par
+connectionHandler#handleConnection macht eben wie schon recherchiert:\par
+connection an den threadmanager \'fcbergeben, der holt sich intern vom connectionProcessorProvider eine connectionProcessor Instanz. Im trivialen Fall ist das die Logik selbst.\par
+\par
+Also soweit fertig analysiert:\par
+- Server wird zusammengebaut mit custom Socket, custom processing Logik und defaults f\'fcr thread management.\par
+- Connection listening erfolgt gemanaget mit einer dynamischen Anzahl an dedicated Threads.\par
+- Die Threads lauschen mit acceptConnection nach neuen Verbindungen und leiten eine solche an die processor Logik weiter.\par
+- Im einfachsten Fall (Beispiel) echot die die Nachricht an den Client zur\'fcck und die Connection ist erledigt.\par
+- Au\'dfen rum viel Threadmanagement und Exception Handling Logik rum, damit man das nicht jedes mal selber bzw neu schreiben muss.\par
+\par
+\par
+Der Sessionless Client ist im Vergleich relativ krude, ohne sch\'f6ne Kapselung:\par
+\par
+Per LogicSimpleNetwork#openRemoteChannel Utilmethode wird ein SocketChannel ge\'f6ffnet.\par
+Per LogicSimpleNetwork#communicate wird ein String geschickt.\par
+Die echoRequest Logik im Server ruft LogicSimpleNetwork#readString und danach LogicSimpleNetwork#sendString auf.\par
+\par
+\par
+Jetzt auf zum dar\'fcberliegenden "network.binary.persistence" Framework:\par
+\par
+BinaryMessageProcessor kennt einen PersistenceBuilder<M>. Das ist die Verbindung zum Persistence Framework.\par
+\par
+Hm. Aber recht viel mehr ist da nicht.\par
+Ein paar Verbindungen zu sessionful network Zeug. Ansonsten nur Utilmethoden, die nie aufgerufen werden und Interfaces, die nirgends implementiert werden.\par
+Da ist auch requesthandling mit request IDs und sowas drin.\par
+\par
+Das ist alles sehr wenig und sehr anf\'e4nglich:\par
+- Es hei\'dft binary.persistence, verwendet aber nur Persistence~<M> Code mit beliebigem Medium.\par
+- Es ist an sessionful Code gebunden, obwohl die Verwendung eines Persistence Frameworks doch auch ohne Session m\'f6glich sein sollte (oder?)\par
+- Code Kommentare sind von 2012. Das ist 6 Jahre her ^^. Da war das Persistence Zeug alles noch extrem in den Kinderschuhen.\par
+\par
+Hm. Ich h\'e4tte schw\'f6ren k\'f6nnen, schon mal eine Beispiel Main auch mit der Binary Persistence gehabt zu haben, aber davon find ich nix mehr, auch kein Framework.\par
+\par
+\par
+Die Frage ist nun:\par
+Zumindest der Network Code sieht schon ganz sinnvoll aus mit dem Wrapping des ganzen Overhead Codes.\par
+Aber ist es hilfreich, den f\'fcr eine simple Demo \'fcberhaupt zu verwenden?\par
+\par
+Eigentlich reicht ja:\par
+- Client Main macht einen nio SocketChannel auf.\par
+- Client Server listened hardcoded und singlethreaded nach einer Connection.\par
+- Wenn eine Connection reinkommt, wird die (irgendwie gewrappt) als PersistenceSource verwendet und ausgelesen.\par
+- Der Client verwendet seinen SocketChannel (auch gewrappt) als PersistenceTarget und schreibt da rein.\par
+\par
+Das ganze muss nat\'fcrlich bidirektional sein: Der Server muss auch senden und der Client auch empfangen k\'f6nnen.\par
+Das hei\'dft beide m\'fcssen den SocketChannel eigentlich \'e4hnlich wie bei der Storage als "Connection" wrappen, die Source und Target zugleich ist.\par
+In StorageConnection ist das der PersistenceManager, der PersistenceRetrieving und PersistenceStoring ist und entsprechende Source und Target kennt.\par
+\par
+Das hei\'dft analog wie die StorageConnection m\'fcsste die NetworkConnection ein Wrapper f\'fcr einen PersistenceManager<Binary> sein, der intern den Socket als Source und Target wrappt und drum rum die ganze SwizzlingRegistry und TypeHandling Logik rumbaut.\par
+\par
+Anmerkung:\par
+Ber StorageRequestAcceptor in der StorageConnection ist nur eine parellele Referenz auf ein vom PersistenceManager gerwrapptes Bestandteil, damit die Connection direkt Util-Requests an die Storage schicken kann. Prinzipiell, bzw. ohne Util-Requests, braucht man sowas nicht, also kann das bei der NetworkConnection entfallen.\par
+Hm. Oder noch einfach (f\'fcr den Anfang): man braucht nur einen PersistenceManager direkt. Alles, was den von einem File PersistenceManager unterscheidet, ist, dass er statt einem FileChannel einen SocketChannel als Source und Target hat.\par
+So sollte/muss das Framework ja auch funktionieren: man schreibt nur eine Anbindung f\'fcr ein Source und Target und der Rest ist sauber wegabstrahiert.\par
+\par
+Das sollte eigentlich so trivial sein wie die existierenden BinaryFileTarget und BinaryFileSource Implementierungen sein. \par
+\par
+\par
+Ca. 1,0h f\'fcr Network und Network Binary Persistence Recherche, Recherche und Konzept f\'fcr simples Network Target und Source.\par
+\par
+\par
+\par
+2018-08-08\par
+\par
+21:30\par
+Erst mal ordentliches Projekt "Jadoth Network Persistence" anlegen.\par
+Das "Binary Persistence" kann dann gel\'f6scht bzw. gr\'f6\'dftenteils neu gebaut werden.\par
+Und schon gibts das erste Problem: Daraus ein Maven Projekt machen ist alles andere als intuitiv. Nirgends eine Option, ein Java Projekt zu einem Maven Projekt zu konvetieren. Schauen, ob man ein Maven Projekt direkt anlegen kann. Ja, geht. Also l\'f6schen und als Maven Projekt neu anlegen. "Group Id". "Artifact Id". Alles Pflichtfelder, aber keine Ahnung, was da rein muss. Keine Hilfe, Vorschlagswerte sind leer (da k\'f6nnte man ja bestehende anzeigen).\par
+=> Wieder mal Dreckskonzept, mit dem ich mich jetzt nicht ewig rumschlage.\par
+Also wieder Maven Projekt l\'f6schen und normales Java Projekt mit normalen Projektabh\'e4ngigkeiten anlegen. Soll jemand mit magischem Maven Wissen in der Arbeit dann konvertieren.\par
+\par
+NetworkPersistenceConnection anlegen.\par
+\par
+\par
+Gleich im Persistence Framework einen neuen Kombi-Typ PersistenceChannel (Target+Source) anlegen. Als Konsequenz bisherige Doppelimplementierungen konsolidieren. Interessant: In den Factories gibt es sowas eh schon, aber implizit definiert \'fcber doppel-Bound-Generics. #setPersistenceStorage. Vereinfachen zu #setPersistenceChannel.\par
+\par
+NetworkPersistenceConnection umbenennen zu NetworkPersistenceChannel. Das "Channel" hat nichts mit dem zu verwendenden SocketChannel zu tun, sondern ist allgemein gemeint. Siehe oben. Eher im Sinn "Einen Kanal \'f6ffnen", so wie bei Funkkommunikation oder allgemein einfach ein Kanel, durch den hin und zur\'fcck Daten flie\'dfen. Dass der NetworkChannel dann einen SocketChannel wrapt, passt zuf\'e4llig ganz gut.\par
+\par
+PersistenceSource#readInitial refactoren zu PersistenceSource#read und JavaDoc aktualisieren.\par
+\par
+Nachdenken \'fcber NetworkPersistenceConnection#readByObjectIds. Macht grunds\'e4tzliuch schon Sinn, aber erstmal weglassen. Entsprechenden Kommentar schreiben.\par
+\par
+NetworkPersistenceChannel muss abstract werden.\par
+Es muss dann noch einen NetworkPersistenceChannelBinary mit konkreter Implementierung geben.\par
+\par
+Hm.\par
+In PersistenceSource fehlt noch ein #prepareSource und #closeSource.\par
+Analog in PersistenceTarget.\par
+Gut, dass es default methods gibts. Damit ist es ein Klacks, das abw\'e4rtskompatibel zu machen.\par
+\par
+\par
+Jetzt NetworkPersistenceChannelBinary implementieren.\par
+Struktur fertig. Jetzt ist die Frage, wie man aus einem SocketChannel ein bis mehrere Binary rauszieht.\par
+Das m\'fcsste analog zur simplen File Implementierung gehen. Mal checken.\par
+\par
+Ca. 1,0h f\'fcr Maven \'c4rger, Projekte und Strukturen anlegen, bestehende Typen leicht refactoren und NetworkPersistenceChannelBinary implementieren. \'dcberlegungen zu Daten lesen mit unbekannter L\'e4nge.\par
+\par
+\par
+\par
+2018-08-10 20:15\par
+\par
+PersistenceSource Implementierung f\'fcr simples File anschauen und f\'fcr SocketChannel \'fcbernehmen.\par
+\par
+Hm ...\par
+Bei einer Netzwerkverbindung wei\'df man vorher nicht, wie viele Bytes der schicken wird. Also m\'fcsste ich entweder die Struktur der persistierten Daten erweitern ("Ein Haufen Bytes muss am Anfang immer eine Angabe \'fcber die L\'e4nge haben") oder eine bissl komplizierte zusammenst\'fcckel-Logik bauen. Aber f\'fcr ein simples Beispiel mach ich jetzt einfach mal einen gro\'dfz\'fcgigen Puffer, in den alle Daten auf einmal reingehen. Plus TODO daneben hin.\par
+Etwas weiter daran rum\'fcberlegt: letztendlich muss es die "Zusammenst\'fcckel-Logik" werden, weil das flexibler ist, als zus\'e4tzliche Metadaten zu verlangen, auf die man bei einer anderen Strategie verzichten k\'f6nnte.\par
+\par
+Das wird aber bissl komplizierter:\par
+- Anfangen mit nur einem ChunksBuffer, okay.\par
+- Sobald der voll ist, den n\'e4chsten anlegen und immer so weiter, bis keine Bytes mehr \'fcber den Socket reinsprudeln.\par
+- Beim durchiterieren der Bytes gibts dann verschiedene eklige Sonderf\'e4lle:\par
+1.) am Ende eines Buffers ist ein Entity unvollst\'e4ndig enthalten.\par
+2.) am Ende eines Buffers ist das length header field eines Entities unvollst\'e4ndig enthalten.\par
+Beide F\'e4lle m\'fcssen so gel\'f6st werden:\par
+Falls so ein Fall festgestellt wird, muss ein zus\'e4tzlicher ChunksBuffer erzeugt werden, der "dazwischengeschoben" wird.\par
+In den wird der Restteil aus dem aktuellen ChunksBuffer kopiert.\par
+Im Fall 1 wird dann der Rest des zerteilten Entities dazukopiert, so dass das Entity wieder komplett ist.\par
+Im Fall 2 wird der Rest des Length Headers dazukopiert. Dann kann \'fcberhaupt erst geschaut werden, wie lang das Entity ist. Falls der dazwischengeschobene ChunksBuffer zu klein sein sollte, muss nochmal ein neues angelegt werden und nochmal umkopiert werden, damit das entity letztendlich komplett enthalten sein kann.\par
+Der regul\'e4r folgende ChunksBuffer braucht einen Offset, damit die zusammenkopierten Daten an seinem Anfang nicht nochmal gelesen und f\'e4lschlicherweise als ganzes Entity interpretiert werden.\par
+\par
+Performancetechnisch ist das alles kein Problem: Es geht nur um ein einzelnes Entity und der ganz eklige Fall 2 sollte relativ selten sein. Aber das wird relativ viel Code. Bissl bl\'f6d.\par
+\par
+Aber erst mal die triviale L\'f6sung mit dem gro\'dfen Puffer und TODO daneben.\par
+\par
+\par
+Implementieren am Beispiel von Klasse BinaryFileSource.\par
+\par
+Dabei gleich mal die Methoden BinaryPersistence#fillBuffer und BinaryPersistence#readChunkLength nach BinaryFileSource verschieben, weil die von inszwischen falschen Annahmen (jeder Chunk beginnt mit einem Chunk Length Header) ausgehen.\par
+Solche Methoden d\'fcrfen nicht in einer allgemeinen, noch aktuellen Klasse sein.\par
+\par
+\par
+Hm. Das ist gar nicht so einfach: Muss bei Netzwerk-Kommunikation evtl. doch ein Chunk Length Header mitgeschickt werden, weil der Empf\'e4nger sonst nie wei\'df, wie viele Bytes noch kommen werden, ob er bei einer Pause abbrechen soll, usw.\par
+\par
+Also w\'e4re die Strategie so:\par
+Der Channel h\'e4lt sich einen Header Buffer. Ist im Moment nur 8 bytes lang, aber evtl. wird der Header mal gr\'f6\'dfer (Endiness, Version, usw.). Dann muss man nur einmal zentral den Header Buffer erweitern.\par
+Der wird immer voll gemacht. Wenn der nicht voll wird (innerhalb eines bestimmten Timeouts), dann ist die Verbindung abgebrochen und es wird resettet und eine Exception geworfen.\par
+Wenn er voll ist, wird die L\'e4nge des Chunks ausgelesen.\par
+\par
+Dann wird der aktuelle Buffer auf diese Gr\'f6\'dfe gesetzt oder, falls n\'f6tig, ein gr\'f6\'dferer allokiert. Mehrere kleine Buffers hintereinanderschalten w\'e4re hier nicht sinnvoll, weil sowieso der komplette Chunk auf einmal eingelesen werden muss und mehrere kleine machen nur mehr Overhead. Dann lieber gleich einen exakt ausreichend gro\'dfen allokieren und (mit timeout) volllaufen lassen.\par
+\par
+\par
+Implementieren am Beispiel von Klasse BinaryFileSource.\par
+\par
+Dabei gleich mal die Methoden BinaryPersistence#fillBuffer und BinaryPersistence#readChunkLength nach BinaryFileSource verschieben, weil die von inszwischen falschen Annahmen (jeder Chunk beginnt mit einem Chunk Length Header) ausgehen.\par
+Solche Methoden d\'fcrfen nicht in einer allgemeinen, noch aktuellen Klasse sein.\par
+\par
+\par
+Hm. Das ist gar nicht so einfach: Muss bei Netzwerk-Kommunikation evtl. doch ein Chunk Length Header mitgeschickt werden, weil der Empf\'e4nger sonst nie wei\'df, wie viele Bytes noch kommen werden, ob er bei einer Pause abbrechen soll, usw.\par
+\par
+Also w\'e4re die Strategie so:\par
+Der Channel h\'e4lt sich einen Header Buffer. Ist im Moment nur 8 bytes lang, aber evtl. wird der Header mal gr\'f6\'dfer (Endiness, Version, usw.). Dann muss man nur einmal zentral den Header Buffer erweitern.\par
+Der wird immer voll gemacht. Wenn der nicht voll wird (innerhalb eines bestimmten Timeouts), dann ist die Verbindung abgebrochen und es wird resettet und eine Exception geworfen.\par
+Wenn er voll ist, wird die L\'e4nge des Chunks ausgelesen.\par
+\par
+Dann wird der aktuelle Buffer auf diese Gr\'f6\'dfe gesetzt oder, falls n\'f6tig, ein gr\'f6\'dferer allokiert. Mehrere kleine Buffers hintereinanderschalten w\'e4re hier nicht sinnvoll, weil sowieso der komplette Chunk auf einmal eingelesen werden muss und mehrere kleine machen nur mehr Overhead. Dann lieber gleich einen exakt ausreichend gro\'dfen allokieren und (mit timeout) volllaufen lassen.\par
+\par
+Das analog dazu passende Schreiben ist relativ einfach:\par
+Erst alle ChunksBuffer f\'fcllen wie gehabt, dann einen zus\'e4tzlichen voranstellen, der den korrekten Header enth\'e4lt und dann alle abschicken.\par
+\par
+Das muss dann aber doch gleich jetzt so implementiert werden, weil sonst nicht festgestellt werden kann, wann ein read komplett ist.\par
+Es ist halt alles immer komplizierter als zun\'e4chst gedacht.\par
+Positiv ist immerhin: Viel Logik (bzw. Denkarbeit) von LogicSimpleNetwork kann da gleich verwendet werden. Das hilft.\par
+\par
+\par
+\par
+\'dcberlegungen und Code TODO zu komplexerem NetworkTimeoutEvaluator. Aber einstweilen lass ich den simplen int.\par
+\par
+Implementierung #readFromSocketChannel ...\par
+\par
+Chunks interface durchschauen, bissl refactoren und mit Kommentaren versehen.\par
+Das Zeug ist auch schon ganz sch\'f6n alt... ^^\par
+\par
+\par
+2,5 h f\'fcr Netzwerk\'fcbertragung Konzept\'fcberlegungen (Terminierung, Timeout). Einlesen in und geringf\'fcgiges Refactoring von bestehendem Code (LogicSimpleNetwork, Chunks), Implementierung #readFromSocketChannel.\par
+\par
+\par
+\par
+\par
+2018-08-11 22:00\par
+\par
+Jetzt write implementieren:\par
+Plan ist wie gehabt:\par
+- Gesamtl\'e4nge der Daten in allen Chunks summieren\par
+- Ermittelte Gesamtl\'e4nge in einem vorangestellten Header ByteBuffer zuerst schicken\par
+- Dann den eigentlichen ByteBuffer Inhalt hinterherschicken.\par
+\par
+Die Gesamtl\'e4nge eines Chunks kann in diesem beim Beschreiben gleich mitgef\'fchrt werden, so dass man sp\'e4ter nicht nochmal per Schleife dr\'fcber muss. Hm. Interessant ist, wie das beim Storage write ermittelt wird. Mal nachschauen ...\par
+Ah. Das wird mit "chunksTotalLength()" tats\'e4chlich manuell aufaddiert. Das ersetz ich auch dort durch die on-the-fly Strategie. Das ist besser.\par
+Hm. Da wird nur das ByteBuffer[] anstatt dem original Chunks \'fcbergeben. Warum ...?\par
+Warum gibt StorageChannel#storeEntities ein KeyValue<ByteBuffer[], long[]> zur\'fcck?\par
+Hm. Das verwendet StorageEntityCache#internalPutEntities tats\'e4chlich zum Entities updaten. Das k\'f6nnte auch ohne Arrayumweg mit einer mitsummierten ChunkPosition gel\'f6st werden, aber gut. Jetzt ist das halt so.\par
+\par
+Hm. Trotzdem mal ein TODO schreiben. Code Vereinfachung ist immer gut.\par
+\par
+Aber zur\'fcck zum Network Demo ...\par
+\par
+Hm. Es gibt von #flushBuffer (in NetworkPersistenceBinary bzw. fr\'fcher in LogicSimpleNetwork noch gar keine allgemeine Verwendung. Das String Senden z\'e4hlt nicht). Aber gibt eigentlich keinen Grund, die Methode nicht gleich direkt public zu machen. Am besten mit besserem Namen bzw. analog dazu auch gleich mit umbenanntem und public gemachtem #fillBuffer.\par
+\par
+Hm. Bl\'f6d: write() kriegt ein array, das aber eigentlich gar keins ist, weil das f\'fcr das Storage Channel Hashing ben\'f6tigt wird. \'dcberlegen. Gibt auf die Schnelle keine einfache L\'f6sung. Provisorische L\'f6sung: in Network Kommunikation auf chunks.length == 1 pr\'fcfen und ansonsten exception werfen.\par
+\par
+\par
+Chunks#totalLength implementieren.\par
+Dabei recherchieren, ob ChunksWrapper \'fcberhaupt nocht gebraucht wird.\par
+Hm. Irgendwie nur in den veralteten BinaryFile- und Network-Klassen. Aber ich verwend den mal in dem neuen Network Zeug auch. Kann man sp\'e4ter ja mal rausrefactoren.\par
+Dabei gleich mal aufgefallen: der ByteBuffer.flip() Aufruf im Network read ist falsch, weil position erhalten bleiben muss. Gleich mal einen Bug weniger beim Testen. Fein.\par
+\par
+Mit dieser Methode ist das eigentliche ChunkHeader schreiben trivial:\par
+NetworkPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());\par
+Okay, nicht ganz trivial: defaultBuffer.limit(NetworkPersistenceBinary.networkChunkHeaderLength()) fehlte noch.\par
+Note hinschreiben, dass das alles besser gekapselt werden m\'fcsste.\par
+\par
+Und damit w\'e4r die write Methode fertig.\par
+\par
+2,0 h f\'fcr Recherchen zu bisheriger Verwendung von Chunks Typ und dessen Metadaten, Kommentare f\'fcr empfehlenswerte Codeverbesserungen, Chunks Metadaten Erweiterung, write Logik implementiert, kleiner Bugfix in read Logik.\par
+\par
+\par
+\par
+2018-08-12 21:30\par
+\par
+Main-Klassen f\'fcr Server und Client bauen.\par
+Ich schau einfach mal in das MainTestSessionlessServer Beispiel rein und kopier den Code von dort raus.\par
+\par
+BufferSizeProvider aufsplitten in einfachen BufferSizeProvider und BufferSizeProviderIncremental.\par
+Anpassen an Java 8 Features.\par
+\par
+\par
+22:15 Pause\par
+\par
+22:45 Weiter gehts.\par
+\par
+Server und Client Main Test Klassen gebaut.\par
+Gemeinsame Logik in Util Klasse verschoben. Dann sehen die Main Klassen selbst gleich sehr klein und aufger\'e4umt auf.\par
+Erkl\'e4rende Kommentare hinzugef\'fcgt.\par
+Paar kleinere Aufr\'e4umarbeiten.\par
+\par
+\par
+1,25 h f\'fcr Server und Client Main Test Klassen und geringf\'fcgiges Refactoring.\par
+\par
+\par
+\par
+2018-08-13 20:15\par
+\par
+Test und Bugfixes.\par
+\par
+Exception: Missing assembly part of type interface net.jadoth.swizzling.types.SwizzleTypeIdProvider. null\par
+Achja, klar: PeristenceManager allein bauen reicht ja nicht. Da fehlt noch einiges an Metadaten Zeug, wie z.B. in EmbeddedStorageFoundation#createEmbeddedStorageManager.\par
+Anschauen und nachziehen.\par
+\par
+Hm. Wobei: Die ganze Storage-Specials wie Root-Handling, TypeDictionary-Verbandelung, usw. braucht man ja f\'fcr Netzwerkkommunikation nicht. Und der SwizzleTypeIdProvider wird hier gar nicht gesetzt. Das ist die falsche Stelle.\par
+\par
+EmbeddedStorage#createConnectionFoundation ist die richtige Stelle.\par
+Die ConnectionFoundation ist nichts anderes als eine BinaryPersistenceFoundation mit bissl Erweiterung.\par
+Von dort kopieren.\par
+\par
+Hm. Das sollte erst mal so klappen, w\'e4re aber unbrauchbar f\'fcr einen Produktivbetrieb.\par
+Mal "Beschr\'e4nkungen / TODOs / bekannte Probleme" aufschreiben.\par
+\par
+Noch default system directory definieren. Directory ensuren. Blabla.\par
+\par
+Und schwups: Schon gehts. \\o/\par
+\par
+Paar debug-outs dazubauen. So sieht das dann aus:\par
+\par
+.run(MainTestNetworkPersistenceServer.java:25)                  21:18:36.132> Server awaiting connection ...\par
+.run(MainTestNetworkPersistenceServer.java:27)                  21:18:36.132> Server accepted connection. Processing.\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:35)   21:18:36.132> Server initializing PersistenceManager\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:39)   21:18:36.136> Server is reading data ...\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:43)   21:18:36.337> Server is processing graph ...\par
+Request 1534187909821:27\par
+.run(MainTestNetworkPersistenceServer.java:25)                  21:18:36.338> Server awaiting connection ...\par
+.run(MainTestNetworkPersistenceServer.java:27)                  21:18:36.338> Server accepted connection. Processing.\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:35)   21:18:36.339> Server initializing PersistenceManager\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:39)   21:18:36.343> Server is reading data ...\par
+.processNextRequest(MainTestNetworkPersistenceServer.java:43)   21:18:36.543> Server is processing graph ...\par
+Request 1534187909821:28\par
+\par
+\par
+.main(MainTestNetworkPersistenceClient.java:23)                 21:18:36.131> Client opens channel ...\par
+.main(MainTestNetworkPersistenceClient.java:26)                 21:18:36.132> Client opened channel. Sleeping ...\par
+.main(MainTestNetworkPersistenceClient.java:29)                 21:18:36.332> Client initializing PersistenceManager\par
+.main(MainTestNetworkPersistenceClient.java:32)                 21:18:36.336> Client sending data ... \par
+.main(MainTestNetworkPersistenceClient.java:34)                 21:18:36.337> Client sent data.\par
+.main(MainTestNetworkPersistenceClient.java:23)                 21:18:36.338> Client opens channel ...\par
+.main(MainTestNetworkPersistenceClient.java:26)                 21:18:36.338> Client opened channel. Sleeping ...\par
+.main(MainTestNetworkPersistenceClient.java:29)                 21:18:36.538> Client initializing PersistenceManager\par
+.main(MainTestNetworkPersistenceClient.java:32)                 21:18:36.542> Client sending data ... \par
+.main(MainTestNetworkPersistenceClient.java:34)                 21:18:36.544> Client sent data.\par
+\par
+\par
+\par
+TODOs:\par
+v eigene Verzeichnisse f\'fcr Server und Client\par
+v Server muss auch zur\'fccksenden k\'f6nnen\par
+v Beispiel mit komplexerem Graph als nur einem String\par
+v ComChannel Wrapper f\'fcr H\'fcbschness.\par
+\par
+21:30 Pause\par
+\par
+23:30 Weiter gehts. TODOs umsetzen.\par
+Siehe "v"s oben.\par
+\par
+So. Dann w\'e4r das soweit fertig. Das Framework sind im Wesentlichen 200 LoC.\par
+\par
+\par
+1,75 h f\'fcr Test, Bugfixes, Debugausgaben, Notieren von Beschr\'e4nkungen, Beispiele verbessern.\par
+\par
+\par
+\par
+2018-08-14\par
+\par
+08:30\par
+Erkl\'e4rungen in WhatsApp f\'fcr MK\par
+\par
+08:45 Pause\par
+\par
+13:30\par
+Koordination in WhatsApp mit MK\par
+Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
+\par
+13:45 Pause\par
+\par
+\par
+17:15\par
+Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
+\par
+18:30\par
+Kontrolllesen und Fehler korrigieren.\par
+18:45 Feierabend\par
+\par
+\par
+2,00 h f\'fcr Kommunikation und Confluence Artikel\par
+\par
+\par
+2018-08-16\par
+\par
+0,25 h f\'fcr Konzept\'fcberlegungen und Confluence Kommentar.\par
+\par
+\par
+\par
+2018-08-17\par
+\par
+Failing TypeIdProvider bauen und TransientOidProvider f\'fcr Netzwerk Temp-Ids verwenden.\par
+\par
+Passende ID-Ranges \'fcberlegen.\par
+Test, Fixes/Anpassungen f\'fcr Failing TypeIdProvider. Kommentare.\par
+\par
+Kommentar "\'dcberlegungen zum Typedefinition Problem" zu Confluence Artikel schreiben.\par
+\par
+1,50 h f\'fcr neue ID-Provider Strategie, Confluence Kommentar. Issue JET-42 Update.\par
+\par
+\par
+\par
+2018-08-18\par
+\par
+\'dcberlegungen zu Communication Metadaten und JET-43 Erstellung.\par
+\par
+1,0 h f\'fcr Communication Metadaten Konzept. JET-43 Erstellung.\par
+\par
+\par
+2018-08-19\par
+\par
+\'dcberlegungen zu ID-Strategy Konzept Verbesserung und JET-43 Update.\par
+\par
+0,5 h f\'fcr Konzept \'dcberlegungen und Issue JET-43 Update.\par
+\par
+\par
+2018-08-20\par
+\par
+0,75 h f\'fcr: Im Confluence Hinweise zu Klassen iterieren und UUIDs lesen, kurz recherchieren, Antwort zu UUIDs schreiben.\par
+\par
+\par
+2018-08-21\par
+0,25 h f\'fcr Confluence und JET-43 Updates.\par
+\par
+\par
+2018-08-28\par
+\par
+14:15 Besprechungstermin im B\'fcro \par
+16:15 Ende.\par
+\par
+2h f\'fcr Besprechungen zu Jetstream und zuk\'fcnftige JDK Kosten.\par
+}
+ 

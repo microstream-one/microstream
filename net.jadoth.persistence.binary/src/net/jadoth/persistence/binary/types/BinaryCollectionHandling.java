@@ -1,18 +1,16 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.JadothArrays;
+import net.jadoth.X;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 public final class BinaryCollectionHandling
 {
@@ -25,7 +23,7 @@ public final class BinaryCollectionHandling
 	 */
 	private static final long
 		SIZED_ARRAY_OFFSET_LENGTH   = 0L                       , // length is the first (and only) header value
-		SIZED_ARRAY_LENGTH_HEADER   = Memory.byteSize_long()   , // header only consists of length
+		SIZED_ARRAY_LENGTH_HEADER   = XVM.byteSize_long()   , // header only consists of length
 		SIZED_ARRAY_OFFSET_ELEMENTS = SIZED_ARRAY_LENGTH_HEADER  // element list begins after header
 	;
 
@@ -35,22 +33,22 @@ public final class BinaryCollectionHandling
 	// static methods //
 	///////////////////
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> sizedArrayPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return elementsPseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.pseudoField(long.class, "capacity")
 			)
 		);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> elementsPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> elementsPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.complex("elements",
 					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")
@@ -59,11 +57,11 @@ public final class BinaryCollectionHandling
 		);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> simpleArrayPseudoFields(
-		final PersistenceTypeDescriptionMemberPseudoField... preHeaderFields)
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
 		return AbstractBinaryHandlerNative.pseudoFields(
-			JadothArrays.add(
+			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerNative.complex("elements",
 					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")
@@ -92,7 +90,7 @@ public final class BinaryCollectionHandling
 		);
 
 		// store specific header (only consisting of array capacity value)
-		Memory.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
+		XVM.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
 
 		// store content: array content up to size, trailing nulls are cut off.
 		BinaryPersistence.storeArrayContentAsList(
@@ -171,7 +169,7 @@ public final class BinaryCollectionHandling
 		final SwizzleBuildLinker builder
 	)
 	{
-		final int size = Jadoth.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));
+		final int size = X.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));
 		if(array.length < size)
 		{
 			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
@@ -196,20 +194,10 @@ public final class BinaryCollectionHandling
 		}
 	}
 
-	public static final boolean isEqual(
-		final Object[]                 source            ,
-		final Object[]                 target            ,
-		final int                      size              ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return ObjectState.isEqual(source, target, 0, size, stateHandlerLookup);
-	}
-
 	public static final int getSizedArrayLength(final Binary bytes, final long headerOffset)
 	{
-		return Jadoth.checkArrayRange(
-			Memory.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
+		return X.checkArrayRange(
+			XVM.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
 
@@ -231,7 +219,7 @@ public final class BinaryCollectionHandling
 		}
 		throw new BinaryPersistenceExceptionStateArrayLength(
 			array,
-			Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, headerOffset))
+			X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, headerOffset))
 		);
 	}
 

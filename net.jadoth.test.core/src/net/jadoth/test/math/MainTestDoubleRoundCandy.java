@@ -1,6 +1,6 @@
 package net.jadoth.test.math;
 
-import static net.jadoth.math.JadothMath.round;
+import static net.jadoth.math.XMath.round;
 
 /**
  * @author Thomas Muenz

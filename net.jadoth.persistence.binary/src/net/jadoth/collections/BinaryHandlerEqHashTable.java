@@ -1,26 +1,22 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
+import java.util.function.BiConsumer;
 
-import net.jadoth.Jadoth;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.hash.HashEqualator;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectState;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.hashing.HashEqualator;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
-import net.jadoth.util.KeyValue;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -39,14 +35,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		BINARY_OFFSET_KEYS         = BINARY_OFFSET_EQUALATOR + BinaryPersistence.oidLength(),
 		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS      + BinaryPersistence.oidLength(),
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES    + BinaryPersistence.oidLength(),
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Memory.byteSize_float()
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()
 	;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_EQUALATOR = JadothReflect.getInstanceFieldOfType(EqHashTable.class, HashEqualator.class)     ,
-		FIELD_KEYS      = JadothReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Keys.class)  ,
-		FIELD_VALUES    = JadothReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Values.class)
+		FIELD_EQUALATOR = XReflect.getInstanceFieldOfType(EqHashTable.class, HashEqualator.class)     ,
+		FIELD_KEYS      = XReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Keys.class)  ,
+		FIELD_VALUES    = XReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Values.class)
 	;
 
 
@@ -64,7 +60,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)
@@ -105,10 +101,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary             bytes    ,
-		final EqHashTable<?, ?>  instance ,
-		final long               oid      ,
-		final SwizzleStoreLinker linker
+		final Binary            bytes   ,
+		final EqHashTable<?, ?> instance,
+		final long              oid     ,
+		final SwizzleHandler    handler
 	)
 	{
 		// store elements simply as array binary form
@@ -119,21 +115,21 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
-			linker.apply(instance.hashEqualator)
+			handler.apply(instance.hashEqualator)
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_KEYS,
-			linker.apply(instance.keys)
+			handler.apply(instance.keys)
 		);
-		Memory.set_long(
+		XVM.set_long(
 			contentAddress + BINARY_OFFSET_VALUES,
-			linker.apply(instance.values)
+			handler.apply(instance.values)
 		);
-		Memory.set_float(
+		XVM.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -155,19 +151,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		final EqHashTable<Object, Object> collectingInstance = (EqHashTable<Object, Object>)instance;
 
 		// set single instances (must be done on memory-level due to final modifier. Little hacky, but okay)
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_EQUALATOR),
+			XVM.objectFieldOffset(FIELD_EQUALATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_KEYS),
+			XVM.objectFieldOffset(FIELD_KEYS),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
 		);
-		Memory.setObject(
+		XVM.setObject(
 			instance,
-			Memory.objectFieldOffset(FIELD_VALUES),
+			XVM.objectFieldOffset(FIELD_VALUES),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
 		);
 		instance.size = BinaryPersistence.collectKeyValueReferences(
@@ -175,7 +171,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
 			builder,
-			new BiProcedure<Object, Object>()
+			new BiConsumer<Object, Object>()
 			{
 				@Override
 				public void accept(final Object key, final Object value)
@@ -211,36 +207,6 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS));
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES));
 		BinaryCollectionHandling.iterateKeyValueEntriesReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
-	}
-
-	@SuppressWarnings("unchecked") // type erasure hassle :(
-	@Override
-	public final boolean isEqual(
-		final EqHashTable<?, ?>        source            ,
-		final EqHashTable<?, ?>        target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		// not sure if equalator should be checked here
-
-		// one must be iterated with a stateful iterator while the other one is iterated directly
-		final Iterator<KeyValue<Object, Object>> srcIterator = ((EqHashTable<Object, Object>)source).iterator();
-		return source.size == target.size
-			&& ObjectState.isEqual(source.hashEqualator, target.hashEqualator, stateHandlerLookup)
-			&& ((EqHashTable<Object, Object>)target).applies(
-				e -> srcIterator.hasNext() && isEqualEntry(e, srcIterator.next(), stateHandlerLookup)
-		);
-	}
-
-	static final boolean isEqualEntry(
-		final KeyValue<Object, Object> e1,
-		final KeyValue<Object, Object> e2,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		return ObjectState.isEqual(e1.key(), e2.key(), stateHandlerLookup)
-			&& ObjectState.isEqual(e1.value(), e2.value(), stateHandlerLookup)
-		;
 	}
 
 }

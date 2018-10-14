@@ -1,7 +1,6 @@
 import net.jadoth.util.pooling.Pool;
 import net.jadoth.util.pooling.ThreadedPool;
 
-
 public class MainTestThreadedPool
 {
 	static int value = 0;

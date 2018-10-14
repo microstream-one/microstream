@@ -1,18 +1,54 @@
 package net.jadoth.persistence.types;
 
-
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
 
 public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
 {
 	public String declaringTypeName();
 
-	public String qualifiedFieldName();
+	@Override
+	public default String qualifier()
+	{
+		return this.declaringTypeName();
+	}
+
+	@Override
+	public String uniqueName();
+	
 
 	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType
 //	public String typeParamterString();
 
 
-
+	@Override
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	{
+		return member instanceof PersistenceTypeDescriptionMemberField
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberField)member)
+		;
+	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberField m1,
+		final PersistenceTypeDescriptionMemberField m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+			&& m1.declaringTypeName().equals(m2.declaringTypeName())
+		;
+	}
+	
+	@Override
+	public default PersistenceTypeDefinitionMemberField createDefinitionMember(
+		final PersistenceTypeDefinitionMemberCreator creator
+	)
+	{
+		return creator.createDefinitionMember(this);
+	}
+	
+	
+	
 	public static PersistenceTypeDescriptionMemberField New(
 		final String  typeName               ,
 		final String  name                   ,
@@ -23,16 +59,16 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	)
 	{
 		return new PersistenceTypeDescriptionMemberField.Implementation(
-			typeName               ,
-			name                   ,
-			declaringTypeName      ,
-			isReference            ,
-			persistentMinimumLength,
-			persistentMaximumLength
+			 notNull(typeName)               ,
+			 notNull(name)                   ,
+			 notNull(declaringTypeName)      ,
+			         isReference             ,
+			positive(persistentMinimumLength),
+			positive(persistentMaximumLength)
 		);
 	}
-
-	public final class Implementation
+	
+	public class Implementation
 	extends PersistenceTypeDescriptionMember.AbstractImplementation
 	implements PersistenceTypeDescriptionMemberField
 	{
@@ -50,33 +86,43 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		/////////////////
 
 		protected Implementation(
-			final String  typeName           ,
-			final String  name               ,
-			final String  declaringTypeName  ,
-			final boolean isReference        ,
-			final long    persistentMinLength,
-			final long    persistentMaxLength
+			final String   typeName           ,
+			final String   name               ,
+			final String   declaringTypeName  ,
+			final boolean  isReference        ,
+			final long     persistentMinLength,
+			final long     persistentMaxLength
 		)
 		{
-			super(typeName, name, isReference, !isReference, false, isReference, persistentMinLength, persistentMaxLength);
-			this.declaringTypeName = declaringTypeName;
+			super(
+				typeName           ,
+				name               ,
+				isReference        ,
+				!isReference       ,
+				false              ,
+				isReference        ,
+				persistentMinLength,
+				persistentMaxLength
+			);
+						
+			this.declaringTypeName  = declaringTypeName;
 			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
 		@Override
-		public String declaringTypeName()
+		public final String declaringTypeName()
 		{
 			return this.declaringTypeName;
 		}
 
 		@Override
-		public String qualifiedFieldName()
+		public final String uniqueName()
 		{
 			return this.qualifiedFieldName;
 		}
@@ -86,19 +132,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		{
 			assembler.appendTypeMemberDescription(this);
 		}
-
-		@Override
-		public boolean equals(final PersistenceTypeDescriptionMember m2, final DescriptionMemberEqualator equalator)
-		{
-			return equalator.equals(this, m2);
-		}
-
-		@Override
-		public String toString()
-		{
-			return this.typeName() + ' ' + this.qualifiedFieldName();
-		}
-
+		
 	}
 
 }

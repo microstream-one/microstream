@@ -36,8 +36,8 @@ public interface SwizzleIdSet extends _longIterable, Sized
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void accept(final long id)

@@ -2,7 +2,7 @@ package net.jadoth.test.collections;
 
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
 import net.jadoth.experimental.SortedList;
 
 /**
@@ -13,7 +13,7 @@ import net.jadoth.experimental.SortedList;
 public class MainTestSortedList
 {
 
-	static final SortedList<Integer> sList = new SortedList<>(new BulkList<Integer>(), JadothSort::compare);
+	static final SortedList<Integer> sList = new SortedList<>(new BulkList<Integer>(), XSort::compare);
 
 
 

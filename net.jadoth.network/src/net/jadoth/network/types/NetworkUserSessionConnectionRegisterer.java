@@ -1,6 +1,6 @@
 package net.jadoth.network.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
@@ -97,8 +97,8 @@ extends NetworkConnectionProcessor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void accept(final SocketChannel connection)

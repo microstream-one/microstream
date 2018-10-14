@@ -1,7 +1,7 @@
 package some.app.entitylogging;
 
-import net.jadoth.Jadoth;
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.chars.XChars;
+import net.jadoth.concurrency.XThreads;
 import net.jadoth.entity.Entity;
 import net.jadoth.entity.EntityLayer;
 import net.jadoth.entity.EntityLayerProvider;
@@ -45,7 +45,7 @@ public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 	{
 		System.out.println(
 			"Thread \"" + Thread.currentThread().getName()
-			+ "\" " + action + Jadoth.systemString(this.$entity())
+			+ "\" " + action + XChars.systemString(this.$entity())
 			+ (methodName != null ? " via #" + methodName: "")
 			+ "."
 		);
@@ -54,7 +54,7 @@ public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 	@Override
 	public E $data()
 	{
-		this.logAction("reads data of ", JadothThreads.getMethodNameForDeclaringClassName(this.declaringClassname));
+		this.logAction("reads data of ", XThreads.getMethodNameForDeclaringClassName(this.declaringClassname));
 		return super.$data();
 	}
 	

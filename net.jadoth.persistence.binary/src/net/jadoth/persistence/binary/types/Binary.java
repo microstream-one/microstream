@@ -3,11 +3,33 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.memory.Chunks;
-
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
 public abstract class Binary implements Chunks
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	/*
+	 * sneaky hardcoded field for performance reasons.
+	 * Used only by build items for create/update address.
+	 * A little hacky, but worth it.
+	 * 
+	 * (14.09.2018 TM)NOTE: is it really faster? Is it really worth it?
+	 * Was it in the past? Is it still, with several years of JVM and JIT improvement?
+	 * Would it be slower or maybe even faster to have the field be final?
+	 * Or should the raw memory address not pollute the API?
+	 */
+	long entityContentAddress;
+
+	private Object helperState;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
 	@Override
 	public abstract ByteBuffer[] buffers();
 
@@ -37,12 +59,6 @@ public abstract class Binary implements Chunks
 
 	public abstract long   buildItemAddress();
 
-	/* sneaky hardcoded field for performance reasons.
-	 * Used only by build items for create/update address.
-	 * A little hacky, but worth it.
-	 */
-	long entityContentAddress;
-
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
 	 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.
@@ -60,6 +76,46 @@ public abstract class Binary implements Chunks
 	protected abstract long[] internalGetStartOffsets();
 
 	protected abstract long[] internalGetBoundOffsets();
+	
+	/**
+	 * Helper instances can be used as temporary additional state for the duration of the building process.
+	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
+	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
+	 * fail or result in all elements being "equal". So building JDK hash collections required to pre-collect
+	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
+	 * <p>
+	 * Similar problems with other or complex custom handlers are conceivable.
+	 *<p>
+	 * Only one helper object can be registered per subject instance (the instance to be built).
+	 *
+	 * @param subject
+	 * @param helper
+	 * @return
+	 */
+	public final synchronized void setHelper(final Object helper)
+	{
+		this.helperState = helper;
+	}
+
+	/**
+	 * Helper instances can be used as temporary additional state for the duration of the building process.
+	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
+	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
+	 * failt or result in all elements being "equal". So building JDK hash collections required to pre-collect
+	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
+	 * <p>
+	 * Similar problems with other or complex custom handlers are conceivable.
+	 *<p>
+	 * Only one helper object can be registered per subject instance (the instance to be built).
+	 *
+	 * @param subject
+	 * @return
+	 */
+	public final synchronized Object getHelper()
+	{
+		return this.helperState;
+	}
+	
 }
 //CHECKSTYLE.ON: AbstractClassName
 

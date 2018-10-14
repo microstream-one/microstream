@@ -28,7 +28,7 @@ public class GettersAndSetters
 
 
 	/** Chained Setter
-	 * basic setter behaviour, but returns instance of instance's class type
+	 * basic setter behavior, but returns instance of instance's class type
 	 *
 	 * note that every basic setter could become a chained setter IF Java
 	 * should ever be extended to treat "void" as implicitely returning this.

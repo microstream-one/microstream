@@ -1,10 +1,9 @@
 package net.jadoth.storage.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 import net.jadoth.storage.exceptions.StorageException;
 
 
@@ -37,10 +36,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 	public boolean isHeadFile();
 
-
-
-	@Override
-	public File file();
 
 	/**
 	 * Querying method to check if a storage file consists of only one singular live entity.
@@ -174,7 +169,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			(this.prev.next = this.next).prev = this.prev;
 		}
 
-		final void registerGap(final int length)
+		final void registerGapLength(final long length)
 		{
 			this.fileTotalLength += length;
 		}
@@ -220,8 +215,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long exportTo(final StorageLockedFile file)
@@ -234,14 +229,14 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			/*
 			 * export copies directly without detour over parent/writer.
-			 * This behaviour has design reasons, e.g. an export must be always possible, even if the writer
+			 * This behavior has design reasons, e.g. an export must be always possible, even if the writer
 			 * instance is strictly read-only. It also has performance reasons as the per-type export
 			 * calls this method for every single entity, hence less pointer chasing and no channel forcing
 			 * speeds up things considerably for millions or billions of entities.
 			 */
 			try
 			{
-				return this.fileChannel().transferTo(sourceOffset, length, file.fileChannel());
+				return this.channel().transferTo(sourceOffset, length, file.channel());
 			}
 			catch(final IOException e)
 			{
@@ -334,7 +329,11 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		@Override
 		public final void enqueueEntry(final StorageEntity.Implementation entry)
 		{
-			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
+			// entry gets appended after the start (the head), hence reverse-building the order.
+			(entry.filePrev = this.head).fileNext = (entry.fileNext = this.head.fileNext).filePrev = entry;
+			
+//			// entry gets appended before the end (the tail), hence forward-building the order
+//			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
 		}
 
 		@Override
@@ -377,25 +376,50 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			return this.file.channelIndex();
 		}
-
+		
 		@Override
-		public FileChannel fileChannel()
+		public String qualifier()
 		{
-			return this.file.fileChannel();
+			return this.file.qualifier();
+		}
+		
+		@Override
+		public String identifier()
+		{
+			return this.file.identifier();
+		}
+		
+		@Override
+		public String name()
+		{
+			return this.file.name();
+		}
+		
+		@Override
+		public boolean delete()
+		{
+			this.close();
+			return this.file.delete();
+		}
+		
+		@Override
+		public boolean exists()
+		{
+			return this.file.exists();
 		}
 
 		@Override
-		public File file()
+		public FileChannel channel()
 		{
-			return this.file.file();
+			return this.file.channel();
 		}
 
 		@Override
 		public final String toString()
 		{
-			return this.getClass().getSimpleName() + " " + this.file.file()
+			return this.getClass().getSimpleName() + " " + this.file.identifier()
 				+ " (" + this.fileDataLength + " / " + this.fileTotalLength
-				+ ", " + JadothMath.fractionToPercent(this.dataFillRatio()) + ")"
+				+ ", " + XMath.fractionToPercent(this.dataFillRatio()) + ")"
 			;
 		}
 

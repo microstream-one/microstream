@@ -5,7 +5,6 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.XIndexIterable;
 import net.jadoth.collections.interfaces.ExtendedSequence;
 import net.jadoth.exceptions.IndexBoundsException;
 

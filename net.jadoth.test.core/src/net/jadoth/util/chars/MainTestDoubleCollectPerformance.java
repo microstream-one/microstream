@@ -1,6 +1,7 @@
 package net.jadoth.util.chars;
 
-
+import net.jadoth.chars.XChars;
+import net.jadoth.chars.VarString;
 
 public class MainTestDoubleCollectPerformance
 {
@@ -28,7 +29,7 @@ public class MainTestDoubleCollectPerformance
 //			values[i] = Math.random() / 1E290;
 		}
 
-		final VarString vs = VarString.New(JadothChars.maxCharCount_double() * SIZE);
+		final VarString vs = VarString.New(XChars.maxCharCount_double() * SIZE);
 
 		System.out.println("-----------JaChars.putValue(double)--------------");
 		for(int r = RUNS; r --> 0;)

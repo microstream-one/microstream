@@ -1,6 +1,6 @@
 
 
-import net.jadoth.math.JadothMath;
+import net.jadoth.math.XMath;
 
 public class Rand7FromRand5
 {
@@ -27,7 +27,7 @@ public class Rand7FromRand5
 		final int[] refs = new int[7];
 		for(int i = SIZE; i --> 0;)
 		{
-			refs[JadothMath.random(7)]++;
+			refs[XMath.random(7)]++;
 		}
 		print(refs);
 	}
@@ -35,7 +35,7 @@ public class Rand7FromRand5
 	
 	static int rand5()
 	{
-		return JadothMath.random(5);
+		return XMath.random(5);
 	}
 	
 	static int rand7()

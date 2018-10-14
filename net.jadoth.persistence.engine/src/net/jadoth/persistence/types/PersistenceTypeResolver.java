@@ -1,56 +1,36 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
-import net.jadoth.reflect.JadothReflect;
-
+@FunctionalInterface
 public interface PersistenceTypeResolver
 {
-	public Class<?> resolveType(String typeName);
-	
-	
-	
-	public static PersistenceTypeResolver Failing()
+	public default String resolveRuntimeTypeName(final String descriptionTypeName)
 	{
-		return new PersistenceTypeResolver.ImplementationFailing();
+		// basic implementation does not perform any mapping here.
+		return descriptionTypeName;
 	}
 	
-	public static PersistenceTypeResolver Ignoring()
+	public String resolveRuntimeTypeName(PersistenceTypeDescription typeDescription);
+	
+	public default Class<?> resolveRuntimeType(final PersistenceTypeDescription typeDescription)
 	{
-		return new PersistenceTypeResolver.ImplementationIgnoring();
+		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
+		return this.resolveType(runtimeTypeName);
 	}
 	
-	public final class ImplementationFailing implements PersistenceTypeResolver
+	public default Class<?> tryResolveRuntimeType(final PersistenceTypeDescription typeDescription)
 	{
-		@Override
-		public Class<?> resolveType(final String typeName) throws PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
-		{
-			try
-			{
-				return JadothReflect.classForName(typeName);
-			}
-			catch(final ClassNotFoundException e)
-			{
-				throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName, e);
-			}
-		}
+		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
+		return this.tryResolveType(runtimeTypeName);
 	}
 	
-	public final class ImplementationIgnoring implements PersistenceTypeResolver
+	public default Class<?> resolveType(final String typeName)
 	{
-		@Override
-		public Class<?> resolveType(final String typeName) throws PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
-		{
-			try
-			{
-				return JadothReflect.classForName(typeName);
-			}
-			catch(final ClassNotFoundException e)
-			{
-				// intentionally return null
-				return null;
-			}
-		}
+		return Persistence.resolveType(typeName);
 	}
 	
-	
+	public default Class<?> tryResolveType(final String typeName)
+	{
+		return Persistence.tryResolveType(typeName);
+	}
+		
 }

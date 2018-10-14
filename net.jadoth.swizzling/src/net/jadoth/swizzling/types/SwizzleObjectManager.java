@@ -1,6 +1,7 @@
 package net.jadoth.swizzling.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownType;
 
 public interface SwizzleObjectManager extends SwizzleObjectLookup
@@ -50,8 +51,8 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void cleanUp()
@@ -68,8 +69,8 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		@Override
 		public Object lookupObject(final long oid)
 		{
-//			JadothConsole.debugln(Jadoth.systemString(this) + " looking up \n" + oid
-//				+ " -> " + Jadoth.systemString(this.swizzleRegistry.lookupObject(oid))
+//			XDebug.debugln(XChars.systemString(this) + " looking up \n" + oid
+//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
 //			);
 
 			return this.swizzleRegistry.lookupObject(oid);
@@ -100,20 +101,18 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 				return this.typeManager.ensureTypeId((Class<?>)object);
 			}
 
-			final long tid = this.typeManager.ensureTypeId(object.getClass());
-
 			// if not found either assign new oid or return the meanwhile registered oid
 			synchronized(this.swizzleRegistry)
 			{
 				if((oid = this.swizzleRegistry.lookupObjectId(object)) == 0L)
 				{
 					oid = this.oidProvider.provideNextObjectId();
-					this.swizzleRegistry.registerObject(oid, tid, object);
+					this.swizzleRegistry.registerObject(oid, object);
 				}
 			}
 
-//			JadothConsole.debugln(Jadoth.systemString(this) + " assigned \n" + oid
-//				+ " -> " + Jadoth.systemString(this.swizzleRegistry.lookupObject(oid))
+//			XDebug.debugln(XChars.systemString(this) + " assigned \n" + oid
+//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
 //			);
 			return oid;
 		}

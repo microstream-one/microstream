@@ -1,16 +1,16 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import net.jadoth.files.FileException;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceTarget;
-import net.jadoth.util.file.FileException;
-import net.jadoth.util.file.JadothFiles;
 
 public class BinaryFileTarget implements PersistenceTarget<Binary>
 {
@@ -40,7 +40,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 
 	protected FileChannel createChannel(final File file) throws FileException, IOException
 	{
-		return JadothFiles.createWritingFileChannel(file);
+		return XFiles.createWritingFileChannel(file);
 	}
 
 

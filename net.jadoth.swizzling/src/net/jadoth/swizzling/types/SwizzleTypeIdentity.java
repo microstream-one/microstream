@@ -1,5 +1,6 @@
 package net.jadoth.swizzling.types;
 
+
 public interface SwizzleTypeIdentity extends SwizzleTypeIdOwner
 {
 	@Override
@@ -7,8 +8,7 @@ public interface SwizzleTypeIdentity extends SwizzleTypeIdOwner
 
 	public String typeName();
 
-	
-	
+
 	public static int hashCode(final SwizzleTypeIdentity typeIdentity)
 	{
 		return Long.hashCode(typeIdentity.typeId()) & typeIdentity.typeName().hashCode();

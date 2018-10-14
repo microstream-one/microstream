@@ -2,16 +2,16 @@ package net.jadoth.persistence.binary.internal;
 
 import java.util.HashSet;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.chars.XChars;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -21,7 +21,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	/////////////////////
 
 	static final long BINARY_OFFSET_LOAD_FACTOR =                       0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Memory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_ELEMENTS    = XVM.byteSize_float(); // sized array at offset 0 + float size
 
 
 
@@ -42,7 +42,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return Jadoth.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 
@@ -68,12 +68,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	////////////
 
 	@Override
-	public final void store(
-		final Binary             bytes   ,
-		final HashSet<?>         instance,
-		final long               oid     ,
-		final SwizzleStoreLinker linker
-	)
+	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final SwizzleHandler handler)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
@@ -83,11 +78,11 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
-			linker
+			handler
 		);
 
 		// store load factor as (sole) header value
-		Memory.set_float(contentAddress, Memory.accessLoadFactor(instance));
+		XVM.set_float(contentAddress, XVM.accessLoadFactor(instance));
 	}
 
 	@Override
@@ -100,14 +95,14 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
 	{
-		final int elementCount = getElementCount(bytes);
+		final int elementCount = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		BinaryPersistence.collectElementsIntoArray(bytes, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		BinaryPersistence.collectElementsIntoArray(rawData, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
 	
-		builder.registerHelper(instance, elementsHelper);
+		rawData.setHelper(elementsHelper);
 	}
 
 	@Override
@@ -126,15 +121,15 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public void complete(final Binary medium, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public void complete(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
 	{
-		final Object helper = builder.getHelper(instance);
+		final Object helper = rawData.getHelper();
 		
 		if(helper == null)
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Missing element collection helper instance for " + Jadoth.systemString(instance)
+				"Missing element collection helper instance for " + XChars.systemString(instance)
 			);
 		}
 		
@@ -142,7 +137,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + Jadoth.systemString(instance)
+				"Inconsistent element collection helper instance for " + XChars.systemString(instance)
 			);
 		}
 		
@@ -163,28 +158,11 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			if(!castedInstance.add(element))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException("Element hashing insistency in " + Jadoth.systemString(castedInstance));
+				throw new RuntimeException("Element hashing insistency in " + XChars.systemString(castedInstance));
 			}
 		}
-	}
-
-	@Override
-	public final boolean isEqual(
-		final HashSet<?>               source            ,
-		final HashSet<?>               target            ,
-		final ObjectStateHandlerLookup stateHandlerLookup
-	)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME BinaryHandlerHashSet#isEqual()
-//		return source.size() == target.size()
-//			&& ObjectState.isEqual(
-//				Memory.accessStorage(source),
-//				Memory.accessStorage(target),
-//				0                           ,
-//				source.size()               ,
-//				stateHandlerLookup
-//			)
-//		;
+		
+		rawData.setHelper(null); // might help ease Garbage Collection
 	}
 
 }

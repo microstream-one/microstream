@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.StorageConnection;
@@ -15,8 +15,10 @@ import net.jadoth.storage.types.StorageDataConverterTypeCsvToBinary;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
+import net.jadoth.storage.types.StorageFile;
+import net.jadoth.storage.types.StorageLockedFile;
 import net.jadoth.storage.types.StorageTypeDictionary;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.util.cql.CQL;
 
 public class TestImportExport
 {
@@ -30,7 +32,7 @@ public class TestImportExport
 		tStart = System.nanoTime();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();
@@ -49,7 +51,7 @@ public class TestImportExport
 //			storage.typeDictionary(),
 //			X.List(csvDir.listFiles()),
 //			new File(csvDir.getParent(), "bin2"),
-//			JadothPredicates.all()
+//			XFunc.all()
 //		);
 //		tStop = System.nanoTime();
 //		System.out.println("csv2bin done. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
@@ -86,7 +88,7 @@ public class TestImportExport
 
 		final XSequence<File> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> s.file().file())
+			.project(s -> new File(s.file().identifier()))
 			.execute()
 		;
 
@@ -99,10 +101,10 @@ public class TestImportExport
 		final Predicate<? super File> filter
 	)
 	{
-		final File dir = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
+		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(dir, "csv"),
+			new StorageEntityTypeConversionFileProvider.Implementation(directory, "csv"),
 			typeDictionary,
 			null,
 			4096,
@@ -117,14 +119,15 @@ public class TestImportExport
 			}
 			try
 			{
-				converter.convertDataFile(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception while converting file "+file, e);
+				throw new RuntimeException("Exception while converting file " + file, e);
 			}
 		}
-		return dir;
+		return directory;
 	}
 
 	static File convertCsvToBin(
@@ -134,7 +137,7 @@ public class TestImportExport
 		final Predicate<? super File>   filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<File> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Implementation(
@@ -150,7 +153,8 @@ public class TestImportExport
 			}
 			try
 			{
-				converter.convertCsv(file);
+				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				converter.convertCsv(storageFile);
 			}
 			catch(final Exception e)
 			{

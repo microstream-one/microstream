@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 
 
 public class ChannelCommon
@@ -49,7 +49,7 @@ public class ChannelCommon
 		buffer.flip();
 		final byte[] bytes;
 		buffer.get(bytes = new byte[buffer.limit()]);
-		Memory.deallocateDirectByteBuffer(buffer);
+		XVM.deallocateDirectByteBuffer(buffer);
 		return new String(bytes, CHARSET);
 	}
 

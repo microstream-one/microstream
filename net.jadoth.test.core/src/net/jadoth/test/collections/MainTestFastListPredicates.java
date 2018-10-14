@@ -1,11 +1,11 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.math.JadothMath.range;
+import static net.jadoth.math.XMath.range;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
+import net.jadoth.typing.XTypes;
 
 /**
  * @author Thomas Muenz
@@ -40,7 +40,7 @@ public class MainTestFastListPredicates
 		{
 			intList.add(i);
 		}
-		System.out.println("list filled: "+Jadoth.to_int(intList.size())+" elements.");
+		System.out.println("list filled: "+XTypes.to_int(intList.size())+" elements.");
 
 
 		long tStart, tStop, min = Integer.MAX_VALUE;

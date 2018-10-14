@@ -1,7 +1,8 @@
 package net.jadoth.experimental.properties;
 
-import static net.jadoth.util.chars.VarString.New;
-import net.jadoth.util.chars.VarString;
+import static net.jadoth.chars.VarString.New;
+
+import net.jadoth.chars.VarString;
 
 /**
  *
@@ -148,8 +149,8 @@ public interface SystemProperty extends GlobalProperty
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public String get()
@@ -182,8 +183,8 @@ public interface SystemProperty extends GlobalProperty
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public String get()

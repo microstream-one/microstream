@@ -1,28 +1,29 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.memory.Chunks;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.util.UtilStackTrace;
 
 public interface StorageTaskBroker
 {
 	public StorageTask currentTask();
 
-	public StorageRequestTaskSaveEntities enqueueSaveTask(Chunks[] medium)
+	public StorageRequestTaskLoadRoots enqueueRootsLoadTask()
 		throws InterruptedException;
 
-	public StorageRequestTaskLoadRoots enqueueRootsLoadTask()
+	public StorageRequestTaskLoadByTids enqueueLoadTaskByTids(SwizzleIdSet loadTids)
 		throws InterruptedException;
 
 	public StorageRequestTaskLoadByOids enqueueLoadTaskByOids(SwizzleIdSet[] loadOids)
 		throws InterruptedException;
-
-	public StorageRequestTaskLoadByTids enqueueLoadTaskByTids(SwizzleIdSet loadTids)
+	
+	public StorageRequestTaskStoreEntities enqueueStoreTask(Chunks[] medium)
 		throws InterruptedException;
 
 	public default StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
@@ -34,14 +35,17 @@ public interface StorageTaskBroker
 	}
 	
 	public StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
-		StorageEntityTypeExportFileProvider            exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler<?>> isExportType
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
 	)
 		throws InterruptedException;
 	
 	
 
-	public StorageRequestTask enqueueExportChannelsTask(StorageIoHandler fileHandler, boolean performGarbageCollection)
+	public StorageRequestTask enqueueExportChannelsTask(
+		StorageIoHandler fileHandler             ,
+		boolean          performGarbageCollection
+	)
 		throws InterruptedException;
 
 	public StorageRequestTask enqueueImportFromFilesTask(XGettingEnum<File> importFiles)
@@ -50,21 +54,10 @@ public interface StorageTaskBroker
 	public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask()
 		throws InterruptedException;
 
-	public default StorageChannelTaskInitialize issueChannelInitialization(
-		final StorageChannelController    channelController               ,
-		final StorageEntityCacheEvaluator entityInitializingCacheEvaluator
-	)
-		throws InterruptedException
-	{
-		// oldTypes dictionary is optional, may be null
-		return this.issueChannelInitialization(channelController, entityInitializingCacheEvaluator, null);
-	}
-
 	public StorageChannelTaskInitialize issueChannelInitialization(
-		StorageChannelController    channelController               ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
-	) throws InterruptedException;
+		StorageChannelController channelController
+	)
+		throws InterruptedException;
 
 	public StorageChannelTaskShutdown issueChannelShutdown(StorageChannelController channelController)
 		throws InterruptedException;
@@ -73,13 +66,13 @@ public interface StorageTaskBroker
 		throws InterruptedException;
 
 	public StorageRequestTaskFileCheck issueFileCheck(
-		long nanoTimeBudgetBound,
+		long                               nanoTimeBudgetBound,
 		StorageDataFileDissolvingEvaluator fileDissolver
 	)
 		throws InterruptedException;
 
 	public StorageRequestTaskCacheCheck issueCacheCheck(
-		long nanoTimeBudgetBound,
+		long                        nanoTimeBudgetBound,
 		StorageEntityCacheEvaluator entityEvaluator
 	)
 		throws InterruptedException;
@@ -115,15 +108,15 @@ public interface StorageTaskBroker
 			super();
 			this.storageManager = notNull(storageManager);
 			this.taskCreator    = notNull(taskCreator);
-			this.channelCount   = storageManager.channelController().channelCountProvider().get();
+			this.channelCount   = storageManager.channelCountProvider().get();
 			this.currentHead    = new StorageTask.DummyTask();
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		private StorageRequestTaskGarbageCollection enqueueTaskPrependingFullGc(
 			final StorageTask task               ,
@@ -160,7 +153,7 @@ public interface StorageTaskBroker
 			// notifiy waiting threads via current head
 			synchronized(currentHead)
 			{
-//				JadothConsole.debugln(Thread.currentThread() + " notifying all");
+//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}
@@ -170,7 +163,7 @@ public interface StorageTaskBroker
 			final StorageTask currentHead = this.enqueueTask(task);
 			synchronized(currentHead)
 			{
-//				JadothConsole.debugln(Thread.currentThread() + " notifying all");
+//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}
@@ -192,43 +185,11 @@ public interface StorageTaskBroker
 			return currentHead;
 		}
 
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-
 		@Override
 		public final StorageTask currentTask()
 		{
 			return this.currentHead;
 		}
-
-//		@Override
-//		public final synchronized StorageTask issueGarbageCollectionPhaseCheck(final StorageTask processedTask)
-//			throws InterruptedException
-//		{
-//			// must lock on the task as well for internal synchronization
-//			synchronized(processedTask)
-//			{
-////				JadothConsole.debugln(Thread.currentThread() + " issuing phase check");
-//				// check if a new task came in in the meantime for subject task
-//				if(processedTask.next() != null)
-//				{
-////					JadothConsole.debugln(Thread.currentThread() + " using instead: " + processedTask.next());
-//					return processedTask.next();
-//				}
-////				JadothConsole.debugln(Thread.currentThread() + " issuing phase check");
-//				// processed task still has to be the current head, otherwise its next couldn't be empty
-//				final StorageTask task = new StorageTaskCheckGarbageCollectionPhase.Implementation(
-//					processedTask.timestamp() + 1,
-//					this.channelCount
-//				);
-//				this.enqueueTaskAndNotifyAll(task);
-//				return task;
-//			}
-//		}
 
 		@Override
 		public final synchronized StorageRequestTaskGarbageCollection issueGarbageCollection(
@@ -344,8 +305,8 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
-			final StorageEntityTypeExportFileProvider            exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler<?>> isExportType
+			final StorageEntityTypeExportFileProvider         exportFileProvider,
+			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 			throws InterruptedException
 		{
@@ -363,13 +324,33 @@ public interface StorageTaskBroker
 			// return actual task
 			return task;
 		}
+		
+		/**
+		 * The task broker cannot rely on any outside logic to pass an array with valid length or validate its length.
+		 * Every channel-count-depending array must be validated right before it is enqueued as a task to prevent
+		 * the system from crashing.
+		 * 
+		 * @param channelArray
+		 */
+		private void validateChannelCount(final Object[] channelArray)
+		{
+			if(channelArray.length == this.channelCount)
+			{
+				return;
+			}
+
+			// (27.04.2018 TM)EXCP: proper exception
+			throw UtilStackTrace.cutStacktraceByOne(new RuntimeException());
+		}
 
 		@Override
-		public final synchronized StorageRequestTaskSaveEntities enqueueSaveTask(final Chunks[] medium)
+		public final synchronized StorageRequestTaskStoreEntities enqueueStoreTask(final Chunks[] medium)
 			throws InterruptedException
 		{
+			this.validateChannelCount(medium);
+			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskSaveEntities task = this.taskCreator.createSaveTask(medium);
+			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(medium);
 			
 //			((StorageRequestTaskSaveEntities.Implementation)task).DEBUG_Print(null);
 			
@@ -383,6 +364,8 @@ public interface StorageTaskBroker
 		)
 			throws InterruptedException
 		{
+			this.validateChannelCount(loadOids);
+			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
 			final StorageRequestTaskLoadByOids task = this.taskCreator.createLoadTaskByOids(loadOids);
 			this.enqueueTaskAndNotifyAll(task);
@@ -412,19 +395,16 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageChannelTaskInitialize issueChannelInitialization(
-			final StorageChannelController    channelController               ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+			final StorageChannelController channelController
 
 		)
 			throws InterruptedException
 		{
 			final StorageChannelTaskInitialize task = this.taskCreator.createInitializationTask(
-				this.channelCount               ,
-				channelController               ,
-				entityInitializingCacheEvaluator,
-				oldTypes
+				this.channelCount,
+				channelController
 			);
+			
 			// special case: cannot wait on the task before the channel threads are started
 			this.enqueueTaskAndNotifyAll(task);
 			return task;

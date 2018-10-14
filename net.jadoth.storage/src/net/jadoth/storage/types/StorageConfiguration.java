@@ -1,8 +1,9 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
-import net.jadoth.util.Immutable;
-import net.jadoth.util.chars.VarString;
+import static net.jadoth.X.notNull;
+
+import net.jadoth.chars.VarString;
+import net.jadoth.typing.Immutable;
 
 public interface StorageConfiguration
 {
@@ -58,8 +59,8 @@ public interface StorageConfiguration
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public StorageChannelCountProvider channelCountProvider()

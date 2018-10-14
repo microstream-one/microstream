@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractOldGettingSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSet;
 import net.jadoth.collections.types.XImmutableSet;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -211,7 +211,7 @@ public final class SetView<E> implements XGettingSet<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -313,7 +313,7 @@ public final class SetView<E> implements XGettingSet<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

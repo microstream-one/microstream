@@ -25,24 +25,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package net.jadoth.entitydatamapping;
-import static net.jadoth.reflect.JadothReflect.addAllFields;
-import static net.jadoth.reflect.JadothReflect.addAllMethods;
-import static net.jadoth.reflect.JadothReflect.getMembersByLabel;
-import static net.jadoth.reflect.JadothReflect.getMembersWithAnnotation;
-
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
+import net.jadoth.X;
 import net.jadoth.entitydatamapping.exceptions.EntityDataInvalidAccessorMethodException;
 import net.jadoth.entitydatamapping.exceptions.EntityGetDataException;
 import net.jadoth.entitydatamapping.exceptions.EntitySetDataException;
 import net.jadoth.exceptions.NoSuchFieldRuntimeException;
 import net.jadoth.exceptions.NoSuchMethodRuntimeException;
-import net.jadoth.reflect.JadothReflect;
-import net.jadoth.util.JadothTypes;
+import net.jadoth.reflect.Label;
+import net.jadoth.typing.XTypes;
+import net.jadoth.util.code.Code;
 
 
 // TODO: Auto-generated Javadoc
@@ -94,98 +95,353 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 	 */
 	public M assignDataAccessBySearchString(String searchString, boolean searchForAccessorMethods);
 
-	/**
-	 * Assign data access by annotation.
-	 *
-	 * @param dataFieldAnnotation the data field annotation
-	 * @param searchForAccessorMethods if getters and setters should be searched for as well
-	 * @return the m
-	 */
 	public M assignDataAccessByAnnotation(
-		Class<? extends Annotation> dataFieldAnnotation,
-		boolean searchForAccessorMethods
+		Class<? extends Annotation> dataFieldAnnotation     ,
+		boolean                     searchForAccessorMethods
 	);
 
-	/**
-	 * Assign data field.
-	 *
-	 * @param dataField the data field
-	 * @param deriveAccessorMethods the derive accessor methods
-	 * @return the m
-	 */
 	public M assignDataField(Field dataField, boolean deriveAccessorMethods);
 
-	/**
-	 * Assign data getter.
-	 *
-	 * @param getter the getter
-	 * @return the m
-	 * @throws EntityGetDataException the entity get data exception
-	 */
 	public M assignDataGetter(Method getter) throws EntityGetDataException;
 
-	/**
-	 * Assign data setter.
-	 *
-	 * @param setter the setter
-	 * @return the m
-	 * @throws EntitySetDataException the entity set data exception
-	 */
 	public M assignDataSetter(Method setter) throws EntitySetDataException;
 
-	/**
-	 * Sets the use accessor methods.
-	 *
-	 * @param useAccessorMethods the use accessor methods
-	 * @return the m
-	 */
 	public M setUseAccessorMethods(boolean useAccessorMethods);
 
-	/**
-	 * Checks if is use accessor methods.
-	 *
-	 * @return true, if is use accessor methods
-	 */
 	public boolean isUseAccessorMethods();
 
-
-	/**
-	 * Gets the data type.
-	 *
-	 * @return the data type
-	 */
 	public Class<D> getDataType();
 
-	/**
-	 * Gets the entity data value.
-	 *
-	 * @return the entity data value
-	 */
 	public D getEntityDataValue();
 
-	/**
-	 * Sets the entity data value.
-	 *
-	 * @param value the value
-	 * @return the m
-	 */
 	public M setEntityDataValue(D value);
 
-	/**
-	 * Save to entity.
-	 *
-	 * @param validate the validate
-	 * @return true, if successful
-	 */
 	public boolean saveToEntity(boolean validate);
 
-	/**
-	 * The Class AbstractBody.
+	public static boolean validateSetter(final Method setter, final Class<?> type, final boolean mustReturnVoid)
+	{
+		final Class<?>[] paramTypes = setter.getParameterTypes();
+		if(paramTypes.length != 1)
+		{
+			return false;
+		}
+		if(paramTypes[0] != type)
+		{
+			return false;
+		}
+		if(mustReturnVoid && setter.getReturnType() != Void.TYPE)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean validateGetter(final Method getter, final Class<?> type)
+	{
+		final Class<?>[] paramTypes = getter.getParameterTypes();
+		if(paramTypes.length != 0)
+		{
+			return false;
+		}
+		if(getter.getReturnType() != type)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public static <E extends AnnotatedElement> E[] getMembersWithAnnotation(
+		final Class<? extends Annotation> annotation,
+		final E[] elements
+	)
+	{
+		if(elements == null)
+		{
+			return null;
+		}
+		final ArrayList<E> labeledElements = getMemberCollectionWithAnnotation(annotation, elements, new ArrayList<E>());
+		return labeledElements.toArray(X.ArrayOfSameType(elements, labeledElements.size()));
+	}
+
+	public static <E extends AnnotatedElement> E getMemberWithAnnotation(
+		final Class<? extends Annotation> annotation,
+		final E[] elements
+	)
+	{
+		if(elements == null)
+		{
+			return null;
+		}
+		for(final E f : elements)
+		{
+			if(f.isAnnotationPresent(annotation))
+			{
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	public static boolean validateLabelValue(final Label label, final String value)
+	{
+		if(label == null)
+		{
+			return false;
+		}
+		if(value == null)
+		{
+			return true;
+		}
+
+		final String[] values = label.value();
+		for(final String v : values)
+		{
+			if(v.equals(value))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <E extends AnnotatedElement, C extends Collection<E>> C getMemberCollectionByLabel(
+		final String label,
+		final E[] elements,
+		final C collection
+	)
+	{
+		if(collection == null || elements == null)
+		{
+			return null;
+		}
+		for(final E f : elements)
+		{
+			if(f.isAnnotationPresent(Label.class))
+			{
+				for(final String s : f.getAnnotation(Label.class).value())
+				{
+					if(s.equals(label))
+					{
+						collection.add(f);
+					}
+				}
+			}
+		}
+		return collection;
+	}
+
+	public static <E extends AnnotatedElement> E[] getMembersByLabel(final String label, final E[] elements)
+	{
+		if(elements == null)
+		{
+			return null;
+		}
+		final ArrayList<E> labeledElements = getMemberCollectionByLabel(label, elements, new ArrayList<E>());
+		return labeledElements.toArray(
+			X.ArrayOfSameType(elements, labeledElements.size())
+		);
+	}
+
+	public static <E extends AnnotatedElement> E getMemberByLabel(final String label, final E[] elements)
+	{
+		if(elements == null)
+		{
+			return null;
+		}
+		for(final E f : elements)
+		{
+			if(f.isAnnotationPresent(Label.class))
+			{
+				for(final String s : f.getAnnotation(Label.class).value())
+				{
+					if(s.equals(label))
+					{
+						return f;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static <E extends AnnotatedElement, C extends Collection<E>> C getMemberCollectionWithAnnotation(
+		final Class<? extends Annotation> annotation,
+		final E[] elements,
+		final C collection
+	)
+	{
+		if(collection == null || elements == null)
+		{
+			return null;
+		}
+		for(final E f : elements)
+		{
+			if(f.isAnnotationPresent(annotation))
+			{
+				collection.add(f);
+			}
+		}
+		return collection;
+	}
+	
+
+	public static <C extends Collection<Method>> C addAllMethods(
+		final Class<?> c,
+		final int excludedModifiers,
+		final C collection
+	)
+	{
+		collection.addAll(listAllMethods(c, excludedModifiers));
+		return collection;
+	}
+
+	public static Method getMethod(final Class<?> c, final String name, final Class<?>... parameterTypes)
+		throws NoSuchMethodRuntimeException
+	{
+		try
+		{
+			return c.getMethod(name, parameterTypes);
+		}
+		catch(final NoSuchMethodException e)
+		{
+			throw new NoSuchMethodRuntimeException(e);
+		}
+	}
+
+	public static Method getAnyMethod(final Class<?> c, final String name, final Class<?>... parameterTypes)
+		throws NoSuchMethodRuntimeException
+	{
+		final Class<?>[] nonNullParamterTypes = parameterTypes != null
+			? parameterTypes
+			: new Class<?>[0]
+		;
+
+		final List<Method> allMethods = listAllMethods(c, 0);
+		for(final Method f : allMethods)
+		{
+			if(f.getName().equals(name) && Arrays.equals(f.getParameterTypes(), nonNullParamterTypes))
+			{
+				return f;
+			}
+		}
+
+		throw new NoSuchMethodRuntimeException(new NoSuchMethodException(name));
+	}
+	
+	/* (08.09.2009 TM)NOTE:
+	 * The Method block is genereted out of the Field block
+	 * by replacing "Field" with "Method".
+	 * Except the single getXXXMethod() Methods.
 	 *
-	 * @param <E> the element type
-	 * @param <D> the generic type
-	 * @param <M> the generic type
+	 * For all other methods: Do not edit twice! Delete and replace again instead!
+	 *
 	 */
+	public static Method[] getAllMethods(final Class<?> c)
+	{
+		return getAllMethods(c, 0);
+	}
+
+	public static Method[] getAllMethods(final Class<?> c, final int excludedModifiers)
+	{
+		final List<Method> allMethods = listAllMethods(c, excludedModifiers);
+		return allMethods.toArray(new Method[allMethods.size()]);
+	}
+
+	public static List<Method> listAllMethods(final Class<?> c, final int excludedModifiers)
+	{
+		if(c == Object.class || c.isInterface())
+		{
+			return new ArrayList<>();
+		}
+		Class<?> currentClass = c;
+		//10 parent classes should normally be sufficient
+		final ArrayList<Method[]> classes = new ArrayList<>(10);
+		int elementCount = 0;
+		final boolean noExclude = excludedModifiers == 0;
+
+		Method[] currentClassMethods;
+		while(currentClass != null && currentClass != Object.class)
+		{
+			currentClassMethods = currentClass.getDeclaredMethods();
+			elementCount += currentClassMethods.length;
+			classes.add(currentClassMethods);
+			currentClass = currentClass.getSuperclass();
+		}
+
+		final ArrayList<Method> allMethods = new ArrayList<>(elementCount);
+		for(int i = classes.size() - 1, stop = 0; i >= stop; i--)
+		{
+			currentClassMethods = classes.get(i);
+			for(int j = 0, len = currentClassMethods.length; j < len; j++)
+			{
+				if(noExclude)
+				{
+					allMethods.add(currentClassMethods[j]);
+				}
+				else
+				{
+					if((currentClassMethods[j].getModifiers() & excludedModifiers) == 0)
+					{
+						allMethods.add(currentClassMethods[j]);
+					}
+				}
+			}
+		}
+		return allMethods;
+	}
+	
+	public static ArrayList<Field> getAllFields(final Class<?> c, final int excludedModifiers)
+	{
+		// note that interfaces can contain constants fields. However interface hiearchy is ignored here intentionally
+
+		Class<?> currentClass = c;
+		//10 parent classes should normally be sufficient
+		final ArrayList<Field[]> classes = new ArrayList<>();
+		int elementCount = 0;
+		final boolean noExclude = excludedModifiers == 0;
+
+		Field[] currentClassFields;
+		while(currentClass != null && currentClass != Object.class)
+		{
+			currentClassFields = currentClass.getDeclaredFields();
+			elementCount += currentClassFields.length;
+			classes.add(currentClassFields);
+			currentClass = currentClass.getSuperclass();
+		}
+
+		final ArrayList<Field> allFields = new ArrayList<>(elementCount);
+		Field loopField;
+		for(int i = classes.size() - 1, stop = 0; i >= stop; i--)
+		{
+			currentClassFields = classes.get(i);
+			for(int j = 0, len = currentClassFields.length; j < len; j++)
+			{
+				if(noExclude)
+				{
+					allFields.add(currentClassFields[j]);
+				}
+				else
+				{
+					loopField = currentClassFields[j];
+					if((loopField.getModifiers() & excludedModifiers) == 0)
+					{
+						allFields.add(loopField);
+					}
+				}
+			}
+		}
+		return allFields;
+	}
+	
+	public static <C extends Collection<Field>>
+	C addAllFields(final Class<?> c, final int excludedModifiers, final C collection)
+	{
+		collection.addAll(EntityDataMapper.getAllFields(c, excludedModifiers));
+		return collection;
+	}
+
+	
+
 	public static abstract class AbstractImplementation<E, D, M extends AbstractImplementation<E, D, M>>
 	extends EntityDataMappingEnabled.AbstractImplementation<E>
 	implements EntityDataMapper<E, D, M>
@@ -193,45 +449,35 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		/** The field. */
-		protected Field field = null;
 
-		/** The setter. */
-		protected Method setter = null;
+		protected Field field;
 
-		/** The getter. */
-		protected Method getter = null;
+		protected Method setter;
 
-		/** The data annotation. */
-		protected Class<? extends Annotation> dataAnnotation = null;
+		protected Method getter;
 
-		/** The use accessor methods. */
-		protected boolean useAccessorMethods = true;
+		protected Class<? extends Annotation> dataAnnotation;
 
-		/** The data type. */
-		protected Class<D> dataType = null;
+		protected boolean useAccessorMethods;
 
-		/** The cached methods. */
-		protected HashSet<Method> cachedMethods = null;
+		protected Class<D> dataType;
 
-		/** The cached fields. */
-		protected HashSet<Field> cachedFields = null;
+		protected HashSet<Method> cachedMethods;
+
+		protected HashSet<Field> cachedFields;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		/**
-		 * Instantiates a new abstract body.
-		 *
-		 * @param entityClass the entity class
-		 * @param dataType the data type
-		 */
-		public AbstractImplementation(final Class<E> entityClass, final Class<D> dataType){
+
+		public AbstractImplementation(final Class<E> entityClass, final Class<D> dataType)
+		{
 			super(entityClass);
 			this.dataType = dataType;
-			if(entityClass != null){
+			if(entityClass != null)
+			{
 				this.cacheMembers();
 			}
 		}
@@ -330,8 +576,8 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 		/**
 		 * @throws EntityGetDataException
 		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#readFromEntity()
@@ -628,12 +874,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			}
 		}
 
-		/**
-		 * Lookup field in entity class.
-		 *
-		 * @param f the f
-		 * @return true, if successful
-		 */
 		protected boolean lookupFieldInEntityClass(final Field f)
 		{
 			if(this.cachedFields == null)
@@ -644,12 +884,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return this.cachedFields.contains(f);
 		}
 
-		/**
-		 * Lookup method in entity class.
-		 *
-		 * @param m the m
-		 * @return true, if successful
-		 */
 		protected boolean lookupMethodInEntityClass(final Method m)
 		{
 			if(this.cachedMethods == null)
@@ -660,78 +894,65 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return this.cachedMethods.contains(m);
 		}
 
-		/**
-		 * Validate setter.
-		 *
-		 * @param setter the setter
-		 * @return true, if successful
-		 */
 		protected boolean validateSetter(final Method setter)
 		{
 			return setter == null
 				? false
-				: JadothReflect.validateSetter(setter, this.dataType, false)
+				: EntityDataMapper.validateSetter(setter, this.dataType, false)
 			;
 		}
 
-		/**
-		 * Validate getter.
-		 *
-		 * @param getter the getter
-		 * @return true, if successful
-		 */
-		protected boolean validateGetter(final Method getter){
-			return getter == null ?false
-					:JadothReflect.validateGetter(getter, this.dataType);
+		protected boolean validateGetter(final Method getter)
+		{
+			return getter == null
+				? false
+				: EntityDataMapper.validateGetter(getter, this.dataType)
+			;
 		}
 
-		/**
-		 * Derive accessor methods from field.
-		 *
-		 * @param field the field
-		 * @param searchGetter the search getter
-		 * @param searchSetter the search setter
-		 */
 		protected void deriveAccessorMethodsFromField(final Field field, final boolean searchGetter, final boolean searchSetter)
 		{
-			if(field == null || this.cachedMethods == null) return;
+			if(field == null || this.cachedMethods == null)
+			{
+				return;
+			}
 
-			if(searchGetter){
-				String getterName = JadothReflect.deriveGetterNameFromField(field);
+			if(searchGetter)
+			{
+				String getterName = Code.deriveGetterNameFromField(field);
 				Method getter = getCachedGetter(getterName);
 				if(getter != null){
 					this.getter = getter;
 				}
-				else {
+				else
+				{
 					// (15.12.2009 TM)NOTE: Fix: if type is boolean, try again without "is" special case (getXXX)
-					booleanSpecialCase: {
-						if(!JadothTypes.isBoolean(field.getType())) break booleanSpecialCase;
+					booleanSpecialCase:
+					{
+						if(!XTypes.isBooleanType(field.getType())) break booleanSpecialCase;
 
-						getterName = JadothReflect.deriveGetterNameFromField(field, false);
+						getterName = Code.deriveGetterNameFromField(field, false);
 						getter = getCachedGetter(getterName);
-						if(getter != null){
+						if(getter != null)
+						{
 							this.getter = getter;
 						}
 					}
 				}
 			}
 
-			if(searchSetter){
-				final String setterName = JadothReflect.deriveSetterNameFromField(field);
+			if(searchSetter)
+			{
+				final String setterName = Code.deriveSetterNameFromField(field);
 				final Method setter = getCachedSetter(setterName);
-				if(setter != null){
+				if(setter != null)
+				{
 					this.setter = setter;
 				}
 				// (15.12.2009 TM)NOTE: No B/boolean special case treatment needed for setter
 			}
 		}
 
-		/**
-		 * Gets the cached setter.
-		 *
-		 * @param setterName the setter name
-		 * @return the cached setter
-		 */
 		protected Method getCachedSetter(final String setterName)
 		{
 			final Method setter = getCachedMethod(setterName, this.dataType);
@@ -741,12 +962,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return null;
 		}
 
-		/**
-		 * Gets the cached getter.
-		 *
-		 * @param getterName the getter name
-		 * @return the cached getter
-		 */
 		protected Method getCachedGetter(final String getterName)
 		{
 			final Method getter = getCachedMethod(getterName);
@@ -756,13 +971,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return null;
 		}
 
-		/**
-		 * Gets the cached method.
-		 *
-		 * @param methodName the method name
-		 * @param parameterTypes the parameter types
-		 * @return the cached method
-		 */
 		protected Method getCachedMethod(final String methodName, Class<?>... parameterTypes)
 		{
 			if(this.cachedMethods == null) return null;
@@ -779,12 +987,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return null;
 		}
 
-		/**
-		 * Gets the cached field.
-		 *
-		 * @param fieldName the field name
-		 * @return the cached field
-		 */
 		protected Field getCachedField(final String fieldName)
 		{
 			if(this.cachedFields == null){
@@ -798,12 +1000,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return null;
 		}
 
-		/**
-		 * Gets the cached data field.
-		 *
-		 * @param fieldName the field name
-		 * @return the cached data field
-		 */
 		protected Field getCachedDataField(final String fieldName)
 		{
 			final Field f = this.getCachedField(fieldName);
@@ -813,9 +1009,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return null;
 		}
 
-		/**
-		 * Search for field by annotation.
-		 */
 		protected void searchForFieldByAnnotation()
 		{
 			if(this.cachedFields != null && this.dataAnnotation != null){
@@ -825,12 +1018,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			}
 		}
 
-		/**
-		 * Search for access methods by annotation.
-		 *
-		 * @param searchGetter the search getter
-		 * @param searchSetter the search setter
-		 */
 		protected void searchForAccessMethodsByAnnotation(final boolean searchGetter, final boolean searchSetter)
 		{
 			if(this.cachedMethods == null || this.dataAnnotation == null) return;
@@ -841,13 +1028,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 
 		}
 
-		/**
-		 * Sets the appropriate access methods.
-		 *
-		 * @param methods the methods
-		 * @param searchGetter the search getter
-		 * @param searchSetter the search setter
-		 */
 		protected void setAppropriateAccessMethods(final Method[] methods, boolean searchGetter, boolean searchSetter)
 		{
 			for(final Method m : methods) {
@@ -870,12 +1050,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			}
 		}
 
-		/**
-		 * Sets the appropriate data field.
-		 *
-		 * @param fields the fields
-		 * @return true, if successful
-		 */
 		protected boolean setAppropriateDataField(final Field[] fields){
 			for(final Field f : fields) {
 				if(f.getType() == this.dataType){
@@ -886,13 +1060,6 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			return false;
 		}
 
-		/**
-		 * Assign data access by label.
-		 *
-		 * @param label the label
-		 * @param searchGetter the search getter
-		 * @param searchSetter the search setter
-		 */
 		protected void assignDataAccessByLabel(final String label, boolean searchGetter, boolean searchSetter)
 		{
 			final Field currentField = this.field;
@@ -920,27 +1087,15 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			}
 		}
 
-
-
-
-		//Default implementation, does no validation at all.
-		/**
-		 * @return
-		 * @see net.jadoth.entitydatamapping.EntityDataMappingEnabled#validateForSave()
-		 */
 		@Override
-		public boolean validateForSave() {
+		public boolean validateForSave()
+		{
 			return true;
 		}
 
-
-
-		/**
-		 * @return
-		 * @see java.lang.Object#toString()
-		 */
 		@Override
-		public String toString() {
+		public String toString()
+		{
 			final char n = '\n';
 			final char t = '\t';
 			final StringBuilder sb = new StringBuilder(1024);
@@ -957,17 +1112,7 @@ public interface EntityDataMapper<E, D, M extends EntityDataMapper<E, D, M>> ext
 			;
 			return sb.toString();
 		}
-
-
-
-
-
-
-
+		
 	}
-
-
-
-
 
 }

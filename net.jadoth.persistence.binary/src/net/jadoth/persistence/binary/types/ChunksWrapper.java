@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
@@ -26,8 +26,10 @@ public final class ChunksWrapper extends Binary
 	// instance fields  //
 	/////////////////////
 
-	private final ByteBuffer[] buffers;
-	private final long[] startOffsets, boundOffsets;
+	private final ByteBuffer[] buffers     ;
+	private final long[]       startOffsets;
+	private final long[]       boundOffsets;
+	private final long         totalLength ;
 
 
 
@@ -41,6 +43,8 @@ public final class ChunksWrapper extends Binary
 		super();
 		final long[] startOffsets = new long[chunks.length];
 		final long[] boundOffsets = new long[chunks.length];
+		
+		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
 			if(!(chunks[i] instanceof DirectBuffer))
@@ -50,12 +54,14 @@ public final class ChunksWrapper extends Binary
 //			startOffsets[i] = BinaryPersistence.chunkDataAddress(chunks[i]);
 //			boundOffsets[i] = Memory.directByteBufferAddress(chunks[i]) + chunks[i].position();
 
-			boundOffsets[i] = (startOffsets[i] = Memory.directByteBufferAddress(chunks[i])) + chunks[i].position();
+			boundOffsets[i] = (startOffsets[i] = XVM.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
+			totalLength += chunks[i].position();
 		}
 
-		this.buffers      = chunks     ;
+		this.buffers      = chunks      ;
 		this.startOffsets = startOffsets;
 		this.boundOffsets = boundOffsets;
+		this.totalLength  = totalLength ;
 	}
 
 
@@ -118,12 +124,6 @@ public final class ChunksWrapper extends Binary
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public final long entityCount()
-	{
-		throw new UnsupportedOperationException();
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	protected final void internalIterateCurrentData(final Consumer<byte[]> iterator)
@@ -134,14 +134,13 @@ public final class ChunksWrapper extends Binary
 	@Override
 	public final boolean isEmpty()
 	{
-		for(final ByteBuffer bb : this.buffers)
-		{
-			if(bb.position() != 0)
-			{
-				return false;
-			}
-		}
-		return true;
+		return this.totalLength != 0;
+	}
+	
+	@Override
+	public final long totalLength()
+	{
+		return this.totalLength;
 	}
 
 }

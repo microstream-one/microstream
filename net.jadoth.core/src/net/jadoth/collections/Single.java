@@ -5,20 +5,20 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.collections.types.XReferencing;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 
 // (02.11.2012 TM)FIXME: Single: consolidate with Singleton<E>
 public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
@@ -1003,7 +1003,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		joiner.accept(this.element, aggregate);
 		return aggregate;
@@ -1087,7 +1087,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public int size()
 		{
-			return Jadoth.to_int(Single.this.size());
+			return XTypes.to_int(Single.this.size());
 		}
 
 		@Override

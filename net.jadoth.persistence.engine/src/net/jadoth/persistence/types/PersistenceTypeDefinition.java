@@ -1,30 +1,75 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.mayNull;
+import static net.jadoth.X.notNull;
+
+import net.jadoth.X;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XImmutableSequence;
+import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 
-/**
- * Type that further defines a {@link PersistenceTypeDictionaryEntry} regarding runtime links and
- * special attributes.
- * 
- * @author TM
- *
- * @param <T>
- */
-public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryEntry, SwizzleTypeLink<T>
+public interface PersistenceTypeDefinition extends PersistenceTypeDescription, SwizzleTypeLink
 {
+	/**
+	 * The biuniquely associated id value identifying a type description.
+	 */
 	@Override
-	public long   typeId();
-
+	public long typeId();
+	
+	/**
+	 * The name of the type as defined in the type dictionary. This name may never change for a given typeId,
+	 * even if the runtime {@link #runtimeTypeName()} did to reflect a design-level type renaming.
+	 */
 	@Override
 	public String typeName();
-
+	
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
+	public Class<?> type();
+	
+	/**
+	 * The name of the corresponding runtime type.
+	 * If not implemented otherwise (e.g. to cache the name), this method simply calls {@link Class#getName()} of
+	 * a non-null {@link #type()} reference.
+	 */
+	public default String runtimeTypeName()
+	{
+		return this.type() == null
+			? null
+			: this.type().getName()
+		;
+	}
+
+	/* (30.06.2015 TM)TODO: PersistenceTypeDescription <?>Generics
+	 * Must consider Generics Type information as well, at least as a simple normalized String for
+	 * equality comparison.
+	 * Otherwise, changing type parameter won't be recognized by the type validation and
+	 * loading/building of entities will result in heap pollution (wrong instance for the type).
+	 * Example:
+	 * Lazy<Person> changed to Lazy<Employee>.
+	 * Currently, this is just recognized as Lazy.
+	 * 
+	 * (05.04.2017 TM)NOTE: but does it really have to be stored here?
+	 * Wouldn't it be enough to store it in the member description?
+	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
+	 */
+
+	/**
+	 * Enum (unique elements with order), using {@link PersistenceTypeDescriptionMember#identityHashEqualator()}.
+	 * Contains all persistent members (similar, but not identical to fields) in persistent order, which can
+	 * differ from the declaration order.
+	 * 
+	 * @return
+	 */
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
 
 	public boolean hasPersistedReferences();
 
+	public long membersPersistedLengthMinimum();
+	
+	public long membersPersistedLengthMaximum();
+	
 	/**
 	 * Provides information if two instances of the handled type can have different length in persisted form.<p>
 	 * Examples for variable length types:
@@ -44,7 +89,10 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 *
 	 * @return
 	 */
-	public boolean hasPersistedVariableLength();
+	public default boolean hasPersistedVariableLength()
+	{
+		return this.membersPersistedLengthMinimum() == this.membersPersistedLengthMaximum();
+	}
 
 	public boolean isPrimitiveType();
 	
@@ -67,55 +115,85 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	
-	public default String toTypeString()
+	public default String toRuntimeTypeIdentifier()
 	{
-		return this.getClass().getName() + "<" + this.type().getName() + ">(TID " + this.typeId() + ")";
+		return PersistenceTypeDescription.buildTypeIdentifier(
+			this.typeId(),
+			X.coalesce(this.runtimeTypeName(), "[no runtime type]")
+		);
 	}
 	
 	
-	
-	
-	public static boolean isEqualDescription(final PersistenceTypeDefinition<?> td1, final PersistenceTypeDefinition<?> td2)
-	{
-		return td1 == td2
-			|| td1 != null && td2 != null
-			&& td1.typeId() == td2.typeId()
-			&& PersistenceTypeDescription.isEqualStructure(td1, td2)
-		;
-	}
-		
 
-	public static PersistenceTypeDefinitionCreator Builder()
-	{
-		return new PersistenceTypeDefinitionCreator.Implementation();
-	}
-	
-	public static <T> PersistenceTypeDefinition<T> New(
-//		final PersistenceTypeLineage<T>                         lineage,
-		final String                                                       typeName,
-		final Class<T>                                                     type    ,
-		final long                                                         typeId ,
+	public static boolean determineVariableLength(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
 	)
 	{
-		return new PersistenceTypeDefinition.Implementation<>(typeName, type, typeId, members);
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			if(member.isVariableLength())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean determineIsPrimitive(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		return members.size() == 1 && members.get().isPrimitiveDefinition();
 	}
 	
 	
-	public final class Implementation<T> implements PersistenceTypeDefinition<T>
+	public static PersistenceTypeDefinition New(
+		final long                                                    typeId         ,
+		final String                                                  typeName       ,
+		final String                                                  runtimeTypeName,
+		final Class<?>                                                type           ,
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
+	)
+	{
+		// as defined by interface contract.
+		if(members.equality() != PersistenceTypeDescriptionMember.identityHashEqualator())
+		{
+			throw new IllegalArgumentException();
+		}
+		
+		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
+		// type may be null for the sole case of an explicitly mapped to be deleted type.
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> internalMembers = members.immure();
+		return new PersistenceTypeDefinition.Implementation(
+			                                                         typeId          ,
+			                                                 notNull(typeName)       ,
+			                                                 mayNull(runtimeTypeName),
+			                                                 mayNull(type)           ,
+			                                                         internalMembers ,
+			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers),
+			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers),
+			PersistenceTypeDefinition       .determineVariableLength(internalMembers)
+		);
+	}
+
+
+
+	public final class Implementation implements PersistenceTypeDefinition
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final long                                                           typeId        ;
-		final String                                                         typeName      ;
-		final Class<T>                                                       type          ;
-		final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members       ;
-		final boolean                                                        hasReferences ;
-		final boolean                                                        isPrimitive   ;
-		final boolean                                                        variableLength;
-//		final PersistenceTypeLineage<T>                                      typeLineage   ;
+		final long                                                      typeId              ;
+		final String                                                    typeName            ;
+		final String                                                    runtimeTypeName     ;
+		final Class<?>                                                  runtimeType         ;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members             ;
+		final long                                                      membersLengthMinimum;
+		final long                                                      membersLengthMaximum;
+		final boolean                                                   hasReferences       ;
+		final boolean                                                   isPrimitive         ;
+		final boolean                                                   variableLength      ;
 
 
 
@@ -124,49 +202,41 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		/////////////////
 
 		Implementation(
-			final String                                                       typeName,
-			final Class<T>                                                     type    ,
-			final long                                                         typeId  ,
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+			final long                                                      typeId         ,
+			final String                                                    typeName       ,
+			final String                                                    runtimeTypeName,
+			final Class<?>                                                  runtimeType    ,
+			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members        ,
+			final boolean                                                   hasReferences  ,
+			final boolean                                                   isPrimitive    ,
+			final boolean                                                   variableLength
 		)
 		{
 			super();
-//			this.typeLineage       = typeLineage              ;
-			this.typeId            = typeId                   ;
-			this.typeName          = typeName                 ;
-			this.type              = type                     ; // may be null for an obsolete type description
-			this.members           = members.immure()         ; // same instance if already immutable
-			this.hasReferences     = PersistenceTypeDescriptionMember.determineHasReferences (members);
-			this.isPrimitive       = PersistenceTypeDescriptionMember.determineIsPrimitive   (members);
-			this.variableLength    = PersistenceTypeDescriptionMember.determineVariableLength(members);
+			this.typeId          = typeId         ;
+			this.typeName        = typeName       ;
+			this.runtimeTypeName = runtimeTypeName;
+			this.runtimeType     = runtimeType    ;
+			this.members         = members        ;
+			this.hasReferences   = hasReferences  ;
+			this.isPrimitive     = isPrimitive    ;
+			this.variableLength  = variableLength ;
+			
+			long membersLengthMinimum = 0, membersLengthMaximum = 0;
+			for(final PersistenceTypeDescriptionMember member : this.members)
+			{
+				membersLengthMinimum += member.persistentMinimumLength();
+				membersLengthMaximum += member.persistentMaximumLength();
+			}
+			this.membersLengthMinimum = membersLengthMinimum;
+			this.membersLengthMaximum = membersLengthMaximum;
 		}
 
 		
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
-		
-//		@Override
-//		public final PersistenceTypeLineage<T> lineage()
-//		{
-//			return this.typeLineage;
-//		}
-//
-//		@Override
-//		public final PersistenceTypeLineage<T> initializeLineage(final PersistenceTypeLineage<T> lineage)
-//		{
-//			// this implementation only validates the immutable reference.
-//			if(this.typeLineage == lineage)
-//			{
-//				return lineage;
-//			}
-//
-//			// (01.09.2017 TM)EXCP: proper exception
-//			throw new RuntimeException(
-//				"Already initialized for another " + PersistenceTypeLineage.class.getSimpleName()
-//			);
-//		}
+		// methods //
+		////////////
 
 		@Override
 		public final long typeId()
@@ -181,17 +251,23 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		}
 		
 		@Override
-		public final Class<T> type()
+		public final String runtimeTypeName()
 		{
-			return this.type;
+			return this.runtimeTypeName;
 		}
 		
 		@Override
-		public final XImmutableSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final Class<?> type()
+		{
+			return this.runtimeType;
+		}
+		
+		@Override
+		public final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members()
 		{
 			return this.members;
 		}
-		
+
 		@Override
 		public final boolean hasPersistedReferences()
 		{
@@ -219,22 +295,21 @@ public interface PersistenceTypeDefinition<T> extends PersistenceTypeDictionaryE
 		@Override
 		public final String toString()
 		{
-			return this.toTypeString();
-//			final VarString vc = VarString.New();
-//
-//			vc.add(this.typeId).blank().add(this.typeName).blank().add('{');
-//			if(!this.members.isEmpty())
-//			{
-//				vc.lf();
-//				for(final PersistenceTypeDescriptionMember member : this.members)
-//				{
-//					vc.tab().add(member).add(';').lf();
-//				}
-//			}
-//			vc.add('}');
-//
-//			return vc.toString();
+			return this.toRuntimeTypeIdentifier();
 		}
+
+		@Override
+		public final long membersPersistedLengthMinimum()
+		{
+			return this.membersLengthMinimum;
+		}
+
+		@Override
+		public final long membersPersistedLengthMaximum()
+		{
+			return this.membersLengthMaximum;
+		}
+		
 
 	}
 	

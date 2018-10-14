@@ -3,13 +3,14 @@
  */
 package net.jadoth.test.lang;
 
-import static net.jadoth.Jadoth.array;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.jadoth.util.iterables.JadothIterables;
+import net.jadoth.X;
+import net.jadoth.util.iterables.ArrayIterable;
+import net.jadoth.util.iterables.ChainedArraysIterable;
+import net.jadoth.util.iterables.ChainedIterables;
 
 /**
  * @author Thomas Muenz
@@ -34,12 +35,12 @@ public class MainTestChainedIterables
 		final List<String> strings1 = Arrays.asList("A", "B", "C");
 		final List<String> strings2 = Arrays.asList("D", "E", "F");
 
-		for(final String s : JadothIterables.iterate(strings1, null, null, strings2, null))
+		for(final String s : new ChainedIterables<>(strings1, null, null, strings2, null))
 		{
 			System.out.println(s);
 		}
 		System.out.println("");
-		for(final String s : JadothIterables.iterate(new ArrayList<String>(), null, new ArrayList<String>(), null))
+		for(final String s : new ChainedIterables<>(new ArrayList<String>(), null, new ArrayList<String>(), null))
 		{
 			System.out.println(s);
 		}
@@ -47,15 +48,15 @@ public class MainTestChainedIterables
 
 	static void testArraysChaining()
 	{
-		final String[] strings1 = array("A", "B", "C");
-		final String[] strings2 = array("D", "E", "F");
+		final String[] strings1 = X.array("A", "B", "C");
+		final String[] strings2 = X.array("D", "E", "F");
 
-		for(final String s : JadothIterables.iterate(strings1, null, null, strings2, null))
+		for(final String s : new ChainedArraysIterable<>(strings1, null, null, strings2, null))
 		{
 			System.out.println(s);
 		}
 		System.out.println("");
-		for(final String s : JadothIterables.iterate(new String[0], null, new String[0], null))
+		for(final String s : new ChainedArraysIterable<>(new String[0], null, new String[0], null))
 		{
 			System.out.println(s);
 		}
@@ -63,12 +64,12 @@ public class MainTestChainedIterables
 
 	static void testArrayIterable()
 	{
-		for(final String s : JadothIterables.iterate(array("A", "B", "C")))
+		for(final String s : new ArrayIterable<>(X.array("A", "B", "C")))
 		{
 			System.out.println(s);
 		}
 		System.out.println("");
-		for(final String s : JadothIterables.iterate(new String[0], null, new String[0], null))
+		for(final String s : new ChainedArraysIterable<>(new String[0], null, new String[0], null))
 		{
 			System.out.println(s);
 		}

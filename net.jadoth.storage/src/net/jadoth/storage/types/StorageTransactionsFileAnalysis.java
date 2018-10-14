@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,12 +10,12 @@ import java.nio.channels.FileLock;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.low.XVM;
 
 public interface StorageTransactionsFileAnalysis
 {
@@ -74,11 +73,11 @@ public interface StorageTransactionsFileAnalysis
 		 * -24         S.O.M.E .C.O.M.M.E.N.T.
 		 */
 		static final byte
-			LENGTH_ENTRY_LENGTH               = (byte)Memory.byteSize_byte()                              ,
-			LENGTH_ENTRY_TYPE                 = (byte)Memory.byteSize_byte()                              ,
-			LENGTH_ENTRY_TIMESTAMP            = (byte)Memory.byteSize_long()                              ,
-			LENGTH_FILE_LENGTH                = (byte)Memory.byteSize_long()                              ,
-			LENGTH_FILE_NUMBER                = (byte)Memory.byteSize_long()                              ,
+			LENGTH_ENTRY_LENGTH               = (byte)XVM.byteSize_byte()                              ,
+			LENGTH_ENTRY_TYPE                 = (byte)XVM.byteSize_byte()                              ,
+			LENGTH_ENTRY_TIMESTAMP            = (byte)XVM.byteSize_long()                              ,
+			LENGTH_FILE_LENGTH                = (byte)XVM.byteSize_long()                              ,
+			LENGTH_FILE_NUMBER                = (byte)XVM.byteSize_long()                              ,
 
 			TYPE_FILE_CREATION                = 0  /* length: 26 | binary header pattern: 1A00 */         ,
 			TYPE_STORE                        = 1  /* length: 18 | binary header pattern: 1201 */         ,
@@ -132,8 +131,8 @@ public interface StorageTransactionsFileAnalysis
 
 		public static void initializeEntry(final long address, final byte length, final byte type)
 		{
-			Memory.set_byte(address + OFFSET_COMMON_LENGTH, length);
-			Memory.set_byte(address + OFFSET_COMMON_TYPE  , type  );
+			XVM.set_byte(address + OFFSET_COMMON_LENGTH, length);
+			XVM.set_byte(address + OFFSET_COMMON_TYPE  , type  );
 		}
 
 		public static void initializeEntryFileCreation(final long address)
@@ -163,8 +162,8 @@ public interface StorageTransactionsFileAnalysis
 
 		public static void setEntryCommon(final long address, final long fileLength, final long timestamp)
 		{
-			Memory.set_long(address + OFFSET_COMMON_FILE_LENGTH, fileLength);
-			Memory.set_long(address + OFFSET_COMMON_TIMESTAMP  , timestamp );
+			XVM.set_long(address + OFFSET_COMMON_FILE_LENGTH, fileLength);
+			XVM.set_long(address + OFFSET_COMMON_TIMESTAMP  , timestamp );
 		}
 
 		public static void setEntryFileCreation(
@@ -175,37 +174,37 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			Memory.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
+			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
 		}
 
 		public static byte getEntryLength(final long address)
 		{
-			return Memory.get_byte(address + OFFSET_COMMON_LENGTH);
+			return XVM.get_byte(address + OFFSET_COMMON_LENGTH);
 		}
 
 		public static byte getEntryType(final long address)
 		{
-			return Memory.get_byte(address + OFFSET_COMMON_TYPE);
+			return XVM.get_byte(address + OFFSET_COMMON_TYPE);
 		}
 
 		public static long getEntryTimestamp(final long address)
 		{
-			return Memory.get_long(address + OFFSET_COMMON_TIMESTAMP);
+			return XVM.get_long(address + OFFSET_COMMON_TIMESTAMP);
 		}
 
 		public static long getFileLength(final long address)
 		{
-			return Memory.get_long(address + OFFSET_COMMON_FILE_LENGTH);
+			return XVM.get_long(address + OFFSET_COMMON_FILE_LENGTH);
 		}
 
 		public static long getFileNumber(final long address)
 		{
-			return Memory.get_long(address + OFFSET_COMMON_FILE_NUMBER);
+			return XVM.get_long(address + OFFSET_COMMON_FILE_NUMBER);
 		}
 
 		public static long getSpecialOffset(final long address)
 		{
-			return Memory.get_long(address + OFFSET_COMMON_SPECIAL_OFFSET);
+			return XVM.get_long(address + OFFSET_COMMON_SPECIAL_OFFSET);
 		}
 
 		public static void setEntryStore(final long address, final long fileLength, final long timestamp)
@@ -222,8 +221,8 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			Memory.set_long(address + OFFSET_COMMON_FILE_NUMBER   , sourcefileNumber );
-			Memory.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, sourcefileOffset );
+			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER   , sourcefileNumber );
+			XVM.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, sourcefileOffset );
 		}
 
 		public static void setEntryFileDeletion(
@@ -234,7 +233,7 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			Memory.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
+			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
 		}
 
 		public static void setEntryFileTruncation(
@@ -246,8 +245,8 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			Memory.set_long(address + OFFSET_COMMON_FILE_NUMBER   , fileNumber);
-			Memory.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, oldLength );
+			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER   , fileNumber);
+			XVM.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, oldLength );
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
@@ -282,8 +281,8 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(Memory.defaultBufferSize());
-			final long       address = Memory.directByteBufferAddress(buffer);
+			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XVM.defaultBufferSize());
+			final long       address = XVM.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part
 			while(currentFilePosition < boundPosition)
@@ -397,6 +396,22 @@ public interface StorageTransactionsFileAnalysis
 				closeSilent(channel);
 			}
 		}
+		
+		public static void closeSilent(final AutoCloseable closable)
+		{
+			if(closable == null)
+			{
+				return;
+			}
+			try
+			{
+				closable.close();
+			}
+			catch(final Exception t)
+			{
+				// sshhh, silence!
+			}
+		}
 
 		public static VarString parseFile(final FileChannel fileChannel, final VarString vs) throws IOException
 		{
@@ -501,7 +516,7 @@ public interface StorageTransactionsFileAnalysis
 		{
 			// 2 bytes per char are required
 			final char[] array = new char[(int)availableItemLength >> 1];
-			Memory.copyRangeToArray(address, array);
+			XVM.copyRangeToArray(address, array);
 			this.vs.add(array);
 			return true;
 		}
@@ -911,8 +926,8 @@ public interface StorageTransactionsFileAnalysis
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageLockedChannelFile transactionsFile()

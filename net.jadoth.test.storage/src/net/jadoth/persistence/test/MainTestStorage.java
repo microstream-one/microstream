@@ -1,23 +1,24 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.Jadoth.keyValue;
-
 import java.io.File;
 import java.util.Date;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqConstHashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XEnum;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.XDebug;
+import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.storage.types.StorageDataFileEvaluator;
 import net.jadoth.storage.types.StorageRawFileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.time.JadothTime;
+import net.jadoth.test.Person;
+import net.jadoth.time.XTime;
+import net.jadoth.typing.XTypes;
 
 
 public class MainTestStorage extends TestStorage
@@ -60,7 +61,7 @@ public class MainTestStorage extends TestStorage
 
 	static void createBigGraph(final int p6size, final StorageConnection connection)
 	{
-		JadothConsole.debugln("big graph initialization ("+p6size+")");
+		XDebug.println("big graph initialization ("+p6size+")");
 		final Integer[][][][][][] ints0 = new Integer[p6size][p6size][p6size][p6size][p6size][p6size];
 		for(int i0 = 0; i0 < ints0.length; i0++)
 		{
@@ -87,21 +88,21 @@ public class MainTestStorage extends TestStorage
 			}
 		}
 		ROOT.set(Lazy.Reference(ints0));
-		JadothConsole.debugln("store big graph ...");
-		connection.storeFull(ROOT);
-		JadothConsole.debugln("store big graph done");
+		XDebug.println("store big graph ...");
+		connection.store(ROOT);
+		XDebug.println("store big graph done");
 	}
 
 
 	static void testContinuousHouseKeeping(final StorageConnection connection, final Object instance)
 	{
-//		JadothThreads.sleep(2000);
+//		XThreads.sleep(2000);
 		for(int i = 1000; i --> 0;)
 		{
-			JadothConsole.debugln("round "+i);
+			XDebug.println("round "+i);
 
-			// do one round of explicitely issued house keeping
-			connection.storeRequired(instance);
+			// do one round of explicitly issued house keeping
+			connection.store(instance);
 			storageCleanup(connection);
 
 //			if(Math.random() < 0.5)
@@ -110,28 +111,28 @@ public class MainTestStorage extends TestStorage
 //			}
 //			else if(Math.random() < 0.2)
 //			{
-//				JadothConsole.debugln("long");
-//				JadothThreads.sleep(16_000);
+//				XDebug.debugln("long");
+//				XThreads.sleep(16_000);
 //			}
 //			else
 //			{
-//				JadothConsole.debugln("short");
-//				JadothThreads.sleep(100 + (int)(200d*Math.random()));
+//				XDebug.debugln("short");
+//				XThreads.sleep(100 + (int)(200d*Math.random()));
 //			}
 		}
 	}
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		JadothConsole.debugln("GC#1");
+		XDebug.println("GC#1");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("GC#2");
+		XDebug.println("GC#2");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("cache check");
+		XDebug.println("cache check");
 		connection.issueFullCacheCheck();
-		JadothConsole.debugln("file check");
+		XDebug.println("file check");
 		connection.issueFullFileCheck();
-		JadothConsole.debugln("Done cleanup");
+		XDebug.println("Done cleanup");
 	}
 
 	static void oldTestStuff()
@@ -148,8 +149,8 @@ public class MainTestStorage extends TestStorage
 		// simple storing test
 //		ROOT.set(EqConstHashTable.New(keyValue("A", "One"), keyValue("B", "Two"), keyValue("C", "Schnitzel")));
 //		ROOT.set(X.List(
-//			new Person("Alice", "A", null, JadothTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
-//			new Person("Bob", "B", null, JadothTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
+//			new Person("Alice", "A", null, XTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
+//			new Person("Bob", "B", null, XTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
 //		));
 //		ROOT.set(X.List(
 //			complexStuff,
@@ -169,7 +170,7 @@ public class MainTestStorage extends TestStorage
 //			public File provideExportFile(final StorageEntityTypeHandler entityType)
 //			{
 //				return new File(
-//					JadothFiles.ensureDirectory(new File("c:/Files/export/")),
+//					XFiles.ensureDirectory(new File("c:/Files/export/")),
 //					entityType.typeName()+".bin"
 //				);
 //			}
@@ -236,14 +237,14 @@ public class MainTestStorage extends TestStorage
 	static void testImport()
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
-//		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-//			new File("C:/FilesImport/PersistenceTypeDictionary.ptd")
-//		);
+		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
+			new File("C:/FilesImport/PersistenceTypeDictionary.ptd")
+		);
 		final XEnum<File>               dataFiles  = X.Enum(new File("C:/FilesImport/channel_0").listFiles())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
-//		connection.persistenceManager().updateMetadata(dictionary);
+		connection.persistenceManager().updateMetadata(dictionary);
 		connection.importFiles(dataFiles);
 	}
 
@@ -287,8 +288,8 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<Integer> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothConsole.debugln("initial storing root...");
-		storageConnection.storeFull(ROOT); // save whole graph recursively, starting at root
+		XDebug.println("initial storing root...");
+		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		createIntegers(ints, 100_000);
 		for(int i = 0; i < 1; i++)
@@ -296,9 +297,9 @@ public class MainTestStorage extends TestStorage
 //			ints.clear();
 //			createIntegers(ints, 10000);
 //			Thread.sleep(987);
-//			JadothConsole.debugln("storing ints #"+i);
+//			XDebug.debugln("storing ints #"+i);
 			final long tStart = System.nanoTime();
-			storageConnection.storeFull(ints);
+			storageConnection.store(ints);
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 //			Thread.sleep(1000);
@@ -318,8 +319,8 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		JadothConsole.debugln("initial storing root...");
-		storageConnection.storeFull(ROOT); // save whole graph recursively, starting at root
+		XDebug.println("initial storing root...");
+		storageConnection.store(ROOT); // save whole graph recursively, starting at root
 
 		for(int i = 0; i < 100; i++)
 		{
@@ -328,7 +329,7 @@ public class MainTestStorage extends TestStorage
 			ints.add(subInts);
 
 			final long tStart = System.nanoTime();
-			storageConnection.storeRequired(ints);
+			storageConnection.store(ints);
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
@@ -343,12 +344,12 @@ public class MainTestStorage extends TestStorage
 
 		final BulkList<BulkList<Integer>> ints = BulkList.New();
 		ROOT.set(ints);
-		storageConnection.storeFull(ROOT);
+		storageConnection.store(ROOT);
 
 		for(int i = 100; i --> 0;)
 		{
 			ints.add(createIntegers(BulkList.New(), 1_000));
-			storageConnection.storeRequired(ints);
+			storageConnection.store(ints);
 		}
 
 //		final StorageRawFileStatistics stats = storageConnection.createStorageStatitics();
@@ -359,7 +360,7 @@ public class MainTestStorage extends TestStorage
 
 	static BulkList<Integer> createIntegers(final BulkList<Integer> ints, final int size)
 	{
-		final int first = 5001 + Jadoth.to_int(ints.size());
+		final int first = 5001 + XTypes.to_int(ints.size());
 		final int bound = first + size;
 		for(int i = first; i < bound; i++)
 		{
@@ -387,59 +388,12 @@ public class MainTestStorage extends TestStorage
 		return new File(dir, name.substring(0, name.lastIndexOf(ending))+".csv");
 	}
 
-	static final class Person
-	{
-		String  firstname, lastname, whatever;
-		Date    doB   ;
-		int     age   ;
-		float   weight;
-		double  height;
-		long    ssid  ;
-		boolean b1, b2;
-		short   stuff ;
-		char    sex   ;
-		byte    bla   ;
-
-		public Person(
-			final String  firstname,
-			final String  lastname ,
-			final String  whatever ,
-			final Date    doB      ,
-			final int     age      ,
-			final float   weight   ,
-			final double  height   ,
-			final char    sex      ,
-			final long    ssid     ,
-			final boolean b1       ,
-			final boolean b2       ,
-			final short   stuff    ,
-			final byte    bla
-			)
-		{
-			super();
-			this.firstname = firstname;
-			this.lastname = lastname;
-			this.whatever = whatever;
-			this.doB = doB;
-			this.age = age;
-			this.weight = weight;
-			this.height = height;
-			this.sex = sex;
-			this.ssid = ssid;
-			this.b1 = b1;
-			this.b2 = b2;
-			this.stuff = stuff;
-			this.bla = bla;
-		}
-	}
-
-
 	static Object complexStuff()
 	{
 		return X.List(
 			X.List(
-				new Person("Alice", "A", null, JadothTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
-				new Person("Bob"  , "B", null, JadothTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
+				new Person("Alice", "A", null, XTime.timestamp(1990, 9, 19), 23, 52.1f, 1.70, 'F', 1234, true, false, (short)20000, (byte)112),
+				new Person("Bob"  , "B", null, XTime.timestamp(1980, 8, 18), 33, 69.8f, 1.80, 'M', 1337, true, false, (short)30000, (byte)127)
 				),
 				new Date[][][]{
 				{
@@ -453,7 +407,7 @@ public class MainTestStorage extends TestStorage
 					null
 				},
 			},
-			EqConstHashTable.New(keyValue("A", "One"), keyValue("B", "Two"), keyValue("C", "Schnitzel")),
+			EqConstHashTable.New(X.KeyValue("A", "One"), X.KeyValue("B", "Two"), X.KeyValue("C", "Schnitzel")),
 			5,
 			1337L,
 			X.Enum("A", "B", "C")
@@ -488,7 +442,7 @@ public class MainTestStorage extends TestStorage
 		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
-		JadothConsole.debugln(s.toString());
+		XDebug.println(s.toString());
 	}
 
 }

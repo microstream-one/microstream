@@ -1,7 +1,7 @@
 package net.jadoth.collections;
 
 import net.jadoth.collections.interfaces.ChainKeyValueStorage;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 public abstract class AbstractChainKeyValueStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>

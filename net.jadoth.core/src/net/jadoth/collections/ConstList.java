@@ -4,24 +4,24 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractOldGettingList;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
 
@@ -162,7 +162,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 	@Override
@@ -238,7 +238,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		final E[] array = JadothArrays.newArray(type, this.data.length);
+		final E[] array = X.Array(type, this.data.length);
 		System.arraycopy(this.data, 0, array, 0, this.data.length);
 		return array;
 	}
@@ -252,7 +252,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.data.length, joiner, aggregate);
 		return aggregate;
@@ -469,19 +469,19 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		{
 			return true;
 		}
-		if(samples == null || !(samples instanceof ConstList<?>) || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || !(samples instanceof ConstList<?>) || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((ConstList<? extends E>)samples).data, 0, this.data.length, equalator);
+		return XArrays.equals(this.data, 0, ((ConstList<? extends E>)samples).data, 0, this.data.length, equalator);
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.data.length)
+		if(samples == null || XTypes.to_int(samples.size()) != this.data.length)
 		{
 			return false;
 		}
@@ -709,7 +709,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.data.length);
+		return XArrays.arrayHashCode(this.data, this.data.length);
 	}
 
 

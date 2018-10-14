@@ -3,20 +3,20 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractBridgeXList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
-import net.jadoth.concurrent.Synchronized;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 import net.jadoth.util.iterables.SynchronizedListIterator;
 
@@ -479,7 +479,7 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final synchronized <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final synchronized <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -938,7 +938,7 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	@Override
 	public final synchronized long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

@@ -6,9 +6,9 @@ import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.KeyValue;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.KeyValue;
 
 /**
  *
@@ -41,7 +41,7 @@ public final class HashMapIdId implements Sized, OptimizableCollection, Composit
 	public HashMapIdId(final int slotSize)
 	{
 		super();
-		this.hashSlots = new Entry[(this.hashRange = JadothMath.pow2BoundCapped(slotSize) - 1) + 1];
+		this.hashSlots = new Entry[(this.hashRange = XMath.pow2BoundCapped(slotSize) - 1) + 1];
 	}
 
 
@@ -264,7 +264,7 @@ public final class HashMapIdId implements Sized, OptimizableCollection, Composit
 	@Override
 	public long optimize()
 	{
-		this.rebuild(JadothMath.pow2BoundCapped(this.size));
+		this.rebuild(XMath.pow2BoundCapped(this.size));
 		return this.size;
 	}
 

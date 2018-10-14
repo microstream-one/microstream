@@ -1,24 +1,22 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.BulkList;
-import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.equality.Equalator;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>
@@ -30,66 +28,57 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
 
 	@Override
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long typeId);
-	
-	/* (27.09.2017 TM)XXX: not sure if all these ensuring methods still make sense,
-	 * since the new concept is the the type lineage provider automatically creates a runtime definition
-	 * which potentially is a handler.
-	 */
-	
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
+
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(T instance);
 
 	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
+	
+	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
+	
+	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition> typeDefinitions);
 
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(long tid);
+	public void ensureTypeHandlersByTypeIds(XGettingEnum<Long> typeIds);
 
 	public void initialize();
 
-	public void reinitialize();
-
 	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
 
-//	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
-//
-//	public default void update(final PersistenceTypeDictionary typeDictionary)
-//	{
-//		this.update(typeDictionary, 0);
-//	}
+	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
-
-
-	/*
-	 * (02.04.2013 TM)TODO: type slave alternative to request type id at master
-	 * (and refresh type dictionary in the process)
-	 */
+	public default void update(final PersistenceTypeDictionary typeDictionary)
+	{
+		this.update(typeDictionary, 0);
+	}
+	
 	@Override
 	public long ensureTypeId(Class<?> type);
 
 	@Override
-	public <T> Class<T> ensureType(long typeId);
+	public Class<?> ensureType(long typeId);
 
 
 
 	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
-		final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
-		final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
-		final PersistenceTypeDictionaryImporter typeDictionaryImporter     ,
-		final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
-		final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable,
-		final PersistenceTypeChangeCallback     typeChangeCallback
+		final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
+		final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
+		final PersistenceTypeDictionaryManager    typeDictionaryManager,
+		final PersistenceTypeEvaluator            typeEvaluator        ,
+		final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
+		final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ,
+		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 	)
 	{
 		return new PersistenceTypeHandlerManager.Implementation<>(
-			notNull(typeHandlerRegistry)        ,
-			notNull(typeHandlerProvider)        ,
-			notNull(typeDictionaryImporter)     ,
-			notNull(typeDictionaryManager)      ,
-			notNull(typeEvaluatorTypeIdMappable),
-			notNull(typeChangeCallback)
+			notNull(typeHandlerRegistry)  ,
+			notNull(typeHandlerProvider)  ,
+			notNull(typeDictionaryManager),
+			notNull(typeEvaluator)        ,
+			notNull(typeMismatchValidator),
+			notNull(legacyTypeMapper)     ,
+			notNull(unreachableTypeHandlerCreator)
 		);
 	}
-
-
 
 	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
 	{
@@ -97,13 +86,15 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		// instance fields  //
 		/////////////////////
 
-		        final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ;
-		private final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ;
-		private final PersistenceTypeDictionaryImporter typeDictionaryImporter     ;
-		private final PersistenceTypeDictionaryManager  typeDictionaryManager      ;
-		private final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable;
-		private final PersistenceTypeChangeCallback     typeChangeCallback         ;
-		private       boolean                           initialized                ;
+		        final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ;
+		private final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ;
+		private final PersistenceTypeDictionaryManager    typeDictionaryManager;
+		private final PersistenceTypeEvaluator            typeEvaluator        ;
+		private final PersistenceTypeMismatchValidator<M> typeMismatchValidator;
+		private final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ;
+		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
+		
+		private boolean initialized;
 
 
 
@@ -112,46 +103,95 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry        ,
-			final PersistenceTypeHandlerProvider<M> typeHandlerProvider        ,
-			final PersistenceTypeDictionaryImporter typeDictionaryImporter     ,
-			final PersistenceTypeDictionaryManager  typeDictionaryManager      ,
-			final PersistenceTypeEvaluator          typeEvaluatorTypeIdMappable,
-			final PersistenceTypeChangeCallback     typeChangeCallback
+			final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
+			final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
+			final PersistenceTypeDictionaryManager    typeDictionaryManager,
+			final PersistenceTypeEvaluator            typeEvaluator        ,
+			final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
+			final PersistenceLegacyTypeMapper<M>      legacyTypeMapper,
+			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 		)
 		{
 			super();
-			this.typeHandlerRegistry         = typeHandlerRegistry        ;
-			this.typeHandlerProvider         = typeHandlerProvider        ;
-			this.typeDictionaryImporter      = typeDictionaryImporter     ;
-			this.typeDictionaryManager       = typeDictionaryManager      ;
-			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
-			this.typeChangeCallback          = typeChangeCallback         ;
+			this.typeHandlerRegistry   = typeHandlerRegistry  ;
+			this.typeHandlerProvider   = typeHandlerProvider  ;
+			this.typeDictionaryManager = typeDictionaryManager;
+			this.typeEvaluator         = typeEvaluator        ;
+			this.typeMismatchValidator = typeMismatchValidator;
+			this.legacyTypeMapper      = legacyTypeMapper     ;
+			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
+		// methods //
+		////////////
+		
 		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
 		{
 			PersistenceTypeHandler<M, T> handler;
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
-				// must pass manager instance itself to get a chance to cache new dictionary entry
-				handler = this.typeHandlerProvider.provideTypeHandler(this, type);
+				handler = this.typeHandlerProvider.provideTypeHandler(type);
+				this.internalRegisterTypeHandler(handler);
 			}
+			
 			return handler;
+		}
+		
+		/*
+		 * Logic moved from calling it externally in the TypeHandlerProvider to be called internally, where it belongs.
+		 */
+		private <T> void internalRegisterTypeHandler(final PersistenceTypeHandler<M, T> typeHandler)
+		{
+			this.registerTypeHandler(typeHandler);
+			this.recursiveEnsureTypeHandlers(typeHandler);
+		}
+		
+		private void internalRegisterTypeHandlers(final XGettingCollection<PersistenceTypeHandler<M, ?>> typeHandlers)
+		{
+			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
+			{
+				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
+			}
+			
+			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
+			{
+				this.recursiveEnsureTypeHandlers(typeHandler);
+			}
+		}
+		
+		private <T> void recursiveEnsureTypeHandlers(final PersistenceTypeHandler<M, T> typeHandler)
+		{
+			/*
+			 * Must ensure type handlers for all field types as well to keep type definitions consistent.
+			 * If some field's type is "too abstract" to be persisted, is has to be registered to an
+			 * apropriate type handler (No-op, etc.) manually beforehand.
+			 *
+			 * creating new type handlers in the process will eventually end up here again for the new types
+			 * until all reachable types are ensured to have type handlers registered.
+			 */
+			typeHandler.iterateMemberTypes(t ->
+			{
+				try
+				{
+					this.ensureTypeHandler(t);
+				}
+				catch(final RuntimeException e)
+				{
+					throw e; // debug hook
+				}
+			});
 		}
 
 		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
 		{
-			if(!this.typeEvaluatorTypeIdMappable.test(type))
+			if(!this.typeEvaluator.test(type))
 			{
 				throw new PersistenceExceptionTypeNotPersistable(type);
 			}
+			
 			synchronized(this.typeHandlerRegistry)
 			{
 				if(type.getSuperclass() != null)
@@ -162,7 +202,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				/* Note about interfaces:
 				 * (Regarding a classe's directly implemented interfaces as well as all super interfaces
 				 * of an interface type)
-				 * As long as an interface doesn't get passed here explicitely (e.g. as a field's type),
+				 * As long as an interface doesn't get passed here explicitly (e.g. as a field's type),
 				 * it is ignored intentionally because it can be assumed that it is of no concern for
 				 * persistence (i.e. a consistent persistent type hierarchy).
 				 * If this will be proved to be wrong, ensuring type's interfaces can be inserted here.
@@ -170,34 +210,23 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				return this.synchEnsureTypeHandler(type);
 			}
 		}
-
-		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final long tid)
-		{
-			synchronized(this.typeHandlerRegistry)
-			{
-				PersistenceTypeHandler<M, T> handler;
-				if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) == null)
-				{
-					// must pass manager instance itself to get a chance to cache new dictionary entry
-					handler = this.typeHandlerProvider.provideTypeHandler(this, tid);
-				}
-				return handler;
-			}
-		}
-
+				
 		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			final PersistenceTypeDefinition<?> registeredTd =
-				this.typeDictionaryManager.typeDictionary().lookupTypeByName(typeHandler.typeName())
+			final PersistenceTypeDefinition registeredTd =
+				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
 			if(registeredTd == null)
 			{
 				return; // type not yet registered, hence it can't be invalid
 			}
-			if(!SwizzleTypeIdentity.equals(registeredTd, typeHandler))
+			
+			if(typeHandler.typeId() != registeredTd.typeId())
 			{
-				// (07.04.2013)TODO proper exception
-				throw new PersistenceExceptionTypeConsistency("Swizzle inconsistency for " + typeHandler.typeName());
+				// (07.04.2013)EXCP proper exception
+				throw new PersistenceExceptionTypeConsistency(
+					"TypeId inconsistency for " + typeHandler.typeName()
+				);
 			}
 
 			final Equalator<PersistenceTypeDescriptionMember> memberValidator = (m1, m2) ->
@@ -205,13 +234,16 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				if(m1 == null || m2 == null)
 				{
 					// (01.07.2015)EXCP proper exception
-					throw new PersistenceExceptionTypeConsistency("Member count mismatch of type " + typeHandler.typeName());
+					throw new PersistenceExceptionTypeConsistency(
+						"Member count mismatch of type " + typeHandler.typeName()
+					);
 				}
 
-				if(m1.equals(m2, PersistenceTypeDescriptionMember.equalator()))
+				if(m1.equalsDescription(m2))
 				{
 					return true;
 				}
+				
 				// (07.04.2013)EXCP proper exception
 				throw new PersistenceExceptionTypeConsistency(
 					"Inconsistent member in type description for type "
@@ -219,49 +251,143 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 				);
 			};
 
-
 			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.members(), typeHandler.members(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
-				// (07.04.2013)TODO proper exception
-				throw new PersistenceExceptionTypeConsistency("member inconsistency for " + typeHandler.typeName());
+				// (07.04.2013)EXCP proper exception
+				throw new PersistenceExceptionTypeConsistency("Member inconsistency for " + typeHandler.typeName());
 			}
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
 
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
-			return this.ensureTypeHandler(Jadoth.getClass(instance));
+			return this.ensureTypeHandler(XReflect.getClass(instance));
 		}
 
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		{
-//			JadothConsole.debugln("ensureTypeHandler(" + type + ")");
+//			XDebug.debugln("ensureTypeHandler(" + type + ")");
 			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
 			{
 				return handler;
 			}
+			
 			return this.internalEnsureTypeHandler(type);
 		}
-
-		@Override
-		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final long tid)
+		
+		private <T> Class<T> validateExistingType(final PersistenceTypeDefinition typeDefinition)
 		{
-			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
-			if((handler = this.typeHandlerRegistry.lookupTypeHandler(tid)) != null)
+			@SuppressWarnings("unchecked") // cast safety is ensured by the type itself and the logic handling it.
+			final Class<T> runtimeType = (Class<T>)typeDefinition.type();
+			if(runtimeType != null)
 			{
-				return handler;
+				return runtimeType;
 			}
-			return this.internalEnsureTypeHandler(tid);
+			
+			// (10.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Missing runtime type for required type handler for type: " + typeDefinition.runtimeTypeName()
+			);
+		}
+		
+		private <T> PersistenceTypeHandler<M, T> checkForUnreachableType(final PersistenceTypeDefinition typeDef)
+		{
+			if(typeDef.runtimeTypeName() != null)
+			{
+				return null;
+			}
+			
+			synchronized(this.typeHandlerRegistry)
+			{
+				// must check for an already existing type handler before creating a new one
+				final PersistenceTypeHandler<M, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
+				if(alreadyRegisteredTypeHandler != null)
+				{
+					@SuppressWarnings("unchecked")
+					final PersistenceTypeHandler<M, T> casted = (PersistenceTypeHandler<M, T>)alreadyRegisteredTypeHandler;
+					return casted;
+				}
+				
+				final PersistenceUnreachableTypeHandler<M, T> newHandler =
+					this.unreachableTypeHandlerCreator.createUnreachableTypeHandler(typeDef)
+				;
+				this.registerLegacyTypeHandler(newHandler);
+				
+				return newHandler;
+			}
+			
+		}
+		
+		@Override
+		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
+		{
+			/*
+			 * This method must make sure that the passed typeDefinition gets a functional type handler,
+			 * which means it must have a non-null runtime type.
+			 * Refactoring mappings have already been considered at the type definition's creation time,
+			 * meaning if it has no runtime type by now, it is an error. Either a missing refactoring mapping
+			 * or maybe even a type that has been deleted in the design without replacement that should not have been.
+			 */
+						
+			final PersistenceTypeHandler<M, T> unreachableHandler = this.checkForUnreachableType(typeDefinition);
+			if(unreachableHandler != null)
+			{
+				return unreachableHandler;
+			}
+			
+			// for all types not explicitly marked as unreachable, the runtime type is essential.
+			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
+			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			
+			// check if the type definition is up to date or if a legacy type handler is needed
+			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
+			{
+//				XDebug.println("Up to date type handler : " + typeDefinition.runtimeTypeName());
+				return runtimeTypeHandler;
+			}
+			
+//			XDebug.println("Requires legacy type handler : " + typeDefinition.typeName());
+			
+			// for non-up-to-date type definitions, a legacy type handler must be ensured (looked up or created)
+			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
+			final PersistenceTypeDefinition    legacyTypeDefinition,
+			final PersistenceTypeHandler<M, T> currentTypeHandler
+		)
+		{
+			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
+				legacyTypeDefinition,
+				currentTypeHandler
+			);
+			this.registerLegacyTypeHandler(legacyTypeHandler);
+			
+			return legacyTypeHandler;
+		}
+				
+		@Override
+		public void ensureTypeHandlersByTypeIds(final XGettingEnum<Long> typeIds)
+		{
+			final HashEnum<PersistenceTypeDefinition> resolvedTypeDefinitions = HashEnum.New();
+			this.typeDictionaryManager.provideTypeDictionary().resolveTypeIds(typeIds, resolvedTypeDefinitions);
+			this.ensureTypeHandlers(resolvedTypeDefinitions);
+		}
+				
+		@Override
+		public void ensureTypeHandlers(final XGettingEnum<PersistenceTypeDefinition> typeDefinitions)
+		{
+			synchronized(this.typeHandlerRegistry)
+			{
+//				typeDefinitions.iterate(this::ensureTypeHandler);
+				typeDefinitions.iterate(typeDefinition ->
+					this.ensureTypeHandler(typeDefinition) // debug-friendlier
+				);
+			}
 		}
 
 		@Override
@@ -271,7 +397,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
 		}
@@ -280,11 +406,11 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
-			return this.typeHandlerRegistry.lookupTypeHandler(Jadoth.getClass(instance));
+			return this.typeHandlerRegistry.lookupTypeHandler(XReflect.getClass(instance));
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			// standard implementation does not consider actual objects
 			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
@@ -301,35 +427,30 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			return this.typeHandlerRegistry.lookupType(typeId);
 		}
-		
+
 		@Override
-		public final long typeCount()
-		{
-			return this.typeHandlerRegistry.typeCount();
-		}
-		
-		@Override
-		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
 		{
 			this.typeHandlerRegistry.validateExistingTypeMapping(typeId, type);
 		}
 
 		@Override
-		public final void validatePossibleTypeMapping(final long typeId, final Class<?> type)
-		{
-			this.typeHandlerRegistry.validatePossibleTypeMapping(typeId, type);
-		}
-
-		@Override
-		public final boolean register(final PersistenceTypeHandler<M, ?> typeHandler)
+		public final boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			this.validateTypeHandler(typeHandler);
-			if(this.typeHandlerRegistry.register(typeHandler))
+			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
+				// a (up to date) handler is always the runtime type definition
 				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
 				return true;
 			}
 			return false;
+		}
+		
+		@Override
+		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		{
+			return this.typeHandlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
 		}
 
 		@Override
@@ -356,14 +477,14 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final <T> Class<T> ensureType(final long typeId)
+		public final Class<?> ensureType(final long typeId)
 		{
-			final Class<T> type;
+			final Class<?> type;
 			if((type = this.typeHandlerRegistry.lookupType(typeId)) != null)
 			{
 				return type;
 			}
-			return this.<T>ensureTypeHandler(typeId).type();
+			return this.ensureTypeHandler(typeId).type();
 		}
 
 		@Override
@@ -377,31 +498,26 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			}
 			return false;
 		}
-		
-		@Override
-		public final long ensureRegisteredType(final Class<?> type, final long tid) throws SwizzleExceptionConsistency
-		{
-			return this.typeHandlerRegistry.ensureRegisteredType(type, tid);
-		}
 
 		@Override
-		public final void validateExistingTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public final void validatePossibleTypeMappings(final XGettingSequence<? extends SwizzleTypeLink<?>> mappings)
+		public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
 			throws SwizzleExceptionConsistency
 		{
 			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
 		}
-		
+
 		@Override
 		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			return this.typeHandlerRegistry.iterateTypeHandlers(iterator);
+			this.typeHandlerRegistry.iterateTypeHandlers(iterator);
+			return iterator;
 		}
 
 		@Override
@@ -409,223 +525,162 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			if(this.initialized)
 			{
-//				JadothConsole.debugln("already initialized");
+//				XDebug.debugln("already initialized");
 				return;
 			}
 
 			this.internalInitialize();
 		}
 
-		@Override
-		public final synchronized void reinitialize()
-		{
-			this.initialized = false;
-			// (25.06.2014 TM)TODO: actually clear registry on reinitialize or just perform algorithm again?
-			this.initialize();
-		}
-
-
-//		private XGettingSequence<PersistenceTypeDescription<?>> resolveTypeDefinitions(
-//			final PersistenceTypeDictionary         typeDictionary
-//		)
-//		{
-//			final XGettingEnum<PersistenceTypeDescription<?>> typeDescriptions = typeDictionary.types();
-//			final HashEnum<PersistenceTypeDescription<?>> typeDefinitions  =
-//				HashEnum.NewCustom(typeDescriptions.size())
-//			;
-//			final HashTable<PersistenceTypeDescription<?>, Exception> problems =
-//				HashTable.NewCustom(typeDescriptions.intSize())
-//			;
-//
-//			this.typeDefinitionResolver.resolveTypeDefinitions(
-//				typeDescriptions,
-//				td ->
-//					typeDefinitions.add(td),
-//				(td, ex) ->
-//					problems.add(td, ex)
-//			);
-//
-//			if(!problems.isEmpty())
-//			{
-//				final String message = PersistenceTypeDescriptionResolver.assembleResolveExceptions(
-//					problems,
-//					VarString.New()
-//				)
-//				.toString();
-//				throw new RuntimeException(message);
-//			}
-//
-//			return typeDefinitions;
-//		}
-		
-		private void ensureRegisteredTypes(
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingRuntimeTypeDefs
-		)
-		{
-			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
-			
-			// register unconflicted / unchanged types
-			matchingRuntimeTypeDefs.iterate(kv ->
-			{
-				typeRegistry.registerType(kv.key(), kv.value().type());
-			});
-			
-			// supplement registered unconflicted types with system defaults (note the supplementing logic)
-			typeRegistry.ensureRegisteredTypes(Swizzle.defaultTypeMapping());
-		}
-		
-		
-		private void fillMatchingAndChangedTypeDefinitions(
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>>                       matchingRuntimeTypeDefs,
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs
-		)
-		{
-			final PersistenceTypeDictionary importedTypeDict = this.typeDictionaryImporter.importTypeDictionary();
-			
-			final PersistenceTypeDefinitionInitializerCreator<M> tdip = PersistenceTypeDefinitionInitializerCreator.New(
-				this.typeHandlerProvider,
-				this
-			);
-			
-			// create type definition initializers and check for type changes / conflicts / mismatches.
-			for(final PersistenceTypeDefinition<?> td : importedTypeDict.latestTypesById().values())
-			{
-				this.createTypeDefinitionInitializer(tdip, td, matchingRuntimeTypeDefs, changedTypeDefs);
-			}
-		}
-
 		private void internalInitialize()
 		{
-//			JadothConsole.debugln("initializing " + Jadoth.systemString(this.typeHandlerRegistry));
+			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingRuntimeTypeDefs =
-				EqHashTable.New()
-			;
-			final HashTable<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> changedTypeDefs =
-				HashTable.New()
-			;
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<M, ?>> existingTypeHandlers = HashEnum.New();
 			
-			this.fillMatchingAndChangedTypeDefinitions(matchingRuntimeTypeDefs, changedTypeDefs);
-						
-			
-			
-			// BAUSTELLE \\
-			
-			this.ensureRegisteredTypes(matchingRuntimeTypeDefs);
-			
-			
-						
-			// initialize matched TDIs
-			for(final KeyValue<Long, PersistenceTypeDefinitionInitializer<?>> e : matchingRuntimeTypeDefs)
+			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
+			if(typeDictionary.isEmpty())
 			{
-				// gets registered in the runtime type dictionary indirectly via relaying from the type handler manager
-				/*final PersistenceTypeDefinition<?> newTd = */e.value().initialize(e.key());
-				
-				// replace simple dictionary type definition by runtime type definition (e.g. a TypeHandler instance)
-//				importedTypeDict.registerRuntimeDefinition(newTd);
-			}
-						
-			// assign new TIDs for changedTypes and initialize changed TDIs with new TIDs
-			final BulkList<PersistenceTypeDefinition<?>> newTds = BulkList.New();
-			for(final KeyValue<PersistenceTypeDefinition<?>, PersistenceTypeDefinitionInitializer<?>> e : changedTypeDefs)
-			{
-				final PersistenceTypeDefinition<?>       latestTd = e.key();
-				final PersistenceTypeDefinitionInitializer<?> tdi = e.value();
-				
-				final long newTypeId = this.ensureTypeId(tdi.type());
-				final PersistenceTypeDefinition<?> newTd = tdi.initialize(newTypeId);
-				
-				// register properly initialized new runtime TypeDefinintion (e.g. TypeHandler)
-				newTds.add(newTd);
-				
-				// register new deprecated "latest" and new TypeDefinintion for change (e.g. entity type conversion)
-				this.typeChangeCallback.registerTypeChange(latestTd, newTd);
-			}
-			
-			for(final PersistenceTypeDefinition<?> newTd : newTds)
-			{
-				this.register(newTd);
-			}
-			
-
-			importedTypeDict.registerRuntimeDefinition(newTd);
-
-			// iterate all default type handlers and initialize them in case the dictionary did not contain them
-			this.typeHandlerProvider.iterateTypeHandlers(this::ensureRegisteredCustomTypeHandler);
-			
-			// when all types are registered, update the current highest typeId once.
-			this.updateHighestTypeId();
-			
-//			// (28.09.2017 TM)NOTE: old from before type refactoring ------------
-//			final XGettingSequence<PersistenceTypeDefinition<?>> liveTypeDescriptions =
-//				typeDictionary.currentTypesByName().values()
-//			;
-//
-//			final PersistenceTypeHandlerRegistry<M> typeRegistry = this.typeHandlerRegistry;
-//
-//			// validate all type mappings before registering anything
-//			typeRegistry.validatePossibleTypeMappings(liveTypeDescriptions);
-//
-//			// register type identities (typeId<->type) first to make all types available for type handler creation
-//			liveTypeDescriptions.iterate(e ->
-//				typeRegistry.registerType(e.typeId(), e.type())
-//			);
-//
-//			this.update(typeDictionary);
-//
-//			// ensure type handlers for all types in type dict (even on exception, type mappings have already been set)
-//			liveTypeDescriptions.iterate(e ->
-//				this.ensureTypeHandler(e.type())
-//			);
-//			// (28.09.2017 TM) ------------- //
-
-			this.initialized = true;
-		}
-		
-		final void ensureRegisteredCustomTypeHandler(final PersistenceTypeHandler<M, ?> customTypeHandler)
-		{
-			final Class<?> type = customTypeHandler.type();
-			final PersistenceTypeHandler<M, ?> registered = this.lookupTypeHandler(type);
-			if(registered != null)
-			{
-				if(registered == customTypeHandler)
-				{
-					return;
-				}
-				// (11.10.2017 TM)EXCP: proper exception
-				throw new RuntimeException("TypeHandler inconsistency detected for " + type);
-			}
-			
-			final long usedTypeId = this.ensureTypeId(type);
-			customTypeHandler.initializeTypeId(usedTypeId);
-			this.register(customTypeHandler);
-		}
-		
-		private <T> void createTypeDefinitionInitializer(
-			final PersistenceTypeDefinitionInitializerCreator<M>             runtimeTypeDefInitializerCreator,
-			final PersistenceTypeDefinition<T>                               latestDictionaryTypeDefinition   ,
-			final EqHashTable<Long, PersistenceTypeDefinitionInitializer<?>> matchingTypeDefinitions          ,
-			final HashTable<PersistenceTypeDefinition<?> , PersistenceTypeDefinitionInitializer<?>> changedTypeDefinitions
-		)
-		{
-			final Class<T> type = latestDictionaryTypeDefinition.type();
-			if(type == null)
-			{
-				this.typeChangeCallback.validateMissingRuntimeType(latestDictionaryTypeDefinition);
-				return;
-			}
-			
-			final PersistenceTypeDefinitionInitializer<T> tdi = runtimeTypeDefInitializerCreator.createTypeDefinitionInitializer(type);
-			
-			if(PersistenceTypeDescription.isEqualStructure(latestDictionaryTypeDefinition, tdi))
-			{
-				matchingTypeDefinitions.add(latestDictionaryTypeDefinition.typeId(), tdi);
+				this.initializeBlank(newTypeHandlers);
 			}
 			else
 			{
-				this.typeChangeCallback.validateTypeChange(latestDictionaryTypeDefinition, tdi);
-				changedTypeDefinitions.add(latestDictionaryTypeDefinition, tdi);
+				this.initializeFromDictionary(typeDictionary, existingTypeHandlers, newTypeHandlers);
 			}
+
+			this.initializeNewTypeHandlers(existingTypeHandlers, newTypeHandlers);
+		}
+		
+		private void initializeBlank(final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers)
+		{
+			this.typeHandlerProvider.iterateTypeHandlers(newTypeHandlers);
+		}
+		
+		private void initializeFromDictionary(
+			final PersistenceTypeDictionary              typeDictionary         ,
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers,
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
+		)
+		{
+			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages = HashEnum.New();
+			
+			this.filterRuntimeTypeLineages(typeDictionary, runtimeTypeLineages);
+			
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matches = HashTable.New();
+
+			// derive a type handler for every runtime type lineage and try to match an existing type definition
+			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
+			{
+				this.deriveRuntimeTypeHandler(typeLineage, matches, newTypeHandlers);
+			}
+			
+			// pass all misfits and the typeDictionary to a PersistenceTypeMismatchEvaluator
+			this.typeMismatchValidator.validateTypeMismatches(typeDictionary, newTypeHandlers);
+			
+			// internally update the current hightest type id, including non-runtime types.
+			this.internalUpdateCurrentHighestTypeId(typeDictionary);
+			
+			// initialize all matches to the associated TypeId
+			for(final KeyValue<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> match : matches)
+			{
+				final long typeId = match.key().typeId();
+				final PersistenceTypeHandler<M, ?> ith = match.value().initializeTypeId(typeId);
+				initializedTypeHandlers.add(ith);
+			}
+		}
+		
+		private void initializeNewTypeHandlers(
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> existingTypeHandlers,
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers
+		)
+		{
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers = HashEnum.New(existingTypeHandlers);
+			
+			// assign new TypeIds to all misfits
+			for(final PersistenceTypeHandler<M, ?> newTypeHandler : newTypeHandlers)
+			{
+				// must be the TypeHandlerProvider's ensureTypeId in order to circumvent implicit handler creation.
+				final long newTypeId = this.typeHandlerProvider.ensureTypeId(newTypeHandler.type());
+				final PersistenceTypeHandler<M, ?> ith = newTypeHandler.initializeTypeId(newTypeId);
+				initializedTypeHandlers.add(ith);
+			}
+			
+			// register the current Type<->TypeId mapping
+			this.typeHandlerRegistry.registerTypes(initializedTypeHandlers);
+			
+			// set initialized handlers as runtime definitions
+			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
+						
+			// recursive registration: initialized handlers themselves plus all handlers required for their field types
+			this.internalRegisterTypeHandlers(initializedTypeHandlers);
+			
+			this.initialized = true;
+		}
+				
+		private void filterRuntimeTypeLineages(
+			final PersistenceTypeDictionary           typeDictionary     ,
+			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages
+		)
+		{
+			typeDictionary.iterateTypeLineages(td ->
+			{
+				if(td.type() != null)
+				{
+					runtimeTypeLineages.add(td);
+				}
+			});
+		}
+		
+		private <T> void deriveRuntimeTypeHandler(
+			final PersistenceTypeLineage                                             typeLineage            ,
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
+			final HashEnum<PersistenceTypeHandler<M, ?>>                             unmatchableTypeHandlers
+		)
+		{
+			final Class<?> runtimeType = typeLineage.type();
+			if(runtimeType == null)
+			{
+				/*
+				 * Type lineage has no runtime type, so there can't be a runtime type handler derived for it.
+				 * This does not have to be an error. If the type lineage represents an outdated type that is not
+				 * used anymore, it can remain without runtime type. The ensuring of required runtime type handlers
+				 * later in the initialization will validate that.
+				 */
+				return;
+			}
+			
+			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(runtimeType);
+						
+			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
+			{
+				// exact match including field order
+				final boolean isMatched = PersistenceTypeDescriptionMember.equalDescriptions(
+					handler.members(),
+					typeDefinition.members()
+				);
+				
+				if(isMatched)
+				{
+					// matching definition found, register and abort matching.
+					matchedTypeHandlers.add(typeDefinition, handler);
+					return;
+				}
+			}
+
+			// no matching definition found
+			unmatchableTypeHandlers.add(handler);
+		}
+		
+		private <T> PersistenceTypeHandler<M, T> advanceEnsureTypeHandler(final Class<T> type)
+		{
+			PersistenceTypeHandler<M, T> handler;
+			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
+			{
+				handler = this.typeHandlerProvider.ensureTypeHandler(type);
+			}
+			
+			return handler;
 		}
 
 		@Override
@@ -640,44 +695,40 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.typeHandlerProvider.updateCurrentHighestTypeId(highestTypeId);
 		}
 		
-		private void updateHighestTypeId()
+		final void internalUpdateCurrentHighestTypeId(final PersistenceTypeDictionary typeDictionary)
 		{
-			final long highestDictionaryTypeId = this.typeDictionaryManager.typeDictionary().determineHighestTypeId();
-			if(this.currentTypeId() < highestDictionaryTypeId)
-			{
-				// only update if new value is actually higher. No reason to throw an exception otherwise.
-				this.updateCurrentHighestTypeId(highestDictionaryTypeId);
-			}
+			this.internalUpdateCurrentHighestTypeId(typeDictionary.determineHighestTypeId());
 		}
 		
-		// (12.10.2017 TM)NOTE: external updating no longer required with the new initialization concept.
-//		protected void internalUpdate(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
-//		{
-//			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary);
-//
-//			// update the highest type id first after validation has been passed successfully to guarantee consistency
-//			if(this.currentTypeId() < highestTypeId)
-//			{
-//				// only update if new value is actually higher. No reason to throw an exception otherwise.
-//				this.updateCurrentHighestTypeId(highestTypeId);
-//			}
-//
-//			// finally add the type descriptions
-//			this.typeDictionaryManager.addTypeDefinitions(typeDictionary);
-//		}
-//
-//		@Override
-//		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
-//		{
-//			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
-//			this.internalUpdate(typeDictionary, effectiveHighestTypeId);
-//
-//			/*
-//			 * inlining the max() call changes the second argument from 0 to something like 43466428.
-//			 * Unbelievable compiler or JDK bug!
-//			 */
-////			this.internalUpdate(typeDictionary, Math.max(typeDictionary.determineHighestTypeId(), highestTypeId));
-//		}
+		final void internalUpdateCurrentHighestTypeId(
+			final PersistenceTypeDictionary typeDictionary,
+			final long                      highestTypeId
+		)
+		{
+			final long effectiveHighestTypeId = Math.max(typeDictionary.determineHighestTypeId(), highestTypeId);
+			this.updateCurrentHighestTypeId(effectiveHighestTypeId);
+		}
+		
+		final void internalUpdateCurrentHighestTypeId(final long highestTypeId)
+		{
+			// update the highest type id first after validation has been passed successfully to guarantee consistency
+			if(this.currentTypeId() < highestTypeId)
+			{
+				// only update if new value is actually higher. No reason to throw an exception otherwise.
+				this.updateCurrentHighestTypeId(highestTypeId);
+			}
+		}
+
+		@Override
+		public void update(final PersistenceTypeDictionary typeDictionary, final long highestTypeId)
+		{
+			this.typeDictionaryManager.validateTypeDefinitions(typeDictionary.allTypeDefinitions().values());
+
+			this.internalUpdateCurrentHighestTypeId(typeDictionary, highestTypeId);
+
+			// finally add the type descriptions
+			this.typeDictionaryManager.registerTypeDefinitions(typeDictionary.allTypeDefinitions().values());
+		}
 
 	}
 

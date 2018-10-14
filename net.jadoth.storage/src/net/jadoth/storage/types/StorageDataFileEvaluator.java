@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.chars.VarString;
+import net.jadoth.math.XMath;
 
 
 /**
@@ -46,9 +46,9 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			throw new IllegalArgumentException("nonsensical size limits: min file size = " + minFileSize + ", max file size = " + maxFileSize);
 		}
 		return new Implementation(
-			JadothMath.positive(minFileSize)  ,
-			JadothMath.positive(maxFileSize)  ,
-			JadothMath.positive(dissolveRatio),
+			XMath.positive(minFileSize)  ,
+			XMath.positive(maxFileSize)  ,
+			XMath.positive(dissolveRatio),
 			cleanupHeadFile
 		);
 	}
@@ -88,8 +88,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int minimumFileSize()

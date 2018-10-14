@@ -1,13 +1,13 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 /**
- * Named "ensurer", because depending on the case, it creates a new type handler or it just initializes
+ * Named "ensurer" because depending on the case, it creates a new type handler or it just returns
  * already existing, pre-registered ones. So "ensuring" is the most fitting common denominator.
  * 
  * @author TM
@@ -38,10 +38,10 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		/////////////////////
 
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry;
-        final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
+		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
 
 
-        
+
 		///////////////////////////////////////////////////////////////////////////
 		// constructors     //
 		/////////////////////

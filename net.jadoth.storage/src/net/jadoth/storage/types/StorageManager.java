@@ -1,7 +1,8 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import net.jadoth.storage.exceptions.StorageExceptionNotRunning;
 import net.jadoth.swizzling.types.Swizzle;
@@ -15,21 +16,19 @@ public interface StorageManager extends StorageController
 
 	// (20.05.2013)TODO: StorageManager#channelController() - not sure this belongs here
 	public StorageChannelController channelController();
+	
+	public default StorageChannelCountProvider channelCountProvider()
+	{
+		return this.channelController().channelCountProvider();
+	}
 
 	public StorageConfiguration configuration();
 
 	@Override
-	public default StorageManager start()
-	{
-		return this.start(null, null); // null implies to use the standard / entityCache's evaluator
-	}
-
-	@Override
-	public StorageManager start(
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
-	);
-
+	public StorageManager start();
+	
+	public StorageIdAnalysis initializationIdAnalysis();
+	
 	@Override
 	public boolean shutdown();
 
@@ -42,7 +41,7 @@ public interface StorageManager extends StorageController
 
 
 
-	public final class Implementation implements StorageManager
+	public final class Implementation implements StorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -55,7 +54,7 @@ public interface StorageManager extends StorageController
 		private final StorageFileProvider                     fileProvider                 ;
 		private final StorageFileReader.Provider              readerProvider               ;
 		private final StorageFileWriter.Provider              writerProvider               ;
-		private final StorageRequestAcceptor.Creator          communicatorCreator          ;
+		private final StorageRequestAcceptor.Creator          requestAcceptorCreator       ;
 		private final StorageTaskBroker.Creator               taskBrokerCreator            ;
 		private final StorageValidatorDataChunk.Provider      dataChunkValidatorProvider   ;
 		private final StorageChannel.Creator                  channelCreator               ;
@@ -89,6 +88,8 @@ public interface StorageManager extends StorageController
 		private volatile StorageTaskBroker    taskbroker   ;
 		private final    ChannelKeeper[]      keepers      ;
 		private          StorageWriteListener writeListener;
+		
+		private StorageIdAnalysis initializationIdAnalysis;
 
 
 
@@ -126,7 +127,7 @@ public interface StorageManager extends StorageController
 			this.fileProvider                  = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator          = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController        = storageConfiguration.housekeepingController();
-			this.communicatorCreator           = notNull(requestAcceptorCreator)              ;
+			this.requestAcceptorCreator           = notNull(requestAcceptorCreator)              ;
 			this.taskBrokerCreator             = notNull(taskBrokerCreator)                   ;
 			this.dataChunkValidatorProvider    = notNull(dataChunkValidatorProvider)          ;
 			this.channelCreator                = notNull(channelCreator)                      ;
@@ -210,7 +211,7 @@ public interface StorageManager extends StorageController
 			throw new StorageExceptionNotRunning();
 		}
 
-		private StorageIdRangeAnalysis startThreads(final StorageChannelTaskInitialize initializingTask)
+		private StorageIdAnalysis startThreads(final StorageChannelTaskInitialize initializingTask)
 			throws InterruptedException
 		{
 			// (07.07.2016 TM)TODO: StorageThreadStarter instead of hardcoded call
@@ -222,7 +223,7 @@ public interface StorageManager extends StorageController
 				}
 				initializingTask.waitOnCompletion();
 			}
-			return initializingTask.getIdRangeAnalysis();
+			return initializingTask.idAnalysis();
 		}
 
 
@@ -291,28 +292,24 @@ public interface StorageManager extends StorageController
 			return this.keepers.length;
 		}
 
-		private void internalStartUp(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
-		)
-			throws InterruptedException
+		private void internalStartUp() throws InterruptedException
 		{
 			// thread safety and state consistency ensured prior to calling
 
 			// create channels, setup task processing and start threads
 			this.taskbroker = this.taskBrokerCreator.createTaskBroker(this, this.requestTaskCreator);
 			final StorageChannelTaskInitialize task = this.taskbroker.issueChannelInitialization(
-				this.channelController,
-				entityInitializingCacheEvaluator,
-				oldTypes
+				this.channelController
 			);
 			this.createChannels();
 
-			final StorageIdRangeAnalysis idRangeAnalysis = this.startThreads(task);
-			final Long                   maxOid          = idRangeAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+			final StorageIdAnalysis idAnalysis = this.startThreads(task);
+			final Long              maxOid     = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
 
 			// only ObjectId is relevant at this point
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
+			
+			this.initializationIdAnalysis = idAnalysis;
 
 			this.writeListener.start();
 		}
@@ -341,10 +338,7 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public final StorageManager.Implementation start(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
-		)
+		public final StorageManager.Implementation start()
 		{
 			synchronized(this.stateLock)
 			{
@@ -356,7 +350,7 @@ public interface StorageManager extends StorageController
 				this.isShutdown = false;
 				try
 				{
-					this.internalStartUp(entityInitializingCacheEvaluator, oldTypes);
+					this.internalStartUp();
 					this.isRunning = true;
 				}
 				catch(final InterruptedException e)
@@ -374,6 +368,12 @@ public interface StorageManager extends StorageController
 				}
 			}
 			return this;
+		}
+		
+		@Override
+		public final StorageIdAnalysis initializationIdAnalysis()
+		{
+			return this.initializationIdAnalysis;
 		}
 
 		@Override
@@ -415,8 +415,8 @@ public interface StorageManager extends StorageController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageTypeDictionary typeDictionary()
@@ -441,7 +441,7 @@ public interface StorageManager extends StorageController
 		{
 			this.ensureRunning();
 
-			return this.communicatorCreator.createCommunicator(
+			return this.requestAcceptorCreator.createRequestAcceptor(
 				this.dataChunkValidatorProvider.provideDataChunkValidator(),
 				this.taskbroker
 			);

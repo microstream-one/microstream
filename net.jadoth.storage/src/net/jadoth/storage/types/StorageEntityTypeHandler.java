@@ -1,15 +1,14 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
-
-import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 
-public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T>
+public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 {
 	public long simpleReferenceCount();
 
@@ -31,25 +30,15 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		return this.minimumLength() != this.maximumLength();
 	}
 
-	
-	
-	public static <T> StorageEntityTypeHandler.Implementation<T> New(
-		final PersistenceTypeDefinition<T> typeDescription
-	)
-	{
-		return new StorageEntityTypeHandler.Implementation<>(
-			notNull(typeDescription)
-		);
-	}
 
 
-	public final class Implementation<T> implements StorageEntityTypeHandler<T>
+	public final class Implementation implements StorageEntityTypeHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods    //
 		/////////////////////
 
-		static long calculateMinimumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
+		static long calculateMinimumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
 			long minimumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -62,7 +51,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			return minimumEntityLength;
 		}
 
-		static long calculateMaximumEntityLength(final PersistenceTypeDefinition<?> typeDescription)
+		static long calculateMaximumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
 			long maximumEntityLength = BinaryPersistence.entityHeaderLength();
 
@@ -86,15 +75,15 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDefinition<T> typeDescription     ;
-		private final BinaryReferenceTraverser[]    referenceTraversers ;
-		private final int                           simpleReferenceCount;
-		private final long                          simpleReferenceRange;
-		private final long                          minimumEntityLength ;
-		private final long                          maximumEntityLength ;
-		private final boolean                       hasReferences       ;
-		private final boolean                       isPrimitive         ;
-		private final boolean                       hasVariableLength   ;
+		private final PersistenceTypeDefinition  typeDefinition      ;
+		private final BinaryReferenceTraverser[] referenceTraversers ;
+		private final int                        simpleReferenceCount;
+		private final long                       simpleReferenceRange;
+		private final long                       minimumEntityLength ;
+		private final long                       maximumEntityLength ;
+		private final boolean                    hasReferences       ;
+		private final boolean                    isPrimitive         ;
+		private final boolean                    hasVariableLength   ;
 
 
 
@@ -102,54 +91,67 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 		// constructors     //
 		/////////////////////
 
-		Implementation(final PersistenceTypeDefinition<T> typeDescription)
+		public Implementation(final PersistenceTypeDefinition typeDefinition)
 		{
 			super();
 
 			final BinaryReferenceTraverser[] referenceTraversers =
-				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDescription.members())
+				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
 			;
-			this.typeDescription      = typeDescription;
-			this.isPrimitive          = typeDescription.isPrimitiveType();
-			this.hasReferences        = typeDescription.hasPersistedReferences();
+
+			this.typeDefinition       = typeDefinition;
+			this.isPrimitive          = typeDefinition.isPrimitiveType();
+			this.hasReferences        = typeDefinition.hasPersistedReferences();
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
 			this.simpleReferenceRange = this.simpleReferenceCount * BinaryPersistence.oidLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
-			this.minimumEntityLength  = calculateMinimumEntityLength(typeDescription);
-			this.maximumEntityLength  = calculateMaximumEntityLength(typeDescription);
+			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
+			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);
 			this.hasVariableLength    = this.minimumEntityLength != this.maximumEntityLength;
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long typeId()
 		{
-			return this.typeDescription.typeId();
+			return this.typeDefinition.typeId();
 		}
 
 		@Override
 		public final String typeName()
 		{
-			return this.typeDescription.typeName();
+			return this.typeDefinition.typeName();
 		}
 		
 		@Override
-		public final Class<T> type()
+		public final Class<?> type()
 		{
-			return this.typeDescription.type();
+			return this.typeDefinition.type();
 		}
 
 		@Override
-		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
 		{
-			return this.typeDescription.members();
+			return this.typeDefinition.members();
 		}
 		
+		@Override
+		public final long membersPersistedLengthMinimum()
+		{
+			return this.typeDefinition.membersPersistedLengthMinimum();
+		}
+		
+		@Override
+		public final long membersPersistedLengthMaximum()
+		{
+			return this.typeDefinition.membersPersistedLengthMaximum();
+		}
+
 		@Override
 		public final void iterateReferences(final long entityCacheAddress, final _longProcedure procedure)
 		{
@@ -160,7 +162,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			{
 				// handling here spares a lot of traverser pointer chasing
 				BinaryReferenceTraverser.iterateReferenceRange(
-					BinaryPersistence.entityDataAddress(entityCacheAddress),
+					BinaryPersistence.entityContentAddress(entityCacheAddress),
 					this.simpleReferenceRange,
 					procedure
 				);
@@ -168,7 +170,7 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 			else
 			{
 				BinaryReferenceTraverser.iterateReferences(
-					BinaryPersistence.entityDataAddress(entityCacheAddress),
+					BinaryPersistence.entityContentAddress(entityCacheAddress),
 					this.referenceTraversers,
 					procedure
 				);
@@ -193,8 +195,9 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 				return false;
 			}
 
-			// type id does not need to be validated here as the handler always got looked up via it beforehand
-			// object id can be an arbitrary value as far as the handler is concerned, no check here
+			// type id does not need to be validated here as the handler always got looked up via it beforehand.
+			// object id can be an arbitrary value as far as the handler is concerned, no check here.
+			// value validations on a business-logical level are no concern of the storage.
 			return true;
 		}
 
@@ -212,8 +215,9 @@ public interface StorageEntityTypeHandler<T> extends PersistenceTypeDefinition<T
 				throw new RuntimeException("Invalid entity length: " + length + " > " + this.maximumEntityLength);
 			}
 
-			// type id does not need to be validated here as the handler always got looked up via it beforehand
-			// object id can be an arbitrary value as far as the handler is concerned, no check here
+			// type id does not need to be validated here as the handler always got looked up via it beforehand.
+			// object id can be an arbitrary value as far as the handler is concerned, no check here.
+			// value validations on a business-logical level are no concern of the storage.
 		}
 
 		@Override

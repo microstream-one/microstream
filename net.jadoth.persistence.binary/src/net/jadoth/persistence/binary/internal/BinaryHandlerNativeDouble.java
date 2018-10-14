@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerNativeDouble extends AbstractBinaryHandlerNativeCustomValueFixedLength<Double>
 {
@@ -22,7 +22,7 @@ public final class BinaryHandlerNativeDouble extends AbstractBinaryHandlerNative
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Double instance, final long oid, final SwizzleStoreLinker linker)
+	public void store(final Binary bytes, final Double instance, final long oid, final SwizzleHandler handler)
 	{
 		BinaryPersistence.storeDouble(bytes, this.typeId(), oid, instance.doubleValue());
 	}

@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.memory.Chunks;
+import net.jadoth.persistence.binary.types.Chunks;
 
 public interface StorageValidatorDataChunk
 {

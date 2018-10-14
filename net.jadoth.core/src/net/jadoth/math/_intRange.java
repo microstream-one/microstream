@@ -34,11 +34,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.jadoth.branching.ThrowBreak;
+import net.jadoth.chars.VarString;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.functional._intProcedure;
-import net.jadoth.util.JadothTypes;
-import net.jadoth.util.branching.ThrowBreak;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.XTypes;
 
 /**
  *
@@ -251,31 +251,31 @@ public class _intRange implements Set<Integer>
 		{
 			if(o instanceof Double)
 			{
-				i = JadothTypes.to_int((Double)o);
+				i = XTypes.to_int((Double)o);
 			}
 			else if(o instanceof Long)
 			{
-				i = JadothTypes.to_int((Long)o);
+				i = XTypes.to_int((Long)o);
 			}
 			else if(o instanceof Float)
 			{
-				i = JadothTypes.to_int((Float)o);
+				i = XTypes.to_int((Float)o);
 			}
 			else if(o instanceof AtomicInteger)
 			{
-				i = JadothTypes.to_int((AtomicInteger)o);
+				i = XTypes.to_int((AtomicInteger)o);
 			}
 			else if(o instanceof AtomicLong)
 			{
-				i = JadothTypes.to_int((AtomicLong)o);
+				i = XTypes.to_int((AtomicLong)o);
 			}
 			else if(o instanceof BigDecimal)
 			{
-				i = JadothTypes.to_int((BigDecimal)o);
+				i = XTypes.to_int((BigDecimal)o);
 			}
 			else if(o instanceof BigInteger)
 			{
-				i = JadothTypes.to_int((BigInteger)o);
+				i = XTypes.to_int((BigInteger)o);
 			}
 			else
 			{
@@ -327,7 +327,7 @@ public class _intRange implements Set<Integer>
 			int i = 0;
 			try
 			{
-				i = JadothTypes.to_int((Number)o);
+				i = XTypes.to_int((Number)o);
 			}
 			catch(final NumberRangeException e)
 			{

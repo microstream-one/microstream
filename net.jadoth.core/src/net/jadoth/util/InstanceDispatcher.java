@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-import static net.jadoth.Jadoth.coalesce;
+import static net.jadoth.X.coalesce;
 
 import net.jadoth.functional.InstanceDispatcherLogic;
 

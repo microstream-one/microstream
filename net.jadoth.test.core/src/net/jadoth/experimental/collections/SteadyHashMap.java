@@ -1,5 +1,5 @@
 package net.jadoth.experimental.collections;
-import static net.jadoth.reflect.JadothReflect.getDeclaredField;
+import static net.jadoth.reflect.XReflect.getDeclaredField;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,11 +8,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothArrays;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.VMUtils;
+import net.jadoth.collections.XArrays;
+import net.jadoth.low.XVM;
+import net.jadoth.typing.XTypes;
+import net.jadoth.typing.KeyValue;
 import sun.misc.Unsafe;
 
 
@@ -33,31 +34,31 @@ import sun.misc.Unsafe;
  */
 public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)VMUtils.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)XVM.getSystemInstance();
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(SteadyHashMap.class, "size"));
 
 	// stolen from AtomicReferenceArray
-    private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
-    private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
+	private static final int ABO = unsafe.arrayBaseOffset(VolatileEntry[].class);
+	private static final int AIS = unsafe.arrayIndexScale(VolatileEntry[].class);
 
-    /* Funny thing:
-     * A combined array/chain storage would allow indefinite amount of entries.
-     * But size and toArray() are limited to max int amount of entries.
-     * Thus the map has to be as well.
-     * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
-     * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
-     */
-    private static final int MAX_SIZE = 2147000000;
+	/* Funny thing:
+	 * A combined array/chain storage would allow indefinite amount of entries.
+	 * But size and toArray() are limited to max int amount of entries.
+	 * Thus the map has to be as well.
+	 * Now add() can't safely ensure to check for max int size due to concurrency (or the effort wouldn't be worth it)
+	 * So an artifical max size is introduced, leaving the remaining ~500k as a concurrency buffer (should be enough ^^)
+	 */
+	private static final int MAX_SIZE = 2147000000;
 
-    private static final int   MINIMUM_CAPACITY = 16;
+	private static final int   MINIMUM_CAPACITY = 16;
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
-    private static int calculateCapacity(final int minimalCapacity)
+	private static int calculateCapacity(final int minimalCapacity)
 	{
 		if(minimalCapacity > 1<<30){ // JVM technical limit
 			return 1<<30;
@@ -332,14 +333,14 @@ public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.20
 			if(slots[i] == null) continue; // should be faster than setting up the for loop just to skip it again
 			for(VolatileEntry e = slots[i]; e != null; e = e.link)
 			{
-				buffer.add(Jadoth.keyValue((K)e.key, (V)e.value));
+				buffer.add(X.KeyValue((K)e.key, (V)e.value));
 			}
 		}
 
 		@SuppressWarnings("rawtypes")
-		final KeyValue[] kv = new KeyValue[Jadoth.to_int(buffer.size())];
+		final KeyValue[] kv = new KeyValue[XTypes.to_int(buffer.size())];
 
-		JadothArrays.copyTo(buffer, kv);
+		XArrays.copyTo(buffer, kv);
 
 		return kv;
 	}

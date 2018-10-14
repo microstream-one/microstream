@@ -2,9 +2,9 @@ package net.jadoth.persistence.test;
 
 import java.util.Arrays;
 
-import net.jadoth.Jadoth;
+import net.jadoth.chars.XChars;
 import net.jadoth.collections.EqHashEnum;
-import net.jadoth.meta.JadothConsole;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.DebugGraphPrinter;
@@ -24,13 +24,13 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testPersist(final PersistenceManager<Binary> persistenceManager)
 	{
-		JadothConsole.debugln("Persisting...");
+		XDebug.println("Persisting...");
 //		new TestPerson(5);
 		for(int i = 1; i --> 0;)
 		{
 			long tStart, tStop;
 			tStart = System.nanoTime();
-			final long oid = persistenceManager.storeFull(testObject());
+			final long oid = persistenceManager.store(testObject());
 
 //			persistenceManager.staticStore(
 //				TestPerson.class,
@@ -48,9 +48,9 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //	}
 
 	static void debugPrintGraph(
-		final Object root,
-		final PersistenceManager<Binary> persistenceManager,
-		final PersistenceFoundation<?> foundation
+		final Object                      root              ,
+		final PersistenceManager<Binary>  persistenceManager,
+		final PersistenceFoundation<?, ?> foundation
 	)
 	{
 		new DebugGraphPrinter(persistenceManager, foundation.getTypeHandlerManager()).apply(root);
@@ -88,13 +88,13 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testFileLoading()
 	{
-		TEST.persistenceStorage().readInitial();
+		TEST.persistenceStorage().read();
 	}
 
 
 	static Object testBuilding(final PersistenceManager<Binary> persistenceManager)
 	{
-		JadothConsole.debugln("Loading...");
+		XDebug.println("Loading...");
 		final Object loaded = persistenceManager.get(1100000000000070001L);
 		System.out.println(loaded);
 //		System.out.println(Arrays.toString((int[])loaded));
@@ -103,7 +103,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 //		objRegistry.iterate(System_out_println);
 //
-		JadothConsole.debugln("printing arrays:");
+		XDebug.println("printing arrays:");
 //		System.out.println("---");
 //		System.out.println("orignl: "+Arrays.toString(TestBinaryObjects.indices));
 //		System.out.println("loaded: "+Arrays.toString((int[])((Object[])loaded)[0]));
@@ -125,21 +125,21 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		{
 			Arrays.toString((Object[])object);
 		}
-		return Jadoth.valueString(object);
+		return XChars.valueString(object);
 	}
 
-	static void testWriteStateDefs(final BinaryPersistenceFoundation factory)
+	static void testWriteStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
 		factory.getTypeDictionaryManager().exportTypeDictionary();
 	}
 
-	static void testReadStateDefs(final BinaryPersistenceFoundation factory)
+	static void testReadStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
-		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryImporter().importTypeDictionary();
-		JadothConsole.debugln('\n'+typeDictionary.toString());
+		final PersistenceTypeDictionary typeDictionary = factory.getTypeDictionaryManager().provideTypeDictionary();
+		XDebug.println('\n'+typeDictionary.toString());
 	}
 
-	static void resetRegistries(final BinaryPersistenceFoundation factory)
+	static void resetRegistries(final BinaryPersistenceFoundation<?> factory)
 	{
 		final SwizzleRegistry registry = factory.getSwizzleRegistry();
 		final PersistenceTypeHandlerRegistry.Implementation<Binary> typeHandlerRegistry =
@@ -147,7 +147,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		;
 		registry.clear();
 		typeHandlerRegistry.clear();
-		Swizzle.registerDefaultTypeMappings(registry);
+		Swizzle.registerJavaBasicTypes(registry);
 		Swizzle.registerJavaConstants(registry);
 	}
 
@@ -168,7 +168,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return strings;
 
 
-//		return Jadoth.array(
+//		return X.array(
 //			"a",
 //			"b",
 //			"c",
@@ -189,7 +189,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return longs;
 		
 //		return strings;
-//		return JadothTime.now();
+//		return XTime.now();
 //		return 5;
 //		return new int[]{1,2,3};
 //		return new Object[]{5,6};
@@ -201,7 +201,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //		return TestBinaryObjects.createTestPersons();
 //		return stupidArrayList("Tick", "Trick", "Track");
 
-//		return Jadoth.array(
+//		return X.array(
 //			 "hallo"
 //			,TestBinaryObjects.indices
 //			,TestBinaryObjects.objects

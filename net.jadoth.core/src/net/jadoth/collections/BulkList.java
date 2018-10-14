@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-import static net.jadoth.collections.JadothArrays.removeAllFromArray;
+import static net.jadoth.collections.XArrays.removeAllFromArray;
 
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
@@ -9,25 +8,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.old.AbstractBridgeXList;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.collections.types.XIterable;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.BiProcedure;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.functional.JadothEqualators;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.GenericListIterator;
 
 
@@ -47,9 +47,9 @@ import net.jadoth.util.iterables.GenericListIterator;
  * <p>
  * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
- * 1.) It is already explicitely declared thread-unsafe and for single-thread (or thread-safe)
+ * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behaviour ("failfast") has buggy and inconsistent behaviour by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
@@ -116,7 +116,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	public static final <E> BulkList<E> New(final long initialCapacity)
 	{
-		return new BulkList<>(checkArrayRange(initialCapacity));
+		return new BulkList<>(X.checkArrayRange(initialCapacity));
 	}
 
 	// just New(E) confuses the compiler with New(int) when using ::New and causes ambiguity with New(E...)
@@ -140,7 +140,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	public static final <E> BulkList<E> New(final XGettingCollection<E> initialElements)
 	{
-		return new BulkList<E>(Jadoth.to_int(initialElements.size())).addAll(initialElements);
+		return new BulkList<E>(XTypes.to_int(initialElements.size())).addAll(initialElements);
 	}
 
 
@@ -191,7 +191,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		super();
 		this.size = 0;
-		this.data = newArray(JadothMath.pow2BoundMaxed(initialCapacity));
+		this.data = newArray(XMath.pow2BoundMaxed(initialCapacity));
 	}
 
 	/**
@@ -230,7 +230,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		System.arraycopy(
 			elements,
 			0,
-			this.data = newArray(JadothMath.pow2BoundMaxed(this.size = elements.length)),
+			this.data = newArray(XMath.pow2BoundMaxed(this.size = elements.length)),
 			0,
 			this.size
 		);
@@ -255,7 +255,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		System.arraycopy(
 			src,
 			srcStart,
-			this.data = newArray(JadothMath.pow2BoundMaxed(initialCapacity >= srcLength ? initialCapacity : srcLength)),
+			this.data = newArray(XMath.pow2BoundMaxed(initialCapacity >= srcLength ? initialCapacity : srcLength)),
 			0,
 			this.size = srcLength
 		);
@@ -351,7 +351,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + elementsSize;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -412,7 +412,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -453,7 +453,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		{
 			// simply free up enough space at index and slide in new elements
 			System.arraycopy(this.data, index, this.data, index + length, length);
-			JadothArrays.reverseArraycopy(elements, offset, this.data, index, length);
+			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
 		}
@@ -468,7 +468,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -497,7 +497,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
 		System.arraycopy(this.data, index, data, index + length, length);
-		JadothArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
 		this.size = newSize;
 		return length;
 	}
@@ -572,7 +572,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 		final int oldSize = this.size;
@@ -626,7 +626,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			return this.internalCountingAddAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 
@@ -638,7 +638,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return JadothEqualators.identity();
+		return Equalator.identity();
 	}
 
 
@@ -674,7 +674,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final E[] toArray(final Class<E> type)
 	{
 		final E[] array;
-		System.arraycopy(this.data, 0, array = JadothArrays.newArray(type, this.size), 0, this.size);
+		System.arraycopy(this.data, 0, array = X.Array(type, this.size), 0, this.size);
 		return array;
 	}
 
@@ -688,7 +688,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		AbstractArrayStorage.join(this.data, this.size, joiner, aggregate);
 		return aggregate;
@@ -902,7 +902,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || !(samples instanceof BulkList<?>) || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || !(samples instanceof BulkList<?>) || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -912,13 +912,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		// equivalent to equalsContent()
-		return JadothArrays.equals(this.data, 0, ((BulkList<? extends E>)samples).data, 0, this.size, equalator);
+		return XArrays.equals(this.data, 0, ((BulkList<? extends E>)samples).data, 0, this.size, equalator);
 	}
 
 	@Override
 	public final boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		if(samples == null || Jadoth.to_int(samples.size()) != this.size)
+		if(samples == null || XTypes.to_int(samples.size()) != this.size)
 		{
 			return false;
 		}
@@ -1112,9 +1112,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.swap(
 			this.data                     ,
 			this.size                     ,
-			Jadoth.checkArrayRange(indexA),
-			Jadoth.checkArrayRange(indexB),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(indexA),
+			X.checkArrayRange(indexB),
+			X.checkArrayRange(length)
 		);
 		return this;
 	}
@@ -1146,7 +1146,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		validateIndex(this.size, offset);
 		validateIndex(this.size, offset + elements.length);
-		System.arraycopy(elements, 0, this.data, Jadoth.checkArrayRange(offset), elements.length);
+		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 
 		return this;
 	}
@@ -1154,7 +1154,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final BulkList<E> set(final long offset, final E[] src, final int srcIndex, final int srcLength)
 	{
-		AbstractArrayStorage.set(this.data, this.size, Jadoth.checkArrayRange(offset), src, srcIndex, srcLength);
+		AbstractArrayStorage.set(this.data, this.size, X.checkArrayRange(offset), src, srcIndex, srcLength);
 		return this;
 	}
 
@@ -1169,7 +1169,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.set(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(offset),
+			X.checkArrayRange(offset),
 			elements,
 			elementsOffset,
 			elementsLength
@@ -1184,8 +1184,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.fill(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(offset),
-			Jadoth.checkArrayRange(length),
+			X.checkArrayRange(offset),
+			X.checkArrayRange(length),
 			element
 		);
 
@@ -1197,7 +1197,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final BulkList<E> sort(final Comparator<? super E> comparator)
 	{
-		JadothSort.mergesort(this.data, 0, this.size, comparator);
+		XSort.mergesort(this.data, 0, this.size, comparator);
 		return this;
 	}
 
@@ -1279,7 +1279,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final long optimize()
 	{
 		final int requiredCapacity;
-		if((requiredCapacity = JadothMath.pow2BoundMaxed(this.size)) != this.data.length)
+		if((requiredCapacity = XMath.pow2BoundMaxed(this.size)) != this.data.length)
 		{
 			System.arraycopy(this.data, 0, this.data = newArray(requiredCapacity), 0, this.size);
 		}
@@ -1296,9 +1296,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		}
 
 		// calculate new capacity
-		final int newSize = Jadoth.to_int(this.size + requiredFreeCapacity);
+		final int newSize = XTypes.to_int(this.size + requiredFreeCapacity);
 		int newCapacity;
-		if(JadothMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -1394,7 +1394,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			return this.addAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
-				Jadoth.to_int(elements.size())
+				XTypes.to_int(elements.size())
 			);
 		}
 		return elements.iterate(this);
@@ -1875,7 +1875,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final long nullRemove()
 	{
 		final int removeCount;
-		this.size -= removeCount = JadothArrays.removeAllFromArray(this.data, 0, this.size, null);
+		this.size -= removeCount = XArrays.removeAllFromArray(this.data, 0, this.size, null);
 		return removeCount;
 	}
 
@@ -2041,8 +2041,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.size -= AbstractArrayStorage.removeRange(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 
 		return this;
@@ -2054,8 +2054,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		AbstractArrayStorage.retainRange(
 			this.data,
 			this.size,
-			Jadoth.checkArrayRange(startIndex),
-			Jadoth.checkArrayRange(length)
+			X.checkArrayRange(startIndex),
+			X.checkArrayRange(length)
 		);
 		this.size = (int)length;
 
@@ -2200,7 +2200,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final int hashCode()
 	{
-		return JadothArrays.arrayHashCode(this.data, this.size);
+		return XArrays.arrayHashCode(this.data, this.size);
 	}
 
 
@@ -2235,7 +2235,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		public Creator(final int initialCapacity)
 		{
 			super();
-			this.initialCapacity = JadothMath.pow2BoundMaxed(initialCapacity);
+			this.initialCapacity = XMath.pow2BoundMaxed(initialCapacity);
 		}
 
 		public final int getInitialCapacity()
@@ -2258,7 +2258,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		public Supplier(final int initialCapacity)
 		{
 			super();
-			this.initialCapacity = JadothMath.pow2BoundMaxed(initialCapacity);
+			this.initialCapacity = XMath.pow2BoundMaxed(initialCapacity);
 		}
 
 		public final int getInitialCapacity()

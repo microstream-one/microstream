@@ -1,6 +1,7 @@
 package net.jadoth.test.corp.model;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XTable;
 

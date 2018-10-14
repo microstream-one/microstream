@@ -1,24 +1,24 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.io.File;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.XThreads;
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
-import net.jadoth.util.VMUtils;
 
 
 public interface StorageRequestTaskImportData extends StorageRequestTask
 {
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
-	implements StorageRequestTaskImportData, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskImportData, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -97,7 +97,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			{
 				return;
 			}
-			this.readThread = JadothThreads.start(this::readFiles);
+			this.readThread = XThreads.start(this::readFiles);
 		}
 
 		final void readFiles()
@@ -114,8 +114,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				try
 				{
 					// channel must be closed by StorageChannel after copying has been completed.
-					final FileChannel channel = StorageLockedFile.openFileChannel(file).channel();
-					itemReader.setSourceFile(file, channel);
+					final FileLock fileLock = StorageLockedFile.openFileChannel(file);
+					itemReader.setSourceFile(file, fileLock);
+					final FileChannel channel = fileLock.channel();
 					iterator.iterateStoredItems(channel, 0, channel.size());
 					itemReader.completeCurrentSourceFile();
 				}
@@ -142,7 +143,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			private final ChannelItem[]                       channelItems             ;
 			private final int                                 channelHash              ;
 			private       File                                file                     ;
-			private       FileChannel                         sourceFileChannel        ;
+			private       FileLock                            fileLock                 ;
 			private       int                                 currentBatchChannel      ;
 			private       long                                currentSourceFilePosition;
 			private       long                                maxObjectId              ;
@@ -155,16 +156,20 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			
 			public ItemReader(
 				final StorageEntityCache.Implementation[] entityCaches   ,
-				final SourceFileSlice[]                        sourceFileHeads
+				final SourceFileSlice[]                   sourceFileHeads
 			)
 			{
 				super();
 				this.entityCaches    = entityCaches                           ;
 				this.sourceFileHeads = sourceFileHeads                        ;
 				this.channelHash     = sourceFileHeads.length - 1             ;
-				this.channelItems    = Jadoth.Array(sourceFileHeads.length, () -> new ChannelItem().resetChains());
+				this.channelItems    = XArrays.fill(
+					new ChannelItem[sourceFileHeads.length],
+					() ->
+						new ChannelItem().resetChains()
+				);
 			}
-
+			
 			@Override
 			public boolean accept(final long address, final long availableItemLength)
 			{
@@ -176,7 +181,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 //					DEBUGStorage.println("Gap    @" + this.currentSourceFilePosition + " [" + -length + "]");
 
 					// keep track of current source file position to offset the next batch correctly
-					this.currentSourceFilePosition += checkArrayRange(-length);
+					this.currentSourceFilePosition += X.checkArrayRange(-length);
 
 					// batch is effectively interrupted by the gap, even if the next entity belongs to the same channel
 					this.currentBatchChannel = -1;
@@ -192,7 +197,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 					return false;
 				}
 
-				final int intLength = checkArrayRange(length);
+				final int intLength = X.checkArrayRange(length);
 
 				// read and validate entity head information
 				final long                             objectId     = BinaryPersistence.getEntityObjectId(address);
@@ -268,13 +273,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				item.tailBatch.batchLength += length;
 			}
 
-			final void setSourceFile(final File file, final FileChannel fileChannel)
+			final void setSourceFile(final File file, final FileLock fileLock)
 			{
 				// next source file is set up
-				this.currentBatchChannel       =          -1; // invalid value to guarantee change on first entity.
-				this.currentSourceFilePosition =           0; // source file starts at 0, of course.
-				this.file                      =        file;
-				this.sourceFileChannel         = fileChannel; // keep file channel reference.
+				this.currentBatchChannel       =       -1; // invalid value to guarantee change on first entity.
+				this.currentSourceFilePosition =        0; // source file starts at 0, of course.
+				this.file                      =     file;
+				this.fileLock                  = fileLock; // keep file lock&channel reference.
 			}
 
 			final void completeCurrentSourceFile()
@@ -287,7 +292,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 					final ChannelItem currentItem       = channelItems[i];
 
 					sourceFileHeads[i] = sourceFileHeads[i].next =
-						new SourceFileSlice(i, this.file, this.sourceFileChannel, currentItem.headBatch.batchNext)
+						new SourceFileSlice(i, this.file, this.fileLock, currentItem.headBatch.batchNext)
 					;
 					currentItem.resetChains();
 
@@ -304,8 +309,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
@@ -365,19 +370,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			{
 				// being interrupted is a normal problem here, causing to abort the task, no further handling required.
 
-				/* damn checked exceptios:
-				 * for clean architecture wihtout maintenance-error-prone redundant code,
-				 * the checked exception must be rethrown unchecked.
-				 * See calling context (addProblem() and incrementCompletionProgress())
+				/* (16.04.2016)TODO: storage import interruption handling.
+				 * Shouldn't an import be properly interruptible in the first place?
+				 * Either change code or comment accordingly.
 				 */
-				/* (16.04.2016)TODO: if it is a normal problem, there should be a proper wrapping exception for it
-				 * instead of hacking the JVM.
-				 * Also, shouldn't an import be properly interruptible in the first place?
-				 */
-				VMUtils.throwUnchecked(e);
-
-				// safety net error, may never be reached if the cheating method call works as intended.
-				throw new Error(e);
+				throw new RuntimeException(e);
 			}
 
 			return null;
@@ -418,7 +415,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
 //					DEBUGStorage.println("Closing silently: " + file);
-					Jadoth.closeSilent(file.fileChannel);
+					XFiles.closeSilent(file.fileChannel);
 				}
 			}
 		}
@@ -446,38 +443,22 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		}
 	}
 
-	static final class SourceFileSlice implements StorageChannelImportSourceFile
+	static final class SourceFileSlice
+	extends StorageLockedChannelFile.Implementation
+	implements StorageChannelImportSourceFile
 	{
-		final int             channelIndex;
-		final File            file        ;
-		final FileChannel     fileChannel ;
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
 
 		SourceFileSlice(
 			final int         channelIndex,
 			final File        file        ,
-			final FileChannel fileChannel ,
+			final FileLock    fileLock    ,
 			final ImportBatch headBatch
 		)
 		{
-			super();
-			this.channelIndex = channelIndex;
-			this.file         = file        ;
-			this.fileChannel  = fileChannel ;
+			super(channelIndex, file, fileLock);
 			this.headBatch    = headBatch   ;
-		}
-
-		@Override
-		public File file()
-		{
-			return this.file;
-		}
-
-		@Override
-		public final FileChannel fileChannel()
-		{
-			return this.fileChannel;
 		}
 
 		@Override

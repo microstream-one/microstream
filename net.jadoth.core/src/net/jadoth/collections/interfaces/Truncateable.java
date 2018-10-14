@@ -1,6 +1,6 @@
 package net.jadoth.collections.interfaces;
 
-import net.jadoth.util.Clearable;
+import net.jadoth.typing.Clearable;
 
 /**
  * @author Thomas Muenz

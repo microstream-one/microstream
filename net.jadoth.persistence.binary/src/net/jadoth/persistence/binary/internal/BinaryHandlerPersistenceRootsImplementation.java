@@ -1,24 +1,25 @@
 package net.jadoth.persistence.binary.internal;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
-import net.jadoth.Jadoth;
-import net.jadoth.collections.X;
+import net.jadoth.X;
+import net.jadoth.collections.EqHashEnum;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Memory;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
-extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
+extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -26,7 +27,11 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 
 	private static final long OFFSET_OID_LIST = 0;
 
-
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
 	
 	public static BinaryHandlerPersistenceRootsImplementation New(
 		final PersistenceRootResolver resolver      ,
@@ -39,6 +44,8 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		);
 	}
 
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -87,10 +94,10 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 
 	@Override
 	public final void store(
-		final Binary                          bytes    ,
-		final PersistenceRoots.Implementation instance ,
-		final long                            oid      ,
-		final SwizzleStoreLinker              linker
+		final Binary                          bytes   ,
+		final PersistenceRoots.Implementation instance,
+		final long                            oid     ,
+		final SwizzleHandler                  handler
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -108,7 +115,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final long contentAddress = bytes.storeEntityHeader(totalContentLength, this.typeId(), oid);
 
 		// store instances first to allow efficient references-only caching
-		BinaryPersistence.storeArrayContentAsList(contentAddress, linker, instances, 0, instances.length);
+		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
 
 		// store identifiers as list of inlined [char]s
 		BinaryPersistence.storeStringsAsList(
@@ -118,11 +125,10 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		);
 	}
 
-
 	private static long[] buildTempObjectIdArray(final Binary bytes)
 	{
 		final long amountOids = BinaryPersistence.binaryArrayElementCount(bytes, OFFSET_OID_LIST);
-		return new long[Jadoth.checkArrayRange(amountOids)];
+		return new long[X.checkArrayRange(amountOids)];
 	}
 
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
@@ -130,7 +136,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final long offsetIdentifierList = BinaryPersistence.binaryArrayByteLength(bytes, OFFSET_OID_LIST);
 		final long amountIdentifiers    = BinaryPersistence.binaryArrayElementCount(bytes, offsetIdentifierList);
 
-		return new String[Jadoth.checkArrayRange(amountIdentifiers)];
+		return new String[X.checkArrayRange(amountIdentifiers)];
 	}
 
 	private static void validateArrayLengths(final long[] oids, final String[] identifiers)
@@ -145,7 +151,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	private void fillObjectIds(final long[] oids, final Binary bytes)
 	{
 		final long offsetOidData = BinaryPersistence.binaryArrayElementDataAddress(bytes, OFFSET_OID_LIST);
-		Memory.copyRangeToArray(offsetOidData, oids);
+		XVM.copyRangeToArray(offsetOidData, oids);
 	}
 
 	private void fillIdentifiers(final String[] identifiers, final Binary bytes)
@@ -155,21 +161,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
 	}
 
-	private void resolveInstances(final String[] identifiers, final Object[] instances)
-	{
-		final PersistenceRootResolver resolver = this.resolver;
-
-		// for what it's worth, lock the resolver in case it's used concurrently (which really shouldn't be done)
-		synchronized(resolver)
-		{
-			for(int i = 0; i < identifiers.length; i++)
-			{
-				instances[i] = resolver.apply(identifiers[i]);
-			}
-		}
-	}
-
-	private void registerInstances(final long[] oids, final Object[] instances)
+	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
 		final SwizzleRegistry registry = this.globalRegistry;
 
@@ -178,6 +170,13 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		{
 			for(int i = 0; i < oids.length; i++)
 			{
+				// instances can be null when they are explicitly registered to be null in the refactoring
+				if(instances[i] == null)
+				{
+					continue;
+				}
+				
+				// all still live instances are registered for their OID.
 				registry.registerObject(oids[i], instances[i]);
 			}
 		}
@@ -186,7 +185,7 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	@Override
 	public final PersistenceRoots.Implementation create(final Binary bytes)
 	{
-		return new PersistenceRoots.Implementation();
+		return PersistenceRoots.Implementation.createUninitialized();
 	}
 
 	@Override
@@ -196,27 +195,24 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 		final SwizzleBuildLinker              builder
 	)
 	{
-		/* Note that performance is not important here as roots only get loaded once per system start
+		/*
+		 * Note that performance is not important here as roots only get loaded once per system start
 		 * and are very few in numbers (hence the temp array copying detour).
-		 * Also the temp arrays allow much more efficent (smaller) lock times on the global registry.
-		 *
-		 * The method naming and structuring should be self-explanatory for the most part.
+		 * Also the temp arrays allow shorter lock times on the global registry.
 		 */
 
 		final long[]   objectIds   = buildTempObjectIdArray(bytes);
 		final String[] identifiers = buildTempIdentifiersArray(bytes);
-		final Object[] instances   = new Object[objectIds.length];
 
 		validateArrayLengths(objectIds, identifiers);
-
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
 
-		this.resolveInstances(identifiers, instances);
-
-		this.registerInstances(objectIds, instances);
-
-		X.addAllTo(instance.entries(), identifiers, instances);
+		final XGettingTable<String, PersistenceRootEntry> resolvedRoots = this.resolver.resolveRootInstances(
+			EqHashEnum.New(identifiers)
+		);
+		final Object[] instances = instance.setResolvedRoots(resolvedRoots);
+		this.registerInstancesPerObjectId(objectIds, instances);
 	}
 
 	@Override
@@ -261,17 +257,6 @@ extends AbstractBinaryHandlerNative<PersistenceRoots.Implementation>
 	public final boolean hasPersistedVariableLength()
 	{
 		return true;
-	}
-
-	@Override
-	public final boolean isEqual(
-		final PersistenceRoots.Implementation source            ,
-		final PersistenceRoots.Implementation target            ,
-		final ObjectStateHandlerLookup        stateHandlerLookup
-	)
-	{
-		// FIXME BinaryHandlerPersistenceRootsImplementation#isEqual()
-		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 
 }

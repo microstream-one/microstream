@@ -2,25 +2,30 @@ package net.jadoth.persistence.types;
 
 import java.util.function.Consumer;
 
+import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.collections.types.XGettingEnum;
 
 public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
 {
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
-		PersistenceTypeHandler<M, ?> typeHandlerInitializer
-	);
+	public <T> boolean registerTypeHandler(PersistenceTypeHandler<M, T> typeHandler);
 
-	public <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
-		Class<T>                     type            ,
-		PersistenceTypeHandler<M, ?> typeHandlerInitializer
+	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<M, T> typeHandler);
+	
+	public <T> boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<M, T> legacyTypeHandler);
+	
+	public PersistenceCustomTypeHandlerRegistry<M> registerLegacyTypeHandlers(
+		XGettingCollection<? extends PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers
 	);
 
 	public PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlers(
-		XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
+		XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlers
 	);
 	
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
+		
+	public XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers();
 
 	public boolean knowsType(Class<?> type);
 		
@@ -37,7 +42,8 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		// instance fields  //
 		/////////////////////
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping = HashTable.New();
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping            = HashTable.New();
+		private final HashEnum<PersistenceLegacyTypeHandler<M, ?>>      legacyTypeHandlers = HashEnum.New() ;
 
 		
 		
@@ -57,31 +63,29 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		/////////////////////
 
 		@Override
-		public boolean knowsType(final Class<?> type)
+		public synchronized boolean knowsType(final Class<?> type)
 		{
 			return this.mapping.keys().contains(type);
 		}
 
 		@Override
-		public final <T> PersistenceCustomTypeHandlerRegistry<M> registerTypeHandler(
+		public final synchronized <T> boolean registerTypeHandler(
 			final Class<T>                     type                  ,
-			final PersistenceTypeHandler<M, ?> typeHandlerInitializer
+			final PersistenceTypeHandler<M, T> typeHandlerInitializer
 		)
 		{
-			this.mapping.put(type, typeHandlerInitializer);
-			return this;
+			return this.mapping.add(type, typeHandlerInitializer);
 		}
 
 		@Override
-		public <T> PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandler(
-			final PersistenceTypeHandler<M, ?> typeHandlerInitializer
+		public <T> boolean registerTypeHandler(
+			final PersistenceTypeHandler<M, T> typeHandlerInitializer
 		)
 		{
-			this.registerTypeHandler(
+			return this.registerTypeHandler(
 				typeHandlerInitializer.type(),
 				typeHandlerInitializer
 			);
-			return this;
 		}
 
 		@Override
@@ -89,10 +93,32 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			final XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
 		)
 		{
-			for(final PersistenceTypeHandler<M, ?> tdi : typeHandlerInitializers)
+			for(final PersistenceTypeHandler<M, ?> th : typeHandlerInitializers)
 			{
-				this.registerTypeHandler(tdi);
+				this.registerTypeHandler(th);
 			}
+			
+			return this;
+		}
+		
+		@Override
+		public synchronized <T> boolean registerLegacyTypeHandler(
+			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler
+		)
+		{
+			return this.legacyTypeHandlers.add(legacyTypeHandler);
+		}
+		
+		@Override
+		public synchronized PersistenceCustomTypeHandlerRegistry<M> registerLegacyTypeHandlers(
+			final XGettingCollection<? extends PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers
+		)
+		{
+			for(final PersistenceLegacyTypeHandler<M, ?> lth : legacyTypeHandlers)
+			{
+				this.registerLegacyTypeHandler(lth);
+			}
+			
 			return this;
 		}
 
@@ -113,6 +139,12 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		{
 			this.mapping.values().iterate(iterator);
 			return iterator;
+		}
+		
+		@Override
+		public final XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers()
+		{
+			return this.legacyTypeHandlers;
 		}
 
 	}

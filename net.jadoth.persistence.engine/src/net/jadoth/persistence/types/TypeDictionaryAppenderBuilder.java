@@ -1,7 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.util.chars.VarString;
 
 final class TypeDictionaryAppenderBuilder
 implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderImplementation>

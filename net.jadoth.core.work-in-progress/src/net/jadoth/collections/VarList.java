@@ -8,19 +8,20 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
+import net.jadoth.branching.ThrowBreak;
 import net.jadoth.collections.old.OldList;
-import net.jadoth.collections.types.IdentityEqualityLogic;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XList;
+import net.jadoth.equality.Equalator;
+import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hash.JadothHash;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.Composition;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.branching.ThrowBreak;
+import net.jadoth.hashing.Hashing;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.Composition;
 
 
 /**
@@ -83,7 +84,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final static <E> VarList<E> NewCustom(final int segmentLength)
 	{
 		final VarList<E> newInstance = new VarList<>(
-			JadothMath.positive(segmentLength)
+			XMath.positive(segmentLength)
 		);
 		newInstance.initializeEmpty();
 
@@ -396,7 +397,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final VarList<E> addAll(final E[] elements, final int offset, final int length)
 	{
 		final int bound = offset + length;
-		JadothArrays.checkBounds(elements, offset, bound);
+		XArrays.checkBounds(elements, offset, bound);
 
 		for(int i = offset; i < bound; i++)
 		{
@@ -451,7 +452,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	public final VarList<E> prependAll(final E[] elements, final int offset, final int length)
 	{
 		final int bound = offset + length;
-		JadothArrays.checkBounds(elements, offset, bound);
+		XArrays.checkBounds(elements, offset, bound);
 
 		for(int i = offset; i < bound; i++)
 		{
@@ -675,7 +676,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return JadothHash.hashEqualityIdentity();
+		return Hashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -1614,8 +1615,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 		 * See below for thoughts about a direct implementation without redundant copying.
 		 */
 		final E[] buffer2 = newArray(this.intSize());
-		JadothArrays.copyTo(this, buffer2);
-		JadothSort.sort(buffer2, comparator);
+		XArrays.copyTo(this, buffer2);
+		XSort.sort(buffer2, comparator);
 		this.truncate();
 		this.addAll(buffer2);
 
@@ -1625,7 +1626,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 //		final E[] buffer = newArray(this.segmentLength);
 //		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 //		{
-//			JadothSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
+//			XSort.bufferedAdaptiveMergesort(buffer, segment.elements, 0, segment.size, comparator);
 //		}
 //
 //		// once every segment is sorted in itself, a complete already-sorted check becomes trivial, so it is done.
@@ -1715,7 +1716,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final String toString()
 	{
-		return JadothCollections.toString(this);
+		return X.toString(this);
 	}
 
 }

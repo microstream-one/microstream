@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
+
 import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
 import net.jadoth.swizzling.types.SwizzleRegistry;
 
@@ -46,15 +47,18 @@ public interface PersistenceDistrict<M>
 
 //	public long lookupTypeId(Class<?> type);
 
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long typeId);
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(long objectId, long typeId);
+	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long objectId, long typeId);
 
-	public Object registerTypeIdForObjectId(long oid, long tid);
-
-	public Object optionalRegisterObject(long oid, long tid, Object object);
-
-	public long lookupTypeIdForObjectId(long oid);
+	/* (23.05.2018 TM)TODO: SwizzleRegistry nonsense method?
+	 * Isn't this method nonsense since the tid got removed?
+	 * Wouldn't a simple lookup suffice for the calling site and the actual registration only done when it's needed?
+	 * 
+	 */
+	public Object registerObjectId(long oid);
+	
+	public Object optionalRegisterObject(long oid, Object object);
 
 	public Object lookupObject(long oid);
 
@@ -98,23 +102,22 @@ public interface PersistenceDistrict<M>
 		)
 		{
 			super();
-			this.registry   = notNull(registry  );
+			this.registry   = notNull(registry)  ;
 			this.typeLookup = notNull(typeLookup);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public <I extends PersistenceBuildItem<M>> I createBuildItem(final Creator<M, I> creator, final long oid)
 		{
-			final long tid = this.lookupTypeIdForObjectId(oid);
 			return creator.createBuildItem(
 				oid,
-				tid == 0L ? null : this.lookupTypeHandler(oid, tid),
+				null,
 				this.lookupObject(oid)
 			);
 		}
@@ -131,6 +134,7 @@ public interface PersistenceDistrict<M>
 			);
 		}
 
+		@SuppressWarnings("unchecked") // weird interplay between ? and Object. Correctness guaranteed by logic.
 		@Override
 		public <I extends PersistenceBuildItem<M>> I createBuildItem(
 			final Creator<M, I> creator,
@@ -141,40 +145,33 @@ public interface PersistenceDistrict<M>
 			// type handler lookup (potential miss / validation error, etc.) must be executed BEFORE tid registration
 			return creator.createBuildItem(
 				oid,
-				this.lookupTypeHandler(oid, tid),
-				this.registerTypeIdForObjectId(oid, tid)
+				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(oid, tid),
+				this.registerObjectId(oid)
 			);
+		}
+		
+		@Override
+		public Object registerObjectId(final long oid)
+		{
+			return this.registry.registerObjectId(oid);
+		}
+		
+		@Override
+		public Object optionalRegisterObject(final long oid, final Object object)
+		{
+			return this.registry.optionalRegisterObject(oid, object);
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.typeLookup.lookupTypeHandler(typeId);
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final long objectId, final long typeId)
+		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
 		{
 			return this.typeLookup.lookupTypeHandler(objectId, typeId);
-		}
-
-		// option to hook in TID<->OID validation and/or updating type definitions if necessary/desired
-		@Override
-		public Object registerTypeIdForObjectId(final long oid, final long tid)
-		{
-			return this.registry.registerTypeIdForObjectId(oid, tid);
-		}
-
-		@Override
-		public Object optionalRegisterObject(final long oid, final long tid, final Object object)
-		{
-			return this.registry.optionalRegisterObject(oid, tid, object);
-		}
-
-		@Override
-		public long lookupTypeIdForObjectId(final long oid)
-		{
-			return this.registry.lookupTypeIdForObjectId(oid);
 		}
 
 		@Override
@@ -182,12 +179,6 @@ public interface PersistenceDistrict<M>
 		{
 			return this.registry.lookupObject(oid);
 		}
-
-//		@Override
-//		public boolean knowsReferencedObject(final long referenceOid)
-//		{
-//			return this.registry.containsObjectId(referenceOid);
-//		}
 
 		@Override
 		public final boolean handleKnownObject(final long objectId, final PersistenceInstanceHandler handler)

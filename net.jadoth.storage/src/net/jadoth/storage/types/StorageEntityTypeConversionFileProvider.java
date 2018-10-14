@@ -1,15 +1,16 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.io.File;
 
+import net.jadoth.files.XFiles;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 
 
 public interface StorageEntityTypeConversionFileProvider
 {
-	public File provideConversionFile(PersistenceTypeDefinition<?> typeDescription, File sourceFile);
+	public StorageLockedFile provideConversionFile(PersistenceTypeDefinition typeDescription, StorageFile sourceFile);
 
 
 
@@ -52,25 +53,22 @@ public interface StorageEntityTypeConversionFileProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public File provideConversionFile(final PersistenceTypeDefinition<?> typeDescription, final File sourceFile)
+		public StorageLockedFile provideConversionFile(
+			final PersistenceTypeDefinition typeDescription,
+			final StorageFile               sourceFile
+		)
 		{
-			/* don't bother with including a type id.
-			 * TypeId mapping is the type dictionary's concern, not that of an export file.
-			 * Also it messes up sorting files by name.
-			 */
-			return new File(this.directory, typeDescription.typeName() + this.cachedFileSuffix);
-
-//			final VarString vs = VarString.New()
-//			.padLeft(Long.toString(entityType.typeId()), JadothChars.maxCharCount_long() - 1, '0')
-//			.add('_')
-//			.add(entityType.typeName())
-//			.add(this.cachedFileSuffix)
-//			;
-//			return new File(this.directory, vs.toString());
+			// TypeId must be included since only that is the unique identifier of a type.
+			final File file = new File(
+				this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix
+			);
+			XFiles.ensureDirectory(this.directory);
+			
+			return StorageLockedFile.openLockedFile(file);
 		}
 
 	}

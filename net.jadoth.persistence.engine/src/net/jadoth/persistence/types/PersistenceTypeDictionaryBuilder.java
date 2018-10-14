@@ -1,10 +1,12 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.collections.XSort;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 
@@ -15,63 +17,6 @@ public interface PersistenceTypeDictionaryBuilder
 	public PersistenceTypeDictionary buildTypeDictionary(XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries);
 		
 	
-	
-//	public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> groupEntries(
-//		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
-//	)
-//	{
-//		// validate TypeId uniqueness accross all entries.
-//		validateTypeIdUniqueness(entries);
-//
-//		final EqHashTable<String, EqHashTable<Long, PersistenceTypeDictionaryEntry>> table    = EqHashTable.New();
-//		final Function<String, EqHashTable<Long, PersistenceTypeDictionaryEntry>>    supplier = tn -> EqHashTable.New();
-//
-//		for(final PersistenceTypeDictionaryEntry e : entries)
-//		{
-//			// TypeId uniqueness is guaranteed by the validation above.
-//			table.ensure(e.typeName(), supplier).add(e.typeId(), e);
-//		}
-//
-//		return table;
-//	}
-	
-//	public static void validateTypeIdUniqueness(final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries)
-//	{
-//		final EqHashEnum<Long> uniqueTypeIds = EqHashEnum.New(entries.size());
-//		for(final PersistenceTypeDictionaryEntry e : entries)
-//		{
-//			if(!uniqueTypeIds.add(e.typeId()))
-//			{
-//				// (05.09.2017 TM)EXCP: proper exception
-//				throw new RuntimeException("Duplicate TypeDictionary entry for TypeId " + e.typeId());
-//			}
-//		}
-//
-//		// no TypeId conflict found, return without consequence.
-//	}
-	
-//	public static XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> sortByTypeId(
-//		final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table
-//	)
-//	{
-//		for(final XTable<Long, PersistenceTypeDictionaryEntry> e : table.values())
-//		{
-//			JadothSort.valueSort(e.keys(), Long::compare);
-//		}
-//
-//		return table;
-//	}
-	
-//	public static void populateTypeLineage(
-//		final PersistenceTypeLineage<?>                          typeLineage,
-//		final XGettingCollection<PersistenceTypeDictionaryEntry> entries
-//	)
-//	{
-//		for(final PersistenceTypeDictionaryEntry e : entries)
-//		{
-//			typeLineage.registerTypeDescription(e.typeId(), e.members());
-//		}
-//	}
 	
 	public static XGettingTable<Long, PersistenceTypeDictionaryEntry> ensureUniqueTypeIds(
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
@@ -90,80 +35,109 @@ public interface PersistenceTypeDictionaryBuilder
 					throw new RuntimeException("TypeId conflict for " + e.typeId() + " " + e.typeName());
 				}
 			}
-			JadothSort.valueSort(uniqueTypeIdEntries.keys(), Long::compare);
+			XSort.valueSort(uniqueTypeIdEntries.keys(), Long::compare);
 		}
 		
 		return uniqueTypeIdEntries;
 	}
-	
-	
+		
 	public static PersistenceTypeDictionary buildTypeDictionary(
-		final PersistenceTypeDictionaryProvider                          typeDictionaryProvider,
-		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator ,
+		final PersistenceTypeDictionaryCreator                           typeDictionaryCreator,
+		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator,
+		final PersistenceTypeResolver                                    typeResolver,
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 	)
 	{
 		final XGettingTable<Long, PersistenceTypeDictionaryEntry> uniqueTypeIdEntries = ensureUniqueTypeIds(entries);
 		
-		final BulkList<PersistenceTypeDefinition<?>> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
-		for(final PersistenceTypeDictionaryEntry e : uniqueTypeIdEntries.values())
+		final PersistenceTypeDefinitionMemberCreator memberCreator =
+			PersistenceTypeDefinitionMemberCreator.New(uniqueTypeIdEntries.values(), typeResolver)
+		;
+						
+		final BulkList<PersistenceTypeDefinition> typeDefs = BulkList.New(uniqueTypeIdEntries.size());
+		for(final PersistenceTypeDescription e : uniqueTypeIdEntries.values())
 		{
-			final Class<?> type = Persistence.resolveTypeOptional(e.typeName()); // might be null
-			final PersistenceTypeDefinition<?> typeDef = typeDefinitionCreator.createTypeDefinition(
-				e.typeName(),
-				type        ,
-				e.typeId()  ,
+			/*
+			 * The type entry just contains all member entries as they are written in the dictionary,
+			 * even if they are inconsistent (e.g. duplicates) or no longer resolvable to a runtime type.
+			 * The point where unvalidated entries are formed into valid definitions is exactely here,
+			 * so here has to be the validation and type mapping.
+			 */
+			/*
+			 * The type resolver must also handle refactoring mappings internally.
+			 * Not just mapping types with unresolvably deprecated names to their currently named runtime type,
+			 * but also rerouting conflicted name changes.
+			 * Consider the following case:
+			 * Class A is part of the dictionary.
+			 * During the developement process, it gets renamed to "B" and a new Class is created with the name "A".
+			 * Design-wise, the entry saying "A" must now be mapped to the type B.
+			 * Without refactoring mapping, the name "A" could still be resolved to a valid runtime class,
+			 * but it would be the wrong one.
+			 */
+			
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members = buildDefinitionMembers(
+				memberCreator,
 				e.members()
 			);
+			
+			final String   runtimeTypeName = typeResolver.resolveRuntimeTypeName(e);
+			final Class<?> type            = runtimeTypeName == null
+				? null
+				: typeResolver.tryResolveType(runtimeTypeName)
+			;
+			
+			final PersistenceTypeDefinition typeDef = typeDefinitionCreator.createTypeDefinition(
+				e.typeId()     ,
+				e.typeName()   ,
+				runtimeTypeName,
+				type           ,
+				members
+			);
+			
 			typeDefs.add(typeDef);
 		}
 
-		// bulk-register collected type definitions for efficiency reasons (only sort once)
-		final PersistenceTypeDictionary td = typeDictionaryProvider.provideTypeDictionary();
-		td.registerDefinitionEntries(typeDefs);
-		
-//		fillTypeLineages(td, entries);
-		
-		return td;
+		// collected type definitions are bulk-registered for efficiency reasons (only sort once)
+		final PersistenceTypeDictionary typeDictionary = typeDictionaryCreator.createTypeDictionary();
+		typeDictionary.registerTypeDefinitions(typeDefs);
+				
+		return typeDictionary;
 	}
 	
-//	public static void fillTypeLineages(
-//		final PersistenceTypeDictionary                                  typeDictionary,
-//		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
-//	)
-//	{
-//		if(entries == null)
-//		{
-//			// typeDictionary remains empty
-//			return;
-//		}
-//
-//		final XTable<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> table = groupEntries(entries);
-//
-//		// this sorting is required by the type checking in order to (easily) get the entry with the highest typeId.
-//		sortByTypeId(table);
-//
-//		for(final KeyValue<String, ? extends XTable<Long, PersistenceTypeDictionaryEntry>> e : table)
-//		{
-//			/* (12.10.2017 TM)FIX-ME: must not bypass typeDictionary registering.
-//			 * Actually, it doesn't make much sense for the lineage to create a TypeDef instance internally.
-//			 * Should be moved to the builder here. Then the TypeDef can be passed to the TypeDict naturally.
-//			 */
-//			final PersistenceTypeLineage<?> typeLineage = typeDictionary.ensureTypeLineage(e.key());
-//			populateTypeLineage(typeLineage, e.value().values());
-//		}
-//	}
+	public static XGettingEnum<? extends PersistenceTypeDefinitionMember> buildDefinitionMembers(
+		final PersistenceTypeDefinitionMemberCreator                       memberCreator,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		final EqHashEnum<PersistenceTypeDefinitionMember> definitionMembers =
+			EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
+		;
+		
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			final PersistenceTypeDefinitionMember definitionMember = member.createDefinitionMember(memberCreator);
+			if(!definitionMembers.add(definitionMember))
+			{
+				// (08.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Duplicate type member entry: " + member.uniqueName());
+			}
+		}
+		
+		return definitionMembers;
+	}
 	
 	
 	
 	public static PersistenceTypeDictionaryBuilder.Implementation New(
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider,
-		final PersistenceTypeDefinitionCreator  typeDefinitionCreator
+		final PersistenceTypeDictionaryCreator typeDictionaryCreator,
+		final PersistenceTypeDefinitionCreator typeDefinitionCreator,
+		final PersistenceTypeResolverProvider  typeResolverProvider
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Implementation(
-			notNull(typeDictionaryProvider),
-			notNull(typeDefinitionCreator)
+			notNull(typeDictionaryCreator),
+			notNull(typeDefinitionCreator),
+			notNull(typeResolverProvider)
 		);
 	}
 	
@@ -173,8 +147,9 @@ public interface PersistenceTypeDictionaryBuilder
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeDictionaryProvider typeDictionaryProvider;
-		final PersistenceTypeDefinitionCreator  typeDefinitionCreator ;
+		final PersistenceTypeDictionaryCreator typeDictionaryCreator;
+		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
+		final PersistenceTypeResolverProvider  typeResolverProvider ;
 		
 		
 		
@@ -183,13 +158,15 @@ public interface PersistenceTypeDictionaryBuilder
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeDictionaryProvider typeDictionaryProvider,
-			final PersistenceTypeDefinitionCreator  typeDefinitionCreator
+			final PersistenceTypeDictionaryCreator typeDictionaryCreator,
+			final PersistenceTypeDefinitionCreator typeDefinitionCreator,
+			final PersistenceTypeResolverProvider  typeResolverProvider
 		)
 		{
 			super();
-			this.typeDictionaryProvider = typeDictionaryProvider;
-			this.typeDefinitionCreator  = typeDefinitionCreator ;
+			this.typeDictionaryCreator = typeDictionaryCreator;
+			this.typeDefinitionCreator = typeDefinitionCreator;
+			this.typeResolverProvider  = typeResolverProvider ;
 		}
 		
 		
@@ -197,7 +174,7 @@ public interface PersistenceTypeDictionaryBuilder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+				
 		@Override
 		public PersistenceTypeDictionary buildTypeDictionary(
 			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
@@ -214,8 +191,9 @@ public interface PersistenceTypeDictionaryBuilder
 			 * - explanatory comments where naming isn't self-explanatory.
 			 */
 			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(
-				this.typeDictionaryProvider,
-				this.typeDefinitionCreator ,
+				this.typeDictionaryCreator                 ,
+				this.typeDefinitionCreator                 ,
+				this.typeResolverProvider.provideResolver(),
 				entries
 			);
 		}

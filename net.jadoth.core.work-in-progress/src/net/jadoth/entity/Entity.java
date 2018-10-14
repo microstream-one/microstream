@@ -3,8 +3,8 @@ package net.jadoth.entity;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
-import net.jadoth.collections.XIterable;
 import net.jadoth.collections.types.XCollection;
+import net.jadoth.collections.types.XIterable;
 
 /*
  * Concept to separate the basic aspects of what defines an entity into separate instances of different layers:

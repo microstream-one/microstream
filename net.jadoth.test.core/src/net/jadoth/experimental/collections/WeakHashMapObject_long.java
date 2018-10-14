@@ -5,14 +5,14 @@ import static java.lang.System.identityHashCode;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.interfaces.OptimizableCollection;
 import net.jadoth.collections.interfaces.Sized;
 import net.jadoth.collections.types.XList;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.math.JadothMath;
-import net.jadoth.util.KeyValue;
+import net.jadoth.math.XMath;
+import net.jadoth.typing.XTypes;
+import net.jadoth.typing.KeyValue;
 
 /**
  * Primitive (read: fast) pseudo map implementation that maps long id values to weakly referenced objects.
@@ -49,7 +49,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 	public WeakHashMapObject_long(int slotSize)
 	{
 		super();
-		slotSize = JadothMath.pow2BoundCapped(slotSize);
+		slotSize = XMath.pow2BoundCapped(slotSize);
 		this.slots = new Entry[slotSize];
 		this.modulo = slotSize - 1;
 	}
@@ -101,7 +101,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 			}
 		}
 
-		final int newCapacity = JadothMath.pow2BoundCapped(c);
+		final int newCapacity = XMath.pow2BoundCapped(c);
 		final Entry<T>[] newSlots;
 		final int newSlotCountMinusOne;
 		if(newCapacity == this.slots.length)
@@ -199,7 +199,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = Jadoth.to_int(list.size());
+		this.size = XTypes.to_int(list.size());
 		return list;
 	}
 
@@ -216,7 +216,7 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 				}
 			}
 		}
-		this.size = Jadoth.to_int(list.size());
+		this.size = XTypes.to_int(list.size());
 		return list;
 	}
 

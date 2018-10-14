@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import net.jadoth.util.chars.VarString;
-import net.jadoth.util.file.JadothFiles;
+import net.jadoth.chars.VarString;
+import net.jadoth.files.XFiles;
 
 public class MainTestRTF
 {
@@ -61,7 +61,7 @@ public class MainTestRTF
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
-		JadothFiles.writeStringToFile(target, s);
+		XFiles.writeStringToFile(target, s);
 	}
 
 }

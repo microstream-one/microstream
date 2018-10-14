@@ -7,17 +7,15 @@ import java.util.Date;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
-import net.jadoth.collections.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XSequence;
-import net.jadoth.cql.CQL;
-import net.jadoth.functional.JadothPredicates;
-import net.jadoth.meta.JadothConsole;
-import net.jadoth.persistence.types.PersistenceRootResolver;
+import net.jadoth.functional.XFunc;
+import net.jadoth.meta.XDebug;
 import net.jadoth.reference.Reference;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageConnectionFoundation;
@@ -30,8 +28,10 @@ import net.jadoth.storage.types.StorageDataConverterTypeCsvToBinary;
 import net.jadoth.storage.types.StorageEntityTypeConversionFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportFileProvider;
 import net.jadoth.storage.types.StorageEntityTypeExportStatistics;
+import net.jadoth.storage.types.StorageFile;
 import net.jadoth.storage.types.StorageFileProvider;
-import net.jadoth.util.UtilResetDirectory;
+import net.jadoth.storage.types.StorageLockedFile;
+import net.jadoth.util.cql.CQL;
 
 public class TestStorage extends TestComponentProvider
 {
@@ -49,8 +49,7 @@ public class TestStorage extends TestComponentProvider
 
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation(Storage.FileProvider(DIRECTORY))
-		.setRootResolver(Storage.RootResolver(ROOT))
+		.createFoundationBlank()
 		.setConfiguration(
 			Storage.Configuration(
 				createTestFileProvider()                        ,
@@ -60,8 +59,8 @@ public class TestStorage extends TestComponentProvider
 				Storage.EntityCacheEvaluatorCustomTimeout(10_000) // evalutator for removing entities from the cache
 			)
 		)
-		.setConnectionFoundation(createTestConnectionFoundation())     // config and files for persistence layer
-		.createEmbeddedStorageManager()
+		.setConnectionFoundation(createTestConnectionFoundation()) // config and files for persistence layer
+		.createEmbeddedStorageManager(ROOT) // binding between the application graph's root  and the storage
 //		.start() // start storage threads and load all non-lazy referenced instances starting at root
 	;
 
@@ -74,7 +73,7 @@ public class TestStorage extends TestComponentProvider
 	static void deleteOutput(final File dir)
 	{
 		System.out.println("Resetting " + dir);
-		UtilResetDirectory.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir, false);
 		System.out.println("done");
 	}
 
@@ -84,14 +83,9 @@ public class TestStorage extends TestComponentProvider
 		return Storage.FileProvider(TEST_DIRECTORY, "channel_", "dat");
 	}
 
-	static final EmbeddedStorageConnectionFoundation createTestConnectionFoundation()
+	static final EmbeddedStorageConnectionFoundation<?> createTestConnectionFoundation()
 	{
 		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
-	}
-
-	static final PersistenceRootResolver createTestRootResolver(final String rootIdentifier, final Object rootInstance)
-	{
-		return new PersistenceRootResolver.SingleOverride(rootIdentifier, rootInstance);
 	}
 
 	protected static File convertBinToCsv(final File... binaryFiles)
@@ -101,7 +95,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles)
 	{
-		return convertBinToCsv(binaryFiles, JadothPredicates.all());
+		return convertBinToCsv(binaryFiles, XFunc.all());
 	}
 
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
@@ -122,13 +116,19 @@ public class TestStorage extends TestComponentProvider
 			{
 				continue;
 			}
+			
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
 			try
 			{
-				converter.convertDataFile(file);
+				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception while converting file "+file, e);
+				throw new RuntimeException("Exception while converting file " + file, e);
+			}
+			finally
+			{
+				storageFile.close();
 			}
 		}
 		return dir;
@@ -136,17 +136,16 @@ public class TestStorage extends TestComponentProvider
 
 	protected static void convertCsvToBin(final File... binaryFiles)
 	{
-		convertCsvToBin(X.List(binaryFiles), JadothPredicates.all());
+		convertCsvToBin(X.List(binaryFiles), XFunc.all());
 	}
 
 	protected static void convertCsvToBin(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
 	{
-		final StorageDataConverterTypeCsvToBinary<File> converter = StorageDataConverterTypeCsvToBinary.New(
+		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "bin2");
+		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
-			new StorageEntityTypeConversionFileProvider.Implementation(
-				new File(binaryFiles.get().getParentFile().getParentFile(), "bin2"), "dat2"
-			)
+			new StorageEntityTypeConversionFileProvider.Implementation(directory, "dat2")
 		);
 
 		for(final File file : binaryFiles)
@@ -155,7 +154,9 @@ public class TestStorage extends TestComponentProvider
 			{
 				continue;
 			}
-			converter.convertCsv(file);
+
+			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			converter.convertCsv(storageFile);
 		}
 	}
 
@@ -172,7 +173,7 @@ public class TestStorage extends TestComponentProvider
 
 		final XSequence<File> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> s.file().file())
+			.project(s -> new File(s.file().identifier()))
 			.execute()
 		;
 
@@ -363,17 +364,57 @@ public class TestStorage extends TestComponentProvider
 		return array;
 	}
 
-	static BulkList<Person> createPersons(final int amount)
+	static BulkList<SimplePerson> createPersons(final int amount)
 	{
-		final BulkList<Person> persons = BulkList.New(amount);
+		final BulkList<SimplePerson> persons = BulkList.New(amount);
 
 		for(int i = 0; i < amount; i++)
 		{
-			persons.add(Person.New(i + 1));
+			persons.add(SimplePerson.New(i + 1));
 		}
 
 		return persons;
 	}
+	
+	static final class SimplePerson
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		
+		public static SimplePerson New(final int id)
+		{
+			return new SimplePerson(id, "P_"+id, SimplePerson.class.getSimpleName()+"_"+id, null);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		int id;
+		String firstName, lastName;
+		SimplePerson friend;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		SimplePerson(final int id, final String firstName, final String lastName, final SimplePerson friend)
+		{
+			super();
+			this.id = id;
+			this.firstName = firstName;
+			this.lastName = lastName;
+			this.friend = friend;
+		}
+		
+	}
+
 
 
 	static Object[] testGraphEvenMoreManyType()
@@ -402,15 +443,15 @@ public class TestStorage extends TestComponentProvider
 
 	public static void storageCleanup(final StorageConnection connection)
 	{
-		JadothConsole.debugln("GC#1");
+		XDebug.println("GC#1");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("GC#2");
+		XDebug.println("GC#2");
 		connection.issueFullGarbageCollection();
-		JadothConsole.debugln("cache check");
+		XDebug.println("cache check");
 		connection.issueFullCacheCheck();
-		JadothConsole.debugln("file check");
+		XDebug.println("file check");
 		connection.issueFullFileCheck();
-		JadothConsole.debugln("Done cleanup");
+		XDebug.println("Done cleanup");
 	}
 
 	static void testContinuousHouseKeeping()
@@ -419,14 +460,14 @@ public class TestStorage extends TestComponentProvider
 
 		for(int i = 0; i < 100; i++)
 		{
-			JadothConsole.debugln("Continuous Call #" + i);
-			connection.storeRequired(ROOT);
+			XDebug.println("Continuous Call #" + i);
+			connection.store(ROOT);
 			storageCleanup(connection);
 		}
 //		ROOT.set(new Object());
 //		for(int i = 3; i --> 0;)
 //		{
-//			connection.storeRequired(ROOT);
+//			connection.store(ROOT);
 //			storageCleanup(connection);
 //		}
 	}

@@ -1,8 +1,8 @@
 package net.jadoth.collections.types;
 
-import net.jadoth.collections.XIterable;
 import java.util.function.Consumer;
-import net.jadoth.util.KeyValue;
+
+import net.jadoth.typing.KeyValue;
 
 public interface XGetting2DMap<K1, K2, V> extends XIterable<KeyValue<K1, ? extends XGettingMap<K2, V>>>
 {

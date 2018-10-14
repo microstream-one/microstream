@@ -2,7 +2,7 @@ package net.jadoth.collections.types;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.util.Immutable;
+import net.jadoth.typing.Immutable;
 
 public interface XImmutableCollection<E> extends XGettingCollection<E>, Immutable
 {

@@ -8,14 +8,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.AbstractChainEntry;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.reference.ReferenceType;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.typing.KeyValue;
 
 public interface ChainKeyValueStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>
 extends ChainStorage<KeyValue<K, V>, K, V, EN>
@@ -266,7 +265,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void keyIterate(Consumer<? super K> procedure);
 
-	public <A> void keyJoin(BiProcedure<? super K, A> joiner, A keyAggregate);
+	public <A> void keyJoin(BiConsumer<? super K, A> joiner, A keyAggregate);
 
 	public void keyRngIterate(int offset, int length, Consumer<? super K> procedure);
 
@@ -341,11 +340,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public VarString keyAppendTo(VarString vc, String separator);
 
-	public VarString keyAppendTo(VarString vc, BiProcedure<VarString, ? super K> keyAppender);
+	public VarString keyAppendTo(VarString vc, BiConsumer<VarString, ? super K> keyAppender);
 
-	public VarString keyAppendTo(VarString vc, BiProcedure<VarString, ? super K> keyAppender, char separator);
+	public VarString keyAppendTo(VarString vc, BiConsumer<VarString, ? super K> keyAppender, char separator);
 
-	public VarString keyAppendTo(VarString vc, BiProcedure<VarString, ? super K> keyAppender, String separator);
+	public VarString keyAppendTo(VarString vc, BiConsumer<VarString, ? super K> keyAppender, String separator);
 
 	public VarString keyRngAppendTo(int offset, int length, VarString vc);
 
@@ -353,11 +352,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public VarString keyRngAppendTo(int offset, int length, VarString vc, String separator);
 
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super K> keyAppender);
+	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender);
 
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super K> keyAppender, char separator);
+	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender, char separator);
 
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super K> keyAppender, String separator);
+	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender, String separator);
 
 
 
@@ -791,7 +790,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void valuesRngIterateIndexed(int offset, int length, IndexProcedure<? super V> procedure);
 
-	public <A> void valuesJoin(BiProcedure<? super V, A> joiner, A aggregate);
+	public <A> void valuesJoin(BiConsumer<? super V, A> joiner, A aggregate);
 
 	// executing - conditional //
 
@@ -874,11 +873,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public VarString valuesAppendTo(VarString vc, String separator);
 
-	public VarString valuesAppendTo(VarString vc, BiProcedure<VarString, ? super V> appender);
+	public VarString valuesAppendTo(VarString vc, BiConsumer<VarString, ? super V> appender);
 
-	public VarString valuesAppendTo(VarString vc, BiProcedure<VarString, ? super V> appender, char separator);
+	public VarString valuesAppendTo(VarString vc, BiConsumer<VarString, ? super V> appender, char separator);
 
-	public VarString valuesAppendTo(VarString vc, BiProcedure<VarString, ? super V> appender, String separator);
+	public VarString valuesAppendTo(VarString vc, BiConsumer<VarString, ? super V> appender, String separator);
 
 	public VarString valuesRngAppendTo(int offset, int length, VarString vc);
 
@@ -886,11 +885,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public VarString valuesRngAppendTo(int offset, int length, VarString vc, String separator);
 
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super V> appender);
+	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender);
 
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super V> appender, char separator);
+	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender, char separator);
 
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiProcedure<VarString, ? super V> appender, String separator);
+	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender, String separator);
 
 	public String valuesToString();
 

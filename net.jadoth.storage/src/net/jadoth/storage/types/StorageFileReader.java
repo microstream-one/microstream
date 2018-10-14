@@ -13,7 +13,7 @@ public interface StorageFileReader
 		final StorageReaderCallback incompleteReadCallack
 	)
 	{
-		final FileChannel fileChannel = file.fileChannel();
+		final FileChannel fileChannel = file.channel();
 
 		try
 		{

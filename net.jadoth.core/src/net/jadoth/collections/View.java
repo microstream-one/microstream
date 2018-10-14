@@ -2,15 +2,15 @@ package net.jadoth.collections;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.OldCollection;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableCollection;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.XTypes;
 
 public class View<E> implements XGettingCollection<E>
 {
@@ -186,7 +186,7 @@ public class View<E> implements XGettingCollection<E>
 	}
 
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -288,7 +288,7 @@ public class View<E> implements XGettingCollection<E>
 	@Override
 	public long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

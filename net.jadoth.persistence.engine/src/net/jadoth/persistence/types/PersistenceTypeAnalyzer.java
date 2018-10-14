@@ -1,16 +1,15 @@
 package net.jadoth.persistence.types;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.lang.reflect.Field;
-import java.util.function.Predicate;
 
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XPrependingEnum;
 import net.jadoth.collections.types.XPrependingSequence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.reflect.JadothReflect;
+import net.jadoth.reflect.XReflect;
 
 public interface PersistenceTypeAnalyzer
 {
@@ -29,16 +28,16 @@ public interface PersistenceTypeAnalyzer
 		/////////////////////
 
 		public static final void collectPersistableInstanceFields(
-			final XPrependingSequence<Field> persistableInstanceFields,
-			final Class<?>                   type                     ,
-			final Predicate<Field>           isPersistable
+			final XPrependingSequence<Field> collection   ,
+			final Class<?>                   entityType   ,
+			final PersistenceFieldEvaluator  isPersistable
 //			final SwizzleTypeManager         typeManager
 		)
 		{
 
-			JadothReflect.collectTypedFields(persistableInstanceFields, type, field ->
+			XReflect.collectTypedFields(collection, entityType, field ->
 				{
-					if(!JadothReflect.isInstanceField(field) || !isPersistable.test(field))
+					if(!XReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
 					{
 						return false;
 					}
@@ -76,8 +75,8 @@ public interface PersistenceTypeAnalyzer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(
@@ -86,7 +85,7 @@ public interface PersistenceTypeAnalyzer
 			final XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 		)
 		{
-			final HashEnum<Field> persistableInstanceFields = HashEnum.New();
+			final HashEnum<Field> persistableFields = HashEnum.New();
 
 			/*
 			 * tricky:
@@ -102,9 +101,9 @@ public interface PersistenceTypeAnalyzer
 			 * This is meant by design and not an error. If it turns out to cause problems, it has to be fixed
 			 * and commented in here accordingly.
 			 */
-			if(JadothReflect.isAbstract(type))
+			if(XReflect.isAbstract(type))
 			{
-				return persistableInstanceFields; // handle abstract types as having no fields at all / stateless types.
+				return persistableFields; // handle abstract types as having no fields at all / stateless types.
 			}
 
 			if(!this.isPersistable.test(type))
@@ -113,13 +112,13 @@ public interface PersistenceTypeAnalyzer
 			}
 
 			collectPersistableInstanceFields(
-				persistableInstanceFields ,
+				persistableFields ,
 				type              ,
 				this.fieldSelector
 //				typeManager
 			);
 
-			return persistableInstanceFields;
+			return persistableFields;
 		}
 
 	}

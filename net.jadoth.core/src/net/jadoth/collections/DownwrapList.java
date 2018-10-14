@@ -3,6 +3,7 @@ package net.jadoth.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,6 +23,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XInputtingList;
 import net.jadoth.collections.types.XInsertingList;
+import net.jadoth.collections.types.XJoinable;
 import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XPrependingList;
 import net.jadoth.collections.types.XPreputtingSequence;
@@ -32,10 +34,9 @@ import net.jadoth.collections.types.XPuttingList;
 import net.jadoth.collections.types.XRemovingCollection;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.collections.types.XSortableSequence;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Clearable;
-import net.jadoth.util.Equalator;
+import net.jadoth.typing.Clearable;
 
 
 /**
@@ -791,7 +792,7 @@ public final class DownwrapList<E> implements XList<E>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		if(this.subject instanceof XJoinable<?>)
 		{

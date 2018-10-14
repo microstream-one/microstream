@@ -3,7 +3,7 @@ package net.jadoth.examples;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.X;
+import net.jadoth.X;
 import net.jadoth.collections.types.XAddingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XList;
@@ -57,14 +57,14 @@ public class MainExampleCollections20
 
 	public void selectAndPrint(final XGettingList<String> strings)
 	{
-//		final int lastIndex = Jadoth.to_int(strings.size()) - 1;
+//		final int lastIndex = XTypes.to_int(strings.size()) - 1;
 //		strings.rngIterate(lastIndex, -this.n, this.procedure1);
 //		strings.rngIterate(lastIndex - this.n, -(strings.size()/2 - this.n), this.condition1, this.procedure1, this.n, this.k);
 	}
 
 	public <C extends XAddingCollection<String>> C select(final XGettingList<String> strings, final C target)
 	{
-//		final int lastIndex = Jadoth.to_int(strings.size()) - 1;
+//		final int lastIndex = XTypes.to_int(strings.size()) - 1;
 //		strings.rngCopyTo(lastIndex, -this.n, target);
 //		strings.rngCopyTo(lastIndex - this.n, -(strings.size()/2 - this.n), target, this.condition1, this.n, this.k);
 		return target;

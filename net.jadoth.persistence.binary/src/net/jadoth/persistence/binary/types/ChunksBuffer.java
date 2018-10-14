@@ -1,15 +1,15 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
-import net.jadoth.memory.Memory;
+import net.jadoth.X;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
+
 
 public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 {
@@ -25,7 +25,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksBuffer New(final BufferSizeProvider bufferSizeProvider)
+	public static final ChunksBuffer New(final BufferSizeProviderIncremental bufferSizeProvider)
 	{
 		return new ChunksBuffer(bufferSizeProvider);
 	}
@@ -36,14 +36,14 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	// instance fields  //
 	/////////////////////
 
-	private final BufferSizeProvider bufferSizeProvider;
+	private final BufferSizeProviderIncremental bufferSizeProvider;
 
 	private ByteBuffer[] buffers            ;
 	private int          currentBuffersIndex;
 	private ByteBuffer   currentBuffer      ;
 	private long         currentAddress     ;
 	private long         currentBound       ;
-	private long         entityCount        ;
+	private long         totalLength        ;
 
 
 
@@ -52,12 +52,12 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	/////////////////////
 
 	// private constructor. Does not validate arguments!
-	ChunksBuffer(final BufferSizeProvider bufferSizeProvider)
+	ChunksBuffer(final BufferSizeProviderIncremental bufferSizeProvider)
 	{
 		super();
 		this.bufferSizeProvider = notNull(bufferSizeProvider);
 		this.setCurrent((this.buffers = new ByteBuffer[DEFAULT_BUFFERS_CAPACITY])[this.currentBuffersIndex = 0] =
-			ByteBuffer.allocateDirect(checkArrayRange(bufferSizeProvider.initialBufferSize())))
+			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.provideBufferSize())))
 		;
 	}
 
@@ -69,7 +69,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private void setCurrent(final ByteBuffer byteBuffer)
 	{
-		this.currentBound = (this.currentAddress = Memory.directByteBufferAddress(this.currentBuffer = byteBuffer))
+		this.currentBound = (this.currentAddress = XVM.getDirectByteBufferAddress(this.currentBuffer = byteBuffer))
 			+ byteBuffer.capacity()
 		;
 		byteBuffer.clear();
@@ -83,14 +83,16 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private void updateCurrentBufferPosition()
 	{
-		this.currentBuffer.position(
-			checkArrayRange(this.currentAddress - Memory.directByteBufferAddress(this.currentBuffer))
-		).flip();
+		final long contentLength = this.currentAddress - XVM.getDirectByteBufferAddress(this.currentBuffer);
+		
+		this.currentBuffer.position(X.checkArrayRange(contentLength)).flip();
+		
+		this.totalLength += contentLength;
 	}
 
 	private boolean isEmptyCurrentBuffer()
 	{
-		return this.currentAddress == Memory.directByteBufferAddress(this.currentBuffer);
+		return this.currentAddress == XVM.getDirectByteBufferAddress(this.currentBuffer);
 	}
 
 	private void enlargeBufferCapacity(final int bufferCapacity)
@@ -98,7 +100,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		// if current buffer is still empty, replace it instead of enqueing a new one to avoid storing "dummy" chunks
 		if(this.isEmptyCurrentBuffer())
 		{
-			Memory.deallocateDirectByteBuffer(this.currentBuffer);
+			XVM.deallocateDirectByteBuffer(this.currentBuffer);
 			this.allocateNewCurrent(bufferCapacity);
 			return;
 		}
@@ -108,11 +110,10 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 	private int calculateNewBufferCapacity(final long requiredCapacity)
 	{
-		final long defaultBufferCapacity = this.bufferSizeProvider.incrementalBufferSize();
-		return checkArrayRange(requiredCapacity < defaultBufferCapacity
-			? defaultBufferCapacity
-			: requiredCapacity)
-		;
+		final long defaultBufferCapacity = this.bufferSizeProvider.provideIncrementalBufferSize();
+		
+		// never allocate less than the default, but more if needed.
+		return X.checkArrayRange(Math.max(requiredCapacity, defaultBufferCapacity));
 	}
 
 	private void ensureFreeStoreCapacity(final long requiredCapacity)
@@ -156,11 +157,10 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		final ByteBuffer[] buffers = this.buffers;
 		for(int i = this.currentBuffersIndex; i >= 1; i--)
 		{
-			Memory.deallocateDirectByteBuffer(buffers[i]);
+			XVM.deallocateDirectByteBuffer(buffers[i]);
 			buffers[i] = null;
 		}
 		this.setCurrent(buffers[this.currentBuffersIndex = 0]);
-		this.entityCount = 0;
 	}
 
 	/**
@@ -172,7 +172,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 	public void copyMemory(final long address, final long length)
 	{
 		this.ensureFreeStoreCapacity(length);
-		Memory.copyRange(address, this.currentAddress, length);
+		XVM.copyRange(address, this.currentAddress, length);
 		this.currentAddress += length;
 	}
 
@@ -200,8 +200,8 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		}
 		this.ensureFreeStoreCapacity(BinaryPersistence.entityTotalLength(entityContentLength));
 
-		this.entityCount++;
-		/* static methods returns entity bound address for updating this current address,
+		/*
+		 * static methods returns entity bound address for updating this current address,
 		 * but content address has to be returned, so the content length has to be subtracted again
 		 */
 		return (this.currentAddress = BinaryPersistence.storeEntityHeader(
@@ -231,12 +231,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 			buffers.length
 		);
 		return buffers;
-	}
-
-	@Override
-	public final long entityCount()
-	{
-		return this.entityCount;
 	}
 
 	public final ChunksBuffer complete()
@@ -281,7 +275,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 		for(int i = 0; i < buffersCount; i++)
 		{
-			boundOffsets[i] = Memory.directByteBufferAddress(buffers[i]) + buffers[i].limit(); // already flipped
+			boundOffsets[i] = XVM.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(); // already flipped
 		}
 		return boundOffsets;
 	}
@@ -295,7 +289,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 
 		for(int i = 0; i < buffersCount; i++)
 		{
-			startOffsets[i] = Memory.directByteBufferAddress(buffers[i]);
+			startOffsets[i] = XVM.getDirectByteBufferAddress(buffers[i]);
 		}
 		return startOffsets;
 	}
@@ -325,9 +319,9 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 			iterator.accept(bytes);
 		}
 
-		final long currentDataAddress = Memory.directByteBufferAddress(this.currentBuffer);
-		final byte[] bytes = new byte[Jadoth.checkArrayRange(this.currentAddress - currentDataAddress)];
-		Memory.copyRangeToArray(currentDataAddress, bytes);
+		final long currentDataAddress = XVM.getDirectByteBufferAddress(this.currentBuffer);
+		final byte[] bytes = new byte[X.checkArrayRange(this.currentAddress - currentDataAddress)];
+		XVM.copyRangeToArray(currentDataAddress, bytes);
 		iterator.accept(bytes);
 	}
 
@@ -337,4 +331,10 @@ public final class ChunksBuffer extends Binary implements MemoryRangeCopier
 		return this.buffers[0] == null;
 	}
 
+	@Override
+	public final long totalLength()
+	{
+		return this.totalLength;
+	}
+	
 }

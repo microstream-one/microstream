@@ -9,7 +9,7 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 	public final class Implementation
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Boolean>
-	implements StorageRequestTaskGarbageCollection, StorageChannelTaskSaveEntities
+	implements StorageRequestTaskGarbageCollection, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -41,8 +41,8 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		protected final Boolean internalProcessBy(final StorageChannel channel)

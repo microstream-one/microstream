@@ -1,12 +1,9 @@
 package net.jadoth.storage.types;
 
 
-import static net.jadoth.Jadoth.checkArrayRange;
-import static net.jadoth.Jadoth.closeSilent;
-import static net.jadoth.Jadoth.coalesce;
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.Jadoth.to_int;
-import static net.jadoth.math.JadothMath.notNegative;
+import static net.jadoth.X.coalesce;
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.notNegative;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,19 +12,19 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
-import net.jadoth.Jadoth;
+import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.memory.Memory;
-import net.jadoth.meta.JadothConsole;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.files.XFiles;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
+import net.jadoth.typing.XTypes;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
@@ -50,8 +47,7 @@ public interface StorageFileManager
 
 	public int channelIndex();
 
-	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers, long entityCount)
-		throws StorageExceptionIoWritingChunk;
+	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers) throws StorageExceptionIoWritingChunk;
 
 	public void rollbackWrite();
 
@@ -59,12 +55,10 @@ public interface StorageFileManager
 
 	public StorageInventory readStorage();
 
-	public StorageIdRangeAnalysis initializeStorage(
-		long                        taskTimestamp                   ,
-		long                        consistentStoreTimestamp        ,
-		StorageInventory            storageInventory                ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+	public StorageIdAnalysis initializeStorage(
+		long             taskTimestamp           ,
+		long             consistentStoreTimestamp,
+		StorageInventory storageInventory
 	);
 
 	public StorageDataFile<?> currentStorageFile();
@@ -142,7 +136,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				closeSilent(channel);
+				XFiles.closeSilent(channel);
 				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
 			}
 		}
@@ -157,7 +151,7 @@ public interface StorageFileManager
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
-		private final StorageDataFileEvaluator             fileEvaluator                ;
+		private final StorageDataFileEvaluator             dataFileEvaluator            ;
 		private final StorageEntityCache.Implementation    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
@@ -172,11 +166,11 @@ public interface StorageFileManager
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = Memory.directByteBufferAddress(this.entryBufferFileCreation)  ,
-			entryBufferStoreAddress          = Memory.directByteBufferAddress(this.entryBufferStore)         ,
-			entryBufferTransferAddress       = Memory.directByteBufferAddress(this.entryBufferTransfer)      ,
-			entryBufferFileDeletionAddress   = Memory.directByteBufferAddress(this.entryBufferFileDeletion)  ,
-			entryBufferFileTruncationAddress = Memory.directByteBufferAddress(this.entryBufferFileTruncation)
+			entryBufferFileCreationAddress   = XVM.getDirectByteBufferAddress(this.entryBufferFileCreation)  ,
+			entryBufferStoreAddress          = XVM.getDirectByteBufferAddress(this.entryBufferStore)         ,
+			entryBufferTransferAddress       = XVM.getDirectByteBufferAddress(this.entryBufferTransfer)      ,
+			entryBufferFileDeletionAddress   = XVM.getDirectByteBufferAddress(this.entryBufferFileDeletion)  ,
+			entryBufferFileTruncationAddress = XVM.getDirectByteBufferAddress(this.entryBufferFileTruncation)
 		;
 
 		{
@@ -197,8 +191,6 @@ public interface StorageFileManager
 
 		private int  pendingFileDeletes;
 
-		private transient StorageEntityCacheEvaluator entityInitializingCacheEvaluator;
-
 //		private transient boolean hasUnflushedWrites = false;
 
 
@@ -212,7 +204,7 @@ public interface StorageFileManager
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageFileProvider                  storageFileProvider          ,
-			final StorageDataFileEvaluator             fileDissolver                ,
+			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Implementation    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
@@ -224,7 +216,7 @@ public interface StorageFileManager
 			this.channelIndex                  = notNegative(channelIndex)                 ;
 			this.initialDataFileNumberProvider =     notNull(initialDataFileNumberProvider);
 			this.timestampProvider             =     notNull(timestampProvider)            ;
-			this.fileEvaluator                 =     notNull(fileDissolver)                ;
+			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
 			this.storageFileProvider           =     notNull(storageFileProvider)          ;
 			this.entityCache                   =     notNull(entityCache)                  ;
 			this.reader                        =     notNull(reader)                       ;
@@ -237,15 +229,15 @@ public interface StorageFileManager
 			 * tools for working with memory. Right?
 			 */
 			this.standardByteBuffer            = ByteBuffer.allocateDirect(
-				Jadoth.to_int(standardBufferSizeProvider.initialBufferSize())
+				XTypes.to_int(standardBufferSizeProvider.provideBufferSize())
 			);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		final <L extends Consumer<StorageEntity.Implementation>> L iterateEntities(final L logic)
 		{
@@ -368,11 +360,11 @@ public interface StorageFileManager
 			buffer.clear();
 			if(buffer != this.standardByteBuffer)
 			{
-				Memory.deallocateDirectByteBuffer(buffer); // hope this works, not tested yet
+				XVM.deallocateDirectByteBuffer(buffer); // hope this works, not tested yet
 			}
 		}
 
-		private void writeChunks(final long timestamp, final ByteBuffer[] dataBuffers, final long entityCount)
+		private void writeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
 		{
 			this.uncommittedDataLength = chunksTotalLength(dataBuffers);
 //			DEBUGStorage.println(this.channelIndex + " writing " + entityCount + " entities (" + this.uncommittedDataLength + " bytes) to " + this.headFile.number());
@@ -399,11 +391,11 @@ public interface StorageFileManager
 			      StorageEntity.Implementation   last     = null                    ;
 			      StorageEntity.Implementation   current  = first                   ;
 
-			final int  copyStart                = first.storagePosition                     ;
-			final int  targetFileOldTotalLength = to_int(headFile.totalLength())          ;
-			final int  maximumFileSize          = this.fileEvaluator.maximumFileSize()      ;
-			final int  freeSpace                = maximumFileSize - targetFileOldTotalLength;
-			      int  copyLength               = 0                                         ;
+			final long copyStart                = first.storagePosition                     ;
+			final long targetFileOldTotalLength = headFile.totalLength()                    ;
+			final long maximumFileSize          = this.dataFileEvaluator.maximumFileSize()  ;
+			final long freeSpace                = maximumFileSize - targetFileOldTotalLength;
+			      long copyLength               = 0                                         ;
 
 			/*
 			 * Collecting the transfer chain has 2 abort conditions:
@@ -437,9 +429,10 @@ public interface StorageFileManager
 	//			System.out.println(last.storagePosition + "\t" + (last.storagePosition - transferPositionOffset) + "\t" + last.length);
 	//			DEBUGStorage.println("transfer assigning\t" + current.objectId + "\t" + fileNewTotalLength + "\t" + current.length + "\t" + targetFile.number());
 				// set new file. Enqueing in the file's item chain is done for the whole sub chain
-				current.typeInFile            = headFile.typeInFile(current.typeInFile.type);
+				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
+				
 				// update position to the one in the target file (old length plus current copy length)
-				current.storagePosition = targetFileOldTotalLength + copyLength;
+				current.storagePosition = XTypes.to_int(targetFileOldTotalLength + copyLength);
 
 				// advance to next entity and add current entity's length to the total copy length
 				copyLength += current.length;
@@ -474,8 +467,8 @@ public interface StorageFileManager
 
 		private void appendBytesToHeadFile(
 			final StorageDataFile.Implementation sourceFile,
-			final int                            copyStart ,
-			final int                            copyLength
+			final long                           copyStart ,
+			final long                           copyLength
 		)
 		{
 //			DEBUGStorage.println(
@@ -561,7 +554,7 @@ public interface StorageFileManager
 		{
 			this.registerStorageHeadFile(StorageDataFile.Implementation.New(this, file));
 		}
-
+		
 		private void registerStorageHeadFile(final StorageDataFile.Implementation storageFile)
 		{
 			if(this.headFile == null)
@@ -581,12 +574,6 @@ public interface StorageFileManager
 			// in the end the file is set as current head in any case
 			this.headFile = storageFile;
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
 
 		@Override
 		public final void flush()
@@ -622,7 +609,7 @@ public interface StorageFileManager
 
 		private void checkForNewFile()
 		{
-			if(this.headFile.needsRetirement(this.fileEvaluator))
+			if(this.headFile.needsRetirement(this.dataFileEvaluator))
 			{
 				this.createNextStorageFile();
 			}
@@ -635,7 +622,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final long[] storeChunks(final long timestamp, final ByteBuffer[] dataBuffers, final long entityCount)
+		public final long[] storeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
 			throws StorageExceptionIoWritingChunk
 		{
 			this.checkForNewFile();
@@ -643,20 +630,20 @@ public interface StorageFileManager
 				dataBuffers,
 				this.headFile.totalLength()
 			);
-			this.writeChunks(timestamp, dataBuffers, entityCount);
+			this.writeChunks(timestamp, dataBuffers);
 			return storagePositions;
 		}
 
 		@Override
 		public final void rollbackWrite()
 		{
-			JadothConsole.debugln(
-				this.channelIndex()
-				+ " rolling back write: truncating "
-				+ this.headFile.file().getName()
-				+ "(length " + this.headFile.file().length()
-				+ ") at " + this.headFile.totalLength()
-			);
+//			XDebug.debugln(
+//				this.channelIndex()
+//				+ " rolling back write: truncating "
+//				+ this.headFile.file().getName()
+//				+ "(length " + this.headFile.file().length()
+//				+ ") at " + this.headFile.totalLength()
+//			);
 			this.writer.truncate(this.headFile, this.headFile.totalLength());
 		}
 
@@ -687,11 +674,11 @@ public interface StorageFileManager
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
-			final ByteBuffer dataBuffer = this.buffer(checkArrayRange(length));
+			final ByteBuffer dataBuffer = this.buffer(X.checkArrayRange(length));
 			try
 			{
 				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
-				this.putLiveEntityData(entity, Memory.directByteBufferAddress(dataBuffer), length, cacheChange);
+				this.putLiveEntityData(entity, XVM.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
 			}
 			catch(final Exception e)
 			{
@@ -762,7 +749,7 @@ public interface StorageFileManager
 		{
 			final StorageLockedChannelFile file = this.createTransactionsFile();
 
-			if(!file.file().exists())
+			if(!file.exists())
 			{
 				/* (11.09.2014 TM)TODO: missing transactions file handler function
 				 * default implementation just returns null.
@@ -774,7 +761,7 @@ public interface StorageFileManager
 			FileChannel channel = null;
 			try
 			{
-				channel = file.fileChannel();
+				channel = file.channel();
 
 				final EntryAggregator aggregator = StorageTransactionsFileAnalysis.Logic.processInputFile(
 					channel,
@@ -787,21 +774,6 @@ public interface StorageFileManager
 				StorageFile.closeSilent(file);
 				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
 			}
-		}
-
-		private void setEntityInitializingCacheEvaluator(
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator
-		)
-		{
-			this.entityInitializingCacheEvaluator = entityInitializingCacheEvaluator != null
-				? entityInitializingCacheEvaluator
-				: this.entityCache.entityCacheEvaluator
-			;
-		}
-
-		private void clearEntityInitializingCacheEvaluator()
-		{
-			this.entityInitializingCacheEvaluator = null;
 		}
 
 		private long validateStorageDataFilesLength(final StorageInventory storageInventory)
@@ -822,7 +794,7 @@ public interface StorageFileManager
 
 			for(final StorageInventoryFile file : dataFiles)
 			{
-				final long actualFileLength = file.file().length();
+				final long actualFileLength = file.length();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
 				final StorageTransactionFile entryFile = fileEntries.removeFor(file.number());
@@ -880,26 +852,22 @@ public interface StorageFileManager
 				);
 			}
 
-			/* at this point it is guaranteed that all transactions entries and existing files
-			 * are viable in terms of file lengths. Viable means exact same length for any non-last file and
-			 * actual file length equal to or greater than logged length for last file (i.e. there can be one
-			 * uncommitted write at the end which can be safely truncated later on).
+			/*
+			 * At this point it is guaranteed that all transactions entries and existing files are viable in
+			 * terms of file lengths. Viable means exact same length for any non-last file and actual file
+			 * length equal to or greater than logged length for last file (i.e. there can be one uncommitted
+			 * write at the end which can be safely truncated later on).
 			 */
 
 			// return required information about uber special case
 			return unregisteredEmptyLastFileNumber;
 		}
 
-
-
-
 		@Override
-		public StorageIdRangeAnalysis initializeStorage(
-			final long                        taskTimestamp                   ,
-			final long                        consistentStoreTimestamp        ,
-			final StorageInventory            storageInventory                ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+		public StorageIdAnalysis initializeStorage(
+			final long             taskTimestamp           ,
+			final long             consistentStoreTimestamp,
+			final StorageInventory storageInventory
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
@@ -907,20 +875,17 @@ public interface StorageFileManager
 			// validate file lengths, even in case of no files, to validate transactions entries to that state
 			final long unregisteredEmptyLastFileNumber = this.validateStorageDataFilesLength(storageInventory);
 
-			// set temporary entity cache evaluator for use in entity initialization
-			this.setEntityInitializingCacheEvaluator(entityInitializingCacheEvaluator);
-
 			boolean isEmpty = true;
 			try
 			{
 				isEmpty = storageInventory.dataFiles().isEmpty();
 
-				final StorageIdRangeAnalysis idRangeAnalysis;
+				final StorageIdAnalysis idAnalysis;
 				if(isEmpty)
 				{
 					// initialize if there are no files at all (create first file, ensure transactions file)
 					this.initializeForNoFiles(taskTimestamp, storageInventory);
-					idRangeAnalysis = StorageIdRangeAnalysis.New(0L, 0L, 0L);
+					idAnalysis = StorageIdAnalysis.New(0L, 0L, 0L);
 				}
 				else
 				{
@@ -928,18 +893,17 @@ public interface StorageFileManager
 					this.entityCache.registerPendingStoreUpdate();
 
 					// handle files (read, parse, register items) and ensure transactions file
-					idRangeAnalysis = this.initializesForExistingFiles(
+					idAnalysis = this.initializeForExistingFiles(
 						taskTimestamp                  ,
 						storageInventory               ,
 						consistentStoreTimestamp       ,
-						oldTypes                       ,
 						unregisteredEmptyLastFileNumber
 					);
 				}
 
 				this.resetFileCleanupCursor();
 //				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
-				return idRangeAnalysis;
+				return idAnalysis;
 			}
 			catch(final RuntimeException e)
 			{
@@ -949,9 +913,6 @@ public interface StorageFileManager
 			}
 			finally
 			{
-				// release temporary reference in any case
-				this.clearEntityInitializingCacheEvaluator();
-
 				if(!isEmpty)
 				{
 					// clear the previously registered pending store update
@@ -960,41 +921,51 @@ public interface StorageFileManager
 			}
 		}
 
-		private StorageIdRangeAnalysis initializesForExistingFiles(
-			final long                  taskTimestamp                  ,
-			final StorageInventory      storageInventory               ,
-			final long                  consistentStoreTimestamp       ,
-			final StorageTypeDictionary oldTypes                       ,
-			final long                  unregisteredEmptyLastFileNumber
+		private StorageIdAnalysis initializeForExistingFiles(
+			final long             taskTimestamp                  ,
+			final StorageInventory storageInventory               ,
+			final long             consistentStoreTimestamp       ,
+			final long             unregisteredEmptyLastFileNumber
 		)
 		{
-			// local variables for readabiligy, debugging and (paranoid) consistency guarantee
-			final XGettingSequence<StorageInventoryFile> files    = storageInventory.dataFiles();
-			final StorageInventoryFile                   lastFile = files.peek();
+			/*
+			 * The data files and all entities in them get initialized in reverse order.
+			 * The reason is that for every entity, only the latest, most current version counts.
+			 * Reversing the order makes this trivial to implement: for every OID (i.e. entity), only the first
+			 * occurance counts and defines type, length and position in the storage. All further occurances
+			 * (meaning EARLIER versions) of an already encountered Entity/OID are simply ignored.
+			 */
+			
+			// local variables for readability, debugging and (paranoid) consistency guarantee
+			final XGettingSequence<StorageInventoryFile> files = storageInventory.dataFiles();
 
 			// validate and determine length of last file before any file is processed to recognize errors early
 			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
 				? 0
 				: this.determineLastFileLength(consistentStoreTimestamp, storageInventory)
 			;
-//			DEBUGStorage.println(this.channelIndex + " determined last file length as " + lastFileLength);
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			this.registerItems(files, lastFile, lastFileLength);
+			final StorageEntityInitializer<StorageDataFile.Implementation> initializer =
+				StorageEntityInitializer.New(this.entityCache, f ->
+					StorageDataFile.Implementation.New(this, f)
+				)
+			;
+			this.headFile = initializer.registerEntities(files, lastFileLength);
 
-			// validate entities (only the latest versions)
-			final StorageIdRangeAnalysis maxOid = this.validateEntities(oldTypes);
+			// validate entities (only the latest versions) before potential transaction file derivation
+			final StorageIdAnalysis idAnalysis = this.entityCache.validateEntities();
 
 			// ensure transactions file before handling last file as truncation needs to write in it
 			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
 
 			// special-case handle the last file
-			this.handleLastFile(lastFile, lastFileLength);
+			this.handleLastFile(this.headFile.file, lastFileLength);
 
-			// check if last file is oversized and should be retired right away (to avoid necessary dummy-store)
+			// check if last file is oversized and should be retired right away.
 			this.checkForNewFile();
 
-			return maxOid;
+			return idAnalysis;
 		}
 
 		private long determineLastFileLength(
@@ -1010,7 +981,7 @@ public interface StorageFileManager
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().last().file().length();
+				return storageInventory.dataFiles().last().length();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{
@@ -1028,50 +999,9 @@ public interface StorageFileManager
 				throw new RuntimeException(
 					"Inconsistent last timestamps in last file of channel " + this.channelIndex()
 				);
-
 			}
 		}
-
-		private void registerItems(
-			final XGettingSequence<StorageInventoryFile> files         ,
-			final StorageInventoryFile                   lastFile      ,
-			final long                                   lastFileLength
-		)
-		{
-			// (10.06.2014)TODO: configurable initializer buffer size
-			// (16.06.2014 TM)NOTE: funny enough, tests showed no significant difference above page sized buffer
-			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
-				StorageDataFileItemIterator.BufferProvider.New(),
-				this::initialPutEntity
-			);
-
-			for(final StorageInventoryFile file : files)
-			{
-				try
-				{
-					this.registerHeadFile(file);
-					if(file != lastFile)
-					{
-						iterator.iterateStoredItems(file.fileChannel(), 0, file.file().length());
-					}
-					else
-					{
-						// iterate BEFORE truncation to avoid modifying the file in case of errors in items
-						iterator.iterateStoredItems(lastFile.fileChannel(), 0, lastFileLength);
-					}
-				}
-				catch(final Exception e)
-				{
-					throw new StorageException("Exception while initializing storage file " + file.file(), e);
-				}
-			}
-		}
-
-		private StorageIdRangeAnalysis validateEntities(final StorageTypeDictionary oldTypes)
-		{
-			return this.entityCache.validateEntities(oldTypes);
-		}
-
+								
 		private void initializeForNoFiles(final long taskTimestamp, final StorageInventory storageInventory)
 		{
 			// ensure transcations file BEFORE adding the first file as it writes a transactions entry
@@ -1145,9 +1075,9 @@ public interface StorageFileManager
 				{
 					buffer.clear();
 					StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
-						address             ,
-						file.file().length(),
-						++timestamp         ,
+						address      ,
+						file.length(),
+						++timestamp  ,
 						file.number()
 					);
 					writer.write(tfile, buffer);
@@ -1268,15 +1198,15 @@ public interface StorageFileManager
 			final long                 lastFileLength
 		)
 		{
-			if(lastFileLength != lastFile.file().length())
+			if(lastFileLength != lastFile.length())
 			{
-				JadothConsole.debugln(
-					this.channelIndex()
-					+ " last file initialization truncating "
-					+ lastFile.file().getName()
-					+ "(length " + lastFile.file().length()
-					+ ") at " + lastFileLength
-				);
+//				XDebug.debugln(
+//					this.channelIndex()
+//					+ " last file initialization truncating "
+//					+ lastFile.file().getName()
+//					+ "(length " + lastFile.file().length()
+//					+ ") at " + lastFileLength
+//				);
 				
 //				DEBUGStorage.println(this.channelIndex + " truncating last file to " + lastFileLength + " " + lastFile);
 				// reaching here means in any case that the file has to be truncated and its header must be updated
@@ -1286,7 +1216,7 @@ public interface StorageFileManager
 					lastFileLength                               ,
 					this.timestampProvider.currentNanoTimestamp(),
 					lastFile.number()                            ,
-					lastFile.file().length()
+					lastFile.length()
 				);
 				this.writer.flush(this.fileTransactions);
 
@@ -1294,61 +1224,7 @@ public interface StorageFileManager
 				this.writer.truncate(lastFile, lastFileLength);
 			}
 		}
-
-		final boolean initialPutEntity(final long address, final long availableItemLength)
-		{
-			final long length = BinaryPersistence.getEntityLength(address);
-			if(length < 0)
-			{
-				this.headFile.registerGap(checkArrayRange(-length));
-				return true; // gap appended successfully
-			}
-			if(availableItemLength < BinaryPersistence.entityHeaderLength())
-			{
-				return false; // incomplete entity header, cannot register
-			}
-
-//			System.out.println(
-//				this.channelIndex + "\t" + this.headFile.number() + "\t" + typeId + "\t" + objcId
-//				+ "\t" + length + "\t" + this.headFile.dataLength() + "\t" + this.headFile.totalLength()
-//			);
-
-			/* validation is postponed to after registering all entities for the following reasons:
-			 * 1.) only the latest version of each entity is validated, not all previous ones (huge performance win)
-			 * 2.) makes initialization refactoring-friendly: old versions are not checked against changed type
-			 */
-
-			final StorageEntity.Implementation entity = this.entityCache.putEntity(address);
-			/*
-			 * note:
-			 * intentionally no markEntityForChangedData here, as entities are initially not
-			 * guaranteed to be reachable. They might be unreachable (= junk) entities that
-			 * only exist because the storage file has not yet been cleaned up and might reference already
-			 * deleted entities. This would cause false positive zombie OID encounters.
-			 */
-			entity.updateStorageInformation(
-				checkArrayRange(length),
-				this.headFile,
-				to_int(this.headFile.totalLength())
-			);
-			this.headFile.increaseContentLength(length);
-
-			// cache fully available (=small) entities in advance to avoid numerous inefficient disc reads later on.
-			if(availableItemLength >= length && !this.entityInitializingCacheEvaluator.clearEntityCache(
-				this.entityCache.cacheSize(),
-				entity.lastTouched,
-				entity
-			))
-			{
-//				DEBUGStorage.println(this.channelIndex + " initial-caching data for " + entity);
-				this.putLiveEntityData(entity, address, length, length);
-			}
-
-//			System.out.println("\t\t\t\t" + this.headFile.dataLength() + "\t" + this.headFile.totalLength());
-//			System.out.println("");
-			return true; // entity registered successfully
-		}
-
+		
 		@Override
 		public void exportData(final StorageIoHandler fileHandler)
 		{
@@ -1380,8 +1256,8 @@ public interface StorageFileManager
 				totalDataLength += file.totalLength();
 				fileStatistics.add(
 					new FileStatistics.Implementation(
-						file.number(),
-						file.file(),
+						file.number()    ,
+						file.identifier(),
 						file.dataLength(),
 						file.totalLength()
 					)
@@ -1401,7 +1277,7 @@ public interface StorageFileManager
 		@Override
 		public final boolean incrementalFileCleanupCheck(final long nanoTimeBudgetBound)
 		{
-			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.fileEvaluator);
+			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
 		@Override
@@ -1422,7 +1298,7 @@ public interface StorageFileManager
 //			);
 
 			/*
-			 * An explicitely issues file cleanup check has to reset the cursor (start from beginning) and no matter
+			 * An explicitly issues file cleanup check has to reset the cursor (start from beginning) and no matter
 			 * if it completes or not, the cursor has to be reset again at the end.
 			 * Rationale:
 			 * 1.)
@@ -1441,7 +1317,7 @@ public interface StorageFileManager
 			{
 				return this.internalCheckForCleanup(
 					nanoTimeBudgetBound,
-					coalesce(fileDissolver, this.fileEvaluator)
+					coalesce(fileDissolver, this.dataFileEvaluator)
 				);
 			}
 			finally
@@ -1705,7 +1581,7 @@ public interface StorageFileManager
 				{
 					entityCache
 					.putEntity(entity.objectId(), entity.type())
-					.updateStorageInformation(entity.length(), headFile, checkArrayRange(loopFileLength));
+					.updateStorageInformation(entity.length(), headFile, X.checkArrayRange(loopFileLength));
 					loopFileLength += entity.length();
 				}
 			}
@@ -1802,7 +1678,6 @@ public interface StorageFileManager
 
 		}
 
-
 	}
-
+		
 }

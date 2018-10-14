@@ -1,9 +1,10 @@
 package net.jadoth.collections.types;
 
+import java.util.function.Consumer;
+
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ExtendedSequence;
 import net.jadoth.collections.interfaces.OptimizableCollection;
-import java.util.function.Consumer;
 
 public interface XPrependingSequence<E>
 extends Consumer<E>, CapacityExtendable, OptimizableCollection, ExtendedSequence<E>

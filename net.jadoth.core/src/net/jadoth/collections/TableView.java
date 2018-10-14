@@ -1,21 +1,22 @@
 package net.jadoth.collections;
 
-import static net.jadoth.Jadoth.notNull;
+import static net.jadoth.X.notNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
-import net.jadoth.functional.BiProcedure;
+import net.jadoth.collections.types.XIterable;
+import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.util.Equalator;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 public final class TableView<K, V> implements XGettingTable<K, V>
 {
@@ -32,7 +33,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	/////////////////////
 
 	@Override
-	public <A> A join(final BiProcedure<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
+	public <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -65,6 +66,12 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	public KeyValue<K, V> get()
 	{
 		return this.subject.get();
+	}
+	
+	@Override
+	public KeyValue<K, V> lookup(final K key)
+	{
+		return this.subject.lookup(key);
 	}
 
 	@Deprecated
@@ -348,7 +355,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	@Override
 	public final long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

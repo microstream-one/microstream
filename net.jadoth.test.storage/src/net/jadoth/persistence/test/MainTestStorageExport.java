@@ -1,23 +1,23 @@
 package net.jadoth.persistence.test;
 
-import static net.jadoth.Jadoth.booleans;
-import static net.jadoth.Jadoth.bytes;
-import static net.jadoth.Jadoth.chars;
-import static net.jadoth.Jadoth.doubles;
-import static net.jadoth.Jadoth.floats;
-import static net.jadoth.Jadoth.ints;
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.Jadoth.longs;
-import static net.jadoth.Jadoth.shorts;
-import static net.jadoth.Jadoth.strings;
+import static net.jadoth.X.booleans;
+import static net.jadoth.X.bytes;
+import static net.jadoth.X.chars;
+import static net.jadoth.X.doubles;
+import static net.jadoth.X.floats;
+import static net.jadoth.X.ints;
+import static net.jadoth.X.longs;
+import static net.jadoth.X.shorts;
+import static net.jadoth.X.strings;
 
 import java.io.File;
 import java.math.BigInteger;
 
+import net.jadoth.X;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XSequence;
+import net.jadoth.files.XFiles;
 import net.jadoth.storage.types.StorageConnection;
-import net.jadoth.util.file.JadothFiles;
 
 
 public class MainTestStorageExport extends TestStorage
@@ -37,10 +37,10 @@ public class MainTestStorageExport extends TestStorage
 				BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE)),
 				strings("a", "", "\n", "a\t", "\n\n'\"'\t", "assdgdfgsdgrgbdft"),
 				new long[0],
-				HashTable.New(keyValue(1, "A"), keyValue(2, "B"), keyValue(3, "C"))
+				HashTable.New(X.KeyValue(1, "A"), X.KeyValue(2, "B"), X.KeyValue(3, "C"))
 			)
 		);
-		STORAGE.createConnection().storeRequired(ROOT);
+		STORAGE.createConnection().store(ROOT);
 
 		testExport();
 
@@ -65,10 +65,12 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
+		final File directory = XFiles.ensureDirectory(new File("C:/Files/export/bin"));
+		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<File> exportFiles = exportTypes(
 			storageConnection,
-			JadothFiles.ensureDirectory(new File("C:/Files/export/bin")),
+			directory,
 			"dat"
 		);
 		convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));

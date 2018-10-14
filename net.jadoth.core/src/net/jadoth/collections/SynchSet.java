@@ -2,17 +2,17 @@ package net.jadoth.collections;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.Jadoth;
 import net.jadoth.collections.old.AbstractBridgeXSet;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XImmutableSet;
 import net.jadoth.collections.types.XSet;
-import net.jadoth.concurrent.Synchronized;
-import net.jadoth.functional.BiProcedure;
-import net.jadoth.util.Equalator;
+import net.jadoth.concurrency.Synchronized;
+import net.jadoth.equality.Equalator;
+import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 
 
@@ -323,7 +323,7 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	}
 
 	@Override
-	public final synchronized <A> A join(final BiProcedure<? super E, ? super A> joiner, final A aggregate)
+	public final synchronized <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
 		return this.subject.join(joiner, aggregate);
 	}
@@ -522,7 +522,7 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	@Override
 	public synchronized long size()
 	{
-		return Jadoth.to_int(this.subject.size());
+		return XTypes.to_int(this.subject.size());
 	}
 
 	@Override

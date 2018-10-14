@@ -1,7 +1,6 @@
 package net.jadoth.collections.sorting;
 
 import java.util.Comparator;
-
 import java.util.function.Consumer;
 
 /**

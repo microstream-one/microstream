@@ -3,7 +3,7 @@ package net.jadoth.network.test.sessionful;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.concurrent.JadothThreads;
+import net.jadoth.concurrency.XThreads;
 import net.jadoth.network.simplesession.LogicSimpleAuthentication;
 import net.jadoth.network.simplesession.LogicSimpleNetwork;
 
@@ -38,9 +38,9 @@ public class MainTestSessionfulClient
 				System.out.println("Sending "+i);
 				final String answer = LogicSimpleNetwork.communicate(channel, Integer.toString(i));
 				System.out.println("Server said: "+answer);
-				JadothThreads.sleep(100);
+				XThreads.sleep(100);
 			}
-			JadothThreads.sleep(1000);
+			XThreads.sleep(1000);
 		}
 	}
 

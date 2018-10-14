@@ -35,6 +35,19 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>maven.xdevwebservices.com-releases</id>
+			<name>maven.xdevwebservices.com</name>
+			<url>https://maventest.xdevwebservices.com/maven2-intern</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven.xdevwebservices.com-snapshots</id>
+			<name>maven.xdevwebservices.com</name>
+			<url>https://maventest.xdevwebservices.com/maven2-intern</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<modules>
 		<module>net.jadoth.core</module>
 		<module>net.jadoth.swizzling</module>

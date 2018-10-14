@@ -1,16 +1,14 @@
 package net.jadoth.persistence.binary.internal;
 
 
+import net.jadoth.X;
 import net.jadoth.collections.Constant;
-import net.jadoth.collections.X;
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.memory.objectstate.ObjectStateHandlerLookup;
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
-import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPrimitiveDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleStoreLinker;
+import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
@@ -19,7 +17,8 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// instance fields //
 	////////////////////
 	
-	private final Constant<PersistenceTypeDescriptionMemberPrimitiveDefinition> member;
+	private final Constant<PersistenceTypeDefinitionMemberPrimitiveDefinition> member;
+	
 	
 	
 	
@@ -32,9 +31,8 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 		super(type);
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
-
 		this.member = X.Constant(
-			new PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation(
+			PersistenceTypeDefinitionMemberPrimitiveDefinition.New(
 				type,
 				primitiveBinaryLength,
 				primitiveBinaryLength
@@ -45,11 +43,35 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final SwizzleStoreLinker linker)
+	public final XGettingEnum<? extends PersistenceTypeDefinitionMemberPrimitiveDefinition> members()
+	{
+		return this.member;
+	}
+	
+	@Override
+	public final long membersPersistedLengthMinimum()
+	{
+		return this.member.get().persistentMinimumLength();
+	}
+	
+	@Override
+	public final long membersPersistedLengthMaximum()
+	{
+		return this.member.get().persistentMaximumLength();
+	}
+	
+	@Override
+	public final boolean isPrimitiveType()
+	{
+		return true;
+	}
+
+	@Override
+	public void store(final Binary bytes, final T instance, final long oid, final SwizzleHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -64,24 +86,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean isEqual(final T source, final T target, final ObjectStateHandlerLookup instanceStateHandlerLookup)
-	{
-		return source == target;
-	}
-
-	@Override
-	public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
-	{
-		return this.member;
-	}
-	
-	@Override
-	public final boolean isPrimitiveType()
-	{
-		return true;
 	}
 	
 }

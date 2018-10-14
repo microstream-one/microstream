@@ -1,23 +1,25 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.Jadoth.keyValue;
-import static net.jadoth.Jadoth.notNull;
-import static net.jadoth.math.JadothMath.notNegative;
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.notNegative;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
+import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.Chunks;
-import net.jadoth.memory.Memory;
+import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.persistence.types.BufferSizeProviderIncremental;
+import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.swizzling.types.SwizzleIdSet;
-import net.jadoth.util.KeyValue;
+import net.jadoth.typing.KeyValue;
 
 
 public interface StorageChannel extends Runnable, StorageHashChannelPart
@@ -58,23 +60,21 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler<?> type, StorageLockedFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageLockedFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
-		StorageEntityTypeHandler<?>      type           ,
+		StorageEntityTypeHandler         type           ,
 		StorageLockedFile                file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
-	public StorageIdRangeAnalysis initializeStorage(
-		long                        taskTimestamp                   ,
-		long                        consistentStoreTimestamp        ,
-		StorageInventory            storageInventory                ,
-		StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-		StorageTypeDictionary       oldTypes
+	public StorageIdAnalysis initializeStorage(
+		long             taskTimestamp           ,
+		long             consistentStoreTimestamp,
+		StorageInventory storageInventory
 	);
 
 	public void clear();
@@ -87,7 +87,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 
-	public final class Implementation implements StorageChannel
+	public final class Implementation implements StorageChannel, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -100,7 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
-		private final BufferSizeProvider                loadingBufferSizeProvider;
+		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -137,7 +137,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageChannelController          controller               ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
-			final BufferSizeProvider                loadingBufferSizeProvider,
+			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
 		{
@@ -314,8 +314,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void run()
@@ -355,7 +355,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			final ByteBuffer[] buffers = chunkData.buffers();
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
-			return keyValue(buffers, this.fileManager.storeChunks(timestamp, buffers, chunkData.entityCount()));
+			return X.KeyValue(buffers, this.fileManager.storeChunks(timestamp, buffers));
 		}
 
 		@Override
@@ -478,7 +478,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
-			final StorageEntityTypeHandler<?>         type           ,
+			final StorageEntityTypeHandler         type           ,
 			final StorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
@@ -487,7 +487,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return keyValue(0L, 0L);
+				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -507,21 +507,21 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return keyValue(byteCount, entities.entityCount());
+			return X.KeyValue(byteCount, entities.entityCount());
 		}
 
 		// intentionally implemented redundantly to the other exportTypeEntities for performance reasons
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
-			final StorageEntityTypeHandler<?> type,
-			final StorageLockedFile           file
+			final StorageEntityTypeHandler type,
+			final StorageLockedFile        file
 		)
 			throws IOException
 		{
 			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
-				return keyValue(0L, 0L);
+				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
@@ -537,7 +537,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 			).byteCount;
 
-			return keyValue(byteCount, entities.entityCount());
+			return X.KeyValue(byteCount, entities.entityCount());
 		}
 
 		@Override
@@ -559,45 +559,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public final StorageIdRangeAnalysis initializeStorage(
-			final long                        taskTimestamp                   ,
-			final long                        consistentStoreTimestamp        ,
-			final StorageInventory            storageInventory                ,
-			final StorageEntityCacheEvaluator entityInitializingCacheEvaluator,
-			final StorageTypeDictionary       oldTypes
+		public final StorageIdAnalysis initializeStorage(
+			final long                  taskTimestamp           ,
+			final long                  consistentStoreTimestamp,
+			final StorageInventory      storageInventory
 		)
 		{
-			// (04.04.2016 TM)NOTE: little performance test for entity iteration per files
-//			final StorageIdRangeAnalysis result = this.fileManager.initializeStorage(
-//				taskTimestamp                   ,
-//				consistentStoreTimestamp        ,
-//				storageInventory                ,
-//				entityInitializingCacheEvaluator,
-//				oldTypes
-//			);
-//			for(int i = 10; i-- > 0;)
-//			{
-//				final long tStart = System.nanoTime();
-//				final long count = this.fileManager.iterateEntities(new Consumer<StorageEntity.Implementation>()
-//				{
-//					long count = 0;
-//					@Override
-//					public void accept(final StorageEntity.Implementation e)
-//					{
-//						this.count++;
-//					}
-//				}).count;
-//				final long tStop = System.nanoTime();
-//				System.out.println(this.channelIndex() + " iterated " + count + ", Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
-//			}
-//			return result;
-
 			return this.fileManager.initializeStorage(
-				taskTimestamp                   ,
-				consistentStoreTimestamp        ,
-				storageInventory                ,
-				entityInitializingCacheEvaluator,
-				oldTypes
+				taskTimestamp           ,
+				consistentStoreTimestamp,
+				storageInventory
 			);
 		}
 
@@ -665,32 +636,32 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 			@Override
 			public final StorageChannel.Implementation[] createChannels(
-				final int                                   channelCount                 ,
-				final StorageInitialDataFileNumberProvider  initialDataFileNumberProvider,
-				final StorageExceptionHandler               exceptionHandler             ,
-				final StorageDataFileEvaluator              fileDissolver                ,
-				final StorageFileProvider                   storageFileProvider          ,
-				final StorageEntityCacheEvaluator           entityCacheEvaluator         ,
-				final StorageTypeDictionary                 typeDictionary               ,
-				final StorageTaskBroker                     taskBroker                   ,
-				final StorageChannelController              channelController            ,
-				final StorageHousekeepingController         housekeepingController       ,
-				final StorageTimestampProvider              timestampProvider            ,
-				final StorageFileReader.Provider            readerProvider               ,
-				final StorageFileWriter.Provider            writerProvider               ,
-				final StorageWriteListener                  writeListener                ,
-				final StorageGCZombieOidHandler             zombieOidHandler             ,
-				final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
-				final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
-				final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-				final long                                  rootTypeId
+				final int                                  channelCount                 ,
+				final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
+				final StorageExceptionHandler              exceptionHandler             ,
+				final StorageDataFileEvaluator             dataFileEvaluator            ,
+				final StorageFileProvider                  storageFileProvider          ,
+				final StorageEntityCacheEvaluator          entityCacheEvaluator         ,
+				final StorageTypeDictionary                typeDictionary               ,
+				final StorageTaskBroker                    taskBroker                   ,
+				final StorageChannelController             channelController            ,
+				final StorageHousekeepingController        housekeepingController       ,
+				final StorageTimestampProvider             timestampProvider            ,
+				final StorageFileReader.Provider           readerProvider               ,
+				final StorageFileWriter.Provider           writerProvider               ,
+				final StorageWriteListener                 writeListener                ,
+				final StorageGCZombieOidHandler            zombieOidHandler             ,
+				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
+				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
+				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
+				final long                                 rootTypeId
 			)
 			{
 				// (14.07.2016 TM)TODO: make configuration dynamic
 				final int  markBufferLength         = 10000;
 				final long markingWaitTimeMs        =    10;
-				final int  loadingBufferSize        =  Memory.defaultBufferSize();
-				final int  readingDefaultBufferSize =  Memory.defaultBufferSize();
+				final int  loadingBufferSize        =  XVM.defaultBufferSize();
+				final int  readingDefaultBufferSize =  XVM.defaultBufferSize();
 
 				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
 
@@ -701,8 +672,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 				final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
 				
-				final BufferSizeProvider loadingBufferSizeProvider        = new BufferSizeProvider.Simple(loadingBufferSize);
-				final BufferSizeProvider readingDefaultBufferSizeProvider = new BufferSizeProvider.Simple(readingDefaultBufferSize);
+				final BufferSizeProviderIncremental loadingBufferSizeProvider = BufferSizeProviderIncremental.New(loadingBufferSize);
+				final BufferSizeProvider readingDefaultBufferSizeProvider     = BufferSizeProvider.New(readingDefaultBufferSize);
 
 				for(int i = 0; i < channels.length; i++)
 				{
@@ -727,7 +698,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						initialDataFileNumberProvider   ,
 						timestampProvider               ,
 						storageFileProvider             ,
-						fileDissolver                   ,
+						dataFileEvaluator               ,
 						entityCache                     ,
 						readerProvider.provideReader(i) ,
 						writerProvider.provideWriter(i) ,
@@ -789,8 +760,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final long oid)
@@ -843,8 +814,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final long tid)

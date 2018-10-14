@@ -1,5 +1,7 @@
 package net.jadoth.util.chars;
 
+import net.jadoth.chars.XChars;
+
 public class MainTestParseLong
 {
 	public static void main(final String[] args)
@@ -65,7 +67,7 @@ public class MainTestParseLong
 	{
 		try
 		{
-			final long parsedValue = JadothChars.parse_longDecimal(s.toCharArray(), 0, s.length());
+			final long parsedValue = XChars.parse_longDecimal(s.toCharArray(), 0, s.length());
 			System.out.println(s+"\t"+parsedValue);
 		}
 		catch(final Exception e)

@@ -1,12 +1,12 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.Jadoth.checkArrayRange;
-
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.memory.Memory;
-import net.jadoth.util.chars.VarString;
+import net.jadoth.X;
+import net.jadoth.chars.VarString;
+import net.jadoth.low.XVM;
+
 
 public final class BinaryChunkPrinter implements Consumer<Binary>
 {
@@ -83,10 +83,10 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 		final long totalLength = BinaryPersistence.getEntityLength(address);
 		final long typeId      = BinaryPersistence.getEntityTypeId(address);
 		final long objectId    = BinaryPersistence.getEntityObjectId(address);
-		final long dataLength  = BinaryPersistence.entityDataLength(totalLength);
+		final long dataLength  = BinaryPersistence.entityContentLength(totalLength);
 
-		final byte[] content = new byte[checkArrayRange(dataLength)];
-		Memory.copyRangeToArray(BinaryPersistence.entityDataAddress(address), content);
+		final byte[] content = new byte[X.checkArrayRange(dataLength)];
+		XVM.copyRangeToArray(BinaryPersistence.entityContentAddress(address), content);
 		printEntity(this.vc, address - baseOffset, totalLength, typeId, objectId, content).lf();
 		return totalLength;
 	}
@@ -125,7 +125,7 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 
 	private void appendByteBuffer(final ByteBuffer byteBuffer, final int number)
 	{
-		final long baseAddress = Memory.directByteBufferAddress(byteBuffer);
+		final long baseAddress = XVM.getDirectByteBufferAddress(byteBuffer);
 //		this.appendChunk(number, BinaryPersistence.chunkDataAddress(baseAddress), baseAddress + byteBuffer.limit());
 		this.appendChunk(number, baseAddress, baseAddress + byteBuffer.limit());
 

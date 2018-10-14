@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 import java.util.function.Consumer;
+
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
 
 public interface PersistenceRetrieving extends SwizzleObjectSupplier
@@ -20,7 +21,7 @@ public interface PersistenceRetrieving extends SwizzleObjectSupplier
 	 * there" is not relevant/possible by design.
 	 */
 
-	public Object initialGet();
+	public Object get();
 
 	@Override
 	public Object get(long oid);

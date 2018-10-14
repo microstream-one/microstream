@@ -99,8 +99,8 @@ public class UtilPerson
 
 //	public static void main(final String[] args)
 //	{
-//		final Date d = JadothTime.date(1900, 1, 1);
-//		final Date d2 = JadothTime.date(1950, 12, 31);
+//		final Date d = XTime.date(1900, 1, 1);
+//		final Date d2 = XTime.date(1950, 12, 31);
 //
 //		for(int i = 0; i < 1000; i++)
 //		{

@@ -1,16 +1,13 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.collections.BulkList;
-import net.jadoth.collections.JadothSort;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.swizzling.types.SwizzleTypeIdOwner;
-import net.jadoth.util.chars.VarString;
 
 public interface PersistenceTypeDictionaryAssembler
 {
 	public VarString appendTypeDictionary(VarString vc, PersistenceTypeDictionary typeDictionary);
 
-	public VarString appendTypeDescription(VarString vc, PersistenceTypeDefinition<?> typeDescription);
+	public VarString appendTypeDescription(VarString vc, PersistenceTypeDefinition typeDescription);
 
 
 
@@ -39,17 +36,13 @@ public interface PersistenceTypeDictionaryAssembler
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// override methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)
 		{
-			// copy and sort all entries locally to guarantee
-			final BulkList<PersistenceTypeDefinition<?>> allTypes = typeDictionary.iterateAllTypes(BulkList.New(1000));
-			JadothSort.valueSort(allTypes, SwizzleTypeIdOwner::orderAscending);
-			
-			for(final PersistenceTypeDefinition<?> td : allTypes)
+			for(final PersistenceTypeDefinition td : typeDictionary.allTypeDefinitions().values())
 			{
 				this.appendTypeDescription(vc, td);
 			}
@@ -75,7 +68,7 @@ public interface PersistenceTypeDictionaryAssembler
 		}
 
 		@Override
-		public VarString appendTypeDescription(final VarString vc, final PersistenceTypeDefinition<?> typeDescription)
+		public VarString appendTypeDescription(final VarString vc, final PersistenceTypeDefinition typeDescription)
 		{
 			this.appendTypeDefinitionStart  (vc, typeDescription);
 			this.appendTypeDictionaryMembers(vc, typeDescription.members());
@@ -83,7 +76,7 @@ public interface PersistenceTypeDictionaryAssembler
 			return vc;
 		}
 
-		protected void appendTypeDefinitionStart(final VarString vc, final PersistenceTypeDefinition<?> typeDescription)
+		protected void appendTypeDefinitionStart(final VarString vc, final PersistenceTypeDefinition typeDescription)
 		{
 			this.appendPaddedId(vc, typeDescription.typeId())
 				.blank().add(typeDescription.typeName())
@@ -91,7 +84,7 @@ public interface PersistenceTypeDictionaryAssembler
 			;
 		}
 
-		protected void appendTypeDefinitionEnd(final VarString vc, final PersistenceTypeDefinition<?> typeDescription)
+		protected void appendTypeDefinitionEnd(final VarString vc, final PersistenceTypeDefinition typeDescription)
 		{
 			vc.append(TYPE_END).lf();
 		}
