@@ -169,6 +169,26 @@ public class Persistence extends Swizzle
 			false
 		;
 	}
+	
+	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
+	public static <T> Class<T> resolveTypeOptional(final String typename)
+	{
+		try
+		{
+			return (Class<T>)JadothReflect.classForName(typename);
+		}
+		catch (final ClassNotFoundException e)
+		{
+			/*
+			 * class not found for an optional type dictionary entry is not necessarily an error.
+			 * It might just have been renamed or deleted in the runtime code.
+			 * This has to be validated at a later point.
+			 */
+			return null;
+		}
+	}
+	
+	
 
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(final String typeName)

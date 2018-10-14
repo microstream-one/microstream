@@ -25,12 +25,12 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 
 	public PersistenceStorer<M> createStorer(PersistenceStorer.Creator<M> storerCreator);
 
-	public void updateMetadata(PersistenceTypeDictionary typeDictionary, long highestTypeId, long highestObjectId);
-
-	public default void updateMetadata(final PersistenceTypeDictionary typeDictionary)
-	{
-		this.updateMetadata(typeDictionary, 0, 0);
-	}
+//	public void updateMetadata(PersistenceTypeDictionary typeDictionary, long highestTypeId, long highestObjectId);
+//
+//	public default void updateMetadata(final PersistenceTypeDictionary typeDictionary)
+//	{
+//		this.updateMetadata(typeDictionary, 0, 0);
+//	}
 
 	public default void store(final SelfStoring storing)
 	{
@@ -251,16 +251,16 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 			this.objectManager.updateCurrentObjectId(currentObjectId);
 		}
 
-		@Override
-		public void updateMetadata(
-			final PersistenceTypeDictionary typeDictionary ,
-			final long                      highestTypeId  ,
-			final long                      highestObjectId
-		)
-		{
-			this.typeHandlerManager.update(typeDictionary, highestTypeId);
-			this.updateCurrentObjectId(highestObjectId);
-		}
+//		@Override
+//		public void updateMetadata(
+//			final PersistenceTypeDictionary typeDictionary ,
+//			final long                      highestTypeId  ,
+//			final long                      highestObjectId
+//		)
+//		{
+//			this.typeHandlerManager.update(typeDictionary, highestTypeId);
+//			this.updateCurrentObjectId(highestObjectId);
+//		}
 
 	}
 
