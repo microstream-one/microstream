@@ -7,4 +7,6 @@ public interface ProtageFile
 	public String name();
 	
 	public long length();
+	
+	public boolean exists();
 }
