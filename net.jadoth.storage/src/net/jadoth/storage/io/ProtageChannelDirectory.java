@@ -6,4 +6,6 @@ public interface ProtageChannelDirectory extends ProtageWritableDirectory, Stora
 {
 	@Override
 	public ProtageChannelFile createFile(String fileName);
+
+	public ProtageChannelDataFile createDataFile(String fileName);
 }
