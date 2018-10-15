@@ -13,14 +13,13 @@ import net.jadoth.storage.io.ProtageWritableFile;
  * "FS" meaning "FileSystem", a {@link ProtageFile} framework implementation using file system files located on a drive.
  * 
  * @author TM
- *
  */
-public interface FSDirectory extends ProtageWritableDirectory
+public interface FileSystemDirectory extends ProtageWritableDirectory
 {
 	public File directory();
 	
 	
-	public static FSDirectory New(final File directory)
+	public static FileSystemDirectory New(final File directory)
 	{
 		/* (15.10.2018 TM)TODO: SystemDirectory#New
 		 *  - validate existing and is directory.
@@ -32,7 +31,7 @@ public interface FSDirectory extends ProtageWritableDirectory
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SystemDirectory#New()
 	}
 	
-	public final class Implementation implements FSDirectory
+	public final class Implementation implements FileSystemDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -41,8 +40,8 @@ public interface FSDirectory extends ProtageWritableDirectory
 		private final File   directory          ;
 		private final String cachedDirectoryName;
 		
-		private final EqHashTable<String, FSFile.Implementation>   files    ;
-		private final XGettingTable<String, FSFile.Implementation> viewFiles;
+		private final EqHashTable<String, FileSystemFile.Implementation>   files    ;
+		private final XGettingTable<String, FileSystemFile.Implementation> viewFiles;
 		
 		
 		
@@ -53,8 +52,8 @@ public interface FSDirectory extends ProtageWritableDirectory
 		Implementation(
 			final File                                             directory,
 			final String                                           name     ,
-			final EqHashTable<String, FSFile.Implementation>   files    ,
-			final XGettingTable<String, FSFile.Implementation> viewFiles
+			final EqHashTable<String, FileSystemFile.Implementation>   files    ,
+			final XGettingTable<String, FileSystemFile.Implementation> viewFiles
 		)
 		{
 			super();
@@ -115,7 +114,7 @@ public interface FSDirectory extends ProtageWritableDirectory
 			final File file = new File(this.directory, fileName);
 			XFiles.ensureWriteableFile(file);
 			
-			final FSFile.Implementation createdFile = new FSFile.Implementation(this, fileName, file);
+			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(this, fileName, file);
 			
 			// success of the addition is guaranteed by the lock and the validation above.
 			this.files.add(fileName, createdFile);

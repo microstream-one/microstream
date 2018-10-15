@@ -14,17 +14,17 @@ import net.jadoth.storage.io.ProtageWritingFileChannel;
  * 
  * @author TM
  */
-public interface FSFile extends ProtageWritableFile
+public interface FileSystemFile extends ProtageWritableFile
 {
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public final class Implementation implements FSFile
+	public final class Implementation implements FileSystemFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final FSDirectory directory ;
+		private final FileSystemDirectory directory ;
 		private final String      name      ;
 		private final File        cachedFile; // yes, the file is the derived thing, not the name.
 		
@@ -35,9 +35,9 @@ public interface FSFile extends ProtageWritableFile
 		/////////////////
 
 		Implementation(
-			final FSDirectory directory ,
-			final String          name      ,
-			final File            cachedFile
+			final FileSystemDirectory directory ,
+			final String      name      ,
+			final File        cachedFile
 		)
 		{
 			super();
