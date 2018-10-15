@@ -18,15 +18,15 @@ public interface FileSystemFile extends ProtageWritableFile
 {
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public final class Implementation implements FileSystemFile
+	public class Implementation<D extends FileSystemDirectory.Implementation> implements FileSystemFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final FileSystemDirectory directory ;
-		private final String      name      ;
-		private final File        cachedFile; // yes, the file is the derived thing, not the name.
+		private final D      directory ;
+		private final String name      ;
+		private final File   cachedFile; // yes, the file is the derived thing, not the name.
 		
 		
 		
@@ -35,9 +35,9 @@ public interface FileSystemFile extends ProtageWritableFile
 		/////////////////
 
 		Implementation(
-			final FileSystemDirectory directory ,
-			final String      name      ,
-			final File        cachedFile
+			final D      directory ,
+			final String name      ,
+			final File   cachedFile
 		)
 		{
 			super();
@@ -113,9 +113,9 @@ public interface FileSystemFile extends ProtageWritableFile
 		}
 
 		@Override
-		public ProtageWritableDirectory directory()
+		public final D directory()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#directory()
+			return this.directory;
 		}
 
 		@Override

@@ -18,6 +18,9 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 {
 	public File directory();
 	
+	@Override
+	public FileSystemFile createFile(String fileName);
+	
 	
 	public static FileSystemDirectory New(final File directory)
 	{
@@ -31,7 +34,7 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SystemDirectory#New()
 	}
 	
-	public final class Implementation implements FileSystemDirectory
+	public class Implementation implements FileSystemDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -50,8 +53,8 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		/////////////////
 
 		Implementation(
-			final File                                             directory,
-			final String                                           name     ,
+			final File                                                 directory,
+			final String                                               name     ,
 			final EqHashTable<String, FileSystemFile.Implementation>   files    ,
 			final XGettingTable<String, FileSystemFile.Implementation> viewFiles
 		)
@@ -93,7 +96,7 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 			return this.files.keys().contains(fileName);
 		}
 		
-		private void validateNotYetContained(final String fileName)
+		protected void validateNotYetContained(final String fileName)
 		{
 			if(!this.contains(fileName))
 			{
@@ -105,21 +108,31 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 				"File \"" + fileName + "\" already exist in directory \"" + this.name() + "\"."
 			);
 		}
-
-		@Override
-		public synchronized final ProtageWritableFile createFile(final String fileName)
+		
+		protected File internalCreateFile(final String fileName)
 		{
 			this.validateNotYetContained(fileName);
 			
 			final File file = new File(this.directory, fileName);
 			XFiles.ensureWriteableFile(file);
 			
-			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(this, fileName, file);
-			
-			// success of the addition is guaranteed by the lock and the validation above.
-			this.files.add(fileName, createdFile);
-			
-			return createdFile;
+			return file;
+		}
+		
+		protected <F extends FileSystemFile.Implementation<FileSystemDirectory.Implementation>> F internalRegisterFile(final F file)
+		{
+			this.files.add(file.name(), file);
+			return file;
+		}
+		
+		@Override
+		public synchronized FileSystemFile createFile(final String fileName)
+		{
+			final File file = this.internalCreateFile(fileName);
+			final FileSystemFile.Implementation<FileSystemDirectory.Implementation> createdFile =
+				new FileSystemFile.Implementation<>(this, fileName, file)
+			;
+			return this.internalRegisterFile(createdFile);
 		}
 		
 	}
