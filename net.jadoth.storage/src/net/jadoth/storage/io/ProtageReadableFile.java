@@ -1,12 +1,15 @@
 package net.jadoth.storage.io;
 
+import java.util.function.Consumer;
+
 public interface ProtageReadableFile extends ProtageFile
 {
 	@Override
 	public ProtageReadableDirectory directory();
 	
-	public ProtageReadingFileChannel createReadingChannel();
+	public ProtageReadingFileChannel createReadingChannel(ProtageFileChannel.Owner owner, String name);
 	
+	// (16.10.2018 TM)FIXME: OGS-45: maybe support only one channel in total?
 	
 	
 	/**
@@ -40,6 +43,8 @@ public interface ProtageReadableFile extends ProtageFile
 	{
 		return this.activeReadingChannels();
 	}
+	
+	public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(C callback);
 	
 	public int activeReadingChannels();
 		
