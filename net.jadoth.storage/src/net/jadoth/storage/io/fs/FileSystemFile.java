@@ -1,8 +1,10 @@
 package net.jadoth.storage.io.fs;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import net.jadoth.storage.io.ProtageFileChannel;
+import net.jadoth.storage.io.ProtageReadableFile;
 import net.jadoth.storage.io.ProtageReadingFileChannel;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
@@ -21,8 +23,7 @@ public interface FileSystemFile extends ProtageWritableFile
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
 	public final class Implementation
-	// (16.10.2018 TM)FIXME: OGS-45: proper channel types
-	extends ProtageWritableFile.Implementation<FileSystemDirectory, ProtageReadingFileChannel, ProtageWritingFileChannel>
+	extends ProtageWritableFile.Implementation<FileSystemDirectory, FileSystemReadingChannel, FileSystemWritingChannel>
 	implements FileSystemFile
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -141,6 +142,18 @@ public interface FileSystemFile extends ProtageWritableFile
 		public void moveTo(final ProtageWritableDirectory destination)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#moveTo()
+		}
+		
+		@Override
+		public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(final C callback)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnClose()
+		}
+		
+		@Override
+		public <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(final C callback)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnDelete()
 		}
 		
 	}
