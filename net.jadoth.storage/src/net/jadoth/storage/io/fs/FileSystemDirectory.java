@@ -5,15 +5,10 @@ import java.io.File;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.files.XFiles;
-import net.jadoth.storage.io.ProtageFile;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 
-/**
- * "FS" meaning "FileSystem", a {@link ProtageFile} framework implementation using file system files located on a drive.
- * 
- * @author TM
- */
+
 public interface FileSystemDirectory extends ProtageWritableDirectory
 {
 	public File directory();
@@ -109,7 +104,7 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 			);
 		}
 		
-		protected File internalCreateFile(final String fileName)
+		protected File internalCreateSystemFile(final String fileName)
 		{
 			this.validateNotYetContained(fileName);
 			
@@ -118,21 +113,17 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 			
 			return file;
 		}
-		
-		protected <F extends FileSystemFile.Implementation<FileSystemDirectory.Implementation>> F internalRegisterFile(final F file)
-		{
-			this.files.add(file.name(), file);
-			return file;
-		}
-		
+				
 		@Override
 		public synchronized FileSystemFile createFile(final String fileName)
 		{
-			final File file = this.internalCreateFile(fileName);
-			final FileSystemFile.Implementation<FileSystemDirectory.Implementation> createdFile =
-				new FileSystemFile.Implementation<>(this, fileName, file)
-			;
-			return this.internalRegisterFile(createdFile);
+			final File file = this.internalCreateSystemFile(fileName);
+			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(this, fileName, file);
+			
+			// success of the addition is guaranteed by the lock and the validation above.
+			this.files.add(fileName, createdFile);
+			
+			return createdFile;
 		}
 		
 	}

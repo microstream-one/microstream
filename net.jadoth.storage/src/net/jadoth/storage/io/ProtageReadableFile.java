@@ -5,7 +5,7 @@ public interface ProtageReadableFile extends ProtageFile
 	@Override
 	public ProtageReadableDirectory directory();
 	
-	public ProtageReadingFileChannel createReadingChannel();
+	public ProtageReadingFileChannel createReadingChannel(ProtageFileChannel.Owner owner, String name);
 	
 	
 	
@@ -18,6 +18,7 @@ public interface ProtageReadableFile extends ProtageFile
 	 */
 	public int tryClose();
 	
+	// (16.10.2018 TM)TODO: OGS-43: Is a pending close really necessary? What for?
 	/**
 	 * {@link #tryClose} with mark for closing if not possible.
 	 * @return
