@@ -2,6 +2,8 @@ package net.jadoth.storage.io;
 
 import static net.jadoth.X.notNull;
 
+import java.util.function.Consumer;
+
 import net.jadoth.collections.HashEnum;
 import net.jadoth.typing.XTypes;
 
@@ -45,6 +47,8 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	 */
 	public void forceDelete() throws RuntimeException; // (15.10.2018 TM)EXCP: proper exception
 
+
+	public <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(C callback);
 	
 	public boolean isMarkedForDeletion();
 	
