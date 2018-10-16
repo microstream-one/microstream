@@ -1,32 +1,36 @@
 package net.jadoth.storage.io.fs;
 
 import java.io.File;
+import java.util.function.Consumer;
 
-import net.jadoth.storage.io.ProtageFile;
+import net.jadoth.storage.io.ProtageFileChannel;
+import net.jadoth.storage.io.ProtageReadableFile;
 import net.jadoth.storage.io.ProtageReadingFileChannel;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 import net.jadoth.storage.io.ProtageWritingFileChannel;
 
 
-/**
- * "FS" meaning "FileSystem", a {@link ProtageFile} framework implementation using file system files located on a drive.
- * 
- * @author TM
- */
 public interface FileSystemFile extends ProtageWritableFile
 {
+	@Override
+	public FileSystemDirectory directory();
+	
+	public File file();
+	
+	
+	
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public class Implementation<D extends FileSystemDirectory.Implementation> implements FileSystemFile
+	public final class Implementation
+	extends ProtageWritableFile.Implementation<FileSystemDirectory, FileSystemReadingChannel, FileSystemWritingChannel>
+	implements FileSystemFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final D      directory ;
-		private final String name      ;
-		private final File   cachedFile; // yes, the file is the derived thing, not the name.
+		private final File cachedFile; // yes, the file is derived from the name, not the other way around.
 		
 		
 		
@@ -35,21 +39,55 @@ public interface FileSystemFile extends ProtageWritableFile
 		/////////////////
 
 		Implementation(
-			final D      directory ,
-			final String name      ,
-			final File   cachedFile
+			final FileSystemDirectory directory ,
+			final String              name      ,
+			final File                cachedFile
 		)
 		{
-			super();
-			this.directory  = directory ;
-			this.name       = name      ;
+			super(directory, name);
 			this.cachedFile = cachedFile;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final File file()
+		{
+			return this.cachedFile;
 		}
 
 		@Override
-		public ProtageReadingFileChannel createReadingChannel()
+		public long length()
+		{
+			return this.cachedFile.length();
+		}
+
+		@Override
+		public boolean exists()
+		{
+			return this.cachedFile.exists();
+		}
+
+		@Override
+		public ProtageReadingFileChannel createReadingChannel(
+			final ProtageFileChannel.Owner owner,
+			final String                   name
+		)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#createReadingChannel()
+		}
+
+		@Override
+		public ProtageWritingFileChannel createWritingChannel(
+			final ProtageFileChannel.Owner owner,
+			final String                   name
+		)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#createWritingChannel()
 		}
 
 		@Override
@@ -71,9 +109,21 @@ public interface FileSystemFile extends ProtageWritableFile
 		}
 
 		@Override
-		public int activeReadingChannels()
+		public int tryDelete()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#activeReadingChannels()
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#tryDelete()
+		}
+
+		@Override
+		public int delete()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#delete()
+		}
+
+		@Override
+		public void forceDelete() throws RuntimeException
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#forceDelete()
 		}
 
 		@Override
@@ -93,65 +143,17 @@ public interface FileSystemFile extends ProtageWritableFile
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#moveTo()
 		}
-
+		
 		@Override
-		public String name()
+		public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(final C callback)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageFile#name()
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnClose()
 		}
-
+		
 		@Override
-		public long length()
+		public <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(final C callback)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageFile#length()
-		}
-
-		@Override
-		public boolean exists()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageFile#exists()
-		}
-
-		@Override
-		public final D directory()
-		{
-			return this.directory;
-		}
-
-		@Override
-		public ProtageWritingFileChannel createWritingChannel()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#createWritingChannel()
-		}
-
-		@Override
-		public int activeWritingChannels()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#activeWritingChannels()
-		}
-
-		@Override
-		public int tryDelete()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#tryDelete()
-		}
-
-		@Override
-		public int delete()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#delete()
-		}
-
-		@Override
-		public void forceDelete() throws RuntimeException
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#forceDelete()
-		}
-
-		@Override
-		public boolean isMarkedForDeletion()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#isMarkedForDeletion()
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnDelete()
 		}
 		
 	}

@@ -228,7 +228,13 @@ public final class XTypes
 		;
 	}
 
-	
+	public static final int to_int(final boolean value)
+	{
+		return value
+			? 1
+			: 0
+		;
+	}
 	
 	public static final int to_int(final long value) throws NumberRangeException
 	{
