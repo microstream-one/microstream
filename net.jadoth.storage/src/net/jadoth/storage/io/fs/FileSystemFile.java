@@ -21,7 +21,7 @@ public interface FileSystemFile extends ProtageWritableFile
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
 	public final class Implementation
-	// (16.10.2018 TM)FIXME: OGS-43: proper channel types
+	// (16.10.2018 TM)FIXME: OGS-45: proper channel types
 	extends ProtageWritableFile.Implementation<FileSystemDirectory, ProtageReadingFileChannel, ProtageWritingFileChannel>
 	implements FileSystemFile
 	{
