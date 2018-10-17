@@ -124,5 +124,56 @@ Die >1 Milliard Benutzer kann man ziemlich leicht auf mehrere Data-Master vertei
 2018-10-18\par
 \par
 Ich schreib mal kurz eine Idee zu einer klareren "Datensatzklassifizierung" von oben auf.\par
+\par
+\par
+\b Daten vierter Klasse\par
+\b0 Gro\'dfe ValueType Objekte, die mehr den Charakter von "Nutzlast" als von Datenmodell-Entities haben.\par
+Beispiele: Bilder, Audio, Video, Dokumente, gro\'dfe Texte (> 1000 Zeichen).\par
+Werden in einem ausgelagerten System gespeichert und \'fcber irgendeinen eindeutigen Identifier (UUID oder so) referenziert. Irgendein Cloud Storage Ding oder so.\par
+Anwendungsserver m\'fchen sich mit solchen Daten selbst normalerweise gar nicht ab, sondern schicken Clients (Browser, App, etc.) nur den Identifier und die sollen sich das Ding bei Bedarf selbst runterladen, statt dass sie es m\'fchsam vom Anwendungsserver geliefert bekommen. Das Cloud Ding kann dann in sich geclustert, repliziert, wei\'df der Geier sein, das braucht den Anwendungsentwickler nicht k\'fcmmern.\par
+Diese Objekte sind immutable, d.h. sie ver\'e4ndern sich niemals. Sollte es mal eine \'c4nderung an den Bytes geben, f\'fchrt das zu einer neuen Version mit einem neuen Identifier. Aber ein Identifier steht immer f\'fcr eine bestimmte "Kombination an Bytes". Unver\'e4nderlich f\'fcr alle Ewigkeit.\par
+Wahrscheinlich muss man von Zeit zu Zeit "aufger\'e4umt" werden: Alle live referenzierten Identifier sammeln und dem Storage Ding sagen "L\'f6sch von mir alles, au\'dfer folgende". Oder umgkehrt: Eine Liste aller verf\'fcgbaren geben lassen und alle nicht mehr live referenzierten l\'f6schen. Das sind technische Details.\par
+\par
+Durch die Auslagerung dieser Daten nimmt man schon mal gigantisch viel Volumen aus der Datenbank raus. \'dcbrig bleiben nur noch "echte Datens\'e4tze", die typischerweise um die 50-100 Byte gro\'df sind (Collections etwas gr\'f6\'dfer).\par
+\par
+\b Daten dritter Klasse\par
+\b0 Immutable Entities. Da die sich nie \'e4ndern, kann man sie beruhigt auf einen anderen "Master" Node auslagern und von dort bei Bedarf immer wieder laden. Es wird bei denen nie Probleme mit Schreib-Konflikten oder veralteten Caches geben.\par
+Beispiele: \par
+Schwer zu sagen, weil ziemlich anwendungsspezifisch. Vielleicht soetwas wie Messdaten: Die werden einmal erhoben und \'e4ndern sich dann nie wieder. Millionen von Datens\'e4tzen, die zwar schon "Entities" sind, aber die in ihrer Natur so leicht zu handeln sind, dass es Verschwendung w\'e4re, ihnen eine erstklassige Behandlung zukommen zu lassen. Nat\'fcrlich macht es keinen Sinn, jedes kleine immutable Einzelinstanz in ein andere System zu verschieben. Etwa einen Integer mit Wert 5. Sondern hier sind gro\'dfe Mengen an zusammengeh\'f6renden immutable Entities gemeint.\par
+Wie das so ganz genau ist mit dem Immutable ist immer so eine Sache: Irgendwann m\'fcssen die Entities ja mal erzeugt und registriert, z.B. in eine Collection gesteckt werden. Also so "ganz immutable" kann es nicht sein.\par
+Hier ist der \'dcbergang zur zweiten Klasse flie\'dfend, eventuell ist beides sogar einfacher als dasselbe abbildbar.\par
+\par
+Durch die Auslagerung dieser Entities l\'e4sst sich die Gesamtzahl der erster Klasse zu managenden Entities dramatisch reduzieren, ohne sich dabei architektonische Probleme (Konflikte) einzuhandeln.\par
+\par
+\par
+\b Daten zweiter Klasse\par
+\b0 Gro\'dfe Mengen an Entities, die sich nur selten \'e4ndern. "Selten" hei\'dft in der Welt von Computern: Nur alle Stunde oder noch seltener.\par
+Diese werden auf einen eigenen "Master" Node ausgelagert.\par
+Die Idee dahinter ist: Das Zeitintervall soll gro\'df genug sein, dass es sich rentiert, dass der zust\'e4ndige Node an die Anwendungsnodes bei jeder \'c4nderung signalisieren kann: "Bei mir hat sich was ge\'e4ndert, du musst alle deine Entities, die du von mir gecacht hast, invalidaten/clearen und bei Bedarf neu laden."\par
+Wenn die Intervalle zu kurz w\'e4ren (~Sekunden), w\'fcrden die Anwendungsserver st\'e4ndig nur noch caches leeren und neu aufbauen, darum "seltene" \'c4nderungen. Als Optimierung f\'fcr kurze Intervalle nicht "alles" clearen, sondern nur ge\'e4nderte Instanzen, w\'fcrde schon wieder zu viel Verwaltungsoverhead erzeugen: Rechenaufwand, um alle ge\'e4nderten IDs zu sammeln, IDs \'fcbertragen, in den Anwendungsnodes die ID Liste durchlaufen, aufl\'f6sen, die entsprechenden Instanzen invalidaten. \par
+Was ist dann mit Instanzen von und auf diese Instanzen zu eigentlich unver\'e4nderten Instanzen? Alles schwierig. Darum simpler Ansatz: ALLES, was von dem betreffenden Second-Class Masternode gecacht ist, einfach clearen.\par
+Auch hier w\'e4ren Beispiele stark anwendungsabh\'e4ngig. \par
+Viele Anwendungen m\'f6gen solche Art von Daten \'fcberhaupt nicht haben. Viele andere haben fast nur solche. Vielleicht soetwas wie Artikeldaten. Eine Million Artikel und all ihre Entities drum rum. Da \'e4ndert sich schon mal immer wieder was dran. Vielleicht mehrfach t\'e4glich, wenn Sachbearbeiter \'c4nderungen vornehmen. Vielleicht werden nur einmal t\'e4glich batchm\'e4\'dfig alle Artikel\'e4nderungen auf einmal im System "ver\'f6ffentlicht".\par
+Oder ein Beispiel aus der pers\'f6nlichen Entwicklererfahrung: Bonusberechnungen. Es gibt Vorg\'e4nge, die werden vom Sachbearbeiter ausgef\'fchrt und die berechnen dann aus Ums\'e4tzen und Stammdaten, wie viel Kohle jedem Mitglied ausgezahlt wird. Jeder Vorgang erzeugt schon mal so 100.000 Entities oder noch mehr. Aber diese Vorg\'e4nge laufen vielleicht ... naja ... 10 mal im Monat. Selbst, wenn ein Sachbearbeiter herumprobiert, ausbessert, Daten nachtr\'e4gt, usw. und daf\'fcr immer wieder Vorgang ausf\'fchren und wieder resetten muss, dann passiert das vielleicht ab und zu 10 mal an einem Tag. Bei solchen Intervallen ist es noch problemlos m\'f6glich, in der Anwendungslogik einfach ALLES gecachte wegzuwerfen und bei Bedarf neu zu laden.\par
+\par
+Durch die Auslagerung dieser Entities l\'e4sst sich die Gesamtzahl der erster Klasse zu managenden Entities dramatisch reduzieren, ohne sich dabei architektonische Probleme (Konflikte) einzuhandeln.\par
+\par
+\b Daten erster Klasse\par
+\b0\'dcbrig bleiben dann nur noch Entities "Erster Klasse". Kleine Entities, die sich potenziell sehr oft \'e4ndern und wo sich unter Umst\'e4nden sogar mal nur ein einzelnes Entity \'e4ndert.\par
+Klassisches Beispiel: Kunde \'e4ndert sein Profil. Anschrift, Einstellungen, irgendsowas.\par
+Nachdem alle Daten niedrigerer (einfacherer) Klasse in andere Systeme ausgelagert wurden, bleibt hier nicht mehr viel \'fcbrig.\par
+Die kann ein einzelner Anwendungsserver, sozusagen der "First Class Data-Master", selbst direkt handeln.\par
+Das sind nat\'fcrlich immer noch Millionen Entities. Wahrscheinlich auch Milliarden. Aber das ist mit Jetstream kein Problem. Wirklich nicht.\par
+Beispiel Bonusanwendung: Besteht aus ~20 Millionen Entities und sogar unsere 0815 B\'fcro-PCs als "Serverhardware" brauchen nur etwa 15 Sekunden, um die gesamte Datenbank zu initialisieren und den Server zu starten.\par
+Wenn man eine einem gesch\'e4ftlichen Unternehmen angemessene Serverhardware einsetzt (sowas wie 8 Core, 128 GB RAM oder auch 32 Core, 512 GB RAM, das ist heutzutage alles kein Drama mehr), dann dann der mit \'e4hnlicher Geschwindigkeit auch 1 Milliarde solcher "First Class" Entities managen.\par
+\par
+Und wenn das immer noch nicht reicht, dann kann man seine Anwendung auch gezielt so designen, dass man mehrere solcher "First Class Data-Master" hat. Das sind halt dann disjunkte "Welten", die auf irgendeine g\'fcnstige Art zusammenarbeiten. Das wichtige ist dabei nur, zu verhindern, dann Daten des anderen rumzu\'e4ndern oder veraltete Versionen im Cache zu haben.\par
+Ich denke da z.B. an Facebook: Selbst die dickste Einzelhardware ever kann unm\'f6glich alle >2 Milliarden Benutzer und alle ihre dranh\'e4ngenden "First-Class" Entities managen.\par
+Das muss unweigerlich irgendwie segmentiert, geshardet werden. Aber das ist ziemlich simpel: man baut sich 1000 First-Class Data-Master Anwendungsnodes und jeder von denen ist "nur" f\'fcr 2 Millionen User zust\'e4ndig.\par
+Oder 10.000 Nodes mit je 200.000 User. Man kann auch 1 Million kleine Nodes mit je 2000 Usern drauf machen. Spielt keine Rolle. Es wird hier nie Konflikte geben, weil die Daten in sich auf fachlicher Ebene geclustert sind. Jeder User ist f\'fcr sich eine relativ abgeschlossene Einheit. Es gibt nat\'fcrlich Kontakte und Nachrichten untereinander, aber das kann man schon irgendwie sinnvoll managen. Entweder die Nachricht liegt immer auf dem Node des Senders oder, warum nicht: Es gibt einen extra Nachrichten Node (oder 1000), der (die) nichts anderes macht, als Millionen Nachrichten zwischen den Usern zu handeln.\par
+Also ich will damit nur sagen: Die Aussage "Es gibt nur einen First-Class Node" hei\'dft nicht, dass es auf Gedeih und Verderb f\'fcr egal wie gro\'dfe Systeme immer nur einen zentralen Node geben kann. Es soll nur hei\'dfen, dass ein First-Class Node die gr\'f6\'dfte Einheit ist, die automatisch verwaltet werden kann. Wenn man mehr braucht, muss man seine Anwendung entsprechend strukturieren und untereinander kommunizieren lassen, dann geht das auch.\par
+\par
+Das Konzept ist kurz gesagt: Daten in verschiedene Klassen einteilen und je nachdem, wie viel oder wenig unkompliziert sie zu verwalten sind, kann man die Daten mehr oder weniger weit vom zentralen Anwendungsnode weg auslagern.\par
+Dazu noch so read-only Data-Slaves, die den Master entlasten und failover-absichern, dann hat selbst bei riesigen Systemen ein einzelner (durchaus leistungsstarker) Master-Node genug Luft, um Anwendungslogik mit gigantische Datenmengen auszuf\'fchren und gew\'fcnschte \'c4nderungen business-logic-m\'e4\'dfig vor dem Schreiben zu validieren. Ganz ohne Schreibkonflikte im Cluster.\par
 }
  
