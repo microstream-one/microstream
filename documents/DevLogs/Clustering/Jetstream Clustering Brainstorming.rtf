@@ -428,5 +428,13 @@ Dieses Konzept gilt nur f\'fcr Aktionen, die Daten ver\'e4ndern, d.h. die letzte
 Rein lesende Logik braucht keine Commands.\par
 \par
 Wahrscheinlich sollte "Command" besser umbenannt werden zu "Request". Denn ein Kommando MUSS ausgef\'fchrt werden. Worum es hier ja aber geht, sind Anfragen, etwas zu tun, die auch abgelehnt werden k\'f6nnen.\par
+\par
+\par
+Es k\'f6nnte auch f\'fcr den RequestHandler zwei Implementierungen (bzw. eine plus Wrapper) geben: Einmal mit Validierung und einmal ohne.\par
+Denn:\par
+Wenn der Master allein ist und sich die Request Instanzen nur "just for fun" (bzw. for logging) selber erzeugt, dann muss es sie kurz nach dem erzeugen nicht nochmal validieren. Das w\'e4re ja d\'e4mlich.\par
+Wenn der Master aber Requests von au\'dfen rein kriegt, von einem Slave, der potenziell nicht die aktuellen Daten hat und darum evtl. invalide Requests erzeugt, dann sollten die beim Handeln durchaus nochmal validiert werden.\par
+Die Implementierung kann ja je nach Fall gew\'e4hlt werden. Und sie k\'f6nnte sogar live im Betrieb von nicht validierend auf validierend gewechselt werden, wenn zu dem Master dynamisch ein Slave dazugeschaltet wird.\par
+\par
 }
  
