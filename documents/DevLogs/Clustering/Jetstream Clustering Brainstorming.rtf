@@ -397,5 +397,36 @@ So in die Richtung muss das funktionieren:\par
 - Irgendwo beim Empfangen auf dem Master m\'fcssen dann noch Versionsnummern von bereits existierenden Entities gecheckt werden. Neue Entities sind immer erlaubt, die validiert dann nur noch die Anwendungslogik.\par
 \par
 \par
+Es m\'fcsste folgendes Interface geben:\par
+\par
+public interface CommandHandler\par
+\{\par
+\tab public void handleCommand(CommandCreateGuestBookEntry);\par
+\par
+\tab // ... usw. ganz viele solcher handling Methoden\par
+\}\par
+\par
+Das Command Basisinterface hat folgende Methode:\par
+\par
+public void handleBy(CommandHandler);\par
+\par
+Eine Command Implementierung kann dann die passende spezifische Logik f\'fcr sich selbst raussuchen.\par
+Damit vermeidet man einen teuren Handler-Lookup.\par
+\par
+Die allgemeine "handleCommand" Methode bei einem Slave serialisiert das Command-Objekt und alle daranh\'e4ngenden Instanzen und schickt sie zum Master.\par
+Die allgemeine "handleCommand" Methode beim Master sieht so aus:\par
+\par
+public void handleCommand(Command command)\par
+\{\par
+\tab command.handleBy(this.commandHandler);\par
+\}\par
+\par
+Der CommandHandler kann das treiben, was immer er denkt. Validierung, Logging, Persistierung.\par
+Selbst, wenn der Master allein ist, ist das eine sinnvolle Architektur, weil man eine zentrale Stelle hat, in der man loggen usw. machen kann.\par
+Dieses Konzept gilt nur f\'fcr Aktionen, die Daten ver\'e4ndern, d.h. die letztendlich einen store aufrufen. Am besten sollte nur der CommandHandler intern \'fcberhaupt Zugriff auf eine StorageConnection haben. D.h. man MUSS \'fcber ein Command Objekt gehen, wenn man irgendwas gespeichert haben will.\par
+\par
+Rein lesende Logik braucht keine Commands.\par
+\par
+Wahrscheinlich sollte "Command" besser umbenannt werden zu "Request". Denn ein Kommando MUSS ausgef\'fchrt werden. Worum es hier ja aber geht, sind Anfragen, etwas zu tun, die auch abgelehnt werden k\'f6nnen.\par
 }
  
