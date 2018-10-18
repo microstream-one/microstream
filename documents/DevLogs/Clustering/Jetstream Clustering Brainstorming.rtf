@@ -191,6 +191,8 @@ Dazu noch so read-only Data-Slaves, die den Master entlasten und failover-absich
 \par
 \par
 \par
+##################\par
+\par
 Mir ist dazu eine super Metapher eingefallen:\par
 \par
 Sagen wir, eine Serveranwendung ist wie ein Laden, in dem man Dinge kaufen kann.\par
@@ -232,5 +234,168 @@ Es muss auch nicht unbedingt bei diesen drei L\'e4den bleiben. Man kann durchaus
 Etwa wie Mediamarkt und Obi. Der eine verkauft Elektronikschnickschnack, der andere verkauft Baustuff. Je nachdem, was man braucht, f\'e4hrt man zu dem einen oder dem anderen. Wenn \'fcberhaupt, gibt es zwischen beiden nur minimalen Koordinationsbedarf und \'fcberhaupt keine "schreibenden" Konflikte.\par
 \par
 Genauso ist die Idee mit den nach Datenklassen und mit Read-only Nodes geclusterten Servern.\par
+\par
+##################\par
+\par
+\par
+\par
+Da sind nun im Detail nat\'fcrlich noch ein paar Fragen offen: Wie erfolgt diese Zerlegung technisch genau?\par
+Was die Binary ("viertklassigen") Daten angeht:\par
+Etwas \'e4hnliches wie die Lazy Reference, die intern nur den Identifier h\'e4lt.\par
+Falls die Serveranwendung selbst die Binary Instanz braucht, kann sie sie damit laden.\par
+Ansonsten wird dem Client nur der Identifier (bzw. ein entsprechender Wrapper) mitgeschickt und der l\'e4dt sich die Binary Instanz (oder vielleicht sollte man es eher "Resource" nennen) selbst.\par
+So ein "Wrapper" kann z.B. in der HTML Welt einfach ein <img> oder <video> tag sein, in dem URL+Identifier drin steht.\par
+F\'fcr eine Client App w\'e4re es wohl eher eine echte Wrapper Instanz, die URL+Identifier intern h\'e4lt und bei Bedarf eine Verbindung aufbaut, l\'e4dt, Verbindung schlie\'dft, lokal cacht, zur\'fcckgibt.\par
+Das sollte trivial machbar sein.\par
+\par
+Die "First Class" Entities sind auch simpel:\par
+Das ist ein Good Old Oldschool Java Datenmodell, ohne Einschr\'e4nkungen, mit Lazy Referenzen an g\'fcnstigen Stellen. Fertig.\par
+\par
+Knifflig ist das Zwischending: Viele Entities, die sich selten \'e4ndern, auf einem anderen System.\par
+Das m\'fcsste auch ein eigenst\'e4ndiger Teil mit Anwendungslogik sein. Vielleicht nur sehr wenig. Eher wie eine "Lagerhalle" der Anwendung. Mit eigenem Entitygraph.\par
+Der Hauptteil der Anwendung muss die Entitytypen daf\'fcr aber auch kennen. Und bei Bedarf muss er sich die Entities vom Lagerhallennode reinladen k\'f6nnen.\par
+An den "Hauptteil" des Entity Graphen w\'e4re dieser Subgraph wohl angeschlossen \'fcber auch wieder eine spezielle Lazy reference, die gecleart wird, sobald der "Lagerhallennode" ein Signal schickt, dass seine Daten sich ver\'e4ndert haben.\par
+Das knifflige ist jetzt: Es muss sichergestellt werden, dass bei so einem "clear" tats\'e4chlich alle Instanzen, die persistent eigentlich im "Lagerhallennode" "wohnen", auch wirklich "gel\'f6scht", also vom JVM GC collectet werden.\par
+Dazu ist n\'f6tig:\par
+- Root-Lazy-Reference des "importierten" Subgraphen clearen.\par
+- GC muss zwangsweise laufen, um die Instanzen des Subgraphen aufzur\'e4umen. System.gc() explizit aufrufen als Teil des Produktivbetriebs ist irgendwie immer doof. Und man hat keine Garantie, dass der GC dann wirklich komplett durchl\'e4uft.\par
+- richtig knifflig: es darf keine einzige der "First Class" Entities so eine importierte "Second Class" Entity hart referenzieren, sonst kann diese nicht aufger\'e4umt werden. L\'f6sung: wenn Referenzieren, dann weak. Aber das muss im Anwendungsdesign peinlich genau ber\'fccksichtigt werden.\par
+\par
+Das hei\'dft: alle so ausgelagerten Entities m\'fcssen ein in sich abgeschlossener Subgraph sein, der importiert und wieder geclearet werden kann.\par
+\par
+\par
+Hm. Vielleicht ist das aber zu kompliziert gedacht. Das ganze dirty-notification-Zeug mit n\'f6tigem GC-Aufruf ist seltsam.\par
+\par
+Vielleicht ist folgendes besser:\par
+\par
+Die Second-Class Entities werden vom First-Class Anwendungsserver erzeugt. Muss ja eigentlich so sein, weil nur der die ganze Anwendunglogik und die n\'f6tigen First-Class Entities f\'fcr Validierungen usw. hat.\par
+Aber der Trick ist: Weil das sich eher selten \'e4ndernde, aber daf\'fcr viele Daten sind, schiebt der First-Class Master die an einen Second-Class Master ab. Genauer gesagt schiebt er einen ganzen Subgraph ab, der nur \'fcber eine Root referenziert wird und auf den es keine direkten Referenzen "von der Seite" gibt. Lazy m\'fcsste okay sein.\par
+Der Second Class Master hat selbst keine Anwendungslogik und er bekommt \'c4nderungen immer nur vom First-Class Master. Damit ist gar kein Dirty-Signal n\'f6tig.\par
+Nat\'fcrlich muss damit der First-Class Master die ganze Logikarbeit machen, die Entities zu erzeugen, Operationen darauf zu validieren, usw.. Aber das macht nichts. Zum einen muss/kann das eh nur er machen. Zum anderen ist das Ziel ja nicht,\par
+dem First-Class Master Rechenleistung f\'fcr die Logik abzunehmen, sondern nachrangige Daten aus seiner Datenbank auszulagern, damit die m\'f6glichst klein und auf das wichtigste konzentriert bleibt.\par
+\par
+Das sch\'f6ne daran ist:\par
+Damit werden l\'e4stige Altdaten automatisch "aus dem System raus" gebracht, aber sind trotzdem noch verf\'fcgbar.\par
+Etwa Ums\'e4tze von Vorjahren. Irgendwann nach 5 Jahren wird der First-Class Server die Ums\'e4tze von vor 5 Jahren einfach gar nicht mehr brauchen. Er verschwendet damit auch gar keinen Platz auf Festplatte oder RAM. Er fordert die Subgraphen nur einfach nie wieder vom seinem Second-Class Handlanger-Node an.\par
+Und was auch sch\'f6n ist:\par
+Wenn eine passende Subgraph Datenstruktur (z.B. eben Ums\'e4tze) einmal konzipiert ist, dann k\'f6nnen Instanzen davon auf mehrere Second-Class-Nodes verteilt werden.\par
+Die Ums\'e4tze 2021-25 auf den Second-Class-Node #1, dann schafft man einen zweiten an, der h\'e4lt dann 2026-2030, usw.\par
+Irgendwann werden vielleicht mal mehrere der Subgraphen wieder auf einen Node zusammenkopiert, der als Archiv dient: Riesige Festplatte, aber wenig Rechenleistung. Wenn jemand die Uralt-Daten braucht, werden die schon geliefert, aber halt nicht mehr mit maximaler Produktivbetrieb-Hot-Performance.\par
+\par
+Also w\'e4r es so:\par
+\par
+1.) Es gibt einen First-Class Master Node.\par
+- Der ist die "komplette Anwendung", sowohl was Logik als auch Datenmodell angeht.\par
+- Der ist der einzige, der Anfragen f\'fcr \'c4nderungen an den Daten annimmt und neue Entities erzeugt.\par
+- Der wird auf beliebig viele First-Class Slave Nodes repliziert, die ihm lesende Arbeit anehmen, damit er sich auf die Verarbeitung von \'c4nderungen konzentrieren kann.\par
+- Der lagert aber alle Nicht-First-Class Entities an andere Nodes aus. Diese m\'fcssen in autarken Subgraphen organisiert sein.\par
+\par
+2.) Es gibt N Second-Class Master Nodes.\par
+- Die bekommen Subgraphen vom First-Class Master Node zugeschickt, die sie einfach nur dumm persistieren und auf Anfrage wieder rausgeben. Ohne Anwendungslogik. Ohne Validierung oder sowas.\par
+- Deren eigenes Datenmodell sieht wahrscheinlich einfach so aus, dass ihr Root eine Map ist und jeder Subgraph, der rein kommt, wird mit seinem Root dort reingeh\'e4ngt und gespeichert.\par
+- Auch die werden auf beliebig viele Read-Only Nodes repliziert, um die Lese-Last zu verteilen.\par
+\par
+3.) Es gibt irgendeinen Drittanbieter remote binary Storage Service.\par
+- In den werden "gro\'dfe" ValueType Datenobjekte reingesteckt, die unter einem Identifier wieder abgerufen werden k\'f6nnen. Idealerweise gleich nur vom Client (Browser/App) selbst und nicht vom First-Class Master Node.\par
+- Wie die replizieren o.\'c4. ist deren Sache, das kann uns egal sein. Wir speichern nur URIs und l\'f6sen die bei Bedarf wieder auf.\par
+\par
+\par
+Der einzig knifflige Punkt ist damit:\par
+Wie designt man in einer spezifischen Anwendung "sch\'f6n" autarke  Subgraphen, die man problemlos an so einen Second-Class Node auslagern kann?\par
+Das sollte eine zumutbare Designentscheidung sein, genauso wie die Entscheidung von g\'fcnstigen Punkten f\'fcr Lazy References.\par
+\par
+\par
+Naja, und:\par
+- Wie verhindert man, dass ein Read-Only Slave Node seinen Entity Graph \'e4ndert?\par
+- Wie werden Writes an den Master Node geschickt?\par
+\par
+Die Slaves Nodes k\'f6nnten auf jeden Fall schon mal Validierung auf fachlicher Ebene machen und damit dem Master Arbeit abnehmen.\par
+\par
+Oder k\'f6nnten die Read-Only Nodes vielleicht zwar schon \'e4ndern, aber sie speichern nicht, sondern ihr "store" schickt den Chunk an den Master und der validiert und speichert.\par
+Aber was soll er validieren?\par
+Fachliche Logik, klar. Daf\'fcr ist der Code da.\par
+Aber wie soll er entscheiden, ob der Read-Only node wirklich die aktuellen Daten hatte?\par
+Dann m\'fcsste eine Versions-ID mit rumgereicht werden.\par
+Ins Entity einbauen ist bl\'f6d. Aber es k\'f6nnte eine HashTable sein, deren Entries mit jedem Chunk mitgeschickt werden.\par
+Ein Entry w\'e4re eine ziemlich kleine Sache: 16 Bytes. 8 f\'fcr die OID, 8 f\'fcr die versions ID.\par
+Der Slave bekommt die aktuellen IDs automatisch \'fcber das replizieren.\par
+Beim zur\'fcckschicken an den Master schickt er einen "Auszug" der Versionstable mit, in der f\'fcr jedes geschickte Entity die 16 Bytes dabei sind.\par
+Dann kann der Master checken: Hatte der Slave \'fcberhaupt die aktuelle persistente Version je Entity?\par
+Wenn ja und wenn die fachliche Logik kein Problem meldet, kann der Master den Chunk direkt produktiv verwenden, d.h. direkt auf die Platte schreiben.\par
+Alle anderen Slaves bekommen die Updates dann \'fcber die Replizierung.\par
+\par
+Wenn die Version nicht passt, bekommt der slave eine Exception zur\'fcck, die entweder kompensiert werden kann, oder dem User als "Die Daten haben sich zwischenzeitlich ge\'e4ndert, bitte neu laden" mitgeteilt wird.\par
+\par
+Dann w\'e4re die Anwendung verteilt auf replizierte Nodes.\par
+Jeder node k\'f6nnte die volle Anwendungslogik ausf\'fchren auf potenziell den vollen Daten, aber schreiben w\'fcrde nur ein Node.\par
+\par
+Problem daran k\'f6nnte sein:\par
+Wenn's dumm l\'e4uft, bekommt ein Slave gerade solche Anfragen zugewiesen, die f\'fcr die Bearbeitung die halbe Datenbank im RAM erfordern. Anfrage 1 braucht die ersten 10% Daten, #2 die zweiten 10%, usw.\par
+Da kann ein Slave nach nur wenigen Anfragen schon seinen ganzen RAM voll haben und abschmieren.\par
+\par
+Es m\'fcsste halt dann die Anwendung so gebaut sein, dass nicht zu viele ge\'e4nderte Instanzen und nicht zu viele Konflikte entstehen.\par
+Beispiel:\par
+Ein User kann meistens nur in "seinem Bereich" viel herum\'e4ndern (sein Profil, seine Bestellungen, seine Mails, usw.) und Interaktion mit anderen l\'e4uft meistens nur darauf hinaus, Subgraphen neu zu erzeugen (z.B. eine Message Instanz mit Timestamp und Text) und irgendwo anders synchronisiert "einzuh\'e4ngen". Die neu erzeuten Message Instanzen k\'f6nnte ein Slave Node vorbereiten, nur das "einh\'e4ngen" kann einen Konflikt erzeugen. Bei einer Versionsexception kann der Slave sich die aktuelle Version holen und das einh\'e4ngen wieder versuchen. Wobei f\'fcr soetwas eine explizite Registrierlogik sinnvoller w\'e4re. Alle slaves senden ihre einzuh\'e4ngenden Subgraphen an eine registrierungsfunktion des masters und der arbeitet die entstehende Queue sequenziell ab.\par
+\par
+Hei\'dft: wie implementiert man eine enqueue-Logik, wenn alle Teilnehmer eigentlich Klone desselben Systems sind und nur Daten hin und her schicken, nicht Services aufrufen?\par
+Dann k\'f6nnten die Slaves aber nicht einfach generisch ein store() aufrufen, als w\'e4ren sie der Master, an den aber eigentlich nur weitergeleitet wird. Sondern es m\'fcsste so command-Instanzen verschickt werden, die der Master dann auf Methoden mappen k\'f6nnte.\par
+Aber wie kriegt man das generisch in den Store rein?\par
+K\'f6nnte der Master generisch anhand des Typs der Rootinstanz des gesendeten Subgraphen entscheiden? Sowas wie GuestBookEntry. Und je nachdem, ob dieser Subgraph eine neue oder schon bekannte ID hat, w\'e4re es ein "handleNew" (z.B. enqueue) oder ein "handleExisting" (z.B. edit) ?\par
+K\'f6nnte sowas in den Persistence layer reingewoben werden? Callbacks im Builder und im TypeHandler?\par
+Also wenn der Master von einem Slave einen neuen GuestBookEntry geschickt bekommt, dann wei\'df er, was er damit machen muss.\par
+Das ist Detal aber eklig, denn der GuestBookEntry m\'fcsste dann alle n\'f6tigen Informationen enthalten (welches Ziel-Guestbook, usw.). Das w\'e4ren R\'fcckrefrenzen, die in der Datenbank aber sinnlose Redundanzen darstellen w\'fcrden.\par
+Also m\'fcsste man doch wieder Logik-Level Command-Instanzen drum rum wrappen, die zum persistieren aber weggelassen werden.\par
+Dann w\'e4re aber nichts mehr mit node-typ-agnostisch einfach store aufrufen.\par
+\par
+Oder vielleicht w\'fcrde ja folgendes gehen:\par
+Anwendungsdesignm\'e4\'dfig wird JEDE Aktion, die eine Daten\'e4nderung bewirken kann, in ein Command-Objekt gepackt.\par
+Das wird an eine "handleCommand" methode \'fcbergeben.\par
+Beim Slave hei\'dft "handleCommand": Command-Objekt serialisieren und an den Master schicken.\par
+Beim Master leitet der Netzwerk-Eventthread bekommene Command-Objekte wieder an sein "handleCommand" weiter.\par
+Das macht dann: je nach Kommando entsprechende Methode aufrufen.\par
+Dabei f\'e4llt das Kommando-Objekt selbst weg.\par
+Wenn die Methode gr\'fcnes Licht gibt, wird ein Store aufgerufen.\par
+\par
+Beispiel:\par
+\par
+Benutzer mit einer Session auf Slave #37 will sein Passwort \'e4ndern.\par
+Die User-Instanz steht fest (von der Anwendungslogik ermittelt). Das neue Passwort liegt vor.\par
+Es wird ein "user.changePassword(newPassword)" aufgerufen.\par
+Die Anwendungslogik darin validiert, ob das Passwort \'fcberhaupt zul\'e4ssig ist.\par
+Ist es, also weiter:\par
+Es wird ein "CommandChangePassword" erzeugt und an "handleCommand" \'fcbergeben.\par
+Beim Slave hei\'dft das serialisieren, das Command kommt beim Master an, der Master hat daf\'fcr die methode User#changePassword gemappt und ruft die mit den n\'f6tigen Daten auf.\par
+Darin gibt es wieder Validierung.\par
+Am Ende wieder "CommandChangePassword", das wieder an "handleCommand" \'fcbergeben wird. Aber beim Master f\'fchrt das nun zu einem Store.\par
+Fertig.\par
+\par
+Falls es keinen Slave gibt, sondern der Benutzer mit seiner Session direkt auf dem Master arbeitet, funktioniert das genauso, nur ohne Netzwerk Umweg:\par
+- "user.changePassword(newPassword)"  Aufruf\par
+- validierung\par
+- CommandChangePassword erzeugung\par
+- \'fcbergeben an handleCommand\par
+- handleCommand speichert direkt ab.\par
+\par
+Vielleicht sind die Command-Dinger auf der Master Seite sogar noch gut f\'fcr Logging oder sowas.\par
+\par
+Interessant ist jetzt noch die Frage:\line Muss der Master \'fcberhaupt nochmal Logik ausf\'fchren?\par
+Reicht es nicht, darauf zu vertrauen, dass der Slave schon die Logik ausgef\'fchrt hat?\par
+Es muss ja eigentlich nur validiert werden, ob der Slave von allen Daten die aktuelle Version hatte.\par
+Vielleicht w\'e4re der Master dann nichts anderes als ein dummer Persistierungsnode, der Versionsnummern abgleicht und exceptions wirft.\par
+Aber Vorsicht: ne, das geht nicht. Denn dann gibt es ja keine zentrale Stelle mehr, wo Logik ausgef\'fchrt wird. Das Passwort-Beispiel ist daf\'fcr zu primitiv. Besser w\'e4re so ein GuestBookEntry Beispiel:\par
+Der Slave pr\'fcft grunds\'e4tzlich, ob der User einen Guestbook Entry machen darf. Er wei\'df aber nicht, an welcher Stelle im Guestbook der Entry letztendlich eingereiht werden wird. Das wei\'df allein der Master, der den aktuellen Stand der Daten hat.\par
+Wenn grunds\'e4tzlich ja, erzeugt er ein Command daf\'fcr und schickt das an den Master.\par
+Der Master nudelt das wie oben besprochen durch, aber in seiner add Entry Logik kann er mit einem vor\'fcbergehenden Lock nun die genaue Position DIESES Entries im Guestbook feststellen. So reiht er das ein, erzeugt ein Command, f\'fchrt das aus, persistiert das und der asynchron reingeschickte entry ist auf synchronisiert sichere Weise enqueut worden.\par
+\par
+So in die Richtung muss das funktionieren:\par
+- Derselbe Anwendung l\'e4uft parallel auf mehreren Nodes\par
+- Ein Node ist der Master, alle anderen nur Slaves\par
+- Die Anwendungslogik arbeitet mit Schnittstellen aus Command-Instanzen\par
+- Die Slaves handeln die Command Instanzen einfach nur so, dass sie sie an den Master schicken.\par
+- Der Master handelt die Command Instanzen so, dass die anwendungslogik zentral und synchronisiert entscheidet und ggf. speichert.\par
+- Gibt es nur einen Master ohne Slaves, dann ist das halt einfach eine normale Anwendung, in der ein kleiner Umweg mit Command-Instanzen gegangen wird, die aber f\'fcr Logging o.\'c4. sogar ganz vorteilhaft sein k\'f6nnen.\par
+- Irgendwo beim Empfangen auf dem Master m\'fcssen dann noch Versionsnummern von bereits existierenden Entities gecheckt werden. Neue Entities sind immer erlaubt, die validiert dann nur noch die Anwendungslogik.\par
+\par
+\par
 }
  
