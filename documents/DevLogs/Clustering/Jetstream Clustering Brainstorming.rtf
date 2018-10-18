@@ -184,38 +184,40 @@ Mir ist dazu eine super Metapher eingefallen:\par
 Sagen wir, eine Serveranwendung ist wie ein Laden, in dem man Dinge kaufen kann.\par
 Die Artikel sind die Datens\'e4tze. Die Mitarbeiter sind die Threads.\par
 Wenn ein Kunde nur reinkommt, rumschaut, sich ggf. noch beraten l\'e4sst, ist das "nur lesend".\par
-Wenn ein Kunde etwas kauft, d.h. Warenbestand und Einnahmen des Ladens ver\'e4ndert, ist das "lesend".\par
+Wenn ein Kunde etwas kauft, d.h. Warenbestand und Einnahmen des Ladens ver\'e4ndert, ist das "schreibend".\par
 Es gibt unterschiedliche Arten von Artikeln:\par
-Riesige, aber triviale, z.B. Holzbalken zum Hausbauen.\par
+Riesige, aber triviale Artikel, z.B. Holzbalken, Steine, usw. zum Hausbauen.\par
 So mittelgro\'dfe, mittelkomplexe Artikel, wie z.B. ... keine Ahnung ... Lampen, W\'e4schek\'f6rbe, Lebensmittel.\par
 Und es gibt kleine, superkomplexe Artikel, die viel Aufwand erzeugen f\'fcr Ausstellung, Beratung, Reklamation, evtl. sogar Reparatur. Klassisches Beispiel: Elektronikkram. Fotos, Smartphones, usw.\par
 \par
 Java mit Jetstream macht es problemlos m\'f6glich, alle m\'f6glichen Artikel gemischt im selben Laden zu verkaufen. Alles kann angeboten werden und das auch ziemlich effizient.\par
 Soweit so cool.\par
 Nat\'fcrlich ist es so, dass, je mehr Waren man anbieten will, man auch immer mehr Verkaufsfl\'e4che und Mitarbeiter f\'fcr Beratung und Kassieren braucht.\par
-F\'fcr Java kein Problem. F\'fcr Jetstream auch nicht. Nur die Hardware macht irgendwann nicht mehr mit. G\'e4be es einen 1024-Core Server mit 128 TB RAM, dann w\'e4re die ganze Clusterei \'fcberfl\'fcssig. Gibts leider nicht. Bl\'f6d.\par
-In der Metapher hei\'dft das: Aus irgendeinem Grund darf ein Laden nicht mehr als 100.000 Artikel anbieten sein und nicht mehr als 32 Mitarbeiter haben.\par
-Man kann diese Grenzen noch so clever ausnutzen und ein noch so effizient laufendes Lager haben, irgendwann platzt ein einzelner Laden aus allen N\'e4hten.\par
+F\'fcr Java kein Problem. F\'fcr Jetstream auch nicht. Nur die Hardware macht irgendwann nicht mehr mit. G\'e4be es einen 50 GHz 1024-Core Server mit 128 TB RAM, dann w\'e4re die ganze Clusterei \'fcberfl\'fcssig. Gibts leider nicht. Bl\'f6d.\par
+In der Metapher hei\'dft das: Aus irgendeinem Grund darf ein Laden nicht mehr als 100.000 Artikel anbieten und nicht mehr als 32 Mitarbeiter haben.\par
+Man kann diese Grenzen noch so clever ausnutzen und ein noch so effizient laufendes Lager haben, irgendwann platzt ein einzelner Laden aus allen N\'e4hten und die Mitarbeiter kommen mit dem Beraten und Kassieren nicht mehr nach.\par
 \par
-Der erste, durchaus naheliegende, aber auch naive Gedanke ist: Das muss man Clustern. Das hei\'dft einfach X mal 100.000-Artikel-L\'e4den mit X mal 32 Mitarbeiter und die Waren dann "irgendwie" auf die L\'e4den verteilen.\par
+Das muss man \'fcber mehrere L\'e4den clustern. Geht nicht anders.\par
+\par
+Der erste, durchaus naheliegende, aber auch naive Gedanke ist: Das hei\'dft einfach X mal 100.000-Artikel-L\'e4den mit X mal 32 Mitarbeiter und die Waren dann "irgendwie" auf die L\'e4den verteilen.\par
 Das Problem daran ist: Die Kunden und Mitarbeiter werden vor lauter herumtelefonieren und herumlaufen zwischen den L\'e4den nicht mehr fertig. St\'e4ndig muss rumtelefoniert werden, ob es von Artikeltyp X in einem anderen Laden noch ein Exemplar gibt, dann m\'fcssen die Kunden dorthin laufen, usw. Der Vergleich hinkt ein bisschen, verglichen damit, wie Cluster wirklich funktionieren, aber die Grundaussage ist richtig: Es gibt einen riesigen Overhead an Koordinierungsbedarf, Konflikte bei "schreibenden" Zugriffen ("kaufende Zugriffe", hehe), Austausch der Waren zwischen den M\'e4rkten, usw.\par
 \par
 Darum folgende Idee, das ganze etwas eleganter zu clustern:\par
 Ein Laden k\'fcmmert sich nur um die riesigen, aber trivialen Artikel. Der hat dann vielleicht sogar optimierte Lagerfl\'e4chen und Ausstellungsfl\'e4chen, Kabelstapler, usw.\par
-Ein Laden k\'fcmmert sich um alles zu k\'fchlende Zeug (Lebensmittel).\par
-Ein Laden k\'fcmmert sich um das ganze kleine, komplexe und beratungsintensive Zeug (Smartphones usw.)\par
+Ein Laden k\'fcmmert sich um alles zu k\'fchlende Zeug (Lebensmittel). Mit K\'fchlanlagen usw.\par
+Ein Laden k\'fcmmert sich um das ganze kleine, komplexe und beratungsintensive Zeug (Smartphones usw.). Mit schicken Ausstellungsst\'e4nden, Lounges mit Musik, usw.\par
 \par
 Zus\'e4tzlich macht man von jedem der drei "Hauptl\'e4den" noch identisch best\'fcckte "Ausstellungsl\'e4den".\par
 (Hier hinkt das Beispiel wieder ein bisschen: F\'fcr physikalische L\'e4den w\'e4re das ein riesiger Aufwand, aber in der digitalen Welt ist eine simple Kopie ziehen trivial zu machen).\par
 In den Ausstellungsl\'e4den k\'f6nnen die Kunden durchlaufen, sich die Artikel ansehen, ausprobieren, sich beraten lassen, usw.\par
 Aber gekauft wird nur im Hauptladen, damit an einer zentralen Stelle alles richtig verbucht wird.\par
 Je mehr Kunden es gibt, umso mehr Ausstellungsl\'e4den macht man. Das ist \'fcberhaupt kein Problem. So eine Kopie ist schnell erstellt (in der Digitalen Welt), dann gehen die T\'fcren auf und 1000 weitere Kunden k\'f6nnen fr\'f6hlich reinstr\'f6men und rumschauen.\par
-Die Hauptl\'e4den machen hingegen gar keine Beratung mehr. Dort geht man nur noch rein, wenn man schon wei\'df, was man kaufen will. Man kriegt es ausgeh\'e4ndigt und geht zur Kasse.\par
+Die Hauptl\'e4den machen hingegen gar keine Beratung mehr. Dort geht man nur noch rein, wenn man schon ausgesucht hat, was man kaufen will. Man kriegt es ausgeh\'e4ndigt und geht zur Kasse.\par
 Dadurch k\'f6nnen auch alle 32 Mitarbeiter des Hauptladens an den Kassen sitzen und kassieren.\par
-Und jetzt kann man sich gut vorstellen: 32 Kassen nebeneinander, die den ganzen Tag lang ununterbrochen nur noch Kunden abkassieren, ohne Beratung usw., k\'f6nnen ein gigantisches Volumen an Kunden und an Warenausgabe bearbeiten.\par
+Und jetzt kann man sich gut vorstellen: 32 Kassen nebeneinander, die den ganzen Tag lang ununterbrochen nur noch Kunden mit Ware in der Hand abkassieren, ohne Beratung usw., k\'f6nnen ein gigantisches Volumen an Kunden und an Warenausgabe bearbeiten.\par
 \par
 Es muss auch nicht unbedingt bei diesen drei L\'e4den bleiben. Man kann durchaus einen zweiten Laden f\'fcr kleine, komplexe Artikel aufmachen. Das m\'fcsste halt dann thematisch getrennt sein, damit nicht wieder Chaos untereinander ausbricht.\par
-Etwa wie Mediamarkt und Obi. Der eine verkauft Elektronikschnickschnack, der andere verkauft Baustuff. Je nachdem, was man braucht, f\'e4hrt man zu dem einen oder dem anderen. Wenn \'fcberhaupt gibt es zwischen beiden nur minimalen Koordinationsbedarf und \'fcberhaupt keine "schreibenden" Konflikte.\par
+Etwa wie Mediamarkt und Obi. Der eine verkauft Elektronikschnickschnack, der andere verkauft Baustuff. Je nachdem, was man braucht, f\'e4hrt man zu dem einen oder dem anderen. Wenn \'fcberhaupt, gibt es zwischen beiden nur minimalen Koordinationsbedarf und \'fcberhaupt keine "schreibenden" Konflikte.\par
 \par
 Genauso ist die Idee mit den nach Datenklassen und mit Read-only Nodes geclusterten Servern.\par
 }
