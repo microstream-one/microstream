@@ -436,5 +436,97 @@ Wenn der Master allein ist und sich die Request Instanzen nur "just for fun" (bz
 Wenn der Master aber Requests von au\'dfen rein kriegt, von einem Slave, der potenziell nicht die aktuellen Daten hat und darum evtl. invalide Requests erzeugt, dann sollten die beim Handeln durchaus nochmal validiert werden.\par
 Die Implementierung kann ja je nach Fall gew\'e4hlt werden. Und sie k\'f6nnte sogar live im Betrieb von nicht validierend auf validierend gewechselt werden, wenn zu dem Master dynamisch ein Slave dazugeschaltet wird.\par
 \par
+\par
+\par
+Features:\par
+- Nur eine monolithische Anwendung schreiben, ohne explizite Clustering API oder sowas.\par
+- Beliebig viele Nodes, die dieselbe Anwendung ausf\'fchren und "scheinbar" alle schreiben.\par
+- Nodes sind problemlos dynamisch zu- und wegschaltbar.\par
+- Nodes sind automatisch Failover-Absicherung.\par
+- Es gibt keine Inkonsistenzen von mehreren gleichzeitigen Schreibern (weil tats\'e4chlich nur 1 Node schreibt, der alle anderen updatet)\par
+\par
+Probleme/Nachteile:\par
+- Es kann keine Inkonsistenzen geben, aber replizierte Nodes k\'f6nnen leicht veralteten Zustand haben.\par
+- Wenn einer der replizierten Nodes speichern will, kann es darum eine Exception geben, weil sich der aktuelle Zustand ge\'e4ndert hat. Muss bei jedem Speicherversuch mit einem try-catch behandelt werden. Hei\'dft: entweder nochmal probieren mit aktuellen Daten oder an Benutzer zur\'fcckmelden und den nochmal versuchen lassen, ggf. mit anderen Daten.\par
+\par
+Anmerkung:\par
+Dieses Problem hat man grunds\'e4tzlich immer, wenn mehr als ein Prozess dieselben Daten f\'fcr den Betrieb verwenden, egal, welches Konzept.\par
+Die einzige M\'f6glichkeit, das zu verhindern, w\'e4re, dass der Schreibvorgang irgendwo im Cluster kurz den gesamten Cluster anh\'e4lt und nach dem Schreiben alle Nodes aktualisiert, damit keine mit veralteten Daten arbeiten kann.\par
+Immerhin hat dieses Konzept nur leicht veraltete Daten und keine inkonsistenten Daten bzw. konfliktete \'c4nderungen.\par
+Letzteres w\'e4re die H\'f6lle. Ersteres kann man immerhin relativ leicht mit einem erneuten Versuch beheben.\par
+\par
+\par
+Oder mal \'fcberlegen ...\par
+\par
+\par
+Zwei Arten von nebenl\'e4ufigen \'c4nderung:\par
+(siehe auch "Starke und Schwache Kausalit\'e4t")\par
+\par
+1.)\par
+Eine EXAKTE \'c4nderung.\par
+Beispiel: Ein Benutzer will sich f\'fcr eine Kinovorstellung Platz Nr. 68 reservieren.\par
+Entweder, er hat Erfolg, oder nicht. Es gibt keine akzeptable "ungef\'e4hre" L\'f6sung.\par
+\par
+2.)\par
+Eine UNGEF\'c4HRE \'c4nderung.\par
+Beispiel: Ein Benutzer will auf einer Pinnwand mit 5 Eintr\'e4gen einen weiteren Eintrag hinzuf\'fcgen.\par
+Ob sein Eintrag tats\'e4chlich der 6. Eintrag wird oder ob zwischen dem Schreiben seines Eintrags und der Registrierung im System noch andere Eintr\'e4ge registriert wurden, die letztendlich vor seinem Eintrag stehen werden, stellt f\'fcr die Anwendung keinen Fehler dar.\par
+(Ob der Benutzer selbst sich dar\'fcber aufregt oder sein Eintrag inhaltlich dadurch unsinnig wird, ist kein Problem f\'fcr die Anwendung)\par
+Oder im Beispiel oben: den "n\'e4chsten" freien Platz der Vorstellung reservieren. Egal, welcher das ist.\par
+\par
+\par
+Die allermeisten Aktionen in einem nebenl\'e4ufigen System sind ungef\'e4hre \'c4nderungen.\par
+Es geht fast immer darum, neues hinzuzuf\'fcgen, einzureihen, zu belegen, usw.\par
+Exakte \'c4nderungen sind in einem nebenl\'e4ufigen System eher selten.\par
+\par
+Bei exakten \'c4nderungen kann man Konflikte vermeiden, indem man anstatt direkte \'c4nderungen vorzunehmen (die konfliktet sein k\'f6nnen), eine \'c4nderungsanfrage an eine zentrale Stelle schickt, die alle Anfragen sequenziell abarbeitet.\par
+Beispiel:\par
+Anstatt in Platz 68 fest den Beleger "Benutzer X" einzutragen und irgendwann sp\'e4ter festzustellen, dass dort nebenl\'e4ufig schon "Benutzer Y" eingetragen worden ist, kann eine Anfrage \'fcber die Eintragung geschickt werden.\par
+Benutzer Y sendet seine Anfrage zuerst. Benutzer X kurz darauf (scheinbar gleichzeitig bzw. ohne Sichtbarkeit von Y's Anfrage).\par
+Beide Anfragen landen in einer Anfrage-Queue einer "Sitzevergeber" Logik.\par
+Y bekommt den Platz und eine entsprechende R\'fcckmeldung.\par
+X bekommt eine Ablehnung als R\'fcckmeldung.\par
+\par
+\par
+\par
+Man kann jede Situation parallel konflikteter \'c4nderungen ganz einfach sichern:\par
+Indem nicht parallel direkt \'c4nderungen vorgenommen werden und erst wenn es zu sp\'e4t ist, merkt man, dass ein Konflikt / eine Inkonsistenz vorliegt (z.B. dass dasselbe Objekt von zwei verschiedenen Stellen unterschiedlich ver\'e4ndert worden ist), sondern indem man jede gew\'fcnschte \'c4nderung als \'c4nderungsanfrage an eine zentrale Stelle stellt. Diese zentrale Stelle reiht alle Anfragen (nebenl\'e4ufigkeitsgesichert, das geht) hintereinander ein und arbeitet sie von vorne ab (FIFO). Abarbeiten bedeutet: Validieren, ob die \'c4nderungsanfrage f\'fcr den aktuellen Zutand der Daten g\'fcltig ist. Wenn ja, dann \'c4nderung vornehmen, abspeichern. Wenn nein, dann R\'fcckmeldung, dass die Anfrage abgelehnt wurde.\par
+\par
+Ganz konkretes Beispiel:\par
+In einer bestimmten Kinovorstellung wollen sich zwei Benutzer auf unterschiedlichen Server-Nodes gleichzeitig den Platz 68 reservieren.\par
+Folgendes w\'e4re die ignorante Variante, die zu einem Konsistenzfehler f\'fchrt:\par
+seat68.setOwner(currentSessionUser);\par
+storage.store(seat68);\par
+\par
+Wenn beide Servernodes (stellvertretend f\'fcr beide Benutzer) das einfach so ausf\'fchren, gibt es im "g\'fcnstigsten" Fall irgendwann mal eine Exception, dass eine Inkonsistenz festgestellt wurde. Im ung\'fcnstigten Fall bekommen beide Bentzer eine Best\'e4tigung, dass sie Platz 68 reserviert haben, beide bezahlen, usw., aber nur einer ist tats\'e4chlich als Owner gesetzt. Klingt in diesem kleinen Beispiel nach einer harmlosen kleinen Panne, aber das Prinzip kann nat\'fcrlich auch bei kritischeren Situationen auftreten. Daran k\'f6nnen Menschern sterben oder Firmen pleitegehen.\par
+Die Strategie, zu sagen "Naja mei, der letzte hat halt recht" funktioniert nur, wenn es keinerlei weitere Abh\'e4ngigkeiten gibt. Aber wenn etwa, wie im Beispiel, Kunden auf einmal f\'fcr eine Leistung bezahlen m\'fcssen, die sie gar nicht bekommen, dann funktioniert das "der letzte hat halt recht" \'fcberhaupt nicht mehr.\par
+Kurz gesagt: Das ist eine sehr naive, untaugliche, beschissen bl\'f6de Idee.\par
+\par
+Wie geht es nun richtig?\par
+So:\par
+\par
+seatManager.handleRequest(new ReserveSeatRequest(seat68, currentSessionUser));\par
+\par
+Das ist ein kleiner Umweg f\'fcr die obige Logik, aber der Vorteil ist: der wirkliche "seatManager" kann ein ganz anderer Prozess sein, eine zentrale Logikstelle.\par
+Beide Benutzer senden ihre Anfrage f\'fcr Platz 68. Der erste bekommt eine Best\'e4tigung. Der zweite bekommt eine Ablehnung. Idealerweise auch gleich ein Update, wie die aktuelle Sitzbelegung inzwischen aussieht. Damit wei\'df die Logik des Servernodes f\'fcr den zweiten Benutzer rechtzeitig, dass der Benutzer den Platz gar nicht bekommen hat. Anstatt ihn, wie oben, einfach ignorant trotzdem abzukassieren, kann eine Meldung "Der gew\'fcnschte Sitz wurde leider zwischenzeitlich reserviert" angezeigt werden. Und zwar BEVOR irgendwas inkonsistent wird.\par
+\par
+Ist das dann nicht einfach eine "Der erste hat halt recht" Strategie?\par
+Ja, aber mit einem ENTSCHEIDENDEN Unterschied: Es gab dabei keine Seiteneffekte der Logik und keine Inkonsistenz in den Daten als Folge davon.\par
+F\'fcr komplexere F\'e4lle muss die request-handling-Logik nat\'fcrlich entsprechend komplex sein.\par
+\par
+Aber wie ist das mit der Performance, wenn nun alle Nodes ihre Schreibw\'fcnsche von einem zentralen Node seriell abarbeiten lassen m\'fcssen?\par
+\par
+Dazu muss man Folgendes wissen: Anwendungen machen unglaublich viel Zeug. Zum Beispiel im Frontend HTML-Seiten zusammenbauen. Allein, einen String zusammenzubauen, ist im Detail eine riesige Rechenarbeit. Was wir im Code so einfach mit '"Hallo " + name' schreiben, ist in Wirklichkeit eine Orgie an Objektinstanzierungen und mehrfachem Umkopieren von Arrays (Mindestens 2 StringBuilder Instanzen, 3 String Instanzen und 5 char[] Instanzen, au\'dferdem mindestens 4 mal char[]s umkopieren. Falls der StringBuilder mehrfach dynamisch wachsen muss, wird es sogar nochmal extrem mehr).\par
+Oder man denke an Session Handling, Netzwerkkommunikation, Daten laden, cachen, durchsuchen, aufbereiten (z.B. aggregieren), Validierungen machen, usw.\par
+Die wirkliche "Kernlogik", um persistente Daten zu ver\'e4ndern, ist im Gesamtsystem betrachtet nur ein winziger Anteil. Vielleicht 1% des Aufwands. Vielleicht sogar noch weniger.\par
+\par
+Nun ist es so:\par
+Wenn nur ein Node als "Master" f\'fcr das effektive \'c4ndern von Daten da ist, und X andere Nodes als "Slave" ihm zuarbeiten, k\'f6nnen diese Slaves dem Master fast den gesamten Zusatzaufwand aussen rum abnehmen. Usersessions hat der Master einfach gar nicht. Damit f\'e4llt s\'e4mtliches Frontend Ged\'f6ns schon mal weg. Mit dem Master reden nur Slaves und er nur mit ihnen. Auch das allermeiste an Validierungslogik k\'f6nnen ihm die Slaves schon abnehmen. Sie haben je nach Situation mindestens "fast" aktuelle oder oft sogar absolut aktuelle Daten und k\'f6nnen Anfragen von Benutzern damit schon mal selbst \'fcberpr\'fcfen. Etwa: Wer nicht \'fcber 18 ist, kann in einem Film ab 18 sowieso schon mal keinen Platz reservieren. Oder wenn kein Platz frei ist, dann kann auch nichts mehr reserviert werden. Das alles, inklusive dem ganzen Front-End hin-und-her mit dem Benutzer, nehmen die Slaves dem Master ab. Bis zum Master kommen \'fcberhaupt nur Anfragen, die eine "Chance" haben, angenommen zu werden.\par
+Der Master bekommt also nur noch bereits vor-validierte interne Anfragen seiner zuarbeitenden Slaves rein und muss nur noch pr\'fcfen, ob die Anfrage bei dem aktuellen Stand der Daten noch valide ist, oder ob der Absender-Slave da mit seinem Wissensstand etwas hinten dran war und darum eine inzwischen unerf\'fcllbar Anfrage gestellt hat.\par
+Das hei\'dft der Master muss die ~99% der \'fcblichen Arbeit einer Anwendung gar nicht machen. Daf\'fcr hat er seine Sklaven. Er muss daf\'fcr auch gar keinen RAM belegen, sondern kann praktisch alles zum Cachen der persistenten Daten verwenden. Er k\'fcmmert sich nur noch darum, die Kernfunktion, \'c4nderungsw\'fcnsche an Daten, auszuf\'fchren. Also Validieren und bei Erfolg \'c4nderung vornehmen und speichern.\par
+Im Beispiel oben ist das ein Aufwand von ein paar Mikrosekunden. Instanzen aus dem Heap in den CPU-Cache laden, Felder checken und ver\'e4ndern oder R\'fcckmeldung geben.\par
+F\'fcr das Drum-Rum des Masters intern hat dieser nat\'fcrlich anderen Threads. Netzwerkkommunikation, Schreiben auf die Platte, usw. Der wirklich die Logik abarbeitende Thread ist mit einer Anfrage nur ein paar Mikrosekunden besch\'e4ftigt. Danach geht es zur n\'e4chsten Anfrage. Mit dieser Geschwindigkeit k\'f6nnte selbst ein B\'fcro-PC die Sitzplatzreservierungen aller Kinos der gesamten Welt alleine stemmen. Alles andere drum rum nehmen ihm andere Maschinen ab. Vielleicht tausende.\par
+\par
+\par
 }
  
