@@ -531,5 +531,86 @@ F\'fcr das Drum-Rum des Masters intern hat dieser nat\'fcrlich anderen Threads. 
 \par
 Radikal Revolution\'e4res RAD-Konzept f\'fcr Nebenl\'e4ufigkeitshandling. In einem Prozess und auch in einem Cluster.\par
 Coming soon ...\par
+\par
+\par
+Mir ist gerade beim Computerspielen aufgefallen:\par
+Das ganze Problematik, dass man von einem Slave nebenl\'e4ufig konfliktete ver\'e4nderte Entities erkennen und rollbacken m\'fcsste, gibt es gar nicht, wenn man sich an ein Regel ausnahmslos h\'e4lt:\par
+\'c4nderungen an shared state (z.B. persistenter Entitygraph) werden nur \'fcber Requests gemacht, niemals direkt.\par
+Denn dann ist es ja so:\par
+Jeder Slave kann in Requests nur unver\'e4nderte Entities mitschicken. Die werden garantiert immer die aktuellste oder eine veraltete Version von Entities mitschicken, die passt oder problemlos verworfen werden kann.\par
+Das Abarbeiten eines Requests m\'fcsste halt immer gleich den aktuelle Zustand der betroffenen Entities mitschicken, damit der Slave gleich den durch die \'c4nderung erzeugten Stand der Daten hat.\par
+Hm, oder nach jedem Request m\'fcsste der Slave sich seine Daten aktualisieren. Das w\'e4re konsistenzm\'e4\'dfig die perfekte L\'f6sung, k\'f6nnte aber manchmal etwas aufwendig werden.\par
+Auf jeden Fall k\'f6nnte jeder gespeicherte Chunk einen Timestamp bekommen und jede Requestantwort k\'f6nnte den Timestamp des aktuellen Chunks beinhalten, so dass der Slave extrem schnell (1 long Vergleich) checken kann, ob er sich aktuelle Daten holen muss.\par
+\par
+Das Konzept k\'f6nnte sogar das Nebenl\'e4ufigkeitsproblem grunds\'e4tzlich l\'f6sen. Sagen wir innerhalb eines Prozesses f\'fcr Threads:\par
+\par
+Logik und Datenmodell der Anwendung sind in zwei Teile unterteilt. Mit drei Projekten mit einem Schnittmengenprojekt, wie bei Client-Server:\par
+- Shared\par
+- Master\par
+- "Work" oder so. Oder besser irgendwas mit auch 6 Buchstaben.\par
+\par
+Shared enth\'e4lt:\par
+- F\'fcr alle Entities interfaces und Klassen mit dem State, aber mit nur lesenden Methoden. Keine Methoden, die irgendwie internen State ver\'e4ndern.\par
+- Genauso interfaces f\'fcr Anwendungslogik: Nur lesendes Zeug.\par
+Alles, was (in einem nebenl\'e4ufigen Raum geteilte) Daten ver\'e4ndern soll, muss \'fcber Requests gemacht werden.\par
+\par
+Master enth\'e4lt:\par
+- Shared\par
+- Ableitungen der read-only interfaces und Klassen mit auch schreibenden Methoden.\par
+- Eine "Empfangsstelle" f\'fcr Requests, die diese in eine FIFO Queue einreiht.\par
+- Anwendungslogik f\'fcr Validierung und Ver\'e4nderung von geteilten Daten.\par
+\par
+"Work" enth\'e4lt:\par
+- Shared\par
+- Einen "Working" Teil der Anwendungslogik. Mit Validierungen, auch zum Erzeugen neuer Entities, aber nicht zum ver\'e4ndern von bestehenden. Das k\'f6nnte je nach Algorithmus ein Konflikt sein. Manche kann man mit dem Builder Pattern aufl\'f6sen, aber nicht alle.\par
+- Eine "Sendestelle" f\'fcr Requests und Logik, was gemacht wird, wenn ein Request abgelehnt wird.\par
+\par
+Die Anwendung funktioniert so:\par
+\par
+Der Master Bereich l\'e4uft auf nur einem Thread.\par
+Der "Work" Bereich kann auf beliebig vielen Threads laufen.\par
+Die kommen sich mit ihren \'c4nderungen am gemeinsamen Entitygraph aber nie in die Quere, weil sie alle nur Requests erstellen, die nebenl\'e4ufigkeitssicher sequenziell eingereiht werden und die tats\'e4chlichen \'c4nderungen erfolgen sequenziell im Master Thread.\par
+Ist das dann nicht effektiv die nebenl\'e4ufige Anwendung auf singlethreaded runtergebremst?\par
+Nein, denn:\par
+- Nicht-schreib-konflikte Arbeit l\'e4uft echt parallel. Z.B. Client-Kommunikation, Suchen\par
+- Neue Subgraphen, z.T. riesige Datenmengen, k\'f6nnen im "Work" Bereich erzeugt werden und brauchen dann im Master nur noch blitzschnell an ihrer Rootinstant in den gemeinsamen Graph eingeh\'e4ngt werden.\par
+Wie oben mehrfach beschrieben ist der sequenziell ablaufende Teil nur winzig.\par
+\par
+Hm, interessant:\par
+Der Ansatz funktioniert in einem Cluster, aber innerhalb eines Prozesses gibt es ein Problem:\par
+Die Threads im "Work" Bereich haben im Gegensatz zu Cluster-Slaves keine Kopie des Entity Graphen mit einem vielleicht veralteten, aber in sich konsistenten Zustand, sondern die w\'fcrden die \'c4nderungen direkt live und potenziell inkonsistent mitbekommen.\par
+Das Layered Entity Konzept sollte hier eine L\'f6sung bringen k\'f6nnen.\par
+\par
+Aber eigentlich geht es hier ja um Clustering und nicht um intra-Prozess Nebenl\'e4ufigkeit. Darum zur\'fcck zum Cluster Kontext.\par
+\par
+Das ganze funktioniert wie so ein pulsierendes Jing-Jang Feedback-System:\par
+Slaves bekommen Updates des persistenten Entitygraphen vom Master.\par
+Damit betreiben sie die Anwendungslogik, verarbeiten reinkommende Requests, validieren sie soweit m\'f6glich, lesen/suchen in den Daten, usw.\par
+Der Master bekommt von den Slaves \'c4nderungsrequests, validiert die gegen den aktuellen Stand der Daten und schickt Responses zur\'fcck.\par
+\par
+Der entscheidende Faktor bzw. das einzige Problem an dem System ist:\par
+Wie schnell bekommen die Slaves die Updates vom Master?\par
+Vielleicht ist das Konzept mit "Master schreibt in die Dateien -> Slaves scannen nach gewachsenen Dateien, kopieren das Neue zu sich und lesen es dort ein" zu langsam. Da sind mehrere Festplatten-Writes beteiligt, au\'dferdme polling, usw. Alles furchtbar langsam.\par
+Besser ist wohl:\par
+Der im RAM des Master gebaute Chunk wird parallel zum schreiben von einem anderen Thread gleich per Netzwerk an die Slaves verschickt.\par
+Jeder Slave hat einen Update-Puffer, der vom Master bei jedem Store mit Updates vollgeschrieben wird.\par
+Der Slave muss halt regelm\'e4\'dfig schauen, ob der Puffer Daten enth\'e4lt und wenn ja den gleich einlesen, selber wegschreiben und alle seine laut OID passenden Instanzen noch live im Memory updaten.\par
+Am besten nach jedem Request, dann ist er immer up-to-date.\par
+Das ist geil. Vor allem, weil es keine zus\'e4tzliche Arbeit ist, irgendwie entities nochmal zu serialisieren, sondern das ist nur eine RAM-zu-RAM Kopie von dem, was eh schon gemacht wird.\par
+Der Master br\'e4uchte je angemeldetem Slave einen eigenen Thread, der den erzeugten Chunk verschickt.\par
+Hier sind Multicores gefragt:\par
+Der eigentliche Master ist nur ein Thread.\par
+Aber er braucht schon mal mehrere Threads f\'fcr die OGS Channels (am besten nicht nur 4, sondern 8, 16, 32)\par
+Dann braucht er mehrere Threads f\'fcr Event-Listening von Requests. Oder am besten einen dedicated Request Listener Thread je Slave. Wenn der Slave nichts schickt, schl\'e4ft ja auch der Thread.\par
+Und dann braucht er noch pro Slave einen Update Sender Thread.\par
+Alles, damit der Master Thread nichts anderes tun muss, als permanent Requests verarbeiten, Entities \'e4ndern und storen (= chunks erstellen).\par
+Geil ist auch: immutable Entities werden \'fcberhaupt nicht redundant gespeichert und verschickt, weil sich an denen ja nie was \'e4ndert und sie darum \'fcberhaupt nicht persistiert werden m\'fcssen. Es werden immer nur die ge\'e4nderten und einmalig die neu dazugekommenen Entities gespeichert und verschickt.\par
+\par
+Die Slaves k\'f6nnen mit diesen Requests auch durchaus Locks auf fachlicher Ebene anfragen und sichern.\par
+Also "Dieser Datensatz / Subgraph / Anwendungsbereich ist jetzt mal gesperrt f\'fcr Benutzer XY".\par
+Der Master ber\'fccksichtigt das dann bei der Verarbeitung/Validierung der \'c4nderungsrequests der Slaves. Bzw. die sollten die Locks auch geschickt bekommen und diese Validierung gleich selbst machen.\par
+\par
+Das einzig bl\'f6de ist jetzt noch, ob man nur f\'fcr die Erkennung von "manchmal leicht veralteten Entities", die Slaves in ihren Requests mitschicken m\'fcssten.\par
+Da muss ich mal dr\'fcber nachdenken. Aber ich glaub, das geht nicht ohne, sonst w\'fcrden veraltete Daten aktuelle \'fcberschreiben. W\'e4r fatal.\par
 }
  
