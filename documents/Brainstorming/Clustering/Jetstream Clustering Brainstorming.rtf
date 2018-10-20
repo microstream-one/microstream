@@ -1,7 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 Jetstream Clustering Brainstorming\par
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Jetstream Clustering Brainstorming\par
 2018-10-16\par
 \par
 \par
@@ -171,7 +170,7 @@ Wenn man eine einem gesch\'e4ftlichen Unternehmen angemessene Serverhardware ein
 \par
 ---\par
 Kleine, spontane Recherche zu aktueller Serverhardware:\par
-{{\field{\*\fldinst{HYPERLINK https://calculator.s3.amazonaws.com/index.html }}{\fldrslt{https://calculator.s3.amazonaws.com/index.html\ul0\cf0}}}}\f0\fs28\par
+{\field{\*\fldinst{HYPERLINK "https://calculator.s3.amazonaws.com/index.html"}}{\fldrslt{\ul\cf1 https://calculator.s3.amazonaws.com/index.html}}}\f0\fs28\par
 x1e.32xlarge: 128 CPUs, 4 TB (!) RAM, Windows, dedicated Server. Kostet $32 pro Stunde.\par
 Das mag jetzt viel klingen, $32 pro STUNDE. Das sind $23K pro Monat. Aber man muss sich vorstellen, was so ein Monster, das sich nur noch um "Entities erster Klasse" k\'fcmmern muss, abarbeiten kann: Tausende gleichzeitige Kunden. Das hei\'dft aufs Monat gesehen hunderttausende bis Millionen durchgeschleuste Leute, die wahrscheinlich hundertausende bis Millionen an Umsatz generieren. Das sollte 23K f\'fcr den Betrieb der Gesch\'e4ftsgrundlage schon rechtfertigen, sonst liegt da irgendwo eine betriebswirtschaftliche Wahrnehmungsverzerrung vor. Ich wette, so viel zahlt ein Supermarkt schon allein f\'fcr den Strom. Mit Replikationsservern wird es nat\'fcrlich mehr. Dann nimmt man entweder mehrere kleinere oder man kann daf\'fcr ja auch das X-fache an Kunden bearbeiten.\par
 ...\par
@@ -528,5 +527,9 @@ Im Beispiel oben ist das ein Aufwand von ein paar Mikrosekunden. Instanzen aus d
 F\'fcr das Drum-Rum des Masters intern hat dieser nat\'fcrlich anderen Threads. Netzwerkkommunikation, Schreiben auf die Platte, usw. Der wirklich die Logik abarbeitende Thread ist mit einer Anfrage nur ein paar Mikrosekunden besch\'e4ftigt. Danach geht es zur n\'e4chsten Anfrage. Mit dieser Geschwindigkeit k\'f6nnte selbst ein B\'fcro-PC die Sitzplatzreservierungen aller Kinos der gesamten Welt alleine stemmen. Alles andere drum rum nehmen ihm andere Maschinen ab. Vielleicht tausende.\par
 \par
 \par
+2018-10-20\par
+\par
+Radikal Revolution\'e4res RAD-Konzept f\'fcr Nebenl\'e4ufigkeitshandling. In einem Prozess und auch in einem Cluster.\par
+Coming soon ...\par
 }
  
