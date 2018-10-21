@@ -617,5 +617,39 @@ Da muss ich mal dr\'fcber nachdenken. Aber ich glaub, das geht nicht ohne, sonst
 2018-10-21\par
 \par
 Die Versionierung war gedanklich schnell ersetzt... Hehe.\par
+\par
+Man schickt einfach nicht komplette serialisierte Entities, sondern Identifiers. Was ein Identifier ist, w\'fcrde vom jeweiligen Entitytyp abh\'e4ngen. Im einfachsten Fall ist das irgendein long, sowas wie eine "UserId" oder Kundennummer oder so.\par
+Oder es m\'fcsste ein zusammengesetzer Identifier sein, wie man vom Root aus zu der gew\'fcnschten Instanz kommt. Sowas wie MandantID + Jahr + KategorieId + EntityId. Das ist halt allein abh\'e4ngig davon, wie geschickt man sein Datenmodell designt. Wenn es gut gemacht ist, sollten das nie mehr als 8 bis 16 Bytes werden, die blitzschnell aufgel\'f6st werden k\'f6nnen. Wenn man d\'fcmmliche Strings rumschickt, die erst mal mit RegExps zerlegt werden m\'fcssen, usw., dann wirds halt teuer. Aber selbst dann muss das im Master Node nicht der Master thread selbst machen, sondern das machen die Kommunikationsthreads, also kein gro\'dfes Drama.\par
+\par
+Dann noch zu dem Problem, dass das Konzept in einem einzelnen Prozess nicht gehen w\'fcrde, weil es dort keine Kopien des Entity Graphs gibt:\par
+Mit Layered Entites w\'fcrde es gehen. Die eigentliche Data Instanz wird von den Updates aktualisiert, aber es gibt auch noch eine Art thread-local Hashmap, in der f\'fcr jeden aktiven User eine lokales Data Instanz gehalten wird.\par
+Das Aktualisieren eines Slaves w\'e4re dann, in einem konsistent gehaltenen (via synchronized Lock) Vorgang alle Entities auf die Master-Data-Instanz umzuschalten.\par
+\par
+Hm...\par
+\par
+Das w\'e4re sogar f\'fcr den Clustering Ansatz auch vorstellbar:\par
+Damit w\'fcrde so ein Aktualisierungsvorgang nicht daraus bestehen, gepufferte binary chunks zu verarbeiten, sondern:\par
+- Das Binary Chunk verarbeiten k\'f6nnte permanent und sofort erfolgen. Das wird alles in die Master-Data Instanzen reingeschrieben.\par
+- Aktualisieren w\'e4re dann nur noch, blitzschnell die Referenz auf die master-data instanz in den lokalen Kontext zu kopieren.\par
+Und der Vorteil w\'e4re: Das Aktualisieren w\'e4re nicht ein relativ langer Vorgang, der f\'fcr alle aktiven User gleichzeitig gemacht werden muss, sondern jeder User k\'f6nnte - nach einem Request oder so - seine Aktualisierung selbst machen, unabh\'e4ngig von den anderen Usern.\par
+\par
+Es m\'fcsste dann irgendeine Form von zentralem "Betriebslock" geben, das sich der Chunk Verabreiter bei jeder Chunk Verarbeitung holt und das andererseits die User-Threads brauchen, um sich updaten zu k\'f6nnen.\par
+Genauer gesagt m\'fcsste das ein 1-write-n-read Lock sein: Wenn der Verarbeiter schreiben will, kann keiner Lesen. Aber die Leser k\'f6nnen gleichzeitig darauf zugreifen.\par
+\par
+Evtl. sollte es dann f\'fcr jeden User einen dedicated Thread geben. Den Overhead, den so eine Thread Instanz erzeugt, ist nicht der Rede wert in einem System, in dem \'fcber mehrere Nodes verteilt wird. Daf\'fcr hat man eine 1-zu-1 Beziehung zwischen User und Thread.\par
+\par
+Das Konzept w\'fcrde nat\'fcrlich hei\'dfen, dass der Laufzeit-Speicherbedarf f\'fcr einen Entity Graphen ein vielfaches w\'e4re. Jede Data Instanz belegt den mehrfachen Platz des Original Datensatzes plus es muss noch eine Hashing Metastruktur in jedem Entity geben.\par
+Momentan m\'fcssen f\'fcr jeden Aktiven User zwangsweise Updates auf den aktuellen Master gemacht werden, damit der Master unsynchronisiert jederzeit ersetzt werden k\'f6nnte. Auch dann, wenn sie die Instanz gar nicht lesen oder gar nicht ver\'e4ndern wollen. Das ist nat\'fcrlich doof.\par
+\par
+Vielleicht w\'e4re doch folgendes besser:\par
+- Chunks permanent einlesen, aber nur die binary Daten abspeichern, nicht runtime instanzen updaten.\par
+- Jeder User hat eine eigene SwizzleRegistry, d.h. seine eigene Kopie des Entity Graphen, aber nat\'fcrlich nur die Instanzen, die der braucht.\par
+- Aktualisieren w\'e4re dann, alle ausstehenden Updates in die live Instanzen zu schreiben.\par
+H\'e4tte zwar auch sehr viele Redundanzen, vor allem immutable Instanzen w\'fcrden mehrfach instanziert werden, was leicht d\'e4mlich ist, aber immer noch weniger Redunanzen, als von einem zentralen Entity Graphen jede Instanz vorsichtshalber f\'fcr jeden aktiven User kopieren zu m\'fcssen (Kreuzprodukt, autsch).\par
+\par
+Cool w\'e4re, immutable instanzen zu erkennen und in einer gesharten SwizzleRegistry zu halten.\par
+Wobei das dann nur solche Instanzen sein d\'fcrften, die nicht wieder irgendwo auf mutable Instanzen zeigen, d.h. vom shared Graph auf einen local graph.\par
+D.h. ein gesamter Subgraph m\'fcsste eine immutable "sackgasse" sein. Der k\'f6nnte shared sein. Wobei der Code f\'fcr das sharen dann komplexer werden w\'fcrde. Lookups in zwei Registries, usw.\par
+Bzw. es k\'f6nnten dieselben Instanzen in mehreren SwizzleRegistries registriert sein. Das m\'fcsste halt nur richtig erkannt werden.\par
 }
  
