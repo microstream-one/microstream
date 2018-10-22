@@ -118,6 +118,7 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		public synchronized FileSystemFile createFile(final String fileName)
 		{
 			final File file = this.internalCreateSystemFile(fileName);
+			// (22.10.2018 TM)FIXME: OGS-45: really always acquite a lock and open a channel right away?
 			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(this, fileName, file);
 			
 			// success of the addition is guaranteed by the lock and the validation above.
