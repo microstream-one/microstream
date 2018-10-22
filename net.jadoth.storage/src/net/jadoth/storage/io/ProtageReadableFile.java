@@ -44,8 +44,6 @@ public interface ProtageReadableFile extends ProtageFile
 	
 	public void copyTo(ProtageWritableFile target);
 
-	public void copyTo(ProtageWritableFile target, long sourcePosition, long sourceLength);
-	
-	public void moveTo(ProtageWritableDirectory destination);
+	public void copyTo(ProtageWritableFile target, long sourcePosition, long length);
 	
 }
