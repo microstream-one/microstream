@@ -1,10 +1,10 @@
 package net.jadoth.storage.io.fs;
 
 import java.io.File;
+import java.nio.channels.FileLock;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.files.XFiles;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 
@@ -107,21 +107,24 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		protected File internalCreateSystemFile(final String fileName)
 		{
 			this.validateNotYetContained(fileName);
-			
-			final File file = new File(this.directory, fileName);
-			XFiles.ensureWriteableFile(file);
-			
-			return file;
+			return ProtageFileSystem.createWriteableFile(this.directory, fileName);
 		}
 				
 		@Override
 		public synchronized FileSystemFile createFile(final String fileName)
 		{
-			final File file = this.internalCreateSystemFile(fileName);
-			// (22.10.2018 TM)FIXME: OGS-45: really always acquite a lock and open a channel right away?
-			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(this, fileName, file);
+			final File     file = this.internalCreateSystemFile(fileName);
+			final FileLock lock = ProtageFileSystem.openFileChannel(file);
 			
-			// success of the addition is guaranteed by the lock and the validation above.
+			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(
+				this    ,
+				fileName,
+				file    ,
+				lock    ,
+				lock.channel()
+			);
+			
+			// success of the addition is guaranteed by the synchronization and the validation above.
 			this.files.add(fileName, createdFile);
 			
 			return createdFile;
