@@ -144,7 +144,7 @@ public interface FileSystemFile extends ProtageWritableFile
 		}
 
 		@Override
-		public synchronized void copyTo(final ProtageWritableFile target, final long sourcePosition, final long sourceLength)
+		public synchronized void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
 		}
