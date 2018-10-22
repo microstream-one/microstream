@@ -2,28 +2,15 @@ package net.jadoth.storage.io;
 
 import static net.jadoth.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
-
-import net.jadoth.collections.HashEnum;
-import net.jadoth.typing.XTypes;
 
 public interface ProtageWritableFile extends ProtageReadableFile
 {
 	@Override
 	public ProtageWritableDirectory directory();
 	
-	public ProtageWritingFileChannel createWritingChannel(ProtageFileChannel.Owner owner, String name);
-	
-	@Override
-	public default int activeChannels()
-	{
-		synchronized(this)
-		{
-			return this.activeReadingChannels() + this.activeWritingChannels();
-		}
-	}
-
-	public int activeWritingChannels();
+	public long write(Iterable<? extends ByteBuffer> sources);
 	
 	/**
 	 * Attempts to delete the file.
@@ -42,7 +29,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	
 	
 	/**
-	 * Definitely delete now, close all channels, or throw exception if not possible.
+	 * Delete now without delay, closing all resources, or throw exception if not possible.
 	 * @throws RuntimeException
 	 */
 	public void forceDelete() throws RuntimeException; // (15.10.2018 TM)EXCP: proper exception
@@ -55,21 +42,14 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	public boolean isDeleted();
 	
 	
-	public abstract class Implementation<
-		D extends ProtageWritableDirectory,
-		RC extends ProtageReadingFileChannel,
-		WC extends ProtageWritingFileChannel
-	>
-		implements ProtageWritableFile
+	public abstract class Implementation<D extends ProtageWritableDirectory> implements ProtageWritableFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final D            directory      ;
-		private final String       name           ;
-		private final HashEnum<RC> readingChannels = HashEnum.New();
-		private                WC  writingChannel ;
+		private final D      directory;
+		private final String name     ;
 		
 		private boolean pendingDelete;
 		private boolean isDeleted    ;
@@ -103,18 +83,6 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		public final String name()
 		{
 			return this.name;
-		}
-
-		@Override
-		public synchronized int activeReadingChannels()
-		{
-			return XTypes.to_int(this.readingChannels.size());
-		}
-
-		@Override
-		public synchronized int activeWritingChannels()
-		{
-			return XTypes.to_int(this.writingChannel != null);
 		}
 
 		@Override

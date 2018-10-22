@@ -1,5 +1,6 @@
 package net.jadoth.storage.io;
 
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public interface ProtageReadableFile extends ProtageFile
@@ -7,9 +8,10 @@ public interface ProtageReadableFile extends ProtageFile
 	@Override
 	public ProtageReadableDirectory directory();
 	
-	public ProtageReadingFileChannel createReadingChannel(ProtageFileChannel.Owner owner, String name);
+	public void open();
 	
-	// (16.10.2018 TM)FIXME: OGS-45: maybe support only one channel in total?
+	public boolean isOpen();
+		
 	
 	
 	/**
@@ -34,20 +36,12 @@ public interface ProtageReadableFile extends ProtageFile
 	 */
 	public int forceClose() throws RuntimeException; // (15.10.2018 TM)EXCP: proper exception
 	
-	public default boolean isClosed()
-	{
-		return this.activeChannels() <= 0;
-	}
-	
-	public default int activeChannels()
-	{
-		return this.activeReadingChannels();
-	}
-	
+	public boolean isClosed();
+		
 	public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(C callback);
 	
-	public int activeReadingChannels();
-		
+	public abstract long read(ByteBuffer target, long position);
+	
 	public void copyTo(ProtageWritableFile target);
 
 	public void copyTo(ProtageWritableFile target, long sourcePosition, long sourceLength);
