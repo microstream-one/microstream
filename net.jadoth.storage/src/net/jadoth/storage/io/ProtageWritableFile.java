@@ -10,6 +10,8 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	@Override
 	public ProtageWritableDirectory directory();
 	
+	public void moveTo(ProtageWritableDirectory destination);
+	
 	public long write(Iterable<? extends ByteBuffer> sources);
 	
 	/**
