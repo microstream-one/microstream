@@ -84,7 +84,6 @@ public final class BinaryPersistence extends Persistence
 	 * them. So in theory, it should suffice to replace just that one class to port the framework but still have
 	 * low level access.
 	 * OR they replace the clumsy "Unsafe" by something standardized, of course.
-	 * 
 	 */
 	static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
 
@@ -115,9 +114,13 @@ public final class BinaryPersistence extends Persistence
 		BINARY_ARRAY_OFFSET_ELEMENT_COUNT = BINARY_ARRAY_OFFSET_BYTE_LENGTH   + LENGTH_LONG,
 		BINARY_ARRAY_OFFSET_ELEMENT_DATA  = BINARY_ARRAY_OFFSET_ELEMENT_COUNT + LENGTH_LONG
 	;
-
-
-
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
 	public static final long binaryArrayMinimumLength()
 	{
 		return BINARY_ARRAY_OFFSET_ELEMENT_DATA;
@@ -127,7 +130,6 @@ public final class BinaryPersistence extends Persistence
 	{
 		return Long.MAX_VALUE;
 	}
-
 
 	/**
 	 * @return the length in bytes of a peristent item's length field (8 bytes).
@@ -153,6 +155,7 @@ public final class BinaryPersistence extends Persistence
 		return entityLength >= LENGTH_LTO;
 	}
 
+	
 	static final long binaryArrayByteLengthAddress(final long valueAddress)
 	{
 		return valueAddress + BINARY_ARRAY_OFFSET_BYTE_LENGTH;
@@ -177,7 +180,6 @@ public final class BinaryPersistence extends Persistence
 	{
 		return valueAddress + BINARY_ARRAY_OFFSET_ELEMENT_DATA;
 	}
-
 
 
 	public static final long binaryArrayByteLengthAddress(final Binary bytes)
