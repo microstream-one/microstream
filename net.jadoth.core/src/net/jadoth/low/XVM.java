@@ -438,69 +438,89 @@ public final class XVM
 
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
-		return type.isPrimitive() ? byteSizePrimitive(type) : byteSizeReference();
+		return type.isPrimitive()
+			? byteSizePrimitive(type)
+			: byteSizeReference()
+		;
 	}
 
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
-		// roughly ordered by probability
-		if(type == int.class || type == float.class)
+		// onec again missing JDK functionality. Roughly ordered by probability.
+		if(type == int.class)
 		{
 			return byteSize_int();
 		}
-		if(type == long.class || type == double.class)
+		if(type == long.class)
 		{
 			return byteSize_long();
 		}
-		if(type == char.class || type == short.class)
+		if(type == double.class)
 		{
-			return byteSize_short();
+			return byteSize_double();
 		}
-		if(type == boolean.class || type == byte.class)
+		if(type == char.class)
+		{
+			return byteSize_char();
+		}
+		if(type == boolean.class)
+		{
+			return byteSize_boolean();
+		}
+		if(type == byte.class)
 		{
 			return byteSize_byte();
 		}
-		throw new IllegalArgumentException(); // intentionally covers to void.class
+		if(type == float.class)
+		{
+			return byteSize_float();
+		}
+		if(type == short.class)
+		{
+			return byteSize_short();
+		}
+				
+		throw new IllegalArgumentException(); // intentionally covers void.class
 	}
 
 	public static final int byteSize_byte()
 	{
-		return Unsafe.ARRAY_BYTE_INDEX_SCALE;
+		return Byte.BYTES;
 	}
 
 	public static final int byteSize_boolean()
 	{
-		return Unsafe.ARRAY_BOOLEAN_INDEX_SCALE;
+		return Byte.BYTES; // because JDK Pros can't figure out the length of a boolean value, obviously.
 	}
 
 	public static final int byteSize_short()
 	{
-		return Unsafe.ARRAY_SHORT_INDEX_SCALE;
+		return Short.BYTES;
 	}
 
 	public static final int byteSize_char()
 	{
-		return Unsafe.ARRAY_CHAR_INDEX_SCALE;
+		return Character.BYTES;
 	}
 
 	public static final int byteSize_int()
 	{
-		return Unsafe.ARRAY_INT_INDEX_SCALE;
+		return Integer.BYTES;
 	}
 
 	public static final int byteSize_float()
 	{
-		return Unsafe.ARRAY_FLOAT_INDEX_SCALE;
+		return Float.BYTES;
 	}
 
 	public static final int byteSize_long()
 	{
-		return Unsafe.ARRAY_LONG_INDEX_SCALE;
+		return Long.BYTES;
 	}
 
 	public static final int byteSize_double()
 	{
-		return Unsafe.ARRAY_DOUBLE_INDEX_SCALE;
+		return Double.BYTES;
 	}
 
 	public static final int byteSizeObjectHeader()

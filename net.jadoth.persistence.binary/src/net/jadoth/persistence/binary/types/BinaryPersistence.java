@@ -89,7 +89,7 @@ public final class BinaryPersistence extends Persistence
 	static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
 
 	static final int
-		LENGTH_LONG = XVM.byteSize_long()                 ,
+		LENGTH_LONG = Long.BYTES                          ,
 		LENGTH_LEN  = LENGTH_LONG                         ,
 		LENGTH_OID  = LENGTH_LONG                         ,
 		LENGTH_TID  = LENGTH_OID                          , // tid IS AN oid, so it must have the same length
@@ -108,19 +108,7 @@ public final class BinaryPersistence extends Persistence
 //		OFFSET_DAT = OFFSET_OID + LENGTH_LONG // see LENGTH_ENTITY_HEADER
 	;
 
-	private static final int
-//		BITS_1 = 1,
-//		BITS_2 = 2,
-		BITS_3 = 3
-	;
-
-	private static final int
-		BYTE_SIZE_1 = 1,
-		BYTE_SIZE_2 = 2,
-		BYTE_SIZE_4 = 4,
-		BYTE_SIZE_8 = 8
-	;
-
+	private static final int BITS_3 = 3;
 
 	private static final int
 		BINARY_ARRAY_OFFSET_BYTE_LENGTH   = 0                                              ,
@@ -156,8 +144,8 @@ public final class BinaryPersistence extends Persistence
 
 	public static final boolean isValidGapLength(final long gapLength)
 	{
-		// gap total length cannot indicate less then its own length (1 long)
-		return gapLength >= LENGTH_LONG;
+		// gap total length cannot indicate less then its own length (length of the length field, 1 long)
+		return gapLength >= LENGTH_LEN;
 	}
 
 	public static final boolean isValidEntityLength(final long entityLength)
@@ -323,7 +311,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putByte(address, VM.getByte(src, srcOffset));
-			return address + BYTE_SIZE_1;
+			return address + Byte.BYTES;
 		}
 	};
 
@@ -338,7 +326,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putShort(address, VM.getShort(src, srcOffset));
-			return address + BYTE_SIZE_2;
+			return address + Short.BYTES;
 		}
 	};
 
@@ -353,7 +341,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putInt(address, VM.getInt(src, srcOffset));
-			return address + BYTE_SIZE_4;
+			return address + Integer.BYTES;
 		}
 	};
 
@@ -368,7 +356,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putLong(address, VM.getLong(src, srcOffset));
-			return address + BYTE_SIZE_8;
+			return address + Long.BYTES;
 		}
 	};
 
@@ -413,7 +401,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putByte(target, targetOffset, VM.getByte(sourceAddress));
-			return sourceAddress + BYTE_SIZE_1;
+			return sourceAddress + Byte.BYTES;
 		}
 	};
 
@@ -428,7 +416,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putShort(target, targetOffset, VM.getShort(sourceAddress));
-			return sourceAddress + BYTE_SIZE_2;
+			return sourceAddress + Short.BYTES;
 		}
 	};
 
@@ -443,7 +431,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putInt(target, targetOffset, VM.getInt(sourceAddress));
-			return sourceAddress + BYTE_SIZE_4;
+			return sourceAddress + Integer.BYTES;
 		}
 	};
 
@@ -458,7 +446,7 @@ public final class BinaryPersistence extends Persistence
 		)
 		{
 			VM.putLong(target, targetOffset, VM.getLong(sourceAddress));
-			return sourceAddress + BYTE_SIZE_8;
+			return sourceAddress + Long.BYTES;
 		}
 	};
 
@@ -916,54 +904,55 @@ public final class BinaryPersistence extends Persistence
 	public static final long store_int(final long address, final int value)
 	{
 		VM.putInt(address, value);
-		return address + BYTE_SIZE_4;
+		return address + Integer.BYTES;
 	}
 
 	public static final long store_long(final long address, final long value)
 	{
 		VM.putLong(address, value);
-		return address + BYTE_SIZE_8;
+		return address + Long.BYTES;
 	}
 
 	public static final void storeByte(final Binary bytes, final long tid, final long oid, final byte value)
 	{
-		VM.putByte(bytes.storeEntityHeader(BYTE_SIZE_1, tid, oid), value);
+		VM.putByte(bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
 	public static final void storeBoolean(final Binary bytes, final long tid, final long oid, final boolean value)
 	{
 		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
-		VM.putBoolean(null, bytes.storeEntityHeader(BYTE_SIZE_1, tid, oid), value);
+		// and where is Boolean.BYTES? Does a boolean not have a binary size? JDK pros... .
+		VM.putBoolean(null, bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
 	public static final void storeShort(final Binary bytes, final long tid, final long oid, final short value)
 	{
-		VM.putShort(bytes.storeEntityHeader(BYTE_SIZE_2, tid, oid), value);
+		VM.putShort(bytes.storeEntityHeader(Short.BYTES, tid, oid), value);
 	}
 
 	public static final void storeCharacter(final Binary bytes, final long tid, final long oid, final char value)
 	{
-		VM.putChar(bytes.storeEntityHeader(BYTE_SIZE_2, tid, oid), value);
+		VM.putChar(bytes.storeEntityHeader(Character.BYTES, tid, oid), value);
 	}
 
 	public static final void storeInteger(final Binary bytes, final long tid, final long oid, final int value)
 	{
-		VM.putInt(bytes.storeEntityHeader(BYTE_SIZE_4, tid, oid), value);
+		VM.putInt(bytes.storeEntityHeader(Integer.BYTES, tid, oid), value);
 	}
 
 	public static final void storeFloat(final Binary bytes, final long tid, final long oid, final float value)
 	{
-		VM.putFloat(bytes.storeEntityHeader(BYTE_SIZE_4, tid, oid), value);
+		VM.putFloat(bytes.storeEntityHeader(Float.BYTES, tid, oid), value);
 	}
 
 	public static final void storeLong(final Binary bytes, final long tid, final long oid, final long value)
 	{
-		VM.putLong(bytes.storeEntityHeader(BYTE_SIZE_8, tid, oid), value);
+		VM.putLong(bytes.storeEntityHeader(Long.BYTES, tid, oid), value);
 	}
 
 	public static final void storeDouble(final Binary bytes, final long tid, final long oid, final double value)
 	{
-		VM.putDouble(bytes.storeEntityHeader(BYTE_SIZE_8, tid, oid), value);
+		VM.putDouble(bytes.storeEntityHeader(Double.BYTES, tid, oid), value);
 	}
 
 	public static final void storeStateless(final Binary bytes, final long tid, final long oid)
@@ -1504,11 +1493,11 @@ public final class BinaryPersistence extends Persistence
 			// "forced" is not applicable for primitive values
 			switch(XVM.byteSizePrimitive(type))
 			{
-				case  BYTE_SIZE_1: return STORE_1;
-				case  BYTE_SIZE_2: return STORE_2;
-				case  BYTE_SIZE_4: return STORE_4;
-				case  BYTE_SIZE_8: return STORE_8;
-				default: throw new IllegalArgumentException(); // void applies here
+				case Byte.BYTES   : return STORE_1; // byte & boolean
+				case Short.BYTES  : return STORE_2; // short & char
+				case Integer.BYTES: return STORE_4; // int & float
+				case Long.BYTES   : return STORE_8; // long & double
+				default: throw new IllegalArgumentException();
 			}
 		}
 
@@ -1565,11 +1554,11 @@ public final class BinaryPersistence extends Persistence
 		{
 			switch(XVM.byteSizePrimitive(type))
 			{
-				case  BYTE_SIZE_1: return SETTER_1;
-				case  BYTE_SIZE_2: return SETTER_2;
-				case  BYTE_SIZE_4: return SETTER_4;
-				case  BYTE_SIZE_8: return SETTER_8;
-				default: throw new IllegalArgumentException(); // void applies here
+				case Byte.BYTES   : return SETTER_1; // byte & boolean
+				case Short.BYTES  : return SETTER_2; // short & char
+				case Integer.BYTES: return SETTER_4; // int & float
+				case Long.BYTES   : return SETTER_8; // long & double
+				default: throw new IllegalArgumentException();
 			}
 		}
 
@@ -1583,13 +1572,14 @@ public final class BinaryPersistence extends Persistence
 		{
 			switch(XVM.byteSizePrimitive(type))
 			{
-				case  BYTE_SIZE_1: return EQUAL_1;
-				case  BYTE_SIZE_2: return EQUAL_2;
-				case  BYTE_SIZE_4: return EQUAL_4;
-				case  BYTE_SIZE_8: return EQUAL_8;
-				default: throw new IllegalArgumentException(); // void applies here
+				case Byte.BYTES   : return EQUAL_1;
+				case Short.BYTES  : return EQUAL_2;
+				case Integer.BYTES: return EQUAL_4;
+				case Long.BYTES   : return EQUAL_8;
+				default: throw new IllegalArgumentException();
 			}
 		}
+		
 		return EQUAL_REF;
 	}
 

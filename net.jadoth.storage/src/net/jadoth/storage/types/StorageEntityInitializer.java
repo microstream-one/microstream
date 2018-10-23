@@ -81,7 +81,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		{
 			final ByteBuffer                               buffer   = allocateInitializationBuffer(reversedFiles);
 			final Iterator<? extends StorageInventoryFile> iterator = reversedFiles.iterator();
-			final int[] entityOffsets = createOffsetsArray(buffer.capacity());
+			final int[] entityOffsets = createAllFilesOffsetsArray(buffer.capacity());
 			
 			final long initTime = System.currentTimeMillis();
 			
@@ -225,9 +225,14 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			return nextTailFile;
 		}
 		
-		private static int[] createOffsetsArray(final int fileLength)
+		private static int[] createAllFilesOffsetsArray(final int largestFileLength)
 		{
-			return new int[fileLength / BinaryPersistence.entityHeaderLength()];
+			/*
+			 * Assuming the lrgest file solely consists of stateless entities (only headers)
+			 * guarantees to have a large enough array and a fast algorithm using it for all files.
+			 * The largest file just shouldn't be too large (for other reasons, too).
+			 */
+			return new int[largestFileLength / BinaryPersistence.entityHeaderLength()];
 		}
 		
 		private static ByteBuffer allocateInitializationBuffer(final Iterable<? extends StorageInventoryFile> files)
