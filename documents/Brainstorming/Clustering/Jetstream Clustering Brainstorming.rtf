@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Jetstream Clustering Brainstorming\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 Jetstream Clustering Brainstorming\par
 2018-10-16\par
 \par
 \par
@@ -170,7 +171,7 @@ Wenn man eine einem gesch\'e4ftlichen Unternehmen angemessene Serverhardware ein
 \par
 ---\par
 Kleine, spontane Recherche zu aktueller Serverhardware:\par
-{\field{\*\fldinst{HYPERLINK "https://calculator.s3.amazonaws.com/index.html"}}{\fldrslt{\ul\cf1 https://calculator.s3.amazonaws.com/index.html}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://calculator.s3.amazonaws.com/index.html }}{\fldrslt{https://calculator.s3.amazonaws.com/index.html\ul0\cf0}}}}\f0\fs28\par
 x1e.32xlarge: 128 CPUs, 4 TB (!) RAM, Windows, dedicated Server. Kostet $32 pro Stunde.\par
 Das mag jetzt viel klingen, $32 pro STUNDE. Das sind $23K pro Monat. Aber man muss sich vorstellen, was so ein Monster, das sich nur noch um "Entities erster Klasse" k\'fcmmern muss, abarbeiten kann: Tausende gleichzeitige Kunden. Das hei\'dft aufs Monat gesehen hunderttausende bis Millionen durchgeschleuste Leute, die wahrscheinlich hundertausende bis Millionen an Umsatz generieren. Das sollte 23K f\'fcr den Betrieb der Gesch\'e4ftsgrundlage schon rechtfertigen, sonst liegt da irgendwo eine betriebswirtschaftliche Wahrnehmungsverzerrung vor. Ich wette, so viel zahlt ein Supermarkt schon allein f\'fcr den Strom. Mit Replikationsservern wird es nat\'fcrlich mehr. Dann nimmt man entweder mehrere kleinere oder man kann daf\'fcr ja auch das X-fache an Kunden bearbeiten.\par
 ...\par
@@ -651,5 +652,225 @@ Cool w\'e4re, immutable instanzen zu erkennen und in einer gesharten SwizzleRegi
 Wobei das dann nur solche Instanzen sein d\'fcrften, die nicht wieder irgendwo auf mutable Instanzen zeigen, d.h. vom shared Graph auf einen local graph.\par
 D.h. ein gesamter Subgraph m\'fcsste eine immutable "sackgasse" sein. Der k\'f6nnte shared sein. Wobei der Code f\'fcr das sharen dann komplexer werden w\'fcrde. Lookups in zwei Registries, usw.\par
 Bzw. es k\'f6nnten dieselben Instanzen in mehreren SwizzleRegistries registriert sein. Das m\'fcsste halt nur richtig erkannt werden.\par
+\par
+\par
+2018-10-24\par
+\par
+\par
+\par
+Das mit dem Slaves updaten ist gar nicht so einfach:\par
+Existierende Instanzen m\'fcssen entsprechend den neuen Daten geupdatet werden.\par
+Das macht erst mal keinen Konflikt, weil die Anwendungslogik im Slave keine persistenten Entities ver\'e4ndern darf. Wenn sie es doch tut, werden die \'c4nderungen vom Update einfach \'fcberschrieben und der Verlust ist ein Bug in der Anwendungslogik, nicht im Framework. Kann man nat\'fcrlich vermeiden durch das Interface-Trennung-Konzept, aber wie ich geh\'f6rt habe gibt es sogar bei uns Leute, die interfaces grunds\'e4tzlich ablehnen, weil sie abstrakter als ein primitives Einsteigerbeispiel sind.\par
+\par
+Ein Konflikt ist aber:\par
+Wenn die Anwendungslogik gerade l\'e4uft und die Entities ausliest, kann es zu inkonsistenzen in Algorithmen, in gecachten Daten der Anwendungslogik, usw., kommen.\par
+Simples Beispiel: Wenn eine Collection leer ist, dann dies tun, ansonsten das. Erst wird gepr\'fcft, der Branch gew\'e4hlt, gleichzeitig wird die collection geupdatet und ist damit nicht mehr leer. Der nun falsche branch im Algorithmus l\'e4uft durch und erzeugt eine Inkonsistenz in den Daten.\par
+Das hei\'dft, es darf nicht einfach "irgendwann" (so schnell wie m\'f6glich) geupdatet werden, sondern es muss zu definierten Zeitpunkten erfolgen, indem es keine Inkonsistenzen geben kann. Diese k\'f6nnen nur sein: zwischen der Abarbeitung von Requests von au\'dfen. Oder allgemeiner formuliert (falls die Serveranwendung auch request-unabh\'e4ngige Aktivit\'e4ten hat, Chron-Jobs oder \'e4hnliches): Zwischen zwei Aktionen, wobei eine "Aktion" eine f\'fcr sich abgeschlossene Logik ist.\par
+Das hei\'dft jeder Thread in der Anwendung, der mit dem persistenten Entity Graph arbeitet, muss in einer schleife "Aktionen" ausf\'fchren und am Ende der Schleife immer checken, ob es etwas zu updaten gibt.\par
+\par
+Ein weiteres Problem:\par
+Der Entity Graph ist eigentlich read-only, also k\'f6nnten in einem Slave eigentlich alle Threads (Sessions / user / Aktivit\'e4ten, wie auch immer) auf demselben arbeiten.\par
+Das w\'fcrde aber hei\'dfen, dass ein Update der Instanzen erst gemacht werden kann, wenn ALLE Threads an so einem Update Punkt sind. D.h. die Threads m\'fcssten bei vorhandenem Update aufeinander warten. Falls manche der Threads sehr lange Arbeiten haben, m\'fcssten alle threads warten, bis die sehr lange Arbeit abgeschlossen ist. Das Ergebnis w\'e4re ein nach au\'dfen hin sehr tr\'e4ges System, das intern aber fast nichts arbeitet. Das ist scheisse.\par
+Besser w\'e4re:\par
+Jede Aktivit\'e4t hat ihre exklusive Kopie des Entity Graphen. Das ist nicht X mal die ganze Datenbank, sondern es wird ja \'fcber Lazy References immer nur das geladen, was gerade ben\'f6tigt wird. Immutable Instanzen k\'f6nnten \'fcber alle gesharet werden, weil sich an denen ja nie was \'e4ndern kann. Dann bliebe als Redundanz in den Daten nur noch, wenn mehrere Aktivit\'e4ten \'fcberschneidende Daten laden m\'fcssen. Je nach Anwendung k\'f6nnte man bestimmte Subgraphen in eine Session-unabh\'e4ngige Aktivit\'e4t/Thread packen, mit der die Session-Aktivit\'e4ten dann kommunizieren, anstatt selbst alles laden zu m\'fcssen. Beispiel: Aus einer gro\'dfen Collection bestimmte Entities raussuchen. Die Session-Aktivit\'e4t will nur das Ergebnis, daf\'fcr muss nicht jede von denen die riesige Collection selbst laden, sondern das kann zentral ein Ding machen. Das ist nat\'fcrlich Anwendungsarchitekturdesign. Die Grundaussage ist lediglich: Die Redundanzen lassen sich auf ein vertr\'e4gliches Ma\'df reduzieren.\par
+\par
+Und es gibt noch ein Problem:\par
+Die lokale Storage-Ebene eines Slaves (Dateien und ggf. in der Storageebene gecachte Daten) muss asynchron zu den Aktivit\'e4ten aktualisiert werden, weil es die ja in jedem Fall nur einmalig zentral gibt und die Aktualisierung nicht auf jede Aktivit\'e4t warten bzw. alle anderen bremsen kann, bis die letzte an einem Update-Punkt ist.\par
+Das hei\'dft aber: Sobald eine laufende Aktion aus einer Lazy Reference nachladen will, l\'e4dt sie race-condition-m\'e4\'dfig entweder aus dem Zustand, zu dem begonnen wurde, oder schon aus dem aktuell geupdateten Zustand. Damit liegt wieder die Inkonsistenzsituation von oben vor.\par
+Es bringt auch nichts, im Rahmen des Ladens aus der Lazy Reference zuvor erst mal die Instanzen zu updaten, weil man ja eben nicht wei\'df, was der Algorithmus davor gemacht hat und welche Inkonsistenzen durch eine \'c4nderung mittendrin entstehen k\'f6nnen.\par
+\par
+Dieses Clustering ist im Detail echt knifflig.\par
+Wie synchronisiert man asynchrone Aktivit\'e4ten, ohne sie zu sehr auszubremsen?\par
+\par
+Gibt es wirklich keine anderen M\'f6glichkeit, als gewisse, wenn auch auf ein Minimum reduzierte Inkonsistenzen hinzunehmen und alles mit try-catch in der Anwendungslogik so lang zu versuchen, bis es klappt?\par
+Unbefriedigend :(\par
+\par
+Eine L\'f6sung w\'e4re:\par
+- Gemeinsam genutzte read-only Kopie des persistenten Entity-Graphen in den Slave Nodes.\par
+- Alle Aktivit\'e4ten in einem Slave m\'fcssen f\'fcr einen Update an einem gemeinsamen Synchronisationspunkt zwischen Aktionen warten.\par
+- Eine Aktion darf in der Aktivit\'e4t keinen lokalen State zur\'fccklassen, der durch eine \'c4nderung am Entity-Graph inkonsistent werden w\'fcrde (Anwendungsverantwortung).\par
+- Eine Aktion darf nicht "lange" dauern, damit der Bremseffekt auf alle wartenden Aktivit\'e4ten nicht zu gro\'df wird (Anwendungsverantwortung).\par
+\par
+Vielleicht w\'e4re ein "k\'fcnstliche" Update-Frequenz eine Hilfe?\par
+Alle X Millisekunden, z.B. 1000, wird ein Update gemacht. Solang noch Zeit ist, k\'f6nnen Aktivit\'e4ten die n\'e4chste Aktion beginnnen, die dann hoffentlich nicht zu lang dauert.\par
+Wenn die Zeit um ist, ist es Zeit zum updaten. Dann warten alle Aktivit\'e4ten aufeinander, dann werden einmalig zentrall alle zwischenzeitlich ge\'e4nderten Instanzen geupdatet, dann gehts mit dem n\'e4chsten Zeitbuget weiter.\par
+\par
+Das Dumme daran ist, dass Aktivit\'e4ten gebremst werden f\'fcr updates an instanzen, die sie nie brauchen.\par
+\par
+Vielleicht w\'e4re mit so einer Update-Frequenz eine Trennung in lokale Graphen doch wieder besser, mal sehen:\par
+\par
+Jede Aktivit\'e4t hat ihre eigene, lokale Entity Graph Kopie.\par
+- Jede Aktivit\'e4t arbeitet dahin, so lange noch zeitbudget da ist.\par
+- Wenn die Zeit um ist, werden die zwischenzeitlich empfandenen Update chunks nur auf die Platte geschrieben und ggf. Storage-gecachte Entity-Daten durch die aktuelle Version ersetzt.\par
+- Danach updatet jede Aktivit\'e4t die f\'fcr sie n\'f6tigen Instanzen aus den aktualisierten Daten (geht schnell: anhand OID Set, update chunks sind schom im RAM, alle Aktivit\'e4ten k\'f6nnen auf die unver\'e4nderlichen Update chunks gleichzeitig zugreifen). Das sollte in den allermeisten F\'e4llen nichts oder sehr wenig sein und sehr schnell gehen.\par
+- Dann geht es wieder von vorne los.\par
+\par
+Vielleicht m\'fcsste man noch ein bisschen eventhandling daf\'fcr dazubauen:\par
+Logik aufrufen, wenn cycle zuende ist.\par
+Logik aufrufen, wenn cycle neu beginnt, mit einem Set der ge\'e4nderten Instanzen. Erst nach dieser Logik kommt die n\'e4chste Aktion dran.\par
+\par
+Vielleicht m\'fcsste man sogar User-Session-Aktivit\'e4t und User-Session-Netzwerkkommunikation in zwei Threads aufteilen:\par
+Nur die Aktivit\'e4t muss sich dem Cycle unterwerfen.\par
+Der Netzwerk Thread kann schon mal alle reinkommenden Requests einlesen, Instanzen daraus bauen (z.B. riesige Graphen an neuen Instanzen), usw.. Dann muss das die Aktivit\'e4t nicht machen und spart sich Zeit, die responsiveness bleibt besser.\par
+Vielleicht sogar drei Threads:\par
+1.) Eingehende Daten und alle Logik, die keinen Zugriff auf den Entity Graph braucht\par
+2.) Anwendungslogik Aktivit\'e4t mit Zugriff auf Entity Graph.\par
+3.) Ausgehende Daten: Netzwerkkommunikation und ggf. Serialisierung, die nicht vom Entity Graph abh\'e4ngt.\par
+\par
+\par
+\par
+Das w\'fcrde alles sehr "smooth" laufen und gut skalieren, weil die Aktivit\'e4ten/Threads sich gegenseitig kaum behindern.\par
+Das einzige Problem ist: was ist, wenn eine Aktion zu lang dauert? Anwendungsverantwortung?\par
+Andererseits:\par
+Es ist ja auch schon Anwendungsverantwortung, keine Endlosschleifen, Memoryleaks oder schlicht RAM-sprengend riesige Arrays zu allokieren.\par
+Was Anwendungslogik angeht, muss man dem Anwendungsentwickler schon die Verantwortung \'fcbertragen k\'f6nnen, sonst sind wir im Kindergarten.\par
+Aus Sicht der Cluster-Infrastruktur ist es einfach so: wenn manche Aktionen in der Anwendungslogik zu lang brauchen, dann wird halt das System lahm.\par
+\par
+Der einzige Haken auf ebene der Cluster-Infrastruktur ist aber halt, dass eine lahme Aktion bei einer Aktivit\'e4t ALLE Aktivit\'e4ten bremst.\par
+Vielleicht k\'f6nnte das mit einem Dubble-Buffering Prinzip gelindert werden:\par
+\par
+Datenbankdateien gibt es nur einmal, aber die Information, bis wie weit die gelten und die gecachten Entitydaten liegen zweimal vor: Einmal aktueller Cycle, einmal neuer Cycle.\par
+Der neue Cycle wird asynchron zu den Aktivit\'e4ten aktualisiert.\par
+Am Cycle-Ende schalten dann einfach alle Aktivit\'e4ten auf die Daten des neuen Cycle um und updaten ihre Instanzen. Damit ist der der aktuelle und der bisher aktuelle ist der alte.\par
+Okay, dann br\'e4uchte man ein Triple-Buffer-Konzept: alt (wird noch verwendet von nachz\'fcglern), aktuell (wird von allen anderen verwendet), neu (wird gerade aktualisiert, bis der aktuelle cycle aus ist).\par
+Das ist ziemlich viel Komplexit\'e4t und Speicherplatzbedarf und es l\'f6st das Problem nicht vollst\'e4ndig, sondern lindert es nur um einen cycle:\par
+Was ist, wenn eine Aktivit\'e4t zwei Cycles lang immer noch nicht fertig ist? Man kann nicht f\'fcr jeden \'fcberzogenen cycle eine neue Bufferebene aufmachen.\par
+Ich wei\'df nicht, ob der Aufwand das wert ist.\par
+\par
+Aber moment mal, eine Vereinfachung gibt es noch:\par
+Die Aktivit\'e4ten k\'f6nnen sich anhand der vorliegenden Update-Chunks ihre Instanzen aktualisieren, auch ohne dass bzw. bevor die zentralen Storage-Daten aktualisiert worden sind. Die Daten sind ja schon da. Und die Storage-Daten w\'fcrden f\'fcr noch laufende Aktivit\'e4ten weiterhin den alten Stand haben, bis die letzte Aktion aus dem alten cycle beendet ist.\par
+W\'e4hrend dem Storage-cache updaten und schreiben auf die Platte m\'fcssten trotzdem wieder alle warten.\par
+Ne Moment: Auf die Platte geschrieben k\'f6nnte schon werden, nur die Storage-Level-Metainformationen \'fcber den Fortschritt und die Storage-Cachedaten d\'fcrften dann erst zwischen den Cycles aktualisiert werden.\par
+\par
+Damit w\'e4re es dann zumindest so, dass die rechzeitigen Aktivit\'e4ten nur noch auf die letzte Aktivit\'e4t warten m\'fcssten und kurz darauf gleich wieder mit ihrem Cycle beginnen k\'f6nnten, ohne dann erst noch ihre instanzen aktualisieren zu m\'fcssen. Hm...\par
+\par
+Das hei\'dft nat\'fcrlich, dass OGS f\'fcr Clustering-Funktionalit\'e4t erweitert werden m\'fcsste. Aber das kriegt man bestimmt in einer ordentlichen Weise hin.\par
+\par
+Es bleibt aber immer noch, dass eine besonders lange Aktion alle anderen ausbremst.\par
+Naja gut, immerhin nicht ALLE anderen, sondern nur die auf demselben Slave. Wenn es davon viele gibt, werden immer nur die User eines Slaves gebremst.\par
+\par
+\par
+Hm. Eine wirkliche L\'f6sung w\'e4re folgendes:\par
+- Die Datenbankdateien gibt es nur einmalig zentral und die werden immer asynchron geupdatet.\par
+- Der Fortschritt der Datenbankdateien ist aber je Aktivit\'e4t.\par
+- Der Storage-Cache bzw. die Storage-Metadaten der Entities (Fileposition) sind je Aktivit\'e4t.\par
+- Und, wie gehabt, der Entity-Graph ist je Aktivit\'e4t. "Deep Immutable" Instanzen k\'f6nnen zwischen allen Aktivit\'e4ten geteilt werden.\par
+- Aktivit\'e4ten updaten sich ihren Datei-Fortschritt, ihren Storage-Cache und ihre Instanzen asynchron.\par
+\par
+Bzw. Update des Storage Caches w\'fcrde hei\'dfen, den einfach auf null zu setzen, denn:\par
+- Die Instanzen sind die prim\'e4re "in Memory" Datenbank, nicht die Caching Daten.\par
+- Die Instanzen k\'f6nnen \'fcber den eh schon im Speicher liegenden Update Chunk aktualisiert werden, die gecachten Daten braucht man daf\'fcr nicht.\par
+\par
+Das macht aber auch das OGS Housekeeping komplexer:\par
+Es darf immer nur der \'e4lteste, noch aktive Stand betrachtet werden.\par
+\par
+\par
+---\par
+Definition "Deep Immutable":\par
+Eine Instanz ist "Deep Immutable", wenn sie selbst immutable ist und auch alle von ihr aus rekursiv erreichbaren Instanzen immutable sind.\par
+D.h. ein ganzer Subgraph an Instanzen muss unver\'e4nderlich sein, ohne irgendeine Referenz zu irgendeiner mutable Instanz. Etwa eine immutable collection mit immutable Ums\'e4tzen oder sowas.\par
+Messdatens\'e4tze sind in aller Regel deep immutable. X tausend Datens\'e4tze, die einmal erzeugt und dann nie wieder ver\'e4ndert werden. Auch etwaige dazugeh\'f6rende Kopfdaten sind immutable. So ein ganzer Subgraph einer Messung ist normalerweise deep immutable.\par
+Oder Statistiken. Oder eben simple Umsatz Datenmengen.\par
+\par
+Deep Immutable Subgraphen k\'f6nnen zwischen mehreren Aktivit\'e4ten, die eigentlich redundante Kopien von Instanzen halten, gemeinsam verwendet werden.\par
+---\par
+\par
+\par
+\par
+Wobei die storage-level Trennung nach Aktivit\'e4ten einfacher gesagt als getan ist. Die FilePosition und Datencache eines Storage-Entities sind zentral gehaltene Werte. Wie soll man die je high-level Aktivit\'e4t unterscheiden? Das geht schon, machts aber unheimlich komplex, speicherhungriger und auch etwas langsamer.\par
+Da w\'e4re die Variante mit den im worst-case mal etwas l\'e4nger geblockten Slave-Mitbewohnern vorzuziehen.\par
+\par
+Vielleicht k\'f6nnte man das mit einer Art Good-Will-Konzept etwas entsch\'e4rfen:\par
+Die Anwendungslogik kann irgendwo sehr einfach und schnell nachfragen, ob sie den cycle \'fcberzieht. Einfach als eine Methode.\par
+Sowas wie "if(something.isCycleOverdue())".\par
+Dann kann sie von sich aus abbrechen, updaten und danach nochmal von vorne beginnen. Je nach Fall und Daten evtl. sogar weitermachen, wo sie ausgeh\'f6rt hat.\par
+\par
+Man kann auch einen Threshold f\'fcr neue Aktionen einf\'fchren:\par
+Wenn ein Cycle, mal angenommen, 1000 ms lang ist, dann werden ab 990 ms keine neuen Aktionen mehr gestartet, weil die Gefahr zu gro\'df ist, dass die Aktion \'fcberzieht.\par
+10 ms sind zwar eine gigantisch lange Zeit f\'fcr CPUs, aber wenn was lazy nachgeladen werden muss oder so, ist die Zeit evtl. schnell um.\par
+Oder generisch gesprochen bei 1% Restzeit oder noch generischer gesprochen bei einem konfigurierbaren Faktor oder evtl. einer formel (maximum aus faktor und konstanter zeit).\par
+\par
+Eine L\'f6sung w\'e4re nat\'fcrlich auch: wenn man in der Anwendung nunmal lang laufende Aktionen hat, dann setzt man die Cycle Zeit entsprechend hoch. Nicht 1 Sekunde, sondern 10 Sekunden. Der Nachteil ist, dass es auch nur alle 10 Sekunden updates gibt, aber das kann je nach Anwendung ganz okay sein.\par
+\par
+\par
+Vielleicht w\'e4re auch ein anderes Modell besser:\par
+Jede Aktivit\'e4t hat ihren eigenen Entity Graph, Deep Immutable Instanzen werden untereinander geteilt.\par
+Es gibt keinen Cycle.\par
+Alle Aktivit\'e4ten aktualisieren ihre Instanzen asynchron zwischen Aktionen.\par
+Es wird mitgeloggt, was \'fcber alle aktivit\'e4ten hinweg der sp\'e4teste verarbeitete Stand der updates ist.\par
+Datenbankdateien werden sofort und asynchron geschrieben.\par
+Der Fortschritt des Datenbankzustands (Dateifortschritt und Entity Fileposition) werden aber immer nur auf den Stand des sp\'e4testen Stands der updates gesetzt.\par
+Wenn ein Lazy Nachladen aus der Datenbank n\'f6tig wird, wird gepr\'fcft, ob die Datenbank den stand der aktivit\'e4t hat.\par
+Wenn nicht, muss die Aktivit\'e4t im Laden warten, bis dies der Fall ist. D.h. die Aktivit\'e4t muss dann auf nachz\'fcgler-aktivit\'e4ten warten.\par
+\par
+Das Problem dabei ist aber: Aktivit\'e4t und Datenbank m\'fcssen EXAKT den gleichen Stand haben. Wenn einer der beiden voraus oder hinterher ist, kann es Inkonsistenzen in der Anwendung geben.\par
+Das k\'f6nnte aber evtl. gar kein Problem sein:\par
+Eine Aktivit\'e4t kann nicht "hinterher" sein, wenn die Datenbankaktualisierung immer auf die sp\'e4teste Aktivit\'e4t wartet.\par
+Wenn eine Aktivit\'e4t voraus ist, aber kein lazy nachladen braucht, gibt es ja kein Problem.\par
+Wenn eine Aktivit\'e4t voraus ist und lazy nachladen muss, muss sie warten. Irgendwann ist die Datenbank dann exakt auf demselben Stand, dann gehts weiter.\par
+Die Datenbank kann dann aber auch nicht voraus sein, weil zumindest diese eine Aktivit\'e4t ja auf diesem Stand arbeitet und noch nicht fertig ist.\par
+Falls es schon updates gibt und die Aktivit\'e4t ihre aktuelle Aktion abschlie\'dft, wird sie ihre Instanzen updaten. Damit kann entweder auch die Datenbank weiter geupdatet werden, oder die aktivit\'e4t muss beim n\'e4chsten lazy laden halt wieder warten.\par
+\par
+Der gro\'dfe Vorteil gegen\'fcber dem Cycle Konzept ist:\par
+- Wenn kein lazy laden gebraucht wird, st\'f6ren sich aktivit\'e4ten untereinander nicht und k\'f6nnen fr\'f6hlich asynchron dahinarbeiten, auch wenns mal l\'e4nger dauert.\par
+- Es ist einfacher zu implementieren. Es k\'f6nnte schon reichen, im SwizzleObjectSupplier einen entsprechenden Layer einzubauen.\par
+\par
+Man k\'f6nnte das sogar noch intelligenter machen:\par
+Ein Set aller OIDs sammeln, f\'fcr die Updates ausstehen. Erst, wenn ein Ladevorgang auf so eine trifft (Storage-Ebene), muss er warten.\par
+In dem Fall m\'fcsste das Laden auf der Storage-Ebene dann wahrscheinlich nochmal komplett von vorne gemacht werden, aber macht ja nichts. Beim ersten Konflikt sofort abbrechen und warten, belegter Speicher wird wieder freigegeben.\par
+Das w\'e4re die ultimative L\'f6sung, bei der Aktivit\'e4ten eines Slaves fast st\'e4ndig asynchron zueinander arbeiten und sich updaten k\'f6nnten und nur, wenn es wirklich konfliktete updates auf Entity-Ebene gibt, m\'fcsste gewartet werden.\par
+Allerdings w\'fcrde das OGS Ladeprozess etwas verkomplizieren. Gut, wenn keine Updates ausstehen, ist die Instanz f\'fcr den OID Lookup einfach null, das kann schnell gecheckt werden.\par
+\par
+Zusammenfassung:\par
+- Ein Slave (= die Anwendung) bedient mehrere User (Sessions) bzw. allgemein Verbindungen von au\'dfen. \par
+- Ein Slave/Anwendung kann auch interne aktive Vorg\'e4nge haben, etwa Chronjobs o.\'c4.\par
+- Beides zusammen wird abstrakt "Aktivit\'e4t" bezeichnet: Irgendein Ding, das aktive Aktionen ausl\'f6st. Kann, muss aber nicht immer derselbe Thread sein.\par
+- Jede Aktivit\'e4t hat eine exklusive Kopie des Entity Graphen bzw. SwizzleRegistry, wobei nur die aktuell n\'f6tigen Instanzen geladen werden.\par
+- Deep-immutable Subgraphen k\'f6nnen von allen Aktivit\'e4ten gemeinsam verwendet (Eintr\'e4ge in allen SwizzleRegistries auf dieselben Instanzen)\par
+- Ein Slave bekommt mit jedem Store im Master, mit etwas Verz\'f6gerung, Update Chunks \'fcbertragen. Diese werden von einem extra System-Thread empfangen und eingereiht.\par
+- Jeder Update Chunk wird (von einem weiteren System-Thread) sofort auf die Platte geschrieben, aber dann noch aufgehoben.\par
+- Der Fortschritt der Storage Metadaten wird aber erst in Abstimmung mit allen Aktivit\'e4ten vorgenommen.\par
+- Jede Aktivit\'e4t f\'fchrt ihre Aktionen in einer Schleife aus, wobei sie nach jeder Aktion auf ausstehende Update chunks pr\'fcft.\par
+- Eine Aktion ist z.B. die Verarbeitung einer Anfrage von au\'dfen. Oder jede beliebige Logik, die als Runnable ausgef\'fchrt wird.\par
+- Von den Update Chunks aus aktualisiert sich eine Aktivit\'e4t direkt ihre existierenden Instanzen mit passender OID. Alle anderen Chunk-Daten ignoriert die Aktivit\'e4t.\par
+- Der Storage Metadaten Fortschritt wird immer nur so weit gesetzt, wie die am weitesten zur\'fcckh\'e4ngende Aktivit\'e4t ist.\par
+- Muss eine Aktivit\'e4t Daten nachladen (Lazy), wird gepr\'fcft, ob ihr Update-Stand und der der Storage-Ebene \'fcbereinstimmt. Wenn nicht, muss sie warten.\par
+- Um Laufzeitaufwand f\'fcr Aktivit\'e4ten zu minimieren, k\'f6nnen alle nicht-Entity-Graph-bezogenen Arbeiten in Hilfsthreads ausgelagert werden, z.B. Netzwerkkommunikation.\par
+- Das Konzept k\'f6nnte zuk\'fcnftig bis auf OID-Ebene verfeinert werden, wodurch Aktivit\'e4ten fast nicht mehr aufeinander warten m\'fcssten.\par
+\par
+\par
+Damit bleibt als einziges "Eckchen" einer geclusterten Anwendung, dass eine Aktivit\'e4t auf einem Slave einen Request an den Master schickt und dieser beim Validieren aufgrund von zwischenzeitlich ge\'e4nderten Daten eine Exception wirft, mit der die Aktivit\'e4t umgehen muss. I.d.R. R\'fcckmeldung an den Benutzer und nochmal versuchen.\par
+Das liegt in einem nebenl\'e4ufigen System in der Natur und kann nicht gel\'f6st werden, bzw. nur durch ein pessimistisches Lock auf Anwendungsebene.\par
+\par
+Ach, und ein Problem ist noch, wie \'c4nderungen an "Second Class" Entities, also ausgelagerten Massendaten-Entities, konsistent kommunziert und aktualisiert werden k\'f6nnen.\par
+Trivial einfach w\'e4ren hier Deep Immutable Subgraphen: Bei Bedarf von dem anderen node laden, nie wieder irgendwas updaten m\'fcssen. Fertig.\par
+Bei Massendaten-Entity Subgraphen, die sich schon mal \'e4ndern k\'f6nnen, und sei es nur gelegentlich, ist das schwieriger.\par
+Die Kommunikation, dass jetzt eine neue Version vorliegt, usw., kriegt man schon hin. Aber wie kriegt man es hin, alle m\'f6glichen Referenzen auf solche Instanzen in der Anwendung zu kappen? Da hilft auch Instanzen live updaten nicht, weil das nicht die wegfallenden Instanzen abdeckt.\par
+Vielleicht sollten solche Second Class Entities nur Deep Immutable sein d\'fcrfen. Quantitativ m\'fcsste das auch v\'f6llig ausreichen.\par
+Was wirklich gro\'dfes volumen erzeugt sind ja nicht 1-2 oder 100-200 "Kopfdaten"-artige Instanzen, sondern irgendwelche Collections mit 1000 und mehr Instanzen.\par
+Es w\'fcrde v\'f6llig reichen, nur die Collections und die gehaltenen Instanzen immutable zu machen und auszulagern. Falls sie deep immutable ist, kann da schon auch mal die eine oder andere Kopfdaten-artige Instanz dabei sein, aber im Wesentlichen geht es darum, dicke deep immutable collection instanzen auszulagern.\par
+Man kann wachsende Datenmengen auch intelligent segmentieren, um die Masse der Daten deep immutable zu halten:\par
+Anstatt einer giga-Collection mit einer million Eintr\'e4gen, die immer wieder mal erweitert wird, macht man eine Table, die Segmente h\'e4lt und jedes Segment ist deep immutable mit so um die 1000 Instanzen. Die kann man f\'fcr \'c4nderunden dann sogar gegen ver\'e4nderte austauschen. Dann haben sich Daten auf einer relativ kleinen Ebene ge\'e4ndert, aber trotzdem sind 99% der Daten Deep immutable. Nur die Segment-Kopf-Table w\'e4re mutable. Die liegt halt dann im normalen Entity Graph. St\'f6rt ja keinen.\par
+Falls die Instanzen in den Collection selbst mutable sind, dann m\'fcssen sie teil des normalen Entity Graphen sein und k\'f6nnen nicht ausgelagert werden.\par
+\par
+Das ist eine super L\'f6sung. Komplexere F\'e4lle, mutable Zeug auszulagern, f\'fchren nur in Teufels K\'fcche.\par
+\par
+D.h. es gibt "Hilfsmaster" Nodes, auch wieder mit Replikationsslaves, denen man unter einer ID einen Deep Immutable subgraphen hinschmeissen kann und den die bei Bedarf wieder zur\'fcckgeben.\par
+Hm, interessant ist: die br\'e4uchten gar keine Klassen. Es w\'fcrde reichen, den erhaltenen binary chunk einfach wegzuschreiben. Garbage Collector usw. ist darauf ja nicht n\'f6tig, weil sich nie was \'e4ndern kann, darum auch keine Instanzen unerreichbar werden k\'f6nnen, usw.\par
+Es muss halt nur einen trivialen mechanismus geben: Wenn f\'fcr eine ID ein neuer Byte block geschickt wird, dann den bisherigen f\'fcr diese ID l\'f6schen. Das sollte hinzukirgen sein. Evtl. kann man die dann einfach so abspeichern, wie ein file oder ein video: Als Binary Block in einem Cloud dingsbums store Ding.\par
+Die Typdefinitionen sollten evtl. noch mitgeschickt werden, damit man den Batzen sp\'e4ter validieren und ggf. Legacy-Type-Mappen kann.\par
+Bzw. eigentlich sollten die Typdefinitionen im TypeDictionary der Anwendung stehen und sollten dort auch nicht einfach rausgel\'f6scht werden, dann kann die Anwendung das beim Start gleich mappen.\par
+Hm, wobei, schwierig: bisher macht sie das, indem alle vorkommenden TypeIds bei der Initialisierung gesammelt werden. Wenn erst zur Laufzeit solche Deep Immutable Graphen geladen werden, fehlt evtl. noch das Mapping. Dann m\'fcsste man es so machen, dass f\'fcr alle Typdefinitionen im Dictionary ein Handler sichergestellt wird, um f\'fcr alle eventualit\'e4ten gewappnet zu sein. Oder irgendwas findet sich da schon. Live TypeIds definieren oder so.\par
+\par
+Hm, das w\'e4re das ziemlich geil: Massendaten-Entities auslagern, ohne sie \'fcberhaupt als Entities zu verwalten. Das w\'fcrde einen kompletten Zweig an Node Typ und Replikation daf\'fcr entfallen lassen.\par
+\par
+\par
+Hm, das Konsistenzproblem mit den Referenzen gibts aber trotzdem noch. Aber nicht anders, als wenn man eine ganz simple singlethreaded Anwendung hat:\par
+Subgraph wird geladen.\par
+Anwendungslogik referenziert bestimmte Instanzen in diesem Subgraph.\par
+Subgraph wird neu geladen, die referenzierten Instanzen sind nun nicht mehr darin enthalten.\par
+Damit sind die Referenzen aus der Anwendungslogik inkonsistent.\par
+Aber ist aber eben ein Fall, der bei jeglichen Referenzen in jeder Anwendung vorkommen kann.\par
+Man muss halt in Anwendungsverantwortung darauf achten, durch "Referenzen von der Seite" nicht veraltete Instanzen inkonsistent am Leben zu halten.\par
 }
  
