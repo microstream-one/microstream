@@ -28,11 +28,24 @@ public final class XMath
 
 	private static final transient int PERCENT = 100;
 
+	private static final transient Double ZERO = 0.0d;
+	private static final transient Double ONE  = 1.0d;
+		
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	public static Double zero()
+	{
+		return ZERO;
+	}
+	
+	public static Double one()
+	{
+		return ONE;
+	}
 
 	/**
 	 * This method is an int version of <code>Math.pow(double, double)</code>,
@@ -270,7 +283,7 @@ public final class XMath
 	}
 
 	/**
-	 * Returns the integer value of base - 10 logarithm of the passed value.
+	 * Returns the integer value of base-10 logarithm of the passed value.
 	 * <p>
 	 * Examples:
 	 * <code><pre>
