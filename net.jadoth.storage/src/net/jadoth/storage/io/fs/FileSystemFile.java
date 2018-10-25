@@ -29,9 +29,9 @@ public interface FileSystemFile extends ProtageWritableFile
 		// instance fields //
 		////////////////////
 		
-		private final File        cachedFile; // yes, the file is derived from the name, not the other way around.
-		private final FileLock    lock      ;
-		private final FileChannel channel   ;
+		private final     File        file   ;
+		private transient FileLock    lock   ;
+		private transient FileChannel channel;
 		
 		
 		
@@ -40,17 +40,17 @@ public interface FileSystemFile extends ProtageWritableFile
 		/////////////////
 
 		Implementation(
-			final FileSystemDirectory directory ,
-			final String              name      ,
-			final File                cachedFile,
-			final FileLock            lock      ,
+			final FileSystemDirectory directory,
+			final String              name     ,
+			final File                file     ,
+			final FileLock            lock     ,
 			final FileChannel         channel
 		)
 		{
 			super(directory, name);
-			this.cachedFile = cachedFile;
-			this.lock       = lock      ;
-			this.channel    = channel   ;
+			this.file    = file   ;
+			this.lock    = lock   ;
+			this.channel = channel;
 		}
 		
 		
@@ -62,37 +62,43 @@ public interface FileSystemFile extends ProtageWritableFile
 		@Override
 		public final File file()
 		{
-			return this.cachedFile;
+			return this.file;
 		}
 
 		@Override
 		public synchronized long length()
 		{
-			return this.cachedFile.length();
+			return this.file.length();
 		}
 
 		@Override
 		public synchronized boolean exists()
 		{
-			return this.cachedFile.exists();
+			return this.file.exists();
 		}
 
 		@Override
 		public synchronized void open()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#open()
+			if(this.isOpen())
+			{
+				return;
+			}
+			
+			this.lock    = ProtageFileSystem.openFileChannel(this.file);
+			this.channel = this.lock.channel();
 		}
 
 		@Override
 		public synchronized boolean isOpen()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#isOpen()
+			return this.channel != null;
 		}
 
 		@Override
 		public synchronized boolean isClosed()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#isClosed()
+			return this.channel == null;
 		}
 
 		@Override
