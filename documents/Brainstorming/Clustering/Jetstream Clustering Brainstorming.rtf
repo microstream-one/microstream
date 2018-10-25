@@ -872,5 +872,19 @@ Subgraph wird neu geladen, die referenzierten Instanzen sind nun nicht mehr dari
 Damit sind die Referenzen aus der Anwendungslogik inkonsistent.\par
 Aber ist aber eben ein Fall, der bei jeglichen Referenzen in jeder Anwendung vorkommen kann.\par
 Man muss halt in Anwendungsverantwortung darauf achten, durch "Referenzen von der Seite" nicht veraltete Instanzen inkonsistent am Leben zu halten.\par
+\par
+\par
+2018-10-25\par
+\par
+Hm. Moment:\par
+Wenn eine Aktivit\'e4t mit dem Datenstand voraus ist und dann was laden will und der Ladevorgang dann auf OIDs trifft, f\'fcr die in den Update Chunks neue Daten vorliegen ...\par
+...\par
+... dann kann man die Daten ja gleich aus den Update Chunks laden!\par
+Das hei\'dft es w\'fcrde \'fcberhaupt kein Aufeinander warten von Aktivit\'e4ten geben.\par
+Es m\'fcsste halt jeder Chunk so lange aufgehoben werden, bis die Storage Metadaten auf seinen Stand nachgezogen worden sind, damit Aktivit\'e4ten, die der Datenbank voraus sind, (bzw. von ihnen angesto\'dfene Ladevorg\'e4nge) bei Bedarf dort wieder reinschauen k\'f6nnen.\par
+\par
+Wenn das so geht, dann w\'e4r das die perfekte L\'f6sung f\'fcr das Updaten von Slaves:\par
+Vollst\'e4ndig asynchron arbeitende Aktivit\'e4ten.\par
+Die einzige Synchronisierungsstelle ist die serielle Queue im Masterthread des Master Nodes.\par
 }
  
