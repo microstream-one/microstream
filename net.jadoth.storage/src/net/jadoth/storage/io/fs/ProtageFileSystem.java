@@ -5,6 +5,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
+import net.jadoth.files.FileException;
 import net.jadoth.files.XFiles;
 
 public final class ProtageFileSystem
@@ -12,9 +13,53 @@ public final class ProtageFileSystem
 	public static final File createWriteableFile(final File directory, final String fileName)
 	{
 		final File file = new File(directory, fileName);
-		XFiles.ensureWriteableFile(file);
+		XFiles.ensureFile(file);
+		
+		return validateWriteableFile(file);
+	}
+	
+	public static final File validateWriteableFile(final File file)
+	{
+		if(!file.canWrite())
+		{
+			// (25.10.2018 TM)EXCP: proper exception
+			throw new FileException(file, "Unwritable file");
+		}
 		
 		return file;
+	}
+	
+	public static final File validateExistingFile(final File file)
+	{
+		if(!file.exists())
+		{
+			// (25.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException("File does not exist: " + file);
+		}
+		
+		return file;
+	}
+	
+	public static final File validateExistingDirectory(final File directory)
+	{
+		if(!directory.exists())
+		{
+			// (25.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException("Directory does not exist: " + directory);
+		}
+		
+		return directory;
+	}
+	
+	public static final File validateIsDirectory(final File directory)
+	{
+		if(!directory.isDirectory())
+		{
+			// (25.10.2018 TM)EXCP: proper exception
+			throw new RuntimeException("Not a directory: " + directory);
+		}
+		
+		return directory;
 	}
 	
 	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
