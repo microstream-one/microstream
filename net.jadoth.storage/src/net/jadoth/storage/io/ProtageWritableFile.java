@@ -10,7 +10,9 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	@Override
 	public ProtageWritableDirectory directory();
 	
-	public void moveTo(ProtageWritableDirectory destination);
+	// (27.10.2018 TM)TODO: what about a moveTo(File) to move and rename?
+	
+	public ProtageWritableFile moveTo(ProtageWritableDirectory destination);
 	
 	public long write(Iterable<? extends ByteBuffer> sources);
 	

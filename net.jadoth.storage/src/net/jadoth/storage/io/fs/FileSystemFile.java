@@ -1,11 +1,15 @@
 package net.jadoth.storage.io.fs;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import net.jadoth.storage.io.ProtageDirectory;
 import net.jadoth.storage.io.ProtageReadableFile;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
@@ -29,6 +33,7 @@ public interface FileSystemFile extends ProtageWritableFile
 		// instance fields //
 		////////////////////
 		
+		// (27.10.2018 TM)TODO: OGS-45: also hold or even replace by Path? (Performance?)
 		private final     File        file   ;
 		private transient FileLock    lock   ;
 		private transient FileChannel channel;
@@ -154,13 +159,63 @@ public interface FileSystemFile extends ProtageWritableFile
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
 		}
+		
 
-		@Override
-		public synchronized void moveTo(final ProtageWritableDirectory destination)
+		private void synchMoveTo(final FileSystemDirectory destination)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#moveTo()
+			final Path destDir  = destination.directory().toPath();
+			final Path destFile = destDir.resolve(this.name());
+			
+			try
+			{
+				Files.move(this.file().toPath(), destFile);
+			}
+			catch(final IOException e)
+			{
+				// (27.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException(e);
+			}
+		}
+		
+		private synchronized ProtageWritableFile internalMoveTo(final ProtageWritableDirectory destination)
+		{
+			final ProtageWritableFile existingTargetFile = destination.files().get(this.name());
+			if(existingTargetFile != null)
+			{
+				// (27.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Move action target file already exists: " + destination.identifier()
+					+ ": " + existingTargetFile.name()
+				);
+			}
+
+			// no need to lock the target file since it has just been created from the lock-secured destination.
+			final ProtageWritableFile targetFile = destination.createFile(this.name());
+			
+			if(destination instanceof FileSystemDirectory)
+			{
+				// optimization for filesystem-to-filesystem move
+				this.synchMoveTo((FileSystemDirectory)destination);
+			}
+			else
+			{
+				this.copyTo(targetFile);
+			}
+
+			// delete must be called in both cases to update the storage.io meta structures
+			this.delete();
+			
+			return targetFile;
 		}
 
+		@Override
+		public ProtageWritableFile moveTo(final ProtageWritableDirectory destination)
+		{
+			return ProtageDirectory.executeLocked(this.directory(), destination, () ->
+				this.internalMoveTo(destination)
+			);
+		}
+		
 		@Override
 		public synchronized long write(final Iterable<? extends ByteBuffer> sources)
 		{
