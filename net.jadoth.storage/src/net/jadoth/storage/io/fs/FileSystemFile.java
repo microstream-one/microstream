@@ -179,6 +179,14 @@ public interface FileSystemFile extends ProtageWritableFile
 		
 		private synchronized ProtageWritableFile internalMoveTo(final ProtageWritableDirectory destination)
 		{
+			if(this.directory() == destination || this.directory().identifier().equals(destination.identifier()))
+			{
+				// (27.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Move destination is identical to the current destination: " + destination.identifier()
+				);
+			}
+			
 			final ProtageWritableFile existingTargetFile = destination.files().get(this.name());
 			if(existingTargetFile != null)
 			{
