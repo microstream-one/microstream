@@ -10,24 +10,29 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import net.jadoth.storage.io.ProtageDirectory;
+import net.jadoth.storage.io.ProtageNioChannel;
+import net.jadoth.storage.io.ProtageNioChannelWritable;
 import net.jadoth.storage.io.ProtageReadableFile;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 
 
-public interface FileSystemFile extends ProtageWritableFile
+public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 {
 	@Override
-	public FileSystemDirectory directory();
+	public ProtageDirectoryFS directory();
 	
 	public File file();
+	
+	@Override
+	public FileChannel channel();
 	
 	
 	
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public final class Implementation extends ProtageWritableFile.Implementation<FileSystemDirectory>
-	implements FileSystemFile
+	public final class Implementation extends ProtageWritableFile.Implementation<ProtageDirectoryFS>
+	implements ProtageFileFS
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -45,11 +50,11 @@ public interface FileSystemFile extends ProtageWritableFile
 		/////////////////
 
 		Implementation(
-			final FileSystemDirectory directory,
-			final String              name     ,
-			final File                file     ,
-			final FileLock            lock     ,
-			final FileChannel         channel
+			final ProtageDirectoryFS directory,
+			final String             name     ,
+			final File               file     ,
+			final FileLock           lock     ,
+			final FileChannel        channel
 		)
 		{
 			super(directory, name);
@@ -80,6 +85,12 @@ public interface FileSystemFile extends ProtageWritableFile
 		public synchronized boolean exists()
 		{
 			return this.file.exists();
+		}
+		
+		@Override
+		public synchronized FileChannel channel()
+		{
+			return this.channel;
 		}
 
 		@Override
@@ -151,17 +162,39 @@ public interface FileSystemFile extends ProtageWritableFile
 		@Override
 		public synchronized void copyTo(final ProtageWritableFile target)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
+			this.copyTo(target, 0, this.length());
 		}
 
 		@Override
 		public synchronized void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
+			if(target instanceof ProtageNioChannelWritable)
+			{
+				this.synchCopyToNioChannel((ProtageNioChannelWritable)target, sourcePosition, length);
+				return;
+			}
+			
+		}
+		
+		private void synchCopyToNioChannel(
+			final ProtageNioChannelWritable target        ,
+			final long                      sourcePosition,
+			final long                      length
+		)
+		{
+			try
+			{
+				// (28.10.2018 TM)TODO: Storage copy: what about incomplete writes? Loop?
+				this.channel.transferTo(sourcePosition, length, target.channel());
+			}
+			catch(final IOException e)
+			{
+				throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			}
 		}
 		
 
-		private void synchMoveTo(final FileSystemDirectory destination)
+		private void synchMoveTo(final ProtageDirectoryFS destination)
 		{
 			final Path destDir  = destination.directory().toPath();
 			final Path destFile = destDir.resolve(this.name());
@@ -200,10 +233,10 @@ public interface FileSystemFile extends ProtageWritableFile
 			// no need to lock the target file since it has just been created from the lock-secured destination.
 			final ProtageWritableFile targetFile = destination.createFile(this.name());
 			
-			if(destination instanceof FileSystemDirectory)
+			if(destination instanceof ProtageDirectoryFS)
 			{
 				// optimization for filesystem-to-filesystem move
-				this.synchMoveTo((FileSystemDirectory)destination);
+				this.synchMoveTo((ProtageDirectoryFS)destination);
 			}
 			else
 			{
@@ -219,6 +252,7 @@ public interface FileSystemFile extends ProtageWritableFile
 		@Override
 		public ProtageWritableFile moveTo(final ProtageWritableDirectory destination)
 		{
+			// no locking since the called method does the locking, but in a deadlock-free fashion.
 			return ProtageDirectory.executeLocked(this.directory(), destination, () ->
 				this.internalMoveTo(destination)
 			);
@@ -227,19 +261,71 @@ public interface FileSystemFile extends ProtageWritableFile
 		@Override
 		public synchronized long write(final Iterable<? extends ByteBuffer> sources)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#write()
+			try
+			{
+				final FileChannel channel = this.channel;
+				
+				long totalBytesWritten = 0;
+				for(final ByteBuffer source : sources)
+				{
+					while(source.hasRemaining())
+					{
+						totalBytesWritten += channel.write(source);
+					}
+//					channel.force(false); // (12.02.2015 TM)NOTE: replaced by explicit flush() calls on all usesites
+				}
+				
+				return totalBytesWritten;
+				
+			}
+			catch(final IOException e)
+			{
+				throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			}
 		}
 		
 		@Override
-		public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(final C callback)
+		public final synchronized <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(final C callback)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnClose()
+			while(!this.isClosed())
+			{
+				try
+				{
+					this.wait();
+				}
+				catch (final InterruptedException e)
+				{
+					// aborted, so return without executing the callback logic
+					return callback;
+				}
+			}
+			
+			// callback logic is executed while still holding the lock on this file instance
+			callback.accept(this);
+			
+			return callback;
 		}
 		
 		@Override
-		public <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(final C callback)
+		public final synchronized <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(final C callback)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME FileSystemFile.Implementation#waitOnDelete()
+			while(!this.isDeleted())
+			{
+				try
+				{
+					this.wait();
+				}
+				catch (final InterruptedException e)
+				{
+					// aborted, so return without executing the callback logic
+					return callback;
+				}
+			}
+			
+			// callback logic is executed while still holding the lock on this file instance
+			callback.accept(this);
+			
+			return callback;
 		}
 	}
 

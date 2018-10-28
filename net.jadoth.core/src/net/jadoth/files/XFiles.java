@@ -38,6 +38,27 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return CHARSET_UTF8;
 	}
 	
+	
+	public static final String ensureNormalizedPathSeperators(final String path)
+	{
+		if(path.indexOf('\\') < 0)
+		{
+			return path;
+		}
+		
+		return path.replace('\\', '/');
+	}
+	
+	public static final String ensureTrailingSlash(final String path)
+	{
+		if(path.charAt(path.length() - 1) == '/')
+		{
+			return path;
+		}
+		
+		return path + '/';
+	}
+	
 	public static final File ensureDirectory(final File directory) throws DirectoryException
 	{
 		try
@@ -109,11 +130,11 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return file;
 	}
 
-	public static String packageStringToFolderPathString(final String packageString)
-	{
-		return XChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
-	}
-
+	// (29.10.2018 TM)NOTE: this is a reflection-specific method. If still used somewhere, copy it there.
+//	public static String packageStringToFolderPathString(final String packageString)
+//	{
+//		return XChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
+//	}
 
 	public static final char[] readCharsFromFile(final File file) throws IOException
 	{

@@ -5,6 +5,8 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.files.XFiles;
+
 public interface ProtageWritableFile extends ProtageReadableFile
 {
 	@Override
@@ -53,6 +55,8 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		////////////////////
 		
 		private final D      directory;
+		private final String qualifier;
+		private final String identity ;
 		private final String name     ;
 		
 		private boolean pendingDelete;
@@ -69,6 +73,10 @@ public interface ProtageWritableFile extends ProtageReadableFile
 			super();
 			this.directory = notNull(directory);
 			this.name      = notNull(name);
+			
+			final String directoryPath = XFiles.ensureNormalizedPathSeperators(directory.identifier());
+			this.qualifier = XFiles.ensureTrailingSlash(directoryPath);
+			this.identity  = this.qualifier + name;
 		}
 		
 		
