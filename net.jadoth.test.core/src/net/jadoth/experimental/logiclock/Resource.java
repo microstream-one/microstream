@@ -26,7 +26,7 @@ import net.jadoth.functional.XFunc;
  * <p>
  * This is a modernized approach to the somewhat old and clumsy {@link Lock} concept, as it fixes many of its weaknesses.<br>
  * E.g.:<br>
- * - functional programming to properly encapsulate/seperate releasing (or unlocking) responsibility on the responsible
+ * - functional programming to properly encapsulate/separate releasing (or unlocking) responsibility on the responsible
  *   technical layer instead of in the user logic layer (see {@link Lock} class description)<br>
  * - optional functional retry handler for maximal flexibility in logic interoperability (e.g. owner communication)
  *   instead of simply just a concrete optional time parameter<br>

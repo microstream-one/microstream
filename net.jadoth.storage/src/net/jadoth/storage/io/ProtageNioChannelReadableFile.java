@@ -2,7 +2,7 @@ package net.jadoth.storage.io;
 
 import java.nio.channels.ReadableByteChannel;
 
-public interface ProtageNioChannelReadable
+public interface ProtageNioChannelReadableFile extends ProtageReadableFile
 {
 	public ReadableByteChannel channel();
 }

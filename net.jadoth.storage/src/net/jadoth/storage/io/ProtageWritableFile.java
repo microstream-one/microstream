@@ -5,8 +5,6 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.files.XFiles;
-
 public interface ProtageWritableFile extends ProtageReadableFile
 {
 	@Override
@@ -18,32 +16,10 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	
 	public long write(Iterable<? extends ByteBuffer> sources);
 	
-	/**
-	 * Attempts to delete the file.
-	 * If any amount of {@link ProtageFileChannel} instances are still actively accessing the file,
-	 * it is neither deleted nor marked for deletion.
-	 * 
-	 * @return the amount of still actively accessing {@link ProtageFileChannel} instances.
-	 */
-	public int tryDelete();
+	public void delete();
 	
-	/**
-	 * {@link #tryDelete} with mark for deletion if not possible.
-	 * @return
-	 */
-	public int delete();
-	
-	
-	/**
-	 * Delete now without delay, closing all resources, or throw exception if not possible.
-	 * @throws RuntimeException
-	 */
-	public void forceDelete() throws RuntimeException; // (15.10.2018 TM)EXCP: proper exception
-
-
 	public <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(C callback);
 	
-	public boolean isMarkedForDeletion();
 	
 	public boolean isDeleted();
 	
@@ -54,13 +30,12 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		// instance fields //
 		////////////////////
 		
-		private final D      directory;
-		private final String qualifier;
-		private final String identity ;
-		private final String name     ;
+		private final D      directory ;
+		private final String qualifier ;
+		private final String identifier;
+		private final String name      ;
 		
-		private boolean pendingDelete;
-		private boolean isDeleted    ;
+		private boolean isDeleted;
 		
 		
 		
@@ -71,12 +46,10 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		protected Implementation(final D directory, final String name)
 		{
 			super();
-			this.directory = notNull(directory);
-			this.name      = notNull(name);
-			
-			final String directoryPath = XFiles.ensureNormalizedPathSeperators(directory.identifier());
-			this.qualifier = XFiles.ensureTrailingSlash(directoryPath);
-			this.identity  = this.qualifier + name;
+			this.directory  = notNull(directory);
+			this.name       = notNull(name);
+			this.qualifier  = directory.qualifyingIdentifier();
+			this.identifier = this.qualifier + name;
 		}
 		
 		
@@ -96,17 +69,29 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		{
 			return this.name;
 		}
-
+		
 		@Override
-		public synchronized final boolean isMarkedForDeletion()
+		public final String qualifier()
 		{
-			return this.pendingDelete;
+			return this.qualifier;
+		}
+		
+		@Override
+		public final String identifier()
+		{
+			return this.identifier;
 		}
 		
 		@Override
 		public synchronized final boolean isDeleted()
 		{
 			return this.isDeleted;
+		}
+		
+		@Override
+		public void delete()
+		{
+			this.isDeleted = true;
 		}
 				
 	}

@@ -10,14 +10,14 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import net.jadoth.storage.io.ProtageDirectory;
-import net.jadoth.storage.io.ProtageNioChannel;
-import net.jadoth.storage.io.ProtageNioChannelWritable;
+import net.jadoth.storage.io.ProtageNioChannelFile;
+import net.jadoth.storage.io.ProtageNioChannelWritableFile;
 import net.jadoth.storage.io.ProtageReadableFile;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 
 
-public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
+public interface ProtageFileFS extends ProtageNioChannelFile
 {
 	@Override
 	public ProtageDirectoryFS directory();
@@ -38,7 +38,6 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 		// instance fields //
 		////////////////////
 		
-		// (27.10.2018 TM)TODO: OGS-45: also hold or even replace by Path? (Performance?)
 		private final     File        file   ;
 		private transient FileLock    lock   ;
 		private transient FileChannel channel;
@@ -74,6 +73,12 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 		{
 			return this.file;
 		}
+		
+		public final Path path()
+		{
+			// (27.10.2018 TM)TODO: OGS-45: also hold or even replace File by Path? (Performance?)
+			return this.file.toPath();
+		}
 
 		@Override
 		public synchronized long length()
@@ -84,6 +89,7 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 		@Override
 		public synchronized boolean exists()
 		{
+			// (29.10.2018 TM)FIXME: OGS-45: conflict with isDeleted flag in super class. Or differentiate better?
 			return this.file.exists();
 		}
 		
@@ -118,39 +124,36 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 		}
 
 		@Override
-		public synchronized int tryClose()
+		public synchronized void close()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#tryClose()
-		}
-
-		@Override
-		public synchronized int close()
-		{
+			if(this.isClosed())
+			{
+				return;
+			}
+			
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#close()
 		}
 
 		@Override
-		public synchronized int forceClose() throws RuntimeException
+		public synchronized void delete()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#forceClose()
-		}
-
-		@Override
-		public synchronized int tryDelete()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#tryDelete()
-		}
-
-		@Override
-		public synchronized int delete()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#delete()
-		}
-
-		@Override
-		public synchronized void forceDelete() throws RuntimeException
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageWritableFile#forceDelete()
+			if(!this.exists())
+			{
+				return;
+			}
+			
+			this.close();
+			
+			try
+			{
+				Files.delete(this.path());
+				super.delete();
+			}
+			catch(final IOException e)
+			{
+				// (29.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException(e);
+			}
 		}
 
 		@Override
@@ -160,24 +163,20 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 		}
 		
 		@Override
-		public synchronized void copyTo(final ProtageWritableFile target)
+		public void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
 		{
-			this.copyTo(target, 0, this.length());
-		}
-
-		@Override
-		public synchronized void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
-		{
-			if(target instanceof ProtageNioChannelWritable)
+			if(target instanceof ProtageNioChannelWritableFile)
 			{
-				this.synchCopyToNioChannel((ProtageNioChannelWritable)target, sourcePosition, length);
+				// (29.10.2018 TM)FIXME: OGS-45: must lock both files in order
+				this.synchCopyToNioChannel((ProtageNioChannelWritableFile)target, sourcePosition, length);
 				return;
 			}
 			
+			super.copyTo(target, sourcePosition, length);
 		}
 		
 		private void synchCopyToNioChannel(
-			final ProtageNioChannelWritable target        ,
+			final ProtageNioChannelWritableFile target        ,
 			final long                      sourcePosition,
 			final long                      length
 		)
@@ -201,7 +200,7 @@ public interface ProtageFileFS extends ProtageWritableFile, ProtageNioChannel
 			
 			try
 			{
-				Files.move(this.file().toPath(), destFile);
+				Files.move(this.path(), destFile);
 			}
 			catch(final IOException e)
 			{
