@@ -6,6 +6,18 @@ import net.jadoth.collections.types.XGettingTable;
 
 public interface ProtageDirectory extends ProtageIoElement
 {
+	/**
+	 * The identifier String that can be used as a qualifier for a file contained in this directory.<p>
+	 * Depending on the underlying binary storage's adressing concept, this might be equal to {@link #identifier()}
+	 * or it might add a kind of separator. For example for a file system, the qualifying identifier of a directory
+	 * is the directory path plus a trailing slash ('/').
+	 * 
+	 * @return
+	 */
+	public default String qualifyingIdentifier()
+	{
+		return this.identifier();
+	}
 	
 	public XGettingTable<String, ? extends ProtageFile> files();
 	

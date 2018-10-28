@@ -12,29 +12,7 @@ public interface ProtageReadableFile extends ProtageFile
 	
 	public boolean isOpen();
 		
-	
-	
-	/**
-	 * Attempts to close the file.
-	 * If any amount of {@link ProtageFileChannel} instances are still actively accessing the file,
-	 * it is neither closed nor marked for closing.
-	 * 
-	 * @return the amount of still actively accessing {@link ProtageFileChannel} instances.
-	 */
-	public int tryClose();
-	
-	/**
-	 * {@link #tryClose} with mark for closing if not possible.
-	 * @return
-	 */
-	public int close();
-	
-	/**
-	 * Definitely close now, close all channels, or throw exception if not possible.
-	 * @return the number of channels that have been closed by execution the method.
-	 * @throws RuntimeException
-	 */
-	public int forceClose() throws RuntimeException; // (15.10.2018 TM)EXCP: proper exception
+	public void close();
 	
 	public boolean isClosed();
 		
@@ -42,8 +20,29 @@ public interface ProtageReadableFile extends ProtageFile
 	
 	public abstract long read(ByteBuffer target, long position);
 	
-	public void copyTo(ProtageWritableFile target);
+	public default void copyTo(final ProtageWritableFile target)
+	{
+		// must lock here to get a reliable length value
+		synchronized(this)
+		{
+			this.copyTo(target, 0, this.length());
+		}
+	}
 
-	public void copyTo(ProtageWritableFile target, long sourcePosition, long length);
+	public default void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
+	{
+		/* (29.10.2018 TM)FIXME: OGS-45: default copyTo
+		 * create a special Iterator that (re)fills its buffer on every next() call for the whole length
+		 */
+		if(System.currentTimeMillis() > 0)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
+		}
+		synchronized(this)
+		{
+			final Iterable<ByteBuffer> shovel = null;
+			target.write(shovel);
+		}
+	}
 	
 }

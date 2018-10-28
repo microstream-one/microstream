@@ -27,12 +27,13 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		final String qualifier  = XFiles.ensureNormalizedPathSeperators(directory.getParent());
 		final String name       = directory.getName();
 		final String identifier = XFiles.ensureTrailingSlash(qualifier) + name;
+		final String qualIdent  = XFiles.ensureTrailingSlash(identifier);
 		
 		final EqHashTable<String, ProtageFileFS.Implementation>   files      = EqHashTable.New();
 		final XGettingTable<String, ProtageFileFS.Implementation> viewFiles  = files.view();
 		
 		final ProtageDirectoryFS.Implementation instance = new ProtageDirectoryFS.Implementation(
-			directory, qualifier, name, identifier, files, viewFiles
+			directory, qualifier, name, identifier, qualIdent, files, viewFiles
 		);
 		instance.initializeFiles(isRelevantFile);
 		
@@ -45,10 +46,11 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		// instance fields //
 		////////////////////
 		
-		private final File   directory          ;
-		private final String cachedParentPath   ;
-		private final String cachedDirectoryName;
-		private final String cachedPathName     ;
+		private final File   directory           ;
+		private final String qualifier           ;
+		private final String name                ;
+		private final String identifier          ;
+		private final String qualifyingIdentifier;
 		
 		private final EqHashTable<String, ProtageFileFS.Implementation>   files    ;
 		private final XGettingTable<String, ProtageFileFS.Implementation> viewFiles;
@@ -60,21 +62,23 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		/////////////////
 
 		Implementation(
-			final File                                                directory ,
-			final String                                              parentPath,
-			final String                                              name      ,
-			final String                                              path      ,
-			final EqHashTable<String, ProtageFileFS.Implementation>   files     ,
+			final File                                                directory           ,
+			final String                                              qualifier           ,
+			final String                                              name                ,
+			final String                                              identifier          ,
+			final String                                              qualifyingIdentifier,
+			final EqHashTable<String, ProtageFileFS.Implementation>   files               ,
 			final XGettingTable<String, ProtageFileFS.Implementation> viewFiles
 		)
 		{
 			super();
-			this.directory           = directory ;
-			this.cachedParentPath    = parentPath;
-			this.cachedDirectoryName = name      ;
-			this.cachedPathName      = path      ;
-			this.files               = files     ;
-			this.viewFiles           = viewFiles ;
+			this.directory            = directory           ;
+			this.qualifier            = qualifier           ;
+			this.name                 = name                ;
+			this.identifier           = identifier          ;
+			this.qualifyingIdentifier = qualifyingIdentifier;
+			this.files                = files               ;
+			this.viewFiles            = viewFiles           ;
 		}
 		
 		
@@ -86,19 +90,25 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		@Override
 		public final String qualifier()
 		{
-			return this.cachedParentPath;
+			return this.qualifier;
 		}
 
 		@Override
 		public final String name()
 		{
-			return this.cachedDirectoryName;
+			return this.name;
 		}
 		
 		@Override
 		public final String identifier()
 		{
-			return this.cachedPathName;
+			return this.identifier;
+		}
+		
+		@Override
+		public final String qualifyingIdentifier()
+		{
+			return this.qualifyingIdentifier;
 		}
 
 		@Override
