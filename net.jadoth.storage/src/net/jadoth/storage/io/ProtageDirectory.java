@@ -4,36 +4,8 @@ import java.util.function.Supplier;
 
 import net.jadoth.collections.types.XGettingTable;
 
-public interface ProtageDirectory
+public interface ProtageDirectory extends ProtageIoElement
 {
-	/**
-	 * The primary name of the directory, if applicable.
-	 * @return
-	 * 
-	 * @see #qualifier()
-	 * @see #identifier()
-	 */
-	public String name();
-	
-	/**
-	 * The qualifier that, in combination with {@link #name()}, uniquely identifies the directory, if applicable.
-	 * @return
-	 * 
-	 * @see #name()
-	 * @see #identifier()
-	 */
-	public String qualifier();
-	
-	/**
-	 * The identifier that uniquely identifies the directory. If applicable, a combination of {@link #qualifier()}
-	 * and {@link #name()}.
-	 * 
-	 * @return
-	 * 
-	 * @see #qualifier()
-	 * @see #name()
-	 */
-	public String identifier();
 	
 	public XGettingTable<String, ? extends ProtageFile> files();
 	

@@ -1,9 +1,10 @@
 package net.jadoth.storage.io;
 
-public interface ProtageFile
+public interface ProtageFile extends ProtageIoElement
 {
 	public ProtageDirectory directory();
 	
+	@Override
 	public String name();
 	
 	public long length();

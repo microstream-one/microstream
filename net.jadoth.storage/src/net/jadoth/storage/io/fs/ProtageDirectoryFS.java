@@ -5,38 +5,41 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.files.XFiles;
 import net.jadoth.storage.io.ProtageWritableDirectory;
 import net.jadoth.storage.io.ProtageWritableFile;
 
 
-public interface FileSystemDirectory extends ProtageWritableDirectory
+public interface ProtageDirectoryFS extends ProtageWritableDirectory
 {
 	public File directory();
 	
 	@Override
-	public FileSystemFile createFile(String fileName);
+	public ProtageFileFS createFile(String fileName);
 	
 	
 	
-	public static FileSystemDirectory New(final File directory, final Predicate<? super File> isRelevantFile)
+	public static ProtageDirectoryFS New(final File directory, final Predicate<? super File> isRelevantFile)
 	{
 		ProtageFileSystem.validateExistingDirectory(directory);
 		ProtageFileSystem.validateIsDirectory(directory);
 		
-		final String                                               parentPath = directory.getParent();
-		final String                                               name       = directory.getName();
-		final EqHashTable<String, FileSystemFile.Implementation>   files      = EqHashTable.New();
-		final XGettingTable<String, FileSystemFile.Implementation> viewFiles  = files.view();
+		final String qualifier  = XFiles.ensureNormalizedPathSeperators(directory.getParent());
+		final String name       = directory.getName();
+		final String identifier = XFiles.ensureTrailingSlash(qualifier) + name;
 		
-		final FileSystemDirectory.Implementation instance = new FileSystemDirectory.Implementation(
-			directory, parentPath, name, parentPath, files, viewFiles
+		final EqHashTable<String, ProtageFileFS.Implementation>   files      = EqHashTable.New();
+		final XGettingTable<String, ProtageFileFS.Implementation> viewFiles  = files.view();
+		
+		final ProtageDirectoryFS.Implementation instance = new ProtageDirectoryFS.Implementation(
+			directory, qualifier, name, identifier, files, viewFiles
 		);
 		instance.initializeFiles(isRelevantFile);
 		
 		return instance;
 	}
 	
-	public class Implementation implements FileSystemDirectory
+	public class Implementation implements ProtageDirectoryFS
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -47,8 +50,8 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		private final String cachedDirectoryName;
 		private final String cachedPathName     ;
 		
-		private final EqHashTable<String, FileSystemFile.Implementation>   files    ;
-		private final XGettingTable<String, FileSystemFile.Implementation> viewFiles;
+		private final EqHashTable<String, ProtageFileFS.Implementation>   files    ;
+		private final XGettingTable<String, ProtageFileFS.Implementation> viewFiles;
 		
 		
 		
@@ -57,12 +60,12 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		/////////////////
 
 		Implementation(
-			final File                                                 directory ,
-			final String                                               parentPath,
-			final String                                               name      ,
-			final String                                               path      ,
-			final EqHashTable<String, FileSystemFile.Implementation>   files     ,
-			final XGettingTable<String, FileSystemFile.Implementation> viewFiles
+			final File                                                directory ,
+			final String                                              parentPath,
+			final String                                              name      ,
+			final String                                              path      ,
+			final EqHashTable<String, ProtageFileFS.Implementation>   files     ,
+			final XGettingTable<String, ProtageFileFS.Implementation> viewFiles
 		)
 		{
 			super();
@@ -136,7 +139,7 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 		}
 				
 		@Override
-		public synchronized FileSystemFile createFile(final String fileName)
+		public synchronized ProtageFileFS createFile(final String fileName)
 		{
 			final File file = this.internalCreateSystemFile(fileName);
 			return this.internalCreateFile(file, fileName);
@@ -159,10 +162,10 @@ public interface FileSystemDirectory extends ProtageWritableDirectory
 			}
 		}
 		
-		protected synchronized FileSystemFile internalCreateFile(final File file, final String fileName)
+		protected synchronized ProtageFileFS internalCreateFile(final File file, final String fileName)
 		{
 			// file is created in closed state to allow a complete creation of a preliminary directory instance
-			final FileSystemFile.Implementation createdFile = new FileSystemFile.Implementation(
+			final ProtageFileFS.Implementation createdFile = new ProtageFileFS.Implementation(
 				this, fileName, file, null, null
 			);
 			
