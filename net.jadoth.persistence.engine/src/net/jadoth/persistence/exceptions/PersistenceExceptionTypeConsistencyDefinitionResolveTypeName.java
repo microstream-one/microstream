@@ -6,8 +6,19 @@ public class PersistenceExceptionTypeConsistencyDefinitionResolveTypeName
 extends PersistenceExceptionTypeConsistencyDictionary
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance typeNames  //
-	/////////////////////
+	// static methods //
+	///////////////////
+	
+	public static final String messageBody()
+	{
+		return "Unresolvable dictionary type";
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// instance typeNames //
+	///////////////////////
 
 	private final String typeName;
 
@@ -41,7 +52,8 @@ extends PersistenceExceptionTypeConsistencyDictionary
 		this(typeName, message, cause, true, true);
 	}
 
-	public PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(final String typeName,
+	public PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(
+		final String    typeName          ,
 		final String    message           ,
 		final Throwable cause             ,
 		final boolean   enableSuppression ,
@@ -58,7 +70,7 @@ extends PersistenceExceptionTypeConsistencyDictionary
 	// getters          //
 	/////////////////////
 
-	public String getTypeName()
+	public String typeName()
 	{
 		return this.typeName;
 	}
@@ -68,15 +80,11 @@ extends PersistenceExceptionTypeConsistencyDictionary
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
+	
 	@Override
-	public String getMessage()
+	public String assembleDetailString()
 	{
-		return "Unresolvable dictionary type: \"" + this.typeName + "\"."
-			+ (super.getMessage() != null ? " Details: " + super.getMessage() : "")
-		;
+		return messageBody() + ": \"" + this.typeName() + "\"";
 	}
-
-
 
 }
