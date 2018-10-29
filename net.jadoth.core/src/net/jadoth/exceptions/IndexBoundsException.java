@@ -17,15 +17,19 @@ package net.jadoth.exceptions;
  * So again, one has to do everything by oneself properly.
  *
  * @author TM
- *
  */
 public class IndexBoundsException extends IndexOutOfBoundsException
 {
+	// archetype for a proper exception
+	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
-
-	static final String MESSAGE_BODY = "Index out of bounds";
+	// static methods //
+	///////////////////
+	
+	public static final String messageBody()
+	{
+		return "Index out of bounds";
+	}
 
 
 
@@ -81,7 +85,13 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 		this(startIndex, indexBound, index, null);
 	}
 
-	public IndexBoundsException(final long startIndex, final long indexBound, final long index, final String message)
+	// methods with more then 3 parameters should better be broken into one paramter per line
+	public IndexBoundsException(
+		final long   startIndex,
+		final long   indexBound,
+		final long   index     ,
+		final String message
+	)
 	{
 		super(message);
 		this.startIndex = startIndex;
@@ -120,8 +130,8 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	/**
 	 * Sadly, the Throwable implementation uses #getMessage() directly to print the exception.
 	 * This is a concern conflict: getMessage should actually be the getter for the explicit message.
-	 * But it is used as the String representating method as well.
-	 * So a output message generically assembling the output string must override the getter.
+	 * But it is used as the String assembling method as well.
+	 * So a output method generically assembling the output string must override the getter.
 	 * As this hides the actual getting functionality, a workaround accessor method has to be provided
 	 * for potential subclasses.
 	 *
@@ -135,13 +145,16 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 
 	public String assembleDetailString()
 	{
-		return MESSAGE_BODY + ": " + this.index + " not in [" + this.startIndex + ";" + this.indexBound + "[";
+		return messageBody() + ": " + this.index + " not in [" + this.startIndex + ";" + this.indexBound + "[";
 	}
 
 	protected String assembleExplicitMessageAddon()
 	{
 		final String explicitMessage = super.getMessage();
-		return explicitMessage == null ? "" : " (" + explicitMessage + ")";
+		return explicitMessage != null
+			? " (" + explicitMessage + ")"
+			: ""
+		;
 	}
 
 	public String assembleOutputString()
@@ -157,10 +170,11 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 
 	/**
 	 * Returns an assembled output String due to bad method design in {@link Throwable}.
-	 * Albeit being named "getMessage" by the JDK developers, this method should be seen as "assembleOutputString" as this is its purpose.
+	 * Albeit being named "getMessage" by the JDK developers, this method should be seen
+	 * as "assembleOutputString" as this is its purpose.
 	 * For the actual message getter, see {@link #message()}.
 	 *
-	 * @return this exception type's generic string plus an explicit message if present.
+	 * @return this exception type's generic message plus an explicit message if present.
 	 */
 	@Override
 	public String getMessage() // intentionally not final to enable subclasses to change the behavior again
@@ -170,6 +184,6 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 
 
 
-	// ridiculous hacky buggy security hole misconceptioned serialization, but if need be...
+	// ridiculous hacky buggy security hole misconceptioned JDK serialization, but if need be...
 	private static final long serialVersionUID = 1489211066951377456L;
 }
