@@ -1,8 +1,7 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.network.persistence;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceManager;
 
 
@@ -19,7 +18,7 @@ public interface ComChannel
 	
 	
 	
-	public static ComChannel New(final PersistenceManager<Binary> persistenceManager)
+	public static ComChannel New(final PersistenceManager<?> persistenceManager)
 	{
 		return new Implementation(
 			notNull(persistenceManager)
@@ -32,7 +31,7 @@ public interface ComChannel
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceManager<Binary> persistenceManager;
+		private final PersistenceManager<?> persistenceManager;
 		
 		
 		
@@ -40,7 +39,7 @@ public interface ComChannel
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceManager<Binary> persistenceManager)
+		Implementation(final PersistenceManager<?> persistenceManager)
 		{
 			super();
 			this.persistenceManager = persistenceManager;

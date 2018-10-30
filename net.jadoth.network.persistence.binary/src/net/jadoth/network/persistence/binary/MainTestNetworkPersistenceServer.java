@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.meta.XDebug;
+import net.jadoth.network.persistence.ComChannel;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class MainTestNetworkPersistenceServer
