@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -460,5 +461,36 @@ Epic (JET-44) und Issues f\'fcr n\'f6tige Arbeiten anlegen.\par
 - Varianten f\'fcr stateful und stateless communication, was die SwizzleRegistry angeht.\par
 - Endianess Konvertierung\par
 - Einfache Plugin-M\'f6glichkeit f\'fcr Ver- und Entschl\'fcsselung\par
+\par
+\par
+2018-10-30\par
+Issues Beschreibungen nachtragen.\par
+\par
+JET-43 anfangen.\par
+Erst mal wieder in Beispielcode einlesen.\par
+\par
+Zun\'e4chst mal muss da eine richtige Infrastruktur gebaut werden. Momentan sind das ja nur Utilmethoden, die ein File als Directory \'fcbergeben bekommen, um das Proof-of-Concept Beispiel zu realisieren.\par
+N\'f6tige Verbesserungen:\par
+- TypeDictionary und IdProvider setzen, anstatt sie hardgecodet aus einem Directory lesen.\par
+- ComChannel Instanzen aufheben (k\'f6nnen), anstatt f\'fcr jede Nachricht einen neuen aufzumachen.\par
+- Evtl. TODOs f\'fcr closing usw. noch implementieren, mal sehen.\par
+\par
+Und dann kann ich schauen, wo da der Handshake geschickt wird.\par
+\par
+\par
+Also aus UtilTestNetworkPersistence#openComChannel muss eine "ComChannelFoundation" werden, \'e4hnlich der EmbeddedStorageFoundation\par
+Dort ist dann drin:\par
+- BinaryPersistenceFoundation\par
+- BufferSizeProvider\par
+- TypeDictionaryProvider\par
+\par
+Es reicht aber nicht, daraus dynamisch ComChannels zu erstellen, weil sich z.B. das TypeDictionary nicht mehr \'e4ndern darf.\par
+Es muss daraus eher ein ComChannelHost oder sowas erzeugt werden, der das TypeDictionary kennt usw. und der nach neuen Verbindungen lauscht.\par
+Dort kommt dann auch das Handshake senden rein, noch bevor ein OGC ComChannel ge\'f6ffnet wird.\par
+\par
+Oder bessere Namen:\par
+- ComChannel\par
+- ComHost\par
+- NetworkFoundation\par
 }
  
