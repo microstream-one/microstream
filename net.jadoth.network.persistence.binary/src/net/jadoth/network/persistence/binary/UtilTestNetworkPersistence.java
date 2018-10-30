@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.files.XFiles;
 import net.jadoth.meta.XDebug;
+import net.jadoth.network.persistence.ComChannel;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;

@@ -5,6 +5,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.collections.old.OldCollections;
 import net.jadoth.meta.XDebug;
+import net.jadoth.network.persistence.ComChannel;
 import net.jadoth.persistence.types.PersistenceManager;
 
 public class MainTestNetworkPersistenceClient

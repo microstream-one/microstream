@@ -602,9 +602,9 @@ public final class XMath
 		return StrictMath.floor(value * factor + 0.5d) / factor;
 	}
 
-	public static _intRange range(final int from, final int to)
+	public static _longRange range(final int start, final int bound)
 	{
-		return new _intRange(from, to);
+		return _longRange.New(start, bound);
 	}
 
 	public static byte[] sequence(final byte from, final byte to)

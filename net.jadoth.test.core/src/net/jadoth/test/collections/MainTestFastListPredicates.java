@@ -1,10 +1,9 @@
 package net.jadoth.test.collections;
 
-import static net.jadoth.math.XMath.range;
-
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
+import net.jadoth.math._intRange;
 import net.jadoth.typing.XTypes;
 
 /**
@@ -59,4 +58,9 @@ public class MainTestFastListPredicates
 		System.out.println("Min: "+new java.text.DecimalFormat("00,000,000,000").format(min));
 	}
 
+	public static _intRange range(final int from, final int to)
+	{
+		return _intRange.New(from, to);
+	}
+	
 }

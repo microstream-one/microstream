@@ -47,6 +47,17 @@ import net.jadoth.typing.XTypes;
 public class _intRange implements Set<Integer>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static _intRange New(final int from, final int to)
+	{
+		return new _intRange(from, to);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
@@ -58,7 +69,7 @@ public class _intRange implements Set<Integer>
 	// constructors //
 	/////////////////
 
-	public _intRange(final int from, final int to)
+	_intRange(final int from, final int to)
 	{
 		super();
 		this.from = from;
