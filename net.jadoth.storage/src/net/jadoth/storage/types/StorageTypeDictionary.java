@@ -9,6 +9,7 @@ import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionRegistrationObserver;
 import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeLineage;
 
 
@@ -289,6 +290,12 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		public PersistenceTypeLineage lookupTypeLineage(final String typeName)
 		{
 			return this.dictionary.lookupTypeLineage(typeName);
+		}
+		
+		@Override
+		public PersistenceTypeDictionaryView view()
+		{
+			return this.dictionary.view();
 		}
 
 	}
