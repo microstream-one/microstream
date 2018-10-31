@@ -22,9 +22,9 @@ public final class FileTypeIdProvider extends AbstractIdProviderByFile implement
 		this(file, increase, Swizzle.defaultStartTypeId());
 	}
 
-	public FileTypeIdProvider(final File file, final long increase, final long id)
+	public FileTypeIdProvider(final File file, final long increase, final long startId)
 	{
-		super(file, increase, Swizzle.validateTypeId(id));
+		super(file, increase, Swizzle.validateTypeId(startId));
 	}
 
 

@@ -178,9 +178,16 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public F setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
 
-	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryStorage(
+	public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryIoHandling(
 		H typeDictionaryStorage
 	);
+	
+	public default F setTypeDictionaryIoHandler(
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
+	)
+	{
+		return this.setTypeDictionaryIoHandling(typeDictionaryIoHandler);
+	}
 	
 	public F setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
 
@@ -190,7 +197,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	public F setTypeDescriptionBuilder(PersistenceTypeDefinitionCreator typeDefinitionCreator);
 
-	/* (29.10.2013 TM)TODO: rename to "TypeEvaluatorAnalyzable" & keep comment
+	/* (29.10.2013 TM)TODO: rename to "TypeEvaluatorAnalyzable" and keep comment
 	 * rationale (keep as documentation afterwards)
 	 *
 	 * The difference between not persistable and not analyzable is:
@@ -203,7 +210,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	 * Or they might even get assigned a custom handler and cause no problem at all (e.g. if someone implements
 	 * a handler for java.lang.Thread that is sufficient for a specific project, then why not).
 	 */
-	public F setTypeEvaluatorPersistable(PersistenceTypeEvaluator getTypeEvaluatorPersistable);
+	public F setTypeEvaluatorPersistable(PersistenceTypeEvaluator typeEvaluatorPersistable);
 
 	public F setBufferSizeProvider(BufferSizeProviderIncremental bufferSizeProvider);
 
@@ -1100,7 +1107,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryStorage(
+		public <H extends PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer> F setTypeDictionaryIoHandling(
 			final H typeDictionaryStorageHandler
 		)
 		{

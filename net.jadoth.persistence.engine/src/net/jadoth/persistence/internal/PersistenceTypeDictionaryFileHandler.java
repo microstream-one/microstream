@@ -9,11 +9,9 @@ import net.jadoth.files.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryLoader;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
 
-public final class PersistenceTypeDictionaryFileHandler
-implements PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
+public final class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDictionaryIoHandler
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

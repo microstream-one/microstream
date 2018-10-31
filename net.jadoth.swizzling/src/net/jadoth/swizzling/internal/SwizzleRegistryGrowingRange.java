@@ -123,6 +123,13 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	// instance fields //
 	////////////////////
 
+	/* (31.10.2018 TM)TODO: SwizzleRegistry improvment
+	 * Maybe split the Entry[][] into a long[][] just for the oid and a corresponding 2D-array
+	 * of Entry (extrends WeakReference).
+	 * This would probably make the lookup per OID ("loading") faster due to less pointer chasing.
+	 * But maybe not due to passing around references to two arrays instead of one.
+	 */
+	
 	private Entry[][] slotsPerOid; // "primary" slots. See put() and increaseStorage() methods
 	private Entry[][] slotsPerRef;
 	private int       size       ;
@@ -361,6 +368,30 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 				}
 			}
 		}
+		
+		/* (31.10.2018 TM)TODO: Decoupled constant registry
+		 * a lookup in a decoupled constant registry could be performed here.
+		 * This would cause the following changes:
+		 * - none to a proper OID lookup (the fast majority of lookups)
+		 * - a tiny delay (double lookup) to looking up constants, which is not noticable in the grand scheme
+		 * - a tiny delay (double lookup) to looking up unresolvable OIDs, which is an error anyway.
+		 * - yield a modular and immutable constant-registry that could be shared (e.g. OGC) and spared from clearing.
+		 * Also see issue JET-48.
+		 * 
+		 * The only problem is that this method has a static context and cannot relay to a constant registry.
+		 * Making it an instance method might cost performance (has to be tested)
+		 * Or wait a second:
+		 * The constant registry only handles constants (JSL cached instances and references to constant field instances)
+		 * So it is by definition static, anyway.
+		 * The only problem is that the RootResolver is dynamic that is executed long after static initializers.
+		 * Maybe the constant registry has to be pseudo-immutable then, with the root resolving being allowed
+		 * to add resolved instances.
+		 * However, that creates new problems:
+		 * - What if there is more than one RootResolver in the same process?
+		 * - If that registry is shared with an OGC channel, it might even be a security loophole
+		 * (know the ID of an important constant and you can request everything it references)
+		 */
+		
 		return null;
 	}
 
