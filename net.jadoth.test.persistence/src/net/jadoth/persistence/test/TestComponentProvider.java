@@ -142,7 +142,7 @@ public class TestComponentProvider extends InvocationLogging
 	{
 		foundation
 			.setSwizzleIdProvider          (this.swizzleIdProvider()     )
-			.setTypeDictionaryStorage      (this.dictionaryStorage()     )
+			.setTypeDictionaryIoHandling      (this.dictionaryStorage()     )
 			.setPersistenceChannel         (this.persistenceStorage()    )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)

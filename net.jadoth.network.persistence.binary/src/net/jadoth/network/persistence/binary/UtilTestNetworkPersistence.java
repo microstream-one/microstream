@@ -139,7 +139,7 @@ public class UtilTestNetworkPersistence
 		XDebug.println("OID: " + idProvider.currentObjectId());
 		
 		return BinaryPersistenceFoundation.New()
-			.setTypeDictionaryStorage      (dictionaryStorage            )
+			.setTypeDictionaryIoHandling      (dictionaryStorage            )
 			.setSwizzleIdProvider          (idProvider                   )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)

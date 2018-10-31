@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -496,5 +497,34 @@ Oder bessere Namen:\par
 23:30\par
 \par
 Implementierung weitermachen.\par
+\par
+\par
+2018-10-31\par
+\par
+\'dcberlegungen zu IdStrategy.\par
+Recherche zu Potenzial und Auswirkungen auf Storage-Ebene.\par
+Da w\'e4re sogar ein entsprechendes TODO in EmbeddedStorage#createConnectionFoundation.\par
+Dem hardgecodet ein File zu \'fcbergeben ist eh nicht so toll.\par
+Wenn das aufger\'e4umt wird, w\'e4re das gut f\'fcr\par
+- OGS-45.\par
+- JET-43 und JET-45.\par
+- OGS an sich, weil ein TODO / Eck weniger.\par
+\par
+Dabei aufgefallen: Es gibt noch keinen TypeDictionaryIoHandler, sondern da wird immer mit "PersistenceTypeDictionaryLoader & PersistenceTypeDictionaryStorer"-Generics rumgebaut.\par
+Typ nachr\'fcsten. Macht die Umformung oben und den Foundation Code allgemein einfacher und einheitlicher.\par
+Ah, die Generics Trennung hat durchaus einen Sinn: Das wird intern tats\'e4chlich als zwei Felder verwaltet, falls das mal unterschiedliche Instanzen sein m\'fcssen.\par
+Aber so ein Kombinationstyp schadet trotzdem nichts. Und Benamungen bissl verbessern.\par
+\par
+createConnectionFoundation entflechten.\par
+\par
+Hm. Das ist jetzt bl\'f6d:\par
+Ein "IdStrategy" Typ w\'e4re allgemeinverwendbar f\'fcr OIDs und TIDs. Aber letztendlich m\'fcssen da zwei unterschiedliche Typen ObjectIdProvider und TypeIdProvider draus werden. Auch, um eine versehentliche Vertauschung der beiden compilertechnisch zu verhindern. Wenn ich jetzt aber in den allgemeinen Typ "IdStrategy" Methoden reinbaue, um aus einer ID-Quelle beide Arten erzeugen zu k\'f6nnen, ist ja wieder die M\'f6glichkeit/Gefahr einer Vertauschung da.\par
+Mal \'fcberlegen.\par
+\par
+Ah, so gehts:\par
+Eine IdStrategy muss OID und TID kombiniert abdecken. Man braucht ja ohnehin immer beides. Dann kann man verwechslungsfrei aus der OID-Schiene den OidProvider bauen und aus der TID-Schiene den anderen.\par
+Nice.\par
+\par
+\par
 }
  

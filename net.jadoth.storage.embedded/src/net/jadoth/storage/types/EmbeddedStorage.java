@@ -5,17 +5,52 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 
 import net.jadoth.files.XFiles;
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
+import net.jadoth.persistence.types.PersistenceTypeEvaluator;
+import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
+import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public final class EmbeddedStorage
 {
 	public static final EmbeddedStorageFoundation<?> createFoundationBlank()
 	{
 		return new EmbeddedStorageFoundation.Implementation<>();
+	}
+	
+	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler,
+		final SwizzleObjectIdProvider            objectIdProvider       ,
+		final SwizzleTypeIdProvider              typeIdProvider
+	)
+	{
+		return EmbeddedStorageConnectionFoundation.New()
+			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler      )
+			.setObjectIdProvider           (objectIdProvider             )
+			.setTypeIdProvider             (typeIdProvider               )
+			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
+			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
+		;
+	}
+	
+	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
+		final SwizzleObjectIdProvider            objectIdProvider           ,
+		final SwizzleTypeIdProvider              typeIdProvider             ,
+		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
+		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
+	)
+	{
+		return EmbeddedStorageConnectionFoundation.New()
+			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler    )
+			.setObjectIdProvider           (objectIdProvider           )
+			.setTypeIdProvider             (typeIdProvider             )
+			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable   )
+			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
+		;
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
@@ -27,7 +62,7 @@ public final class EmbeddedStorage
 		 * shouldn't the providers below be somehow loosely coupled?
 		 * There also has to be an opportunity to configure things like id range increment
 		 */
-		final PersistenceTypeDictionaryFileHandler dictionaryStorage = PersistenceTypeDictionaryFileHandler.New(
+		final PersistenceTypeDictionaryFileHandler fileDictionaryIoHandler = PersistenceTypeDictionaryFileHandler.New(
 			new File(directory, Persistence.defaultFilenameTypeDictionary())
 		);
 
@@ -38,17 +73,8 @@ public final class EmbeddedStorage
 		final FileObjectIdProvider fileObjectIdProvider = new FileObjectIdProvider(
 			new File(directory, Persistence.defaultFilenameObjectId())
 		);
-
-		final CompositeSwizzleIdProvider idProvider = new CompositeSwizzleIdProvider(fileTypeIdProvider, fileObjectIdProvider)
-			.initialize()
-		;
-
-		return EmbeddedStorageConnectionFoundation.New()
-			.setTypeDictionaryStorage      (dictionaryStorage            )
-			.setSwizzleIdProvider          (idProvider                   )
-			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
-			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
-		;
+		
+		return createConnectionFoundation(fileDictionaryIoHandler, fileObjectIdProvider, fileTypeIdProvider);
 	}
 
 	
