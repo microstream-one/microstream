@@ -344,6 +344,13 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 		{
 			return PersistenceTypeDictionary.determineHighestTypeId(this.allTypesPerTypeId);
 		}
+		
+		@Override
+		public synchronized PersistenceTypeDictionaryView view()
+		{
+			// wrap in an instance of an immutable view implementation
+			return PersistenceTypeDictionaryView.New(this);
+		}
 
 		@Override
 		public final synchronized String toString()

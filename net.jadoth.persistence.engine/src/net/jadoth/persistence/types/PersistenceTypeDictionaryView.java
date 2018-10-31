@@ -31,6 +31,8 @@ public interface PersistenceTypeDictionaryView extends SwizzleTypeDictionary
 	
 	public PersistenceTypeLineageView lookupTypeLineage(String typeName);
 	
+	public PersistenceTypeDictionaryView view();
+	
 	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateAllTypeDefinitions(final C logic)
 	{
 		return this.allTypeDefinitions().values().iterate(logic);
@@ -181,6 +183,13 @@ public interface PersistenceTypeDictionaryView extends SwizzleTypeDictionary
 		public final long determineHighestTypeId()
 		{
 			return PersistenceTypeDictionary.determineHighestTypeId(this.allTypesPerTypeId);
+		}
+		
+		@Override
+		public final PersistenceTypeDictionaryView view()
+		{
+			// this implementation is already an immutable view.
+			return this;
 		}
 
 		@Override
