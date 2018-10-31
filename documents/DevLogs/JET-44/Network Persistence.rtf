@@ -525,6 +525,21 @@ Ah, so gehts:\par
 Eine IdStrategy muss OID und TID kombiniert abdecken. Man braucht ja ohnehin immer beides. Dann kann man verwechslungsfrei aus der OID-Schiene den OidProvider bauen und aus der TID-Schiene den anderen.\par
 Nice.\par
 \par
+ComHost.Configuration weiterbauen.\par
 \par
+Endianess Typ selber implementieren oder java.nio.ByteOrder nehmen?\par
+Das java.nio Ding ist halt der \'fcbliche Rotz mit fehlenden "forName" Methoden usw.\par
+Andererseits w\'e4r es schon sehr extravagant, das nachzuimplementieren und einen l\'e4stigen Konverter Zwischenschritt aufzuzwingen.\par
+Also lieber ByteOrder nehmen. Und erst mal das fehlende und sp\'e4ter n\'f6tige forName nachimplementieren. Hoffentlich wird der Hass nicht zu gro\'df.\par
+\par
+Ein read-only PersistenceTypeDictionary erfordert erst mal einen entsprechenden Typ, der nur lesende Funktionalit\'e4t anbietet.\par
+Auftrennen in retrofitteten Supertyp PersistenceTypeDictionaryView.\par
+\par
+Leider auch \'e4hnlich bei der TypeLineage.\par
+\par
+Ableitende Konstruktoren implementieren.\par
+Concurrency-Handling anpassen.\par
+\par
+Gibt paar Typkonflikte durch die Auftrennung. L\'f6sen mit zus\'e4tzlichen Methoden.\par
 }
  

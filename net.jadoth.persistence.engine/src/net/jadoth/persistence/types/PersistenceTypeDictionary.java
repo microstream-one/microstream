@@ -10,19 +10,23 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.typing.KeyValue;
 
-public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
-{
-	public XGettingTable<Long, PersistenceTypeDefinition> allTypeDefinitions();
-	
-	public XGettingTable<String, PersistenceTypeLineage> typeLineages();
-	
-	public boolean isEmpty();
 
+public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
+{
+	@Override
+	public XGettingTable<String, ? extends PersistenceTypeLineage> typeLineages();
+
+	@Override
+	public PersistenceTypeLineage lookupTypeLineage(Class<?> type);
+	
+	@Override
+	public PersistenceTypeLineage lookupTypeLineage(String typeName);
+	
+	
+	
 	public boolean registerTypeDefinition(PersistenceTypeDefinition typeDefinition);
 
 	public boolean registerTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
@@ -31,74 +35,17 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 
 	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
 
-	@Override
-	public PersistenceTypeDefinition lookupTypeByName(String typeName);
-
-	@Override
-	public PersistenceTypeDefinition lookupTypeById(long typeId);
-
-	public long determineHighestTypeId();
-
 	public void setTypeDescriptionRegistrationObserver(PersistenceTypeDefinitionRegistrationObserver observer);
 
 	public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver();
 	
 	public PersistenceTypeLineage ensureTypeLineage(Class<?> type);
 	
-	public PersistenceTypeLineage lookupTypeLineage(Class<?> type);
-	
-	public PersistenceTypeLineage lookupTypeLineage(String typeName);
-	
-	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateAllTypeDefinitions(final C logic)
-	{
-		return this.allTypeDefinitions().values().iterate(logic);
-	}
-	
-	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateRuntimeDefinitions(final C logic)
-	{
-		this.iterateTypeLineages(tl ->
-		{
-			logic.accept(tl.runtimeDefinition());
-		});
-		
-		return logic;
-	}
-	
-	public default <C extends Consumer<? super PersistenceTypeDefinition>> C resolveTypeIds(
-		final Iterable<Long> typeIds  ,
-		final C              collector
-	)
-	{
-		for(final Long typeId : typeIds)
-		{
-			final PersistenceTypeDefinition typeDefinition = this.lookupTypeById(typeId);
-			if(typeDefinition == null)
-			{
-				throw new PersistenceExceptionTypeConsistencyDictionary("TypeId cannot be resolved: " + typeId);
-			}
-			
-			collector.accept(typeDefinition);
-		}
-		
-		return collector;
-	}
-	
-	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateLatestTypes(final C logic)
-	{
-		this.iterateTypeLineages(tl ->
-		{
-			logic.accept(tl.latest());
-		});
-		
-		return logic;
-	}
 	
 	public default <C extends Consumer<? super PersistenceTypeLineage>> C iterateTypeLineages(final C logic)
 	{
 		return this.typeLineages().values().iterate(logic);
 	}
-
-	
 
 	public static <D extends PersistenceTypeDictionary> D registerTypes(
 		final D                                                          typeDictionary  ,
@@ -107,6 +54,34 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 	{
 		typeDictionary.registerTypeDefinitions(typeDefinitions);
 		return typeDictionary;
+	}
+	
+	public static VarString assembleTypesPerTypeId(
+		final VarString                                      vs               ,
+		final XGettingTable<Long, PersistenceTypeDefinition> allTypesPerTypeId
+	)
+	{
+		for(final PersistenceTypeDefinition type : allTypesPerTypeId.values())
+		{
+			vs.add(type).lf();
+		}
+		
+		return vs;
+	}
+	
+	public static long determineHighestTypeId(final XGettingTable<Long, PersistenceTypeDefinition> allTypesPerTypeId)
+	{
+		long maxTypeId = -1;
+
+		for(final Long typeId : allTypesPerTypeId.keys())
+		{
+			if(typeId >= maxTypeId)
+			{
+				maxTypeId = typeId;
+			}
+		}
+
+		return maxTypeId;
 	}
 
 	
@@ -256,13 +231,7 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		{
 			this.allTypesPerTypeId.keys().sort(XSort::compare);
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
+		
 		@Override
 		public final synchronized void setTypeDescriptionRegistrationObserver(
 			final PersistenceTypeDefinitionRegistrationObserver registrationObserver
@@ -373,30 +342,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		@Override
 		public final synchronized long determineHighestTypeId()
 		{
-			long maxTypeId = -1;
-
-			for(final Long typeId : this.allTypesPerTypeId.keys())
-			{
-				if(typeId >= maxTypeId)
-				{
-					maxTypeId = typeId;
-				}
-			}
-
-			return maxTypeId;
+			return PersistenceTypeDictionary.determineHighestTypeId(this.allTypesPerTypeId);
 		}
 
 		@Override
 		public final synchronized String toString()
 		{
-			final VarString vc = VarString.New();
-
-			for(final PersistenceTypeDefinition type : this.allTypesPerTypeId.values())
-			{
-				vc.add(type).lf();
-			}
-
-			return vc.toString();
+			return PersistenceTypeDictionary.assembleTypesPerTypeId(VarString.New(), this.allTypesPerTypeId).toString();
 		}
 
 	}
@@ -531,7 +483,5 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		}
 
 	}
-
-
 
 }

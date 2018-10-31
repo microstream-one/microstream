@@ -262,7 +262,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public XGettingTable<String, PersistenceTypeLineage> typeLineages()
+		public XGettingTable<String, ? extends PersistenceTypeLineage> typeLineages()
 		{
 			return this.dictionary.typeLineages();
 		}

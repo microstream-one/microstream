@@ -2,8 +2,8 @@ package net.jadoth.network.persistence;
 
 import java.nio.ByteOrder;
 
-import net.jadoth.math._longRange;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 public interface ComHost
 {
@@ -36,10 +36,7 @@ public interface ComHost
 		
 		public String protocolName();
 		
-		// (30.10.2018 TM)FIXME: JET-43: replace with proper types that can produce IdProviders
-		public _longRange typeIdStrategy();
-		
-		public _longRange objectIdStrategy();
+		public SwizzleIdStrategy idStrategy();
 		
 	}
 	
