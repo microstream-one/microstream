@@ -7,21 +7,9 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
 
-public interface PersistenceTypeLineage
+public interface PersistenceTypeLineage extends PersistenceTypeLineageView
 {
-	public String typeName();
-	
-	public Class<?> type();
-	
-	public XGettingTable<Long, PersistenceTypeDefinition> entries();
-	
-	public PersistenceTypeDefinition latest();
-	
-	public PersistenceTypeDefinition runtimeDefinition();
-	
 	public boolean registerTypeDefinition(PersistenceTypeDefinition typeDefinition);
-	
-	
 
 	public boolean setRuntimeTypeDefinition(PersistenceTypeDefinition runtimeDefinition);
 	
@@ -76,30 +64,27 @@ public interface PersistenceTypeLineage
 		}
 
 		@Override
-		public final XGettingTable<Long, PersistenceTypeDefinition> entries()
-		{
-			return this.entries;
-		}
-
-		@Override
 		public final Class<?> type()
 		{
 			return this.runtimeType;
 		}
 
 		@Override
-		public final PersistenceTypeDefinition runtimeDefinition()
+		public final XGettingTable<Long, PersistenceTypeDefinition> entries()
+		{
+			return this.entries;
+		}
+
+		@Override
+		public synchronized final PersistenceTypeDefinition runtimeDefinition()
 		{
 			return this.runtimeDefinition;
 		}
 		
 		@Override
-		public final PersistenceTypeDefinition latest()
+		public synchronized final PersistenceTypeDefinition latest()
 		{
-			synchronized(this.entries)
-			{
-				return this.entries.values().peek();
-			}
+			return this.entries.values().peek();
 		}
 		
 		private void validate(final PersistenceTypeDefinition typeDefinition)
@@ -134,51 +119,45 @@ public interface PersistenceTypeLineage
 		}
 		
 		@Override
-		public boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
 			this.validate(typeDefinition);
-			return this.internalRegisterTypeDefinition(typeDefinition);
+			return this.synchRegisterTypeDefinition(typeDefinition);
 		}
 		
-		private boolean internalRegisterTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		private boolean synchRegisterTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
-			synchronized(this.entries)
+			// the passed (and already validated) instance is always registered, ...
+			if(this.entries.put(typeDefinition.typeId(), typeDefinition))
 			{
-				// the passed (and already validated) instance is always registered, ...
-				if(this.entries.put(typeDefinition.typeId(), typeDefinition))
-				{
-					// ... but the return value is only true to indicate an actual additional entry.
-					this.entries.keys().sort(Long::compare);
-					return true;
-				}
-				
-				// the definition was already there (and in order), only the instance has been replaced.
-				return false;
+				// ... but the return value is only true to indicate an actual additional entry.
+				this.entries.keys().sort(Long::compare);
+				return true;
 			}
+			
+			// the definition was already there (and in order), only the instance has been replaced.
+			return false;
 		}
 				
 		@Override
-		public final boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
+		public synchronized final boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
 		{
-			synchronized(this.entries)
+			// false indicates no-op, actual non-viability causes exceptions
+			if(!this.synchCheckViability(runtimeDefinition))
 			{
-				// false indicates no-op, actual non-viability causes exceptions
-				if(!this.checkViability(runtimeDefinition))
-				{
-					return false;
-				}
-				
-				// normal case: effective final initialization
-				this.runtimeDefinition = runtimeDefinition;
-				
-				// correct behavior of the put has been checked above
-				this.entries.put(runtimeDefinition.typeId(), runtimeDefinition);
-				
-				return true;
+				return false;
 			}
+			
+			// normal case: effective final initialization
+			this.runtimeDefinition = runtimeDefinition;
+			
+			// correct behavior of the put has been checked above
+			this.entries.put(runtimeDefinition.typeId(), runtimeDefinition);
+			
+			return true;
 		}
 		
-		private boolean checkViability(final PersistenceTypeDefinition runtimeDefinition)
+		private boolean synchCheckViability(final PersistenceTypeDefinition runtimeDefinition)
 		{
 			if(this.runtimeDefinition != null)
 			{

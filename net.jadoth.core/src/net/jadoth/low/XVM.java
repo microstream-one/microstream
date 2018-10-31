@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1254,6 +1255,27 @@ public final class XVM
 	)
 	{
 		return VM.compareAndSwapObject(subject, offset, expected, replacement);
+	}
+	
+	public static ByteOrder nativeByteOrder()
+	{
+		return ByteOrder.nativeOrder();
+	}
+	
+	// because they (he) couldn't have implemented that where it belongs.
+	public static ByteOrder lookupByteOrder(final String name)
+	{
+		if(name.equals(ByteOrder.BIG_ENDIAN.toString()))
+		{
+			return ByteOrder.BIG_ENDIAN;
+		}
+		if(name.equals(ByteOrder.LITTLE_ENDIAN.toString()))
+		{
+			return ByteOrder.LITTLE_ENDIAN;
+		}
+		
+		// (31.10.2018 TM)EXCP: proper exception
+		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
 	}
 	
 	
