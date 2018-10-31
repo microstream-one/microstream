@@ -49,7 +49,14 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 			throw new PersistenceException(t);
 		}
 	}
-
+	
+	// sadly, the JDK geniuses didn't have enough OOP skill to implement proper FSElement types like Directory and File.
+	public static PersistenceTypeDictionaryFileHandler NewInDirecoty(final File directory)
+	{
+		return new PersistenceTypeDictionaryFileHandler(
+			new File(directory, Persistence.defaultFilenameTypeDictionary())
+		);
+	}
 	
 	public static PersistenceTypeDictionaryFileHandler New(final File file)
 	{
@@ -58,6 +65,7 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 		);
 	}
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //

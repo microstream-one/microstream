@@ -1,5 +1,8 @@
 package net.jadoth.persistence.internal;
 
+import static net.jadoth.X.notNull;
+import static net.jadoth.math.XMath.positive;
+
 import java.io.File;
 
 import net.jadoth.swizzling.types.Swizzle;
@@ -9,25 +12,48 @@ import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 public final class FileObjectIdProvider extends AbstractIdProviderByFile implements SwizzleObjectIdProvider
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static FileObjectIdProvider New(final File file)
+	{
+		return new FileObjectIdProvider(
+			notNull(file)                 ,
+			DEFAULT_INCREASE              ,
+			Swizzle.defaultStartObjectId()
+		);
+	}
+
+	public static FileObjectIdProvider New(final File file, final long increase)
+	{
+		return new FileObjectIdProvider(
+			 notNull(file)                ,
+			positive(increase)            ,
+			Swizzle.defaultStartObjectId()
+		);
+	}
+
+	public static FileObjectIdProvider New(final File file, final long increase, final long startId)
+	{
+		return new FileObjectIdProvider(
+			 notNull(file)                   ,
+			positive(increase)               ,
+			Swizzle.validateObjectId(startId)
+		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public FileObjectIdProvider(final File file)
+	FileObjectIdProvider(final File file, final long increase, final long startId)
 	{
-		this(file, DEFAULT_INCREASE);
+		super(file, increase, startId);
 	}
-
-	public FileObjectIdProvider(final File file, final long increase)
-	{
-		this(file, increase, Swizzle.defaultStartObjectId());
-	}
-
-	public FileObjectIdProvider(final File file, final long increase, final long id)
-	{
-		super(file, increase, Swizzle.validateObjectId(id));
-	}
-
-
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
