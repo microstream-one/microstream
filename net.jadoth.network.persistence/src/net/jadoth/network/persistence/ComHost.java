@@ -2,6 +2,10 @@ package net.jadoth.network.persistence;
 
 import static net.jadoth.X.notNull;
 
+import java.io.IOException;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
 /**
  * Host type to listen for new connections and relay them to logic for further processing,
  * potentially in another, maybe even dedicated thread.
@@ -51,7 +55,7 @@ public interface ComHost
 		private final int                   port              ;
 		private final ComConnectionAcceptor connectionAcceptor;
 		
-		private transient boolean isRunning;
+		private transient ServerSocketChannel serverSocketChannel;
 		
 		
 		
@@ -87,45 +91,70 @@ public interface ComHost
 		@Override
 		public synchronized void start()
 		{
-			if(this.isRunning)
+			if(this.serverSocketChannel != null)
 			{
 				return;
 			}
 			
-			this.isRunning = true;
+			this.synchOpenServerSocketChannel();
 			
 			// (01.11.2018 TM)TODO: JET-44: weird to have the work loop on a stack frame called "start".
 			this.acceptConnections();
+		}
+		
+		private void synchOpenServerSocketChannel()
+		{
+			try
+			{
+				this.serverSocketChannel = Com.openServerSocketChannel(this.port);
+			}
+			catch(final IOException e)
+			{
+				// (01.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException(e);
+			}
 		}
 
 		@Override
 		public synchronized void stop()
 		{
-			if(!this.isRunning)
+			if(this.serverSocketChannel == null)
 			{
 				return;
 			}
 			
-			this.isRunning = false;
+			Com.close(this.serverSocketChannel);
+			this.serverSocketChannel = null;
 		}
 
 		@Override
 		public synchronized boolean isRunning()
 		{
-			return this.isRunning;
+			return this.serverSocketChannel != null;
 		}
 
 		@Override
 		public void acceptConnections()
 		{
-			/* (01.11.2018 TM)FIXME: ComHost#acceptConnections()
-			 * in a loop:
-			 * - get lock
-			 * - check if running
-			 * - listen for connection
-			 * - relay to connectionAcceptor
-			 */
-			throw new net.jadoth.meta.NotImplementedYetError();
+			// repeatedly accept new connections until stopped.
+			while(true)
+			{
+				synchronized(this)
+				{
+					if(!this.isRunning())
+					{
+						break;
+					}
+					
+					this.synchAcceptConnection();
+				}
+			}
+		}
+		
+		private void synchAcceptConnection()
+		{
+			final SocketChannel socketChannel = Com.accept(this.serverSocketChannel);
+			this.connectionAcceptor.acceptConnection(socketChannel);
 		}
 	}
 	

@@ -3,6 +3,7 @@ package net.jadoth.network.persistence;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
+import net.jadoth.network.persistence.ComConfiguration.Assembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
@@ -34,6 +35,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public ComConfiguration getConfiguration();
 	
+	public ComConfiguration.Assembler getConfigurationAssembler();
+	
 	public ComHost.Creator getHostCreator();
 	
 	public ComConnectionAcceptor.Creator getConnectionAcceptorCreator();
@@ -58,6 +61,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setConfiguration(ComConfiguration configuration);
 	
+	public F setConfigurationAssembler(ComConfiguration.Assembler configurationAssembler);
+	
 	public F setHostCreator(ComHost.Creator hostCreator);
 	
 	public F setConnectionAcceptorCreator(ComConnectionAcceptor.Creator connectionAcceptorCreator);
@@ -79,17 +84,18 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		// instance fields //
 		////////////////////
 		
-		private PersistenceTypeDictionaryView typeDictionary;
-		private ByteOrder                     byteOrder     ;
-		private String                        version       ;
-		private String                        protocolName  ;
-		private SwizzleIdStrategy             idStrategy    ;
-		private int                           comPort       ;
-		private ComConfiguration              configuration ;
-		private ComHost.Creator               hostCreator   ;
+		private PersistenceTypeDictionaryView typeDictionary           ;
+		private ByteOrder                     byteOrder                ;
+		private String                        version                  ;
+		private String                        protocolName             ;
+		private SwizzleIdStrategy             idStrategy               ;
+		private int                           comPort                  ;
+		private ComConfiguration              configuration            ;
+		private ComConfiguration.Assembler    configurationAssembler   ;
+		private ComHost.Creator               hostCreator              ;
 		private ComConnectionAcceptor.Creator connectionAcceptorCreator;
-		private ComChannel.Creator            channelCreator;
-		private ComChannelAcceptor            channelAcceptor;
+		private ComChannel.Creator            channelCreator           ;
+		private ComChannelAcceptor            channelAcceptor          ;
 		
 		
 		
@@ -181,6 +187,17 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
+		public ComConfiguration.Assembler getConfigurationAssembler()
+		{
+			if(this.configurationAssembler == null)
+			{
+				this.configurationAssembler = this.createConfigurationAssembler();
+			}
+			
+			return this.configurationAssembler;
+		}
+		
+		@Override
 		public ComHost.Creator getHostCreator()
 		{
 			if(this.hostCreator == null)
@@ -258,6 +275,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 				this.getIdStrategy()
 			);
 		}
+		
+		public ComConfiguration.Assembler createConfigurationAssembler()
+		{
+			return ComConfiguration.Assembler();
+		}
 
 		public ComHost.Creator createHostCreator()
 		{
@@ -266,7 +288,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		
 		public ComConnectionAcceptor.Creator createConnectionAcceptorCreator()
 		{
-			return ComConnectionAcceptor.Creator();
+			return ComConnectionAcceptor.Creator(
+				this.getConfigurationAssembler()
+			);
 		}
 		
 		public ComChannel.Creator createChannelCreator()
@@ -340,6 +364,13 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public F setConfiguration(final ComConfiguration configuration)
 		{
 			this.configuration = configuration;
+			return this.$();
+		}
+		
+		@Override
+		public F setConfigurationAssembler(final Assembler configurationAssembler)
+		{
+			this.configurationAssembler = configurationAssembler;
 			return this.$();
 		}
 		

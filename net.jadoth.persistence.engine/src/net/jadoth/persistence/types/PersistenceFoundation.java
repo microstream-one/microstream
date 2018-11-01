@@ -1459,7 +1459,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected PersistenceTypeDictionaryAssembler createTypeDictionaryAssembler()
 		{
 			final PersistenceTypeDictionaryAssembler newTypeDictionaryAssembler =
-				new PersistenceTypeDictionaryAssembler.Implementation()
+				PersistenceTypeDictionaryAssembler.New()
 			;
 			return newTypeDictionaryAssembler;
 		}

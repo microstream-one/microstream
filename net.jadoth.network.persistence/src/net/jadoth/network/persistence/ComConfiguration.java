@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
@@ -107,6 +108,37 @@ public interface ComConfiguration
 		public final SwizzleIdStrategy idStrategy()
 		{
 			return this.idStrategy;
+		}
+		
+	}
+	
+	
+	public static ComConfiguration.Assembler Assembler()
+	{
+		return new ComConfiguration.Assembler.Implementation();
+	}
+	
+	public interface Assembler
+	{
+		public VarString assembleConfiguration(VarString vs, ComConfiguration configuration);
+		
+		public default String assembleConfiguration(final ComConfiguration configuration)
+		{
+			final VarString vs = VarString.New(10_000);
+			this.assembleConfiguration(vs, configuration);
+			
+			return vs.toString();
+		}
+		
+		public final class Implementation implements ComConfiguration.Assembler
+		{
+
+			@Override
+			public VarString assembleConfiguration(final VarString vs, final ComConfiguration configuration)
+			{
+				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComConfiguration.Assembler#assembleConfiguration()
+			}
+			
 		}
 		
 	}
