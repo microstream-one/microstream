@@ -543,5 +543,16 @@ Gibt paar Typkonflikte durch die Auftrennung. L\'f6sen mit zus\'e4tzlichen Metho
 \par
 \par
 22:15 Weitermachen.\par
+\par
+\par
+\par
+2018-11-01\par
+\par
+Der ComHost muss viel mehr modularisiert werden, denn es kann sein, dass alles nach dem blanken Socket-Verbindungsaufbau von einem anderen Thread gemacht werden soll/muss.\par
+Also so:\par
+- Verbindungsaufbau\par
+- Metadatenabgleich & Channelinstanzierung\par
+- Channel weiterverwenden.\par
+Jeder dieser Punkte kann im selben oder in einem eigenen Thread behandelt werden.\par
 }
  
