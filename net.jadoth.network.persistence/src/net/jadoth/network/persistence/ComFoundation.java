@@ -3,18 +3,12 @@ package net.jadoth.network.persistence;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
-public interface NetworkFoundation<F extends NetworkFoundation<?>>
+public interface ComFoundation<F extends ComFoundation<?>>
 {
-	public static int defaultComPort()
-	{
-		return 1337;
-	}
-	
 	public static String protocolName()
 	{
 		return "JETSTREAM-COMCHANNEL";
@@ -25,13 +19,6 @@ public interface NetworkFoundation<F extends NetworkFoundation<?>>
 		// (31.10.2018 TM)TODO: JET-43: Maybe create a "Version" type with multiple sub version numbers?
 		return "1.0";
 	}
-	
-	public static ByteOrder byteOrder()
-	{
-		return XVM.nativeByteOrder();
-	}
-	
-	
 	
 	public PersistenceTypeDictionaryView getTypeDictionary();
 	
@@ -77,8 +64,8 @@ public interface NetworkFoundation<F extends NetworkFoundation<?>>
 	
 	
 	
-	public class Implementation<F extends NetworkFoundation.Implementation<?>>
-	extends InstanceDispatcher.Implementation implements NetworkFoundation<F>
+	public class Implementation<F extends ComFoundation.Implementation<?>>
+	extends InstanceDispatcher.Implementation implements ComFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -204,26 +191,26 @@ public interface NetworkFoundation<F extends NetworkFoundation<?>>
 			return this.comManager;
 		}
 		
-		
+
+
+		public int defineComPort()
+		{
+			return Com.defaultPort();
+		}
 
 		public ByteOrder defineByteOrder()
 		{
-			return NetworkFoundation.byteOrder();
+			return Com.byteOrder();
 		}
 
 		public String defineVersion()
 		{
-			return NetworkFoundation.version();
+			return ComFoundation.version();
 		}
 
 		public String defineProtocolName()
 		{
-			return NetworkFoundation.protocolName();
-		}
-
-		public int defineComPort()
-		{
-			return NetworkFoundation.defaultComPort();
+			return ComFoundation.protocolName();
 		}
 
 		public ComConfiguration createConfiguration()

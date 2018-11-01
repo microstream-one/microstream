@@ -65,17 +65,13 @@ public interface ComHost
 	
 	public interface Creator
 	{
-		public ComHost createComHost(ComConfiguration configuration, int port, ComManager comManager);
+		public ComHost createComHost(int port, ComConnectionAcceptor connectionAcceptor);
 		
 		public final class Implementation implements ComHost.Creator
 		{
 
 			@Override
-			public final ComHost createComHost(
-				final ComConfiguration configuration,
-				final int              port         ,
-				final ComManager       comManager
-			)
+			public final ComHost createComHost(final int port, final ComConnectionAcceptor connectionAcceptor)
 			{
 				return new ComHost.Implementation();
 			}
