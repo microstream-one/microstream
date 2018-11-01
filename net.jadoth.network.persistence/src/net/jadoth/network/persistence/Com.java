@@ -8,6 +8,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.low.XVM;
+import net.jadoth.math.XMath;
 
 public class Com
 {
@@ -19,6 +20,11 @@ public class Com
 	public static ByteOrder byteOrder()
 	{
 		return XVM.nativeByteOrder();
+	}
+	
+	public static int validatePort(final int port)
+	{
+		return XMath.positive(port);
 	}
 	
 	public static ServerSocketChannel openServerSocketChannel() throws IOException

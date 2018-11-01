@@ -1,9 +1,17 @@
 package net.jadoth.network.persistence;
 
+import static net.jadoth.X.notNull;
+
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.network.persistence.ComChannel.Creator;
 
+/**
+ * Logic to greet/authenticate the client, exchange metadata, create a {@link ComChannel} instance.
+ * Potentially in another, maybe even dedicated thread.
+ * 
+ * @author TM
+ *
+ */
 public interface ComConnectionAcceptor
 {
 	public ComConfiguration configuration();
@@ -11,15 +19,65 @@ public interface ComConnectionAcceptor
 	public void acceptConnection(SocketChannel socketChannel);
 	
 	
+	
+	public static Creator Creator()
+	{
+		return new Creator.Implementation();
+	}
+	
+	public interface Creator
+	{
+		public ComConnectionAcceptor createConnectionAcceptor(
+			ComConfiguration   configuration  ,
+			ComChannel.Creator channelCreator ,
+			ComChannelAcceptor channelAcceptor
+		);
+		
+		public final class Implementation implements ComConnectionAcceptor.Creator
+		{
+			Implementation()
+			{
+				super();
+			}
+
+			@Override
+			public ComConnectionAcceptor createConnectionAcceptor(
+				final ComConfiguration   configuration  ,
+				final ComChannel.Creator channelCreator ,
+				final ComChannelAcceptor channelAcceptor
+			)
+			{
+				return New(configuration, channelCreator, channelAcceptor);
+			}
+			
+		}
+		
+	}
+	
+	
+	
+	public static ComConnectionAcceptor New(
+		final ComConfiguration   configuration  ,
+		final ComChannel.Creator channelCreator ,
+		final ComChannelAcceptor channelAcceptor
+	)
+	{
+		return new ComConnectionAcceptor.Implementation(
+			notNull(configuration),
+			notNull(channelCreator),
+			notNull(channelAcceptor)
+		);
+	}
+	
 	public final class Implementation implements ComConnectionAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final ComConfiguration   configuration ;
-		private final ComChannel.Creator channelCreator;
-		private final ComManager         manager       ;
+		private final ComConfiguration   configuration  ;
+		private final ComChannel.Creator channelCreator ;
+		private final ComChannelAcceptor channelAcceptor;
 		
 		// (01.11.2018 TM)TODO: JET-43: cache UTF-8 bytes for configuration
 		
@@ -29,13 +87,18 @@ public interface ComConnectionAcceptor
 		// constructors //
 		/////////////////
 		
-		Implementation(final ComConfiguration configuration, final Creator channelCreator, final ComManager manager)
+		Implementation(
+			final ComConfiguration   configuration  ,
+			final ComChannel.Creator channelCreator ,
+			final ComChannelAcceptor channelAcceptor
+		)
 		{
 			super();
-			this.configuration  = configuration ;
-			this.channelCreator = channelCreator;
-			this.manager        = manager       ;
+			this.configuration   = configuration  ;
+			this.channelCreator  = channelCreator ;
+			this.channelAcceptor = channelAcceptor;
 		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -55,7 +118,7 @@ public interface ComConnectionAcceptor
 			 *  - send (cached) configuration to peer.
 			 *  ? recognize closed channel
 			 *  - create comChannel instance
-			 *  - pass to manager
+			 *  - pass to channel acceptor
 			 */
 		}
 		

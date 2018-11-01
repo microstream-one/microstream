@@ -7,6 +7,8 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
+
+// (01.11.2018 TM)TODO: JET-44: resolve of justify naming clash between "Network" and "Com".
 public interface NetworkPersistenceChannel<M> extends PersistenceChannel<M>
 {
 	

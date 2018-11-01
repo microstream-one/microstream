@@ -1,7 +1,18 @@
 package net.jadoth.network.persistence;
 
+import static net.jadoth.X.notNull;
+
+/**
+ * Host type to listen for new connections and relay them to logic for further processing,
+ * potentially in another, maybe even dedicated thread.
+ * 
+ * @author TM
+ *
+ */
 public interface ComHost
 {
+	public int port();
+	
 	public ComConfiguration configuration();
 	
 	/**
@@ -22,40 +33,102 @@ public interface ComHost
 	 */
 	
 	
+	
+	public static ComHost New(final int port, final ComConnectionAcceptor connectionAcceptor)
+	{
+		return new ComHost.Implementation(
+			Com.validatePort(port),
+			notNull(connectionAcceptor)
+		);
+	}
+	
 	public final class Implementation implements ComHost
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final int                   port              ;
+		private final ComConnectionAcceptor connectionAcceptor;
+		
+		private transient boolean isRunning;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation(final int port, final ComConnectionAcceptor connectionAcceptor)
+		{
+			super();
+			this.port               = port              ;
+			this.connectionAcceptor = connectionAcceptor;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
-		public ComConfiguration configuration()
+		public final int port()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComHost#configuration()
+			return this.port;
+		}
+
+		@Override
+		public final ComConfiguration configuration()
+		{
+			return this.connectionAcceptor.configuration();
+		}
+
+		@Override
+		public synchronized void start()
+		{
+			if(this.isRunning)
+			{
+				return;
+			}
+			
+			this.isRunning = true;
+			
+			// (01.11.2018 TM)TODO: JET-44: weird to have the work loop on a stack frame called "start".
+			this.acceptConnections();
+		}
+
+		@Override
+		public synchronized void stop()
+		{
+			if(!this.isRunning)
+			{
+				return;
+			}
+			
+			this.isRunning = false;
+		}
+
+		@Override
+		public synchronized boolean isRunning()
+		{
+			return this.isRunning;
 		}
 
 		@Override
 		public void acceptConnections()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComHost#acceptConnections()
+			/* (01.11.2018 TM)FIXME: ComHost#acceptConnections()
+			 * in a loop:
+			 * - get lock
+			 * - check if running
+			 * - listen for connection
+			 * - relay to connectionAcceptor
+			 */
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
-
-		@Override
-		public void start()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComHost#start()
-		}
-
-		@Override
-		public void stop()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComHost#stop()
-		}
-
-		@Override
-		public boolean isRunning()
-		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComHost#isRunning()
-		}
-		
 	}
+	
 	
 	
 	public static ComHost.Creator Creator()
@@ -69,15 +142,12 @@ public interface ComHost
 		
 		public final class Implementation implements ComHost.Creator
 		{
-
 			@Override
 			public final ComHost createComHost(final int port, final ComConnectionAcceptor connectionAcceptor)
 			{
-				return new ComHost.Implementation();
+				return ComHost.New(port, connectionAcceptor);
 			}
-			
 		}
 	}
-	
 	
 }
