@@ -32,11 +32,15 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public int getComPort();
 	
-	public ComHost.Creator getComHostCreator();
-	
 	public ComConfiguration getConfiguration();
 	
-	public ComManager getComManager();
+	public ComHost.Creator getHostCreator();
+	
+	public ComConnectionAcceptor.Creator getConnectionAcceptorCreator();
+	
+	public ComChannel.Creator getChannelCreator();
+	
+	public ComChannelAcceptor getChannelAcceptor();
 	
 	
 	
@@ -52,11 +56,15 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setComPort(int comPort);
 	
-	public F setComHostCreator(ComHost.Creator comHostCreator);
-	
 	public F setConfiguration(ComConfiguration configuration);
 	
-	public F setComManager(ComManager comManager);
+	public F setHostCreator(ComHost.Creator hostCreator);
+	
+	public F setConnectionAcceptorCreator(ComConnectionAcceptor.Creator connectionAcceptorCreator);
+	
+	public F setChannelCreator(ComChannel.Creator channelCreator);
+	
+	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 	
 	
 	public ComHost createHost();
@@ -77,9 +85,12 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		private String                        protocolName  ;
 		private SwizzleIdStrategy             idStrategy    ;
 		private int                           comPort       ;
-		private ComHost.Creator               comHostCreator;
 		private ComConfiguration              configuration ;
-		private ComManager                    comManager    ;
+		private ComHost.Creator               hostCreator   ;
+		private ComConnectionAcceptor.Creator connectionAcceptorCreator;
+		private ComChannel.Creator            channelCreator;
+		private ComChannelAcceptor            channelAcceptor;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -159,17 +170,6 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComHost.Creator getComHostCreator()
-		{
-			if(this.comHostCreator == null)
-			{
-				this.comHostCreator = this.createComHostCreator();
-			}
-			
-			return this.comHostCreator;
-		}
-		
-		@Override
 		public ComConfiguration getConfiguration()
 		{
 			if(this.configuration == null)
@@ -181,15 +181,50 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComManager getComManager()
+		public ComHost.Creator getHostCreator()
 		{
-			if(this.comManager == null)
+			if(this.hostCreator == null)
 			{
-				this.comManager = this.createComManager();
+				this.hostCreator = this.createHostCreator();
 			}
 			
-			return this.comManager;
+			return this.hostCreator;
 		}
+		
+		@Override
+		public ComConnectionAcceptor.Creator getConnectionAcceptorCreator()
+		{
+			if(this.connectionAcceptorCreator == null)
+			{
+				this.connectionAcceptorCreator = this.createConnectionAcceptorCreator();
+			}
+			
+			return this.connectionAcceptorCreator;
+		}
+		
+		@Override
+		public ComChannel.Creator getChannelCreator()
+		{
+			if(this.channelCreator == null)
+			{
+				this.channelCreator = this.createChannelCreator();
+			}
+			
+			return this.channelCreator;
+		}
+		
+		@Override
+		public ComChannelAcceptor getChannelAcceptor()
+		{
+			if(this.channelAcceptor == null)
+			{
+				this.channelAcceptor = this.createChannelAcceptor();
+			}
+			
+			return this.channelAcceptor;
+		}
+		
+		
 		
 
 
@@ -224,9 +259,19 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			);
 		}
 
-		public ComHost.Creator createComHostCreator()
+		public ComHost.Creator createHostCreator()
 		{
 			return ComHost.Creator();
+		}
+		
+		public ComConnectionAcceptor.Creator createConnectionAcceptorCreator()
+		{
+			return ComConnectionAcceptor.Creator();
+		}
+		
+		public ComChannel.Creator createChannelCreator()
+		{
+			return ComChannel.Creator();
 		}
 		
 		public PersistenceTypeDictionaryView createTypeDictionary()
@@ -241,10 +286,10 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			throw new MissingFoundationPartException(SwizzleIdStrategy.class);
 		}
 
-		public ComManager createComManager()
+		public ComChannelAcceptor createChannelAcceptor()
 		{
 			// (01.11.2018 TM)TODO: JET-43: really exception?
-			throw new MissingFoundationPartException(ComManager.class);
+			throw new MissingFoundationPartException(ComChannelAcceptor.class);
 		}
 		
 		
@@ -292,13 +337,6 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setComHostCreator(final ComHost.Creator comHostCreator)
-		{
-			this.comHostCreator = comHostCreator;
-			return this.$();
-		}
-		
-		@Override
 		public F setConfiguration(final ComConfiguration configuration)
 		{
 			this.configuration = configuration;
@@ -306,21 +344,48 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setComManager(final ComManager comManager)
+		public F setHostCreator(final ComHost.Creator hostCreator)
 		{
-			this.comManager = comManager;
+			this.hostCreator = hostCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setConnectionAcceptorCreator(final ComConnectionAcceptor.Creator connectionAcceptorCreator)
+		{
+			this.connectionAcceptorCreator = connectionAcceptorCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setChannelCreator(final ComChannel.Creator channelCreator)
+		{
+			this.channelCreator = channelCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setChannelAcceptor(final ComChannelAcceptor channelAcceptor)
+		{
+			this.channelAcceptor = channelAcceptor;
 			return this.$();
 		}
 		
 		@Override
 		public ComHost createHost()
 		{
-			final ComHost.Creator hostCreator = this.getComHostCreator();
+			final ComConnectionAcceptor.Creator conAccCreator = this.getConnectionAcceptorCreator();
+			final ComHost.Creator               hostCreator   = this.getHostCreator();
+			
+			final ComConnectionAcceptor connectionAcceptor = conAccCreator.createConnectionAcceptor(
+				this.getConfiguration(),
+				this.getChannelCreator(),
+				this.getChannelAcceptor()
+			);
 			
 			return hostCreator.createComHost(
-				this.getConfiguration(),
-				this.getComPort()      ,
-				this.getComManager()
+				this.getComPort() ,
+				connectionAcceptor
 			);
 		}
 		
