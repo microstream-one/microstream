@@ -3,6 +3,7 @@ package net.jadoth.network.persistence;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -70,6 +71,64 @@ public class Com
 		}
 		
 		return socketChannel;
+	}
+	
+	public static void close(final SocketChannel socketChannel)
+	{
+		try
+		{
+			socketChannel.close();
+		}
+		catch(final Exception e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void close(final ServerSocketChannel serverSocketChannel)
+	{
+		try
+		{
+			serverSocketChannel.close();
+		}
+		catch(final Exception e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException(e);
+		}
+	}
+	
+	
+	/**
+	 * This method either writes all of the passed {@link ByteBuffer}'s bytes from position to limit
+	 * or it throws an exception to indicate failure.
+	 * 
+	 * @param socketChannel
+	 * @param byteBuffer
+	 * 
+	 * @return the amount of bytes written, which always equals byteBuffer.remaining() at the time of the method call.
+	 */
+	public static int writeComplete(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
+	{
+		/* (01.11.2018 TM)TODO: reliable socket channel writing
+		 * full-grown IO-logic with:
+		 * - a loop doing multiple attempts with waiting time in between
+		 * - an interface for a checking type concerning:
+		 * - timeout
+		 * - time between last written byte
+		 * - time and byte count since the beginning
+		 * - amount of attempts
+		 */
+		try
+		{
+			return socketChannel.write(byteBuffer);
+		}
+		catch(final IOException e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException(e);
+		}
 	}
 	
 	

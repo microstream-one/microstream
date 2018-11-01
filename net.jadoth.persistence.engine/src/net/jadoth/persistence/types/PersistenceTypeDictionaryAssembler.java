@@ -10,6 +10,12 @@ public interface PersistenceTypeDictionaryAssembler
 	public VarString appendTypeDescription(VarString vc, PersistenceTypeDefinition typeDescription);
 
 
+	
+	
+	public static PersistenceTypeDictionaryAssembler New()
+	{
+		return new PersistenceTypeDictionaryAssembler.Implementation();
+	}
 
 	public class Implementation
 	extends PersistenceTypeDictionary.Symbols
@@ -21,6 +27,17 @@ public interface PersistenceTypeDictionaryAssembler
 
 		private static final int  MAX_LONG_LENGTH = 19 ;
 		private static final char ID_PADDING_CHAR = '0';
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation()
+		{
+			super();
+		}
 
 
 
