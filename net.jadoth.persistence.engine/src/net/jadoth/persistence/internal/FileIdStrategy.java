@@ -7,6 +7,7 @@ import java.io.File;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
+import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class FileIdStrategy implements SwizzleIdStrategy
@@ -68,6 +69,12 @@ public class FileIdStrategy implements SwizzleIdStrategy
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public SwizzleObjectIdStrategy objectIdStragegy()
+	{
+		return this;
+	}
 
 	@Override
 	public SwizzleObjectIdProvider createObjectIdProvider()

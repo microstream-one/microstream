@@ -24,9 +24,9 @@ public interface ComConnectionAcceptor
 	
 	
 	
-	public static Creator Creator(final ComProtocol.Assembler protocolAssembler)
+	public static Creator Creator(final ComProtocolStringConverter protocolStringConverter)
 	{
-		return new Creator.Implementation(protocolAssembler);
+		return new Creator.Implementation(protocolStringConverter);
 	}
 	
 	public interface Creator
@@ -43,13 +43,25 @@ public interface ComConnectionAcceptor
 			// instance fields //
 			////////////////////
 			
-			final ComProtocol.Assembler protocolAssembler;
+			final ComProtocolStringConverter protocolStringConverter;
 			
-			Implementation(final ComProtocol.Assembler protocolAssembler)
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Implementation(final ComProtocolStringConverter protocolStringConverter)
 			{
 				super();
-				this.protocolAssembler = protocolAssembler;
+				this.protocolStringConverter = protocolStringConverter;
 			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 
 			@Override
 			public ComConnectionAcceptor createConnectionAcceptor(
@@ -58,7 +70,7 @@ public interface ComConnectionAcceptor
 				final ComChannelAcceptor channelAcceptor
 			)
 			{
-				return New(protocol, this.protocolAssembler, channelCreator, channelAcceptor);
+				return New(protocol, this.protocolStringConverter, channelCreator, channelAcceptor);
 			}
 			
 		}
@@ -68,11 +80,11 @@ public interface ComConnectionAcceptor
 	
 	
 	public static ByteBuffer bufferProtocol(
-		final ComProtocol           protocol         ,
-		final ComProtocol.Assembler protocolAssembler
+		final ComProtocol                protocol               ,
+		final ComProtocolStringConverter protocolStringConverter
 	)
 	{
-		final String assembledProtocol     = protocolAssembler.assembleProtocol(protocol);
+		final String assembledProtocol     = protocolStringConverter.assemble(protocol);
 		final byte[] utf8AssembledProtocol = assembledProtocol.getBytes(XFiles.charSetUtf8());
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code.
@@ -88,13 +100,13 @@ public interface ComConnectionAcceptor
 	}
 	
 	public static ComConnectionAcceptor New(
-		final ComProtocol           protocol         ,
-		final ComProtocol.Assembler protocolAssembler,
-		final ComChannel.Creator    channelCreator   ,
-		final ComChannelAcceptor    channelAcceptor
+		final ComProtocol                protocol               ,
+		final ComProtocolStringConverter protocolStringConverter,
+		final ComChannel.Creator         channelCreator         ,
+		final ComChannelAcceptor         channelAcceptor
 	)
 	{
-		final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, protocolAssembler);
+		final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, protocolStringConverter);
 		
 		return new ComConnectionAcceptor.Implementation(
 			notNull(protocol)       ,

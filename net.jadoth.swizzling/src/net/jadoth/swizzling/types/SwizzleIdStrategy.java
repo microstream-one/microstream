@@ -1,8 +1,26 @@
 package net.jadoth.swizzling.types;
 
-public interface SwizzleIdStrategy
+public interface SwizzleIdStrategy extends SwizzleObjectIdStrategy, SwizzleTypeIdStrategy
 {
-	public SwizzleObjectIdProvider createObjectIdProvider();
+	public default SwizzleObjectIdStrategy objectIdStragegy()
+	{
+		return this;
+	}
 	
-	public SwizzleTypeIdProvider createTypeIdProvider();
+	public default SwizzleTypeIdStrategy typeIdStragegy()
+	{
+		return this;
+	}
+	
+	@Override
+	public default SwizzleObjectIdProvider createObjectIdProvider()
+	{
+		return this.objectIdStragegy().createObjectIdProvider();
+	}
+	
+	@Override
+	public default SwizzleTypeIdProvider createTypeIdProvider()
+	{
+		return this.typeIdStragegy().createTypeIdProvider();
+	}
 }

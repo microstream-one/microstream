@@ -52,7 +52,7 @@ public final class StorageBackupHelper
 
 		final long   nextObjectId   = connectionFoundation.getObjectIdProvider().currentObjectId() + 1;
 		final long   nextTypeId     = typeDictionary.determineHighestTypeId() + 1;
-		final String typeDictString = dictionaryAssembler.appendTypeDictionary(VarString.New(), typeDictionary).toString();
+		final String typeDictString = dictionaryAssembler.assemble(VarString.New(), typeDictionary).toString();
 
 		// arbitrary file names, preferably the same that were used for creating the EmbeddedStorageConnectionFoundation instance.
 		final File fileOid = new File(targetDirectory, "MyObjectId.oid");

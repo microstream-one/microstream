@@ -569,6 +569,31 @@ Labels und Separator definieren.\par
 \par
 Code TODOs abarbeiten.\par
 \par
+Eigentlich sind die Protocol Einzwelwerte und die Protocol Instanz in der ComFoundation redundant. Das ist immer bl\'f6d.\par
+Was w\'e4re besser?\par
+Nur die Instanz? Dann muss man die aufgrund des Bezugs zum TypeDictionary aber immer explizit setzen, was auch seltsam ist.\par
+Nur die Einzelwerte? Evtl. einen ComProtocol.Creator setzen k\'f6nnen?\par
+Eine Nested ProtocolFoundation?\par
+Ein TypeDictionaryProvider?\par
 \par
+Und, interessant bzw. wichtig:\par
+Wenn es keine Indirektion f\'fcr das TypeDictionary gibt, dann muss das finale TypeDictionary schon zum Zeitpunkt der ComHost Erzeugung feststehen.\par
+Oder ist das okay so, weil ein Netzwerk-Tor nach au\'dfen erst ge\'f6ffnet werden sollte, wenn die Typ-Interna der Anwendung (DB Initialisierung usw.) abgeschlossen ist?\par
+Allerdings k\'f6nnte es schon sein, dass in einer Anwendung erst mal alle Kernbestandteile erzeugt werden und die dann in einer vern\'fcnftigen Reihenfolge gestartet werden (erst DB, dann Kommunikation).\par
+\par
+Umbauen auf Creator und Provider Variante.\par
+\par
+SwizzleIdStrategy muss doch weiter aufgeteilt werden, wenn es sauber als String assemblebar sein soll.\par
+\par
+Hm. Irgendwie ist es bl\'f6d, immer einen "Assembler" zu bauen und dann einen extra "Parser", der sich die ganzen Symbols usw. nochmal halten muss.\par
+Warum nicht ein Kombi-Ding. Guten Namen \'fcberlegen.\par
+StringConverter. Genau.\par
+So bauen f\'fcr ComProtocol.\par
+\par
+F\'fcr SwizzleIdStrategy auch nochmal n\'f6tig.\par
+Zeigt: Anwendungsfall f\'fcr einen generisch abstrahierten Typ.\par
+Bauen.\par
+\par
+Protocol Assembly Logik bauen. Gleich h\'fcbsch les- und wartbar.\par
 }
  
