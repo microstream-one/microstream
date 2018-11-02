@@ -3,15 +3,12 @@ package net.jadoth.network.persistence;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.network.persistence.ComProtocol.Assembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
 public interface ComFoundation<F extends ComFoundation<?>>
 {
-	public int getComPort();
-	
 	public String getProtocolName();
 	
 	public String getProtocolVersion();
@@ -24,7 +21,12 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public ComProtocol getProtocol();
 	
-	public ComProtocol.Assembler getProtocolAssembler();
+	public ComProtocol.Creator getProtocolCreator();
+	
+	
+	public int getComPort();
+	
+	public ComProtocolStringConverter getProtocolStringConverter();
 	
 	public ComHost.Creator getHostCreator();
 	
@@ -36,21 +38,22 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	
 	
-	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
+	public F setProtocolName(String protocolName);
+	
+	public F setProtocolVersion(String protocolVersion);
 	
 	public F setByteOrder(ByteOrder byteOrder);
 	
-	public F setVersion(String version);
-	
-	public F setProtocolName(String protocolName);
-	
 	public F setIdStrategy(SwizzleIdStrategy idStrategy);
+	
+	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
+	
+	public F setProtocolCreator(ComProtocol.Creator protocolCreator);
+	
 	
 	public F setComPort(int comPort);
 	
-	public F setProtocol(ComProtocol protocol);
-	
-	public F setProtocolAssembler(ComProtocol.Assembler protocolAssembler);
+	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
 	public F setHostCreator(ComHost.Creator hostCreator);
 	
@@ -72,15 +75,17 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private PersistenceTypeDictionaryView typeDictionary           ;
-		private ByteOrder                     byteOrder                ;
-		private String                        version                  ;
+
 		private String                        protocolName             ;
+		private String                        protocolVersion          ;
+		private ByteOrder                     byteOrder                ;
 		private SwizzleIdStrategy             idStrategy               ;
+		private PersistenceTypeDictionaryView typeDictionary           ;
+		private ComProtocol.Creator           protocolCreator          ;
+		private transient ComProtocol         cachedProtocol           ;
+
 		private int                           comPort                  ;
-		private ComProtocol                   protocol                 ;
-		private ComProtocol.Assembler         protocolAssembler        ;
+		private ComProtocolStringConverter    protocolStringConverter  ;
 		private ComHost.Creator               hostCreator              ;
 		private ComConnectionAcceptor.Creator connectionAcceptorCreator;
 		private ComChannel.Creator            channelCreator           ;
@@ -123,12 +128,12 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		@Override
 		public String getProtocolVersion()
 		{
-			if(this.version == null)
+			if(this.protocolVersion == null)
 			{
-				this.version = this.defineProtocolVersion();
+				this.protocolVersion = this.defineProtocolVersion();
 			}
 			
-			return this.version;
+			return this.protocolVersion;
 		}
 		
 		@Override
@@ -167,23 +172,35 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		@Override
 		public ComProtocol getProtocol()
 		{
-			if(this.protocol == null)
+			if(this.cachedProtocol == null)
 			{
-				this.protocol = this.createProtocol();
+				this.cachedProtocol = this.createProtocol();
 			}
 			
-			return this.protocol;
+			return this.cachedProtocol;
 		}
 		
 		@Override
-		public ComProtocol.Assembler getProtocolAssembler()
+		public ComProtocol.Creator getProtocolCreator()
 		{
-			if(this.protocolAssembler == null)
+			if(this.protocolCreator == null)
 			{
-				this.protocolAssembler = this.createProtocolAssembler();
+				this.protocolCreator = this.createProtocolCreator();
+				this.clearCachedProtocol();
 			}
 			
-			return this.protocolAssembler;
+			return this.protocolCreator;
+		}
+		
+		@Override
+		public ComProtocolStringConverter getProtocolStringConverter()
+		{
+			if(this.protocolStringConverter == null)
+			{
+				this.protocolStringConverter = this.createProtocolStringConverter();
+			}
+			
+			return this.protocolStringConverter;
 		}
 		
 		@Override
@@ -251,21 +268,27 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		{
 			return ComProtocol.protocolName();
 		}
+		
+		public ComProtocol.Creator createProtocolCreator()
+		{
+			return ComProtocol.Creator();
+		}
 
 		public ComProtocol createProtocol()
 		{
-			return ComProtocol.New(
-				this.getProtocolName()  ,
-				this.getProtocolVersion()       ,
-				this.getByteOrder()     ,
-				this.getIdStrategy()    ,
+			final ComProtocol.Creator protocolCreator = this.getProtocolCreator();
+			return protocolCreator.creatProtocol(
+				this.getProtocolName()   ,
+				this.getProtocolVersion(),
+				this.getByteOrder()      ,
+				this.getIdStrategy()     ,
 				this.getTypeDictionary()
 			);
 		}
 		
-		public ComProtocol.Assembler createProtocolAssembler()
+		public ComProtocolStringConverter createProtocolStringConverter()
 		{
-			return ComProtocol.Assembler();
+			return ComProtocolStringConverter.New();
 		}
 
 		public ComHost.Creator createHostCreator()
@@ -276,7 +299,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public ComConnectionAcceptor.Creator createConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator(
-				this.getProtocolAssembler()
+				this.getProtocolStringConverter()
 			);
 		}
 		
@@ -302,13 +325,22 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			// (01.11.2018 TM)TODO: JET-43: really exception?
 			throw new MissingFoundationPartException(ComChannelAcceptor.class);
 		}
-		
-		
+				
+
 		
 		@Override
-		public F setTypeDictionary(final PersistenceTypeDictionaryView typeDictionary)
+		public F setProtocolName(final String protocolName)
 		{
-			this.typeDictionary = typeDictionary;
+			this.protocolName = protocolName;
+			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		@Override
+		public F setProtocolVersion(final String protocolVersion)
+		{
+			this.protocolVersion = protocolVersion;
+			this.clearCachedProtocol();
 			return this.$();
 		}
 		
@@ -316,20 +348,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public F setByteOrder(final ByteOrder byteOrder)
 		{
 			this.byteOrder = byteOrder;
-			return this.$();
-		}
-		
-		@Override
-		public F setVersion(final String version)
-		{
-			this.version = version;
-			return this.$();
-		}
-		
-		@Override
-		public F setProtocolName(final String protocolName)
-		{
-			this.protocolName = protocolName;
+			this.clearCachedProtocol();
 			return this.$();
 		}
 		
@@ -337,7 +356,29 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public F setIdStrategy(final SwizzleIdStrategy idStrategy)
 		{
 			this.idStrategy = idStrategy;
+			this.clearCachedProtocol();
 			return this.$();
+		}
+		
+		@Override
+		public F setTypeDictionary(final PersistenceTypeDictionaryView typeDictionary)
+		{
+			this.typeDictionary = typeDictionary;
+			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		@Override
+		public F setProtocolCreator(final ComProtocol.Creator protocolCreator)
+		{
+			this.protocolCreator = protocolCreator;
+			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		private void clearCachedProtocol()
+		{
+			this.cachedProtocol = null;
 		}
 		
 		@Override
@@ -348,16 +389,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setProtocol(final ComProtocol protocol)
+		public F setProtocolStringConverter(final ComProtocolStringConverter protocolStringConverter)
 		{
-			this.protocol = protocol;
-			return this.$();
-		}
-		
-		@Override
-		public F setProtocolAssembler(final Assembler protocolAssembler)
-		{
-			this.protocolAssembler = protocolAssembler;
+			this.protocolStringConverter = protocolStringConverter;
 			return this.$();
 		}
 		

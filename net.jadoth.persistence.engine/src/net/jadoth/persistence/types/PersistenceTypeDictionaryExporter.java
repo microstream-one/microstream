@@ -43,7 +43,7 @@ public interface PersistenceTypeDictionaryExporter
 		@Override
 		public final void exportTypeDictionary(final PersistenceTypeDictionary typeDictionary)
 		{
-			final String typeDictionaryString = this.assembler.appendTypeDictionary(
+			final String typeDictionaryString = this.assembler.assemble(
 				New(),
 				typeDictionary
 			).toString();

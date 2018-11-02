@@ -1,13 +1,15 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.chars.ObjectStringAssembler;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 
-public interface PersistenceTypeDictionaryAssembler
+public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssembler<PersistenceTypeDictionaryView>
 {
-	public VarString appendTypeDictionary(VarString vc, PersistenceTypeDictionary typeDictionary);
+	@Override
+	public VarString assemble(VarString vc, PersistenceTypeDictionaryView typeDictionary);
 
-	public VarString appendTypeDescription(VarString vc, PersistenceTypeDefinition typeDescription);
+	public VarString assembleTypeDescription(VarString vc, PersistenceTypeDefinition typeDescription);
 
 
 	
@@ -57,11 +59,11 @@ public interface PersistenceTypeDictionaryAssembler
 		////////////
 
 		@Override
-		public VarString appendTypeDictionary(final VarString vc, final PersistenceTypeDictionary typeDictionary)
+		public VarString assemble(final VarString vc, final PersistenceTypeDictionaryView typeDictionary)
 		{
 			for(final PersistenceTypeDefinition td : typeDictionary.allTypeDefinitions().values())
 			{
-				this.appendTypeDescription(vc, td);
+				this.assembleTypeDescription(vc, td);
 			}
 			return vc;
 		}
@@ -85,7 +87,7 @@ public interface PersistenceTypeDictionaryAssembler
 		}
 
 		@Override
-		public VarString appendTypeDescription(final VarString vc, final PersistenceTypeDefinition typeDescription)
+		public VarString assembleTypeDescription(final VarString vc, final PersistenceTypeDefinition typeDescription)
 		{
 			this.appendTypeDefinitionStart  (vc, typeDescription);
 			this.appendTypeDictionaryMembers(vc, typeDescription.members());
