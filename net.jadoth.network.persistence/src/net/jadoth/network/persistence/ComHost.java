@@ -17,7 +17,7 @@ public interface ComHost
 {
 	public int port();
 	
-	public ComConfiguration configuration();
+	public ComProtocol protocol();
 	
 	/**
 	 * Listens for incoming connections and relays them for processing.
@@ -29,12 +29,6 @@ public interface ComHost
 	public void stop();
 	
 	public boolean isRunning();
-	
-	/* (31.10.2018 TM)TODO: JET-44
-	 * - ComConfiguration
-	 * - Network Configuration (port and stuff)
-	 * - A target for accepted connections
-	 */
 	
 	
 	
@@ -83,9 +77,9 @@ public interface ComHost
 		}
 
 		@Override
-		public final ComConfiguration configuration()
+		public final ComProtocol protocol()
 		{
-			return this.connectionAcceptor.configuration();
+			return this.connectionAcceptor.protocol();
 		}
 
 		@Override
