@@ -3,39 +3,28 @@ package net.jadoth.network.persistence;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.network.persistence.ComConfiguration.Assembler;
+import net.jadoth.network.persistence.ComProtocol.Assembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
 public interface ComFoundation<F extends ComFoundation<?>>
 {
-	public static String protocolName()
-	{
-		return "JETSTREAM-COMCHANNEL";
-	}
-	
-	public static String version()
-	{
-		// (31.10.2018 TM)TODO: JET-43: Maybe create a "Version" type with multiple sub version numbers?
-		return "1.0";
-	}
-	
-	public PersistenceTypeDictionaryView getTypeDictionary();
-	
-	public ByteOrder getByteOrder();
-	
-	public String getVersion();
+	public int getComPort();
 	
 	public String getProtocolName();
 	
+	public String getProtocolVersion();
+	
+	public ByteOrder getByteOrder();
+	
 	public SwizzleIdStrategy getIdStrategy();
 	
-	public int getComPort();
+	public PersistenceTypeDictionaryView getTypeDictionary();
 	
-	public ComConfiguration getConfiguration();
+	public ComProtocol getProtocol();
 	
-	public ComConfiguration.Assembler getConfigurationAssembler();
+	public ComProtocol.Assembler getProtocolAssembler();
 	
 	public ComHost.Creator getHostCreator();
 	
@@ -59,9 +48,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setComPort(int comPort);
 	
-	public F setConfiguration(ComConfiguration configuration);
+	public F setProtocol(ComProtocol protocol);
 	
-	public F setConfigurationAssembler(ComConfiguration.Assembler configurationAssembler);
+	public F setProtocolAssembler(ComProtocol.Assembler protocolAssembler);
 	
 	public F setHostCreator(ComHost.Creator hostCreator);
 	
@@ -90,8 +79,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		private String                        protocolName             ;
 		private SwizzleIdStrategy             idStrategy               ;
 		private int                           comPort                  ;
-		private ComConfiguration              configuration            ;
-		private ComConfiguration.Assembler    configurationAssembler   ;
+		private ComProtocol                   protocol                 ;
+		private ComProtocol.Assembler         protocolAssembler        ;
 		private ComHost.Creator               hostCreator              ;
 		private ComConnectionAcceptor.Creator connectionAcceptorCreator;
 		private ComChannel.Creator            channelCreator           ;
@@ -132,11 +121,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public String getVersion()
+		public String getProtocolVersion()
 		{
 			if(this.version == null)
 			{
-				this.version = this.defineVersion();
+				this.version = this.defineProtocolVersion();
 			}
 			
 			return this.version;
@@ -176,25 +165,25 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComConfiguration getConfiguration()
+		public ComProtocol getProtocol()
 		{
-			if(this.configuration == null)
+			if(this.protocol == null)
 			{
-				this.configuration = this.createConfiguration();
+				this.protocol = this.createProtocol();
 			}
 			
-			return this.configuration;
+			return this.protocol;
 		}
 		
 		@Override
-		public ComConfiguration.Assembler getConfigurationAssembler()
+		public ComProtocol.Assembler getProtocolAssembler()
 		{
-			if(this.configurationAssembler == null)
+			if(this.protocolAssembler == null)
 			{
-				this.configurationAssembler = this.createConfigurationAssembler();
+				this.protocolAssembler = this.createProtocolAssembler();
 			}
 			
-			return this.configurationAssembler;
+			return this.protocolAssembler;
 		}
 		
 		@Override
@@ -240,11 +229,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			
 			return this.channelAcceptor;
 		}
-		
-		
-		
 
-
+		
+		
 		public int defineComPort()
 		{
 			return Com.defaultPort();
@@ -255,30 +242,30 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			return Com.byteOrder();
 		}
 
-		public String defineVersion()
+		public String defineProtocolVersion()
 		{
-			return ComFoundation.version();
+			return ComProtocol.protocolVersion();
 		}
 
 		public String defineProtocolName()
 		{
-			return ComFoundation.protocolName();
+			return ComProtocol.protocolName();
 		}
 
-		public ComConfiguration createConfiguration()
+		public ComProtocol createProtocol()
 		{
-			return ComConfiguration.New(
-				this.getTypeDictionary(),
-				this.getByteOrder()     ,
-				this.getVersion()       ,
+			return ComProtocol.New(
 				this.getProtocolName()  ,
-				this.getIdStrategy()
+				this.getProtocolVersion()       ,
+				this.getByteOrder()     ,
+				this.getIdStrategy()    ,
+				this.getTypeDictionary()
 			);
 		}
 		
-		public ComConfiguration.Assembler createConfigurationAssembler()
+		public ComProtocol.Assembler createProtocolAssembler()
 		{
-			return ComConfiguration.Assembler();
+			return ComProtocol.Assembler();
 		}
 
 		public ComHost.Creator createHostCreator()
@@ -289,7 +276,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public ComConnectionAcceptor.Creator createConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator(
-				this.getConfigurationAssembler()
+				this.getProtocolAssembler()
 			);
 		}
 		
@@ -361,16 +348,16 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setConfiguration(final ComConfiguration configuration)
+		public F setProtocol(final ComProtocol protocol)
 		{
-			this.configuration = configuration;
+			this.protocol = protocol;
 			return this.$();
 		}
 		
 		@Override
-		public F setConfigurationAssembler(final Assembler configurationAssembler)
+		public F setProtocolAssembler(final Assembler protocolAssembler)
 		{
-			this.configurationAssembler = configurationAssembler;
+			this.protocolAssembler = protocolAssembler;
 			return this.$();
 		}
 		
@@ -409,7 +396,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			final ComHost.Creator               hostCreator   = this.getHostCreator();
 			
 			final ComConnectionAcceptor connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getConfiguration(),
+				this.getProtocol(),
 				this.getChannelCreator(),
 				this.getChannelAcceptor()
 			);

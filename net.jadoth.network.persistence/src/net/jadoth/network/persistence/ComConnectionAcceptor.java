@@ -18,21 +18,21 @@ import net.jadoth.low.XVM;
  */
 public interface ComConnectionAcceptor
 {
-	public ComConfiguration configuration();
+	public ComProtocol protocol();
 	
 	public void acceptConnection(SocketChannel socketChannel);
 	
 	
 	
-	public static Creator Creator(final ComConfiguration.Assembler configurationAssembler)
+	public static Creator Creator(final ComProtocol.Assembler protocolAssembler)
 	{
-		return new Creator.Implementation(configurationAssembler);
+		return new Creator.Implementation(protocolAssembler);
 	}
 	
 	public interface Creator
 	{
 		public ComConnectionAcceptor createConnectionAcceptor(
-			ComConfiguration   configuration  ,
+			ComProtocol        protocol       ,
 			ComChannel.Creator channelCreator ,
 			ComChannelAcceptor channelAcceptor
 		);
@@ -43,22 +43,22 @@ public interface ComConnectionAcceptor
 			// instance fields //
 			////////////////////
 			
-			final ComConfiguration.Assembler configurationAssembler;
+			final ComProtocol.Assembler protocolAssembler;
 			
-			Implementation(final ComConfiguration.Assembler configurationAssembler)
+			Implementation(final ComProtocol.Assembler protocolAssembler)
 			{
 				super();
-				this.configurationAssembler = configurationAssembler;
+				this.protocolAssembler = protocolAssembler;
 			}
 
 			@Override
 			public ComConnectionAcceptor createConnectionAcceptor(
-				final ComConfiguration   configuration  ,
+				final ComProtocol        protocol       ,
 				final ComChannel.Creator channelCreator ,
 				final ComChannelAcceptor channelAcceptor
 			)
 			{
-				return New(configuration, this.configurationAssembler, channelCreator, channelAcceptor);
+				return New(protocol, this.protocolAssembler, channelCreator, channelAcceptor);
 			}
 			
 		}
@@ -67,36 +67,40 @@ public interface ComConnectionAcceptor
 	
 	
 	
-	public static ByteBuffer bufferConfiguration(
-		final ComConfiguration           configuration         ,
-		final ComConfiguration.Assembler configurationAssembler
+	public static ByteBuffer bufferProtocol(
+		final ComProtocol           protocol         ,
+		final ComProtocol.Assembler protocolAssembler
 	)
 	{
-		final String assembledConfiguration     = configurationAssembler.assembleConfiguration(configuration);
-		final byte[] utf8AssembledConfiguration = assembledConfiguration.getBytes(XFiles.charSetUtf8());
+		final String assembledProtocol     = protocolAssembler.assembleProtocol(protocol);
+		final byte[] utf8AssembledProtocol = assembledProtocol.getBytes(XFiles.charSetUtf8());
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code.
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(utf8AssembledConfiguration.length);
-		XVM.copyArray(utf8AssembledConfiguration, XVM.getDirectByteBufferAddress(dbb));
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(utf8AssembledProtocol.length + Long.BYTES);
+		final long dbbAddress = XVM.getDirectByteBufferAddress(dbb);
+		
+		// exchanged/stored length values are always long for compatibility throughout all layers and frameworks.
+		XVM.set_long(dbbAddress, utf8AssembledProtocol.length);
+		XVM.copyArray(utf8AssembledProtocol, dbbAddress + Long.BYTES);
 		// note: position remains at 0, limit at capacity. Both are correct for the first reading call.
 		
 		return dbb;
 	}
 	
 	public static ComConnectionAcceptor New(
-		final ComConfiguration           configuration         ,
-		final ComConfiguration.Assembler configurationAssembler,
-		final ComChannel.Creator         channelCreator        ,
-		final ComChannelAcceptor         channelAcceptor
+		final ComProtocol           protocol         ,
+		final ComProtocol.Assembler protocolAssembler,
+		final ComChannel.Creator    channelCreator   ,
+		final ComChannelAcceptor    channelAcceptor
 	)
 	{
-		final ByteBuffer bufferedUtf8Configuration = bufferConfiguration(configuration, configurationAssembler);
+		final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, protocolAssembler);
 		
 		return new ComConnectionAcceptor.Implementation(
-			notNull(configuration),
-			notNull(channelCreator),
+			notNull(protocol)       ,
+			notNull(channelCreator) ,
 			notNull(channelAcceptor),
-			bufferedUtf8Configuration
+			bufferedUtf8Protocol
 		);
 	}
 	
@@ -106,10 +110,10 @@ public interface ComConnectionAcceptor
 		// instance fields //
 		////////////////////
 		
-		private final ComConfiguration   configuration  ;
-		private final ComChannel.Creator channelCreator ;
-		private final ComChannelAcceptor channelAcceptor;
-		private final ByteBuffer         bufferedUtf8Configuration;
+		private final ComProtocol        protocol            ;
+		private final ComChannel.Creator channelCreator      ;
+		private final ComChannelAcceptor channelAcceptor     ;
+		private final ByteBuffer         bufferedUtf8Protocol;
 				
 		
 		
@@ -118,17 +122,17 @@ public interface ComConnectionAcceptor
 		/////////////////
 		
 		Implementation(
-			final ComConfiguration   configuration            ,
-			final ComChannel.Creator channelCreator           ,
-			final ComChannelAcceptor channelAcceptor          ,
-			final ByteBuffer         bufferedUtf8Configuration
+			final ComProtocol        protocol            ,
+			final ComChannel.Creator channelCreator      ,
+			final ComChannelAcceptor channelAcceptor     ,
+			final ByteBuffer         bufferedUtf8Protocol
 		)
 		{
 			super();
-			this.configuration             = configuration            ;
-			this.channelCreator            = channelCreator           ;
-			this.channelAcceptor           = channelAcceptor          ;
-			this.bufferedUtf8Configuration = bufferedUtf8Configuration;
+			this.protocol             = protocol            ;
+			this.channelCreator       = channelCreator      ;
+			this.channelAcceptor      = channelAcceptor     ;
+			this.bufferedUtf8Protocol = bufferedUtf8Protocol;
 		}
 		
 		
@@ -138,9 +142,9 @@ public interface ComConnectionAcceptor
 		////////////
 		
 		@Override
-		public final ComConfiguration configuration()
+		public final ComProtocol protocol()
 		{
-			return this.configuration;
+			return this.protocol;
 		}
 		
 		@Override
@@ -153,8 +157,8 @@ public interface ComConnectionAcceptor
 			 * Also, the method's return type is not respecified. Always funny to see how incredibly incompetent
 			 * JDK developers are in using their own language.
 			 */
-			this.bufferedUtf8Configuration.clear();
-			Com.writeComplete(socketChannel, this.bufferedUtf8Configuration);
+			this.bufferedUtf8Protocol.clear();
+			Com.writeComplete(socketChannel, this.bufferedUtf8Protocol);
 			
 			final ComChannel comChannel = this.channelCreator.createChannel(socketChannel);
 			this.channelAcceptor.acceptChannel(comChannel);
