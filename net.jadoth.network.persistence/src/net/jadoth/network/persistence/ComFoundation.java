@@ -4,6 +4,7 @@ import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
@@ -18,6 +19,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	public SwizzleIdStrategy getIdStrategy();
 	
 	public PersistenceTypeDictionaryView getTypeDictionary();
+	
+	public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider();
 	
 	public ComProtocol getProtocol();
 	
@@ -48,6 +51,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
 	
+	public F setTypeDictionaryProvider(PersistenceTypeDictionaryViewProvider typeDictionaryProvider);
+	
 	public F setProtocolCreator(ComProtocol.Creator protocolCreator);
 	
 	
@@ -76,20 +81,21 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		// instance fields //
 		////////////////////
 
-		private String                        protocolName             ;
-		private String                        protocolVersion          ;
-		private ByteOrder                     byteOrder                ;
-		private SwizzleIdStrategy             idStrategy               ;
-		private PersistenceTypeDictionaryView typeDictionary           ;
-		private ComProtocol.Creator           protocolCreator          ;
-		private transient ComProtocol         cachedProtocol           ;
-
-		private int                           comPort                  ;
-		private ComProtocolStringConverter    protocolStringConverter  ;
-		private ComHost.Creator               hostCreator              ;
-		private ComConnectionAcceptor.Creator connectionAcceptorCreator;
-		private ComChannel.Creator            channelCreator           ;
-		private ComChannelAcceptor            channelAcceptor          ;
+		private String                                protocolName             ;
+		private String                                protocolVersion          ;
+		private ByteOrder                             byteOrder                ;
+		private SwizzleIdStrategy                     idStrategy               ;
+		private PersistenceTypeDictionaryView         typeDictionary           ;
+		private PersistenceTypeDictionaryViewProvider typeDictionaryProvider   ;
+		private ComProtocol.Creator                   protocolCreator          ;
+		private transient ComProtocol                 cachedProtocol           ;
+                                                      
+		private int                                   comPort                  ;
+		private ComProtocolStringConverter            protocolStringConverter  ;
+		private ComHost.Creator                       hostCreator              ;
+		private ComConnectionAcceptor.Creator         connectionAcceptorCreator;
+		private ComChannel.Creator                    channelCreator           ;
+		private ComChannelAcceptor                    channelAcceptor          ;
 		
 		
 		
@@ -108,10 +114,21 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		{
 			if(this.typeDictionary == null)
 			{
-				this.typeDictionary = this.createTypeDictionary();
+				this.typeDictionary = this.ensureTypeDictionary();
 			}
 			
 			return this.typeDictionary;
+		}
+		
+		@Override
+		public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider()
+		{
+			if(this.typeDictionaryProvider == null)
+			{
+				this.typeDictionaryProvider = this.ensureTypeDictionaryProvider();
+			}
+			
+			return this.typeDictionaryProvider;
 		}
 		
 		@Override
@@ -152,7 +169,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		{
 			if(this.idStrategy == null)
 			{
-				this.idStrategy = this.createIdStrategy();
+				this.idStrategy = this.ensureIdStrategy();
 			}
 			
 			return this.idStrategy;
@@ -241,7 +258,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		{
 			if(this.channelAcceptor == null)
 			{
-				this.channelAcceptor = this.createChannelAcceptor();
+				this.channelAcceptor = this.ensureChannelAcceptor();
 			}
 			
 			return this.channelAcceptor;
@@ -308,21 +325,28 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			return ComChannel.Creator();
 		}
 		
-		public PersistenceTypeDictionaryView createTypeDictionary()
+		public PersistenceTypeDictionaryView ensureTypeDictionary()
 		{
-			// (01.11.2018 TM)TODO: JET-43: really exception?
+			// the type dictionary initialization might be deferred beyond infrastructure initialization
+			final PersistenceTypeDictionaryViewProvider tdProvider = this.getTypeDictionaryProvider();
+			return tdProvider.provideTypeDictionary();
+		}
+
+		public SwizzleIdStrategy ensureIdStrategy()
+		{
+			// (01.11.2018 TM)TODO: JET-43: really exception? Maybe default transient strategy?
+			throw new MissingFoundationPartException(SwizzleIdStrategy.class);
+		}
+		
+		public PersistenceTypeDictionaryViewProvider ensureTypeDictionaryProvider()
+		{
+			// ultimately, the type dictionary must be supplied from the application context and cannot be created here.
 			throw new MissingFoundationPartException(PersistenceTypeDictionaryView.class);
 		}
 
-		public SwizzleIdStrategy createIdStrategy()
+		public ComChannelAcceptor ensureChannelAcceptor()
 		{
-			// (01.11.2018 TM)TODO: JET-43: really exception?
-			throw new MissingFoundationPartException(SwizzleIdStrategy.class);
-		}
-
-		public ComChannelAcceptor createChannelAcceptor()
-		{
-			// (01.11.2018 TM)TODO: JET-43: really exception?
+			// the channel acceptor is the link to the application / framework logic and cannot be created here.
 			throw new MissingFoundationPartException(ComChannelAcceptor.class);
 		}
 				
@@ -364,6 +388,14 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public F setTypeDictionary(final PersistenceTypeDictionaryView typeDictionary)
 		{
 			this.typeDictionary = typeDictionary;
+			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeDictionaryProvider(final PersistenceTypeDictionaryViewProvider typeDictionaryProvider)
+		{
+			this.typeDictionaryProvider = typeDictionaryProvider;
 			this.clearCachedProtocol();
 			return this.$();
 		}

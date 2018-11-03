@@ -421,7 +421,10 @@ public interface PersistenceTypeDictionaryParser
 		/////////////////////
 
 		@Override
-		public XGettingSequence<? extends PersistenceTypeDictionaryEntry> parseTypeDictionaryEntries(final String input) throws PersistenceExceptionParser
+		public XGettingSequence<? extends PersistenceTypeDictionaryEntry> parseTypeDictionaryEntries(
+			final String input
+		)
+			throws PersistenceExceptionParser
 		{
 			if(input == null)
 			{
