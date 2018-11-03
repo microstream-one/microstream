@@ -5,8 +5,9 @@ import static net.jadoth.X.notNull;
 import net.jadoth.collections.types.XGettingSequence;
 
 
-public interface PersistenceTypeDictionaryProvider
+public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictionaryViewProvider
 {
+	@Override
 	public PersistenceTypeDictionary provideTypeDictionary();
 
 	

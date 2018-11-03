@@ -1,8 +1,12 @@
 package net.jadoth.network.persistence;
 
+import static net.jadoth.X.KeyValue;
+
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars._charArrayRange;
+import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
 
@@ -190,8 +194,38 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		@Override
 		public ComProtocol parse(final _charArrayRange input)
 		{
-			// FIXME ComProtocolStringConverter.Implementation#parseProtocol()
+			final EqHashTable<String, String> contentTable = this.initializeContentTable();
+			
+			parseContent(contentTable, input.array(), input.start(), input.bound());
+			
+			return this.createProtocol(contentTable);
+		}
+		
+		private ComProtocol createProtocol(final XGettingTable<String, String> contentTable)
+		{
+			// FIXME ComProtocolStringConverter.Implementation#createProtocol()
 			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		private EqHashTable<String, String> initializeContentTable()
+		{
+			return EqHashTable.New(
+				KeyValue(null, null), // (03.11.2018 TM)TODO: JET-43: not sure a null-key is really the best thing
+				KeyValue(this.labelProtocolVersion(), null),
+				KeyValue(this.labelByteOrder()      , null),
+				KeyValue(this.labelIdStrategy()     , null),
+				KeyValue(this.labelTypeDictionary() , null)
+			);
+		}
+
+		private static void parseContent(
+			final EqHashTable<String, String> contentTable,
+			final char[]                      input       ,
+			final int                         iStart      ,
+			final int                         iBound
+		)
+		{
+			
 		}
 		
 	}
