@@ -28,6 +28,11 @@ public class Com
 		return XMath.positive(port);
 	}
 	
+	public static ComFoundation<?> Foundation()
+	{
+		return ComFoundation.New();
+	}
+	
 	public static ServerSocketChannel openServerSocketChannel() throws IOException
 	{
 		return openServerSocketChannel(defaultPort());

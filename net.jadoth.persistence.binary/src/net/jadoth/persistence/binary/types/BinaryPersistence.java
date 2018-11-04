@@ -1849,17 +1849,17 @@ public final class BinaryPersistence extends Persistence
 		};
 	}
 
-	public static BinaryPersistenceFoundation<?> factory()
+	public static BinaryPersistenceFoundation<?> foundation()
 	{
-		return factory(null);
+		return foundation(null);
 	}
 
-	public static BinaryPersistenceFoundation<?> factory(final InstanceDispatcherLogic dispatcher)
+	public static BinaryPersistenceFoundation<?> foundation(final InstanceDispatcherLogic dispatcher)
 	{
-		final BinaryPersistenceFoundation<?> factory = BinaryPersistenceFoundation.New()
+		final BinaryPersistenceFoundation<?> foundation = BinaryPersistenceFoundation.New()
 			.setInstanceDispatcher(dispatcher)
 		;
-		return factory;
+		return foundation;
 	}
 
 	public static final short get_short(final Binary bytes, final long offset)

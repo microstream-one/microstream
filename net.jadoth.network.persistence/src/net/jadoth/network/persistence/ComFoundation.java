@@ -73,6 +73,10 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	
 	
+	public static ComFoundation<?> New()
+	{
+		return new ComFoundation.Implementation<>();
+	}
 	
 	public class Implementation<F extends ComFoundation.Implementation<?>>
 	extends InstanceDispatcher.Implementation implements ComFoundation<F>
