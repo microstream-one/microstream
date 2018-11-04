@@ -84,16 +84,16 @@ public interface ComConnectionAcceptor
 		final ComProtocolStringConverter protocolStringConverter
 	)
 	{
-		final String assembledProtocol     = protocolStringConverter.assemble(protocol);
-		final byte[] utf8AssembledProtocol = assembledProtocol.getBytes(XFiles.charSetUtf8());
+		final String assembledProtocol      = protocolStringConverter.assemble(protocol);
+		final byte[] assembledProtocolBytes = assembledProtocol.getBytes(XFiles.standardCharset());
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code.
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(utf8AssembledProtocol.length + Long.BYTES);
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length + Long.BYTES);
 		final long dbbAddress = XVM.getDirectByteBufferAddress(dbb);
 		
 		// exchanged/stored length values are always long for compatibility throughout all layers and frameworks.
-		XVM.set_long(dbbAddress, utf8AssembledProtocol.length);
-		XVM.copyArray(utf8AssembledProtocol, dbbAddress + Long.BYTES);
+		XVM.set_long(dbbAddress, assembledProtocolBytes.length);
+		XVM.copyArray(assembledProtocolBytes, dbbAddress + Long.BYTES);
 		// note: position remains at 0, limit at capacity. Both are correct for the first reading call.
 		
 		return dbb;

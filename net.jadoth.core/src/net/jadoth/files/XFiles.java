@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -21,21 +22,32 @@ import net.jadoth.functional.XFunc;
  */
 public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 {
-	/*
-	 * Their plain string programming with gigantic caching logic behind it
-	 * even for common cases is so painful to read D-: .
-	 */
-	private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+	
+	public static final Charset utf8()
+	{
+		return StandardCharsets.UTF_8;
+	}
 	
 	/**
-	 * Returns <code>java.nio.charset.Charset.forName("UTF-8")</code>, but with the instance locally cached in a
-	 * constant reference and with a properly structured method name instead of a botchy plain string.
+	 * Returns {@link StandardCharsets#UTF_8}, because every other one in there is nonsense.
 	 * 
 	 * @return <code>java.nio.charset.Charset.forName("UTF-8")</code>.
 	 */
-	public static final Charset charSetUtf8()
+	public static final Charset standardCharset()
 	{
-		return CHARSET_UTF8;
+		return utf8();
+	}
+	
+	/**
+	 * Alias for {@link Charset#defaultCharset()}, which returns sometimes the one thing and sometimes another.
+	 * It is strongly advised to use a reliable {@link Charset} querying method, like {@link #utf8()}, which also
+	 * is the only reasonable choice for the {@link #standardCharset()}.
+	 * 
+	 * @return {@link Charset#defaultCharset()}
+	 */
+	public static final Charset defaultCharset()
+	{
+		return Charset.defaultCharset();
 	}
 	
 	
@@ -135,16 +147,20 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 //	{
 //		return XChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
 //	}
+	
 
-	public static final char[] readCharsFromFile(final File file) throws IOException
+	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.getChars(readStringFromFile(file));
+		return XChars.getChars(readStringFromFileDefaultCharset(file));
 	}
 
-	public static final char[] readCharsFromFile(final File file, final Consumer<? super IOException> exceptionHandler)
+	public static final char[] readCharsFromFileDefaultCharset(
+		final File                          file            ,
+		final Consumer<? super IOException> exceptionHandler
+	)
 	{
-		return readCharsFromFile(file, Charset.defaultCharset(), exceptionHandler);
+		return readCharsFromFile(file, defaultCharset(), exceptionHandler);
 	}
 
 	public static final char[] readCharsFromFile(
@@ -170,25 +186,29 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 
 		return XChars.getChars(content);
 	}
+		
+	public static final char[] readCharsFromFileUtf8(final File file)
+	{
+		return readCharsFromFileUtf8(file, RuntimeException::new);
+	}
 	
 	public static final char[] readCharsFromFileUtf8(
 		final File                          file            ,
 		final Consumer<? super IOException> exceptionHandler
 	)
 	{
-		return readCharsFromFile(file, charSetUtf8(), exceptionHandler);
+		return readCharsFromFile(file, utf8(), exceptionHandler);
+	}
+
+	public static final String readStringFromFileDefaultCharset(final File file) throws IOException
+	{
+		return readStringFromFile(file, defaultCharset());
 	}
 
 	public static final char[] readCharsFromFile(final File file, final Charset charset) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
 		return XChars.getChars(readStringFromFile(file, charset));
-	}
-
-
-	public static final String readStringFromFile(final File file) throws IOException
-	{
-		return readStringFromFile(file, Charset.defaultCharset());
 	}
 
 	public static final String readStringFromFile(final File file, final Charset charset) throws IOException
@@ -223,10 +243,20 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 			return XChars.readAllBytesFromInputStream(fis).toByteArray();
 		}
 	}
-
+	
 	public static final void writeStringToFile(final File file, final String string) throws IOException
 	{
-		writeStringToFile(file, string, Charset.defaultCharset());
+		writeStringToFile(file, string, standardCharset());
+	}
+	
+	public static final void writeStringToFileUtf8(final File file, final String string) throws IOException
+	{
+		writeStringToFile(file, string, utf8());
+	}
+
+	public static final void writeStringToFileDefaultCharset(final File file, final String string) throws IOException
+	{
+		writeStringToFile(file, string, defaultCharset());
 	}
 
 	public static final void writeStringToFile(final File file, final String string, final Charset charset)

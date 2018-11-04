@@ -42,7 +42,7 @@ public class MainSearchStringInFiles
 
 	static String[] loadIds(final File file, final String separator) throws Exception
 	{
-		final String fileContent = XFiles.readStringFromFile(file);
+		final String fileContent = XFiles.readStringFromFileDefaultCharset(file);
 
 		final String[] parts = fileContent.split(separator);
 
@@ -106,7 +106,7 @@ public class MainSearchStringInFiles
 	{
 		try
 		{
-			final String fileContent = XFiles.readStringFromFile(f);
+			final String fileContent = XFiles.readStringFromFileDefaultCharset(f);
 			for(final String s : strings)
 			{
 				final int index = fileContent.indexOf(s);

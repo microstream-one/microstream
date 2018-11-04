@@ -68,7 +68,7 @@ public class MainTestCsvPerformance
 
 	private static void doit() throws Throwable
 	{
-		final char[]            input  = XFiles.readCharsFromFile(
+		final char[]            input  = XFiles.readCharsFromFileDefaultCharset(
 			new File("D:/BonusExportTest_2016-02-03_14-30-00.639/csv/de.emverbund.bonus.konz.berechnung.KonzAbschlagAnspruchAhVlUSt$Implementation.csv")
 		);
 

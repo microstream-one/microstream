@@ -85,7 +85,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XFiles.readCharsFromFile(file);
+				input = XFiles.readCharsFromFileDefaultCharset(file);
 			}
 			catch(final IOException e)
 			{
@@ -301,7 +301,7 @@ public class CompositeConfig
 
 		try
 		{
-			XFiles.writeStringToFile(file, vs.toString());
+			XFiles.writeStringToFileDefaultCharset(file, vs.toString());
 		}
 		catch(final IOException e)
 		{

@@ -18,6 +18,31 @@ public class Com
 		return 1337;
 	}
 	
+	public static long defaultObjectIdBaseServer()
+	{
+		return 9_200_000_000_000_000_000L;
+	}
+	
+	public static long defaultObjectIdBaseClient()
+	{
+		return 9_100_000_000_000_000_000L;
+	}
+	
+	public static ComDefaultIdStrategy DefaultIdStrategy(final long startingObjectId)
+	{
+		return ComDefaultIdStrategy.New(startingObjectId);
+	}
+	
+	public static ComDefaultIdStrategy DefaultIdStrategyServer()
+	{
+		return DefaultIdStrategy(defaultObjectIdBaseServer());
+	}
+	
+	public static ComDefaultIdStrategy DefaultIdStrategyClient()
+	{
+		return DefaultIdStrategy(defaultObjectIdBaseClient());
+	}
+	
 	public static ByteOrder byteOrder()
 	{
 		return XVM.nativeByteOrder();

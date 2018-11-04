@@ -9,5 +9,4 @@ package net.jadoth.chars;
 public interface ObjectStringConverter<T> extends ObjectStringAssembler<T>, ObjectStringParser<T>
 {
 	// just a typing interface so far
-
 }

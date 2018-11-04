@@ -2,13 +2,59 @@ package net.jadoth.swizzling.types;
 
 import static net.jadoth.X.notNull;
 
-public interface SwizzleIdStrategy
+import java.io.File;
+
+import net.jadoth.swizzling.internal.FileObjectIdStrategy;
+import net.jadoth.swizzling.internal.FileTypeIdStrategy;
+
+public interface SwizzleIdStrategy extends SwizzleObjectIdStrategy, SwizzleTypeIdStrategy
 {
 	public SwizzleObjectIdStrategy objectIdStragegy();
 	
 	public SwizzleTypeIdStrategy typeIdStragegy();
+
+	@Override
+	public default SwizzleObjectIdProvider createObjectIdProvider()
+	{
+		return this.objectIdStragegy().createObjectIdProvider();
+	}
+	
+	@Override
+	public default SwizzleTypeIdProvider createTypeIdProvider()
+	{
+		return this.typeIdStragegy().createTypeIdProvider();
+	}
 	
 	
+	
+	public static SwizzleIdStrategy NewInDirectory(final File directory)
+	{
+		return NewFromFiles(
+			directory                             ,
+			FileObjectIdStrategy.defaultFilename(),
+			FileObjectIdStrategy.defaultFilename()
+		);
+	}
+	
+	public static SwizzleIdStrategy NewFromFiles(
+		final File   directory       ,
+		final String objectIdFilename,
+		final String typeIdFilename
+	)
+	{
+		return NewFromFiles(
+			new File(directory, objectIdFilename),
+			new File(directory, typeIdFilename)
+		);
+	}
+	
+	public static SwizzleIdStrategy NewFromFiles(final File objectIdFile, final File typeIdFile)
+	{
+		return new SwizzleIdStrategy.Implementation(
+			FileObjectIdStrategy.New(objectIdFile),
+			FileTypeIdStrategy.New(typeIdFile)
+		);
+	}
 	
 	public static SwizzleIdStrategy New(
 		final SwizzleObjectIdStrategy objectIdStrategy,
