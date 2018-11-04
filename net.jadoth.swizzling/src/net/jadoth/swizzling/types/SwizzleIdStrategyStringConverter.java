@@ -38,6 +38,11 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 	
 	public final class Implementation implements SwizzleIdStrategyStringConverter
 	{
+		/* (05.11.2018 TM)FIXME: generic SwizzleIdStrategyStringConverter
+		 * Must implement:
+		 * 1.) a Class->Assembler lookup for single [T/O]IdStrategy classes
+		 * 2.) a generic [T/O]IdStrategy name parsing and a String->Parser lookup for the rest.
+		 */
 
 		@Override
 		public VarString assemble(final VarString vs, final SwizzleIdStrategy subject)
