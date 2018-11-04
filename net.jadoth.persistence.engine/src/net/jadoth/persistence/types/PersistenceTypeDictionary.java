@@ -94,7 +94,7 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 	}
 
 	public static PersistenceTypeDictionary New(
-		final PersistenceTypeLineageCreator                              typeLineageCreator,
+		final PersistenceTypeLineageCreator                           typeLineageCreator,
 		final XGettingCollection<? extends PersistenceTypeDefinition> typeDefinitions
 	)
 	{

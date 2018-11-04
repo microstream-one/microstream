@@ -61,16 +61,16 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	
 	public static EmbeddedStorageManager.Implementation New(
-		final StorageConfiguration                   configuration    ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFactory,
-		final PersistenceRoots                       definedRoots     ,
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
+		final PersistenceRoots                       definedRoots        ,
 		final Reference<Object>                      explicitRoot
 	)
 	{
 		return new EmbeddedStorageManager.Implementation(
-			notNull(configuration)    ,
-			notNull(connectionFactory),
-			notNull(definedRoots)     ,
+			notNull(configuration)       ,
+			notNull(connectionFoundation),
+			notNull(definedRoots)        ,
 			mayNull(explicitRoot)
 		);
 	}
@@ -82,11 +82,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		// instance fields //
 		////////////////////
 
-		private final StorageConfiguration                   configuration    ;
-		private final StorageManager                         storageManager   ;
-		private final EmbeddedStorageConnectionFoundation<?> connectionFactory;
-		private final PersistenceRoots                       definedRoots     ;
-		private final Reference<Object>                      explicitRoot     ;
+		private final StorageConfiguration                   configuration       ;
+		private final StorageManager                         storageManager      ;
+		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
+		private final PersistenceRoots                       definedRoots        ;
+		private final Reference<Object>                      explicitRoot        ;
 		
 		private StorageConnection singletonConnection;
 
@@ -97,18 +97,18 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		/////////////////////
 
 		Implementation(
-			final StorageConfiguration                   configuration    ,
-			final EmbeddedStorageConnectionFoundation<?> connectionFactory,
-			final PersistenceRoots                       definedRoots     ,
+			final StorageConfiguration                   configuration       ,
+			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
+			final PersistenceRoots                       definedRoots        ,
 			final Reference<Object>                      explicitRoot
 		)
 		{
 			super();
-			this.configuration     = configuration                        ;
-			this.storageManager    = connectionFactory.getStorageManager(); // to ensure consistency
-			this.connectionFactory = connectionFactory                    ;
-			this.definedRoots      = definedRoots                         ;
-			this.explicitRoot      = explicitRoot                         ;
+			this.configuration        = configuration                           ;
+			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
+			this.connectionFoundation = connectionFoundation                    ;
+			this.definedRoots         = definedRoots                            ;
+			this.explicitRoot         = explicitRoot                            ;
 		}
 
 
@@ -164,7 +164,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		private void initialImport(final XGettingEnum<File> initialImportFiles)
 		{
-			this.connectionFactory.createStorageConnection().importFiles(initialImportFiles);
+			this.connectionFoundation.createStorageConnection().importFiles(initialImportFiles);
 		}
 
 		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
@@ -201,7 +201,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			// make sure a functional type handler is present for every occuring type id or throw an exception.
 			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
-			this.connectionFactory.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
+			this.connectionFoundation.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
 
 		@Override
@@ -305,7 +305,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final StorageConnection createConnection()
 		{
-			return this.connectionFactory.createStorageConnection();
+			return this.connectionFoundation.createStorageConnection();
 		}
 
 		@Override

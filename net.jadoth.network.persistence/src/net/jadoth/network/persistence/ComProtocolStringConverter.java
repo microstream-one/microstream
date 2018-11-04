@@ -7,8 +7,10 @@ import net.jadoth.chars.VarString;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
+import net.jadoth.typing.KeyValue;
 
 
 /**
@@ -20,13 +22,29 @@ import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
 public interface ComProtocolStringConverter extends ObjectStringConverter<ComProtocol>
 {
 	@Override
-	default VarString provideAssemblyBuffer()
+	public VarString assemble(VarString vs, ComProtocol subject);
+	
+	@Override
+	public default VarString provideAssemblyBuffer()
 	{
 		// including the whole type dictionary makes the string rather large.
 		return VarString.New(10_000);
 	}
 	
+	@Override
+	public default String assemble(final ComProtocol subject)
+	{
+		return ObjectStringConverter.super.assemble(subject);
+	}
+	
+	@Override
+	public ComProtocol parse(_charArrayRange input);
 
+	@Override
+	public default ComProtocol parse(final String input)
+	{
+		return ObjectStringConverter.super.parse(input);
+	}
 	
 	public static String defaultLabelVersion()
 	{
@@ -196,13 +214,23 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final EqHashTable<String, String> contentTable = this.initializeContentTable();
 			
-			parseContent(contentTable, input.array(), input.start(), input.bound());
+			parseContent(
+				ComProtocol.protocolName()  ,
+				contentTable                ,
+				this.labelTypeDictionary()  ,
+				this.protocolItemSeparator(),
+				this.protocolItemAssigner() ,
+				input.array()               ,
+				input.start()               ,
+				input.bound()
+			);
 			
 			return this.createProtocol(contentTable);
 		}
 		
 		private ComProtocol createProtocol(final XGettingTable<String, String> contentTable)
 		{
+			contentTable.iterate(e -> XDebug.println(e.key() + " -> " + e.value()));
 			// FIXME ComProtocolStringConverter.Implementation#createProtocol()
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
@@ -210,22 +238,183 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		private EqHashTable<String, String> initializeContentTable()
 		{
 			return EqHashTable.New(
-				KeyValue(null, null), // (03.11.2018 TM)TODO: JET-43: not sure a null-key is really the best thing
 				KeyValue(this.labelProtocolVersion(), null),
 				KeyValue(this.labelByteOrder()      , null),
-				KeyValue(this.labelIdStrategy()     , null),
-				KeyValue(this.labelTypeDictionary() , null)
+				KeyValue(this.labelIdStrategy()     , null)
+				// type dictionary is a special trailing entry
+//				KeyValue(this.labelTypeDictionary() , null)
 			);
 		}
 
 		private static void parseContent(
-			final EqHashTable<String, String> contentTable,
-			final char[]                      input       ,
-			final int                         iStart      ,
+			final String                      protocolName      ,
+			final EqHashTable<String, String> contentTable      ,
+			final String                      trailingEntryLabel,
+			final char                        separator         ,
+			final char                        assigner          ,
+			final char[]                      input             ,
+			final int                         iStart            ,
 			final int                         iBound
 		)
 		{
+			final int iBoundEffective = skipWhiteSpacesReverse(input, iStart, iBound);
+			final int iStartEffective = skipWhiteSpaces(input, iStart, iBoundEffective);
 			
+			if(!startsWith(protocolName, input, iStartEffective, iBoundEffective))
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Protocol name '" + protocolName + "' not found at index " + iStartEffective);
+			}
+			
+			final int trailingEntryIndex = parseContentEntries(
+				contentTable                           ,
+				separator                              ,
+				assigner                               ,
+				input                                  ,
+				iStartEffective + protocolName.length(),
+				iBoundEffective
+			);
+			
+			if(trailingEntryIndex == iBound)
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Trailing entry '" + trailingEntryLabel + "' not found.");
+			}
+			if(!startsWith(trailingEntryLabel, input, trailingEntryIndex, iBound))
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Trailing entry is not '" + trailingEntryLabel + "'.");
+			}
+			final int trailingValueIndex = skipControlCharacter(assigner, input, trailingEntryIndex, iBound);
+			
+			final String trailingValue = new String(input, trailingValueIndex, iBound);
+			if(!contentTable.add(trailingEntryLabel, trailingValue))
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Duplicate entry '" + trailingEntryLabel + "'.");
+			}
+		}
+		
+		private static int parseContentEntries(
+			final EqHashTable<String, String> entries  ,
+			final char                        separator,
+			final char                        assigner ,
+			final char[]                      input    ,
+			final int                         iStart   ,
+			final int                         iBound
+		)
+		{
+			int i = iStart;
+			for(final KeyValue<String, String> entry : entries)
+			{
+				try
+				{
+					i = skipToEntryValue(entry.value(), separator, assigner, input, i, iBound);
+					final int valueEndBound = skipValue(separator, input, i, iBound);
+					entries.set(entry.key(), new String(input, i, valueEndBound));
+					i = valueEndBound;
+				}
+				catch(final RuntimeException e)
+				{
+					// (04.11.2018 TM)EXCP: proper exception
+					throw new RuntimeException("Invalid entry '" + entry.key() + "' at index " + i, e);
+				}
+			}
+			
+			// skip last entry's separator
+			i = skipControlCharacter(separator, input, i, iBound);
+			
+			return i;
+		}
+		
+		private static int skipToEntryValue(
+			final String entryLabel,
+			final char   separator ,
+			final char   assigner  ,
+			final char[] input     ,
+			final int    iStart    ,
+			final int    iBound
+		)
+		{
+			int i = iStart;
+			i = skipControlCharacter(separator, input, i, iBound);
+			if(!startsWith(entryLabel, input, i, iBound))
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Entry label '" + entryLabel + "' not found at index " + i);
+			}
+			i = skipControlCharacter(assigner, input, i, iBound);
+			
+			return i;
+		}
+		
+		private static int skipControlCharacter(final char separator, final char[] input, final int iStart, final int iBound)
+		{
+			int i = iStart;
+
+			i = skipWhiteSpaces(input, i, iBound);
+			if(input[i] != separator)
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Missing separator '" + separator + "' at index " + i);
+			}
+			i = skipWhiteSpaces(input, i + 1, iBound);
+			
+			return i;
+		}
+
+		private static int skipValue(final char separator, final char[] input, final int iStart, final int iBound)
+		{
+			// (04.11.2018 TM)TODO: JET-43: support quoted values
+			int i = iStart;
+			while(i < iBound && input[i] > ' ' && input[i] != separator)
+			{
+				i++;
+			}
+			
+			return i;
+		}
+		
+
+		private static boolean startsWith(final String subject, final char[] input, final int iStart, final int iBound)
+		{
+			final char[] subjectChars = subject.toCharArray();
+			if(iBound - iStart < subjectChars.length)
+			{
+				return false;
+			}
+			
+			for(int i = 0; i < subjectChars.length; i++)
+			{
+				if(subjectChars[i] != input[iStart + i])
+				{
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
+		private static int skipWhiteSpaces(final char[] input, final int iStart, final int iBound)
+		{
+			int i = iStart;
+			while(i < iBound && input[i] <= ' ')
+			{
+				i++;
+			}
+			
+			return i;
+		}
+		
+		private static int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
+		{
+			int i = iBound;
+			while(i >= iStart && input[i] <= ' ')
+			{
+				i--;
+			}
+			
+			return i;
 		}
 		
 	}
