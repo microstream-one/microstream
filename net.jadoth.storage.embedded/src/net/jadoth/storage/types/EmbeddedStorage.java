@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 
 import net.jadoth.files.XFiles;
-import net.jadoth.persistence.internal.FileIdStrategy;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
@@ -41,8 +40,8 @@ public final class EmbeddedStorage
 		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
 	)
 	{
-		final SwizzleObjectIdProvider objectIdProvider = idStrategy.createObjectIdProvider();
-		final SwizzleTypeIdProvider   typeIdProvider   = idStrategy.createTypeIdProvider();
+		final SwizzleObjectIdProvider objectIdProvider = idStrategy.objectIdStragegy().createObjectIdProvider();
+		final SwizzleTypeIdProvider   typeIdProvider   = idStrategy.typeIdStragegy().createTypeIdProvider();
 		
 		return EmbeddedStorageConnectionFoundation.New()
 			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler    )
@@ -57,7 +56,7 @@ public final class EmbeddedStorage
 	{
 		return createConnectionFoundation(
 			PersistenceTypeDictionaryFileHandler.New(directory),
-			FileIdStrategy.NewInDirectory(directory)
+			SwizzleIdStrategy.NewInDirectory(directory)
 		);
 	}
 

@@ -1,4 +1,4 @@
-package net.jadoth.persistence.internal;
+package net.jadoth.swizzling.internal;
 
 import static net.jadoth.X.notNull;
 
@@ -7,6 +7,22 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public final class CompositeSwizzleIdProvider implements SwizzleObjectIdProvider, SwizzleTypeIdProvider
 {
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static CompositeSwizzleIdProvider New(
+		final SwizzleTypeIdProvider   typeIdProvider  ,
+		final SwizzleObjectIdProvider objectIdProvider
+	)
+	{
+		return new CompositeSwizzleIdProvider(
+			notNull(typeIdProvider)  ,
+			notNull(objectIdProvider)
+		);
+	}
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
@@ -22,14 +38,14 @@ public final class CompositeSwizzleIdProvider implements SwizzleObjectIdProvider
 	// constructors     //
 	/////////////////////
 
-	public CompositeSwizzleIdProvider(
+	CompositeSwizzleIdProvider(
 		final SwizzleTypeIdProvider   typeIdProvider  ,
 		final SwizzleObjectIdProvider objectIdProvider
 	)
 	{
 		super();
-		this.typeIdProvider   = notNull(typeIdProvider  );
-		this.objectIdProvider = notNull(objectIdProvider);
+		this.typeIdProvider   = typeIdProvider  ;
+		this.objectIdProvider = objectIdProvider;
 	}
 
 

@@ -10,15 +10,14 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.files.XFiles;
 import net.jadoth.meta.XDebug;
 import net.jadoth.network.persistence.ComChannel;
+import net.jadoth.network.persistence.ComDefaultIdStrategy;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.persistence.internal.TransientOidProvider;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
+import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
 
 public class UtilTestNetworkPersistence
 {
@@ -125,21 +124,20 @@ public class UtilTestNetworkPersistence
 //			new File(systemDirectory, Persistence.defaultFilenameTypeId())
 //		);
 
-		final CompositeSwizzleIdProvider idProvider = new CompositeSwizzleIdProvider(
-//			fileTypeIdProvider,
-			SwizzleTypeIdProvider.Failing(), // a network handling layer can never - properly - add new types
-			TransientOidProvider.New(isClient
-				? 9_200_000_000_000_000_000L // temporary id range.
-				: 9_100_000_000_000_000_000L // temporary id range
-			)
-		)
-		.initialize()
+		final ComDefaultIdStrategy idStrategy = ComDefaultIdStrategy.New(
+			isClient
+			? 9_200_000_000_000_000_000L // temporary id range.
+			: 9_100_000_000_000_000_000L // temporary id range
+		);
+		XDebug.println("Starting OID: " + idStrategy.startingObjectId());
+		
+		final CompositeSwizzleIdProvider idProvider = idStrategy
+			.createIdProvider()
+			.initialize()
 		;
 		
-		XDebug.println("OID: " + idProvider.currentObjectId());
-		
 		return BinaryPersistenceFoundation.New()
-			.setTypeDictionaryIoHandling      (dictionaryStorage            )
+			.setTypeDictionaryIoHandling   (dictionaryStorage            )
 			.setSwizzleIdProvider          (idProvider                   )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
 			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)

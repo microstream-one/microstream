@@ -1,12 +1,8 @@
-package net.jadoth.persistence.internal;
+package net.jadoth.files;
 
 import static net.jadoth.X.notNull;
 
 import java.io.File;
-
-import net.jadoth.files.XFiles;
-import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
-import net.jadoth.persistence.types.Persistence;
 
 public abstract class AbstractProviderByFile
 {
@@ -14,9 +10,9 @@ public abstract class AbstractProviderByFile
 	// static methods //
 	///////////////////
 	
-	public static final void write(final File file, final String value) throws PersistenceExceptionTransfer
+	public static final void write(final File file, final String value)
 	{
-		XFiles.writeStringToFile(file, value, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
+		XFiles.writeStringToFile(file, value, XFiles.standardCharset(), RuntimeException::new);
 	}
 
 
@@ -51,7 +47,7 @@ public abstract class AbstractProviderByFile
 
 	protected String read()
 	{
-		return XFiles.readStringFromFile(this.file, Persistence.standardCharset(), PersistenceExceptionTransfer::new);
+		return XFiles.readStringFromFile(this.file, XFiles.standardCharset(), RuntimeException::new);
 	}
 
 }

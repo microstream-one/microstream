@@ -7,12 +7,14 @@ import java.io.File;
 
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
-import net.jadoth.persistence.internal.FileObjectIdProvider;
-import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFoundation;
+import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
+import net.jadoth.swizzling.internal.FileObjectIdProvider;
+import net.jadoth.swizzling.internal.FileObjectIdStrategy;
+import net.jadoth.swizzling.internal.FileTypeIdProvider;
+import net.jadoth.swizzling.internal.FileTypeIdStrategy;
 
 public class TestComponentProvider extends InvocationLogging
 {
@@ -26,8 +28,8 @@ public class TestComponentProvider extends InvocationLogging
 	protected static final TestComponentProvider TEST = new TestComponentProvider(
 		 ensureDirectory(TEST_DIRECTORY)
 		,Persistence.defaultFilenameTypeDictionary()
-		,Persistence.defaultFilenameTypeId()
-		,Persistence.defaultFilenameObjectId()
+		,FileObjectIdStrategy.defaultFilename()
+		,FileTypeIdStrategy.defaultFilename()
 	);
 
 

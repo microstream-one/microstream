@@ -61,7 +61,7 @@ public class MainTestRTF
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
-		XFiles.writeStringToFile(target, s);
+		XFiles.writeStringToFileDefaultCharset(target, s);
 	}
 
 }

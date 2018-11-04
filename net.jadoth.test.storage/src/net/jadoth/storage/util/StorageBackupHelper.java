@@ -3,7 +3,6 @@ package net.jadoth.storage.util;
 import java.io.File;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.persistence.internal.AbstractIdProviderByFile;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
@@ -13,6 +12,7 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageFileWriter;
 import net.jadoth.storage.types.StorageIoHandler;
+import net.jadoth.swizzling.internal.AbstractIdProviderByFile;
 
 
 public final class StorageBackupHelper

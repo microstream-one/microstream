@@ -290,6 +290,8 @@ public final class XVM
 		// must check not null here explictely to prevent VM crashes
 		return (char[])VM.getObject(notNull(string), OFFSET_String_value);
 	}
+	
+	// (04.11.2018 TM)FIXME: Where is the fix for the JDK-9 botch-job String workaround?
 
 	public static char[] accessChars(final StringBuilder stringBuilder)
 	{

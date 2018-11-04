@@ -1,10 +1,9 @@
-package net.jadoth.persistence.internal;
+package net.jadoth.swizzling.internal;
 
 import static net.jadoth.X.notNull;
 
 import java.io.File;
 
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdStrategy;
 
@@ -14,11 +13,17 @@ public class FileTypeIdStrategy implements SwizzleTypeIdStrategy
 	// static methods //
 	///////////////////
 	
+	public static String defaultFilename()
+	{
+		// why permanently occupy additional memory with fields and instances for constant values?
+		return "TypeId.tid";
+	}
+	
 	public static FileTypeIdStrategy NewInDirectory(final File directory)
 	{
 		return New(
-			directory                          ,
-			Persistence.defaultFilenameTypeId()
+			directory        ,
+			defaultFilename()
 		);
 	}
 	

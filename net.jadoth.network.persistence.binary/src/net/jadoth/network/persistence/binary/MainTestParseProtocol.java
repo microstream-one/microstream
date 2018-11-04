@@ -17,7 +17,7 @@ public class MainTestParseProtocol
 		;
 		
 		final ComFoundation<?> foundation = Com.Foundation()
-			.setIdStrategy(null)
+			.setIdStrategy(Com.DefaultIdStrategyServer())
 			.setTypeDictionary(td)
 		;
 		final ComProtocol                protocol   = foundation.getProtocol();

@@ -1,11 +1,11 @@
-package net.jadoth.persistence.internal;
+package net.jadoth.swizzling.internal;
 
 import static net.jadoth.math.XMath.notNegative;
 import static net.jadoth.math.XMath.positive;
 
 import java.io.File;
 
-import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.files.AbstractProviderByFile;
 
 public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 {
@@ -21,7 +21,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	// static methods //
 	///////////////////
 	
-	public static final void writeId(final File file, final long value) throws PersistenceExceptionTransfer
+	public static final void writeId(final File file, final long value)
 	{
 		write(file, Long.toString(value));
 	}

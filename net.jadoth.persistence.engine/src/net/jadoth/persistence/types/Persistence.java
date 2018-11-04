@@ -47,18 +47,6 @@ public class Persistence extends Swizzle
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return "PersistenceTypeDictionary.ptd";
 	}
-
-	public static String defaultFilenameTypeId()
-	{
-		// why permanently occupy additional memory with fields and instances for constant values?
-		return "TypeId.tid";
-	}
-
-	public static String defaultFilenameObjectId()
-	{
-		// why permanently occupy additional memory with fields and instances for constant values?
-		return "ObjectId.oid";
-	}
 	
 	/**
 	 * types that may never be encountered by the persistance layer at all (not yet complete)

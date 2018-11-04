@@ -1,4 +1,4 @@
-package net.jadoth.persistence.internal;
+package net.jadoth.swizzling.internal;
 
 import static net.jadoth.X.notNull;
 import static net.jadoth.math.XMath.positive;
