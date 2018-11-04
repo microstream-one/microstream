@@ -1,26 +1,69 @@
 package net.jadoth.swizzling.types;
 
-public interface SwizzleIdStrategy extends SwizzleObjectIdStrategy, SwizzleTypeIdStrategy
+import static net.jadoth.X.notNull;
+
+public interface SwizzleIdStrategy
 {
-	public default SwizzleObjectIdStrategy objectIdStragegy()
+	public SwizzleObjectIdStrategy objectIdStragegy();
+	
+	public SwizzleTypeIdStrategy typeIdStragegy();
+	
+	
+	
+	public static SwizzleIdStrategy New(
+		final SwizzleObjectIdStrategy objectIdStrategy,
+		final SwizzleTypeIdStrategy   typeIdStrategy
+	)
 	{
-		return this;
+		return new SwizzleIdStrategy.Implementation(
+			notNull(objectIdStrategy),
+			notNull(typeIdStrategy)
+		);
 	}
 	
-	public default SwizzleTypeIdStrategy typeIdStragegy()
+	public class Implementation implements SwizzleIdStrategy
 	{
-		return this;
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final SwizzleObjectIdStrategy objectIdStrategy;
+		private final SwizzleTypeIdStrategy   typeIdStrategy  ;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Implementation(
+			final SwizzleObjectIdStrategy objectIdStrategy,
+			final SwizzleTypeIdStrategy   typeIdStrategy
+		)
+		{
+			super();
+			this.objectIdStrategy = objectIdStrategy;
+			this.typeIdStrategy   = typeIdStrategy  ;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public SwizzleObjectIdStrategy objectIdStragegy()
+		{
+			return this.objectIdStrategy;
+		}
+		
+		@Override
+		public SwizzleTypeIdStrategy typeIdStragegy()
+		{
+			return this.typeIdStrategy;
+		}
+		
 	}
 	
-	@Override
-	public default SwizzleObjectIdProvider createObjectIdProvider()
-	{
-		return this.objectIdStragegy().createObjectIdProvider();
-	}
-	
-	@Override
-	public default SwizzleTypeIdProvider createTypeIdProvider()
-	{
-		return this.typeIdStragegy().createTypeIdProvider();
-	}
 }

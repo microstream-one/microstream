@@ -5,40 +5,35 @@ import static net.jadoth.X.notNull;
 import java.io.File;
 
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
-public class FileIdStrategy implements SwizzleIdStrategy
+public class FileObjectIdStrategy implements SwizzleObjectIdStrategy
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static FileIdStrategy New(final File directory)
+	public static FileObjectIdStrategy NewInDirectory(final File directory)
 	{
 		return New(
 			directory                            ,
-			Persistence.defaultFilenameObjectId(),
-			Persistence.defaultFilenameTypeId()
+			Persistence.defaultFilenameObjectId()
 		);
 	}
 	
-	public static FileIdStrategy New(final File directory, final String objectIdFilename, final String typeIdFilename)
+	public static FileObjectIdStrategy New(final File directory, final String objectIdFilename)
 	{
-		return new FileIdStrategy(
-			new File(directory, objectIdFilename),
-			new File(directory, typeIdFilename)
+		return new FileObjectIdStrategy(
+			new File(directory, objectIdFilename)
 		);
 	}
 	
 	
-	public static FileIdStrategy New(final File objectIdFile, final File typeIdFile)
+	public static FileObjectIdStrategy New(final File objectIdFile)
 	{
-		return new FileIdStrategy(
-			notNull(objectIdFile),
-			notNull(typeIdFile)
+		return new FileObjectIdStrategy(
+			notNull(objectIdFile)
 		);
 	}
 	
@@ -49,7 +44,6 @@ public class FileIdStrategy implements SwizzleIdStrategy
 	////////////////////
 	
 	private final File objectIdFile;
-	private final File typeIdFile  ;
 	
 	
 	
@@ -57,11 +51,10 @@ public class FileIdStrategy implements SwizzleIdStrategy
 	// constructors //
 	/////////////////
 
-	FileIdStrategy(final File objectIdFile, final File typeIdFile)
+	FileObjectIdStrategy(final File objectIdFile)
 	{
 		super();
 		this.objectIdFile = objectIdFile;
-		this.typeIdFile   = typeIdFile  ;
 	}
 	
 	
@@ -71,21 +64,9 @@ public class FileIdStrategy implements SwizzleIdStrategy
 	////////////
 	
 	@Override
-	public SwizzleObjectIdStrategy objectIdStragegy()
-	{
-		return this;
-	}
-
-	@Override
 	public SwizzleObjectIdProvider createObjectIdProvider()
 	{
 		return FileObjectIdProvider.New(this.objectIdFile);
-	}
-
-	@Override
-	public SwizzleTypeIdProvider createTypeIdProvider()
-	{
-		return FileTypeIdProvider.New(this.typeIdFile);
 	}
 	
 }
