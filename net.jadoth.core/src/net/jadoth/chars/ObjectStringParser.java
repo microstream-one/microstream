@@ -1,6 +1,7 @@
 package net.jadoth.chars;
 
 
+@FunctionalInterface
 public interface ObjectStringParser<T>
 {
 	public T parse(_charArrayRange input);

@@ -1,6 +1,7 @@
 package net.jadoth.swizzling.types;
 
 import net.jadoth.chars.VarString;
+import net.jadoth.chars._charArrayRange;
 
 public interface SwizzleObjectIdStrategy
 {
@@ -26,7 +27,7 @@ public interface SwizzleObjectIdStrategy
 		// static methods //
 		///////////////////
 		
-		public static String strategyTypeName()
+		public static String typeName()
 		{
 			// intentionally not the class name since it must stay the same, even if the class should get renamed.
 			return "Transient";
@@ -34,7 +35,15 @@ public interface SwizzleObjectIdStrategy
 		
 		public static void assemble(final VarString vs, final SwizzleObjectIdStrategy.Transient idStrategy)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleObjectIdStrategy.Transient#assemble()
+			vs
+			.add(SwizzleObjectIdStrategy.Transient.typeName())
+			.add('(').add(idStrategy.startingObjectId()).add(')')
+			;
+		}
+		
+		public static SwizzleObjectIdStrategy.Transient parse(final _charArrayRange input)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleObjectIdStrategy.Transient#parse()
 		}
 		
 		
@@ -71,7 +80,7 @@ public interface SwizzleObjectIdStrategy
 		@Override
 		public String strategyTypeNameObjectId()
 		{
-			return Transient.strategyTypeName();
+			return Transient.typeName();
 		}
 
 		@Override
@@ -86,6 +95,12 @@ public interface SwizzleObjectIdStrategy
 	public interface Assembler<S extends SwizzleObjectIdStrategy>
 	{
 		public void assembleIdStrategy(VarString vs, S idStrategy);
+	}
+	
+	@FunctionalInterface
+	public interface Parser<S extends SwizzleObjectIdStrategy>
+	{
+		public S parse(_charArrayRange input);
 	}
 	
 }

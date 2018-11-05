@@ -2484,6 +2484,84 @@ public final class XChars
 		return null;
 	}
 	
+	
+	// generic parsing helper methods. Intentionally no bounds checks as these are meant for internal, safe, use.
+	
+	public static final int skipWhiteSpaces(final char[] input, final int iStart, final int iBound)
+	{
+		int i = iStart;
+		while(i < iBound && input[i] <= ' ')
+		{
+			i++;
+		}
+		
+		return i;
+	}
+	
+	public static final int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
+	{
+		int i = iBound;
+		while(i >= iStart && input[i] <= ' ')
+		{
+			i--;
+		}
+		
+		return i;
+	}
+	
+	/**
+	 * Skips to the position beyond the second occurance of the current character (input[iStart]).
+	 * This simple logic does NOT support escaping.
+	 * 
+	 * @param input
+	 * @param iStart
+	 * @param iBound
+	 * @return
+	 */
+	public static final int skipSimpleQuote(final char[] input, final int iStart, final int iBound)
+	{
+		final char quote = input[iStart];
+				
+		// actual start is one character behind the opening quote
+		int i = iStart + 1;
+		while(i < iBound)
+		{
+			if(input[i++] == quote)
+			{
+				return i;
+			}
+		}
+			
+		// no second occurance has been found. No quote to skip. Current index is returned.
+		return iStart;
+	}
+	
+	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final String subject)
+	{
+		// intentionally no length quick-check before array creation. The string is assumed to fit in.
+		return startsWith(input, iStart, iBound, subject.toCharArray());
+	}
+	
+	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final char[] subject)
+	{
+		if(iBound - iStart < subject.length)
+		{
+			return false;
+		}
+		
+		for(int i = 0; i < subject.length; i++)
+		{
+			if(subject[i] != input[iStart + i])
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	
 
 	
 	///////////////////////////////////////////////////////////////////////////

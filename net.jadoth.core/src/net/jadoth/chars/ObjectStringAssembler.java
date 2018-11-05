@@ -1,6 +1,7 @@
 package net.jadoth.chars;
 
 
+@FunctionalInterface
 public interface ObjectStringAssembler<T>
 {
 	public VarString assemble(VarString vs, T subject);
