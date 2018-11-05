@@ -13,6 +13,12 @@ public class FileTypeIdStrategy implements SwizzleTypeIdStrategy
 	// static methods //
 	///////////////////
 	
+	public static String strategyTypeName()
+	{
+		// intentionally not the class name since it must stay the same, even if the class should get renamed.
+		return "FilePersistence";
+	}
+	
 	public static String defaultFilename()
 	{
 		// why permanently occupy additional memory with fields and instances for constant values?
@@ -69,7 +75,13 @@ public class FileTypeIdStrategy implements SwizzleTypeIdStrategy
 	////////////
 	
 	@Override
-	public SwizzleTypeIdProvider createTypeIdProvider()
+	public final String strategyTypeNameTypeId()
+	{
+		return FileTypeIdStrategy.strategyTypeName();
+	}
+	
+	@Override
+	public final SwizzleTypeIdProvider createTypeIdProvider()
 	{
 		return FileTypeIdProvider.New(this.typeIdFile);
 	}

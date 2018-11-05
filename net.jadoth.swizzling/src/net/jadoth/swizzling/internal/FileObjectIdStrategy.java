@@ -7,11 +7,17 @@ import java.io.File;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
 
-public class FileObjectIdStrategy implements SwizzleObjectIdStrategy
+public final class FileObjectIdStrategy implements SwizzleObjectIdStrategy
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	public static String strategyTypeName()
+	{
+		// intentionally not the class name since it must stay the same, even if the class should get renamed.
+		return "FilePersistence";
+	}
 	
 	public static String defaultFilename()
 	{
@@ -69,7 +75,13 @@ public class FileObjectIdStrategy implements SwizzleObjectIdStrategy
 	////////////
 	
 	@Override
-	public SwizzleObjectIdProvider createObjectIdProvider()
+	public final String strategyTypeNameObjectId()
+	{
+		return FileObjectIdStrategy.strategyTypeName();
+	}
+	
+	@Override
+	public final SwizzleObjectIdProvider createObjectIdProvider()
 	{
 		return FileObjectIdProvider.New(this.objectIdFile);
 	}

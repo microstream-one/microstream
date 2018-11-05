@@ -4,6 +4,8 @@ public interface SwizzleObjectIdStrategy
 {
 	public SwizzleObjectIdProvider createObjectIdProvider();
 	
+	public String strategyTypeNameObjectId();
+	
 	
 	
 	public static SwizzleObjectIdStrategy.Transient Transient()
@@ -18,6 +20,24 @@ public interface SwizzleObjectIdStrategy
 	
 	public final class Transient implements SwizzleObjectIdStrategy
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		public static String strategyTypeName()
+		{
+			// intentionally not the class name since it must stay the same, even if the class should get renamed.
+			return "Transient";
+		}
+		
+		@Override
+		public String strategyTypeNameObjectId()
+		{
+			return Transient.strategyTypeName();
+		}
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
