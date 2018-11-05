@@ -4,7 +4,9 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars._charArrayRange;
+import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XImmutableMap;
 
@@ -53,6 +55,16 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			SwizzleTypeIdStrategy.Assembler<S> assembler
 		);
 		
+		public <S extends SwizzleObjectIdStrategy> Creator register(
+			String                            strategyTypeName,
+			SwizzleObjectIdStrategy.Parser<S> parser
+		);
+		
+		public <S extends SwizzleTypeIdStrategy> Creator register(
+			String                          strategyTypeName,
+			SwizzleTypeIdStrategy.Parser<S> parser
+		);
+		
 		public SwizzleIdStrategyStringConverter create();
 		
 		
@@ -65,6 +77,9 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			
 			private final HashTable<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> oidAssemblers = HashTable.New();
 			private final HashTable<Class<?>, SwizzleTypeIdStrategy.Assembler<?>>   tidAssemblers = HashTable.New();
+			
+			private final EqHashTable<String, SwizzleObjectIdStrategy.Parser<?>> oidParsers = EqHashTable.New();
+			private final EqHashTable<String, SwizzleTypeIdStrategy.Parser<?>>   tidParsers = EqHashTable.New();
 			
 			
 			
@@ -112,11 +127,41 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			}
 			
 			@Override
+			public synchronized <S extends SwizzleObjectIdStrategy> Creator register(
+				final String                            strategyTypeName,
+				final SwizzleObjectIdStrategy.Parser<S> parser
+			)
+			{
+				this.oidParsers.put(
+					notNull(strategyTypeName),
+					notNull(parser)
+				);
+				
+				return this;
+			}
+			
+			@Override
+			public synchronized <S extends SwizzleTypeIdStrategy> Creator register(
+				final String                          strategyTypeName,
+				final SwizzleTypeIdStrategy.Parser<S> parser
+			)
+			{
+				this.tidParsers.put(
+					notNull(strategyTypeName),
+					notNull(parser)
+				);
+				
+				return this;
+			}
+			
+			@Override
 			public final synchronized SwizzleIdStrategyStringConverter create()
 			{
 				return new SwizzleIdStrategyStringConverter.Implementation(
 					this.oidAssemblers.immure(),
-					this.tidAssemblers.immure()
+					this.tidAssemblers.immure(),
+					this.oidParsers.immure()   ,
+					this.tidParsers.immure()
 				);
 			}
 			
@@ -128,9 +173,14 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 	{
 		// generics magic! 8-)
 		return Creator()
-			.register(SwizzleObjectIdStrategy.Transient.class, SwizzleObjectIdStrategy.Transient::assemble)
-			.register(SwizzleTypeIdStrategy.Transient.class  , SwizzleTypeIdStrategy.Transient::assemble  )
-			.register(SwizzleTypeIdStrategy.None.class       , SwizzleTypeIdStrategy.None::assemble       )
+			.register(SwizzleObjectIdStrategy.Transient.class     , SwizzleObjectIdStrategy.Transient::assemble)
+			.register(SwizzleObjectIdStrategy.Transient.typeName(), SwizzleObjectIdStrategy.Transient::parse)
+			
+			.register(SwizzleTypeIdStrategy.Transient.class     , SwizzleTypeIdStrategy.Transient::assemble)
+			.register(SwizzleTypeIdStrategy.Transient.typeName(), SwizzleTypeIdStrategy.Transient::parse)
+			
+			.register(SwizzleTypeIdStrategy.None.class     , SwizzleTypeIdStrategy.None::assemble)
+			.register(SwizzleTypeIdStrategy.None.typeName(), SwizzleTypeIdStrategy.None::parse)
 			.create()
 		;
 	}
@@ -169,6 +219,8 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		
 		final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> objectIdAssemblers;
 		final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > typeIdAssemblers  ;
+		final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidParsers        ;
+		final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidParsers        ;
 
 		
 		
@@ -178,12 +230,16 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 
 		public Implementation(
 			final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> objectIdAssemblers,
-			final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > typeIdAssemblers
+			final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > typeIdAssemblers  ,
+			final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidParsers        ,
+			final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidParsers
 		)
 		{
 			super();
 			this.objectIdAssemblers = objectIdAssemblers;
 			this.typeIdAssemblers   = typeIdAssemblers  ;
+			this.oidParsers         = oidParsers        ;
+			this.tidParsers         = tidParsers        ;
 		}
 		
 		
@@ -251,10 +307,34 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		@Override
 		public SwizzleIdStrategy parse(final _charArrayRange input)
 		{
-			// FIXME SwizzleIdStrategyStringConverter#parse()
+			final char[] chars = input.array();
+			final int iBound = XChars.skipWhiteSpacesReverse(chars, input.start(), input.bound());
+			final int iStart = XChars.skipWhiteSpaces(chars, input.start(), iBound);
+			
+			if(!XChars.startsWith(chars, iStart, iBound, labelType()))
+			{
+				
+			}
+
+			int i = XChars.skipWhiteSpaces(chars, iStart + labelType().length(), iBound);
+			if(chars[i] != typeAssigner())
+			{
+				
+			}
+			i = XChars.skipWhiteSpaces(chars, i + 1, iBound);
+			
+			/* FIXME SwizzleIdStrategyStringConverter#parse()
+			 * - skip whitespaces
+			 * - check labelType
+			 * - skip whitespaces, assigner, whitespaces
+			 * - read typename (using XChars.skipSimpleQuote)
+			 * - lookup parser for typename
+			 * - read specific content (skip to separator)
+			 * - parse idStrategy via parser from content (meaning [typename start; separator[)
+			 */
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
-		
+				
 	}
 		
 }

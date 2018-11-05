@@ -1,6 +1,7 @@
 package net.jadoth.swizzling.types;
 
 import net.jadoth.chars.VarString;
+import net.jadoth.chars._charArrayRange;
 
 public interface SwizzleTypeIdStrategy
 {
@@ -25,7 +26,7 @@ public interface SwizzleTypeIdStrategy
 		// static methods //
 		///////////////////
 		
-		public static String strategyTypeName()
+		public static String typeName()
 		{
 			// intentionally not the class name since it must stay the same, even if the class should get renamed.
 			return "Transient";
@@ -33,7 +34,15 @@ public interface SwizzleTypeIdStrategy
 		
 		public static void assemble(final VarString vs, final SwizzleTypeIdStrategy.Transient idStrategy)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.Transient#assemble()
+			vs
+			.add(SwizzleTypeIdStrategy.Transient.typeName())
+			.add('(').add(idStrategy.startingTypeId()).add(')')
+			;
+		}
+		
+		public static SwizzleTypeIdStrategy.Transient parse(final _charArrayRange input)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.Transient#parse()
 		}
 		
 		
@@ -62,10 +71,15 @@ public interface SwizzleTypeIdStrategy
 		// methods //
 		////////////
 		
+		public final long startingTypeId()
+		{
+			return this.startingTypeId;
+		}
+		
 		@Override
 		public String strategyTypeNameTypeId()
 		{
-			return Transient.strategyTypeName();
+			return Transient.typeName();
 		}
 
 		@Override
@@ -89,7 +103,7 @@ public interface SwizzleTypeIdStrategy
 		// static methods //
 		///////////////////
 		
-		public static String strategyTypeName()
+		public static String typeName()
 		{
 			// intentionally not the class name since it must stay the same, even if the class should get renamed.
 			return "None";
@@ -97,7 +111,14 @@ public interface SwizzleTypeIdStrategy
 		
 		public static void assemble(final VarString vs, final SwizzleTypeIdStrategy.None idStrategy)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.None#assemble()
+			vs
+			.add(SwizzleTypeIdStrategy.None.typeName())
+			;
+		}
+		
+		public static SwizzleTypeIdStrategy.None parse(final _charArrayRange input)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.None#parse()
 		}
 		
 		
@@ -120,7 +141,7 @@ public interface SwizzleTypeIdStrategy
 		@Override
 		public String strategyTypeNameTypeId()
 		{
-			return None.strategyTypeName();
+			return None.typeName();
 		}
 
 		@Override
@@ -135,6 +156,12 @@ public interface SwizzleTypeIdStrategy
 	public interface Assembler<S extends SwizzleTypeIdStrategy>
 	{
 		public void assembleIdStrategy(VarString vs, S idStrategy);
+	}
+	
+	@FunctionalInterface
+	public interface Parser<S extends SwizzleTypeIdStrategy>
+	{
+		public S parse(_charArrayRange input);
 	}
 	
 }

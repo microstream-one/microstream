@@ -4,6 +4,7 @@ import static net.jadoth.X.KeyValue;
 
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XChars;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
@@ -257,10 +258,10 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final int                         iBound
 		)
 		{
-			final int iBoundEffective = skipWhiteSpacesReverse(input, iStart, iBound);
-			final int iStartEffective = skipWhiteSpaces(input, iStart, iBoundEffective);
+			final int iBoundEffective = XChars.skipWhiteSpacesReverse(input, iStart, iBound);
+			final int iStartEffective = XChars.skipWhiteSpaces(input, iStart, iBoundEffective);
 			
-			if(!startsWith(protocolName, input, iStartEffective, iBoundEffective))
+			if(!XChars.startsWith(input, iStartEffective, iBoundEffective, protocolName))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Protocol name '" + protocolName + "' not found at index " + iStartEffective);
@@ -280,7 +281,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Trailing entry '" + trailingEntryLabel + "' not found.");
 			}
-			if(!startsWith(trailingEntryLabel, input, trailingEntryIndex, iBound))
+			if(!XChars.startsWith(input, trailingEntryIndex, iBound, trailingEntryLabel))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Trailing entry is not '" + trailingEntryLabel + "'.");
@@ -304,6 +305,8 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final int                         iBound
 		)
 		{
+			// (05.11.2018 TM)FIXME: JET-43: handle premature end (iBound reached)
+			
 			int i = iStart;
 			for(final KeyValue<String, String> entry : entries)
 			{
@@ -338,7 +341,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			int i = iStart;
 			i = skipControlCharacter(separator, input, i, iBound);
-			if(!startsWith(entryLabel, input, i, iBound))
+			if(!XChars.startsWith(input, i, iBound, entryLabel))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Entry label '" + entryLabel + "' not found at index " + i);
@@ -352,70 +355,29 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			int i = iStart;
 
-			i = skipWhiteSpaces(input, i, iBound);
+			i = XChars.skipWhiteSpaces(input, i, iBound);
 			if(input[i] != separator)
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Missing separator '" + separator + "' at index " + i);
 			}
-			i = skipWhiteSpaces(input, i + 1, iBound);
+			i = XChars.skipWhiteSpaces(input, i + 1, iBound);
 			
 			return i;
 		}
 
-		private static int skipValue(final char separator, final char[] input, final int iStart, final int iBound)
+		private static int skipValue(final char valueTerminator, final char[] input, final int iStart, final int iBound)
 		{
-			// (04.11.2018 TM)TODO: JET-43: support quoted values
+			// (04.11.2018 TM)TODO: JET-43: support quoted values (XChars.skipSimpleQuote)
 			int i = iStart;
-			while(i < iBound && input[i] > ' ' && input[i] != separator)
+			while(i < iBound && input[i] > ' ' && input[i] != valueTerminator)
 			{
 				i++;
-			}
-			
-			return i;
-		}
-		
-
-		private static boolean startsWith(final String subject, final char[] input, final int iStart, final int iBound)
-		{
-			final char[] subjectChars = subject.toCharArray();
-			if(iBound - iStart < subjectChars.length)
-			{
-				return false;
-			}
-			
-			for(int i = 0; i < subjectChars.length; i++)
-			{
-				if(subjectChars[i] != input[iStart + i])
-				{
-					return false;
-				}
-			}
-			
-			return true;
-		}
-		
-		private static int skipWhiteSpaces(final char[] input, final int iStart, final int iBound)
-		{
-			int i = iStart;
-			while(i < iBound && input[i] <= ' ')
-			{
-				i++;
-			}
-			
-			return i;
-		}
-		
-		private static int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
-		{
-			int i = iBound;
-			while(i >= iStart && input[i] <= ' ')
-			{
-				i--;
 			}
 			
 			return i;
 		}
 		
 	}
+	
 }
