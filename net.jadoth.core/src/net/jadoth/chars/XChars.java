@@ -2536,6 +2536,17 @@ public final class XChars
 		return iStart;
 	}
 	
+	public static final String parseSimpleQuote(final char[] input, final int iStart, final int iBound)
+	{
+		final int iQuoteEnd = skipSimpleQuote(input, iStart, iBound);
+		if(iQuoteEnd == iStart)
+		{
+			throw new IllegalArgumentException("No simple quote found at index " + iStart + ".");
+		}
+		
+		return new String(input, iStart + 1, iQuoteEnd - iStart - 2);
+	}
+	
 	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final String subject)
 	{
 		// intentionally no length quick-check before array creation. The string is assumed to fit in.
