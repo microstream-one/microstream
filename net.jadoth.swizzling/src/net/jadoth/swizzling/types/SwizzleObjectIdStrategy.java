@@ -1,5 +1,7 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.chars.VarString;
+
 public interface SwizzleObjectIdStrategy
 {
 	public SwizzleObjectIdProvider createObjectIdProvider();
@@ -30,10 +32,9 @@ public interface SwizzleObjectIdStrategy
 			return "Transient";
 		}
 		
-		@Override
-		public String strategyTypeNameObjectId()
+		public static void assemble(final VarString vs, final SwizzleObjectIdStrategy.Transient idStrategy)
 		{
-			return Transient.strategyTypeName();
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleObjectIdStrategy.Transient#assemble()
 		}
 		
 		
@@ -66,6 +67,12 @@ public interface SwizzleObjectIdStrategy
 		{
 			return this.startingObjectId;
 		}
+		
+		@Override
+		public String strategyTypeNameObjectId()
+		{
+			return Transient.strategyTypeName();
+		}
 
 		@Override
 		public final SwizzleObjectIdProvider createObjectIdProvider()
@@ -73,6 +80,12 @@ public interface SwizzleObjectIdStrategy
 			return SwizzleObjectIdProvider.Transient(this.startingObjectId);
 		}
 		
+	}
+	
+	@FunctionalInterface
+	public interface Assembler<S extends SwizzleObjectIdStrategy>
+	{
+		public void assembleIdStrategy(VarString vs, S idStrategy);
 	}
 	
 }

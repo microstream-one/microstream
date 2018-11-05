@@ -1,5 +1,7 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.chars.VarString;
+
 public interface SwizzleTypeIdStrategy
 {
 	public SwizzleTypeIdProvider createTypeIdProvider();
@@ -29,10 +31,9 @@ public interface SwizzleTypeIdStrategy
 			return "Transient";
 		}
 		
-		@Override
-		public String strategyTypeNameTypeId()
+		public static void assemble(final VarString vs, final SwizzleTypeIdStrategy.Transient idStrategy)
 		{
-			return Transient.strategyTypeName();
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.Transient#assemble()
 		}
 		
 		
@@ -60,6 +61,12 @@ public interface SwizzleTypeIdStrategy
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public String strategyTypeNameTypeId()
+		{
+			return Transient.strategyTypeName();
+		}
 
 		@Override
 		public final SwizzleTypeIdProvider createTypeIdProvider()
@@ -88,10 +95,9 @@ public interface SwizzleTypeIdStrategy
 			return "None";
 		}
 		
-		@Override
-		public String strategyTypeNameTypeId()
+		public static void assemble(final VarString vs, final SwizzleTypeIdStrategy.None idStrategy)
 		{
-			return None.strategyTypeName();
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.None#assemble()
 		}
 		
 		
@@ -110,6 +116,12 @@ public interface SwizzleTypeIdStrategy
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public String strategyTypeNameTypeId()
+		{
+			return None.strategyTypeName();
+		}
 
 		@Override
 		public final SwizzleTypeIdProvider createTypeIdProvider()
@@ -117,6 +129,12 @@ public interface SwizzleTypeIdStrategy
 			return SwizzleTypeIdProvider.Failing();
 		}
 		
+	}
+	
+	@FunctionalInterface
+	public interface Assembler<S extends SwizzleTypeIdStrategy>
+	{
+		public void assembleIdStrategy(VarString vs, S idStrategy);
 	}
 	
 }
