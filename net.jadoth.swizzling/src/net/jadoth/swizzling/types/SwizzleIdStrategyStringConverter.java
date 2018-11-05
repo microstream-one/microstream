@@ -2,6 +2,7 @@ package net.jadoth.swizzling.types;
 
 import static net.jadoth.X.notNull;
 
+import net.jadoth.X;
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
@@ -9,6 +10,8 @@ import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XImmutableMap;
+import net.jadoth.collections.types.XReference;
+import net.jadoth.typing.KeyValue;
 
 public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<SwizzleIdStrategy>
 {
@@ -211,16 +214,21 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			return ',';
 		}
 		
+		public static char quote()
+		{
+			return '\'';
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> objectIdAssemblers;
-		final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > typeIdAssemblers  ;
-		final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidParsers        ;
-		final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidParsers        ;
+		final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> oidsAssemblers;
+		final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > tidsAssemblers;
+		final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidsParsers   ;
+		final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidsParsers   ;
 
 		
 		
@@ -229,17 +237,17 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		/////////////////
 
 		public Implementation(
-			final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> objectIdAssemblers,
-			final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > typeIdAssemblers  ,
-			final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidParsers        ,
-			final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidParsers
+			final XImmutableMap<Class<?>, SwizzleObjectIdStrategy.Assembler<?>> oidsAssemblers,
+			final XImmutableMap<Class<?>, SwizzleTypeIdStrategy.Assembler<?>  > tidsAssemblers,
+			final XImmutableMap<String, SwizzleObjectIdStrategy.Parser<?>>      oidsParsers   ,
+			final XImmutableMap<String, SwizzleTypeIdStrategy.Parser<?>>        tidsParsers
 		)
 		{
 			super();
-			this.objectIdAssemblers = objectIdAssemblers;
-			this.typeIdAssemblers   = typeIdAssemblers  ;
-			this.oidParsers         = oidParsers        ;
-			this.tidParsers         = tidParsers        ;
+			this.oidsAssemblers = oidsAssemblers;
+			this.tidsAssemblers = tidsAssemblers;
+			this.oidsParsers    = oidsParsers   ;
+			this.tidsParsers    = tidsParsers   ;
 		}
 		
 		
@@ -254,7 +262,7 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		{
 			@SuppressWarnings("unchecked") // cast safety is guaranteed by the registration logic
 			final SwizzleObjectIdStrategy.Assembler<S> assembler =
-				(SwizzleObjectIdStrategy.Assembler<S>)this.objectIdAssemblers.get(type)
+				(SwizzleObjectIdStrategy.Assembler<S>)this.oidsAssemblers.get(type)
 			;
 			
 			return assembler;
@@ -266,7 +274,7 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		{
 			@SuppressWarnings("unchecked") // cast safety is guaranteed by the registration logic
 			final SwizzleTypeIdStrategy.Assembler<S> assembler =
-				(SwizzleTypeIdStrategy.Assembler<S>)this.typeIdAssemblers.get(type)
+				(SwizzleTypeIdStrategy.Assembler<S>)this.tidsAssemblers.get(type)
 			;
 			
 			return assembler;
@@ -307,32 +315,110 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		@Override
 		public SwizzleIdStrategy parse(final _charArrayRange input)
 		{
-			final char[] chars = input.array();
-			final int iBound = XChars.skipWhiteSpacesReverse(chars, input.start(), input.bound());
-			final int iStart = XChars.skipWhiteSpaces(chars, input.start(), iBound);
+			final XReference<String> tidsContent = X.Reference(null);
+			final XReference<String> oidsContent = X.Reference(null);
 			
-			if(!XChars.startsWith(chars, iStart, iBound, labelType()))
+			parseContent(input, tidsContent, oidsContent);
+			
+			final SwizzleTypeIdStrategy.Parser<?>   tidsParser = this.lookupTypeIdStrategyParser(tidsContent.get());
+			final SwizzleObjectIdStrategy.Parser<?> oidsParser = this.lookupObjectIdStrategyParser(oidsContent.get());
+			
+			final SwizzleTypeIdStrategy   tidStrategy = tidsParser.parse(tidsContent.get());
+			final SwizzleObjectIdStrategy oidStrategy = oidsParser.parse(oidsContent.get());
+			
+			return SwizzleIdStrategy.New(oidStrategy, tidStrategy);
+		}
+		
+		private static void parseContent(
+			final _charArrayRange    inputRange ,
+			final XReference<String> tidsContent,
+			final XReference<String> oidsContent
+		)
+		{
+			// (05.11.2018 TM)FIXME: JET-43: handle premature end (iBound reached)
+			
+			final char[] input = inputRange.array();
+			final int iBound = XChars.skipWhiteSpacesReverse(input, inputRange.start(), inputRange.bound());
+			
+			final int iTypeEnd = parsePart(input, inputRange.start(), iBound, labelType(), tidsContent);
+			if(input[iTypeEnd] != separator())
 			{
-				
+				// (05.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Missing separator (" + separator() + ") at index " + iTypeEnd);
+			}
+			parsePart(input, iTypeEnd + 1, iBound, labelObject(), oidsContent);
+		}
+		
+		private static int parsePart(
+			final char[]             input        ,
+			final int                iStart       ,
+			final int                iBound       ,
+			final String             label        ,
+			final XReference<String> contentHolder
+		)
+		{
+			int i = XChars.skipWhiteSpaces(input, iStart, iBound);
+			if(!XChars.startsWith(input, i, iBound, label))
+			{
+				// (05.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"IdStrategy type label (" + label + ") not found at index " + i + "."
+				);
 			}
 
-			int i = XChars.skipWhiteSpaces(chars, iStart + labelType().length(), iBound);
-			if(chars[i] != typeAssigner())
+			i = XChars.skipWhiteSpaces(input, i + labelType().length(), iBound);
+			if(input[i] != typeAssigner())
 			{
-				
+				// (05.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Type Assigner (" + typeAssigner() + ") after IdStrategy type \""
+					+ label + "\" not found at index " + i + "."
+				);
 			}
-			i = XChars.skipWhiteSpaces(chars, i + 1, iBound);
 			
-			/* FIXME SwizzleIdStrategyStringConverter#parse()
-			 * - skip whitespaces
-			 * - check labelType
-			 * - skip whitespaces, assigner, whitespaces
-			 * - read typename (using XChars.skipSimpleQuote)
-			 * - lookup parser for typename
-			 * - read specific content (skip to separator)
-			 * - parse idStrategy via parser from content (meaning [typename start; separator[)
-			 */
-			throw new net.jadoth.meta.NotImplementedYetError();
+			i = XChars.skipWhiteSpaces(input, i + 1, iBound);
+			if(input[i] != quote())
+			{
+				// (05.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Opening quote (" + quote() + ") for IdStrategy type \""
+					+ label + "\" not found at index " + i + "."
+				);
+			}
+			
+			final int iQuoteEnd = XChars.skipSimpleQuote(input, i, iBound);
+			final String content = new String(input, i + 1, iQuoteEnd - i - 2);
+			contentHolder.set(content);
+						
+			return XChars.skipWhiteSpaces(input, iQuoteEnd, iBound);
+		}
+		
+		private SwizzleTypeIdStrategy.Parser<?> lookupTypeIdStrategyParser(final String content)
+		{
+			for(final KeyValue<String, SwizzleTypeIdStrategy.Parser<?>> e : this.tidsParsers)
+			{
+				if(content.startsWith(e.key()))
+				{
+					return e.value();
+				}
+			}
+			
+			// (05.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException("Unknown TypeIdStrategy: \"" + content + "\".");
+		}
+		
+		private SwizzleObjectIdStrategy.Parser<?> lookupObjectIdStrategyParser(final String content)
+		{
+			for(final KeyValue<String, SwizzleObjectIdStrategy.Parser<?>> e : this.oidsParsers)
+			{
+				if(content.startsWith(e.key()))
+				{
+					return e.value();
+				}
+			}
+			
+			// (05.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException("Unknown TypeIdStrategy: \"" + content + "\".");
 		}
 				
 	}

@@ -1,7 +1,6 @@
 package net.jadoth.swizzling.types;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.chars._charArrayRange;
 
 public interface SwizzleTypeIdStrategy
 {
@@ -40,7 +39,7 @@ public interface SwizzleTypeIdStrategy
 			;
 		}
 		
-		public static SwizzleTypeIdStrategy.Transient parse(final _charArrayRange input)
+		public static SwizzleTypeIdStrategy.Transient parse(final String typeIdStrategyContent)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.Transient#parse()
 		}
@@ -116,7 +115,7 @@ public interface SwizzleTypeIdStrategy
 			;
 		}
 		
-		public static SwizzleTypeIdStrategy.None parse(final _charArrayRange input)
+		public static SwizzleTypeIdStrategy.None parse(final String typeIdStrategyContent)
 		{
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.None#parse()
 		}
@@ -161,7 +160,7 @@ public interface SwizzleTypeIdStrategy
 	@FunctionalInterface
 	public interface Parser<S extends SwizzleTypeIdStrategy>
 	{
-		public S parse(_charArrayRange input);
+		public S parse(String typeIdStrategyContent);
 	}
 	
 }
