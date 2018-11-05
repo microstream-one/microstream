@@ -12,7 +12,19 @@ public interface SwizzleIdStrategy extends SwizzleObjectIdStrategy, SwizzleTypeI
 	public SwizzleObjectIdStrategy objectIdStragegy();
 	
 	public SwizzleTypeIdStrategy typeIdStragegy();
-
+	
+	@Override
+	public default String strategyTypeNameObjectId()
+	{
+		return this.objectIdStragegy().strategyTypeNameObjectId();
+	}
+	
+	@Override
+	default String strategyTypeNameTypeId()
+	{
+		return this.typeIdStragegy().strategyTypeNameTypeId();
+	}
+	
 	@Override
 	public default SwizzleObjectIdProvider createObjectIdProvider()
 	{
