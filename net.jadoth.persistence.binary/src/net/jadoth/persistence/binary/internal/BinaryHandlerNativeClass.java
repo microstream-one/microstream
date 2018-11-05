@@ -77,7 +77,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 			 * See PersistenceTypeHandlerEnsurer (lookup, on fail call creator)
 			 * and PersistenceTypeHandlerCreator (exception for Class instance)
 			 */
-			return XReflect.classForName(typeName);
+			return XReflect.resolveType(typeName);
 		}
 		catch(final ReflectiveOperationException e)
 		{

@@ -109,7 +109,7 @@ public class TestComponentProvider extends InvocationLogging
 	{
 		if(this.swizzleIdProvider == null)
 		{
-			this.swizzleIdProvider = new CompositeSwizzleIdProvider(
+			this.swizzleIdProvider = CompositeSwizzleIdProvider.New(
 				dispatch(FileTypeIdProvider.New  (new File(this.directory, this.filenameTypeId  ))),
 				dispatch(FileObjectIdProvider.New(new File(this.directory, this.filenameObjectId)))
 			).initialize();

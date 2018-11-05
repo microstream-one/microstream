@@ -34,7 +34,7 @@ public interface PersistenceFieldLengthResolver
 		{
 			try
 			{
-				return this.resolveMinimumLengthFromPrimitiveType(XReflect.classForName(typeName));
+				return this.resolveMinimumLengthFromPrimitiveType(XReflect.resolveType(typeName));
 			}
 			catch(LinkageError | ClassNotFoundException e)
 			{
@@ -42,7 +42,7 @@ public interface PersistenceFieldLengthResolver
 				 * gets resolved by hardcoded switch. The only way this exception can ever occur
 				 * is if the two called methods are ruined.
 				 */
-				throw new Error("impossible error occured while resolving primitive type " + typeName, e);
+				throw new Error("Impossible error occured while resolving primitive type " + typeName, e);
 			}
 		}
 
@@ -65,7 +65,7 @@ public interface PersistenceFieldLengthResolver
 		{
 			try
 			{
-				return this.resolveMaximumLengthFromPrimitiveType(XReflect.classForName(typeName));
+				return this.resolveMaximumLengthFromPrimitiveType(XReflect.resolveType(typeName));
 			}
 			catch(LinkageError | ClassNotFoundException e)
 			{
@@ -73,7 +73,7 @@ public interface PersistenceFieldLengthResolver
 				 * gets resolved by hardcoded switch. The only way this exception can ever occur
 				 * is if the two called methods are ruined.
 				 */
-				throw new Error("impossible error occured while resolving primitive type " + typeName, e);
+				throw new Error("Impossible error occured while resolving primitive type " + typeName, e);
 			}
 		}
 

@@ -504,7 +504,7 @@ public interface BinaryReferenceTraverser
 
 		static final int primitiveByteLength(final String typeName)
 		{
-			final Class<?> primitiveType = XReflect.primitiveType(typeName);
+			final Class<?> primitiveType = XReflect.tryResolvePrimitiveType(typeName);
 			return primitiveType == null
 				? 0
 				: XVM.byteSizePrimitive(primitiveType) // intentionally throw exception for void.class

@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -615,5 +616,19 @@ Hm. Vielleicht sollte es ein interface geben, das TypeDictionary und IdStrategy 
 \par
 SwizzleIdStrategy Aufteilung verbessern, durchdenken und implementieren.\par
 \par
+\par
+\par
+2018-11-05\par
+\par
+SwizzleIdStrategyStringConverter Konzept durchdenken und verbessern.\par
+\par
+\par
+Zwischendrin mal schnell recherchieren zu FH's Wunsch nach einer expliziten "TypeNotFound" Exception anstatt einer provisorischen RuntimeException.\par
+Ergebnis:\par
+Alle Typaufl\'f6sungen laufen \'fcber entweder Persistence#resolveType oder Persistence#tryResolveType.\par
+Das erste wirft bereits eine PersistenceExceptionTypeConsistencyDefinitionResolveTypeName, das zweite gibt absichtlich nur null zur\'fcck.\par
+Ich habe die Stellen, in denen die try~ Variante aufgerufen wird, nach provisorischen Exceptions abgesucht, aber nichts gefunden, das der Bitte von FH entsprechen w\'fcrde.\par
+Dann habe ich noch alle Vorkommen von "proper exception" (marker f\'fcr provisorische Exceptions) im Persistence Projekt abgesucht, auch kein Treffer.\par
+Vielleicht sind andere Exceptions gemeint (type mismatch usw.) oder hier liegt irgendwie ein Misverst\'e4ndnis vor.\par
 }
  

@@ -163,7 +163,7 @@ public class Persistence extends Swizzle
 	{
 		try
 		{
-			return (Class<T>)XReflect.classForName(typeName);
+			return (Class<T>)XReflect.resolveType(typeName);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -174,19 +174,7 @@ public class Persistence extends Swizzle
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> tryResolveType(final String typeName)
 	{
-		try
-		{
-			return (Class<T>)XReflect.classForName(typeName);
-		}
-		catch (final ClassNotFoundException e)
-		{
-			/*
-			 * class not found for an optional type dictionary entry is not necessarily an error.
-			 * It might just have been renamed or deleted in the runtime code.
-			 * This has to be validated at a later point.
-			 */
-			return null;
-		}
+		return (Class<T>)XReflect.tryResolveType(typeName);
 	}
 	
 
