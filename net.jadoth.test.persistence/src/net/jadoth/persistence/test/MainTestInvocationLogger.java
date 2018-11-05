@@ -1,12 +1,11 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.persistence.internal.TransientOidProvider;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 
 
 public class MainTestInvocationLogger extends InvocationLogging
 {
-	static final SwizzleObjectIdProvider OID_PROVIDER = dispatch(TransientOidProvider.New());
+	static final SwizzleObjectIdProvider OID_PROVIDER = dispatch(SwizzleObjectIdProvider.Transient());
 
 	public static void main(final String[] args)
 	{

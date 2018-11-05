@@ -40,7 +40,7 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 	{
 		/* (05.11.2018 TM)FIXME: generic SwizzleIdStrategyStringConverter
 		 * Must implement:
-		 * 1.) a Class->Assembler lookup for single [T/O]IdStrategy classes
+		 * 1.) a generic [T/O]IdStrategy name assembling and Class->Assembler lookup for single [T/O]IdStrategy classes
 		 * 2.) a generic [T/O]IdStrategy name parsing and a String->Parser lookup for the rest.
 		 */
 

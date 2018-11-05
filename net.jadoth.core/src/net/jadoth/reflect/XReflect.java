@@ -600,18 +600,37 @@ public final class XReflect
 		}
 	}
 
-	public static final Class<?> classForName(final String className)
+	/**
+	 * Resolves the passed type name to a runtime type (instance of type {@link Class}).
+	 * In contrary to {@link Class#forName(String)}, this method can resolve primitive type names, as well.
+	 * <p>
+	 * Note on naming:<br>
+	 * 1.) Looking up a runtime type instance for a type name string is best described as "resolving" the type.<br>
+	 * 2.) The things that are resolved are TYPES
+	 * (classes, interfaces, arrays and in later Java versions enums and annotations), not just classes.
+	 * That the java inventors seemingly didn't understand their own type system and just called everything
+	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as less as possible.<br>
+	 * In conclusion, the proper naming for the action executed by this method (meaning a verb)
+	 * is "resolveType" and not a dilettantish "forName" as in {@link Class#forName(String)}.
+	 * 
+	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * @return the resolved type instance (of type {@link Class})
+	 * @throws LinkageError see {@link Class#forName(String)}
+	 * @throws ExceptionInInitializerError see {@link Class#forName(String)}
+	 * @throws ClassNotFoundException see {@link Class#forName(String)}
+	 */
+	public static final Class<?> resolveType(final String typeName)
 		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
 	{
-		final Class<?> type = primitiveType(className);
+		final Class<?> type = tryResolvePrimitiveType(typeName);
 		return type != null
 			? type
-			: Class.forName(className)
+			: Class.forName(typeName)
 		;
 	}
 	
 	/**
-	 * Calls {@link #classForName(String)}, but suppresses any {@link ClassNotFoundException} and returns
+	 * Calls {@link #resolveType(String)}, but suppresses any {@link ClassNotFoundException} and returns
 	 * <code>null</code> instead. This is useful if the passed class name is only potentially resolvable
 	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
 	 * and marking the not resolvable types as unresolvable.
@@ -619,11 +638,11 @@ public final class XReflect
 	 * @param className
 	 * @return the {@link Class} instance representing the passed class name or <code>null</code> if unresolevable.
 	 */
-	public static final Class<?> tryClassForName(final String className)
+	public static final Class<?> tryResolveType(final String className)
 	{
 		try
 		{
-			return XReflect.classForName(className);
+			return XReflect.resolveType(className);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -652,7 +671,7 @@ public final class XReflect
 	
 	
 
-	public static final Class<?> primitiveType(final String className)
+	public static final Class<?> tryResolvePrimitiveType(final String className)
 	{
 		// Stupid JDK once again. Unbelievable.
 		switch(className)
@@ -672,7 +691,7 @@ public final class XReflect
 
 	public static boolean isPrimitiveTypeName(final String typeName)
 	{
-		return primitiveType(typeName) != null;
+		return tryResolvePrimitiveType(typeName) != null;
 	}
 
 	public static final boolean isOfAnyType(final Class<?> subject, final Class<?>... supertypes)
