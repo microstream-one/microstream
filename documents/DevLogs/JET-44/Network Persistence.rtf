@@ -634,5 +634,38 @@ Vielleicht sind andere Exceptions gemeint (type mismatch usw.) oder hier liegt i
 SwizzleIdStrategyStringConverter weitermachen.\par
 \par
 \par
+2018-11-06\par
+\par
+Ich trage mal ein paar Gedanken nach, was ich die letzten Tage so implementiert habe:\par
+Ich habe einen eigene assembler und parser (kombiniert "StringConverter") f\'fcr das ComProtocol, f\'fcr die darin genestete IdStrategy und die wiederum darin genesteten Type- und ObjectIdStrategies implementiert.\par
+Gleich sauber und ordentlich, dynamisch erweiterbar bei zuk\'fcnftig neuen IdStrategy Typen, usw.\par
+\par
+Ich habe daf\'fcr in Summe einige Tage gebraucht. Wie viel genau, ist schwer zu sagen, weil parallel dazu Konzept, andere Code Teile, usw. mit gereift sind. Es war auf jeden Fall mehr als ein MT und weniger als eine MW. Den Rest kann man sich aussuchen. 2 MT? 3 MT? So in der Richtung.\par
+Die Frage ist an solchen Stellen oft immer: Muss man das selber programmieren? Kann man da nicht einfach ein JSON Framework oder sowas nehmen.\par
+\par
+Zahlreiche Erfahrungen f\'fchren immer zu folgendem Schluss:\par
+- Ein Fremdframework muss man auch erst mal einbauen, d.h. verstehen, konfigurieren, testen, usw.\par
+- Meistens haben die absurde Einschr\'e4nkungen, die einem das Leben einfacher anstatt schwerer machen.\par
+- Meistens haben sie auch Bugs, von katastrophaler API ganz zu schweigen.\par
+- Man hat Abh\'e4ngigkeiten zu Drittanbietern, muss f\'fcr Bugfixes oder neue Features auf deren Releasezyklen warten, muss bei neuen Versionen dann wieder refactoren, neu testen, neue Bugs workarounden, usw.\par
+- Mit diesem ganzen Mist etwas zu bauen, das f\'fcr die zukunft dynamisch erweiterbar ist, ist oft sehr aufwendig bis unm\'f6glich (Framework in die Tiefe verstehen und den ganzen Scheissdreck darin workarounden).\par
+\par
+Das ist keine theoretische Schlechtrederei. Wir haben das alles mehrfach mitgemacht.\par
+\par
+Mit all dem kommt man mittelfristig auf deutlich mehr Aufwand, als wenn man es gleich selber programmiert und langfristig ruiniert man sich das eigene Framework damit (Einschr\'e4nkungen usw.) oder muss irgendwann wechseln (zu dem n\'e4chsten Scheissdreck) oder es doch selbst schreiben.\par
+\par
+Auch wenn es f\'fcr den Au\'dfenstehenden/Unerfahrenen/Naiven (kein Vorwurf) zun\'e4chst paradox klingt: Die langfristig BESTE L\'f6sung, vor allem was Aufwand, aber auch Stabilit\'e4t, Wartbarkeit, usw. angeht, ist es, sich Zeug selbst zu schreiben.\par
+Zumindest ist das meine Erfahrung. Man muss es nat\'fcrlich gut machen und nicht einfach nur schlechteren Scheissdreck bauen, als der andere Scheissdreck ist. Sonst ist der andere Scheissdreck nat\'fcrlich die versiertere L\'f6sung.\par
+\par
+Das hab ich inzwischen so gut wie fertig und getestet. Aktuell ist das Problem nur noch, dass der TypeDictionary String fehlt, weshalb der Parser - ganz zurecht - Eine Exception \'fcber ein vorzeitiges Ende bzw. Unvollst\'e4ndigkeit der Daten wirft.\par
+\par
+Das muss ich noch fixen.\par
+Und dann muss ich leider noch eine TypeDictionary Builder "light" Implementierung bauen (der fr\'fcher mal auch selbstgeschriebene TypeDictionaryParser funktioniert einwandfrei und kann mitverwendet werden), die ohne die ganzen Refactoring- und Legacy-Type-Mapping-Logik auskommt, damit der Client sich einfach nur eine Struktur bauen kann zu dem TD, das ihm geschickt worden ist.\par
+\par
+Dann ist JET-43 fertig.\par
+\par
+Die gute Nachricht ist: Durch Synergieffekte ist dabei auch schon viel Fortschritt f\'fcr JET-45, JET-46, JET-47 abgefallen.\par
+Insgesamt also gar nicht mal so langsam. Und daf\'fcr auch noch eine gescheite L\'f6sung, \'fcber die wir wartungstechnisch volle Kontrolle haben.\par
+\par
 }
  

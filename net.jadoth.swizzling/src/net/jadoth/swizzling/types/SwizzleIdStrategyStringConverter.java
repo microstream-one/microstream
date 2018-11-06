@@ -324,10 +324,10 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 		public VarString assemble(final VarString vs, final SwizzleIdStrategy idStrategy)
 		{
 			vs
-			.add(labelType()).add(typeAssigner()).blank().add(quote()).apply(v ->
+			.add(labelType()).add(typeAssigner()).add(quote()).apply(v ->
 				this.assembleTypeIdStrategy(v, idStrategy.typeIdStragegy())
 			).add(quote()).add(separator()).blank()
-			.add(labelObject()).add(typeAssigner()).blank().add(quote()).apply(v ->
+			.add(labelObject()).add(typeAssigner()).add(quote()).apply(v ->
 				this.assembleObjectIdStrategy(v, idStrategy.objectIdStragegy())
 			).add(quote());
 			
