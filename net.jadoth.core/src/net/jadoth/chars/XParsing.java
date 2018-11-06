@@ -22,7 +22,7 @@ public final class XParsing
 	
 	public static final int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
 	{
-		int i = iBound;
+		int i = iBound - 1;
 		while(i >= iStart && input[i] <= ' ')
 		{
 			i--;
@@ -115,6 +115,36 @@ public final class XParsing
 		return iEnd;
 	}
 	
+	public static final int checkStartsWith(
+		final char[] input  ,
+		final int    iStart ,
+		final int    iBound ,
+		final String subject
+	)
+	{
+		return checkStartsWith(input, iStart, iBound, subject, null);
+	}
+	
+	public static final int checkStartsWith(
+		final char[] input      ,
+		final int    iStart     ,
+		final int    iBound     ,
+		final String subject    ,
+		final String contextHint
+	)
+	{
+		if(startsWith(input, iStart, iBound, subject))
+		{
+			return iStart + subject.length();
+		}
+		
+		// (06.11.2018 TM)EXCP: proper exception
+		throw new ParsingException(
+			"String \"" + subject + "\" not found at index " + iStart +
+			(contextHint == null ? "." : "(" + contextHint + ").")
+		);
+	}
+	
 	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final String subject)
 	{
 		// intentionally no length quick-check before array creation. The string is assumed to fit in.
@@ -159,13 +189,21 @@ public final class XParsing
 	
 	public static final void checkIncompleteInput(final int i, final int iBound)
 	{
+		checkIncompleteInput(i, iBound, null);
+	}
+	
+	public static final void checkIncompleteInput(final int i, final int iBound, final String contextHint)
+	{
 		if(i < iBound)
 		{
 			return;
 		}
 		
 		// (06.11.2018 TM)EXCP: proper exception
-		throw new RuntimeException("Incomplete input: reached end of characters at index " + i);
+		throw new RuntimeException(
+			"Incomplete input: reached end of characters at index " + i
+			+ (contextHint == null ? "." : " (" + contextHint + ").")
+		);
 	}
 	
 	

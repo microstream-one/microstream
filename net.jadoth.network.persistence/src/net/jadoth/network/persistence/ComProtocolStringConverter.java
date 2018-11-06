@@ -266,6 +266,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				this.labelTypeDictionary()  ,
 				this.protocolItemSeparator(),
 				this.protocolItemAssigner() ,
+				this.protocolItemDelimiter(),
 				input.array()               ,
 				input.start()               ,
 				input.bound()
@@ -325,53 +326,35 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final String                      trailingEntryLabel,
 			final char                        separator         ,
 			final char                        assigner          ,
+			final char                        delimiter         ,
 			final char[]                      input             ,
 			final int                         iStart            ,
 			final int                         iBound
 		)
 		{
 			final int iBoundEffective = XParsing.skipWhiteSpacesReverse(input, iStart, iBound);
-			final int iStartEffective = XParsing.skipWhiteSpaces(input, iStart, iBoundEffective);
-			
-			if(!XParsing.startsWith(input, iStartEffective, iBoundEffective, protocolName))
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Protocol name '" + protocolName + "' not found at index " + iStartEffective);
-			}
-			
-			final int trailingEntryIndex = parseContentEntries(
-				contentTable                           ,
-				separator                              ,
-				assigner                               ,
-				input                                  ,
-				iStartEffective + protocolName.length(),
+
+			int i = iStart;
+			i = XParsing.skipWhiteSpaces(input, i, iBoundEffective);
+			i = XParsing.checkStartsWith(input, i, iBoundEffective, protocolName, "Protocol name");
+			i = parseContentEntries(
+				contentTable   ,
+				separator      ,
+				assigner       ,
+				delimiter      ,
+				input          ,
+				i              ,
 				iBoundEffective
 			);
 			
-			if(trailingEntryIndex == iBound)
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Trailing entry '" + trailingEntryLabel + "' not found.");
-			}
-			if(!XParsing.startsWith(input, trailingEntryIndex, iBound, trailingEntryLabel))
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Trailing entry is not '" + trailingEntryLabel + "'.");
-			}
-			final int trailingValueIndex = skipControlCharacter(assigner, input, trailingEntryIndex, iBound);
-			
-			final String trailingValue = new String(input, trailingValueIndex, iBound);
-			if(!contentTable.add(trailingEntryLabel, trailingValue))
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Duplicate entry '" + trailingEntryLabel + "'.");
-			}
+			parseTrailingEntry(trailingEntryLabel, contentTable, assigner, input, i, iBoundEffective);
 		}
 		
 		private static int parseContentEntries(
 			final EqHashTable<String, String> entries  ,
 			final char                        separator,
 			final char                        assigner ,
+			final char                        delimiter,
 			final char[]                      input    ,
 			final int                         iStart   ,
 			final int                         iBound
@@ -384,9 +367,10 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			{
 				try
 				{
-					i = skipToEntryValue(entry.value(), separator, assigner, input, i, iBound);
-					final int valueEndBound = skipValue(separator, input, i, iBound);
-					entries.set(entry.key(), new String(input, i, valueEndBound));
+					i = skipToEntryValue(entry.key(), separator, assigner, input, i, iBound);
+					i = XParsing.checkCharacter(input, i, delimiter, entry.key());
+					final int valueEndBound = XParsing.skipToSimpleTerminator(input, i, iBound, delimiter);
+					entries.set(entry.key(), new String(input, i, valueEndBound - i - 1));
 					i = valueEndBound;
 				}
 				catch(final RuntimeException e)
@@ -397,9 +381,38 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			}
 			
 			// skip last entry's separator
-			i = skipControlCharacter(separator, input, i, iBound);
+			i = skipControlCharacter(input, i, iBound, separator);
 			
 			return i;
+		}
+		
+		private static void parseTrailingEntry(
+			final String                      label   ,
+			final EqHashTable<String, String> content ,
+			final char                        assigner,
+			final char[]                      input   ,
+			final int                         iStart  ,
+			final int                         iBound
+		)
+		{
+			
+			int i = iStart;
+			XParsing.checkIncompleteInput(i, iBound, "Trailing entry");
+			i = XParsing.checkStartsWith(input, i, iBound, label, "Trailing entry");
+			i = skipControlCharacter(input, i, iBound, assigner);
+			
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			
+			XParsing.checkIncompleteInput(i, iBound, "Trailing entry");
+			i = XParsing.checkCharacter (input, i, assigner);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			
+			final String trailingValue = new String(input, i, iBound - i);
+			if(!content.add(label, trailingValue))
+			{
+				// (04.11.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Duplicate entry '" + label + "'.");
+			}
 		}
 		
 		private static int skipToEntryValue(
@@ -412,36 +425,31 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		)
 		{
 			int i = iStart;
-			i = skipControlCharacter(separator, input, i, iBound);
-			if(!XParsing.startsWith(input, i, iBound, entryLabel))
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Entry label '" + entryLabel + "' not found at index " + i);
-			}
-			i = skipControlCharacter(assigner, input, i, iBound);
+			
+			i = skipControlCharacter    (input, i, iBound, separator);
+			
+			XParsing.checkIncompleteInput(i, iBound);
+			i = XParsing.checkStartsWith(input, i, iBound, entryLabel);
+			
+			i = skipControlCharacter    (input, i, iBound, assigner);
 			
 			return i;
 		}
 		
-		private static int skipControlCharacter(final char separator, final char[] input, final int iStart, final int iBound)
+		private static int skipControlCharacter(
+			final char[] input ,
+			final int    iStart,
+			final int    iBound,
+			final char   c
+		)
 		{
 			int i = iStart;
 
-			i = XParsing.skipWhiteSpaces(input, i, iBound);
-			i = XParsing.checkCharacter(input, i, separator);
 			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			
-			return i;
-		}
-
-		private static int skipValue(final char valueTerminator, final char[] input, final int iStart, final int iBound)
-		{
-			// (04.11.2018 TM)TODO: JET-43: support quoted values (XChars.skipSimpleQuote)
-			int i = iStart;
-			while(i < iBound && input[i] > ' ' && input[i] != valueTerminator)
-			{
-				i++;
-			}
+			XParsing.checkIncompleteInput(i, iBound);
+			i = XParsing.checkCharacter (input, i, c);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			
 			return i;
 		}
