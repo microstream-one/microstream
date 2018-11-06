@@ -94,6 +94,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		return ':';
 	}
 	
+	public static char defaultProtocolItemDelimiter()
+	{
+		return '"';
+	}
+	
 	
 	public default String labelProtocolVersion()
 	{
@@ -135,6 +140,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		return defaultProtocolItemAssigner();
 	}
 	
+	public default char protocolItemDelimiter()
+	{
+		return defaultProtocolItemDelimiter();
+	}
+	
 	
 	
 	public static ComProtocolStringConverter New()
@@ -164,6 +174,8 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final char separator = this.protocolItemSeparator();
 			
+			// (06.11.2018 TM)FIXME: JET-43 assemble quoted
+			
 			this.assembleName          (vs, protocol).add(separator).lf();
 			this.assembleVersion       (vs, protocol).add(separator).lf();
 			this.assembleByteOrder     (vs, protocol).add(separator).lf();
@@ -179,6 +191,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			return this.protocolItemAssigner();
 		}
 		
+		private char delimiter()
+		{
+			return this.protocolItemDelimiter();
+		}
+		
 		private VarString assembleName(final VarString vs, final ComProtocol p)
 		{
 			return vs.add(p.name());
@@ -186,30 +203,52 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		
 		private VarString assembleVersion(final VarString vs, final ComProtocol p)
 		{
-			return vs.add(this.labelProtocolVersion()).add(this.assigner()).blank().add(p.version());
+			return vs
+				.add(this.labelProtocolVersion())
+				.add(this.assigner()).blank()
+				.add(this.delimiter())
+				.add(p.version())
+				.add(this.delimiter())
+			;
 		}
 		
 		private VarString assembleByteOrder(final VarString vs, final ComProtocol p)
 		{
-			return vs.add(this.labelByteOrder()).add(this.assigner()).blank().add(p.byteOrder());
+			return vs
+				.add(this.labelByteOrder())
+				.add(this.assigner()).blank()
+				.add(this.delimiter())
+				.add(p.byteOrder())
+				.add(this.delimiter())
+			;
 		}
 		
 		private VarString assembleIdStrategy(final VarString vs, final ComProtocol p)
 		{
 			final SwizzleIdStrategyStringConverter idsc = this.idStrategyStringConverter();
 			
-			return vs.add(this.labelIdStrategy()).add(this.assigner()).blank().apply(v ->
-				idsc.assemble(v, p.idStrategy())
-			);
+			return vs
+				.add(this.labelIdStrategy())
+				.add(this.assigner()).blank()
+				.add(this.delimiter())
+				.apply(v ->
+					idsc.assemble(v, p.idStrategy())
+				)
+				.add(this.delimiter())
+			;
 		}
 		
 		private VarString assembleTypeDictionary(final VarString vs, final ComProtocol protocol)
 		{
 			final PersistenceTypeDictionaryAssembler ptda = this.typeDictionaryAssembler();
 			
-			return vs.add(this.labelTypeDictionary()).add(this.assigner()).lf().apply(v ->
-				ptda.assemble(v, protocol.typeDictionary())
-			) // no separator at the end, the type dictionary string is intentionally trailing
+			// Neither no delimeters nor separator, as the type dictionary string is intentionally trailing.
+			return vs
+				.add(this.labelTypeDictionary())
+				.add(this.assigner()).lf()
+				.apply(v ->
+					ptda.assemble(v, protocol.typeDictionary())
+				)
 			;
 		}
 		
