@@ -555,6 +555,12 @@ public final class BinaryPersistence extends Persistence
 	 */
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers()
 	{
+		/* (06.11.2018 TM)FIXME: initialize system typeIds via Swizzle#createDefaultTypeLookup or #getNativeTypeId
+		 * A test with a diretly initalized type dictionary caused an exception after restart since all
+		 * handlers (type definitions) defined here were validated with typeId 0 vs properly tid-initialized
+		 * type descriptions from the type dictionary.
+		 */
+		
 		return ConstList.New(
 			new BinaryHandlerPrimitive<>(byte   .class),
 			new BinaryHandlerPrimitive<>(boolean.class),

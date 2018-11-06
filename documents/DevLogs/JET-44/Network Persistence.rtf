@@ -685,5 +685,14 @@ Eigentliche Storage Exception: FileNotFound.\par
 Hm. Eigentlich sollte das default storage Verzeichnis bei Bedarf angelegt werden.\par
 Ich hab da neulich rumgebaut. Bei dem Test dazu ging es aber noch.\par
 Also mal das untersuchen ...\par
+\par
+\par
+Aach, das lag an den \'c4nderungen der Konstruktor-Namen. Entweder hat Eclipse das nicht richtig refactort oder ich hatte dabei einen Fehler gemacht.\par
+Gefixt. Geht wieder.\par
+\par
+Beim rumtesten mit einem direkt initialisierten TypeDictionary aufgefallen:\par
+BinaryPersistence#defaultHandlers m\'fcsste eigentlich noch \'fcber Swizzle#createDefaultTypeLookup oder #getNativeTypeId die TIDs initialisieren, sonst sind die bei einem Neustart alle 0 und die validierung der TypeDescriptions wirft eine Exception.\par
+Die interessante Frage ist aber noch: Warum landen sie dann beim ersten Lauf korrekt in der TypeDictionary Datei?\par
+Ach, das kommt \'fcber das Registrieren in der SwizzleRegistry und dem Typanalysieren.\par
 }
  
