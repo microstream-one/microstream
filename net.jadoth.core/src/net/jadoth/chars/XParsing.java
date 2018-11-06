@@ -1,0 +1,182 @@
+package net.jadoth.chars;
+
+import java.util.function.Consumer;
+
+import net.jadoth.exceptions.ParsingException;
+import net.jadoth.exceptions.ParsingExceptionUnexpectedCharacterInArray;
+
+public final class XParsing
+{
+	// generic parsing helper methods. Intentionally no bounds checks as these are meant for internal, safe, use.
+	
+	public static final int skipWhiteSpaces(final char[] input, final int iStart, final int iBound)
+	{
+		int i = iStart;
+		while(i < iBound && input[i] <= ' ')
+		{
+			i++;
+		}
+		
+		return i;
+	}
+	
+	public static final int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
+	{
+		int i = iBound;
+		while(i >= iStart && input[i] <= ' ')
+		{
+			i--;
+		}
+		
+		return i;
+	}
+	
+	/**
+	 * Skips to the position beyond the second occurance of the current character (input[iStart]).
+	 * This simple logic does NOT support escaping.
+	 * 
+	 * @param input
+	 * @param iStart
+	 * @param iBound
+	 * @return
+	 */
+	public static final int skipSimpleQuote(final char[] input, final int iStart, final int iBound)
+	{
+		return skipToSimpleTerminator(input, iStart + 1, iBound, input[iStart]);
+	}
+	
+	public static final int skipToSimpleTerminator(
+		final char[] input     ,
+		final int    iStart    ,
+		final int    iBound    ,
+		final char   terminator
+	)
+	{
+		// actual start is one character behind the opening quote
+		int i = iStart;
+		while(i < iBound)
+		{
+			if(input[i++] == terminator)
+			{
+				return i;
+			}
+		}
+			
+		// no occurance has been found. No quote to skip. Current index is returned.
+		return iStart;
+	}
+	
+	public static final String parseSimpleQuote(final char[] input, final int iStart, final int iBound)
+	{
+		final int iQuoteEnd = skipSimpleQuote(input, iStart, iBound);
+		if(iQuoteEnd == iStart)
+		{
+			throw new IllegalArgumentException("No simple quote character found at index " + iStart + ".");
+		}
+		
+		return new String(input, iStart + 1, iQuoteEnd - iStart - 2);
+	}
+	
+	public static final int parseSimpleQuote(
+		final char[]                   input   ,
+		final int                      iStart  ,
+		final int                      iBound  ,
+		final Consumer<? super String> receiver
+	)
+	{
+		final int iQuoteEnd = skipSimpleQuote(input, iStart, iBound);
+		if(iQuoteEnd == iStart)
+		{
+			throw new IllegalArgumentException("No simple quote character found at index " + iStart + ".");
+		}
+		
+		receiver.accept(new String(input, iStart + 1, iQuoteEnd - iStart - 2));
+		
+		return iQuoteEnd;
+	}
+	
+	public static final int parseToSimpleTerminator(
+		final char[]                   input     ,
+		final int                      iStart    ,
+		final int                      iBound    ,
+		final char                     terminator,
+		final Consumer<? super String> receiver
+	)
+	{
+		final int iEnd = skipToSimpleTerminator(input, iStart, iBound, terminator);
+		if(iEnd == iStart)
+		{
+			// (06.11.2018 TM)EXCP: proper exception
+			throw new ParsingException("No terminator found in index range [" + iStart + "," + iBound + "]");
+		}
+		
+		receiver.accept(new String(input, iStart + 1, iEnd - iStart - 2));
+		
+		return iEnd;
+	}
+	
+	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final String subject)
+	{
+		// intentionally no length quick-check before array creation. The string is assumed to fit in.
+		return startsWith(input, iStart, iBound, subject.toCharArray());
+	}
+	
+	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final char[] subject)
+	{
+		if(iBound - iStart < subject.length)
+		{
+			return false;
+		}
+		
+		for(int i = 0; i < subject.length; i++)
+		{
+			if(subject[i] != input[iStart + i])
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public static final int checkCharacter(final char[] input, final int i, final char c)
+		throws ParsingExceptionUnexpectedCharacterInArray
+	{
+		return checkCharacter(input, i, c, null);
+	}
+	
+	public static final int checkCharacter(final char[] input, final int i, final char c, final String contextHint)
+		throws ParsingExceptionUnexpectedCharacterInArray
+	{
+		if(input[i] != c)
+		{
+			// (06.11.2018 TM)NOTE: for once, not a provisional exception, but a proper one.
+			throw new ParsingExceptionUnexpectedCharacterInArray(input, i, c, input[i], contextHint);
+		}
+		
+		return i + 1;
+	}
+	
+	public static final void checkIncompleteInput(final int i, final int iBound)
+	{
+		if(i < iBound)
+		{
+			return;
+		}
+		
+		// (06.11.2018 TM)EXCP: proper exception
+		throw new RuntimeException("Incomplete input: reached end of characters at index " + i);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private XParsing()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+}
