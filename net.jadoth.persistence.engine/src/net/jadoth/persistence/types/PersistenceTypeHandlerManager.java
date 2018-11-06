@@ -51,6 +51,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		this.update(typeDictionary, 0);
 	}
 	
+	public PersistenceTypeDictionary typeDictionary();
+	
 	@Override
 	public long ensureTypeId(Class<?> type);
 
@@ -264,6 +266,12 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		{
 			// standard implementation does not consider actual objects
 			return this.ensureTypeHandler(XReflect.getClass(instance));
+		}
+		
+		@Override
+		public PersistenceTypeDictionary typeDictionary()
+		{
+			return this.typeDictionaryManager.provideTypeDictionary();
 		}
 
 		@Override
@@ -534,6 +542,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
+			// (06.11.2018 TM)FIXME: /!\ TypeDict writing
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
 			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();

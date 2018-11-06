@@ -115,8 +115,8 @@ public class UtilTestNetworkPersistence
 		
 		// (13.08.2018 TM)NOTE: copied from EmbeddedStorage#createConnectionFoundation
 		
-		final PersistenceTypeDictionaryFileHandler dictionaryStorage = PersistenceTypeDictionaryFileHandler.New(
-			new File(systemDirectory, Persistence.defaultFilenameTypeDictionary())
+		final PersistenceTypeDictionaryFileHandler dictionaryStorage = PersistenceTypeDictionaryFileHandler.NewInDirecoty(
+			systemDirectory
 		);
 
 		// (17.08.2018 TM)NOTE: use once to create a TypeDictionary, then switch back to Failing implementation
