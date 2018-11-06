@@ -2,14 +2,19 @@ package net.jadoth.network.persistence;
 
 import static net.jadoth.X.KeyValue;
 
+import java.nio.ByteOrder;
+
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
-import net.jadoth.chars.XChars;
+import net.jadoth.chars.XParsing;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.low.XVM;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
+import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
 import net.jadoth.typing.KeyValue;
 
@@ -157,19 +162,19 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		@Override
 		public VarString assemble(final VarString vs, final ComProtocol protocol)
 		{
-			final char sep = this.protocolItemSeparator();
+			final char separator = this.protocolItemSeparator();
 			
-			this.assembleName          (vs, protocol).add(sep).lf();
-			this.assembleVersion       (vs, protocol).add(sep).lf();
-			this.assembleByteOrder     (vs, protocol).add(sep).lf();
-			this.assembleIdStrategy    (vs, protocol).add(sep).lf();
+			this.assembleName          (vs, protocol).add(separator).lf();
+			this.assembleVersion       (vs, protocol).add(separator).lf();
+			this.assembleByteOrder     (vs, protocol).add(separator).lf();
+			this.assembleIdStrategy    (vs, protocol).add(separator).lf();
 			this.assembleTypeDictionary(vs, protocol);
 			
 			return vs;
 		}
 		
-		// just a short-cut method for the lengthy proper one. And yes, ass, very funny.
-		private char ass()
+		// just a short-cut method for the lengthy proper one.
+		private char assigner()
 		{
 			return this.protocolItemAssigner();
 		}
@@ -181,19 +186,19 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		
 		private VarString assembleVersion(final VarString vs, final ComProtocol p)
 		{
-			return vs.add(this.labelProtocolVersion()).add(this.ass()).blank().add(p.version());
+			return vs.add(this.labelProtocolVersion()).add(this.assigner()).blank().add(p.version());
 		}
 		
 		private VarString assembleByteOrder(final VarString vs, final ComProtocol p)
 		{
-			return vs.add(this.labelByteOrder()).add(this.ass()).blank().add(p.byteOrder());
+			return vs.add(this.labelByteOrder()).add(this.assigner()).blank().add(p.byteOrder());
 		}
 		
 		private VarString assembleIdStrategy(final VarString vs, final ComProtocol p)
 		{
 			final SwizzleIdStrategyStringConverter idsc = this.idStrategyStringConverter();
 			
-			return vs.add(this.labelIdStrategy()).add(this.ass()).blank().apply(v ->
+			return vs.add(this.labelIdStrategy()).add(this.assigner()).blank().apply(v ->
 				idsc.assemble(v, p.idStrategy())
 			);
 		}
@@ -202,7 +207,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final PersistenceTypeDictionaryAssembler ptda = this.typeDictionaryAssembler();
 			
-			return vs.add(this.labelTypeDictionary()).add(this.ass()).lf().apply(v ->
+			return vs.add(this.labelTypeDictionary()).add(this.assigner()).lf().apply(v ->
 				ptda.assemble(v, protocol.typeDictionary())
 			) // no separator at the end, the type dictionary string is intentionally trailing
 			;
@@ -215,8 +220,9 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final EqHashTable<String, String> contentTable = this.initializeContentTable();
 			
+			final String protocolName = ComProtocol.protocolName();
 			parseContent(
-				ComProtocol.protocolName()  ,
+				protocolName                ,
 				contentTable                ,
 				this.labelTypeDictionary()  ,
 				this.protocolItemSeparator(),
@@ -226,13 +232,40 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				input.bound()
 			);
 			
-			return this.createProtocol(contentTable);
+			return this.createProtocol(protocolName, contentTable);
 		}
 		
-		private ComProtocol createProtocol(final XGettingTable<String, String> contentTable)
+		private ComProtocol createProtocol(
+			final String                        protocolName,
+			final XGettingTable<String, String> content
+		)
 		{
-			contentTable.iterate(e -> XDebug.println(e.key() + " -> " + e.value()));
-			// FIXME ComProtocolStringConverter.Implementation#createProtocol()
+			// (06.11.2018 TM)FIXME: /!\ DEBUG
+			content.iterate(e -> XDebug.println(e.key() + " -> " + e.value()));
+			
+			final String                        version    = content.get(this.labelProtocolVersion());
+			final ByteOrder                     byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
+			final SwizzleIdStrategy             idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
+			final PersistenceTypeDictionaryView typeDict   = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
+			
+			return ComProtocol.New(protocolName, version, byteOrder, idStrategy, typeDict);
+		}
+		
+		private ByteOrder parseByteOrder(final String input)
+		{
+			return XVM.lookupByteOrder(input);
+		}
+		
+		private SwizzleIdStrategy parseIdStrategy(final String input)
+		{
+			final SwizzleIdStrategyStringConverter idsc = this.idStrategyStringConverter();
+			
+			return idsc.parse(input);
+		}
+		
+		private PersistenceTypeDictionaryView parseTypeDictionary(final String input)
+		{
+			// FIXME ComProtocolStringConverter.Implementation#parseTypeDictionary()
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
@@ -258,10 +291,10 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final int                         iBound
 		)
 		{
-			final int iBoundEffective = XChars.skipWhiteSpacesReverse(input, iStart, iBound);
-			final int iStartEffective = XChars.skipWhiteSpaces(input, iStart, iBoundEffective);
+			final int iBoundEffective = XParsing.skipWhiteSpacesReverse(input, iStart, iBound);
+			final int iStartEffective = XParsing.skipWhiteSpaces(input, iStart, iBoundEffective);
 			
-			if(!XChars.startsWith(input, iStartEffective, iBoundEffective, protocolName))
+			if(!XParsing.startsWith(input, iStartEffective, iBoundEffective, protocolName))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Protocol name '" + protocolName + "' not found at index " + iStartEffective);
@@ -281,7 +314,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Trailing entry '" + trailingEntryLabel + "' not found.");
 			}
-			if(!XChars.startsWith(input, trailingEntryIndex, iBound, trailingEntryLabel))
+			if(!XParsing.startsWith(input, trailingEntryIndex, iBound, trailingEntryLabel))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Trailing entry is not '" + trailingEntryLabel + "'.");
@@ -341,7 +374,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			int i = iStart;
 			i = skipControlCharacter(separator, input, i, iBound);
-			if(!XChars.startsWith(input, i, iBound, entryLabel))
+			if(!XParsing.startsWith(input, i, iBound, entryLabel))
 			{
 				// (04.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Entry label '" + entryLabel + "' not found at index " + i);
@@ -355,13 +388,9 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			int i = iStart;
 
-			i = XChars.skipWhiteSpaces(input, i, iBound);
-			if(input[i] != separator)
-			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Missing separator '" + separator + "' at index " + i);
-			}
-			i = XChars.skipWhiteSpaces(input, i + 1, iBound);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			i = XParsing.checkCharacter(input, i, separator);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			
 			return i;
 		}

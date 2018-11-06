@@ -1,6 +1,10 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.X;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XParsing;
+import net.jadoth.collections.types.XReference;
+import net.jadoth.exceptions.ParsingException;
 
 public interface SwizzleTypeIdStrategy
 {
@@ -35,13 +39,49 @@ public interface SwizzleTypeIdStrategy
 		{
 			vs
 			.add(SwizzleTypeIdStrategy.Transient.typeName())
-			.add('(').add(idStrategy.startingTypeId()).add(')')
+			.add(openingCharacter()).add(idStrategy.startingTypeId()).add(closingCharacter())
 			;
+		}
+		
+		public static char openingCharacter()
+		{
+			return '(';
+		}
+		
+		public static char closingCharacter()
+		{
+			return ')';
 		}
 		
 		public static SwizzleTypeIdStrategy.Transient parse(final String typeIdStrategyContent)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.Transient#parse()
+			SwizzleIdStrategyStringConverter.validateIdStrategyName(
+				SwizzleTypeIdStrategy.Transient.class,
+				typeName()                      ,
+				typeIdStrategyContent
+			);
+			
+			final char[] input  = typeIdStrategyContent.toCharArray();
+			final int    iBound = input.length;
+			
+			final XReference<String> valueString = X.Reference(null);
+			
+			int i = typeName().length();
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			i = XParsing.checkCharacter(input, i, openingCharacter(), typeName());
+			i = XParsing.parseToSimpleTerminator(input, i, iBound, closingCharacter(), valueString);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			
+			if(i != iBound)
+			{
+				// (06.11.2018 TM)EXCP: proper exception
+				throw new ParsingException("Invalid trailing content at index " + i);
+			}
+			
+			return valueString.get().isEmpty()
+				? SwizzleTypeIdStrategy.Transient()
+				: SwizzleTypeIdStrategy.Transient(Long.parseLong(valueString.get()))
+			;
 		}
 		
 		
@@ -115,9 +155,16 @@ public interface SwizzleTypeIdStrategy
 			;
 		}
 		
-		public static SwizzleTypeIdStrategy.None parse(final String typeIdStrategyContent)
+		public static SwizzleTypeIdStrategy.None parse(final String typeIdStrategyContent) throws ParsingException
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeIdStrategy.None#parse()
+			SwizzleIdStrategyStringConverter.validateIdStrategyName(
+				SwizzleTypeIdStrategy.None.class,
+				typeName()                      ,
+				typeIdStrategyContent
+			);
+			
+			// the rest of the string is ignored intentionally.
+			return SwizzleTypeIdStrategy.None();
 		}
 		
 		

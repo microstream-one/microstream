@@ -28,11 +28,16 @@ import net.jadoth.reference.Reference;
  * Yet in some cases, a mutable reference really is needed or at least helps in creating cleaner structures.<br>
  * So again, use wisely.
  */
-public interface XReference<E> extends XReferencing<E>, XSettingList<E>, XSortableEnum<E>, Reference<E>
+public interface XReference<E> extends XReferencing<E>, XSettingList<E>, XSortableEnum<E>, Reference<E>, Consumer<E>
 {
 	@Override
 	public void set(E element);
 
+	@Override
+	public default void accept(final E element)
+	{
+		this.set(element);
+	}
 
 
 	@Override

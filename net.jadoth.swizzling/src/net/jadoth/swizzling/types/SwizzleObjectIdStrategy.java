@@ -1,6 +1,10 @@
 package net.jadoth.swizzling.types;
 
+import net.jadoth.X;
 import net.jadoth.chars.VarString;
+import net.jadoth.chars.XParsing;
+import net.jadoth.collections.types.XReference;
+import net.jadoth.exceptions.ParsingException;
 
 public interface SwizzleObjectIdStrategy
 {
@@ -32,17 +36,53 @@ public interface SwizzleObjectIdStrategy
 			return "Transient";
 		}
 		
+		public static char openingCharacter()
+		{
+			return '(';
+		}
+		
+		public static char closingCharacter()
+		{
+			return ')';
+		}
+		
 		public static void assemble(final VarString vs, final SwizzleObjectIdStrategy.Transient idStrategy)
 		{
 			vs
 			.add(SwizzleObjectIdStrategy.Transient.typeName())
-			.add('(').add(idStrategy.startingObjectId()).add(')')
+			.add(openingCharacter()).add(idStrategy.startingObjectId()).add(closingCharacter())
 			;
 		}
 		
 		public static SwizzleObjectIdStrategy.Transient parse(final String typeIdStrategyContent)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleObjectIdStrategy.Transient#parse()
+			SwizzleIdStrategyStringConverter.validateIdStrategyName(
+				SwizzleObjectIdStrategy.Transient.class,
+				typeName()                      ,
+				typeIdStrategyContent
+			);
+			
+			final char[] input  = typeIdStrategyContent.toCharArray();
+			final int    iBound = input.length;
+			
+			final XReference<String> valueString = X.Reference(null);
+			
+			int i = typeName().length();
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			i = XParsing.checkCharacter(input, i, openingCharacter(), typeName());
+			i = XParsing.parseToSimpleTerminator(input, i, iBound, closingCharacter(), valueString);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			
+			if(i != iBound)
+			{
+				// (06.11.2018 TM)EXCP: proper exception
+				throw new ParsingException("Invalid trailing content at index " + i);
+			}
+			
+			return valueString.get().isEmpty()
+				? SwizzleObjectIdStrategy.Transient()
+				: SwizzleObjectIdStrategy.Transient(Long.parseLong(valueString.get()))
+			;
 		}
 		
 		

@@ -5,12 +5,13 @@ import static net.jadoth.X.notNull;
 import net.jadoth.X;
 import net.jadoth.chars.ObjectStringConverter;
 import net.jadoth.chars.VarString;
-import net.jadoth.chars.XChars;
+import net.jadoth.chars.XParsing;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XImmutableMap;
 import net.jadoth.collections.types.XReference;
+import net.jadoth.exceptions.ParsingException;
 import net.jadoth.typing.KeyValue;
 
 public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<SwizzleIdStrategy>
@@ -37,6 +38,27 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 	public default SwizzleIdStrategy parse(final String input)
 	{
 		return ObjectStringConverter.super.parse(input);
+	}
+	
+	
+	public static void validateIdStrategyName(
+		final Class<?> idStrategyType   ,
+		final String   idStrategyName   ,
+		final String   idStrategyContent
+	)
+		throws ParsingException
+	{
+		if(idStrategyContent.startsWith(idStrategyName))
+		{
+			return;
+		}
+		
+		// (06.11.2018 TM)EXCP: proper exception
+		throw new ParsingException(
+			"Invalid id strategy content for type name \"" + idStrategyName + "\""
+			+ " of type " + idStrategyType.getName()
+			+ ": " + idStrategyContent
+		);
 	}
 	
 	
@@ -335,17 +357,14 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			final XReference<String> oidsContent
 		)
 		{
-			// (05.11.2018 TM)FIXME: JET-43: handle premature end (iBound reached)
-			
 			final char[] input = inputRange.array();
-			final int iBound = XChars.skipWhiteSpacesReverse(input, inputRange.start(), inputRange.bound());
+			final int iBound = XParsing.skipWhiteSpacesReverse(input, inputRange.start(), inputRange.bound());
 			
 			final int iTypeEnd = parsePart(input, inputRange.start(), iBound, labelType(), tidsContent);
-			if(input[iTypeEnd] != separator())
-			{
-				// (05.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Missing separator (" + separator() + ") at index " + iTypeEnd);
-			}
+			
+			XParsing.checkIncompleteInput(iTypeEnd, iBound);
+			XParsing.checkCharacter(input, iTypeEnd, separator(), "IdStrategy");
+			
 			parsePart(input, iTypeEnd + 1, iBound, labelObject(), oidsContent);
 		}
 		
@@ -357,40 +376,40 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			final XReference<String> contentHolder
 		)
 		{
-			int i = XChars.skipWhiteSpaces(input, iStart, iBound);
-			if(!XChars.startsWith(input, i, iBound, label))
-			{
-				// (05.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"IdStrategy type label (" + label + ") not found at index " + i + "."
-				);
-			}
+			int i = iStart;
+			
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			
+			XParsing.checkIncompleteInput(i, iBound);
+			i = checkStartsWith          (input, i, iBound, label);
+			i = XParsing.skipWhiteSpaces (input, i, iBound);
 
-			i = XChars.skipWhiteSpaces(input, i + labelType().length(), iBound);
-			if(input[i] != typeAssigner())
+			XParsing.checkIncompleteInput(i, iBound);
+			i = XParsing.checkCharacter  (input, i, typeAssigner(), label);
+			i = XParsing.skipWhiteSpaces (input, i, iBound);
+
+			XParsing.checkIncompleteInput(i, iBound);
+			XParsing.checkCharacter      (input, i, quote(), label);
+			i = XParsing.parseSimpleQuote(input, i, iBound, contentHolder);
+			i = XParsing.skipWhiteSpaces (input, i, iBound);
+			
+			return i;
+		}
+				
+		private static int checkStartsWith(
+			final char[] input ,
+			final int    i     ,
+			final int    iBound,
+			final String label
+		)
+		{
+			if(XParsing.startsWith(input, i, iBound, label))
 			{
-				// (05.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Type Assigner (" + typeAssigner() + ") after IdStrategy type \""
-					+ label + "\" not found at index " + i + "."
-				);
+				return i + label.length();
 			}
 			
-			i = XChars.skipWhiteSpaces(input, i + 1, iBound);
-			if(input[i] != quote())
-			{
-				// (05.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Opening quote (" + quote() + ") for IdStrategy type \""
-					+ label + "\" not found at index " + i + "."
-				);
-			}
-			
-			final int iQuoteEnd = XChars.skipSimpleQuote(input, i, iBound);
-			final String content = new String(input, i + 1, iQuoteEnd - i - 2);
-			contentHolder.set(content);
-						
-			return XChars.skipWhiteSpaces(input, iQuoteEnd, iBound);
+			// (06.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException("IdStrategy type label \"" + label + "\" not found at index " + i + ".");
 		}
 		
 		private SwizzleTypeIdStrategy.Parser<?> lookupTypeIdStrategyParser(final String content)
@@ -418,7 +437,7 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			}
 			
 			// (05.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Unknown TypeIdStrategy: \"" + content + "\".");
+			throw new RuntimeException("Unknown ObjectIdStrategy: \"" + content + "\".");
 		}
 				
 	}
