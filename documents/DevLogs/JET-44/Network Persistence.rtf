@@ -669,5 +669,21 @@ Insgesamt also gar nicht mal so langsam. Und daf\'fcr auch noch eine gescheite L
 \par
 19:00\par
 So, mal schauen, wie das mit dem leeren TypeDictionary ist.\par
+\par
+Das ist wirklich leer. Mal schauen, warum. Das sollte eigentlich bei der Initialisierung gef\'fcllt werden.\par
+Hm. Die TypeDictionary Intialisierung ist seit dem LegacyTypeMapping gar nicht mehr so einfach ...\par
+Mal Methodenaufrufe verfolgen.\par
+\par
+Ich start jetzt einfach mal einen Storage Test und debug das durch ... ^^.\par
+\par
+Exception: Stackoverflow.\par
+Den untersuchen.\par
+Ah, die neue BaseException ruft this.getMessage anstatt von super auf.\par
+\'c4ndern. Passt.\par
+\par
+Eigentliche Storage Exception: FileNotFound.\par
+Hm. Eigentlich sollte das default storage Verzeichnis bei Bedarf angelegt werden.\par
+Ich hab da neulich rumgebaut. Bei dem Test dazu ging es aber noch.\par
+Also mal das untersuchen ...\par
 }
  
