@@ -55,7 +55,7 @@ public final class EmbeddedStorage
 	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(final File directory)
 	{
 		return createConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.New(directory),
+			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory),
 			SwizzleIdStrategy.NewInDirectory(directory)
 		);
 	}

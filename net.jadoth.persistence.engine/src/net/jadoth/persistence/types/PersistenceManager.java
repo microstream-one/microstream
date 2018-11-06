@@ -38,6 +38,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 	}
 	
 	public SwizzleRegistry swizzleRegistry();
+	
+	public PersistenceTypeDictionary typeDictionary();
 
 
 
@@ -102,6 +104,12 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		public final SwizzleRegistry swizzleRegistry()
 		{
 			return this.objectRegistry;
+		}
+		
+		@Override
+		public final PersistenceTypeDictionary typeDictionary()
+		{
+			return this.typeHandlerManager.typeDictionary();
 		}
 
 		@Override

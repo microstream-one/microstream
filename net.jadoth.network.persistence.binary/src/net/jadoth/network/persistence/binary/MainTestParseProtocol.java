@@ -9,16 +9,29 @@ import net.jadoth.network.persistence.ComProtocolStringConverter;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 
 public class MainTestParseProtocol
 {
 	public static void main(final String[] args)
 	{
-		final PersistenceTypeDictionary td = BinaryPersistence.foundation()
+		final PersistenceTypeDictionaryManager tdm = BinaryPersistence.foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(new File("TypeDictionary")))
 			.getTypeDictionaryManager()
-			.provideTypeDictionary()
 		;
+		tdm.registerRuntimeTypeDefinitions(BinaryPersistence.defaultHandlers());
+		final PersistenceTypeDictionary td = tdm.provideTypeDictionary();
+		
+		
+//		BinaryPersistence.foundation()
+//			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
+//				XFiles.ensureDirectory(new File("TypeDictionary")))
+//			)
+//			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
+//			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
+//			.createPersistenceManager()
+//			.typeDictionary()
+//		;
 		
 		final ComFoundation<?> foundation = Com.Foundation()
 			.setIdStrategy(Com.DefaultIdStrategyServer())
