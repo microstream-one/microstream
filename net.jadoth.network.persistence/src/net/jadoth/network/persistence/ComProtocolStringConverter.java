@@ -1,6 +1,7 @@
 package net.jadoth.network.persistence;
 
 import static net.jadoth.X.KeyValue;
+import static net.jadoth.X.notNull;
 
 import java.nio.ByteOrder;
 
@@ -12,7 +13,9 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
 import net.jadoth.meta.XDebug;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
@@ -147,9 +150,13 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 	
 	
 	
-	public static ComProtocolStringConverter New()
+	public static ComProtocolStringConverter New(
+		final PersistenceTypeDictionaryCompiler typeDictionaryCompiler
+	)
 	{
-		return new ComProtocolStringConverter.Implementation();
+		return new ComProtocolStringConverter.Implementation(
+			notNull(typeDictionaryCompiler)
+		);
 	}
 	
 	public final class Implementation implements ComProtocolStringConverter
@@ -158,9 +165,19 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		// instance fields //
 		////////////////////
 		
-		Implementation()
+		
+		private final PersistenceTypeDictionaryCompiler typeDictionaryCompiler;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation(final PersistenceTypeDictionaryCompiler typeDictionaryCompiler)
 		{
 			super();
+			this.typeDictionaryCompiler = typeDictionaryCompiler;
 		}
 		
 		
@@ -173,8 +190,6 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		public VarString assemble(final VarString vs, final ComProtocol protocol)
 		{
 			final char separator = this.protocolItemSeparator();
-			
-			// (06.11.2018 TM)FIXME: JET-43 assemble quoted
 			
 			this.assembleName          (vs, protocol).add(separator).lf();
 			this.assembleVersion       (vs, protocol).add(separator).lf();
@@ -277,10 +292,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final String                        protocolName,
 			final XGettingTable<String, String> content
 		)
-		{
-			// (06.11.2018 TM)FIXME: /!\ DEBUG
-			content.iterate(e -> XDebug.println(e.key() + " -> " + e.value()));
-			
+		{			
 			final String                        version    = content.get(this.labelProtocolVersion());
 			final ByteOrder                     byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
 			final SwizzleIdStrategy             idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
@@ -301,10 +313,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			return idsc.parse(input);
 		}
 		
-		private PersistenceTypeDictionaryView parseTypeDictionary(final String input)
+		private PersistenceTypeDictionary parseTypeDictionary(final String input)
 		{
-			// FIXME ComProtocolStringConverter.Implementation#parseTypeDictionary()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			final PersistenceTypeDictionary td = this.typeDictionaryCompiler.compileTypeDictionary(input);
+
+			return td; 
 		}
 		
 		private EqHashTable<String, String> initializeContentTable()

@@ -22,6 +22,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider();
 	
+//	public PersistenceTypeDictionaryCompiler getTypeDictionaryCompiler();
+	
 	public ComProtocol getProtocol();
 	
 	public ComProtocol.Creator getProtocolCreator();
@@ -52,6 +54,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
 	
 	public F setTypeDictionaryProvider(PersistenceTypeDictionaryViewProvider typeDictionaryProvider);
+
+//	public F setTypeDictionaryCompiler(PersistenceTypeDictionaryCompiler typeDictionaryCompiler);
 	
 	public F setProtocolCreator(ComProtocol.Creator protocolCreator);
 	
@@ -309,6 +313,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		
 		public ComProtocolStringConverter createProtocolStringConverter()
 		{
+			// (07.11.2018 TM)FIXME: JET-43: TypeDictionaryCompiler
 			return ComProtocolStringConverter.New();
 		}
 
