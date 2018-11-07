@@ -4,7 +4,6 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
@@ -113,11 +112,4 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 	
-	@Override
-	public synchronized PersistenceTypeHandler<Binary, BulkList<?>> initializeTypeId(final long typeId)
-	{
-		// (07.11.2018 TM)FIXME: /!\ debug
-		return super.initializeTypeId(typeId);
-	}
-
 }

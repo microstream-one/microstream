@@ -110,7 +110,7 @@ public final class XParsing
 			throw new ParsingException("No terminator found in index range [" + iStart + "," + iBound + "]");
 		}
 		
-		receiver.accept(new String(input, iStart + 1, iEnd - iStart - 2));
+		receiver.accept(new String(input, iStart, iEnd - iStart - 1));
 		
 		return iEnd;
 	}

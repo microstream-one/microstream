@@ -267,9 +267,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				this.protocolItemSeparator(),
 				this.protocolItemAssigner() ,
 				this.protocolItemDelimiter(),
-				input.array()               ,
-				input.start()               ,
-				input.bound()
+				input
 			);
 			
 			return this.createProtocol(protocolName, contentTable);
@@ -322,32 +320,25 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 
 		private static void parseContent(
 			final String                      protocolName      ,
-			final EqHashTable<String, String> contentTable      ,
+			final EqHashTable<String, String> content           ,
 			final String                      trailingEntryLabel,
 			final char                        separator         ,
 			final char                        assigner          ,
 			final char                        delimiter         ,
-			final char[]                      input             ,
-			final int                         iStart            ,
-			final int                         iBound
+			final _charArrayRange             inputRange
+
 		)
 		{
-			final int iBoundEffective = XParsing.skipWhiteSpacesReverse(input, iStart, iBound);
+			final char[] input  = inputRange.array();
+			final int    iStart = inputRange.start();
+			final int    iBound = XParsing.skipWhiteSpacesReverse(input, iStart, inputRange.bound()) + 1;
 
 			int i = iStart;
-			i = XParsing.skipWhiteSpaces(input, i, iBoundEffective);
-			i = XParsing.checkStartsWith(input, i, iBoundEffective, protocolName, "Protocol name");
-			i = parseContentEntries(
-				contentTable   ,
-				separator      ,
-				assigner       ,
-				delimiter      ,
-				input          ,
-				i              ,
-				iBoundEffective
-			);
+			i = XParsing.skipWhiteSpaces(input, i, iBound);
+			i = XParsing.checkStartsWith(input, i, iBound, protocolName, "Protocol name");
+			i = parseContentEntries(content, separator, assigner , delimiter, input, i, iBound);
 			
-			parseTrailingEntry(trailingEntryLabel, contentTable, assigner, input, i, iBoundEffective);
+			parseTrailingEntry(trailingEntryLabel, content, assigner, input, i, iBound);
 		}
 		
 		private static int parseContentEntries(
@@ -397,17 +388,25 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			
 			int i = iStart;
-			XParsing.checkIncompleteInput(i, iBound, "Trailing entry");
-			i = XParsing.checkStartsWith(input, i, iBound, label, "Trailing entry");
+			XParsing.checkIncompleteInput(i, iBound);
+			i = XParsing.checkStartsWith(input, i, iBound, label);
+			
 			i = skipControlCharacter(input, i, iBound, assigner);
-			
 			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			
-			XParsing.checkIncompleteInput(i, iBound, "Trailing entry");
-			i = XParsing.checkCharacter (input, i, assigner);
-			i = XParsing.skipWhiteSpaces(input, i, iBound);
-			
-			final String trailingValue = new String(input, i, iBound - i);
+			addTrailingValue(label, content, input, iStart, iBound);
+		}
+		
+		private static void addTrailingValue(
+			final String                      label  ,
+			final EqHashTable<String, String> content,
+			final char[]                      input  ,
+			final int                         iStart ,
+			final int                         iBound
+		)
+		{
+			XParsing.checkIncompleteInput(iStart, iBound);
+			final String trailingValue = new String(input, iStart, iBound - iStart);
 			if(!content.add(label, trailingValue))
 			{
 				// (04.11.2018 TM)EXCP: proper exception

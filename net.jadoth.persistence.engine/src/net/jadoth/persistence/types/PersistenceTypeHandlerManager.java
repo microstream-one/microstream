@@ -543,7 +543,6 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 		private void internalInitialize()
 		{
-			// (06.11.2018 TM)FIXME: /!\ DEBUG: TypeDict writing happens here
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
 			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();

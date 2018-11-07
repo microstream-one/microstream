@@ -2,8 +2,6 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.collections.types.XGettingSequence;
-
 
 public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictionaryViewProvider
 {
@@ -13,15 +11,13 @@ public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictio
 	
 	
 	public static PersistenceTypeDictionaryProvider.Implementation New(
-		final PersistenceTypeDictionaryLoader  loader ,
-		final PersistenceTypeDictionaryParser  parser ,
-		final PersistenceTypeDictionaryBuilder builder
+		final PersistenceTypeDictionaryLoader   loader  ,
+		final PersistenceTypeDictionaryCompiler compiler
 	)
 	{
 		return new PersistenceTypeDictionaryProvider.Implementation(
-			notNull(loader) ,
-			notNull(parser) ,
-			notNull(builder)
+			notNull(loader)  ,
+			notNull(compiler)
 		);
 	}
 
@@ -31,9 +27,8 @@ public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictio
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceTypeDictionaryLoader  loader ;
-		private final PersistenceTypeDictionaryParser  parser ;
-		private final PersistenceTypeDictionaryBuilder builder;
+		private final PersistenceTypeDictionaryLoader   loader  ;
+		private final PersistenceTypeDictionaryCompiler compiler;
 
 
 
@@ -42,15 +37,13 @@ public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictio
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeDictionaryLoader  loader ,
-			final PersistenceTypeDictionaryParser  parser ,
-			final PersistenceTypeDictionaryBuilder builder
+			final PersistenceTypeDictionaryLoader   loader  ,
+			final PersistenceTypeDictionaryCompiler compiler
 		)
 		{
 			super();
-			this.loader  = loader ;
-			this.parser  = parser ;
-			this.builder = builder;
+			this.loader   = loader  ;
+			this.compiler = compiler;
 		}
 
 
@@ -62,15 +55,8 @@ public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictio
 		@Override
 		public PersistenceTypeDictionary provideTypeDictionary()
 		{
-			final String typeDictionaryString =
-				this.loader.loadTypeDictionary()
-			;
-			final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries =
-				this.parser.parseTypeDictionaryEntries(typeDictionaryString)
-			;
-			final PersistenceTypeDictionary typeDictionary =
-				this.builder.buildTypeDictionary(entries)
-			;
+			final String              typeDictionaryString = this.loader.loadTypeDictionary();
+			final PersistenceTypeDictionary typeDictionary = this.compiler.compileTypeDictionary(typeDictionaryString);
 			
 			return typeDictionary;
 		}

@@ -71,6 +71,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public PersistenceTypeDictionaryLoader getTypeDictionaryLoader();
 	
 	public PersistenceTypeDictionaryBuilder getTypeDictionaryBuilder();
+	
+	public PersistenceTypeDictionaryCompiler getTypeDictionaryCompiler();
 
 	public PersistenceTypeDictionaryAssembler getTypeDictionaryAssembler();
 
@@ -175,6 +177,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setTypeDictionaryLoader(PersistenceTypeDictionaryLoader typeDictionaryLoader);
 	
 	public F setTypeDictionaryBuilder(PersistenceTypeDictionaryBuilder typeDictionaryBuilder);
+
+	public F setTypeDictionaryCompiler(PersistenceTypeDictionaryCompiler typeDictionaryCompiler);
 	
 	public F setTypeDictionaryStorer(PersistenceTypeDictionaryStorer typeDictionaryStorer);
 
@@ -296,6 +300,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceTypeDictionaryLoader         typeDictionaryLoader       ;
 		private PersistenceTypeDictionaryParser         typeDictionaryParser       ;
 		private PersistenceTypeDictionaryBuilder        typeDictionaryBuilder      ;
+		private PersistenceTypeDictionaryCompiler       typeDictionaryCompiler     ;
 		private PersistenceTypeDictionaryAssembler      typeDictionaryAssembler    ;
 		private PersistenceTypeDictionaryStorer         typeDictionaryStorer       ;
 		private PersistenceTypeLineageCreator           typeLineageCreator         ;
@@ -553,6 +558,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.typeDictionaryBuilder;
+		}
+		
+		@Override
+		public PersistenceTypeDictionaryCompiler getTypeDictionaryCompiler()
+		{
+			if(this.typeDictionaryCompiler == null)
+			{
+				this.typeDictionaryCompiler = this.dispatch(this.createTypeDictionaryCompiler());
+			}
+			
+			return this.typeDictionaryCompiler;
 		}
 
 		@Override
@@ -1096,7 +1112,16 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			this.typeDictionaryBuilder = typeDictionaryBuilder;
 			return this.$();
 		}
-
+		
+		@Override
+		public F setTypeDictionaryCompiler(
+			final PersistenceTypeDictionaryCompiler typeDictionaryCompiler
+		)
+		{
+			this.typeDictionaryCompiler = typeDictionaryCompiler;
+			return this.$();
+		}
+		
 		@Override
 		public F setTypeDictionaryStorer(
 			final PersistenceTypeDictionaryStorer typeDictionaryStorer
@@ -1428,8 +1453,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			final PersistenceTypeDictionaryProvider newTypeDictionaryProvider =
 				PersistenceTypeDictionaryProvider.New(
 					this.getTypeDictionaryLoader(),
-					this.getTypeDictionaryParser(),
-					this.getTypeDictionaryBuilder()
+					this.getTypeDictionaryCompiler()
 				)
 			;
 			return new PersistenceTypeDictionaryProvider.Caching(newTypeDictionaryProvider);
@@ -1486,6 +1510,14 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 				this.getTypeDictionaryCreator(),
 				this.getTypeDefinitionCreator(),
 				this.getRefactoringResolverProvider()
+			);
+		}
+		
+		protected PersistenceTypeDictionaryCompiler createTypeDictionaryCompiler()
+		{
+			return PersistenceTypeDictionaryCompiler.New(
+				this.getTypeDictionaryParser() ,
+				this.getTypeDictionaryBuilder()
 			);
 		}
 
