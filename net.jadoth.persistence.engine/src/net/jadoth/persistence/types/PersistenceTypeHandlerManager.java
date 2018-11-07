@@ -40,7 +40,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public void ensureTypeHandlersByTypeIds(XGettingEnum<Long> typeIds);
 
-	public void initialize();
+	public PersistenceTypeHandlerManager<M> initialize();
 
 	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
 
@@ -529,20 +529,21 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final synchronized void initialize()
+		public final synchronized PersistenceTypeHandlerManager<M> initialize()
 		{
 			if(this.initialized)
 			{
 //				XDebug.debugln("already initialized");
-				return;
+				return this;
 			}
 
 			this.internalInitialize();
+			return this;
 		}
 
 		private void internalInitialize()
 		{
-			// (06.11.2018 TM)FIXME: /!\ TypeDict writing
+			// (06.11.2018 TM)FIXME: /!\ DEBUG: TypeDict writing happens here
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
 			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();
@@ -609,9 +610,8 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			// assign new TypeIds to all misfits
 			for(final PersistenceTypeHandler<M, ?> newTypeHandler : newTypeHandlers)
 			{
-				// must be the TypeHandlerProvider's ensureTypeId in order to circumvent implicit handler creation.
-				final long newTypeId = this.typeHandlerProvider.ensureTypeId(newTypeHandler.type());
-				final PersistenceTypeHandler<M, ?> ith = newTypeHandler.initializeTypeId(newTypeId);
+				// native handlers (e.g. see in class BinaryPersistence) already have their TypeId, even if "new".
+				final PersistenceTypeHandler<M, ?> ith = this.ensureInitializedTypeHandler(newTypeHandler);
 				initializedTypeHandlers.add(ith);
 			}
 			
@@ -625,6 +625,20 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			this.internalRegisterTypeHandlers(initializedTypeHandlers);
 			
 			this.initialized = true;
+		}
+		
+		private PersistenceTypeHandler<M, ?> ensureInitializedTypeHandler(
+			final PersistenceTypeHandler<M, ?> typeHandler
+		)
+		{
+			if(typeHandler.typeId() != 0)
+			{
+				return typeHandler;
+			}
+
+			// must be the TypeHandlerProvider's ensureTypeId in order to circumvent implicit handler creation.
+			final long newTypeId = this.typeHandlerProvider.ensureTypeId(typeHandler.type());
+			return typeHandler.initializeTypeId(newTypeId);
 		}
 				
 		private void filterRuntimeTypeLineages(

@@ -1368,9 +1368,9 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		{
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
-					this.getTypeHandlerRegistry()        ,
-					this.getTypeHandlerProvider()        ,
-					this.getTypeDictionaryManager()      ,
+					this.getTypeHandlerRegistry()        , // holds actually used (potentially generically created) handlers
+					this.getTypeHandlerProvider()        , // knows/contains the Custom~Registry w. default handlers/definitions
+					this.getTypeDictionaryManager()      , // only manages loading, storing and registering
 					this.getTypeEvaluatorTypeIdMappable(),
 					this.getTypeMismatchValidator()      ,
 					this.getLegacyTypeMapper()           ,

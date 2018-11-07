@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -694,5 +695,44 @@ Beim rumtesten mit einem direkt initialisierten TypeDictionary aufgefallen:\par
 BinaryPersistence#defaultHandlers m\'fcsste eigentlich noch \'fcber Swizzle#createDefaultTypeLookup oder #getNativeTypeId die TIDs initialisieren, sonst sind die bei einem Neustart alle 0 und die validierung der TypeDescriptions wirft eine Exception.\par
 Die interessante Frage ist aber noch: Warum landen sie dann beim ersten Lauf korrekt in der TypeDictionary Datei?\par
 Ach, das kommt \'fcber das Registrieren in der SwizzleRegistry und dem Typanalysieren.\par
+\par
+\par
+\par
+2018-11-07\par
+\par
+Schnell eine Initializer Methode f\'fcr die native types bauen.\par
+Funktioniert wie geplant, aber l\'f6st das Problem nicht: XCollections usw. haben keine native TypeId. Die haben weiterhin 0.\par
+Also die Initializer Methode war gut, das verhindert mal Inkonsistenzen in anderen Situationen, aber das eigentliche Problem ist (nur), wie ich im Beispiel das TypeDictionary provisorisch initialisiere.\par
+Das muss, falls m\'f6glich, aus dem File kommen, nicht jedes mal neu transient initialisiert werden.\par
+\par
+Provisorischer Fix: Wenn providetes TypeDictionary leer, dann default handler registrieren.\par
+Das muss nat\'fcrlich irgendwie sauber in den TypeDictionaryBuilder rein.\par
+\par
+Und seltsam: im so exportierten TypeDictionary steht der Substitutor mit TID 0. Warum nur der?\par
+Recherchieren.\par
+Ah, nat\'fcrlich!\par
+Der ist der letzte in den Default Handlers. Alle non-native Handlers haben TID 0, d.h. der letzte ersetzt in der per-TID-Table alle vorherigen.\par
+Im TypeDictionary fehlte eine Validierung, dass alle zu registrierenden TypeDefinitions eine initialisierte TypeId haben. Vor dem Legacy Type Mapping war das nicht n\'f6tig, weil die zwangsweise schon ihre TypeId hatten.\par
+Jetzt ist das etwas komplizierter.\par
+\par
+Au\'dferdem hei\'dft das:\line Es muss unterschieden werden zwischen "nativeHandlers" (alle mit festgelegter TypeId) und "defaultHandlers" (alle native plus vorgefertigte Handlers, die aber keine feste TypeId haben).\par
+Standardm\'e4\'dfig initialisiert werden darf nur mit den native Handlers.\par
+\par
+TypeDictionary TypeId Validierung einbauen.\par
+Und gleich im TypeDictionaryManager einbauen.\par
+\par
+Ach, jetzt wei\'df ich, wie die "richtige" Initialisierung eines TypeDictionaries geht:\par
+Der TypeDictionaryManager managet ja nur speichern, laden, registrieren.\par
+F\'fcr das ganze TypeHandler- und TypeId-zeug gibt es ja den TypeHandlerManager, der intern die default handlers und den TDM kennt.\par
+Der hat n\'e4mlich auch die passende initialize() Methode, die das alles richtig miteinander verkabelt.\par
+\par
+Also Test-Main auf diesen Typ umbauen.\par
+\par
+Die Native Handler Unterscheidung war trotzdem gut.\par
+Noch paar kleinere Verbesserungen einbauen und TypeHandlerManager erzeugung kommentieren.\par
+Passt.\par
+\par
+Dann kann ich jetzt ja endlich die Parsing Exception bei vorhandenem TypeDictionary untersuchen.\par
+0000000000000000000 net.jadoth.util.Substituter$Implementation\par
 }
  
