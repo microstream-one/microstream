@@ -733,6 +733,41 @@ Noch paar kleinere Verbesserungen einbauen und TypeHandlerManager erzeugung komm
 Passt.\par
 \par
 Dann kann ich jetzt ja endlich die Parsing Exception bei vorhandenem TypeDictionary untersuchen.\par
-0000000000000000000 net.jadoth.util.Substituter$Implementation\par
+\par
+So. Paar Fl\'fcchtigkeitsfehler gefixt. Jetzt fehlt nur noch das TypeDictionary Parsing.\par
+Hm. Die Frage ist, ob das LegacyTypeMapping da wirklich au\'dfen vor sein soll.\par
+Bzw:\par
+Das LTM deckt ja nur eine Richtung ab: lesen.\par
+Was bei TypeMapping f\'fcr Kommunikation n\'f6tig w\'e4re, w\'e4ren ja beide Richtungen: fremdes Format auf die eigenen Strukturen konvertierend einlesen und beim Senden die Daten der eigenen Struktur wieder ins fremde Format bringen.\par
+D.h. ein der aktuellen Struktur entsprechendes Schreiben braucht man hier niemals bzw. darf man gar nicht machen.\par
+Das hei\'dft nat\'fcrlich auch: Das LTM, so wie es jetzt ist, also zum Daten speichern, kann man f\'fcr Kommunikation nicht brauchen.\par
+\par
+Hm. Andererseits: Wenn man Daten in einer aktuellen Struktur vorliegen hat und die zum Schreiben/Versenden in eine andere Struktur konvertiert werden und dabei Daten verworfen werden, dann w\'fcrde man etwas verschicken in der Annahme, dass es ankommt, was in Wirklichkeit gar nicht so w\'e4re. Das darf nicht passieren.\par
+Also zumindest das weglassen von Daten d\'fcrfte bei der Konvertierung nicht vorkommen.\par
+Eigentlich gilt genauso: Felder, die der Host erwartet, d\'fcrfen nicht einfach null bleiben.\par
+Und Felder mit Daten, die der Host sendet, d\'fcrfen beim Client nicht einfach ignoriert werden.\par
+Das alles w\'e4ren Fehler.\par
+Also triviale \'c4nderungen wie Namens\'e4nderungen ja. Oder \'e4ndern der Feldreihenfolge ja. Aber keine verlustbehafteten \'c4nderungen.\par
+\par
+Darf es damit vielleicht bei Kommunikation \'fcberhaupt kein Mapping von Datenstrukturen geben?\par
+Immerhin ist das LTM nur daf\'fcr da, die physikalisch persistent vorliegenden Daten im alten Format wieder lesen zu k\'f6nnen. Bei Netzwerkkommunikation gibt es keine Persistenz, bzw. nur eine vor\'fcbergehende, die in jedem Fall am Ende wieder verworfen wird. Man k\'f6nnte hier ohne Verlust einfordern, dass alle Teilnehmer dieselbe Datenstruktur haben.\par
+\par
+Praktisch gesehen wird es nat\'fcrlich doch wieder irgendwann kommen, dass es hei\'dft, es m\'fcsse auch ein veralteter Client mit einem neueren Server sprechen k\'f6nnen, weil updaten w\'e4re ja m\'fchsam, blablabla.\par
+Ganz genau genommen h\'e4ngen die Fehlerquellen oben nat\'fcrlich von der jeweiligen Situation ab. Konkrete Anwendung bzw. bis runter zu einer einzelnen Klasse. Das m\'fcsste man den Anwender in Eigenverantwortung entscheiden lassen.\par
+\par
+Nichtsdestotrotz ist das ganze Thema bei Kommunikation nicht so dr\'e4ngend wie bei Persistierung. Eine Zeitlang kann man schon zumuten, dass Host und Client gleiche Datenstrukturen verwenden m\'fcssen.\par
+Es k\'f6nnen nicht alle Features auf einmal da sein und wir brauchen ja auch noch Arbeit f\'fcr die n\'e4chsten 10 Jahre ...\par
+\par
+Auf jeden Fall hei\'dft das jetzt konkret:\par
+Ich brauch einen TypeDictionaryProvider, der den String parst, TypeDictionary Strukturen baut und runtime type resolving macht.\par
+\par
+Recherchiert:\par
+Eigentlich brauch ich nur Parser+Builder, ohne Loader.\par
+Das hei\'dft: Eigentlich k\'f6nnte Provider bestehen aus Loader + X und der ComProtocol Parser verwendet dann nur den X. Damit w\'e4re keine eigene Implementierung n\'f6tig.\par
+Das einzige Problem, das ich dabei hab, ist: Es ist kein Name mehr frei!\par
+Belegt sind schon Parser, Builder, Creator.\line Den Builder weiterhin vom Parser getrennt halten, ist auch gut so.\par
+Alles, was mir sonst so einf\'e4llt, klingt kaum aussagekr\'e4ftig. Etwa "Processor" oder "Converter" oder "Compiler". Vielleicht "LoadProcessor", weil das der ist, der das Zeug vom Loader verabreitet. Aber toll ist das nicht.\par
+Oder doch Compiler? Der String ist der TypeDictionary "Sourcecode" und das fertige TypeDictionary ist das "Kompilat".\par
+Hm...\par
 }
  

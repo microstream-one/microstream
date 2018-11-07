@@ -58,7 +58,7 @@ public interface SwizzleObjectIdStrategy
 		{
 			SwizzleIdStrategyStringConverter.validateIdStrategyName(
 				SwizzleObjectIdStrategy.Transient.class,
-				typeName()                      ,
+				typeName(),
 				typeIdStrategyContent
 			);
 			
