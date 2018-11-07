@@ -87,6 +87,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
+			PersistenceTypeDictionary.validateTypeId(typeDefinition);
+			
 			final PersistenceTypeDictionary dictionary = this.cachedTypeDictionary();
 			
 			// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.

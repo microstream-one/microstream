@@ -62,6 +62,7 @@ import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
+import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
@@ -541,27 +542,28 @@ public final class BinaryPersistence extends Persistence
 	{
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(defaultHandlers())
+			.registerTypeHandlers(nativeHandlers())
+			.registerTypeHandlers(defaultCustomHandlers())
 		;
 		return defaultCustomTypeHandlerRegistry;
 	}
-
-	/* (17.04.2013 TM)FIXME: register NotPersistable Handler instances
-	 * instances (not just classes) for unpersistable types (like Thread, WeakReference, etc.)
-	 * have to be registered somewhere.
-	 * Also unpersistable:
-	 * - class loader
-	 * - any kind of io stream, channel, etc.
-	 */
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers()
+	
+	
+	static final void initializeNativeTypeId(final PersistenceTypeHandler<Binary, ?> typeHandler)
 	{
-		/* (06.11.2018 TM)FIXME: initialize system typeIds via Swizzle#createDefaultTypeLookup or #getNativeTypeId
-		 * A test with a diretly initalized type dictionary caused an exception after restart since all
-		 * handlers (type definitions) defined here were validated with typeId 0 vs properly tid-initialized
-		 * type descriptions from the type dictionary.
-		 */
+		final Long nativeTypeId = Swizzle.getNativeTypeId(typeHandler.type());
+		if(nativeTypeId == null)
+		{
+			// (07.11.2018 TM)EXCP: proper exception
+			throw new RuntimeException("No native TypeId found for type " + typeHandler.type());
+		}
 		
-		return ConstList.New(
+		typeHandler.initializeTypeId(nativeTypeId);
+	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers()
+	{
+		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
 			new BinaryHandlerPrimitive<>(byte   .class),
 			new BinaryHandlerPrimitive<>(boolean.class),
 			new BinaryHandlerPrimitive<>(short  .class),
@@ -589,8 +591,6 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerStringBuffer()   ,
 			new BinaryHandlerStringBuilder()  ,
 
-			new BinaryHandlerLazyReference()  ,
-
 			new BinaryHandlerNativeArray_byte()   ,
 			new BinaryHandlerNativeArray_boolean(),
 			new BinaryHandlerNativeArray_short()  ,
@@ -606,8 +606,26 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerFile()      ,
 			new BinaryHandlerDate()      ,
 			new BinaryHandlerHashSet()   ,
-			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
 
+			new BinaryHandlerLazyReference()
+			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
+		);
+		
+		nativeHandlers.iterate(BinaryPersistence::initializeNativeTypeId);
+		
+		return nativeHandlers;
+	}
+
+	/* (17.04.2013 TM)FIXME: register NotPersistable Handler instances
+	 * instances (not just classes) for unpersistable types (like Thread, WeakReference, etc.)
+	 * have to be registered somewhere.
+	 * Also unpersistable:
+	 * - class loader
+	 * - any kind of io stream, channel, etc.
+	 */
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultCustomHandlers()
+	{
+		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
 			new BinaryHandlerBulkList()        ,
 			new BinaryHandlerLimitList()       ,
 			new BinaryHandlerFixedList()       ,
@@ -623,12 +641,15 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerEqConstHashTable(),
 
 			new BinaryHandlerSubstituterImplementation()
-			/* (29.10.2013 TM)TODO: more framework native handlers
+			/* (29.10.2013 TM)TODO: more framework default custom handlers
 			 * - VarString
 			 * - VarByte
 			 * - _intList etc.
 			 */
 		);
+		
+		// default custom handlers have no fixed typeId like native handlers.
+		return defaultHandlers;
 	}
 	
 

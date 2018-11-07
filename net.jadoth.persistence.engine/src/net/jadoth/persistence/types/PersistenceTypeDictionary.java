@@ -41,6 +41,24 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 	
 	public PersistenceTypeLineage ensureTypeLineage(Class<?> type);
 	
+
+	
+	public static void validateTypeId(final PersistenceTypeDefinition typeDefinition)
+	{
+		if(typeDefinition.typeId() != 0)
+		{
+			return;
+		}
+		
+		// (07.11.2018 TM)EXCP: proper exception
+		throw new RuntimeException("Uninitialized TypeId for type definition " + typeDefinition.typeName());
+	}
+	
+	public static void validateTypeIds(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+	{
+		typeDefinitions.forEach(PersistenceTypeDictionary::validateTypeId);
+	}
+	
 	
 	public default <C extends Consumer<? super PersistenceTypeLineage>> C iterateTypeLineages(final C logic)
 	{
@@ -259,8 +277,12 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 		}
 		
 		@Override
-		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public final synchronized boolean registerTypeDefinition(
+			final PersistenceTypeDefinition typeDefinition
+		)
 		{
+			PersistenceTypeDictionary.validateTypeId(typeDefinition);
+			
 			if(this.synchRegisterType(typeDefinition))
 			{
 				this.internalSort();
@@ -274,6 +296,9 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
+			// first validate all before changing any state
+			PersistenceTypeDictionary.validateTypeIds(typeDefinitions);
+			
 			final long oldSize = this.allTypesPerTypeId.size();
 
 			for(final PersistenceTypeDefinition td : typeDefinitions)
