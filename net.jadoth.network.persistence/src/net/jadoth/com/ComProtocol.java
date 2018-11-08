@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence;
+package net.jadoth.com;
 
 import static net.jadoth.X.notNull;
 
@@ -35,40 +35,9 @@ public interface ComProtocol
 	
 	
 		
-	public static ComProtocol.Creator Creator()
+	public static ComProtocolCreator Creator()
 	{
-		return new ComProtocol.Creator.Implementation();
-	}
-	
-	public interface Creator
-	{
-		public ComProtocol creatProtocol(
-			String                        name          ,
-			String                        version       ,
-			ByteOrder                     byteOrder     ,
-			SwizzleIdStrategy             idStrategy    ,
-			PersistenceTypeDictionaryView typeDictionary
-		);
-		
-		public final class Implementation implements ComProtocol.Creator
-		{
-			Implementation()
-			{
-				super();
-			}
-
-			@Override
-			public ComProtocol creatProtocol(
-				final String                        name          ,
-				final String                        version       ,
-				final ByteOrder                     byteOrder     ,
-				final SwizzleIdStrategy             idStrategy    ,
-				final PersistenceTypeDictionaryView typeDictionary
-			)
-			{
-				return new ComProtocol.Implementation(name, version, byteOrder, idStrategy, typeDictionary);
-			}
-		}
+		return ComProtocolCreator.New();
 	}
 	
 	public static ComProtocol New(

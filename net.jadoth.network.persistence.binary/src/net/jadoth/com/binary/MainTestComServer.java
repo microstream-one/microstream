@@ -1,19 +1,19 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import java.io.File;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
+import net.jadoth.com.ComChannel;
 import net.jadoth.meta.XDebug;
-import net.jadoth.network.persistence.ComChannel;
 import net.jadoth.persistence.types.PersistenceManager;
 
-public class MainTestNetworkPersistenceServer
+public class MainTestComServer
 {
 	public static void main(final String[] args) throws Exception
 	{
-		final ServerSocketChannel serverSocketChannel = UtilTestNetworkPersistence.openServerSocketChannel();
+		final ServerSocketChannel serverSocketChannel = UtilTestCom.openServerSocketChannel();
 		
 		run(serverSocketChannel, cc ->
 		{
@@ -33,10 +33,10 @@ public class MainTestNetworkPersistenceServer
 		{
 			// accept (wait for) the next client connection, process the request/data sent via it and then close it.
 			XDebug.println("Server awaiting connection ...");
-			final SocketChannel socketChannel = UtilTestNetworkPersistence.accept(serverSocketChannel);
+			final SocketChannel socketChannel = UtilTestCom.accept(serverSocketChannel);
 			XDebug.println("Server accepted connection. Processing.");
 			processNextRequest(socketChannel, logic);
-			UtilTestNetworkPersistence.close(socketChannel);
+			UtilTestCom.close(socketChannel);
 		}
 	}
 	
@@ -44,9 +44,9 @@ public class MainTestNetworkPersistenceServer
 	{
 		XDebug.println("Server initializing " + PersistenceManager.class.getSimpleName());
 		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
-		final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
+		final ComChannel cc = UtilTestCom.openComChannel(
 			socketChannel,
-			new File(MainTestNetworkPersistenceServer.class.getSimpleName()),
+			new File(MainTestComServer.class.getSimpleName()),
 			false
 		);
 		

@@ -114,6 +114,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			{
 				this.connectionFoundation = this.dispatch(this.createConnectionFoundation());
 			}
+			
 			return this.connectionFoundation;
 		}
 
@@ -199,6 +200,15 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		)
 		{
 			this.connectionFoundation = connectionFoundation;
+
+			/* Tricky: this instance must be set as a callback StorageManager supplier in case
+			 * the getStorageManager method is called before createEmbeddedStorageManager.
+			 * E.g.: setting customizing logic
+			 */
+			this.connectionFoundation.setStorageManagerSupplier(() ->
+				this.createStorageManager()
+			);
+			
 			return this.$();
 		}
 		
@@ -294,13 +304,13 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final Reference<Object> root = this.createRoot(explicitRoot);
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
-			final PersistenceTypeHandlerManager<?>       thm = ecf.getTypeHandlerManager();
-			
-			final StorageManager stm = this.createStorageManager();
-			ecf.setStorageManager(stm);
 
 			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)
+			final PersistenceTypeHandlerManager<?>       thm = ecf.getTypeHandlerManager();
 			thm.initialize();
+			
+			// the registered supplier callback leads back to this class' createStorageManager method
+			final StorageManager stm = ecf.getStorageManager();
 			
 			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
 			final StorageTypeDictionary std = stm.typeDictionary();

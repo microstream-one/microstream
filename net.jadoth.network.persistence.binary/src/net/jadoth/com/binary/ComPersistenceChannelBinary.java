@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import static net.jadoth.X.notNull;
 
@@ -8,20 +8,20 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.network.persistence.ComPersistenceChannel;
+import net.jadoth.com.ComPersistenceChannel;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 
-public interface NetworkPersistenceChannelBinary extends ComPersistenceChannel<Binary>
+public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binary>
 {
-	public static NetworkPersistenceChannelBinary New(
+	public static ComPersistenceChannelBinary New(
 		final SocketChannel      channel           ,
 		final BufferSizeProvider bufferSizeProvider
 	)
 	{
-		return new NetworkPersistenceChannelBinary.Implementation(
+		return new ComPersistenceChannelBinary.Implementation(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider)
 		);
@@ -29,7 +29,7 @@ public interface NetworkPersistenceChannelBinary extends ComPersistenceChannel<B
 	
 	public final class Implementation
 	extends ComPersistenceChannel.AbstractImplementation<Binary>
-	implements NetworkPersistenceChannelBinary
+	implements ComPersistenceChannelBinary
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -103,18 +103,18 @@ public interface NetworkPersistenceChannelBinary extends ComPersistenceChannel<B
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledHeaderBuffer = NetworkPersistenceBinary.readIntoBufferKnownLength(
+				filledHeaderBuffer = ComPersistenceBinary.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
-					NetworkPersistenceBinary.networkChunkHeaderLength()
+					ComPersistenceBinary.networkChunkHeaderLength()
 				);
 				
-				final long networkChunkContentLength = NetworkPersistenceBinary.getNetworkChunkHeaderContentLength(
+				final long networkChunkContentLength = ComPersistenceBinary.getNetworkChunkHeaderContentLength(
 					filledHeaderBuffer
 				);
 				
-				filledContentBuffer = NetworkPersistenceBinary.readIntoBufferKnownLength(
+				filledContentBuffer = ComPersistenceBinary.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
@@ -155,17 +155,17 @@ public interface NetworkPersistenceChannelBinary extends ComPersistenceChannel<B
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
 			
 			// (11.08.2018 TM)TODO: better encapsulate chunk header reading and writing logic
-			defaultBuffer.clear().limit(NetworkPersistenceBinary.networkChunkHeaderLength());
-			NetworkPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
+			defaultBuffer.clear().limit(ComPersistenceBinary.networkChunkHeaderLength());
+			ComPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
 			
 			try
 			{
 				// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
-				NetworkPersistenceBinary.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
+				ComPersistenceBinary.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
 				
 				for(final ByteBuffer bb : chunk.buffers())
 				{
-					NetworkPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
+					ComPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
 				}
 			}
 			catch(final IOException e)

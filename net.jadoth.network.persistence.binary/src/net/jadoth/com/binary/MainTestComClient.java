@@ -1,14 +1,14 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import java.io.File;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.collections.old.OldCollections;
+import net.jadoth.com.ComChannel;
 import net.jadoth.meta.XDebug;
-import net.jadoth.network.persistence.ComChannel;
 import net.jadoth.persistence.types.PersistenceManager;
 
-public class MainTestNetworkPersistenceClient
+public class MainTestComClient
 {
 	private static final long CLIENT_ID     = System.currentTimeMillis();
 	private static final int  REQUEST_COUNT = 1000;
@@ -23,15 +23,15 @@ public class MainTestNetworkPersistenceClient
 		for(int i = 1; i <= REQUEST_COUNT; i++)
 		{
 			XDebug.println("Client opens channel ...");
-			try(final SocketChannel channel = UtilTestNetworkPersistence.openChannelLocalhost())
+			try(final SocketChannel channel = UtilTestCom.openChannelLocalhost())
 			{
 				XDebug.println("Client opened channel. Sleeping ...");
 				Thread.sleep(REQUEST_DELAY);
 
 				XDebug.println("Client initializing " + PersistenceManager.class.getSimpleName());
-				final ComChannel cc = UtilTestNetworkPersistence.openComChannel(
+				final ComChannel cc = UtilTestCom.openComChannel(
 					channel,
-					new File(MainTestNetworkPersistenceClient.class.getSimpleName()),
+					new File(MainTestComClient.class.getSimpleName()),
 					true
 				);
 

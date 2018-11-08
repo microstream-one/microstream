@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -8,7 +8,7 @@ import net.jadoth.low.XVM;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
-public class NetworkPersistenceBinary
+public class ComPersistenceBinary
 {
 	
 	public static int networkChunkHeaderLength()
@@ -76,13 +76,13 @@ public class NetworkPersistenceBinary
 	public static void readIntoBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
-		performIoOperation(buffer, NetworkPersistenceBinary::read, channel, responseTimeout);
+		performIoOperation(buffer, ComPersistenceBinary::read, channel, responseTimeout);
 	}
 
 	public static void writeFromBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
-		performIoOperation(buffer, NetworkPersistenceBinary::write, channel, responseTimeout);
+		performIoOperation(buffer, ComPersistenceBinary::write, channel, responseTimeout);
 	}
 
 	private static void performIoOperation(

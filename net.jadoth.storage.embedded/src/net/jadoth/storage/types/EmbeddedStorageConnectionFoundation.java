@@ -1,5 +1,9 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.notNull;
+
+import java.util.function.Supplier;
+
 import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.BinaryLoader;
@@ -11,9 +15,14 @@ import net.jadoth.persistence.types.PersistenceRootResolver;
 public interface EmbeddedStorageConnectionFoundation<F extends EmbeddedStorageConnectionFoundation<?>>
 extends BinaryPersistenceFoundation<F>
 {
+	// intentionally no "get" prefix since this is a pure pseudo-property getter and not an action.
+	public Supplier<? extends StorageManager> storageManagerSupplier();
+	
 	public StorageManager getStorageManager();
 
 	public F setStorageManager(StorageManager storageManager);
+	
+	public F setStorageManagerSupplier(Supplier<? extends StorageManager> storageManagerSupplier);
 	
 	public StorageConnection createStorageConnection();
 
@@ -32,8 +41,9 @@ extends BinaryPersistenceFoundation<F>
 		// instance fields  //
 		/////////////////////
 
-		private           StorageManager         storageManager           ;
-		private transient StorageRequestAcceptor connectionRequestAcceptor;
+		private StorageManager                     storageManager           ;
+		private Supplier<? extends StorageManager> storageManagerSupplier   ;
+		private transient StorageRequestAcceptor   connectionRequestAcceptor;
 		
 		
 		
@@ -53,11 +63,17 @@ extends BinaryPersistenceFoundation<F>
 		/////////////////////
 
 		@Override
+		public Supplier<? extends StorageManager> storageManagerSupplier()
+		{
+			return this.storageManagerSupplier;
+		}
+		
+		@Override
 		public StorageManager getStorageManager()
 		{
 			if(this.storageManager == null)
 			{
-				this.storageManager = this.dispatch(this.createStorageManager());
+				this.storageManager = this.dispatch(this.ensureStorageManager());
 			}
 			return this.storageManager;
 		}
@@ -77,6 +93,13 @@ extends BinaryPersistenceFoundation<F>
 			return this.$();
 		}
 		
+		@Override
+		public F setStorageManagerSupplier(final Supplier<? extends StorageManager> storageManagerSupplier)
+		{
+			this.storageManagerSupplier = storageManagerSupplier;
+			return this.$();
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -88,8 +111,13 @@ extends BinaryPersistenceFoundation<F>
 			this.storageManager = storageManager;
 		}
 
-		protected StorageManager createStorageManager()
+		protected StorageManager ensureStorageManager()
 		{
+			if(this.storageManagerSupplier != null)
+			{
+				return notNull(this.storageManagerSupplier.get());
+			}
+			
 			throw new MissingFoundationPartException(StorageManager.class);
 		}
 
