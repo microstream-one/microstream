@@ -12,7 +12,6 @@ import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
@@ -292,7 +291,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final String                        protocolName,
 			final XGettingTable<String, String> content
 		)
-		{			
+		{
 			final String                        version    = content.get(this.labelProtocolVersion());
 			final ByteOrder                     byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
 			final SwizzleIdStrategy             idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
@@ -317,7 +316,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final PersistenceTypeDictionary td = this.typeDictionaryCompiler.compileTypeDictionary(input);
 
-			return td; 
+			return td;
 		}
 		
 		private EqHashTable<String, String> initializeContentTable()

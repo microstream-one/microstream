@@ -34,11 +34,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
-	public ComHost.Creator getHostCreator();
+	public ComHostCreator getHostCreator();
 	
 	public ComConnectionAcceptor.Creator getConnectionAcceptorCreator();
 	
-	public ComChannel.Creator getChannelCreator();
+	public ComChannelCreator getChannelCreator();
 	
 	public ComChannelAcceptor getChannelAcceptor();
 	
@@ -67,11 +67,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
-	public F setHostCreator(ComHost.Creator hostCreator);
+	public F setHostCreator(ComHostCreator hostCreator);
 	
 	public F setConnectionAcceptorCreator(ComConnectionAcceptor.Creator connectionAcceptorCreator);
 	
-	public F setChannelCreator(ComChannel.Creator channelCreator);
+	public F setChannelCreator(ComChannelCreator channelCreator);
 	
 	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 
@@ -105,9 +105,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
                                                       
 		private int                                   comPort                  ;
 		private ComProtocolStringConverter            protocolStringConverter  ;
-		private ComHost.Creator                       hostCreator              ;
+		private ComHostCreator                        hostCreator              ;
 		private ComConnectionAcceptor.Creator         connectionAcceptorCreator;
-		private ComChannel.Creator                    channelCreator           ;
+		private ComChannelCreator                     channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
 		
 		private PersistenceFoundation<?, ?>           persistenceFoundation    ;
@@ -236,7 +236,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComHost.Creator getHostCreator()
+		public ComHostCreator getHostCreator()
 		{
 			if(this.hostCreator == null)
 			{
@@ -258,7 +258,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComChannel.Creator getChannelCreator()
+		public ComChannelCreator getChannelCreator()
 		{
 			if(this.channelCreator == null)
 			{
@@ -338,7 +338,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			);
 		}
 
-		public ComHost.Creator createHostCreator()
+		public ComHostCreator createHostCreator()
 		{
 			return ComHost.Creator();
 		}
@@ -350,7 +350,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			);
 		}
 		
-		public ComChannel.Creator createChannelCreator()
+		public ComChannelCreator createChannelCreator()
 		{
 			return ComChannel.Creator();
 		}
@@ -464,7 +464,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setHostCreator(final ComHost.Creator hostCreator)
+		public F setHostCreator(final ComHostCreator hostCreator)
 		{
 			this.hostCreator = hostCreator;
 			return this.$();
@@ -478,7 +478,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setChannelCreator(final ComChannel.Creator channelCreator)
+		public F setChannelCreator(final ComChannelCreator channelCreator)
 		{
 			this.channelCreator = channelCreator;
 			return this.$();
@@ -502,7 +502,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public ComHost createHost()
 		{
 			final ComConnectionAcceptor.Creator conAccCreator = this.getConnectionAcceptorCreator();
-			final ComHost.Creator               hostCreator   = this.getHostCreator();
+			final ComHostCreator                hostCreator   = this.getHostCreator();
 			
 			final ComConnectionAcceptor connectionAcceptor = conAccCreator.createConnectionAcceptor(
 				this.getProtocol(),

@@ -8,13 +8,13 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.network.persistence.NetworkPersistenceChannel;
+import net.jadoth.network.persistence.ComPersistenceChannel;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 
-public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChannel<Binary>
+public interface NetworkPersistenceChannelBinary extends ComPersistenceChannel<Binary>
 {
 	public static NetworkPersistenceChannelBinary New(
 		final SocketChannel      channel           ,
@@ -28,7 +28,7 @@ public interface NetworkPersistenceChannelBinary extends NetworkPersistenceChann
 	}
 	
 	public final class Implementation
-	extends NetworkPersistenceChannel.AbstractImplementation<Binary>
+	extends ComPersistenceChannel.AbstractImplementation<Binary>
 	implements NetworkPersistenceChannelBinary
 	{
 		///////////////////////////////////////////////////////////////////////////
