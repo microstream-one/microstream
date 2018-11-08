@@ -3,7 +3,6 @@ package net.jadoth.network.persistence;
 import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 
 import net.jadoth.files.XFiles;
 import net.jadoth.low.XVM;
@@ -16,68 +15,18 @@ import net.jadoth.low.XVM;
  * @author TM
  *
  */
-public interface ComConnectionAcceptor
+public interface ComConnectionAcceptor<C>
 {
 	public ComProtocol protocol();
 	
-	public void acceptConnection(SocketChannel socketChannel);
+	public void acceptConnection(C socketChannel);
 	
 	
 	
-	public static Creator Creator(final ComProtocolStringConverter protocolStringConverter)
+	public static <C> ComConnectionAcceptorCreator<C> Creator(final ComProtocolStringConverter protocolStringConverter)
 	{
-		return new Creator.Implementation(protocolStringConverter);
+		return ComConnectionAcceptorCreator.New(protocolStringConverter);
 	}
-	
-	public interface Creator
-	{
-		public ComConnectionAcceptor createConnectionAcceptor(
-			ComProtocol        protocol       ,
-			ComChannelCreator  channelCreator ,
-			ComChannelAcceptor channelAcceptor
-		);
-		
-		public final class Implementation implements ComConnectionAcceptor.Creator
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			final ComProtocolStringConverter protocolStringConverter;
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Implementation(final ComProtocolStringConverter protocolStringConverter)
-			{
-				super();
-				this.protocolStringConverter = protocolStringConverter;
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@Override
-			public ComConnectionAcceptor createConnectionAcceptor(
-				final ComProtocol        protocol       ,
-				final ComChannelCreator  channelCreator ,
-				final ComChannelAcceptor channelAcceptor
-			)
-			{
-				return New(protocol, this.protocolStringConverter, channelCreator, channelAcceptor);
-			}
-			
-		}
-		
-	}
-	
-	
 	
 	public static ByteBuffer bufferProtocol(
 		final ComProtocol                protocol               ,
@@ -99,33 +48,36 @@ public interface ComConnectionAcceptor
 		return dbb;
 	}
 	
-	public static ComConnectionAcceptor New(
+	public static <C> ComConnectionAcceptor<C> New(
 		final ComProtocol                protocol               ,
+		final ComProtocolSender<C>       protocolSender         ,
 		final ComProtocolStringConverter protocolStringConverter,
-		final ComChannelCreator          channelCreator         ,
+		final ComChannelCreator<C>       channelCreator         ,
 		final ComChannelAcceptor         channelAcceptor
 	)
 	{
 		final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, protocolStringConverter);
 		
-		return new ComConnectionAcceptor.Implementation(
+		return new ComConnectionAcceptor.Implementation<>(
 			notNull(protocol)       ,
+			notNull(protocolSender) ,
 			notNull(channelCreator) ,
 			notNull(channelAcceptor),
 			bufferedUtf8Protocol
 		);
 	}
 	
-	public final class Implementation implements ComConnectionAcceptor
+	public final class Implementation<C> implements ComConnectionAcceptor<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final ComProtocol        protocol            ;
-		private final ComChannelCreator  channelCreator      ;
-		private final ComChannelAcceptor channelAcceptor     ;
-		private final ByteBuffer         bufferedUtf8Protocol;
+		private final ComProtocol          protocol            ;
+		private final ComProtocolSender<C> protocolSender      ;
+		private final ComChannelCreator<C> channelCreator      ;
+		private final ComChannelAcceptor   channelAcceptor     ;
+		private final ByteBuffer           bufferedUtf8Protocol;
 				
 		
 		
@@ -134,14 +86,16 @@ public interface ComConnectionAcceptor
 		/////////////////
 		
 		Implementation(
-			final ComProtocol        protocol            ,
-			final ComChannelCreator  channelCreator      ,
-			final ComChannelAcceptor channelAcceptor     ,
-			final ByteBuffer         bufferedUtf8Protocol
+			final ComProtocol          protocol            ,
+			final ComProtocolSender<C> protocolSender      ,
+			final ComChannelCreator<C> channelCreator      ,
+			final ComChannelAcceptor   channelAcceptor     ,
+			final ByteBuffer           bufferedUtf8Protocol
 		)
 		{
 			super();
 			this.protocol             = protocol            ;
+			this.protocolSender       = protocolSender      ;
 			this.channelCreator       = channelCreator      ;
 			this.channelAcceptor      = channelAcceptor     ;
 			this.bufferedUtf8Protocol = bufferedUtf8Protocol;
@@ -160,7 +114,7 @@ public interface ComConnectionAcceptor
 		}
 		
 		@Override
-		public void acceptConnection(final SocketChannel socketChannel)
+		public void acceptConnection(final C socketChannel)
 		{
 			// note: things like authentication could be done here in a wrapping implementation.
 			
@@ -170,7 +124,7 @@ public interface ComConnectionAcceptor
 			 * JDK developers are in using their own language.
 			 */
 			this.bufferedUtf8Protocol.clear();
-			Com.writeComplete(socketChannel, this.bufferedUtf8Protocol);
+			this.protocolSender.sendProtocol(socketChannel, this.bufferedUtf8Protocol);
 			
 			final ComChannel comChannel = this.channelCreator.createChannel(socketChannel);
 			this.channelAcceptor.acceptChannel(comChannel);
