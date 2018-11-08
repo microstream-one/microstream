@@ -187,7 +187,7 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * Uber-simplicity util method. See {@link #createStorageManager()} and {@link #createFoundation()} variants for
+	 * Uber-simplicity util method. See {@link #ensureStorageManager()} and {@link #createFoundation()} variants for
 	 * more practical alternatives.
 	 * 
 	 * @return An {@link EmbeddedStorageManager} instance with an actively running database using all-default-settings.

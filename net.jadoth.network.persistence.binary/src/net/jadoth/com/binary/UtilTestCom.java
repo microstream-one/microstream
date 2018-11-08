@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,10 +7,10 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.com.ComChannel;
+import net.jadoth.com.ComDefaultIdStrategy;
 import net.jadoth.files.XFiles;
 import net.jadoth.meta.XDebug;
-import net.jadoth.network.persistence.ComChannel;
-import net.jadoth.network.persistence.ComDefaultIdStrategy;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -19,7 +19,7 @@ import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
 
-public class UtilTestNetworkPersistence
+public class UtilTestCom
 {
 	public static int defaultPort()
 	{
@@ -93,7 +93,7 @@ public class UtilTestNetworkPersistence
 		final boolean       isClient
 	)
 	{
-		final NetworkPersistenceChannelBinary channel = NetworkPersistenceChannelBinary.New(
+		final ComPersistenceChannelBinary channel = ComPersistenceChannelBinary.New(
 			socketChannel,
 			BufferSizeProvider.New()
 		);

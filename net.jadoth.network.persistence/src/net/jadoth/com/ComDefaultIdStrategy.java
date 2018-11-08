@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence;
+package net.jadoth.com;
 
 import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;

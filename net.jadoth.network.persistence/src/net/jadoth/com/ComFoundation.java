@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence;
+package net.jadoth.com;
 
 import java.nio.ByteOrder;
 
@@ -27,18 +27,22 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ComProtocol getProtocol();
 	
-	public ComProtocol.Creator getProtocolCreator();
+	public ComProtocolCreator getProtocolCreator();
+	
+	public ComProtocolSender<C> getProtocolSender();
 	
 	
 	public int getComPort();
 	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
-	public ComHostCreator getHostCreator();
+	public ComHostCreator<C> getHostCreator();
 	
-	public ComConnectionAcceptorCreator getConnectionAcceptorCreator();
+	public ComConnectionListenerCreator<C> getConnectionListenerCreator();
 	
-	public ComChannelCreator getChannelCreator();
+	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
+	
+	public ComChannelCreator<C> getChannelCreator();
 	
 	public ComChannelAcceptor getChannelAcceptor();
 	
@@ -60,16 +64,20 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 
 //	public F setTypeDictionaryCompiler(PersistenceTypeDictionaryCompiler typeDictionaryCompiler);
 	
-	public F setProtocolCreator(ComProtocol.Creator protocolCreator);
+	public F setProtocolCreator(ComProtocolCreator protocolCreator);
+	
+	public F setProtocolSender(ComProtocolSender<C> protocolSender);
 	
 	
 	public F setComPort(int comPort);
 	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
-	public F setHostCreator(ComHostCreator hostCreator);
+	public F setHostCreator(ComHostCreator<C> hostCreator);
+
+	public F setConnectionListenerCreator(ComConnectionListenerCreator<C> connectionListenerCreator);
 	
-	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator connectionAcceptorCreator);
+	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator<C> connectionAcceptorCreator);
 	
 	public F setChannelCreator(ComChannelCreator<C> channelCreator);
 	
@@ -78,7 +86,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public F setPersistenceFoundation(PersistenceFoundation<?, ?> persistenceFoundation);
 	
 	
-	public ComHost createHost();
+	public ComHost<C> createHost();
 	
 	
 	
@@ -100,14 +108,16 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private SwizzleIdStrategy                     idStrategy               ;
 		private PersistenceTypeDictionaryView         typeDictionary           ;
 		private PersistenceTypeDictionaryViewProvider typeDictionaryProvider   ;
-		private ComProtocol.Creator                   protocolCreator          ;
+		private ComProtocolCreator                    protocolCreator          ;
+		private ComProtocolSender<C>                  protocolSender           ;
 		private transient ComProtocol                 cachedProtocol           ;
                                                       
 		private int                                   comPort                  ;
 		private ComProtocolStringConverter            protocolStringConverter  ;
-		private ComHostCreator                        hostCreator              ;
-		private ComConnectionAcceptorCreator         connectionAcceptorCreator;
-		private ComChannelCreator                     channelCreator           ;
+		private ComHostCreator<C>                     hostCreator              ;
+		private ComConnectionListenerCreator<C>       connectionListenerCreator;
+		private ComConnectionAcceptorCreator<C>       connectionAcceptorCreator;
+		private ComChannelCreator<C>                  channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
 		
 		private PersistenceFoundation<?, ?>           persistenceFoundation    ;
@@ -213,7 +223,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComProtocol.Creator getProtocolCreator()
+		public ComProtocolCreator getProtocolCreator()
 		{
 			if(this.protocolCreator == null)
 			{
@@ -222,6 +232,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			}
 			
 			return this.protocolCreator;
+		}
+		
+		@Override
+		public ComProtocolSender<C> getProtocolSender()
+		{
+			if(this.protocolSender == null)
+			{
+				this.protocolSender = this.createProtocolSender();
+			}
+			
+			return this.protocolSender;
 		}
 		
 		@Override
@@ -236,7 +257,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComHostCreator getHostCreator()
+		public ComHostCreator<C> getHostCreator()
 		{
 			if(this.hostCreator == null)
 			{
@@ -247,7 +268,18 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComConnectionAcceptorCreator getConnectionAcceptorCreator()
+		public ComConnectionListenerCreator<C> getConnectionListenerCreator()
+		{
+			if(this.connectionListenerCreator == null)
+			{
+				this.connectionListenerCreator = this.createConnectionListenerCreator();
+			}
+			
+			return this.connectionListenerCreator;
+		}
+		
+		@Override
+		public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator()
 		{
 			if(this.connectionAcceptorCreator == null)
 			{
@@ -258,7 +290,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComChannelCreator getChannelCreator()
+		public ComChannelCreator<C> getChannelCreator()
 		{
 			if(this.channelCreator == null)
 			{
@@ -312,14 +344,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return ComProtocol.protocolName();
 		}
 		
-		public ComProtocol.Creator createProtocolCreator()
+		public ComProtocolCreator createProtocolCreator()
 		{
 			return ComProtocol.Creator();
 		}
 
 		public ComProtocol createProtocol()
 		{
-			final ComProtocol.Creator protocolCreator = this.getProtocolCreator();
+			final ComProtocolCreator protocolCreator = this.getProtocolCreator();
 			return protocolCreator.creatProtocol(
 				this.getProtocolName()   ,
 				this.getProtocolVersion(),
@@ -338,12 +370,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			);
 		}
 
-		public ComHostCreator createHostCreator()
+		public ComHostCreator<C> createHostCreator()
 		{
 			return ComHost.Creator();
 		}
 		
-		public ComConnectionAcceptorCreator createConnectionAcceptorCreator()
+		public ComConnectionListenerCreator<C> createConnectionListenerCreator()
+		{
+			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
+		}
+		
+		public ComConnectionAcceptorCreator<C> createConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator(
 				this.getProtocolStringConverter()
@@ -353,6 +390,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public ComChannelCreator<C> createChannelCreator()
 		{
 			throw new MissingFoundationPartException(ComChannelCreator.class);
+		}
+		
+		public ComProtocolSender<C> createProtocolSender()
+		{
+			throw new MissingFoundationPartException(ComProtocolSender.class);
 		}
 		
 		public PersistenceFoundation<?, ?> createPersistenceFoundation()
@@ -437,10 +479,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setProtocolCreator(final ComProtocol.Creator protocolCreator)
+		public F setProtocolCreator(final ComProtocolCreator protocolCreator)
 		{
 			this.protocolCreator = protocolCreator;
 			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		@Override
+		public F setProtocolSender(final ComProtocolSender<C> protocolSender)
+		{
+			this.protocolSender = protocolSender;
 			return this.$();
 		}
 		
@@ -464,21 +513,28 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setHostCreator(final ComHostCreator hostCreator)
+		public F setHostCreator(final ComHostCreator<C> hostCreator)
 		{
 			this.hostCreator = hostCreator;
 			return this.$();
 		}
 		
 		@Override
-		public F setConnectionAcceptorCreator(final ComConnectionAcceptorCreator connectionAcceptorCreator)
+		public F setConnectionAcceptorCreator(final ComConnectionAcceptorCreator<C> connectionAcceptorCreator)
 		{
 			this.connectionAcceptorCreator = connectionAcceptorCreator;
 			return this.$();
 		}
 		
 		@Override
-		public F setChannelCreator(final ComChannelCreator channelCreator)
+		public F setConnectionListenerCreator(final ComConnectionListenerCreator<C> connectionListenerCreator)
+		{
+			this.connectionListenerCreator = connectionListenerCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setChannelCreator(final ComChannelCreator<C> channelCreator)
 		{
 			this.channelCreator = channelCreator;
 			return this.$();
@@ -499,19 +555,22 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComHost createHost()
+		public ComHost<C> createHost()
 		{
-			final ComConnectionAcceptorCreator conAccCreator = this.getConnectionAcceptorCreator();
-			final ComHostCreator                hostCreator   = this.getHostCreator();
+			final ComConnectionListenerCreator<C> conLisCreator = this.getConnectionListenerCreator();
+			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
+			final ComHostCreator<C>               hostCreator   = this.getHostCreator();
 			
-			final ComConnectionAcceptor connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocol(),
-				this.getChannelCreator(),
+			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
+				this.getProtocol()       ,
+				this.getProtocolSender() ,
+				this.getChannelCreator() ,
 				this.getChannelAcceptor()
 			);
 			
 			return hostCreator.createComHost(
 				this.getComPort() ,
+				conLisCreator     ,
 				connectionAcceptor
 			);
 		}

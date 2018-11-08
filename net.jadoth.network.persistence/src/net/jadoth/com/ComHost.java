@@ -1,10 +1,6 @@
-package net.jadoth.network.persistence;
+package net.jadoth.com;
 
 import static net.jadoth.X.notNull;
-
-import java.io.IOException;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 /**
  * Host type to listen for new connections and relay them to logic for further processing,
@@ -13,7 +9,7 @@ import java.nio.channels.SocketChannel;
  * @author TM
  *
  */
-public interface ComHost
+public interface ComHost<C>
 {
 	public int port();
 	
@@ -32,24 +28,32 @@ public interface ComHost
 	
 	
 	
-	public static ComHost New(final int port, final ComConnectionAcceptor connectionAcceptor)
+	public static <C> ComHost<C> New(
+		final int                             port                     ,
+		final ComConnectionListenerCreator<C> connectionListenerCreator,
+		final ComConnectionAcceptor<C>        connectionAcceptor
+	)
 	{
-		return new ComHost.Implementation(
+		return new ComHost.Implementation<>(
 			Com.validatePort(port),
+			notNull(connectionListenerCreator),
 			notNull(connectionAcceptor)
 		);
 	}
 	
-	public final class Implementation implements ComHost
+	public final class Implementation<C> implements ComHost<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final int                   port              ;
-		private final ComConnectionAcceptor connectionAcceptor;
+		private final int                             port                     ;
+		private final ComConnectionListenerCreator<C> connectionListenerCreator;
+		private final ComConnectionAcceptor<C>        connectionAcceptor       ;
 		
-		private transient ServerSocketChannel serverSocketChannel;
+		private transient ComConnectionListener<C> liveConnectionListener;
+		
+		
 		
 		
 		
@@ -57,11 +61,16 @@ public interface ComHost
 		// constructors //
 		/////////////////
 		
-		Implementation(final int port, final ComConnectionAcceptor connectionAcceptor)
+		Implementation(
+			final int                             port                     ,
+			final ComConnectionListenerCreator<C> connectionListenerCreator,
+			final ComConnectionAcceptor<C>        connectionAcceptor
+		)
 		{
 			super();
-			this.port               = port              ;
-			this.connectionAcceptor = connectionAcceptor;
+			this.port                      = port                     ;
+			this.connectionListenerCreator = connectionListenerCreator;
+			this.connectionAcceptor        = connectionAcceptor       ;
 		}
 		
 		
@@ -85,46 +94,33 @@ public interface ComHost
 		@Override
 		public synchronized void start()
 		{
-			if(this.serverSocketChannel != null)
+			if(this.liveConnectionListener != null)
 			{
 				return;
 			}
 			
-			this.synchOpenServerSocketChannel();
+			this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.port);
 			
 			// (01.11.2018 TM)TODO: JET-44: weird to have the work loop on a stack frame called "start".
 			this.acceptConnections();
 		}
 		
-		private void synchOpenServerSocketChannel()
-		{
-			try
-			{
-				this.serverSocketChannel = Com.openServerSocketChannel(this.port);
-			}
-			catch(final IOException e)
-			{
-				// (01.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(e);
-			}
-		}
-
 		@Override
 		public synchronized void stop()
 		{
-			if(this.serverSocketChannel == null)
+			if(this.liveConnectionListener == null)
 			{
 				return;
 			}
 			
-			Com.close(this.serverSocketChannel);
-			this.serverSocketChannel = null;
+			this.liveConnectionListener.close();
+			this.liveConnectionListener = null;
 		}
 
 		@Override
 		public synchronized boolean isRunning()
 		{
-			return this.serverSocketChannel != null;
+			return this.liveConnectionListener != null;
 		}
 
 		@Override
@@ -147,16 +143,16 @@ public interface ComHost
 		
 		private void synchAcceptConnection()
 		{
-			final SocketChannel socketChannel = Com.accept(this.serverSocketChannel);
-			this.connectionAcceptor.acceptConnection(socketChannel);
+			final C connection = this.liveConnectionListener.listenForConnection();
+			this.connectionAcceptor.acceptConnection(connection);
 		}
 	}
 	
 	
 	
-	public static ComHostCreator Creator()
+	public static <C> ComHostCreator<C> Creator()
 	{
-		return new ComHostCreator.Implementation();
+		return ComHostCreator.New();
 	}
 	
 }

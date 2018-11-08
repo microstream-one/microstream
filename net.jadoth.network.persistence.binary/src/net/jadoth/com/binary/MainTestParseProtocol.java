@@ -1,12 +1,13 @@
-package net.jadoth.network.persistence.binary;
+package net.jadoth.com.binary;
 
 import java.io.File;
+import java.nio.channels.SocketChannel;
 
+import net.jadoth.com.Com;
+import net.jadoth.com.ComFoundation;
+import net.jadoth.com.ComProtocol;
+import net.jadoth.com.ComProtocolStringConverter;
 import net.jadoth.files.XFiles;
-import net.jadoth.network.persistence.Com;
-import net.jadoth.network.persistence.ComFoundation;
-import net.jadoth.network.persistence.ComProtocol;
-import net.jadoth.network.persistence.ComProtocolStringConverter;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
@@ -27,7 +28,7 @@ public class MainTestParseProtocol
 			.initialize()
 		;
 				
-		final ComFoundation<?> foundation = Com.Foundation()
+		final ComFoundation<SocketChannel, ?> foundation = Com.FoundationSocketChannel()
 			.setIdStrategy(Com.DefaultIdStrategyServer())
 			.setTypeDictionary(thm.typeDictionary())
 		;

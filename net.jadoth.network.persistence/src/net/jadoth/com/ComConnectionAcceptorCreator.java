@@ -1,4 +1,4 @@
-package net.jadoth.network.persistence;
+package net.jadoth.com;
 
 public interface ComConnectionAcceptorCreator<C>
 {
