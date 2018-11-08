@@ -3,6 +3,7 @@ package net.jadoth.network.persistence;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
+import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
@@ -41,6 +42,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public ComChannelAcceptor getChannelAcceptor();
 	
+	public PersistenceFoundation<?, ?> getPersistenceFoundation();
+	
 	
 	
 	public F setProtocolName(String protocolName);
@@ -71,6 +74,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	public F setChannelCreator(ComChannel.Creator channelCreator);
 	
 	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
+
+	public F setPersistenceFoundation(PersistenceFoundation<?, ?> persistenceFoundation);
 	
 	
 	public ComHost createHost();
@@ -104,6 +109,8 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		private ComConnectionAcceptor.Creator         connectionAcceptorCreator;
 		private ComChannel.Creator                    channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
+		
+		private PersistenceFoundation<?, ?>           persistenceFoundation    ;
 		
 		
 		
@@ -271,6 +278,17 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			
 			return this.channelAcceptor;
 		}
+		
+		@Override
+		public PersistenceFoundation<?, ?> getPersistenceFoundation()
+		{
+			if(this.persistenceFoundation == null)
+			{
+				this.persistenceFoundation = this.createPersistenceFoundation();
+			}
+			
+			return this.persistenceFoundation;
+		}
 
 		
 		
@@ -313,8 +331,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		
 		public ComProtocolStringConverter createProtocolStringConverter()
 		{
-			// (07.11.2018 TM)FIXME: JET-43: TypeDictionaryCompiler
-			return ComProtocolStringConverter.New();
+			final PersistenceFoundation<?, ?> pf = this.getPersistenceFoundation();
+			
+			return ComProtocolStringConverter.New(
+				pf.getTypeDictionaryCompiler()
+			);
 		}
 
 		public ComHost.Creator createHostCreator()
@@ -334,6 +355,11 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			return ComChannel.Creator();
 		}
 		
+		public PersistenceFoundation<?, ?> createPersistenceFoundation()
+		{
+			throw new MissingFoundationPartException(PersistenceFoundation.class);
+		}
+		
 		public PersistenceTypeDictionaryView ensureTypeDictionary()
 		{
 			// the type dictionary initialization might be deferred beyond infrastructure initialization
@@ -344,6 +370,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public SwizzleIdStrategy ensureIdStrategy()
 		{
 			// (01.11.2018 TM)TODO: JET-43: really exception? Maybe default transient strategy?
+			// (08.11.2018 TM)NOTE: Maybe server or client depending on wether a InetAddress is set?
 			throw new MissingFoundationPartException(SwizzleIdStrategy.class);
 		}
 		
@@ -461,6 +488,13 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		public F setChannelAcceptor(final ComChannelAcceptor channelAcceptor)
 		{
 			this.channelAcceptor = channelAcceptor;
+			return this.$();
+		}
+		
+		@Override
+		public F setPersistenceFoundation(final PersistenceFoundation<?, ?> persistenceFoundation)
+		{
+			this.persistenceFoundation = persistenceFoundation;
 			return this.$();
 		}
 		
