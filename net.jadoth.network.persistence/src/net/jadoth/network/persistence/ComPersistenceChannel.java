@@ -8,11 +8,10 @@ import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
 
-// (01.11.2018 TM)TODO: JET-44: resolve of justify naming clash between "Network" and "Com".
-public interface NetworkPersistenceChannel<M> extends PersistenceChannel<M>
+public interface ComPersistenceChannel<M> extends PersistenceChannel<M>
 {
 	
-	public abstract class AbstractImplementation<M> implements NetworkPersistenceChannel<M>
+	public abstract class AbstractImplementation<M> implements ComPersistenceChannel<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -61,12 +60,14 @@ public interface NetworkPersistenceChannel<M> extends PersistenceChannel<M>
 		{
 			/* (08.08.2018 TM)NOTE:
 			 * Makes sense in principle. One side of a network connection requests data specified by a set of OIDs.
-			 * However, for a simple initial demo, such a function is not supported.
 			 * That also means that every batch of sent data must be inherently complete, i.e. may never trigger this
 			 * method to request missing data for unresolvable OIDs.
+			 * 
+			 * However, such a function is not supported for the current simple proof-of-concept.
 			 */
 			
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME NetworkPersistenceConnection<M>#readByObjectIds()
+			// FIXME NetworkPersistenceConnection<M>#readByObjectIds()
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
 		// (08.08.2018 TM)FIXME: prepare and close implementations

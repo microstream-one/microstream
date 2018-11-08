@@ -33,7 +33,7 @@ public interface ComConnectionAcceptor
 	{
 		public ComConnectionAcceptor createConnectionAcceptor(
 			ComProtocol        protocol       ,
-			ComChannel.Creator channelCreator ,
+			ComChannelCreator  channelCreator ,
 			ComChannelAcceptor channelAcceptor
 		);
 		
@@ -66,7 +66,7 @@ public interface ComConnectionAcceptor
 			@Override
 			public ComConnectionAcceptor createConnectionAcceptor(
 				final ComProtocol        protocol       ,
-				final ComChannel.Creator channelCreator ,
+				final ComChannelCreator  channelCreator ,
 				final ComChannelAcceptor channelAcceptor
 			)
 			{
@@ -102,7 +102,7 @@ public interface ComConnectionAcceptor
 	public static ComConnectionAcceptor New(
 		final ComProtocol                protocol               ,
 		final ComProtocolStringConverter protocolStringConverter,
-		final ComChannel.Creator         channelCreator         ,
+		final ComChannelCreator          channelCreator         ,
 		final ComChannelAcceptor         channelAcceptor
 	)
 	{
@@ -123,7 +123,7 @@ public interface ComConnectionAcceptor
 		////////////////////
 		
 		private final ComProtocol        protocol            ;
-		private final ComChannel.Creator channelCreator      ;
+		private final ComChannelCreator  channelCreator      ;
 		private final ComChannelAcceptor channelAcceptor     ;
 		private final ByteBuffer         bufferedUtf8Protocol;
 				
@@ -135,7 +135,7 @@ public interface ComConnectionAcceptor
 		
 		Implementation(
 			final ComProtocol        protocol            ,
-			final ComChannel.Creator channelCreator      ,
+			final ComChannelCreator  channelCreator      ,
 			final ComChannelAcceptor channelAcceptor     ,
 			final ByteBuffer         bufferedUtf8Protocol
 		)

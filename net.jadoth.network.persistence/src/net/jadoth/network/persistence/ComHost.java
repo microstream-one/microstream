@@ -154,23 +154,9 @@ public interface ComHost
 	
 	
 	
-	public static ComHost.Creator Creator()
+	public static ComHostCreator Creator()
 	{
-		return new ComHost.Creator.Implementation();
-	}
-	
-	public interface Creator
-	{
-		public ComHost createComHost(int port, ComConnectionAcceptor connectionAcceptor);
-		
-		public final class Implementation implements ComHost.Creator
-		{
-			@Override
-			public final ComHost createComHost(final int port, final ComConnectionAcceptor connectionAcceptor)
-			{
-				return ComHost.New(port, connectionAcceptor);
-			}
-		}
+		return new ComHostCreator.Implementation();
 	}
 	
 }
