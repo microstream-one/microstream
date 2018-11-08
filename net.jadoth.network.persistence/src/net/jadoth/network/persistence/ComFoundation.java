@@ -9,7 +9,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
-public interface ComFoundation<F extends ComFoundation<?>>
+public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 {
 	public String getProtocolName();
 	
@@ -36,7 +36,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public ComHostCreator getHostCreator();
 	
-	public ComConnectionAcceptor.Creator getConnectionAcceptorCreator();
+	public ComConnectionAcceptorCreator getConnectionAcceptorCreator();
 	
 	public ComChannelCreator getChannelCreator();
 	
@@ -69,9 +69,9 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	public F setHostCreator(ComHostCreator hostCreator);
 	
-	public F setConnectionAcceptorCreator(ComConnectionAcceptor.Creator connectionAcceptorCreator);
+	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator connectionAcceptorCreator);
 	
-	public F setChannelCreator(ComChannelCreator channelCreator);
+	public F setChannelCreator(ComChannelCreator<C> channelCreator);
 	
 	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 
@@ -82,13 +82,13 @@ public interface ComFoundation<F extends ComFoundation<?>>
 	
 	
 	
-	public static ComFoundation<?> New()
+	public static <C> ComFoundation<C, ?> New()
 	{
 		return new ComFoundation.Implementation<>();
 	}
 	
-	public class Implementation<F extends ComFoundation.Implementation<?>>
-	extends InstanceDispatcher.Implementation implements ComFoundation<F>
+	public class Implementation<C, F extends ComFoundation.Implementation<C, ?>>
+	extends InstanceDispatcher.Implementation implements ComFoundation<C, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -106,7 +106,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		private int                                   comPort                  ;
 		private ComProtocolStringConverter            protocolStringConverter  ;
 		private ComHostCreator                        hostCreator              ;
-		private ComConnectionAcceptor.Creator         connectionAcceptorCreator;
+		private ComConnectionAcceptorCreator         connectionAcceptorCreator;
 		private ComChannelCreator                     channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
 		
@@ -247,7 +247,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public ComConnectionAcceptor.Creator getConnectionAcceptorCreator()
+		public ComConnectionAcceptorCreator getConnectionAcceptorCreator()
 		{
 			if(this.connectionAcceptorCreator == null)
 			{
@@ -343,16 +343,16 @@ public interface ComFoundation<F extends ComFoundation<?>>
 			return ComHost.Creator();
 		}
 		
-		public ComConnectionAcceptor.Creator createConnectionAcceptorCreator()
+		public ComConnectionAcceptorCreator createConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator(
 				this.getProtocolStringConverter()
 			);
 		}
 		
-		public ComChannelCreator createChannelCreator()
+		public ComChannelCreator<C> createChannelCreator()
 		{
-			return ComChannel.Creator();
+			throw new MissingFoundationPartException(ComChannelCreator.class);
 		}
 		
 		public PersistenceFoundation<?, ?> createPersistenceFoundation()
@@ -471,7 +471,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		}
 		
 		@Override
-		public F setConnectionAcceptorCreator(final ComConnectionAcceptor.Creator connectionAcceptorCreator)
+		public F setConnectionAcceptorCreator(final ComConnectionAcceptorCreator connectionAcceptorCreator)
 		{
 			this.connectionAcceptorCreator = connectionAcceptorCreator;
 			return this.$();
@@ -501,7 +501,7 @@ public interface ComFoundation<F extends ComFoundation<?>>
 		@Override
 		public ComHost createHost()
 		{
-			final ComConnectionAcceptor.Creator conAccCreator = this.getConnectionAcceptorCreator();
+			final ComConnectionAcceptorCreator conAccCreator = this.getConnectionAcceptorCreator();
 			final ComHostCreator                hostCreator   = this.getHostCreator();
 			
 			final ComConnectionAcceptor connectionAcceptor = conAccCreator.createConnectionAcceptor(

@@ -2,6 +2,8 @@ package net.jadoth.network.persistence;
 
 import static net.jadoth.X.notNull;
 
+import java.nio.channels.SocketChannel;
+
 import net.jadoth.persistence.types.PersistenceManager;
 
 
@@ -19,9 +21,9 @@ public interface ComChannel
 	
 	
 	
-	public static ComChannelCreator Creator()
+	public static ComChannelCreator<SocketChannel> CreatorForSocketChannel()
 	{
-		return ComChannelCreator.New();
+		return ComChannelCreator.NewForSocketChannel();
 	}
 	
 	public static ComChannel New(final PersistenceManager<?> persistenceManager)

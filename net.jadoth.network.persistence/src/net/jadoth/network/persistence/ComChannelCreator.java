@@ -2,24 +2,24 @@ package net.jadoth.network.persistence;
 
 import java.nio.channels.SocketChannel;
 
-public interface ComChannelCreator
+public interface ComChannelCreator<C>
 	{
-		public ComChannel createChannel(SocketChannel socketChannel);
+		public ComChannel createChannel(C socketChannel);
 		
 		
 		
-		public static ComChannelCreator New()
+		public static  ComChannelCreator.ImplementationSocketChannel NewForSocketChannel()
 		{
-			return new ComChannelCreator.Implementation();
+			return new ComChannelCreator.ImplementationSocketChannel();
 		}
 		
-		public final class Implementation implements ComChannelCreator
+		public final class ImplementationSocketChannel implements ComChannelCreator<SocketChannel>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// constructors //
 			/////////////////
 			
-			Implementation()
+			ImplementationSocketChannel()
 			{
 				super();
 			}
