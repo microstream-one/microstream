@@ -182,14 +182,22 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		}
 		
 		@Override
-		public final long[] store(final Object... instances)
+		public final long[] storeAll(final Object... instances)
 		{
 			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).store(instances);
+			final long[] oids = (persister = this.createStorer()).storeAll(instances);
 			persister.commit();
 			return oids;
 		}
-
+		
+		@Override
+		public void storeAll(final Iterable<?> instances)
+		{
+			final PersistenceStorer<M> persister;
+			(persister = this.createStorer()).storeAll(instances);
+			persister.commit();
+		}
+		
 		@Override
 		public final long ensureObjectId(final Object object)
 		{

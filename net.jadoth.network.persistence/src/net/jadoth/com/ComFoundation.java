@@ -1,5 +1,6 @@
 package net.jadoth.com;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
@@ -17,22 +18,22 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ByteOrder getByteOrder();
 	
-	public SwizzleIdStrategy getIdStrategy();
+	public SwizzleIdStrategy getClientIdStrategy();
 	
 	public PersistenceTypeDictionaryView getTypeDictionary();
 	
 	public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider();
 	
-//	public PersistenceTypeDictionaryCompiler getTypeDictionaryCompiler();
+	public ComProtocolProvider getProtocolProvider();
 	
-	public ComProtocol getProtocol();
+	public ComProtocolProviderCreator getProtocolProviderCreator();
 	
 	public ComProtocolCreator getProtocolCreator();
 	
 	public ComProtocolSender<C> getProtocolSender();
 	
 	
-	public int getComPort();
+	public InetSocketAddress getAddress();
 	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
@@ -56,20 +57,22 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setByteOrder(ByteOrder byteOrder);
 	
-	public F setIdStrategy(SwizzleIdStrategy idStrategy);
+	public F setClientIdStrategy(SwizzleIdStrategy idStrategy);
 	
 	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
 	
 	public F setTypeDictionaryProvider(PersistenceTypeDictionaryViewProvider typeDictionaryProvider);
 
-//	public F setTypeDictionaryCompiler(PersistenceTypeDictionaryCompiler typeDictionaryCompiler);
-	
 	public F setProtocolCreator(ComProtocolCreator protocolCreator);
+	
+	public F setProtocolProvider(ComProtocolProvider protocolProvider);
+	
+	public F setProtocolProviderCreator(ComProtocolProviderCreator protocolProviderCreator);
 	
 	public F setProtocolSender(ComProtocolSender<C> protocolSender);
 	
 	
-	public F setComPort(int comPort);
+	public F setAddress(InetSocketAddress address);
 	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
@@ -105,18 +108,19 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private String                                protocolName             ;
 		private String                                protocolVersion          ;
 		private ByteOrder                             byteOrder                ;
-		private SwizzleIdStrategy                     idStrategy               ;
+		private SwizzleIdStrategy                     clientIdStrategy               ;
 		private PersistenceTypeDictionaryView         typeDictionary           ;
 		private PersistenceTypeDictionaryViewProvider typeDictionaryProvider   ;
 		private ComProtocolCreator                    protocolCreator          ;
-		private ComProtocolSender<C>                  protocolSender           ;
-		private transient ComProtocol                 cachedProtocol           ;
+		private ComProtocolProvider                   protocolProvider         ;
+		private ComProtocolProviderCreator            protocolProviderCreator  ;
                                                       
-		private int                                   comPort                  ;
+		private InetSocketAddress                     address                  ;
 		private ComProtocolStringConverter            protocolStringConverter  ;
 		private ComHostCreator<C>                     hostCreator              ;
 		private ComConnectionListenerCreator<C>       connectionListenerCreator;
 		private ComConnectionAcceptorCreator<C>       connectionAcceptorCreator;
+		private ComProtocolSender<C>                  protocolSender           ;
 		private ComChannelCreator<C>                  channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
 		
@@ -161,7 +165,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.byteOrder == null)
 			{
-				this.byteOrder = this.defineByteOrder();
+				this.byteOrder = this.ensureByteOrder();
 			}
 			
 			return this.byteOrder;
@@ -172,7 +176,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.protocolVersion == null)
 			{
-				this.protocolVersion = this.defineProtocolVersion();
+				this.protocolVersion = this.ensureProtocolVersion();
 			}
 			
 			return this.protocolVersion;
@@ -183,43 +187,54 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.protocolName == null)
 			{
-				this.protocolName = this.defineProtocolName();
+				this.protocolName = this.ensureProtocolName();
 			}
 			
 			return this.protocolName;
 		}
 		
 		@Override
-		public SwizzleIdStrategy getIdStrategy()
+		public SwizzleIdStrategy getClientIdStrategy()
 		{
-			if(this.idStrategy == null)
+			if(this.clientIdStrategy == null)
 			{
-				this.idStrategy = this.ensureIdStrategy();
+				this.clientIdStrategy = this.ensureClientIdStrategy();
 			}
 			
-			return this.idStrategy;
+			return this.clientIdStrategy;
 		}
 		
 		@Override
-		public int getComPort()
+		public InetSocketAddress getAddress()
 		{
-			if(this.comPort <= 0)
+			if(this.address == null)
 			{
-				this.comPort = this.defineComPort();
+				this.address = this.ensureAddress();
 			}
-			
-			return this.comPort;
+
+			return this.address;
 		}
 		
 		@Override
-		public ComProtocol getProtocol()
+		public ComProtocolProvider getProtocolProvider()
 		{
-			if(this.cachedProtocol == null)
+			if(this.protocolProvider == null)
 			{
-				this.cachedProtocol = this.createProtocol();
+				this.protocolProvider = this.ensureProtocolProvider();
 			}
 			
-			return this.cachedProtocol;
+			return this.protocolProvider;
+		}
+		
+		@Override
+		public ComProtocolProviderCreator getProtocolProviderCreator()
+		{
+			if(this.protocolProviderCreator == null)
+			{
+				this.protocolProviderCreator = this.ensureProtocolProviderCreator();
+			}
+			
+			return this.protocolProviderCreator;
 		}
 		
 		@Override
@@ -227,8 +242,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.protocolCreator == null)
 			{
-				this.protocolCreator = this.createProtocolCreator();
-				this.clearCachedProtocol();
+				this.protocolCreator = this.ensureProtocolCreator();
 			}
 			
 			return this.protocolCreator;
@@ -239,7 +253,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.protocolSender == null)
 			{
-				this.protocolSender = this.createProtocolSender();
+				this.protocolSender = this.ensureProtocolSender();
 			}
 			
 			return this.protocolSender;
@@ -250,7 +264,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.protocolStringConverter == null)
 			{
-				this.protocolStringConverter = this.createProtocolStringConverter();
+				this.protocolStringConverter = this.ensureProtocolStringConverter();
 			}
 			
 			return this.protocolStringConverter;
@@ -261,7 +275,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.hostCreator == null)
 			{
-				this.hostCreator = this.createHostCreator();
+				this.hostCreator = this.ensureHostCreator();
 			}
 			
 			return this.hostCreator;
@@ -272,7 +286,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.connectionListenerCreator == null)
 			{
-				this.connectionListenerCreator = this.createConnectionListenerCreator();
+				this.connectionListenerCreator = this.ensureConnectionListenerCreator();
 			}
 			
 			return this.connectionListenerCreator;
@@ -283,7 +297,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.connectionAcceptorCreator == null)
 			{
-				this.connectionAcceptorCreator = this.createConnectionAcceptorCreator();
+				this.connectionAcceptorCreator = this.ensureConnectionAcceptorCreator();
 			}
 			
 			return this.connectionAcceptorCreator;
@@ -294,7 +308,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.channelCreator == null)
 			{
-				this.channelCreator = this.createChannelCreator();
+				this.channelCreator = this.ensureChannelCreator();
 			}
 			
 			return this.channelCreator;
@@ -316,90 +330,56 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			if(this.persistenceFoundation == null)
 			{
-				this.persistenceFoundation = this.createPersistenceFoundation();
+				this.persistenceFoundation = this.ensurePersistenceFoundation();
 			}
 			
 			return this.persistenceFoundation;
 		}
 
-		
-		
-		public int defineComPort()
+		/*
+		 * "ensure" methods guarantee that a non-null/non-zero value is returned.
+		 * Either by returning an existing one (e.g. a constant) or by creating a new instance of the specified type.
+		 * If both options are not possible, the method will throw a MissingFoundationPartException.
+		 */
+
+		public String ensureProtocolName()
 		{
-			return Com.defaultPort();
+			return ComProtocol.protocolName();
 		}
 
-		public ByteOrder defineByteOrder()
+		public String ensureProtocolVersion()
+		{
+			return ComProtocol.protocolVersion();
+		}
+		
+		public ByteOrder ensureByteOrder()
 		{
 			return Com.byteOrder();
 		}
 
-		public String defineProtocolVersion()
+		public SwizzleIdStrategy ensureClientIdStrategy()
 		{
-			return ComProtocol.protocolVersion();
-		}
-
-		public String defineProtocolName()
-		{
-			return ComProtocol.protocolName();
+			return Com.DefaultIdStrategyClient();
 		}
 		
-		public ComProtocolCreator createProtocolCreator()
+		public ComProtocolCreator ensureProtocolCreator()
 		{
 			return ComProtocol.Creator();
 		}
-
-		public ComProtocol createProtocol()
-		{
-			final ComProtocolCreator protocolCreator = this.getProtocolCreator();
-			return protocolCreator.creatProtocol(
-				this.getProtocolName()   ,
-				this.getProtocolVersion(),
-				this.getByteOrder()      ,
-				this.getIdStrategy()     ,
-				this.getTypeDictionary()
-			);
-		}
 		
-		public ComProtocolStringConverter createProtocolStringConverter()
+		public ComProtocolProviderCreator ensureProtocolProviderCreator()
 		{
-			final PersistenceFoundation<?, ?> pf = this.getPersistenceFoundation();
-			
-			return ComProtocolStringConverter.New(
-				pf.getTypeDictionaryCompiler()
-			);
+			return ComProtocolProviderCreator.New();
 		}
 
-		public ComHostCreator<C> createHostCreator()
+		public ComHostCreator<C> ensureHostCreator()
 		{
 			return ComHost.Creator();
 		}
 		
-		public ComConnectionListenerCreator<C> createConnectionListenerCreator()
+		public ComConnectionAcceptorCreator<C> ensureConnectionAcceptorCreator()
 		{
-			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
-		}
-		
-		public ComConnectionAcceptorCreator<C> createConnectionAcceptorCreator()
-		{
-			return ComConnectionAcceptor.Creator(
-				this.getProtocolStringConverter()
-			);
-		}
-		
-		public ComChannelCreator<C> createChannelCreator()
-		{
-			throw new MissingFoundationPartException(ComChannelCreator.class);
-		}
-		
-		public ComProtocolSender<C> createProtocolSender()
-		{
-			throw new MissingFoundationPartException(ComProtocolSender.class);
-		}
-		
-		public PersistenceFoundation<?, ?> createPersistenceFoundation()
-		{
-			throw new MissingFoundationPartException(PersistenceFoundation.class);
+			return ComConnectionAcceptor.Creator();
 		}
 		
 		public PersistenceTypeDictionaryView ensureTypeDictionary()
@@ -409,17 +389,58 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return tdProvider.provideTypeDictionary();
 		}
 
-		public SwizzleIdStrategy ensureIdStrategy()
+		public ComProtocolProvider ensureProtocolProvider()
 		{
-			// (01.11.2018 TM)TODO: JET-43: really exception? Maybe default transient strategy?
-			// (08.11.2018 TM)NOTE: Maybe server or client depending on wether a InetAddress is set?
-			throw new MissingFoundationPartException(SwizzleIdStrategy.class);
+			final ComProtocolProviderCreator providerCreator = this.getProtocolProviderCreator();
+			
+			return providerCreator.creatProtocolProvider(
+				this.getProtocolName()    ,
+				this.getProtocolVersion() ,
+				this.getByteOrder()       ,
+				this.getClientIdStrategy(),
+				this.getTypeDictionary()  ,
+				this.getProtocolCreator()
+			);
+		}
+		
+		public ComProtocolStringConverter ensureProtocolStringConverter()
+		{
+			final PersistenceFoundation<?, ?> pf = this.getPersistenceFoundation();
+			
+			return ComProtocolStringConverter.New(
+				pf.getTypeDictionaryCompiler()
+			);
+		}
+		
+		public InetSocketAddress ensureAddress()
+		{
+			throw new MissingFoundationPartException(InetSocketAddress.class);
 		}
 		
 		public PersistenceTypeDictionaryViewProvider ensureTypeDictionaryProvider()
 		{
 			// ultimately, the type dictionary must be supplied from the application context and cannot be created here.
 			throw new MissingFoundationPartException(PersistenceTypeDictionaryView.class);
+		}
+		
+		public ComConnectionListenerCreator<C> ensureConnectionListenerCreator()
+		{
+			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
+		}
+		
+		public ComChannelCreator<C> ensureChannelCreator()
+		{
+			throw new MissingFoundationPartException(ComChannelCreator.class);
+		}
+		
+		public ComProtocolSender<C> ensureProtocolSender()
+		{
+			throw new MissingFoundationPartException(ComProtocolSender.class);
+		}
+		
+		public PersistenceFoundation<?, ?> ensurePersistenceFoundation()
+		{
+			throw new MissingFoundationPartException(PersistenceFoundation.class);
 		}
 
 		public ComChannelAcceptor ensureChannelAcceptor()
@@ -434,7 +455,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setProtocolName(final String protocolName)
 		{
 			this.protocolName = protocolName;
-			this.clearCachedProtocol();
 			return this.$();
 		}
 		
@@ -442,23 +462,19 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setProtocolVersion(final String protocolVersion)
 		{
 			this.protocolVersion = protocolVersion;
-			this.clearCachedProtocol();
 			return this.$();
 		}
 		
 		@Override
 		public F setByteOrder(final ByteOrder byteOrder)
 		{
-			this.byteOrder = byteOrder;
-			this.clearCachedProtocol();
 			return this.$();
 		}
 		
 		@Override
-		public F setIdStrategy(final SwizzleIdStrategy idStrategy)
+		public F setClientIdStrategy(final SwizzleIdStrategy idStrategy)
 		{
-			this.idStrategy = idStrategy;
-			this.clearCachedProtocol();
+			this.clientIdStrategy = idStrategy;
 			return this.$();
 		}
 		
@@ -466,7 +482,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setTypeDictionary(final PersistenceTypeDictionaryView typeDictionary)
 		{
 			this.typeDictionary = typeDictionary;
-			this.clearCachedProtocol();
 			return this.$();
 		}
 		
@@ -474,7 +489,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setTypeDictionaryProvider(final PersistenceTypeDictionaryViewProvider typeDictionaryProvider)
 		{
 			this.typeDictionaryProvider = typeDictionaryProvider;
-			this.clearCachedProtocol();
 			return this.$();
 		}
 		
@@ -482,7 +496,20 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setProtocolCreator(final ComProtocolCreator protocolCreator)
 		{
 			this.protocolCreator = protocolCreator;
-			this.clearCachedProtocol();
+			return this.$();
+		}
+		
+		@Override
+		public F setProtocolProvider(final ComProtocolProvider protocolProvider)
+		{
+			this.protocolProvider = protocolProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setProtocolProviderCreator(final ComProtocolProviderCreator protocolProviderCreator)
+		{
+			this.protocolProviderCreator = protocolProviderCreator;
 			return this.$();
 		}
 		
@@ -493,15 +520,10 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return this.$();
 		}
 		
-		private void clearCachedProtocol()
-		{
-			this.cachedProtocol = null;
-		}
-		
 		@Override
-		public F setComPort(final int comPort)
+		public F setAddress(final InetSocketAddress address)
 		{
-			this.comPort = comPort;
+			this.address = address;
 			return this.$();
 		}
 		
@@ -557,20 +579,19 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		@Override
 		public ComHost<C> createHost()
 		{
-			final ComConnectionListenerCreator<C> conLisCreator = this.getConnectionListenerCreator();
 			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
-			final ComHostCreator<C>               hostCreator   = this.getHostCreator();
-			
 			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocol()       ,
-				this.getProtocolSender() ,
-				this.getChannelCreator() ,
+				this.getProtocolProvider()       ,
+				this.getProtocolStringConverter(),
+				this.getProtocolSender()         ,
+				this.getChannelCreator()         ,
 				this.getChannelAcceptor()
 			);
-			
+
+			final ComHostCreator<C>  hostCreator = this.getHostCreator();
 			return hostCreator.createComHost(
-				this.getComPort() ,
-				conLisCreator     ,
+				this.getAddress()                  ,
+				this.getConnectionListenerCreator(),
 				connectionAcceptor
 			);
 		}

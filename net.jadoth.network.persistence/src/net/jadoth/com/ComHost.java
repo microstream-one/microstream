@@ -1,6 +1,9 @@
 package net.jadoth.com;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
+
+import java.net.InetSocketAddress;
 
 /**
  * Host type to listen for new connections and relay them to logic for further processing,
@@ -11,9 +14,9 @@ import static net.jadoth.X.notNull;
  */
 public interface ComHost<C>
 {
-	public int port();
+	public InetSocketAddress address();
 	
-	public ComProtocol protocol();
+	public ComProtocolProvider protocolProvider();
 	
 	/**
 	 * Listens for incoming connections and relays them for processing.
@@ -29,13 +32,13 @@ public interface ComHost<C>
 	
 	
 	public static <C> ComHost<C> New(
-		final int                             port                     ,
+		final InetSocketAddress               address                  ,
 		final ComConnectionListenerCreator<C> connectionListenerCreator,
 		final ComConnectionAcceptor<C>        connectionAcceptor
 	)
 	{
 		return new ComHost.Implementation<>(
-			Com.validatePort(port),
+			mayNull(address)             ,
 			notNull(connectionListenerCreator),
 			notNull(connectionAcceptor)
 		);
@@ -47,7 +50,7 @@ public interface ComHost<C>
 		// instance fields //
 		////////////////////
 		
-		private final int                             port                     ;
+		private final InetSocketAddress               address                  ;
 		private final ComConnectionListenerCreator<C> connectionListenerCreator;
 		private final ComConnectionAcceptor<C>        connectionAcceptor       ;
 		
@@ -62,13 +65,13 @@ public interface ComHost<C>
 		/////////////////
 		
 		Implementation(
-			final int                             port                     ,
+			final InetSocketAddress               address                  ,
 			final ComConnectionListenerCreator<C> connectionListenerCreator,
 			final ComConnectionAcceptor<C>        connectionAcceptor
 		)
 		{
 			super();
-			this.port                      = port                     ;
+			this.address                   = address                  ;
 			this.connectionListenerCreator = connectionListenerCreator;
 			this.connectionAcceptor        = connectionAcceptor       ;
 		}
@@ -80,15 +83,15 @@ public interface ComHost<C>
 		////////////
 
 		@Override
-		public final int port()
+		public final InetSocketAddress address()
 		{
-			return this.port;
+			return this.address;
 		}
 
 		@Override
-		public final ComProtocol protocol()
+		public final ComProtocolProvider protocolProvider()
 		{
-			return this.connectionAcceptor.protocol();
+			return this.connectionAcceptor.protocolProvider();
 		}
 
 		@Override
@@ -99,7 +102,7 @@ public interface ComHost<C>
 				return;
 			}
 			
-			this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.port);
+			this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.address);
 			
 			// (01.11.2018 TM)TODO: JET-44: weird to have the work loop on a stack frame called "start".
 			this.acceptConnections();

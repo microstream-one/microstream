@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.com.Com;
 import net.jadoth.com.ComFoundation;
 import net.jadoth.com.ComProtocol;
+import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -29,11 +30,12 @@ public class MainTestParseProtocol
 		;
 				
 		final ComFoundation<SocketChannel, ?> foundation = Com.FoundationSocketChannel()
-			.setIdStrategy(Com.DefaultIdStrategyServer())
+			.setClientIdStrategy(Com.DefaultIdStrategyServer())
 			.setTypeDictionary(thm.typeDictionary())
 		;
 		
-		final ComProtocol                protocol  = foundation.getProtocol();
+		final ComProtocolProvider        protocolProvider = foundation.getProtocolProvider();
+		final ComProtocol                protocol  = protocolProvider.provideProtocol();
 		final ComProtocolStringConverter converter = foundation.getProtocolStringConverter();
 		final String                     assembled = converter.assemble(protocol);
 		System.out.println(assembled);

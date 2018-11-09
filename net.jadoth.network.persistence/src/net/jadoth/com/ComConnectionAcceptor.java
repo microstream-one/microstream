@@ -17,15 +17,15 @@ import net.jadoth.low.XVM;
  */
 public interface ComConnectionAcceptor<C>
 {
-	public ComProtocol protocol();
+	public ComProtocolProvider protocolProvider();
 	
 	public void acceptConnection(C socketChannel);
 	
 	
 	
-	public static <C> ComConnectionAcceptorCreator<C> Creator(final ComProtocolStringConverter protocolStringConverter)
+	public static <C> ComConnectionAcceptorCreator<C> Creator()
 	{
-		return ComConnectionAcceptorCreator.New(protocolStringConverter);
+		return ComConnectionAcceptorCreator.New();
 	}
 	
 	public static ByteBuffer bufferProtocol(
@@ -49,21 +49,20 @@ public interface ComConnectionAcceptor<C>
 	}
 	
 	public static <C> ComConnectionAcceptor<C> New(
-		final ComProtocol                protocol               ,
+		final ComProtocolProvider        protocolProvider       ,
 		final ComProtocolSender<C>       protocolSender         ,
 		final ComProtocolStringConverter protocolStringConverter,
 		final ComChannelCreator<C>       channelCreator         ,
 		final ComChannelAcceptor         channelAcceptor
 	)
 	{
-		final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, protocolStringConverter);
 		
 		return new ComConnectionAcceptor.Implementation<>(
-			notNull(protocol)       ,
-			notNull(protocolSender) ,
-			notNull(channelCreator) ,
-			notNull(channelAcceptor),
-			bufferedUtf8Protocol
+			notNull(protocolProvider)       ,
+			notNull(protocolStringConverter),
+			notNull(protocolSender)         ,
+			notNull(channelCreator)         ,
+			notNull(channelAcceptor)
 		);
 	}
 	
@@ -73,11 +72,11 @@ public interface ComConnectionAcceptor<C>
 		// instance fields //
 		////////////////////
 		
-		private final ComProtocol          protocol            ;
-		private final ComProtocolSender<C> protocolSender      ;
-		private final ComChannelCreator<C> channelCreator      ;
-		private final ComChannelAcceptor   channelAcceptor     ;
-		private final ByteBuffer           bufferedUtf8Protocol;
+		private final ComProtocolProvider        protocolProvider       ;
+		private final ComProtocolStringConverter protocolStringConverter;
+		private final ComProtocolSender<C>       protocolSender         ;
+		private final ComChannelCreator<C>       channelCreator         ;
+		private final ComChannelAcceptor         channelAcceptor        ;
 				
 		
 		
@@ -86,19 +85,19 @@ public interface ComConnectionAcceptor<C>
 		/////////////////
 		
 		Implementation(
-			final ComProtocol          protocol            ,
-			final ComProtocolSender<C> protocolSender      ,
-			final ComChannelCreator<C> channelCreator      ,
-			final ComChannelAcceptor   channelAcceptor     ,
-			final ByteBuffer           bufferedUtf8Protocol
+			final ComProtocolProvider        protocolProvider       ,
+			final ComProtocolStringConverter protocolStringConverter,
+			final ComProtocolSender<C>       protocolSender         ,
+			final ComChannelCreator<C>       channelCreator         ,
+			final ComChannelAcceptor         channelAcceptor
 		)
 		{
 			super();
-			this.protocol             = protocol            ;
-			this.protocolSender       = protocolSender      ;
-			this.channelCreator       = channelCreator      ;
-			this.channelAcceptor      = channelAcceptor     ;
-			this.bufferedUtf8Protocol = bufferedUtf8Protocol;
+			this.protocolProvider        = protocolProvider       ;
+			this.protocolStringConverter = protocolStringConverter;
+			this.protocolSender          = protocolSender         ;
+			this.channelCreator          = channelCreator         ;
+			this.channelAcceptor         = channelAcceptor        ;
 		}
 		
 		
@@ -108,23 +107,19 @@ public interface ComConnectionAcceptor<C>
 		////////////
 		
 		@Override
-		public final ComProtocol protocol()
+		public final ComProtocolProvider protocolProvider()
 		{
-			return this.protocol;
+			return this.protocolProvider;
 		}
 		
 		@Override
 		public void acceptConnection(final C socketChannel)
 		{
 			// note: things like authentication could be done here in a wrapping implementation.
-			
-			/*
-			 * "clear" is of course totally wrong. Only the index values are cleared, not the data. Morons, every time.
-			 * Also, the method's return type is not respecified. Always funny to see how incredibly incompetent
-			 * JDK developers are in using their own language.
-			 */
-			this.bufferedUtf8Protocol.clear();
-			this.protocolSender.sendProtocol(socketChannel, this.bufferedUtf8Protocol);
+						
+			final ComProtocol protocol = this.protocolProvider.provideProtocol();
+			final ByteBuffer bufferedUtf8Protocol = bufferProtocol(protocol, this.protocolStringConverter);
+			this.protocolSender.sendProtocol(socketChannel, bufferedUtf8Protocol);
 			
 			final ComChannel comChannel = this.channelCreator.createChannel(socketChannel);
 			this.channelAcceptor.acceptChannel(comChannel);

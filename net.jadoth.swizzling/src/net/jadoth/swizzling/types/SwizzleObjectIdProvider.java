@@ -73,4 +73,62 @@ public interface SwizzleObjectIdProvider extends SwizzleObjectIdLookup
 
 	}
 	
+	public static SwizzleObjectIdProvider.Failing Failing()
+	{
+		return new SwizzleObjectIdProvider.Failing();
+	}
+	
+	public final class Failing implements SwizzleObjectIdProvider
+	{
+
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private long currentObjectId;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Failing()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
+		@Override
+		public SwizzleObjectIdProvider.Failing initializeObjectId()
+		{
+			// no-op, nothing to initialize
+			return this;
+		}
+
+		@Override
+		public long currentObjectId()
+		{
+			return this.currentObjectId;
+		}
+
+		@Override
+		public SwizzleObjectIdProvider.Failing updateCurrentObjectId(final long currentObjectId)
+		{
+			this.currentObjectId = currentObjectId;
+			return this;
+		}
+
+		@Override
+		public long provideNextObjectId()
+		{
+			throw new UnsupportedOperationException();
+		}
+	}
+	
 }

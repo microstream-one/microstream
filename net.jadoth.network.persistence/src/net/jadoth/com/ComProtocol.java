@@ -8,7 +8,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
-public interface ComProtocol
+public interface ComProtocol extends ComProtocolData
 {
 	public static String protocolName()
 	{
@@ -21,19 +21,7 @@ public interface ComProtocol
 		return "1.0";
 	}
 		
-	
-	
-	public String name();
-	
-	public String version();
-	
-	public ByteOrder byteOrder();
-	
-	public PersistenceTypeDictionaryView typeDictionary();
-	
-	public SwizzleIdStrategy idStrategy();
-	
-	
+		
 		
 	public static ComProtocolCreator Creator()
 	{

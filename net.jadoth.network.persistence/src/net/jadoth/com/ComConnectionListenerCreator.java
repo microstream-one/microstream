@@ -1,8 +1,10 @@
 package net.jadoth.com;
 
+import java.net.InetSocketAddress;
+
 public interface ComConnectionListenerCreator<C>
 {
-	public ComConnectionListener<C> createConnectionListener(int port);
+	public ComConnectionListener<C> createConnectionListener(InetSocketAddress address);
 	
 	public static <C> ComConnectionListenerCreator<C> New()
 	{

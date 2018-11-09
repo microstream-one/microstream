@@ -130,6 +130,73 @@ public interface SwizzleObjectIdStrategy
 		
 	}
 	
+	public static SwizzleObjectIdStrategy.None None()
+	{
+		return new SwizzleObjectIdStrategy.None();
+	}
+	
+	public final class None implements SwizzleObjectIdStrategy
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		public static String typeName()
+		{
+			// intentionally not the class name since it must stay the same, even if the class should get renamed.
+			return "None";
+		}
+		
+		public static void assemble(final VarString vs, final SwizzleObjectIdStrategy.None idStrategy)
+		{
+			vs
+			.add(SwizzleObjectIdStrategy.None.typeName())
+			;
+		}
+		
+		public static SwizzleObjectIdStrategy.None parse(final String typeIdStrategyContent) throws ParsingException
+		{
+			SwizzleIdStrategyStringConverter.validateIdStrategyName(
+				SwizzleObjectIdStrategy.None.class,
+				typeName()                      ,
+				typeIdStrategyContent
+			);
+			
+			// the rest of the string is ignored intentionally.
+			return SwizzleObjectIdStrategy.None();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		None()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public String strategyTypeNameObjectId()
+		{
+			return None.typeName();
+		}
+
+		@Override
+		public final SwizzleObjectIdProvider createObjectIdProvider()
+		{
+			return SwizzleObjectIdProvider.Failing();
+		}
+		
+	}
+	
 	@FunctionalInterface
 	public interface Assembler<S extends SwizzleObjectIdStrategy>
 	{

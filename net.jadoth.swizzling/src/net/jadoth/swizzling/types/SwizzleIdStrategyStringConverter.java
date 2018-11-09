@@ -201,6 +201,9 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			.register(SwizzleObjectIdStrategy.Transient.class     , SwizzleObjectIdStrategy.Transient::assemble)
 			.register(SwizzleObjectIdStrategy.Transient.typeName(), SwizzleObjectIdStrategy.Transient::parse)
 			
+			.register(SwizzleObjectIdStrategy.None.class     , SwizzleObjectIdStrategy.None::assemble)
+			.register(SwizzleObjectIdStrategy.None.typeName(), SwizzleObjectIdStrategy.None::parse)
+			
 			.register(SwizzleTypeIdStrategy.Transient.class     , SwizzleTypeIdStrategy.Transient::assemble)
 			.register(SwizzleTypeIdStrategy.Transient.typeName(), SwizzleTypeIdStrategy.Transient::parse)
 			

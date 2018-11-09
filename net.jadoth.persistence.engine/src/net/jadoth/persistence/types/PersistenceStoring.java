@@ -23,10 +23,35 @@ public interface PersistenceStoring
 	
 	/**
 	 * Convenience method to {@link #store(Object)} multiple instances.
+	 * The passed array (maybe implicitely created by the compiler) itself is NOT stored.
 	 *
-	 * @param instances the root instances of the subgraphs of required instances to be stored.
+	 * @param instances multiple root instances of the subgraphs of required instances to be stored.
 	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
 	 */
-	public long[] store(Object... instances);
+	/* (09.11.2018 TM)NOTE: change from "store" to "storeAll".
+	 * While the prior would be more convenient, it has one critical loophole:
+	 * When a (non-primitive) array shall be stored (as an instance by itself via the non-array store()),
+	 * the compiler would still choose this method, resulting in the array instance itself NOT being stored,
+	 * but only its content.
+	 * This error is very hard to spot, even for experienced developers and almost impossible to spot and hard
+	 * to understand for novice developers.
+	 * Therefore, it is necessary to exchange convenience for safety and rename the method sooner rather than later.
+	 */
+	public long[] storeAll(Object... instances);
+	
+	
+	/**
+	 * Convenience method to {@link #store(Object)} all instances of an {@link Iterable} type, usually a collection.<br>
+	 * The passed instance itself is NOT stored.<br>
+	 * Note that this method does not return an array of objectIds, since the amount of instances supplied by the
+	 * passed {@link Iterable} cannot be known until after all instances have been stored and the memory and performance
+	 * overhead to collect them dynamically would not be worth it in most cases since the returned array is hardly ever
+	 * needed.
+	 * If it should be needed, the desired behavior can be easily achieved with a tiny custom-made utility method.
+	 * 
+	 *
+	 * @param instances multiple root instances of the subgraphs of required instances to be stored.
+	 */
+	public void storeAll(Iterable<?> instances);
 
 }
