@@ -104,7 +104,7 @@ public interface SwizzleTypeIdProvider extends SwizzleTypeIdHolder
 		////////////
 
 		@Override
-		public SwizzleTypeIdProvider initializeTypeId()
+		public SwizzleTypeIdProvider.Failing initializeTypeId()
 		{
 			// no-op, nothing to initialize
 			return this;
@@ -117,7 +117,7 @@ public interface SwizzleTypeIdProvider extends SwizzleTypeIdHolder
 		}
 
 		@Override
-		public SwizzleTypeIdProvider updateCurrentTypeId(final long currentTypeId)
+		public SwizzleTypeIdProvider.Failing updateCurrentTypeId(final long currentTypeId)
 		{
 			this.currentTypeId = currentTypeId;
 			return this;

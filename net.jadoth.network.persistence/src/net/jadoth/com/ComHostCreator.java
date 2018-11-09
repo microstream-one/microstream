@@ -1,9 +1,11 @@
 package net.jadoth.com;
 
+import java.net.InetSocketAddress;
+
 public interface ComHostCreator<C>
 {
 	public ComHost<C> createComHost(
-		int                             port                     ,
+		InetSocketAddress               address                  ,
 		ComConnectionListenerCreator<C> connectionListenerCreator,
 		ComConnectionAcceptor<C>        connectionAcceptor
 	);
@@ -34,12 +36,12 @@ public interface ComHostCreator<C>
 		
 		@Override
 		public final ComHost<C> createComHost(
-			final int                             port                     ,
+			final InetSocketAddress               address                  ,
 			final ComConnectionListenerCreator<C> connectionListenerCreator,
 			final ComConnectionAcceptor<C>        connectionAcceptor
 		)
 		{
-			return ComHost.New(port, connectionListenerCreator, connectionAcceptor);
+			return ComHost.New(address, connectionListenerCreator, connectionAcceptor);
 		}
 		
 	}

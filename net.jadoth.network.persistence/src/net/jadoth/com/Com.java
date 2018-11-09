@@ -1,5 +1,7 @@
 package net.jadoth.com;
 
+import static net.jadoth.X.notNull;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -13,11 +15,6 @@ import net.jadoth.math.XMath;
 
 public class Com
 {
-	public static int defaultPort()
-	{
-		return 1337;
-	}
-	
 	public static long defaultObjectIdBaseServer()
 	{
 		return 9_200_000_000_000_000_000L;
@@ -58,33 +55,26 @@ public class Com
 		// (08.11.2018 TM)FIXME: JET-43: set SocketChannel-specific parts.
 		return ComFoundation.New();
 	}
-	
-	public static ServerSocketChannel openServerSocketChannel() throws IOException
-	{
-		return openServerSocketChannel(defaultPort());
-	}
-	
-	public static ServerSocketChannel openServerSocketChannel(final int port) throws IOException
+		
+	public static ServerSocketChannel openServerSocketChannel(final InetSocketAddress address) throws IOException
 	{
 		final ServerSocketChannel serverChannel = ServerSocketChannel.open();
-		serverChannel.socket().bind(new InetSocketAddress(port));
+		serverChannel.socket().bind(address); // may be null according to bind() JavaDoc.
 		return serverChannel;
 	}
 	
-	public static SocketChannel openChannelLocalhost() throws IOException
+	public static SocketChannel openChannelLocalhost(final int port) throws IOException
 	{
-		return openChannel(InetAddress.getLocalHost());
+		return openChannel(
+			new InetSocketAddress(InetAddress.getLocalHost(), port)
+		);
 	}
 	
-	public static SocketChannel openChannel(final InetAddress address) throws IOException
+	public static SocketChannel openChannel(final InetSocketAddress address) throws IOException
 	{
-		return openChannel(address, defaultPort());
-	}
-	
-	public static SocketChannel openChannel(final InetAddress address, final int port) throws IOException
-	{
+		notNull(address);
 		final SocketChannel socketChannel = SocketChannel.open();
-		socketChannel.connect(new InetSocketAddress(address, port));
+		socketChannel.connect(address);
 		return socketChannel;
 	}
 	

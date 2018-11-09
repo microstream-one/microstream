@@ -5,7 +5,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.persistence.binary"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.swizzling"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JadothNetworkPersistence"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JadothCommunication"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.persistence.engine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.network"/>
 	<classpathentry kind="output" path="bin"/>

@@ -119,17 +119,23 @@ public interface StorageConnection extends PersistenceStoring
 
 
 	public PersistenceManager<Binary> persistenceManager();
-	
-	@Override
-	public default long[] store(final Object... instances)
-	{
-		return this.persistenceManager().store(instances);
-	}
 
 	@Override
 	public default long store(final Object instance)
 	{
 		return this.persistenceManager().store(instance);
+	}
+	
+	@Override
+	public default long[] storeAll(final Object... instances)
+	{
+		return this.persistenceManager().storeAll(instances);
+	}
+	
+	@Override
+	public default void storeAll(final Iterable<?> instances)
+	{
+		this.persistenceManager().storeAll(instances);
 	}
 
 	public default void store(final SelfStoring storing)

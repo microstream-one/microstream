@@ -787,5 +787,35 @@ PersistenceFoundation einbauen. Passt!\par
 Hm. Evtl. sollte die API nicht hardgecodet auf SocketChannel festgelegt werden, sondern parametrisiert werden.\par
 Ich wette, dass die JDK Implementierung - wie immer - totaler Rotz ist und dass es was besseres gibt bzw. zuk\'fcnftig aus irgendeinem Grund mal was anderes gefordert werden wird.\par
 Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrakte Zwischenklassen f\'fcr triviale Logikklassen einziehen. Das probier ich mal.\par
+\par
+\par
+2018-11-09\par
+\par
+Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
+Aha:\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
+\par
+From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
+The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
+Another special value would be 127.0.0.1, meaning that only clients on the same computer could connect to your server.\par
+\par
+Hei\'dft: Auch ComHost Instanzen brauchen eine InetSocketAddress Instanz, nicht nur einen Port.\par
+Umbauen.\par
+\par
+Au\'dferdem aufgefallen:\par
+Falls jeder Client eine eigene ID-Range bekommen k\'f6nnen soll, dann das Protocol nicht schon zur Initialisierungszeit auf eine Range festgelegt werden.\par
+D.h. es muss zwischen Initialisierung und ProtocolCreator noch eine ProtocolProvider Instanz rein. Die kann defaultm\'e4\'dfig einfach ein von Anfang an konstantes Protocol zur\'fcckgeben, aber kann eben auch dynamisch neue machen.\par
+\par
+Dann fliegt auch gleich das seltsame clearCachedProtocol() wieder raus. Nice.\par
+\par
+Konsolidierung der ganzen create~, ensure~ und supply~ Methoden mit schl\'fcssigem Gesamtkonzept\par
+\par
+Explizite Unterscheidung zwischen clientIdStrategy und hostIdStrategy.\par
+\par
+\par
+Als n\'e4chstes steht an:\par
+- Default-Implementierung f\'fcr SocketChannel machen.\par
+- Spezifische BinaryPersistence Implementierungen.\par
+Evtl. beides in Foundation Ableitung reinmachen.\par
 }
  

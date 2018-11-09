@@ -3,36 +3,28 @@ package net.jadoth.com;
 public interface ComConnectionAcceptorCreator<C>
 {
 	public ComConnectionAcceptor<C> createConnectionAcceptor(
-		ComProtocol          protocol       ,
-		ComProtocolSender<C> protocolSender ,
-		ComChannelCreator<C> channelCreator ,
-		ComChannelAcceptor   channelAcceptor
+		ComProtocolProvider        protocolProvider       ,
+		ComProtocolStringConverter protocolStringConverter,
+		ComProtocolSender<C>       protocolSender         ,
+		ComChannelCreator<C>       channelCreator         ,
+		ComChannelAcceptor         channelAcceptor
 	);
 	
 	
-	public static <C> ComConnectionAcceptorCreator<C> New(final ComProtocolStringConverter protocolStringConverter)
+	public static <C> ComConnectionAcceptorCreator<C> New()
 	{
-		return new ComConnectionAcceptorCreator.Implementation<>(protocolStringConverter);
+		return new ComConnectionAcceptorCreator.Implementation<>();
 	}
 	
 	public final class Implementation<C> implements ComConnectionAcceptorCreator<C>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		final ComProtocolStringConverter protocolStringConverter;
-		
-		
-		
+	{		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation(final ComProtocolStringConverter protocolStringConverter)
+		Implementation()
 		{
 			super();
-			this.protocolStringConverter = protocolStringConverter;
 		}
 		
 		
@@ -43,13 +35,20 @@ public interface ComConnectionAcceptorCreator<C>
 
 		@Override
 		public ComConnectionAcceptor<C> createConnectionAcceptor(
-			final ComProtocol          protocol       ,
-			final ComProtocolSender<C> protocolSender ,
-			final ComChannelCreator<C> channelCreator ,
-			final ComChannelAcceptor   channelAcceptor
+			final ComProtocolProvider        protocolProvider       ,
+			final ComProtocolStringConverter protocolStringConverter,
+			final ComProtocolSender<C>       protocolSender         ,
+			final ComChannelCreator<C>       channelCreator         ,
+			final ComChannelAcceptor         channelAcceptor
 		)
 		{
-			return ComConnectionAcceptor.New(protocol, protocolSender, this.protocolStringConverter, channelCreator, channelAcceptor);
+			return ComConnectionAcceptor.New(
+				protocolProvider       ,
+				protocolSender         ,
+				protocolStringConverter,
+				channelCreator         ,
+				channelAcceptor
+			);
 		}
 		
 	}

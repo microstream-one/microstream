@@ -10,8 +10,8 @@ import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.reference._intReference;
-import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.swizzling.types.SwizzleHandler;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleObjectSupplier;
 
@@ -326,7 +326,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final long[] store(final Object... instances)
+		public final long[] storeAll(final Object... instances)
 		{
 			this.ensureInitialized();
 
@@ -336,6 +336,17 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				oids[i] = this.storeGraph(instances[i]);
 			}
 			return oids;
+		}
+		
+		@Override
+		public void storeAll(final Iterable<?> instances)
+		{
+			this.ensureInitialized();
+
+			for(final Object instance : instances)
+			{
+				this.storeGraph(instance);
+			}
 		}
 
 		@Override
