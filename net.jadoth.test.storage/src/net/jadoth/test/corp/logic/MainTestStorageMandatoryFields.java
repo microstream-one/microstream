@@ -14,7 +14,7 @@ public class MainTestStorageMandatoryFields
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = X.on(
-		EmbeddedStorage.createFoundation(),
+		EmbeddedStorage.Foundation(),
 		esf ->
 			esf.getConnectionFoundation().setReferenceFieldMandatoryEvaluator((clazz, field) ->
 //				clazz == Person.class && field.getType() == Address.class

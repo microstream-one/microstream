@@ -30,7 +30,7 @@ public class MainTestStorageLegacyMapping
 	
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = X.on(EmbeddedStorage
-		.createFoundation(),
+		.Foundation(),
 		ecf -> ecf.getConnectionFoundation()
 //			.setLegacyTypeMappingResultor(InquiringLegacyTypeMappingResultor.New(new MappingPrinter()))
 //			.setLegacyMemberMatchingProvider(new MatchProvider())

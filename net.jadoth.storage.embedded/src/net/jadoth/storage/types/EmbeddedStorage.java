@@ -15,17 +15,22 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public final class EmbeddedStorage
 {
-	public static final EmbeddedStorageFoundation<?> createFoundationBlank()
+	/**
+	 * Creates an instance of an {@link EmbeddedStorageFoundation} implementation without any assembly parts set.
+	 * 
+	 * @return
+	 */
+	public static final EmbeddedStorageFoundation<?> createFoundation()
 	{
 		return new EmbeddedStorageFoundation.Implementation<>();
 	}
 	
-	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler,
 		final SwizzleIdStrategy                  idStrategy
 	)
 	{
-		return createConnectionFoundation(
+		return ConnectionFoundation(
 			typeDictionaryIoHandler      ,
 			idStrategy                   ,
 			Persistence::isPersistable   ,
@@ -33,7 +38,7 @@ public final class EmbeddedStorage
 		);
 	}
 	
-	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
 		final SwizzleIdStrategy                  idStrategy                 ,
 		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
@@ -52,9 +57,9 @@ public final class EmbeddedStorage
 		;
 	}
 	
-	public static final EmbeddedStorageConnectionFoundation<?> createConnectionFoundation(final File directory)
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(final File directory)
 	{
-		return createConnectionFoundation(
+		return ConnectionFoundation(
 			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory),
 			SwizzleIdStrategy.NewInDirectory(directory)
 		);
@@ -62,7 +67,7 @@ public final class EmbeddedStorage
 
 	
 	
-	public static final EmbeddedStorageFoundation<?> createFoundation(
+	public static final EmbeddedStorageFoundation<?> Foundation(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
@@ -71,18 +76,18 @@ public final class EmbeddedStorage
 		 * Configuration and ConnectionFoundation both depend on a File (directory)
 		 * So this is the most elementary creator method possible.
 		 */
-		return createFoundationBlank()
+		return createFoundation()
 			.setConfiguration(configuration)
 			.setConnectionFoundation(connectionFoundation)
 		;
 	}
 	
-	public static final EmbeddedStorageFoundation<?> createFoundation(
+	public static final EmbeddedStorageFoundation<?> Foundation(
 		final StorageFileProvider                    fileProvider        ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
-		return createFoundationBlank()
+		return createFoundation()
 			.setConfiguration(
 				Storage.Configuration(fileProvider)
 			)
@@ -90,22 +95,22 @@ public final class EmbeddedStorage
 		;
 	}
 	
-	public static final EmbeddedStorageFoundation<?> createFoundation(final File directory)
+	public static final EmbeddedStorageFoundation<?> Foundation(final File directory)
 	{
 		XFiles.ensureDirectory(notNull(directory));
 
-		return createFoundation(
+		return Foundation(
 			Storage.FileProvider(directory),
-			createConnectionFoundation(directory)
+			ConnectionFoundation(directory)
 		);
 	}
 
-	public static final EmbeddedStorageFoundation<?> createFoundation()
+	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
-		return createFoundation(new File(Storage.defaultDirectoryName()));
+		return Foundation(new File(Storage.defaultDirectoryName()));
 	}
 	
-	public static final EmbeddedStorageFoundation<?> createFoundation(
+	public static final EmbeddedStorageFoundation<?> Foundation(
 		final File                          directory             ,
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
@@ -115,7 +120,7 @@ public final class EmbeddedStorage
 	{
 		XFiles.ensureDirectory(directory);
 
-		return createFoundation(
+		return Foundation(
 			Storage.Configuration(
 				Storage.FileProvider(directory),
 				channelCountProvider           ,
@@ -123,7 +128,7 @@ public final class EmbeddedStorage
 				fileDissolver                  ,
 				entityCacheEvaluator
 			),
-			createConnectionFoundation(directory)
+			ConnectionFoundation(directory)
 		);
 	}
 		
@@ -141,7 +146,7 @@ public final class EmbeddedStorage
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
-		final EmbeddedStorageManager esm = createFoundation(configuration, connectionFoundation)
+		final EmbeddedStorageManager esm = Foundation(configuration, connectionFoundation)
 			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
@@ -163,7 +168,7 @@ public final class EmbeddedStorage
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
-		final EmbeddedStorageManager esm = createFoundation(fileProvider, connectionFoundation)
+		final EmbeddedStorageManager esm = Foundation(fileProvider, connectionFoundation)
 			.createEmbeddedStorageManager()
 		;
 		esm.start();
@@ -178,7 +183,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageManager start(final Object explicitRoot, final File directory)
 	{
-		final EmbeddedStorageManager esm = createFoundation(directory)
+		final EmbeddedStorageManager esm = Foundation(directory)
 			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
@@ -187,7 +192,7 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * Uber-simplicity util method. See {@link #ensureStorageManager()} and {@link #createFoundation()} variants for
+	 * Uber-simplicity util method. See {@link #ensureStorageManager()} and {@link #Foundation()} variants for
 	 * more practical alternatives.
 	 * 
 	 * @return An {@link EmbeddedStorageManager} instance with an actively running database using all-default-settings.
@@ -199,7 +204,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageManager start(final Object explicitRoot)
 	{
-		final EmbeddedStorageManager esm = createFoundation()
+		final EmbeddedStorageManager esm = Foundation()
 			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
@@ -216,7 +221,7 @@ public final class EmbeddedStorage
 		final StorageEntityCacheEvaluator   entityCacheEvaluator
 	)
 	{
-		final EmbeddedStorageManager esm = createFoundation(
+		final EmbeddedStorageManager esm = Foundation(
 			directory             ,
 			channelCountProvider  ,
 			housekeepingController,

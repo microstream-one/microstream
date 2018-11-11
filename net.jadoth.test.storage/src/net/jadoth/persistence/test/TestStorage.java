@@ -49,7 +49,7 @@ public class TestStorage extends TestComponentProvider
 
 	// configure and start embedded storage manager (=~ "embedded object database")
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundationBlank()
+		.createFoundation()
 		.setConfiguration(
 			Storage.Configuration(
 				createTestFileProvider()                        ,

@@ -1,10 +1,8 @@
 package net.jadoth.com.binary;
 
 import java.io.File;
-import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
-import net.jadoth.com.ComFoundation;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
@@ -29,7 +27,7 @@ public class MainTestParseProtocol
 			.initialize()
 		;
 				
-		final ComFoundation<SocketChannel, ?> foundation = Com.FoundationSocketChannel()
+		final ComDefaultFoundation<?> foundation = ComDefault.Foundation()
 			.setClientIdStrategy(Com.DefaultIdStrategyServer())
 			.setTypeDictionary(thm.typeDictionary())
 		;

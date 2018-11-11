@@ -8,7 +8,7 @@ public class MainTestStorageExample
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.createFoundation()
+		.Foundation()
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //		)

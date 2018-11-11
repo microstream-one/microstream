@@ -8,8 +8,13 @@ import net.jadoth.low.XVM;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
-public class ComPersistenceBinary
+public class ComDefault
 {
+	public static ComDefaultFoundation<?> Foundation()
+	{
+		return ComDefaultFoundation.New();
+	}
+	
 	
 	public static int networkChunkHeaderLength()
 	{
@@ -63,12 +68,12 @@ public class ComPersistenceBinary
 		public void execute(SocketChannel channel, ByteBuffer buffer) throws IOException; // funny "public"
 	}
 	
-	private static void read(final SocketChannel channel, final ByteBuffer buffer) throws IOException
+	public static void read(final SocketChannel channel, final ByteBuffer buffer) throws IOException
 	{
 		channel.read(buffer);
 	}
 	
-	private static void write(final SocketChannel channel, final ByteBuffer buffer) throws IOException
+	public static void write(final SocketChannel channel, final ByteBuffer buffer) throws IOException
 	{
 		channel.write(buffer);
 	}
@@ -76,13 +81,13 @@ public class ComPersistenceBinary
 	public static void readIntoBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
-		performIoOperation(buffer, ComPersistenceBinary::read, channel, responseTimeout);
+		performIoOperation(buffer, ComDefault::read, channel, responseTimeout);
 	}
 
 	public static void writeFromBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
 		throws IOException, NetworkExceptionTimeout
 	{
-		performIoOperation(buffer, ComPersistenceBinary::write, channel, responseTimeout);
+		performIoOperation(buffer, ComDefault::write, channel, responseTimeout);
 	}
 
 	private static void performIoOperation(
