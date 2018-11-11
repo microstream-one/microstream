@@ -103,18 +103,18 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledHeaderBuffer = ComPersistenceBinary.readIntoBufferKnownLength(
+				filledHeaderBuffer = ComDefault.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
-					ComPersistenceBinary.networkChunkHeaderLength()
+					ComDefault.networkChunkHeaderLength()
 				);
 				
-				final long networkChunkContentLength = ComPersistenceBinary.getNetworkChunkHeaderContentLength(
+				final long networkChunkContentLength = ComDefault.getNetworkChunkHeaderContentLength(
 					filledHeaderBuffer
 				);
 				
-				filledContentBuffer = ComPersistenceBinary.readIntoBufferKnownLength(
+				filledContentBuffer = ComDefault.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
@@ -155,17 +155,17 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
 			
 			// (11.08.2018 TM)TODO: better encapsulate chunk header reading and writing logic
-			defaultBuffer.clear().limit(ComPersistenceBinary.networkChunkHeaderLength());
-			ComPersistenceBinary.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
+			defaultBuffer.clear().limit(ComDefault.networkChunkHeaderLength());
+			ComDefault.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
 			
 			try
 			{
 				// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
-				ComPersistenceBinary.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
+				ComDefault.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
 				
 				for(final ByteBuffer bb : chunk.buffers())
 				{
-					ComPersistenceBinary.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
+					ComDefault.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
 				}
 			}
 			catch(final IOException e)

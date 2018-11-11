@@ -108,7 +108,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private String                                protocolName             ;
 		private String                                protocolVersion          ;
 		private ByteOrder                             byteOrder                ;
-		private SwizzleIdStrategy                     clientIdStrategy               ;
+		private SwizzleIdStrategy                     clientIdStrategy         ;
 		private PersistenceTypeDictionaryView         typeDictionary           ;
 		private PersistenceTypeDictionaryViewProvider typeDictionaryProvider   ;
 		private ComProtocolCreator                    protocolCreator          ;
@@ -125,6 +125,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComChannelAcceptor                    channelAcceptor          ;
 		
 		private PersistenceFoundation<?, ?>           persistenceFoundation    ;
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Implementation()
+		{
+			super();
+		}
 		
 		
 		
@@ -581,10 +592,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
 			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocolProvider()       ,
-				this.getProtocolStringConverter(),
-				this.getProtocolSender()         ,
-				this.getChannelCreator()         ,
+				this.getProtocolProvider(),
+				this.getProtocolSender()  ,
+				this.getChannelCreator()  ,
 				this.getChannelAcceptor()
 			);
 

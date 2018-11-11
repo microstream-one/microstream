@@ -49,13 +49,7 @@ public class Com
 	{
 		return XMath.positive(port);
 	}
-	
-	public static ComFoundation<SocketChannel, ?> FoundationSocketChannel()
-	{
-		// (08.11.2018 TM)FIXME: JET-43: set SocketChannel-specific parts.
-		return ComFoundation.New();
-	}
-		
+			
 	public static ServerSocketChannel openServerSocketChannel(final InetSocketAddress address) throws IOException
 	{
 		final ServerSocketChannel serverChannel = ServerSocketChannel.open();
