@@ -93,12 +93,12 @@ public class UtilTestCom
 		final boolean       isClient
 	)
 	{
+		final BinaryPersistenceFoundation<?> foundation = createFoundation(systemDirectory, isClient);
+		
 		final ComPersistenceChannelBinary channel = ComPersistenceChannelBinary.New(
 			socketChannel,
 			BufferSizeProvider.New()
 		);
-		
-		final BinaryPersistenceFoundation<?> foundation = createFoundation(systemDirectory, isClient);
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();

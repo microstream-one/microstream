@@ -2,11 +2,9 @@ package net.jadoth.com;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
+import java.nio.channels.SocketChannel;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.persistence.types.PersistenceFoundation;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
@@ -19,11 +17,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ByteOrder getByteOrder();
 	
 	public SwizzleIdStrategy getClientIdStrategy();
-	
-	public PersistenceTypeDictionaryView getTypeDictionary();
-	
-	public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider();
-	
+			
 	public ComProtocolProvider getProtocolProvider();
 	
 	public ComProtocolProviderCreator getProtocolProviderCreator();
@@ -47,7 +41,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ComChannelAcceptor getChannelAcceptor();
 	
-	public PersistenceFoundation<?, ?> getPersistenceFoundation();
+	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
 	
 	
 	
@@ -59,10 +53,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setClientIdStrategy(SwizzleIdStrategy idStrategy);
 	
-	public F setTypeDictionary(PersistenceTypeDictionaryView typeDictionary);
-	
-	public F setTypeDictionaryProvider(PersistenceTypeDictionaryViewProvider typeDictionaryProvider);
-
 	public F setProtocolCreator(ComProtocolCreator protocolCreator);
 	
 	public F setProtocolProvider(ComProtocolProvider protocolProvider);
@@ -86,19 +76,19 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 
-	public F setPersistenceFoundation(PersistenceFoundation<?, ?> persistenceFoundation);
+	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
 	
 	
 	public ComHost<C> createHost();
 	
 	
 	
-	public static <C> ComFoundation<C, ?> New()
+	public static ComFoundation.Default<?> New()
 	{
-		return new ComFoundation.Implementation<>();
+		return new ComFoundation.Default<>();
 	}
 	
-	public class Implementation<C, F extends ComFoundation.Implementation<C, ?>>
+	public abstract class Abstract<C, F extends ComFoundation.Abstract<C, ?>>
 	extends InstanceDispatcher.Implementation implements ComFoundation<C, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -109,8 +99,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private String                                protocolVersion          ;
 		private ByteOrder                             byteOrder                ;
 		private SwizzleIdStrategy                     clientIdStrategy         ;
-		private PersistenceTypeDictionaryView         typeDictionary           ;
-		private PersistenceTypeDictionaryViewProvider typeDictionaryProvider   ;
 		private ComProtocolCreator                    protocolCreator          ;
 		private ComProtocolProvider                   protocolProvider         ;
 		private ComProtocolProviderCreator            protocolProviderCreator  ;
@@ -123,8 +111,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComProtocolSender<C>                  protocolSender           ;
 		private ComChannelCreator<C>                  channelCreator           ;
 		private ComChannelAcceptor                    channelAcceptor          ;
-		
-		private PersistenceFoundation<?, ?>           persistenceFoundation    ;
+		private ComPersistenceAdaptor<C>              persistenceAdaptor       ;
 
 		
 		
@@ -132,7 +119,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		// constructors //
 		/////////////////
 		
-		protected Implementation()
+		protected Abstract()
 		{
 			super();
 		}
@@ -148,29 +135,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			return (F)this;
 		}
-		
-		@Override
-		public PersistenceTypeDictionaryView getTypeDictionary()
-		{
-			if(this.typeDictionary == null)
-			{
-				this.typeDictionary = this.ensureTypeDictionary();
-			}
-			
-			return this.typeDictionary;
-		}
-		
-		@Override
-		public PersistenceTypeDictionaryViewProvider getTypeDictionaryProvider()
-		{
-			if(this.typeDictionaryProvider == null)
-			{
-				this.typeDictionaryProvider = this.ensureTypeDictionaryProvider();
-			}
-			
-			return this.typeDictionaryProvider;
-		}
-		
+				
 		@Override
 		public ByteOrder getByteOrder()
 		{
@@ -337,14 +302,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public PersistenceFoundation<?, ?> getPersistenceFoundation()
+		public ComPersistenceAdaptor<C> getPersistenceAdaptor()
 		{
-			if(this.persistenceFoundation == null)
+			if(this.persistenceAdaptor == null)
 			{
-				this.persistenceFoundation = this.ensurePersistenceFoundation();
+				this.persistenceAdaptor = this.ensurePersistenceAdaptor();
 			}
 			
-			return this.persistenceFoundation;
+			return this.persistenceAdaptor;
 		}
 
 		/*
@@ -353,111 +318,106 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		 * If both options are not possible, the method will throw a MissingFoundationPartException.
 		 */
 
-		public String ensureProtocolName()
+		protected String ensureProtocolName()
 		{
 			return ComProtocol.protocolName();
 		}
 
-		public String ensureProtocolVersion()
+		protected String ensureProtocolVersion()
 		{
 			return ComProtocol.protocolVersion();
 		}
 		
-		public ByteOrder ensureByteOrder()
+		protected ByteOrder ensureByteOrder()
 		{
 			return Com.byteOrder();
 		}
 
-		public SwizzleIdStrategy ensureClientIdStrategy()
+		protected SwizzleIdStrategy ensureClientIdStrategy()
 		{
 			return Com.DefaultIdStrategyClient();
 		}
 		
-		public ComProtocolCreator ensureProtocolCreator()
+		protected ComProtocolCreator ensureProtocolCreator()
 		{
 			return ComProtocol.Creator();
 		}
 		
-		public ComProtocolProviderCreator ensureProtocolProviderCreator()
+		protected ComProtocolProviderCreator ensureProtocolProviderCreator()
 		{
 			return ComProtocolProviderCreator.New();
 		}
 
-		public ComHostCreator<C> ensureHostCreator()
+		protected ComHostCreator<C> ensureHostCreator()
 		{
 			return ComHost.Creator();
 		}
 		
-		public ComConnectionAcceptorCreator<C> ensureConnectionAcceptorCreator()
+		protected ComConnectionAcceptorCreator<C> ensureConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator();
 		}
-		
-		public PersistenceTypeDictionaryView ensureTypeDictionary()
-		{
-			// the type dictionary initialization might be deferred beyond infrastructure initialization
-			final PersistenceTypeDictionaryViewProvider tdProvider = this.getTypeDictionaryProvider();
-			return tdProvider.provideTypeDictionary();
-		}
 
-		public ComProtocolProvider ensureProtocolProvider()
+		protected ComProtocolProvider ensureProtocolProvider()
 		{
 			final ComProtocolProviderCreator providerCreator = this.getProtocolProviderCreator();
 			
 			return providerCreator.creatProtocolProvider(
-				this.getProtocolName()    ,
-				this.getProtocolVersion() ,
-				this.getByteOrder()       ,
-				this.getClientIdStrategy(),
-				this.getTypeDictionary()  ,
+				this.getProtocolName()      ,
+				this.getProtocolVersion()   ,
+				this.getByteOrder()         ,
+				this.getClientIdStrategy()  ,
+				this.getPersistenceAdaptor(),
 				this.getProtocolCreator()
 			);
 		}
 		
-		public ComProtocolStringConverter ensureProtocolStringConverter()
+		protected ComProtocolStringConverter ensureProtocolStringConverter()
 		{
-			final PersistenceFoundation<?, ?> pf = this.getPersistenceFoundation();
+			final ComPersistenceAdaptor<C> adaptor = this.getPersistenceAdaptor();
 			
 			return ComProtocolStringConverter.New(
-				pf.getTypeDictionaryCompiler()
+				adaptor.provideTypeDictionaryCompiler()
 			);
 		}
 		
-		public InetSocketAddress ensureAddress()
+		protected ComChannelCreator<C> ensureChannelCreator()
 		{
+			return ComChannelCreator.New(
+				this.getPersistenceAdaptor()
+			);
+		}
+		
+		// (12.11.2018 TM)TODO: wrap the usage-specific parts below into a composite type?
+		
+		protected InetSocketAddress ensureAddress()
+		{
+			// the address to be used is application-specific and cannot be defined here.
 			throw new MissingFoundationPartException(InetSocketAddress.class);
 		}
-		
-		public PersistenceTypeDictionaryViewProvider ensureTypeDictionaryProvider()
-		{
-			// ultimately, the type dictionary must be supplied from the application context and cannot be created here.
-			throw new MissingFoundationPartException(PersistenceTypeDictionaryView.class);
-		}
-		
-		public ComConnectionListenerCreator<C> ensureConnectionListenerCreator()
-		{
-			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
-		}
-		
-		public ComChannelCreator<C> ensureChannelCreator()
-		{
-			throw new MissingFoundationPartException(ComChannelCreator.class);
-		}
-		
-		public ComProtocolSender<C> ensureProtocolSender()
-		{
-			throw new MissingFoundationPartException(ComProtocolSender.class);
-		}
-		
-		public PersistenceFoundation<?, ?> ensurePersistenceFoundation()
-		{
-			throw new MissingFoundationPartException(PersistenceFoundation.class);
-		}
 
-		public ComChannelAcceptor ensureChannelAcceptor()
+		protected ComChannelAcceptor ensureChannelAcceptor()
 		{
 			// the channel acceptor is the link to the application / framework logic and cannot be created here.
 			throw new MissingFoundationPartException(ComChannelAcceptor.class);
+		}
+		
+		protected ComPersistenceAdaptor<C> ensurePersistenceAdaptor()
+		{
+			// the p.adaptor is the link to the application / framework persistence context and cannot be created here.
+			throw new MissingFoundationPartException(ComPersistenceAdaptor.class);
+		}
+				
+		protected ComConnectionListenerCreator<C> ensureConnectionListenerCreator()
+		{
+			// must be created or set specific to C.
+			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
+		}
+		
+		protected ComProtocolSender<C> ensureProtocolSender()
+		{
+			// must be created or set specific to C.
+			throw new MissingFoundationPartException(ComProtocolSender.class);
 		}
 				
 
@@ -488,21 +448,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			this.clientIdStrategy = idStrategy;
 			return this.$();
 		}
-		
-		@Override
-		public F setTypeDictionary(final PersistenceTypeDictionaryView typeDictionary)
-		{
-			this.typeDictionary = typeDictionary;
-			return this.$();
-		}
-		
-		@Override
-		public F setTypeDictionaryProvider(final PersistenceTypeDictionaryViewProvider typeDictionaryProvider)
-		{
-			this.typeDictionaryProvider = typeDictionaryProvider;
-			return this.$();
-		}
-		
+				
 		@Override
 		public F setProtocolCreator(final ComProtocolCreator protocolCreator)
 		{
@@ -581,9 +527,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setPersistenceFoundation(final PersistenceFoundation<?, ?> persistenceFoundation)
+		public F setPersistenceAdaptor(final ComPersistenceAdaptor<C> persistenceAdaptor)
 		{
-			this.persistenceFoundation = persistenceFoundation;
+			this.persistenceAdaptor = persistenceAdaptor;
 			return this.$();
 		}
 		
@@ -604,6 +550,40 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 				this.getConnectionListenerCreator(),
 				connectionAcceptor
 			);
+		}
+		
+	}
+	
+	public class Default<F extends ComFoundation.Default<F>>
+	extends ComFoundation.Abstract<SocketChannel, F>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Default()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+						
+		@Override
+		public ComProtocolSender.Default ensureProtocolSender()
+		{
+			return ComProtocolSender.New(
+				this.getProtocolStringConverter()
+			);
+		}
+		
+		@Override
+		public ComConnectionListenerCreator.Default ensureConnectionListenerCreator()
+		{
+			return ComConnectionListenerCreator.New();
 		}
 		
 	}

@@ -10,12 +10,6 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 public class ComDefault
 {
-	public static ComDefaultFoundation<?> Foundation()
-	{
-		return ComDefaultFoundation.New();
-	}
-	
-	
 	public static int networkChunkHeaderLength()
 	{
 		/* currently just a plain simple single length value.

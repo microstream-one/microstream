@@ -3,33 +3,34 @@ package net.jadoth.com.binary;
 import java.io.File;
 
 import net.jadoth.com.Com;
+import net.jadoth.com.ComFoundation;
+import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
+
 
 public class MainTestParseProtocol
 {
 	public static void main(final String[] args)
 	{
-		final PersistenceTypeHandlerManager<?> thm = BinaryPersistence.foundation()
+		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 				XFiles.ensureDirectory(new File("TypeDictionary"))
 			))
 			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
 			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
-			.getTypeHandlerManager()
-			.initialize()
 		;
 				
-		final ComDefaultFoundation<?> foundation = ComDefault.Foundation()
+		final ComFoundation.Default<?> foundation = Com.Foundation()
 			.setClientIdStrategy(Com.DefaultIdStrategyServer())
-			.setTypeDictionary(thm.typeDictionary())
+			.setPersistenceAdaptor(ComPersistenceAdaptor.New(pf))
 		;
 		
 		final ComProtocolProvider        protocolProvider = foundation.getProtocolProvider();
@@ -42,4 +43,5 @@ public class MainTestParseProtocol
 		final String                    assembled2 = converter.assemble(parsed);
 		System.out.println(assembled2);
 	}
+	
 }

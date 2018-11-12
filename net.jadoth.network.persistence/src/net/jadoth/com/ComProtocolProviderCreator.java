@@ -2,18 +2,18 @@ package net.jadoth.com;
 
 import java.nio.ByteOrder;
 
-import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 public interface ComProtocolProviderCreator
 {
 	public ComProtocolProvider creatProtocolProvider(
-		final String                        name           ,
-		final String                        version        ,
-		final ByteOrder                     byteOrder      ,
-		final SwizzleIdStrategy             idStrategy     ,
-		final PersistenceTypeDictionaryView typeDictionary ,
-		final ComProtocolCreator            protocolCreator
+		String                                name                  ,
+		String                                version               ,
+		ByteOrder                             byteOrder             ,
+		SwizzleIdStrategy                     idStrategy            ,
+		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		ComProtocolCreator                    protocolCreator
 	);
 	
 	
@@ -42,20 +42,20 @@ public interface ComProtocolProviderCreator
 
 		@Override
 		public ComProtocolProvider creatProtocolProvider(
-			final String                        name           ,
-			final String                        version        ,
-			final ByteOrder                     byteOrder      ,
-			final SwizzleIdStrategy             idStrategy     ,
-			final PersistenceTypeDictionaryView typeDictionary ,
-			final ComProtocolCreator            protocolCreator
+			final String                                name                  ,
+			final String                                version               ,
+			final ByteOrder                             byteOrder             ,
+			final SwizzleIdStrategy                     idStrategy            ,
+			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+			final ComProtocolCreator                    protocolCreator
 		)
 		{
 			return new ComProtocolProvider.Implementation(
-				name           ,
-				version        ,
-				byteOrder      ,
-				idStrategy     ,
-				typeDictionary ,
+				name                  ,
+				version               ,
+				byteOrder             ,
+				idStrategy            ,
+				typeDictionaryProvider,
 				protocolCreator
 			);
 		}

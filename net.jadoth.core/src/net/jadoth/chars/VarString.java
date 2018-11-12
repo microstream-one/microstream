@@ -3,6 +3,7 @@ package net.jadoth.chars;
 import static java.lang.Math.max;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import net.jadoth.X;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.exceptions.ArrayCapacityException;
+import net.jadoth.files.XFiles;
 import net.jadoth.functional._charProcedure;
 import net.jadoth.math.XMath;
 
@@ -1338,7 +1340,38 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	{
 		return this.split(regex, 0);
 	}
-
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// character encoding //
+	///////////////////////
+	
+	/**
+	 * Alias for {@code this.encodeBy(XFiles.standardCharset());} for general purpose encoding, with the "standard"
+	 * being UTF-8 ({@link XFiles#utf8()}), because any other charset is nonsense for a general case.
+	 * 
+	 * @return the character data of this instance as an UTF-8 byte array.
+	 * @see #encodeBy(Charset)
+	 */
+	public final byte[] encode()
+	{
+		return this.encodeBy(XFiles.standardCharset());
+	}
+	
+	public final byte[] encodeBy(final Charset charset)
+	{
+		/*
+		 * As usual, the morons hid the actual logic, so everything has to be copied around multiple times
+		 * Maybe an own encoding logic can be written and used here in the future.
+		 * Also as usual, it would be WAY better strucutured and probably much faster then the JDK junk.
+		 * Until then, the clumsy way is used as a placeholder.
+		 */
+//		return StringCoding.encode(notNull(charset), this.data, 0, this.size);
+				
+		// and what kind of idiotic name is "getBytes" for the process of encoding characters to bytes? Morons.
+		return this.toString().getBytes(charset);
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////

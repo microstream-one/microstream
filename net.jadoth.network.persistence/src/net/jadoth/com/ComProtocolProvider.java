@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteOrder;
 
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
@@ -20,20 +21,20 @@ public interface ComProtocolProvider extends ComProtocolData
 	}
 	
 	public static ComProtocolProvider New(
-		final String                        name           ,
-		final String                        version        ,
-		final ByteOrder                     byteOrder      ,
-		final SwizzleIdStrategy             idStrategy     ,
-		final PersistenceTypeDictionaryView typeDictionary ,
-		final ComProtocolCreator            protocolCreator
+		final String                                name                  ,
+		final String                                version               ,
+		final ByteOrder                             byteOrder             ,
+		final SwizzleIdStrategy                     idStrategy            ,
+		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		final ComProtocolCreator                    protocolCreator
 	)
 	{
 		return new ComProtocolProvider.Implementation(
-			notNull(name)           ,
-			notNull(version)        ,
-			notNull(byteOrder)      ,
-			notNull(idStrategy)     ,
-			notNull(typeDictionary) ,
+			notNull(name)                  ,
+			notNull(version)               ,
+			notNull(byteOrder)             ,
+			notNull(idStrategy)            ,
+			notNull(typeDictionaryProvider),
 			notNull(protocolCreator)
 		);
 	}
@@ -44,12 +45,12 @@ public interface ComProtocolProvider extends ComProtocolData
 		// instance fields //
 		////////////////////
 
-		private final String                        name           ;
-		private final String                        version        ;
-		private final ByteOrder                     byteOrder      ;
-		private final SwizzleIdStrategy             idStrategy     ;
-		private final PersistenceTypeDictionaryView typeDictionary ;
-		private final ComProtocolCreator            protocolCreator;
+		private final String                                name                  ;
+		private final String                                version               ;
+		private final ByteOrder                             byteOrder             ;
+		private final SwizzleIdStrategy                     idStrategy            ;
+		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
+		private final ComProtocolCreator                    protocolCreator       ;
 		
 		
 		
@@ -58,21 +59,21 @@ public interface ComProtocolProvider extends ComProtocolData
 		/////////////////
 		
 		Implementation(
-			final String                        name           ,
-			final String                        version        ,
-			final ByteOrder                     byteOrder      ,
-			final SwizzleIdStrategy             idStrategy     ,
-			final PersistenceTypeDictionaryView typeDictionary ,
-			final ComProtocolCreator            protocolCreator
+			final String                                name                  ,
+			final String                                version               ,
+			final ByteOrder                             byteOrder             ,
+			final SwizzleIdStrategy                     idStrategy            ,
+			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+			final ComProtocolCreator                    protocolCreator
 		)
 		{
 			super();
-			this.name            = name           ;
-			this.version         = version        ;
-			this.byteOrder       = byteOrder      ;
-			this.idStrategy      = idStrategy     ;
-			this.typeDictionary  = typeDictionary ;
-			this.protocolCreator = protocolCreator;
+			this.name                   = name                  ;
+			this.version                = version               ;
+			this.byteOrder              = byteOrder             ;
+			this.idStrategy             = idStrategy            ;
+			this.typeDictionaryProvider = typeDictionaryProvider;
+			this.protocolCreator        = protocolCreator       ;
 		}
 		
 		
@@ -108,18 +109,18 @@ public interface ComProtocolProvider extends ComProtocolData
 		@Override
 		public final PersistenceTypeDictionaryView typeDictionary()
 		{
-			return this.typeDictionary;
+			return this.typeDictionaryProvider.provideTypeDictionary();
 		}
 		
 		@Override
 		public ComProtocol provideProtocol()
 		{
 			return this.protocolCreator.creatProtocol(
-				this.name          ,
-				this.version       ,
-				this.byteOrder     ,
-				this.idStrategy    ,
-				this.typeDictionary
+				this.name()          ,
+				this.version()       ,
+				this.byteOrder()     ,
+				this.idStrategy()    ,
+				this.typeDictionary()
 			);
 		}
 		

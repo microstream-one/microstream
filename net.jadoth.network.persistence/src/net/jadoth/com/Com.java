@@ -25,6 +25,11 @@ public class Com
 		return 9_100_000_000_000_000_000L;
 	}
 	
+	public static ComFoundation.Default<?> Foundation()
+	{
+		return ComFoundation.New();
+	}
+	
 	public static ComDefaultIdStrategy DefaultIdStrategy(final long startingObjectId)
 	{
 		return ComDefaultIdStrategy.New(startingObjectId);
