@@ -29,7 +29,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	}
 	
 	/**
-	 * Returns {@link StandardCharsets#UTF_8}, because every other one in there is nonsense.
+	 * Returns {@link StandardCharsets#UTF_8}, because any other one out there is nonsense as a standard.
 	 * 
 	 * @return <code>java.nio.charset.Charset.forName("UTF-8")</code>.
 	 */

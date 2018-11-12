@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -821,6 +822,21 @@ Evtl. beides in Foundation Ableitung reinmachen.\par
 \par
 2018-11-10\par
 Default-Implementierung f\'fcr SocketChannel machen.\par
+\par
+\par
+2018-11-12\par
+Default-Implementierung f\'fcr SocketChannel weitermachen. Connectionlistener usw.\par
+\par
+Hm. Vielleicht kann man das doch so umstrukturieren, dass diese ganzen "ComDefault" Interfaces nicht n\'f6tig sind. Denn das wird langsam ein bisschen l\'e4stig vor lauter Abstraktion.\par
+Mit einem "ComPersistenceAdaptor" Typ m\'fcsste das klappen.\par
+\par
+Da kommt dann auch gleich die TypeDictionaryProviding Logik rein. Das TypeDictionary muss ja aus dem Persistence Kontext kommen, also genau richtige Stelle.\par
+\par
+Soweit alles umgebaut, inklusive Testklasse. Mal testen.\par
+Exception "Missing type id at index 0."\par
+Hm, seltsam. Der Protocol String sieht unver\'e4ndert korrekt aus.\par
+Muss ich dann checken und fixen.\par
+\par
 \par
 }
  
