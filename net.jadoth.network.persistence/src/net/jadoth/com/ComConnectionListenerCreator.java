@@ -1,8 +1,6 @@
 package net.jadoth.com;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public interface ComConnectionListenerCreator<C>
@@ -22,19 +20,9 @@ public interface ComConnectionListenerCreator<C>
 		@Override
 		public ComConnectionListener<SocketChannel> createConnectionListener(final InetSocketAddress address)
 		{
-			// (12.11.2018 TM)TODO: move all Socket-logic to a central static context.
-			try
-			{
-				final ServerSocketChannel serverChannel = ServerSocketChannel.open();
-				serverChannel.socket().bind(address);
-				return ComConnectionListener.New(serverChannel);
-			}
-			catch(final IOException e)
-			{
-				// (12.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(e);
-			}
-			
+			return ComConnectionListener.New(
+				XSockets.openServerSocketChannel(address)
+			);
 		}
 		
 	}

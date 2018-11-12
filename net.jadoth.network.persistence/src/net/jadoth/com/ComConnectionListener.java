@@ -52,34 +52,15 @@ public interface ComConnectionListener<C>
 		////////////
 
 		@Override
-		public SocketChannel listenForConnection()
+		public final SocketChannel listenForConnection()
 		{
-			final SocketChannel socketChannel;
-			try
-			{
-				socketChannel = this.serverSocketChannel.accept();
-			}
-			catch(final Exception e)
-			{
-				// (12.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(e);
-			}
-			
-			return socketChannel;
+			return XSockets.acceptSocketChannel(this.serverSocketChannel);
 		}
 
 		@Override
-		public void close()
+		public final void close()
 		{
-			try
-			{
-				this.serverSocketChannel.close();
-			}
-			catch(final Exception e)
-			{
-				// (12.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(e);
-			}
+			XSockets.closeChannel(this.serverSocketChannel);
 		}
 		
 	}

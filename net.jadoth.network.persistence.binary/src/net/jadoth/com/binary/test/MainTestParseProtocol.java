@@ -1,4 +1,4 @@
-package net.jadoth.com.binary;
+package net.jadoth.com.binary.test;
 
 import java.io.File;
 
