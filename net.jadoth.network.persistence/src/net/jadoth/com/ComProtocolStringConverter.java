@@ -406,7 +406,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			i = skipControlCharacter(input, i, iBound, assigner);
 			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			
-			addTrailingValue(label, content, input, iStart, iBound);
+			addTrailingValue(label, content, input, i, iBound);
 		}
 		
 		private static void addTrailingValue(

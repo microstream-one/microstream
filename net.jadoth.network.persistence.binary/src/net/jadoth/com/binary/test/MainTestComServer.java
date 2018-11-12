@@ -1,11 +1,13 @@
-package net.jadoth.com.binary;
+package net.jadoth.com.binary.test;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.com.ComChannel;
+import net.jadoth.com.XSockets;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceManager;
 
@@ -13,7 +15,9 @@ public class MainTestComServer
 {
 	public static void main(final String[] args) throws Exception
 	{
-		final ServerSocketChannel serverSocketChannel = UtilTestCom.openServerSocketChannel();
+		final ServerSocketChannel serverSocketChannel = XSockets.openServerSocketChannel(
+			new InetSocketAddress(UtilTestCom.defaultPort())
+		);
 		
 		run(serverSocketChannel, cc ->
 		{
@@ -33,10 +37,10 @@ public class MainTestComServer
 		{
 			// accept (wait for) the next client connection, process the request/data sent via it and then close it.
 			XDebug.println("Server awaiting connection ...");
-			final SocketChannel socketChannel = UtilTestCom.accept(serverSocketChannel);
+			final SocketChannel socketChannel = XSockets.acceptSocketChannel(serverSocketChannel);
 			XDebug.println("Server accepted connection. Processing.");
 			processNextRequest(socketChannel, logic);
-			UtilTestCom.close(socketChannel);
+			XSockets.closeChannel(socketChannel);
 		}
 	}
 	

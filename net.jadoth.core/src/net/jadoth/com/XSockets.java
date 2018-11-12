@@ -1,0 +1,259 @@
+package net.jadoth.com;
+
+import static net.jadoth.X.notNull;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.NetworkChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
+public final class XSockets
+{
+	public static ByteOrder byteOrder()
+	{
+		return ByteOrder.nativeOrder();
+	}
+	
+	
+	public static final ServerSocketChannel openServerSocketChannel(final InetSocketAddress address)
+		throws ComException
+	{
+		try
+		{
+			final ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel.socket().bind(address);
+			return serverSocketChannel;
+		}
+		catch(final IOException e)
+		{
+			// (12.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+		
+	}
+		
+	public static final SocketChannel acceptSocketChannel(final ServerSocketChannel serverSocketChannel)
+		throws ComException
+	{
+		try
+		{
+			return serverSocketChannel.accept();
+		}
+		catch(final Exception e)
+		{
+			// (12.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	public static SocketChannel openChannel(final InetSocketAddress address) throws ComException
+	{
+		notNull(address);
+		try
+		{
+			final SocketChannel socketChannel = SocketChannel.open();
+			socketChannel.connect(address);
+			return socketChannel;
+		}
+		catch(final IOException e)
+		{
+			// (12.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	public static SocketChannel openChannelLocalhost(final int port) throws ComException
+	{
+		try
+		{
+			return openChannel(
+				new InetSocketAddress(InetAddress.getLocalHost(), port)
+			);
+		}
+		catch(final UnknownHostException e)
+		{
+			// (12.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+		
+	}
+	
+	public static final void closeChannel(final NetworkChannel channel) throws ComException
+	{
+		try
+		{
+			channel.close();
+		}
+		catch(final Exception e)
+		{
+			// (12.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	/**
+	 * This method either writes all of the passed {@link ByteBuffer}'s bytes from position to limit
+	 * or it throws an exception to indicate failure.
+	 * 
+	 * @param socketChannel
+	 * @param byteBuffer
+	 * 
+	 * @return the amount of bytes written, which always equals byteBuffer.remaining() at the time of the method call.
+	 */
+	public static int writeCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
+		throws ComException
+	{
+		/* (01.11.2018 TM)TODO: reliable socket channel writing
+		 * full-grown IO-logic with:
+		 * - a loop doing multiple attempts with waiting time in between
+		 * - an interface for a checking type concerning:
+		 * - timeout
+		 * - time between last written byte
+		 * - time and byte count since the beginning
+		 * - amount of attempts
+		 */
+		try
+		{
+			return socketChannel.write(byteBuffer);
+		}
+		catch(final IOException e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+
+
+	// (10.08.2018 TM)TODO: make IO_LOOP_SLEEP_TIME dynamic
+	private static final int IO_LOOP_SLEEP_TIME = 10;
+	
+	public static final ByteBuffer readIntoBufferKnownLength(
+		final SocketChannel channel        ,
+		final ByteBuffer    buffer         ,
+		final int           responseTimeout,
+		final int           length
+	)
+		throws ComException
+	{
+		final ByteBuffer checkedBuffer;
+
+		if(length > buffer.capacity())
+		{
+			checkedBuffer = ByteBuffer.allocateDirect(length);
+		}
+		else
+		{
+			(checkedBuffer = buffer).clear().limit(length);
+		}
+		readIntoBuffer(channel, checkedBuffer, responseTimeout);
+		
+		// note: intentionally no flip() here, as position is interpreted as the content length later on.
+
+		return checkedBuffer;
+	}
+	
+	private interface IoOperation
+	{
+		public void execute(SocketChannel channel, ByteBuffer buffer) throws ComException; // funny "public"
+	}
+	
+	public static void read(final SocketChannel channel, final ByteBuffer buffer) throws ComException
+	{
+		try
+		{
+			channel.read(buffer);
+		}
+		catch(final IOException e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	public static void write(final SocketChannel channel, final ByteBuffer buffer) throws ComException
+	{
+		try
+		{
+			channel.write(buffer);
+		}
+		catch(final IOException e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	public static void readIntoBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
+		throws ComException, ComExceptionTimeout
+	{
+		performIoOperation(buffer, XSockets::read, channel, responseTimeout);
+	}
+
+	public static void writeFromBuffer(final SocketChannel channel, final ByteBuffer buffer, final int responseTimeout)
+		throws ComException, ComExceptionTimeout
+	{
+		performIoOperation(buffer, XSockets::write, channel, responseTimeout);
+	}
+
+	private static void performIoOperation(
+		final ByteBuffer    buffer,
+		final IoOperation   operation,
+		final SocketChannel channel,
+		final int           responseTimeout
+		// (04.11.2012)XXX: performIoOperation: add a second timeout for the whole communication process?
+	)
+		throws ComException, ComExceptionTimeout
+	{
+		long responseTimeoutPoint = System.currentTimeMillis() + responseTimeout;
+		
+		// monitor progress via remaining bytes to avoid unnecessary up-front read count storage
+		long remaining = buffer.remaining();
+		while(true)
+		{
+			// runtime overhead for operation abstracting should be negligible and VM-optimizable
+			operation.execute(channel, buffer);
+			if(!buffer.hasRemaining())
+			{
+				break; // all bytes read, leave loop
+			}
+			if(buffer.remaining() < remaining)
+			{
+				// reset timeout if new bytes arrived
+				responseTimeoutPoint = System.currentTimeMillis() + responseTimeout;
+				remaining = buffer.remaining();
+			}
+			else if(System.currentTimeMillis() >= responseTimeoutPoint)
+			{
+				// otherwise check for timeout
+				throw new ComExceptionTimeout();
+			}
+			
+			try
+			{
+				Thread.sleep(IO_LOOP_SLEEP_TIME);
+				continue; // restart loop to try writing more bytes
+			}
+			catch(final InterruptedException e)
+			{
+				// if interrupted (rather academic in this simple example) just abort. Calling context must handle.
+				return;
+			}
+		}
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private XSockets()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+}

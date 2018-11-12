@@ -2,13 +2,14 @@ package net.jadoth.com.binary;
 
 import static net.jadoth.X.notNull;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
+import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
+import net.jadoth.com.XSockets;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
@@ -103,7 +104,7 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledHeaderBuffer = ComDefault.readIntoBufferKnownLength(
+				filledHeaderBuffer = XSockets.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
@@ -114,14 +115,14 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 					filledHeaderBuffer
 				);
 				
-				filledContentBuffer = ComDefault.readIntoBufferKnownLength(
+				filledContentBuffer = XSockets.readIntoBufferKnownLength(
 					channel,
 					defaultBuffer,
 					RESPONSE_TIMEOUT,
 					X.checkArrayRange(networkChunkContentLength)
 				);
 			}
-			catch (final IOException e)
+			catch(final ComException e)
 			{
 				throw new PersistenceExceptionTransfer(e);
 			}
@@ -161,14 +162,14 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 			try
 			{
 				// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
-				ComDefault.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
+				XSockets.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
 				
 				for(final ByteBuffer bb : chunk.buffers())
 				{
-					ComDefault.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
+					XSockets.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
 				}
 			}
-			catch(final IOException e)
+			catch(final ComException e)
 			{
 				throw new PersistenceExceptionTransfer(e);
 			}

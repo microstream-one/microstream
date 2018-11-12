@@ -1,10 +1,11 @@
-package net.jadoth.com.binary;
+package net.jadoth.com.binary.test;
 
 import java.io.File;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.collections.old.OldCollections;
 import net.jadoth.com.ComChannel;
+import net.jadoth.com.XSockets;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.types.PersistenceManager;
 
@@ -23,7 +24,7 @@ public class MainTestComClient
 		for(int i = 1; i <= REQUEST_COUNT; i++)
 		{
 			XDebug.println("Client opens channel ...");
-			try(final SocketChannel channel = UtilTestCom.openChannelLocalhost())
+			try(final SocketChannel channel = XSockets.openChannelLocalhost(UtilTestCom.defaultPort()))
 			{
 				XDebug.println("Client opened channel. Sleeping ...");
 				Thread.sleep(REQUEST_DELAY);
