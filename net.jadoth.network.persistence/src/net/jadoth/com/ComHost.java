@@ -23,7 +23,7 @@ public interface ComHost<C>
 	 */
 	public void acceptConnections();
 	
-	public void start();
+	public void run();
 	
 	public void stop();
 	
@@ -95,16 +95,19 @@ public interface ComHost<C>
 		}
 
 		@Override
-		public synchronized void start()
+		public void run()
 		{
-			if(this.liveConnectionListener != null)
+			// the whole method may not be synchronized, otherweise a running host could never be stopped
+			synchronized(this)
 			{
-				return;
+				if(this.isRunning())
+				{
+					return;
+				}
+				
+				this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.address);
 			}
 			
-			this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.address);
-			
-			// (01.11.2018 TM)TODO: JET-44: weird to have the work loop on a stack frame called "start".
 			this.acceptConnections();
 		}
 		

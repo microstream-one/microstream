@@ -12,10 +12,9 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewProvider
 {
 	/**
-	 * Might return the same instance of all connections or the same for every unique client or a new instance on
+	 * Might return the same instance for all connections or the same for every unique client or a new instance on
 	 * every call. Depends on the use-case.<br>
 	 * The persistence medium type used by the persistence manager is irrelevant on the com-level, hence the "?".
-	 * 
 	 * 
 	 * @param connection
 	 * @return

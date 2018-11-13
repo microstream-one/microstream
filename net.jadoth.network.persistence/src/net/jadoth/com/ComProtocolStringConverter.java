@@ -338,17 +338,16 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final char                        assigner          ,
 			final char                        delimiter         ,
 			final _charArrayRange             inputRange
-
 		)
 		{
 			final char[] input  = inputRange.array();
 			final int    iStart = inputRange.start();
-			final int    iBound = XParsing.skipWhiteSpacesReverse(input, iStart, inputRange.bound()) + 1;
+			final int    iBound = XParsing.skipWhiteSpacesReversed(input, iStart, inputRange.bound()) + 1;
 
 			int i = iStart;
 			i = XParsing.skipWhiteSpaces(input, i, iBound);
 			i = XParsing.checkStartsWith(input, i, iBound, protocolName, "Protocol name");
-			i = parseContentEntries(content, separator, assigner , delimiter, input, i, iBound);
+			i = parseContentEntries(content, separator, assigner, delimiter, input, i, iBound);
 			
 			parseTrailingEntry(trailingEntryLabel, content, assigner, input, i, iBound);
 		}
@@ -363,17 +362,19 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final int                         iBound
 		)
 		{
-			// (05.11.2018 TM)FIXME: JET-43: handle premature end (iBound reached)
-			
 			int i = iStart;
 			for(final KeyValue<String, String> entry : entries)
 			{
+				final String key = entry.key();
+				
 				try
 				{
-					i = skipToEntryValue(entry.key(), separator, assigner, input, i, iBound);
-					i = XParsing.checkCharacter(input, i, delimiter, entry.key());
+					i = skipToEntryValue(key, separator, assigner, input, i, iBound);
+					
+					XParsing.checkIncompleteInput(i, iBound, key);
+					i = XParsing.checkCharacter(input, i, delimiter, key);
 					final int valueEndBound = XParsing.skipToSimpleTerminator(input, i, iBound, delimiter);
-					entries.set(entry.key(), new String(input, i, valueEndBound - i - 1));
+					entries.set(key, new String(input, i, valueEndBound - i - 1));
 					i = valueEndBound;
 				}
 				catch(final RuntimeException e)
@@ -400,7 +401,6 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			
 			int i = iStart;
-			XParsing.checkIncompleteInput(i, iBound);
 			i = XParsing.checkStartsWith(input, i, iBound, label);
 			
 			i = skipControlCharacter(input, i, iBound, assigner);
@@ -437,12 +437,12 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			int i = iStart;
 			
-			i = skipControlCharacter    (input, i, iBound, separator);
+			i = skipControlCharacter(input, i, iBound, separator);
 			
 			XParsing.checkIncompleteInput(i, iBound);
-			i = XParsing.checkStartsWith(input, i, iBound, entryLabel);
+			i = XParsing.checkStartsWith (input, i, iBound, entryLabel);
 			
-			i = skipControlCharacter    (input, i, iBound, assigner);
+			i = skipControlCharacter(input, i, iBound, assigner);
 			
 			return i;
 		}

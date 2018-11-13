@@ -2,7 +2,6 @@ package net.jadoth.com;
 
 import static net.jadoth.X.notNull;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -129,16 +128,7 @@ public interface ComProtocolSender<C>
 			final ByteBuffer    bufferedUtf8Protocol
 		)
 		{
-			try
-			{
-				// (10.11.2018 TM)TODO: What about timeouts and retries and all that?
-				socketChannel.write(bufferedUtf8Protocol);
-			}
-			catch(final IOException e)
-			{
-				// (10.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException(e);
-			}
+			XSockets.writeCompletely(socketChannel, bufferedUtf8Protocol);
 		}
 		
 	}
