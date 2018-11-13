@@ -1,10 +1,11 @@
 package net.jadoth.com.binary.test;
 
 import java.io.File;
+import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
 import net.jadoth.com.ComFoundation;
-import net.jadoth.com.ComPersistenceAdaptor;
+import net.jadoth.com.ComHostContext;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
@@ -30,7 +31,11 @@ public class MainTestParseProtocol
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
 			.setClientIdStrategy(Com.DefaultIdStrategyServer())
-			.setPersistenceAdaptor(ComPersistenceAdaptor.New(pf))
+//			.setPersistenceAdaptor(ComPersistenceAdaptor.New(pf))
+			.setHostContext(ComHostContext.<SocketChannel>Builder()
+				.setPersistence(pf)
+				.buildHostContext()
+			)
 		;
 		
 		final ComProtocolProvider        protocolProvider = foundation.getProtocolProvider();

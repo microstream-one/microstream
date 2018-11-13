@@ -27,8 +27,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ComProtocolSender<C> getProtocolSender();
 	
 	
-	public InetSocketAddress getAddress();
-	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
 	public ComHostCreator<C> getHostCreator();
@@ -38,11 +36,15 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
 	
 	public ComChannelCreator<C> getChannelCreator();
+
 	
-	public ComChannelAcceptor getChannelAcceptor();
+//	public InetSocketAddress getAddress();
 	
-	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
+//	public ComChannelAcceptor getChannelAcceptor();
 	
+//	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
+	
+	public ComHostContext<C> getHostContext();
 	
 	
 	public F setProtocolName(String protocolName);
@@ -62,8 +64,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public F setProtocolSender(ComProtocolSender<C> protocolSender);
 	
 	
-	public F setAddress(InetSocketAddress address);
-	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
 	public F setHostCreator(ComHostCreator<C> hostCreator);
@@ -73,10 +73,15 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator<C> connectionAcceptorCreator);
 	
 	public F setChannelCreator(ComChannelCreator<C> channelCreator);
-	
-	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 
-	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
+	
+//	public F setAddress(InetSocketAddress address);
+	
+//	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
+
+//	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
+	
+	public F setHostContext(ComHostContext<C> hostContext);
 	
 	
 	public ComHost<C> createHost();
@@ -103,15 +108,18 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComProtocolProvider                   protocolProvider         ;
 		private ComProtocolProviderCreator            protocolProviderCreator  ;
                                                       
-		private InetSocketAddress                     address                  ;
 		private ComProtocolStringConverter            protocolStringConverter  ;
 		private ComHostCreator<C>                     hostCreator              ;
 		private ComConnectionListenerCreator<C>       connectionListenerCreator;
 		private ComConnectionAcceptorCreator<C>       connectionAcceptorCreator;
 		private ComProtocolSender<C>                  protocolSender           ;
 		private ComChannelCreator<C>                  channelCreator           ;
-		private ComChannelAcceptor                    channelAcceptor          ;
-		private ComPersistenceAdaptor<C>              persistenceAdaptor       ;
+		
+		// (13.11.2018 TM)TODO: clean up single parts if really not needed
+//		private InetSocketAddress                     address                  ;
+//		private ComChannelAcceptor                    channelAcceptor          ;
+//		private ComPersistenceAdaptor<C>              persistenceAdaptor       ;
+		private ComHostContext<C>                     hostContext              ;
 
 		
 		
@@ -178,17 +186,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			}
 			
 			return this.clientIdStrategy;
-		}
-		
-		@Override
-		public InetSocketAddress getAddress()
-		{
-			if(this.address == null)
-			{
-				this.address = this.ensureAddress();
-			}
-
-			return this.address;
 		}
 		
 		@Override
@@ -290,26 +287,48 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return this.channelCreator;
 		}
 		
-		@Override
-		public ComChannelAcceptor getChannelAcceptor()
-		{
-			if(this.channelAcceptor == null)
-			{
-				this.channelAcceptor = this.ensureChannelAcceptor();
-			}
-			
-			return this.channelAcceptor;
-		}
+//		@Override
+//		public InetSocketAddress getAddress()
+//		{
+//			if(this.address == null)
+//			{
+//				this.address = this.ensureAddress();
+//			}
+//
+//			return this.address;
+//		}
+//
+//		@Override
+//		public ComChannelAcceptor getChannelAcceptor()
+//		{
+//			if(this.channelAcceptor == null)
+//			{
+//				this.channelAcceptor = this.ensureChannelAcceptor();
+//			}
+//
+//			return this.channelAcceptor;
+//		}
+//
+//		@Override
+//		public ComPersistenceAdaptor<C> getPersistenceAdaptor()
+//		{
+//			if(this.persistenceAdaptor == null)
+//			{
+//				this.persistenceAdaptor = this.ensurePersistenceAdaptor();
+//			}
+//
+//			return this.persistenceAdaptor;
+//		}
 		
 		@Override
-		public ComPersistenceAdaptor<C> getPersistenceAdaptor()
+		public ComHostContext<C> getHostContext()
 		{
-			if(this.persistenceAdaptor == null)
+			if(this.hostContext == null)
 			{
-				this.persistenceAdaptor = this.ensurePersistenceAdaptor();
+				this.hostContext = this.ensureHostContext();
 			}
 			
-			return this.persistenceAdaptor;
+			return this.hostContext;
 		}
 
 		/*
@@ -363,18 +382,18 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			final ComProtocolProviderCreator providerCreator = this.getProtocolProviderCreator();
 			
 			return providerCreator.creatProtocolProvider(
-				this.getProtocolName()      ,
-				this.getProtocolVersion()   ,
-				this.getByteOrder()         ,
-				this.getClientIdStrategy()  ,
-				this.getPersistenceAdaptor(),
+				this.getProtocolName()          ,
+				this.getProtocolVersion()       ,
+				this.getByteOrder()             ,
+				this.getClientIdStrategy()      ,
+				this.providePersistenceAdaptor(),
 				this.getProtocolCreator()
 			);
 		}
 		
 		protected ComProtocolStringConverter ensureProtocolStringConverter()
 		{
-			final ComPersistenceAdaptor<C> adaptor = this.getPersistenceAdaptor();
+			final ComPersistenceAdaptor<C> adaptor = this.providePersistenceAdaptor();
 			
 			return ComProtocolStringConverter.New(
 				adaptor.provideTypeDictionaryCompiler()
@@ -384,28 +403,32 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		protected ComChannelCreator<C> ensureChannelCreator()
 		{
 			return ComChannelCreator.New(
-				this.getPersistenceAdaptor()
+				this.providePersistenceAdaptor()
 			);
 		}
-		
-		// (12.11.2018 TM)TODO: wrap the usage-specific parts below into a composite type?
-		
-		protected InetSocketAddress ensureAddress()
+				
+//		protected InetSocketAddress ensureAddress()
+//		{
+//			// the address to be used is application-specific and cannot be defined here.
+//			throw new MissingFoundationPartException(InetSocketAddress.class);
+//		}
+//
+//		protected ComChannelAcceptor ensureChannelAcceptor()
+//		{
+//			// the channel acceptor is the link to the application / framework logic and cannot be created here.
+//			throw new MissingFoundationPartException(ComChannelAcceptor.class);
+//		}
+//
+//		protected ComPersistenceAdaptor<C> ensurePersistenceAdaptor()
+//		{
+//			// the p.adaptor is the link to the application / framework persistence context and cannot be created here.
+//			throw new MissingFoundationPartException(ComPersistenceAdaptor.class);
+//		}
+				
+		protected ComHostContext<C> ensureHostContext()
 		{
-			// the address to be used is application-specific and cannot be defined here.
-			throw new MissingFoundationPartException(InetSocketAddress.class);
-		}
-
-		protected ComChannelAcceptor ensureChannelAcceptor()
-		{
-			// the channel acceptor is the link to the application / framework logic and cannot be created here.
-			throw new MissingFoundationPartException(ComChannelAcceptor.class);
-		}
-		
-		protected ComPersistenceAdaptor<C> ensurePersistenceAdaptor()
-		{
-			// the p.adaptor is the link to the application / framework persistence context and cannot be created here.
-			throw new MissingFoundationPartException(ComPersistenceAdaptor.class);
+			// this is the link to the application / framework context and cannot be created here.
+			throw new MissingFoundationPartException(ComHostContext.class);
 		}
 				
 		protected ComConnectionListenerCreator<C> ensureConnectionListenerCreator()
@@ -418,6 +441,21 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			// must be created or set specific to C.
 			throw new MissingFoundationPartException(ComProtocolSender.class);
+		}
+		
+		protected ComPersistenceAdaptor<C> providePersistenceAdaptor()
+		{
+			return this.getHostContext().providePersistenceAdaptor();
+		}
+		
+		protected ComChannelAcceptor provideChannelAcceptor()
+		{
+			return this.getHostContext().provideChannelAcceptor();
+		}
+		
+		protected InetSocketAddress provideSocktAddress()
+		{
+			return this.getHostContext().provideAddress();
 		}
 				
 
@@ -478,13 +516,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setAddress(final InetSocketAddress address)
-		{
-			this.address = address;
-			return this.$();
-		}
-		
-		@Override
 		public F setProtocolStringConverter(final ComProtocolStringConverter protocolStringConverter)
 		{
 			this.protocolStringConverter = protocolStringConverter;
@@ -519,17 +550,31 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return this.$();
 		}
 		
-		@Override
-		public F setChannelAcceptor(final ComChannelAcceptor channelAcceptor)
-		{
-			this.channelAcceptor = channelAcceptor;
-			return this.$();
-		}
+//		@Override
+//		public F setAddress(final InetSocketAddress address)
+//		{
+//			this.address = address;
+//			return this.$();
+//		}
+//
+//		@Override
+//		public F setChannelAcceptor(final ComChannelAcceptor channelAcceptor)
+//		{
+//			this.channelAcceptor = channelAcceptor;
+//			return this.$();
+//		}
+//
+//		@Override
+//		public F setPersistenceAdaptor(final ComPersistenceAdaptor<C> persistenceAdaptor)
+//		{
+//			this.persistenceAdaptor = persistenceAdaptor;
+//			return this.$();
+//		}
 		
 		@Override
-		public F setPersistenceAdaptor(final ComPersistenceAdaptor<C> persistenceAdaptor)
+		public F setHostContext(final ComHostContext<C> hostContext)
 		{
-			this.persistenceAdaptor = persistenceAdaptor;
+			this.hostContext = hostContext;
 			return this.$();
 		}
 		
@@ -538,15 +583,15 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		{
 			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
 			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocolProvider(),
-				this.getProtocolSender()  ,
-				this.getChannelCreator()  ,
-				this.getChannelAcceptor()
+				this.getProtocolProvider()   ,
+				this.getProtocolSender()     ,
+				this.getChannelCreator()     ,
+				this.provideChannelAcceptor()
 			);
 
 			final ComHostCreator<C>  hostCreator = this.getHostCreator();
 			return hostCreator.createComHost(
-				this.getAddress()                  ,
+				this.provideSocktAddress()         ,
 				this.getConnectionListenerCreator(),
 				connectionAcceptor
 			);
