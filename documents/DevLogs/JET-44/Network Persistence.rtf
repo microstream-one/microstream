@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -845,5 +846,45 @@ Ah, schnell gefunden: Wieder mal i und iStart verwechselt ...\par
 Testen. Fehler behoben.\par
 \par
 Jetzt paar TODOs abarbeiten. Zentralisierte Util-Logik usw.\par
+\par
+\par
+2018-11-13\par
+\par
+"ComDefault" besser benennen: ComBinary.\par
+Ebenso Methoden darin.\par
+Kommentar verbessern.\par
+ComHost#start auf #run umbenennen.\par
+Locking-Fehler darin korrigieren.\par
+Erkl\'e4rende Kommentare in ComBinary Methode und aufrufenden Methoden verbessern.\par
+TODO f\'fcr interessante Frage im Fehlerfall notieren.\par
+\par
+Hm. Das wirft eine ganze Reihe von Fragen zu potenziellen Problemen auf und Fragen zu den Fragen, welche der potenziellen Probleme wirklich vorkommen k\'f6nnen oder schon von niederen Com-Layern ausgeschlossen werden.\par
+Zum Beispiel:\par
+- K\'f6nnen zwischen nio Sockets gesendete Bytes verloren gehen?\par
+- K\'f6nnen zwischen nio Sockets gesendete Bytes ver\'e4ndert werden?\par
+- K\'f6nnen zwischen nio Sockets gesendete Bytes verdoppelt werden?\par
+Vielleicht sind das naive Fragen, weil die Layers darunter mit Checksums usw. schon pr\'fcfen und neu versuchen, usw., bis die Bytes korrekt \'fcbertragen worden sind, aber mir fehlt da einfach das Wissen.\par
+\par
+- Kann ein read/write auf einen nio Socket unvollst\'e4ndig zur\'fcckkehren? (unvollst\'e4ndig hei\'dft: es soll z.B. ein ByteBuffer mit 8 byte inhalt geschrieben/gelesen werden, es werden aber mit einem Aufruf nur 6 byte verarbeitet)\par
+Die JavaDoc von SocketChannel#read sagt, dass man nur eine Garantie \'fcber 1 gelesenes Byte nach der R\'fcckkehr der Methode hat.\par
+Analog bei #write: Es sollten zwar "eigentlich" alle bytes geschrieben werden, aber so richtig drauf verlassen kann man sich anscheinend nicht.\par
+Also muss man so eine Zusammenst\'fcckel-Logik selbst schreiben?\par
+Wenn ja, wirft das neue Fragen auf:\par
+- Zul\'e4ssiger Timeout zwischen zwei empfangen Bytes?\par
+- Zul\'e4ssige Anzahl a versuchen?\par
+- Zul\'e4ssiger Timeout seit Beginn der \'dcbertragung? Macht sowas Sinn? D.h. falls die Datenrate zu niedrig wird irgendwann abbrechen?\par
+\par
+Mit dem XSockets#performIoOperation hab ich fr\'fcher schon mal versucht, sowas in die Richtung zu bauen, aber eigentlich basiert das nur auf wilden Vermutungen von mir.\par
+\par
+Was ist bei solchen Fehlerf\'e4llen? Kann/muss man da irgendwie fumfunken, es nochmal zu versuchen, oder muss man nicht eigentlich den Socket dann gleich ganz schlie\'dfen?\par
+\par
+\par
+Noch paar TODOs machen bzw. Code aufr\'e4umen.\par
+ComPersistenceChannel auf abstraktes <C> umstellen.\par
+\par
+Jetzt mal den Parser durchgehen, ob wirklich \'fcberall ein Check auf iBound gemacht wird.\par
+Paar Kleinigkeiten fixen.\par
+\par
+Jetzt w\'e4r noch die Frage, ob man die drei usage-spefizischen Punkte nochmal zu einem Typ zusammenfasst. Eigentlich schon, macht Sinn.\par
 }
  

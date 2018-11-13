@@ -9,13 +9,12 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
-import net.jadoth.com.XSockets;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 
-public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binary>
+public interface ComPersistenceChannelBinary extends ComPersistenceChannel<SocketChannel, Binary>
 {
 	public static ComPersistenceChannelBinary New(
 		final SocketChannel      channel           ,
@@ -29,34 +28,9 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 	}
 	
 	public final class Implementation
-	extends ComPersistenceChannel.AbstractImplementation<Binary>
+	extends ComPersistenceChannel.AbstractImplementation<SocketChannel, Binary>
 	implements ComPersistenceChannelBinary
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-		
-		
-		/* (10.08.2018 TM)TODO: Better network timeout handling
-		 * The simplistic int value should be replaced by a NetworkTimeoutEvaluator.
-		 * Every time a read event leaves the target buffer with remaining bytes,
-		 * the evaluator is called with the following arguments:
-		 * - time instant when the filling of the buffer started
-		 * - total amount of required bytes
-		 * - timestamp of the last time bytes were received
-		 * - amount of received bytes (or buffer remaining bytes or something like that)
-		 * 
-		 * This allows arbitrarily complex evaluation logic.
-		 * For example:
-		 * - abort if the transfer speed (bytes/s) drops too low, even though there are still bytes coming in.
-		 * - abort if the whole process takes too long.
-		 * - abort if the time with 0 bytes received gets too long.
-		 * 
-		 */
-		static final int RESPONSE_TIMEOUT = 1000;
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -95,35 +69,24 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 		}
 
 		@Override
-		protected XGettingCollection<? extends Binary> readFromSocketChannel(final SocketChannel channel)
+		protected XGettingCollection<? extends Binary> internalRead(final SocketChannel channel)
 			throws PersistenceExceptionTransfer
 		{
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
 			
-			ByteBuffer filledHeaderBuffer;
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledHeaderBuffer = XSockets.readIntoBufferKnownLength(
-					channel,
-					defaultBuffer,
-					RESPONSE_TIMEOUT,
-					ComDefault.networkChunkHeaderLength()
-				);
-				
-				final long networkChunkContentLength = ComDefault.getNetworkChunkHeaderContentLength(
-					filledHeaderBuffer
-				);
-				
-				filledContentBuffer = XSockets.readIntoBufferKnownLength(
-					channel,
-					defaultBuffer,
-					RESPONSE_TIMEOUT,
-					X.checkArrayRange(networkChunkContentLength)
-				);
+				filledContentBuffer = ComBinary.readChunk(channel, defaultBuffer);
 			}
 			catch(final ComException e)
 			{
+				/* (13.11.2018 TM)TODO: shouldn't the content bytes be siphoned off, here?
+				 * But what if the content was incomplete (or the specified content length too long) and
+				 * the sockets already reads into the next chunk?
+				 * Network communication can encounter all kinds of problems and it is not clear
+				 * what guarantees the nio and underlying layers already make.
+				 */
 				throw new PersistenceExceptionTransfer(e);
 			}
 			
@@ -131,7 +94,7 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 		}
 
 		@Override
-		protected void writeToSocketChannel(final SocketChannel channel, final Binary[] chunks)
+		protected void internalWrite(final SocketChannel channel, final Binary[] chunks)
 			throws PersistenceExceptionTransfer
 		{
 			if(chunks.length != 1)
@@ -156,18 +119,12 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Binar
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
 			
 			// (11.08.2018 TM)TODO: better encapsulate chunk header reading and writing logic
-			defaultBuffer.clear().limit(ComDefault.networkChunkHeaderLength());
-			ComDefault.setNetworkChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
+			defaultBuffer.clear().limit(ComBinary.chunkHeaderLength());
+			ComBinary.setChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
 			
 			try
 			{
-				// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
-				XSockets.writeFromBuffer(channel, defaultBuffer, RESPONSE_TIMEOUT);
-				
-				for(final ByteBuffer bb : chunk.buffers())
-				{
-					XSockets.writeFromBuffer(channel, bb, RESPONSE_TIMEOUT);
-				}
+				ComBinary.writeChunk(channel, defaultBuffer, chunk.buffers());
 			}
 			catch(final ComException e)
 			{

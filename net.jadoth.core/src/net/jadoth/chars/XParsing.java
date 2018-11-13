@@ -20,7 +20,7 @@ public final class XParsing
 		return i;
 	}
 	
-	public static final int skipWhiteSpacesReverse(final char[] input, final int iStart, final int iBound)
+	public static final int skipWhiteSpacesReversed(final char[] input, final int iStart, final int iBound)
 	{
 		int i = iBound - 1;
 		while(i >= iStart && input[i] <= ' ')

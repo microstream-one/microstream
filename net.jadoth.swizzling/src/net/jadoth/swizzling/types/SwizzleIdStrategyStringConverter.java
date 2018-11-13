@@ -363,7 +363,7 @@ public interface SwizzleIdStrategyStringConverter extends ObjectStringConverter<
 			final char[] input = inputRange.array();
 			
 			// the effective bounding index is the position of the last non-whitespace plus 1.
-			final int iBound = XParsing.skipWhiteSpacesReverse(input, inputRange.start(), inputRange.bound()) + 1;
+			final int iBound = XParsing.skipWhiteSpacesReversed(input, inputRange.start(), inputRange.bound()) + 1;
 			
 			final int iTypeEnd = parsePart(input, inputRange.start(), iBound, labelType(), tidsContent);
 			

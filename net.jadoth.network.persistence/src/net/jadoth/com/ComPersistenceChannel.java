@@ -1,23 +1,21 @@
 package net.jadoth.com;
 
-import java.nio.channels.SocketChannel;
-
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceChannel;
 import net.jadoth.swizzling.types.SwizzleIdSet;
 
 
-public interface ComPersistenceChannel<M> extends PersistenceChannel<M>
+public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 {
 	
-	public abstract class AbstractImplementation<M> implements ComPersistenceChannel<M>
+	public abstract class AbstractImplementation<C, M> implements ComPersistenceChannel<C, M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final SocketChannel channel;
+		private final C connection;
 		
 		
 		
@@ -25,10 +23,10 @@ public interface ComPersistenceChannel<M> extends PersistenceChannel<M>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final SocketChannel channel)
+		protected AbstractImplementation(final C connection)
 		{
 			super();
-			this.channel = channel;
+			this.connection = connection;
 		}
 		
 		
@@ -37,22 +35,22 @@ public interface ComPersistenceChannel<M> extends PersistenceChannel<M>
 		// methods //
 		////////////
 		
-		protected abstract XGettingCollection<? extends M> readFromSocketChannel(SocketChannel channel)
+		protected abstract XGettingCollection<? extends M> internalRead(C connection)
 			 throws PersistenceExceptionTransfer;
 		
-		protected abstract void writeToSocketChannel(SocketChannel channel, M[] data)
+		protected abstract void internalWrite(C channel, M[] data)
 			 throws PersistenceExceptionTransfer;
 
 		@Override
 		public XGettingCollection<? extends M> read() throws PersistenceExceptionTransfer
 		{
-			return this.readFromSocketChannel(this.channel);
+			return this.internalRead(this.connection);
 		}
 
 		@Override
 		public void write(final M[] data) throws PersistenceExceptionTransfer
 		{
-			this.writeToSocketChannel(this.channel, data);
+			this.internalWrite(this.connection, data);
 		}
 		
 		@Override

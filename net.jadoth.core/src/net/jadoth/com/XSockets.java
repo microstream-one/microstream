@@ -152,7 +152,7 @@ public final class XSockets
 		}
 		readIntoBuffer(channel, checkedBuffer, responseTimeout);
 		
-		// note: intentionally no flip() here, as position is interpreted as the content length later on.
+		// note: intentionally no flip() here, as the position is interpreted as the content length later on.
 
 		return checkedBuffer;
 	}
@@ -245,6 +245,7 @@ public final class XSockets
 			}
 		}
 	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
