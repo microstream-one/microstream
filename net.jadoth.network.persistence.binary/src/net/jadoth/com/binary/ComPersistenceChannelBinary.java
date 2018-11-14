@@ -116,11 +116,10 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 			}
 			final Binary chunk = chunks[0];
 			
-			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
-			
-			// (11.08.2018 TM)TODO: better encapsulate chunk header reading and writing logic
-			defaultBuffer.clear().limit(ComBinary.chunkHeaderLength());
-			ComBinary.setChunkHeaderContentLength(defaultBuffer, chunk.totalLength());
+			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
+				this.ensureDefaultBuffer(),
+				chunk.totalLength()
+			);
 			
 			try
 			{

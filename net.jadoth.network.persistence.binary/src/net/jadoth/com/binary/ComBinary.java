@@ -33,9 +33,11 @@ public class ComBinary
 		return XVM.get_long(XVM.getDirectByteBufferAddress(directByteBuffer));
 	}
 	
-	public static void setChunkHeaderContentLength(final ByteBuffer directByteBuffer, final long contentLength)
+	public static ByteBuffer setChunkHeaderContentLength(final ByteBuffer directByteBuffer, final long contentLength)
 	{
+		directByteBuffer.clear().limit(ComBinary.chunkHeaderLength());
 		XVM.set_long(XVM.getDirectByteBufferAddress(directByteBuffer), contentLength);
+		return directByteBuffer;
 	}
 	
 	/* (10.08.2018 TM)TODO: Better network timeout handling
