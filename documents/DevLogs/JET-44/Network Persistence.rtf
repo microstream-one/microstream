@@ -900,5 +900,18 @@ Schnell nochmal nachvollziehen:\par
 - ComHostContext.Builder#setChannelAcceptorLogic umbenennen, um die Lambda-Mehrdeutigkeit f\'fcr den Compiler aufzul\'f6sen.\par
 \par
 Ging deutlich schneller als die halbe Stunde gestern, weil ich die Denkarbeit ja noch im Kopf hatte :-).\par
+\par
+\par
+Jetzt Client-Seite:\par
+\par
+Als Gegenst\'fcck zu dem ComHost muss es einen ComConnector oder sowas geben, der macht:\par
+- Verbindung aufbauen (gibt's schon)\par
+- Geschicktes Protokoll parsen (gibt's schon)\par
+- Das TypeDictionary daraus in einem TypeDictionaryProvider f\'fcr die Client-Persistence-Seite verwenden.\par
+\par
+Hm. Das wird interessant:\par
+Beim Host ist es so, dass es den Persistence-Kontext schon geben muss und der wird in den Com-Kontext eingebracht, weil Daten vom Persistence-Kontext zum Com-Kontext fliesen (n\'e4mlich das TypeDictionary)\par
+Beim Client ist es anders rum: Das TypeDictionary fliest vom Com-Kontext als Quelle in den Persistence-Kontext, damit die Anwendungslogik die Persistierung verwenden kann.\par
+\par
 }
  
