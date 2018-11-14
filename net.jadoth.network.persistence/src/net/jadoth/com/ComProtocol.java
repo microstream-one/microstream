@@ -17,7 +17,7 @@ public interface ComProtocol extends ComProtocolData
 	
 	public static String protocolVersion()
 	{
-		// (31.10.2018 TM)TODO: JET-43: Maybe create a "Version" type with multiple sub version numbers?
+		// (31.10.2018 TM)TODO: Maybe create a "Version" type with multiple sub version numbers?
 		return "1.0";
 	}
 		
