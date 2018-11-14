@@ -12,6 +12,7 @@ import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
+import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
@@ -27,6 +28,9 @@ public class MainTestParseProtocol
 			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
 			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
 		;
+		
+		final PersistenceManager<?> pm;
+		
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
 			.setClientIdStrategy(Com.DefaultIdStrategyServer())

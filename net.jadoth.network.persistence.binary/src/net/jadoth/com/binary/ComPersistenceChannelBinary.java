@@ -132,6 +132,30 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 			
 		}
 		
+		@Override
+		public void prepareSource()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#prepareSource()
+		}
+		
+		@Override
+		public void prepareTarget()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#prepareTarget()
+		}
+		
+		@Override
+		public void closeSource()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#closeSource()
+		}
+		
+		@Override
+		public void closeTarget()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#closeTarget()
+		}
+		
 	}
 	
 }

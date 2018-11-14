@@ -54,6 +54,32 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		}
 		
 		@Override
+		public synchronized void prepareChannel()
+		{
+			this.prepareSource();
+			this.prepareTarget();
+		}
+		
+		@Override
+		public synchronized void closeChannel()
+		{
+			this.closeTarget();
+			this.closeSource();
+		}
+		
+		@Override
+		public abstract void prepareSource();
+		
+		@Override
+		public abstract void prepareTarget();
+		
+		@Override
+		public abstract void closeSource();
+		
+		@Override
+		public abstract void closeTarget();
+		
+		@Override
 		public XGettingCollection<? extends M> readByObjectIds(final SwizzleIdSet[] oids) throws PersistenceExceptionTransfer
 		{
 			/* (08.08.2018 TM)NOTE:
@@ -64,11 +90,9 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 			 * However, such a function is not supported for the current simple proof-of-concept.
 			 */
 			
-			// FIXME NetworkPersistenceConnection<M>#readByObjectIds()
+			// TODO NetworkPersistenceConnection<M>#readByObjectIds()
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
-		
-		// (08.08.2018 TM)FIXME: prepare and close implementations
 		
 	}
 	
