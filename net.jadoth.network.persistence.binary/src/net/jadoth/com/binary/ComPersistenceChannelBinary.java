@@ -9,6 +9,7 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
+import net.jadoth.com.XSockets;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
@@ -132,28 +133,35 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 			
 		}
 		
+		private final void close()
+		{
+			XSockets.closeChannel(this.getConnection());
+		}
+		
 		@Override
 		public void prepareSource()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#prepareSource()
+			// nothing to prepare when using a SocketChannel
 		}
 		
 		@Override
 		public void prepareTarget()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#prepareTarget()
+			// nothing to prepare when using a SocketChannel
 		}
 		
 		@Override
-		public void closeSource()
+		public final void closeSource()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#closeSource()
+			// SocketChannel#close is idempotent
+			this.close();
 		}
 		
 		@Override
-		public void closeTarget()
+		public final void closeTarget()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComPersistenceChannel.AbstractImplementation#closeTarget()
+			// SocketChannel#close is idempotent
+			this.close();
 		}
 		
 	}

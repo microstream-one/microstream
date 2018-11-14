@@ -5,7 +5,7 @@ public interface ComConnectionAcceptorCreator<C>
 	public ComConnectionAcceptor<C> createConnectionAcceptor(
 		ComProtocolProvider  protocolProvider,
 		ComProtocolSender<C> protocolSender  ,
-		ComChannelCreator<C> channelCreator  ,
+		ComHostChannelCreator<C> channelCreator  ,
 		ComChannelAcceptor   channelAcceptor
 	);
 	
@@ -36,7 +36,7 @@ public interface ComConnectionAcceptorCreator<C>
 		public ComConnectionAcceptor<C> createConnectionAcceptor(
 			final ComProtocolProvider  protocolProvider,
 			final ComProtocolSender<C> protocolSender  ,
-			final ComChannelCreator<C> channelCreator  ,
+			final ComHostChannelCreator<C> channelCreator  ,
 			final ComChannelAcceptor   channelAcceptor
 		)
 		{
