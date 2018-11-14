@@ -1,12 +1,13 @@
 package net.jadoth.com;
 
 import java.net.InetSocketAddress;
-
-import net.jadoth.persistence.types.PersistenceFoundation;
+import java.nio.channels.SocketChannel;
 
 public interface ComClient
 {
 	public ComClientChannel connect() throws ComException;
+	
+	public InetSocketAddress hostAddress();
 	
 	
 	
@@ -16,8 +17,8 @@ public interface ComClient
 		// instance fields //
 		////////////////////
 
-		private final InetSocketAddress           hostAddress          ;
-		private final PersistenceFoundation<?, ?> persistenceFoundation;
+		private final InetSocketAddress          hostAddress   ;
+		private final ComClientChannelCreator<C> channelCreator;
 		
 		
 		
@@ -26,15 +27,44 @@ public interface ComClient
 		/////////////////
 		
 		Abstract(
-			final InetSocketAddress           hostAddress          ,
-			final PersistenceFoundation<?, ?> persistenceFoundation
+			final InetSocketAddress          hostAddress   ,
+			final ComClientChannelCreator<C> channelCreator
 		)
 		{
 			super();
-			this.hostAddress           = hostAddress          ;
-			this.persistenceFoundation = persistenceFoundation;
+			this.hostAddress    = hostAddress   ;
+			this.channelCreator = channelCreator;
 		}
 
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final InetSocketAddress hostAddress()
+		{
+			return this.hostAddress;
+		}
+		
+	}
+	
+	
+	public final class Default extends Abstract<SocketChannel>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default(
+			final InetSocketAddress                      hostAddress   ,
+			final ComClientChannelCreator<SocketChannel> channelCreator
+		)
+		{
+			super(hostAddress, channelCreator);
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -44,9 +74,10 @@ public interface ComClient
 		@Override
 		public ComClientChannel connect() throws ComException
 		{
-			XSockets.
+			final SocketChannel channel = XSockets.openChannel(this.hostAddress());
+			this.channelCreator.createChannel(channel, null, null);
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComClient#connect()
 		}
-		
 	}
+	
 }

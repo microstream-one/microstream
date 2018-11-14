@@ -1,8 +1,14 @@
 package net.jadoth.com;
 
+import net.jadoth.persistence.types.PersistenceFoundation;
+
 public interface ComClientChannelCreator<C>
 {
-	public ComClientChannel createChannel(C connection);
+	public ComClientChannel createChannel(
+		final C           connection,
+		final ComProtocol protocol  ,
+		final ComClient   parent
+	);
 	
 	
 	
@@ -11,19 +17,24 @@ public interface ComClientChannelCreator<C>
 		return new ComClientChannelCreator.Implementation<>();
 	}
 	
-	public final class Implementation<C> implements ComClientChannelCreator<C>
+	public class Abstract<C> implements ComClientChannelCreator<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+
+		private final PersistenceFoundation<?, ?> persistenceFoundation;
+		
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation()
+		Abstract(final PersistenceFoundation<?, ?> persistenceFoundation)
 		{
 			super();
+			this.persistenceFoundation = persistenceFoundation;
 		}
 		
 		
@@ -33,7 +44,11 @@ public interface ComClientChannelCreator<C>
 		////////////
 
 		@Override
-		public ComClientChannel createChannel(final C connection)
+		public ComClientChannel createChannel(
+			final C           connection,
+			final ComProtocol protocol  ,
+			final ComClient   parent
+		)
 		{
 			return ComClientChannel.New();
 		}
