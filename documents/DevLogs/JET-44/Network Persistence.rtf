@@ -945,5 +945,15 @@ So mal implementieren ...\par
 \par
 Haha, dabei aufgefallen:\par
 Es gibt noch gar kein close() im PersistenceManager. F\'fcr Source und Target gibt es das, aber nicht f\'fcr den PM. Mal nachr\'fcsten ...\par
+\par
+Client Stuff weiter implementieren.\par
+Dabei aufgefallen: ist ComClient nicht einfach ein \'fcberfl\'fcssiger Zwischenschritt zwischen ComChannel und ComConnector?\par
+Der ComChannel m\'fcsste f\'fcr die Client-spezifischen Teile ja nur erweitert werden (ComClientChannel extends ComChannel).\par
+Dann w\'e4re aber folgende Benamung doch besser:\par
+ComClient ist das Basisding, analog zu ComHost.\par
+ComClientChannel ist dann die aktive Verbindung.\par
+Der ComClient h\'e4tte analog zum ComHost auch die Adresse. Passt.\par
+Nur den Umweg mit dem Connection Listenen und accepten h\'e4tte er nicht, darum k\'f6nnte er die PersistenceFoundation direkt kennen.\par
+O\par
 }
  
