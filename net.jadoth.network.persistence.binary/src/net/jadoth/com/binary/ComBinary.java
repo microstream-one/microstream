@@ -21,7 +21,7 @@ public class ComBinary
 	 * Maybe, the consequence will be a dynamically sized header, meaning there
 	 * 
 	 * 
-	 * @return
+     * @return The length of the fixed-size chunk header.
 	 */
 	public static int chunkHeaderLength()
 	{
