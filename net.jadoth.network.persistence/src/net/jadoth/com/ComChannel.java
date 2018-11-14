@@ -1,31 +1,19 @@
 package net.jadoth.com;
 
-import static net.jadoth.X.notNull;
-
 import net.jadoth.persistence.types.PersistenceManager;
 
 
-/**
- * Fancily named usability wrapper for a {@link PersistenceManager} in the context of a network connection.
- * 
- * @author TM
- */
 public interface ComChannel
 {
 	public Object receive();
 	
 	public void send(Object graphRoot);
 	
+	public void close();
+	
 	
 		
-	public static ComChannel New(final PersistenceManager<?> persistenceManager)
-	{
-		return new Implementation(
-			notNull(persistenceManager)
-		);
-	}
-	
-	public final class Implementation implements ComChannel
+	public class Implementation implements ComChannel
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -39,7 +27,7 @@ public interface ComChannel
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceManager<?> persistenceManager)
+		protected Implementation(final PersistenceManager<?> persistenceManager)
 		{
 			super();
 			this.persistenceManager = persistenceManager;
@@ -69,6 +57,12 @@ public interface ComChannel
 			 * receive whatever the other side is sending.
 			 */
 			return this.persistenceManager.get();
+		}
+		
+		@Override
+		public final void close()
+		{
+			this.persistenceManager.close();
 		}
 		
 	}

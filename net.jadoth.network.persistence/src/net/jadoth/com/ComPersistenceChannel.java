@@ -35,6 +35,11 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		// methods //
 		////////////
 		
+		protected final C getConnection()
+		{
+			return this.connection;
+		}
+		
 		protected abstract XGettingCollection<? extends M> internalRead(C connection)
 			 throws PersistenceExceptionTransfer;
 		

@@ -67,20 +67,64 @@ public final class XSockets
 		}
 	}
 	
-	public static SocketChannel openChannelLocalhost(final int port) throws ComException
+	/**
+	 * Alias for {@link InetAddress#getLocalHost()}.
+	 * 
+	 * @return the localhost {@link InetAddress}.
+	 * @throws ComException if {@link InetAddress#getLocalHost()} throws an {@link UnknownHostException}
+	 */
+	public static InetAddress localHostAddress() throws ComException
 	{
 		try
 		{
-			return openChannel(
-				new InetSocketAddress(InetAddress.getLocalHost(), port)
-			);
+			return InetAddress.getLocalHost();
 		}
 		catch(final UnknownHostException e)
 		{
 			// (12.11.2018 TM)EXCP: proper exception
 			throw new ComException(e);
 		}
-		
+	}
+	
+	/**
+	 * Creates a new {@link InetSocketAddress} instance with {@link #localHostAddress()} and port 0 (ephemeral port).
+	 * 
+	 * @return a localhost {@link InetSocketAddress}.
+	 * @throws ComException
+	 * 
+	 * @see {@link InetSocketAddress#InetSocketAddress(InetAddress, int)}
+	 */
+	public static InetSocketAddress localHostSocketAddress() throws ComException
+	{
+		return localHostSocketAddress(0);
+	}
+	
+	/**
+	 * Creates a new {@link InetSocketAddress} instance with {@link #localHostAddress()} and the passed port value.
+	 * 
+	 * @param port the port to be used.
+	 * @return a localhost {@link InetSocketAddress} with the passed port value.
+	 * @throws ComException
+	 * 
+	 * @see {@link InetSocketAddress#InetSocketAddress(InetAddress, int)}
+	 */
+	public static InetSocketAddress localHostSocketAddress(final int port) throws ComException
+	{
+		return new InetSocketAddress(localHostAddress(), port);
+	}
+	
+	public static SocketChannel openChannelLocalhost() throws ComException
+	{
+		return openChannel(
+			localHostSocketAddress()
+		);
+	}
+	
+	public static SocketChannel openChannelLocalhost(final int port) throws ComException
+	{
+		return openChannel(
+			localHostSocketAddress(port)
+		);
 	}
 	
 	public static final void closeChannel(final NetworkChannel channel) throws ComException

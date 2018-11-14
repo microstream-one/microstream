@@ -26,7 +26,7 @@ public interface ComConnectionAcceptor<C>
 	public static <C> ComConnectionAcceptor<C> New(
 		final ComProtocolProvider  protocolProvider,
 		final ComProtocolSender<C> protocolSender  ,
-		final ComChannelCreator<C> channelCreator  ,
+		final ComHostChannelCreator<C> channelCreator  ,
 		final ComChannelAcceptor   channelAcceptor
 	)
 	{
@@ -47,7 +47,7 @@ public interface ComConnectionAcceptor<C>
 		
 		private final ComProtocolProvider  protocolProvider;
 		private final ComProtocolSender<C> protocolSender  ;
-		private final ComChannelCreator<C> channelCreator  ;
+		private final ComHostChannelCreator<C> channelCreator  ;
 		private final ComChannelAcceptor   channelAcceptor ;
 				
 		
@@ -59,7 +59,7 @@ public interface ComConnectionAcceptor<C>
 		Implementation(
 			final ComProtocolProvider  protocolProvider,
 			final ComProtocolSender<C> protocolSender  ,
-			final ComChannelCreator<C> channelCreator  ,
+			final ComHostChannelCreator<C> channelCreator  ,
 			final ComChannelAcceptor   channelAcceptor
 		)
 		{
