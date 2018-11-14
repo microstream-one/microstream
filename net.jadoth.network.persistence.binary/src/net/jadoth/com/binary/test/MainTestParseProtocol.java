@@ -1,7 +1,6 @@
 package net.jadoth.com.binary.test;
 
 import java.io.File;
-import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
 import net.jadoth.com.ComFoundation;
@@ -32,8 +31,9 @@ public class MainTestParseProtocol
 		final ComFoundation.Default<?> foundation = Com.Foundation()
 			.setClientIdStrategy(Com.DefaultIdStrategyServer())
 //			.setPersistenceAdaptor(ComPersistenceAdaptor.New(pf))
-			.setHostContext(ComHostContext.<SocketChannel>Builder()
+			.setHostContext(ComHostContext.Builder()
 				.setPersistence(pf)
+				.setChannelAcceptorLogic(System.out::println)
 				.buildHostContext()
 			)
 		;

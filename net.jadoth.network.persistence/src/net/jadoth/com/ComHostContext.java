@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 import java.util.function.Consumer;
 
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -18,27 +19,25 @@ public interface ComHostContext<C>
 	
 	
 	
-	
-	// (13.11.2018 TM)FIXME: default SocketChannel
-	public static <C> ComHostContext.Builder.Implementation<C> Builder()
+	public static ComHostContext.Builder.Default Builder()
 	{
-		return new ComHostContext.Builder.Implementation<>();
+		return new ComHostContext.Builder.Default();
 	}
 	
-	public static <C> ComHostContext.Implementation<C> New(
-		final InetSocketAddress        address           ,
-		final ComChannelAcceptor       channelAcceptor   ,
-		final ComPersistenceAdaptor<C> persistenceAdaptor
+	public static ComHostContext.Default New(
+		final InetSocketAddress                    address           ,
+		final ComChannelAcceptor                   channelAcceptor   ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		return new ComHostContext.Implementation<>(
+		return new ComHostContext.Default(
 			notNull(address),
 			notNull(channelAcceptor),
 			notNull(persistenceAdaptor)
 		);
 	}
 	
-	public final class Implementation<C> implements ComHostContext<C>
+	public abstract class Abstract<C> implements ComHostContext<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -54,7 +53,7 @@ public interface ComHostContext<C>
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Abstract(
 			final InetSocketAddress        address           ,
 			final ComChannelAcceptor       channelAcceptor   ,
 			final ComPersistenceAdaptor<C> persistenceAdaptor
@@ -93,6 +92,23 @@ public interface ComHostContext<C>
 	}
 	
 	
+	public final class Default extends Abstract<SocketChannel>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+
+		public Default(
+			final InetSocketAddress                    address           ,
+			final ComChannelAcceptor                   channelAcceptor   ,
+			final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		)
+		{
+			super(address, channelAcceptor, persistenceAdaptor);
+		}
+		
+	}
+	
 	public interface Builder<C>
 	{
 		public Builder<C> setAddress(InetSocketAddress socketAddress);
@@ -114,7 +130,7 @@ public interface ComHostContext<C>
 		
 		public Builder<C> setChannelAcceptor(ComChannelAcceptor channelAcceptor);
 		
-		public Builder<C> setChannelAcceptor(Consumer<? super ComChannel> channelAcceptorLogic);
+		public Builder<C> setChannelAcceptorLogic(Consumer<? super ComChannel> channelAcceptorLogic);
 		
 		public Builder<C> setPersistence(ComPersistenceAdaptor<C> persistenceAdaptor);
 
@@ -149,7 +165,7 @@ public interface ComHostContext<C>
 		public ComHostContext<C> buildHostContext();
 		
 		
-		public class Implementation<C> implements ComHostContext.Builder<C>
+		public abstract class Abstract<C> implements ComHostContext.Builder<C>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -169,7 +185,7 @@ public interface ComHostContext<C>
 			// constructors //
 			/////////////////
 			
-			protected Implementation()
+			protected Abstract()
 			{
 				super();
 			}
@@ -209,7 +225,7 @@ public interface ComHostContext<C>
 			}
 			
 			@Override
-			public Builder<C> setChannelAcceptor(final Consumer<? super ComChannel> channelAcceptorLogic)
+			public Builder<C> setChannelAcceptorLogic(final Consumer<? super ComChannel> channelAcceptorLogic)
 			{
 				this.channelAcceptorLogic = channelAcceptorLogic;
 				return this;
@@ -329,10 +345,27 @@ public interface ComHostContext<C>
 				// (13.11.2018 TM)EXCP: proper exception
 				throw new NullPointerException("No persistence context set.");
 			}
-						
+			
+		}
+		
+		public class Default extends ComHostContext.Builder.Abstract<SocketChannel>
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+
+			protected Default()
+			{
+				super();
+			}
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 			
 			@Override
-			public ComHostContext<C> buildHostContext()
+			public ComHostContext.Default buildHostContext()
 			{
 				return ComHostContext.New(
 					this.getSocketAddress()     ,
