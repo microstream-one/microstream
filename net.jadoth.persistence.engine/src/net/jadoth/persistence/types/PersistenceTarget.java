@@ -18,7 +18,7 @@ public interface PersistenceTarget<M>
 	}
 	
 	/**
-	 * Take actions to deactivate/close/destroy the target because it won't be written again.
+	 * Take actions to deactivate/close/destroy the target because it won't be written to again.
 	 */
 	public default void closeTarget()
 	{

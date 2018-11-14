@@ -913,5 +913,37 @@ Hm. Das wird interessant:\par
 Beim Host ist es so, dass es den Persistence-Kontext schon geben muss und der wird in den Com-Kontext eingebracht, weil Daten vom Persistence-Kontext zum Com-Kontext fliesen (n\'e4mlich das TypeDictionary)\par
 Beim Client ist es anders rum: Das TypeDictionary fliest vom Com-Kontext als Quelle in den Persistence-Kontext, damit die Anwendungslogik die Persistierung verwenden kann.\par
 \par
+Es muss erst mal einen ComClient geben, der die Host-Adresse kennt.\par
+Der muss ein "connect()" haben, das dann einen ComChannel zur\'fcckgibt.\par
+Und der ComClient muss das protocol providen k\'f6nnen, nachdem verbunden wurde.\par
+Oder sollte das nochmal ein extra Typ sein? Eine ComConnection, die erzeugt wird, nachdem das Protocol empfangen und geparst wurde? Ansonsten hat man nur eine Instanz, die manchmal was valides zur\'fcckgibt und manchmal nicht. Das w\'e4r doof. Besser w\'e4r: Wenn eine ComConnection zur\'fcckgegeben wird, dann ist die auch immer valide.\par
+\par
+Bl\'f6d w\'e4r dann aber, dass die H\'e4lfte der Server-Typen "ComConnection~" hei\'dfen, aber der Server selber gar keine ComConnection verwendet.\par
+Vielleicht w\'e4re es dann doch so besser:\par
+- ComConnector: kennt eine HostAdresse und erzeugt ComClients\par
+- ComClient: h\'e4lt eine aktive Verbindung / ComChannel und ein erfolgreich geparstes Protocol\par
+\par
+Das w\'fcrde auch f\'fcr folgendes gut passen:\par
+Der Connector h\'e4lt intern nur eine PersistenceFoundation.\par
+Der Client h\'e4lt einen erzeugten PersistenceManager, basierend auf dem TypeDictionary aus dem erfolgreich geparsten Protocol.\par
+\par
+So m\'fcsste es gut sein.\par
+\par
+Die Frage ist dann noch:\par
+Was gibt ComConnector#connect genau zur\'fcck? Einen ComChannel oder einen ComClient?\par
+Bei ComChannel fehlt die R\'fcckreferenz auf den ComClient.\par
+Bei ComClient m\'fcssen die DAUs schon wieder eine Methode mehr aufrufen, das f\'fchrt wieder dann zu Verwirrung.\par
+Vielleicht m\'fcsste man dann einen ComClientChannel extends ComChannel machen und der Connect gibt einen ClientChannel zur\'fcck.\par
+\par
+Dann ist auch noch die Frage nach dem closen einer Verbindung.\par
+Ein ComClient h\'e4lt immer nur einen Channel. Das ist nicht "Der Client", der mehrere Verbindungen haben kann, sondern das ist eine Repr\'e4sentation, dass der Client-Prozess ein Client f\'fcr eine Adresse ist. Man kann mehrere ComClient Instanzen haben, mit potenziell unterschiedlichen Protokollen / TypeDictionaries.\par
+\par
+Ein ComClient mit einmal geschlossenem ComChannel kann nicht wieder aktiviert werden, weil sich das Protocol/TypeDictionary des Hosts in der Zwischenzeit ge\'e4ndert haben k\'f6nnte.\par
+Es gibt also nur: ComConnector#connect -> neue ComClient Instanz mit exklusiver ComChannel Instanz -> Verwendung -> close\par
+\par
+So mal implementieren ...\par
+\par
+Haha, dabei aufgefallen:\par
+Es gibt noch gar kein close() im PersistenceManager. F\'fcr Source und Target gibt es das, aber nicht f\'fcr den PM. Mal nachr\'fcsten ...\par
 }
  

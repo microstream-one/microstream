@@ -40,6 +40,16 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 	public SwizzleRegistry swizzleRegistry();
 	
 	public PersistenceTypeDictionary typeDictionary();
+	
+	@Override
+	public PersistenceSource<M> source();
+	
+	public PersistenceTarget<M> target();
+	
+	/**
+	 * Closes all ties to outside resources, if applicable. Typ
+	 */
+	public void close();
 
 
 
@@ -260,15 +270,28 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		{
 			return this.source;
 		}
+		
+		@Override
+		public final PersistenceTarget<M> target()
+		{
+			return this.target;
+		}
+		
+		@Override
+		public synchronized void close()
+		{
+			this.target.closeTarget();
+			this.source.closeSource();
+		}
 
 		@Override
-		public void updateCurrentObjectId(final long currentObjectId)
+		public synchronized void updateCurrentObjectId(final long currentObjectId)
 		{
 			this.objectManager.updateCurrentObjectId(currentObjectId);
 		}
 
 		@Override
-		public void updateMetadata(
+		public synchronized void updateMetadata(
 			final PersistenceTypeDictionary typeDictionary ,
 			final long                      highestTypeId  ,
 			final long                      highestObjectId
