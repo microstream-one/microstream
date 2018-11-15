@@ -29,7 +29,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 	}
 	
 	public abstract class Abstract<C>
-	extends ComPersistenceChannel.AbstractImplementation<C, Binary>
+	extends ComPersistenceChannel.Abstract<C, Binary>
 	implements ComPersistenceChannelBinary<C>
 	{
 		///////////////////////////////////////////////////////////////////////////

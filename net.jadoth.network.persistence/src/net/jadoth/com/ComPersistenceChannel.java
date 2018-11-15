@@ -9,7 +9,7 @@ import net.jadoth.swizzling.types.SwizzleIdSet;
 public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 {
 	
-	public abstract class AbstractImplementation<C, M> implements ComPersistenceChannel<C, M>
+	public abstract class Abstract<C, M> implements ComPersistenceChannel<C, M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -23,7 +23,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final C connection)
+		protected Abstract(final C connection)
 		{
 			super();
 			this.connection = connection;

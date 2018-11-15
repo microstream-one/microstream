@@ -979,5 +979,10 @@ Idee f\'fcr Usability:\par
 In ComBinary eine Methode machen, die diesen Kontext als Default f\'fcr fehlende Teile im Com Kontext setzt.\par
 Damit muss man aus der ganzen Binary Schiene nur eine statische Methode aufrufen und der Rest l\'e4uft \'fcber den allgemeinen Kontext.\par
 Falls man customizen will, muss man sich sowieso mit den Details auseinandersetzen.\par
+\par
+\par
+Hm. Noch eine Idee:\par
+Anstatt ein dutzend "Abstract" Klassen mit einem Dutzend "Default" Implementierungen, die jede nur 1-2 Zeilen f\'fcr SocketChannel Handling enth\'e4lt, abstrahier ich noch ein kleines St\'fcck weiter zu einem Low-Level "ConnectionLogic" Typ, der die <C> produziert, schlie\'dft, schreibt, liest. Eine Implementierung daf\'fcr w\'e4re trivial zu verstehen und zu implementieren und alles andere m\'fcsste man nicht anfassen/ableiten/implementieren.\par
+Das muss ich probieren, das ist super!\par
 }
  
