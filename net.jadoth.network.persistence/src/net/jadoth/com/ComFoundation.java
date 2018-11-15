@@ -25,25 +25,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ComProtocolCreator getProtocolCreator();
 	
-	public ComProtocolSender<C> getProtocolSender();
-	
 	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
 	public ComHostCreator<C> getHostCreator();
 	
-	public ComConnectionListenerCreator<C> getConnectionListenerCreator();
+	public ComConnectionHandler<C> getConnectionHandler();
 	
 	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
 	
 	public ComHostChannelCreator<C> getChannelCreator();
 
-	
-//	public InetSocketAddress getAddress();
-	
-//	public ComChannelAcceptor getChannelAcceptor();
-	
-//	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
 	
 	public ComHostContext<C> getHostContext();
 	
@@ -62,25 +54,16 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setProtocolProviderCreator(ComProtocolProviderCreator protocolProviderCreator);
 	
-	public F setProtocolSender(ComProtocolSender<C> protocolSender);
-	
 	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
 	
 	public F setHostCreator(ComHostCreator<C> hostCreator);
 
-	public F setConnectionListenerCreator(ComConnectionListenerCreator<C> connectionListenerCreator);
+	public F setConnectionHandler(ComConnectionHandler<C> connectionHandler);
 	
 	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator<C> connectionAcceptorCreator);
 	
 	public F setChannelCreator(ComHostChannelCreator<C> channelCreator);
-
-	
-//	public F setAddress(InetSocketAddress address);
-	
-//	public F setChannelAcceptor(ComChannelAcceptor channelAcceptor);
-
-//	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
 	
 	public F setHostContext(ComHostContext<C> hostContext);
 	
@@ -107,22 +90,21 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		// instance fields //
 		////////////////////
 
-		private String                                protocolName             ;
-		private String                                protocolVersion          ;
-		private ByteOrder                             byteOrder                ;
-		private SwizzleIdStrategy                     clientIdStrategy         ;
-		private ComProtocolCreator                    protocolCreator          ;
-		private ComProtocolProvider                   protocolProvider         ;
-		private ComProtocolProviderCreator            protocolProviderCreator  ;
-                                                      
-		private ComProtocolStringConverter            protocolStringConverter  ;
-		private ComHostCreator<C>                     hostCreator              ;
-		private ComConnectionListenerCreator<C>       connectionListenerCreator;
-		private ComConnectionAcceptorCreator<C>       connectionAcceptorCreator;
-		private ComProtocolSender<C>                  protocolSender           ;
-		private ComHostChannelCreator<C>              hostChannelCreator       ;
-		
-		private ComHostContext<C>                     hostContext              ;
+		private String                          protocolName             ;
+		private String                          protocolVersion          ;
+		private ByteOrder                       byteOrder                ;
+		private SwizzleIdStrategy               clientIdStrategy         ;
+		private ComProtocolCreator              protocolCreator          ;
+		private ComProtocolProvider             protocolProvider         ;
+		private ComProtocolProviderCreator      protocolProviderCreator  ;
+                                                
+		private ComProtocolStringConverter      protocolStringConverter  ;
+		private ComHostCreator<C>               hostCreator              ;
+		private ComConnectionHandler<C>         connectionHandler        ;
+		private ComConnectionAcceptorCreator<C> connectionAcceptorCreator;
+		private ComHostChannelCreator<C>        hostChannelCreator       ;
+		                                        
+		private ComHostContext<C>               hostContext              ;
 
 		
 		
@@ -225,17 +207,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComProtocolSender<C> getProtocolSender()
-		{
-			if(this.protocolSender == null)
-			{
-				this.protocolSender = this.ensureProtocolSender();
-			}
-			
-			return this.protocolSender;
-		}
-		
-		@Override
 		public ComProtocolStringConverter getProtocolStringConverter()
 		{
 			if(this.protocolStringConverter == null)
@@ -258,14 +229,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComConnectionListenerCreator<C> getConnectionListenerCreator()
+		public ComConnectionHandler<C> getConnectionHandler()
 		{
-			if(this.connectionListenerCreator == null)
+			if(this.connectionHandler == null)
 			{
-				this.connectionListenerCreator = this.ensureConnectionListenerCreator();
+				this.connectionHandler = this.ensureConnectionHandler();
 			}
 			
-			return this.connectionListenerCreator;
+			return this.connectionHandler;
 		}
 		
 		@Override
@@ -383,16 +354,10 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			throw new MissingFoundationPartException(ComHostContext.class);
 		}
 				
-		protected ComConnectionListenerCreator<C> ensureConnectionListenerCreator()
+		protected ComConnectionHandler<C> ensureConnectionHandler()
 		{
-			// must be created or set specific to C.
-			throw new MissingFoundationPartException(ComConnectionListenerCreator.class);
-		}
-		
-		protected ComProtocolSender<C> ensureProtocolSender()
-		{
-			// must be created or set specific to C.
-			throw new MissingFoundationPartException(ComProtocolSender.class);
+			// must be created or set specific to <C>.
+			throw new MissingFoundationPartException(ComConnectionHandler.class);
 		}
 		
 		protected ComPersistenceAdaptor<C> providePersistenceAdaptor()
@@ -461,13 +426,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setProtocolSender(final ComProtocolSender<C> protocolSender)
-		{
-			this.protocolSender = protocolSender;
-			return this.$();
-		}
-		
-		@Override
 		public F setProtocolStringConverter(final ComProtocolStringConverter protocolStringConverter)
 		{
 			this.protocolStringConverter = protocolStringConverter;
@@ -489,9 +447,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setConnectionListenerCreator(final ComConnectionListenerCreator<C> connectionListenerCreator)
+		public F setConnectionHandler(final ComConnectionHandler<C> connectionHandler)
 		{
-			this.connectionListenerCreator = connectionListenerCreator;
+			this.connectionHandler = connectionHandler;
 			return this.$();
 		}
 		
@@ -510,20 +468,40 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
+		public F setHostContext(
+			final InetSocketAddress           socketAddress        ,
+			final ComChannelAcceptor          channelAcceptor      ,
+			final PersistenceFoundation<?, ?> persistenceFoundation
+		)
+		{
+			final ComHostContext.Builder<C> hostContextBuilder = this.getConnectionHandler().createHostContextBuilder();
+			
+			this.setHostContext(hostContextBuilder
+				.setAddress        (socketAddress)
+				.setChannelAcceptor(channelAcceptor)
+				.setPersistence    (persistenceFoundation)
+				.buildHostContext()
+			);
+			
+			return this.$();
+		}
+		
+		@Override
 		public ComHost<C> createHost()
 		{
 			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
 			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocolProvider()   ,
-				this.getProtocolSender()     ,
-				this.getChannelCreator()     ,
+				this.getProtocolProvider()       ,
+				this.getConnectionHandler()      ,
+				this.getProtocolStringConverter(),
+				this.getChannelCreator()         ,
 				this.provideChannelAcceptor()
 			);
 
 			final ComHostCreator<C>  hostCreator = this.getHostCreator();
 			return hostCreator.createComHost(
-				this.provideSocktAddress()         ,
-				this.getConnectionListenerCreator(),
+				this.provideSocktAddress() ,
+				this.getConnectionHandler(),
 				connectionAcceptor
 			);
 		}
@@ -547,36 +525,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-						
-		@Override
-		public ComProtocolSender.Default ensureProtocolSender()
-		{
-			return ComProtocolSender.New(
-				this.getProtocolStringConverter()
-			);
-		}
 		
 		@Override
-		public ComConnectionListenerCreator.Default ensureConnectionListenerCreator()
+		public ComConnectionHandler.Default ensureConnectionHandler()
 		{
-			return ComConnectionListenerCreator.New();
-		}
-		
-		@Override
-		public F setHostContext(
-			final InetSocketAddress           socketAddress        ,
-			final ComChannelAcceptor          channelAcceptor      ,
-			final PersistenceFoundation<?, ?> persistenceFoundation
-		)
-		{
-			this.setHostContext(ComHostContext.Builder()
-				.setAddress(XSockets.localHostSocketAddress())
-				.setChannelAcceptor(channelAcceptor)
-				.setPersistence(persistenceFoundation)
-				.buildHostContext()
-			);
-			
-			return this.$();
+			return ComConnectionHandler.Default();
 		}
 		
 	}

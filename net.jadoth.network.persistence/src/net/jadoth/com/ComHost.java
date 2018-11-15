@@ -32,14 +32,14 @@ public interface ComHost<C>
 	
 	
 	public static <C> ComHost<C> New(
-		final InetSocketAddress               address                  ,
-		final ComConnectionListenerCreator<C> connectionListenerCreator,
-		final ComConnectionAcceptor<C>        connectionAcceptor
+		final InetSocketAddress        address           ,
+		final ComConnectionHandler<C>  connectionHandler ,
+		final ComConnectionAcceptor<C> connectionAcceptor
 	)
 	{
 		return new ComHost.Implementation<>(
-			mayNull(address)             ,
-			notNull(connectionListenerCreator),
+			mayNull(address)           ,
+			notNull(connectionHandler) ,
 			notNull(connectionAcceptor)
 		);
 	}
@@ -50,9 +50,9 @@ public interface ComHost<C>
 		// instance fields //
 		////////////////////
 		
-		private final InetSocketAddress               address                  ;
-		private final ComConnectionListenerCreator<C> connectionListenerCreator;
-		private final ComConnectionAcceptor<C>        connectionAcceptor       ;
+		private final InetSocketAddress        address           ;
+		private final ComConnectionHandler<C>  connectionHandler ;
+		private final ComConnectionAcceptor<C> connectionAcceptor;
 		
 		private transient ComConnectionListener<C> liveConnectionListener;
 		
@@ -65,15 +65,15 @@ public interface ComHost<C>
 		/////////////////
 		
 		Implementation(
-			final InetSocketAddress               address                  ,
-			final ComConnectionListenerCreator<C> connectionListenerCreator,
-			final ComConnectionAcceptor<C>        connectionAcceptor
+			final InetSocketAddress        address           ,
+			final ComConnectionHandler<C>  connectionHandler ,
+			final ComConnectionAcceptor<C> connectionAcceptor
 		)
 		{
 			super();
-			this.address                   = address                  ;
-			this.connectionListenerCreator = connectionListenerCreator;
-			this.connectionAcceptor        = connectionAcceptor       ;
+			this.address            = address           ;
+			this.connectionHandler  = connectionHandler ;
+			this.connectionAcceptor = connectionAcceptor;
 		}
 		
 		
@@ -105,7 +105,7 @@ public interface ComHost<C>
 					return;
 				}
 				
-				this.liveConnectionListener = this.connectionListenerCreator.createConnectionListener(this.address);
+				this.liveConnectionListener = this.connectionHandler.createConnectionListener(this.address);
 			}
 			
 			this.acceptConnections();

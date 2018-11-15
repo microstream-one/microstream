@@ -1,5 +1,6 @@
 package net.jadoth.com;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import net.jadoth.chars.VarString;
@@ -44,9 +45,38 @@ public class Com
 	}
 	
 	
-	public static int defaultLengthDigitCount()
+	public static int defaultProtocolLengthDigitCount()
 	{
 		return 8;
+	}
+	
+	public static ByteBuffer bufferProtocol(
+		final ComProtocol                protocol               ,
+		final ComProtocolStringConverter protocolStringConverter
+	)
+	{
+		return bufferProtocol(protocol, protocolStringConverter, defaultProtocolLengthDigitCount());
+	}
+	
+	public static ByteBuffer bufferProtocol(
+		final ComProtocol                protocol               ,
+		final ComProtocolStringConverter protocolStringConverter,
+		final int                        lengthDigitCount
+	)
+	{
+		final byte[] assembledProtocolBytes = Com.assembleSendableProtocolBytes(
+			protocol               ,
+			protocolStringConverter,
+			lengthDigitCount
+		);
+		
+		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length);
+		final long dbbAddress = XVM.getDirectByteBufferAddress(dbb);
+		XVM.copyArray(assembledProtocolBytes, dbbAddress);
+		// the bytebuffer's position remains at 0, limit at capacity. Both are correct for the first reading call.
+		
+		return dbb;
 	}
 	
 	public static byte[] assembleSendableProtocolBytes(
@@ -54,7 +84,7 @@ public class Com
 		final ComProtocolStringConverter protocolStringConverter
 	)
 	{
-		return assembleSendableProtocolBytes(protocol, protocolStringConverter, defaultLengthDigitCount());
+		return assembleSendableProtocolBytes(protocol, protocolStringConverter, defaultProtocolLengthDigitCount());
 	}
 	
 	public static byte[] assembleSendableProtocolBytes(
