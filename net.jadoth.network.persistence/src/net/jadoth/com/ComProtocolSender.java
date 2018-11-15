@@ -40,7 +40,7 @@ public interface ComProtocolSender<C>
 		return dbb;
 	}
 	
-	public abstract class AbstractImplementation<C> implements ComProtocolSender<C>
+	public abstract class Abstract<C> implements ComProtocolSender<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -54,7 +54,7 @@ public interface ComProtocolSender<C>
 		// constructors //
 		/////////////////
 		
-		protected AbstractImplementation(final ComProtocolStringConverter protocolStringConverter)
+		protected Abstract(final ComProtocolStringConverter protocolStringConverter)
 		{
 			super();
 			this.protocolStringConverter = protocolStringConverter;
@@ -92,7 +92,7 @@ public interface ComProtocolSender<C>
 		);
 	}
 	
-	public final class Default extends ComProtocolSender.AbstractImplementation<SocketChannel>
+	public final class Default extends ComProtocolSender.Abstract<SocketChannel>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
