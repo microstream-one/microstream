@@ -984,5 +984,9 @@ Falls man customizen will, muss man sich sowieso mit den Details auseinandersetz
 Hm. Noch eine Idee:\par
 Anstatt ein dutzend "Abstract" Klassen mit einem Dutzend "Default" Implementierungen, die jede nur 1-2 Zeilen f\'fcr SocketChannel Handling enth\'e4lt, abstrahier ich noch ein kleines St\'fcck weiter zu einem Low-Level "ConnectionLogic" Typ, der die <C> produziert, schlie\'dft, schreibt, liest. Eine Implementierung daf\'fcr w\'e4re trivial zu verstehen und zu implementieren und alles andere m\'fcsste man nicht anfassen/ableiten/implementieren.\par
 Das muss ich probieren, das ist super!\par
+\par
+Das ersetzt gleich den ComConnectionListenerCreator und den ComProtocolSender. Und der Code zum Protokoll senden und empfangen steht direkt nebeneinander, so dass man sich mit der Einhaltung des Formats bei der Implementierung sehr leicht tut.\par
+\par
+Fertig. Nur bei den beiden ComBinary Implementierungen muss ich mal noch \'fcberlegen, ob sich das konsolidieren l\'e4sst.\par
 }
  

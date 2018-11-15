@@ -5,9 +5,9 @@ import java.net.InetSocketAddress;
 public interface ComHostCreator<C>
 {
 	public ComHost<C> createComHost(
-		InetSocketAddress               address                  ,
-		ComConnectionListenerCreator<C> connectionListenerCreator,
-		ComConnectionAcceptor<C>        connectionAcceptor
+		InetSocketAddress        address           ,
+		ComConnectionHandler<C>  connectionHandler ,
+		ComConnectionAcceptor<C> connectionAcceptor
 	);
 
 	
@@ -36,12 +36,12 @@ public interface ComHostCreator<C>
 		
 		@Override
 		public final ComHost<C> createComHost(
-			final InetSocketAddress               address                  ,
-			final ComConnectionListenerCreator<C> connectionListenerCreator,
-			final ComConnectionAcceptor<C>        connectionAcceptor
+			final InetSocketAddress        address           ,
+			final ComConnectionHandler<C>  connectionHandler ,
+			final ComConnectionAcceptor<C> connectionAcceptor
 		)
 		{
-			return ComHost.New(address, connectionListenerCreator, connectionAcceptor);
+			return ComHost.New(address, connectionHandler, connectionAcceptor);
 		}
 		
 	}

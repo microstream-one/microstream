@@ -3,10 +3,11 @@ package net.jadoth.com;
 public interface ComConnectionAcceptorCreator<C>
 {
 	public ComConnectionAcceptor<C> createConnectionAcceptor(
-		ComProtocolProvider  protocolProvider,
-		ComProtocolSender<C> protocolSender  ,
-		ComHostChannelCreator<C> channelCreator  ,
-		ComChannelAcceptor   channelAcceptor
+		ComProtocolProvider        protocolProvider       ,
+		ComConnectionHandler<C>    connectionHandler      ,
+		ComProtocolStringConverter protocolStringConverter,
+		ComHostChannelCreator<C>   channelCreator         ,
+		ComChannelAcceptor         channelAcceptor
 	);
 	
 	
@@ -34,16 +35,18 @@ public interface ComConnectionAcceptorCreator<C>
 
 		@Override
 		public ComConnectionAcceptor<C> createConnectionAcceptor(
-			final ComProtocolProvider  protocolProvider,
-			final ComProtocolSender<C> protocolSender  ,
-			final ComHostChannelCreator<C> channelCreator  ,
-			final ComChannelAcceptor   channelAcceptor
+			final ComProtocolProvider        protocolProvider       ,
+			final ComConnectionHandler<C>    connectionHandler      ,
+			final ComProtocolStringConverter protocolStringConverter,
+			final ComHostChannelCreator<C>   channelCreator         ,
+			final ComChannelAcceptor         channelAcceptor
 		)
 		{
 			return ComConnectionAcceptor.New(
-				protocolProvider,
-				protocolSender  ,
-				channelCreator  ,
+				protocolProvider       ,
+				connectionHandler      ,
+				protocolStringConverter,
+				channelCreator         ,
 				channelAcceptor
 			);
 		}
