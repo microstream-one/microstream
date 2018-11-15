@@ -59,15 +59,15 @@ public class Com
 	}
 	
 	public static ByteBuffer bufferProtocol(
-		final ComProtocol                protocol               ,
-		final ComProtocolStringConverter protocolStringConverter,
-		final int                        lengthDigitCount
+		final ComProtocol                protocol                ,
+		final ComProtocolStringConverter protocolStringConverter ,
+		final int                        protocolLengthDigitCount
 	)
 	{
 		final byte[] assembledProtocolBytes = Com.assembleSendableProtocolBytes(
 			protocol               ,
 			protocolStringConverter,
-			lengthDigitCount
+			protocolLengthDigitCount
 		);
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.

@@ -206,6 +206,29 @@ public final class XParsing
 		);
 	}
 	
+	public static int parse_int(final char[] input)
+	{
+		return parse_int(input, 0, input.length);
+	}
+	
+	public static int parse_int(final char[] input, final int iStart, final int iBound)
+	{
+		int i = skipWhiteSpacesReversed(input, iStart, iBound);
+		final int iFirst = skipWhiteSpaces(input, iStart, i);
+		int value = 0;
+		
+		// (15.11.2018 TM)FIXME: /!\ Fix
+		while(--i >= iFirst)
+		{
+			if(input[i] >= '0' && input[i] <= '9')
+			{
+				value = value * 10 + input[i] - '0';
+			}
+		}
+		
+		return value;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////

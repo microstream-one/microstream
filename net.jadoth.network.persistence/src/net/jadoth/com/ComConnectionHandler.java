@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.low.XVM;
+
 public interface ComConnectionHandler<C>
 {
 	public C openConnection(InetSocketAddress address);
@@ -54,6 +56,8 @@ public interface ComConnectionHandler<C>
 	
 	public final class Default implements ComConnectionHandler<SocketChannel>
 	{
+		final int protocolLengthDigitCount = Com.defaultProtocolLengthDigitCount();
+		
 		@Override
 		public SocketChannel openConnection(final InetSocketAddress address)
 		{
@@ -111,7 +115,7 @@ public interface ComConnectionHandler<C>
 			final ComProtocolStringConverter stringConverter
 		)
 		{
-			final ByteBuffer bufferedProtocol = Com.bufferProtocol(protocol, stringConverter);
+			final ByteBuffer bufferedProtocol = Com.bufferProtocol(protocol, stringConverter, this.protocolLengthDigitCount);
 			this.write(connection, bufferedProtocol);
 		}
 		
@@ -121,6 +125,12 @@ public interface ComConnectionHandler<C>
 			final ComProtocolStringConverter stringConverter
 		)
 		{
+			final ByteBuffer lengthBuffer = ByteBuffer.allocateDirect(this.protocolLengthDigitCount);
+			this.read(connection, lengthBuffer);
+			final long dbbAddress = XVM.getDirectByteBufferAddress(lengthBuffer);
+			final byte[] bytes = new byte[this.protocolLengthDigitCount];
+			XVM.copyRangeToArray(dbbAddress, bytes);
+			
 			// FIXME ComConnectionHandler.Default#receiveProtocol()
 			throw new net.jadoth.meta.NotImplementedYetError();
 		}
