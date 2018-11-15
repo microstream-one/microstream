@@ -68,7 +68,13 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 			);
 			
 			/* FIXME ComClientChannelCreatorBinary.Default#createPersistenceManager()
-			 * - create TypeDictionaryProvider or IoHandler or so from the protocol
+			 * - create TypeDictionaryIoHandler:
+			 *   read-only implementation that throws exceptions for writing operations.
+			 *   or maybe even at the TypeDictionaryManager level.
+			 *   loader implementation that feeds from the received TypeDictionary string.
+			 *   Only problem with that is: the nicely typed protocol parameter would have to degrade into a string.
+			 *   Or maybe an alterantive provider logic that builds a runtime TypeDictionary from the received view.
+			 * 
 			 * - set byte order
 			 * - set channel to foundation
 			 */
