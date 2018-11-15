@@ -1,48 +1,25 @@
 package net.jadoth.com;
 
-import net.jadoth.persistence.types.PersistenceFoundation;
+import net.jadoth.persistence.types.PersistenceManager;
 
 public interface ComClientChannelCreator<C>
 {
 	public ComClientChannel createChannel(
-		final C           connection,
-		final ComProtocol protocol  ,
-		final ComClient   parent
+		C           connection,
+		ComProtocol protocol  ,
+		ComClient   parent
 	);
+		
 	
 	
-	
-	public static <C> ComClientChannelCreator<C> New()
+	public abstract class Abstract<C> implements ComClientChannelCreator<C>
 	{
-		return new ComClientChannelCreator.Implementation<>();
-	}
-	
-	public class Abstract<C> implements ComClientChannelCreator<C>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final PersistenceFoundation<?, ?> persistenceFoundation;
+		protected abstract PersistenceManager<?> createPersistenceManager(
+			C           connection,
+			ComProtocol protocol
+		);
 		
 		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		Abstract(final PersistenceFoundation<?, ?> persistenceFoundation)
-		{
-			super();
-			this.persistenceFoundation = persistenceFoundation;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
 		@Override
 		public ComClientChannel createChannel(
 			final C           connection,
@@ -50,9 +27,11 @@ public interface ComClientChannelCreator<C>
 			final ComClient   parent
 		)
 		{
-			return ComClientChannel.New();
+			final PersistenceManager<?> persistenceManager = this.createPersistenceManager(connection, protocol);
+			
+			return ComClientChannel.New(persistenceManager, protocol, parent);
 		}
 		
 	}
-		
+	
 }

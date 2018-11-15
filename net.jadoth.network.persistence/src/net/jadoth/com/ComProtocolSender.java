@@ -5,45 +5,34 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.chars.VarString;
-import net.jadoth.chars.XChars;
 import net.jadoth.low.XVM;
 
 public interface ComProtocolSender<C>
 {
 	public void sendProtocol(C connection, ComProtocol protocol);
+		
 	
-	
-	public static int defaultLengthDigitCount()
-	{
-		return 8;
-	}
 	
 	public default int lengthDigitCount()
 	{
-		return defaultLengthDigitCount();
+		return Com.defaultLengthDigitCount();
 	}
 	
 	
 	public static ByteBuffer bufferProtocol(
 		final ComProtocol                protocol               ,
 		final ComProtocolStringConverter protocolStringConverter,
-		final int                        lengthCharCount
+		final int                        lengthDigitCount
 	)
 	{
-		final VarString vs = VarString.New(10_000)
-			.repeat(lengthCharCount, '0')
-			.add(protocolStringConverter.protocolItemSeparator())
-		;
-		protocolStringConverter.assemble(vs, protocol);
-		
-		final char[] lengthString = XChars.toString(vs.length()).toCharArray();
-		vs.setChars(lengthCharCount - lengthString.length, lengthString);
-		
-		final byte[] assembledProtocolBytes = vs.encode(); // UTF-8
+		final byte[] assembledProtocolBytes = Com.assembleSendableProtocolBytes(
+			protocol               ,
+			protocolStringConverter,
+			lengthDigitCount
+		);
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length + Long.BYTES);
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length);
 		final long dbbAddress = XVM.getDirectByteBufferAddress(dbb);
 		XVM.copyArray(assembledProtocolBytes, dbbAddress);
 		// the bytebuffer's position remains at 0, limit at capacity. Both are correct for the first reading call.

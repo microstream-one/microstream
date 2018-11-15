@@ -37,14 +37,14 @@ public class UtilTestCom
 	{
 		final BinaryPersistenceFoundation<?> foundation = createFoundation(systemDirectory, isClient);
 		
-		final ComPersistenceChannelBinary channel = ComPersistenceChannelBinary.New(
+		final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 			socketChannel,
 			BufferSizeProvider.New()
 		);
 		foundation.setPersistenceChannel(channel);
 		
 		final PersistenceManager<Binary> pm = foundation.createPersistenceManager();
-		
+				
 		return ComChannel.New(pm);
 	}
 		
