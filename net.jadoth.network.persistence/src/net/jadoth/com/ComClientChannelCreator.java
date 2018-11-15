@@ -14,11 +14,20 @@ public interface ComClientChannelCreator<C>
 	
 	public abstract class Abstract<C> implements ComClientChannelCreator<C>
 	{
-		protected abstract PersistenceManager<?> createPersistenceManager(
-			C           connection,
-			ComProtocol protocol
-		);
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 		
+		protected Abstract()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 		
 		@Override
 		public ComClientChannel createChannel(
@@ -31,6 +40,11 @@ public interface ComClientChannelCreator<C>
 			
 			return ComClientChannel.New(persistenceManager, protocol, parent);
 		}
+
+		protected abstract PersistenceManager<?> createPersistenceManager(
+			C           connection,
+			ComProtocol protocol
+		);
 		
 	}
 	
