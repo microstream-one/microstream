@@ -147,9 +147,9 @@ public final class XSockets
 	 * @param socketChannel
 	 * @param byteBuffer
 	 * 
-	 * @return the amount of bytes written, which always equals byteBuffer.remaining() at the time of the method call.
+	 * @return the passed {@link ByteBuffer} instance.
 	 */
-	public static int writeCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
+	public static ByteBuffer writeCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
 		throws ComException
 	{
 		/* (01.11.2018 TM)TODO: reliable socket channel writing
@@ -163,7 +163,35 @@ public final class XSockets
 		 */
 		try
 		{
-			return socketChannel.write(byteBuffer);
+			socketChannel.write(byteBuffer);
+			return byteBuffer;
+		}
+		catch(final IOException e)
+		{
+			// (01.11.2018 TM)EXCP: proper exception
+			throw new ComException(e);
+		}
+	}
+	
+	/**
+	 * This method either read to completely fill the passed {@link ByteBuffer} from position to limit
+	 * or it throws an exception to indicate failure.
+	 * 
+	 * @param socketChannel
+	 * @param byteBuffer
+	 * 
+	 * @return the passed {@link ByteBuffer} instance.
+	 */
+	public static ByteBuffer readCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
+		throws ComException
+	{
+		/* (01.11.2018 TM)TODO: reliable socket channel reading
+		 * see writeCompletely
+		 */
+		try
+		{
+			socketChannel.read(byteBuffer);
+			return byteBuffer;
 		}
 		catch(final IOException e)
 		{

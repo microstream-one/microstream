@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.chars._charArrayRange;
 import net.jadoth.files.XFiles;
 
 public interface ComConnectionHandler<C>
@@ -99,7 +100,7 @@ public interface ComConnectionHandler<C>
 		@Override
 		public void read(final SocketChannel connction, final ByteBuffer buffer)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME ComConnectionLogic<SocketChannel>#read()
+			XSockets.readCompletely(connction, buffer);
 		}
 
 		@Override
@@ -128,12 +129,14 @@ public interface ComConnectionHandler<C>
 			final ByteBuffer lengthBuffer = ByteBuffer.allocateDirect(this.protocolLengthDigitCount);
 			this.read(connection, lengthBuffer);
 			
-			final char[] chars = XFiles.standardCharset().decode(lengthBuffer).array();
+			final String lengthDigits = XFiles.standardCharset().decode(lengthBuffer).toString();
+			final int    length       = Integer.parseInt(lengthDigits);
 			
+			final ByteBuffer protocolBuffer = ByteBuffer.allocateDirect(length - this.protocolLengthDigitCount - 1);
+			this.read(connection, protocolBuffer);
+			final char[] protocolChars = XFiles.standardCharset().decode(lengthBuffer).array();
 			
-			
-			// FIXME ComConnectionHandler.Default#receiveProtocol()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			return stringConverter.parse(_charArrayRange.New(protocolChars));
 		}
 		
 		@Override
