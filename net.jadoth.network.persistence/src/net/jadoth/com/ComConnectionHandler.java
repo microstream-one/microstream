@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.low.XVM;
+import net.jadoth.files.XFiles;
 
 public interface ComConnectionHandler<C>
 {
@@ -127,9 +127,10 @@ public interface ComConnectionHandler<C>
 		{
 			final ByteBuffer lengthBuffer = ByteBuffer.allocateDirect(this.protocolLengthDigitCount);
 			this.read(connection, lengthBuffer);
-			final long dbbAddress = XVM.getDirectByteBufferAddress(lengthBuffer);
-			final byte[] bytes = new byte[this.protocolLengthDigitCount];
-			XVM.copyRangeToArray(dbbAddress, bytes);
+			
+			final char[] chars = XFiles.standardCharset().decode(lengthBuffer).array();
+			
+			
 			
 			// FIXME ComConnectionHandler.Default#receiveProtocol()
 			throw new net.jadoth.meta.NotImplementedYetError();
