@@ -29,6 +29,15 @@ import net.jadoth.typing.KeyValue;
  */
 public interface ComProtocolStringConverter extends ObjectStringConverter<ComProtocol>
 {
+	/* (15.11.2018 TM)TODO: ComProtocolStringConverter probably needs to become more flexible
+	 * Currently, the assembler and parser handle the string structure in a strict format.
+	 * No custom entries are allowed, not even a change in the entries' order.
+	 * If customized parts need to transport information in the handshake, they are currently locked out.
+	 * E.g.: a public key for encryption.
+	 * As a conclusion, the protocol string must become a general purpose key-value content
+	 * with optionally delimited keys and values, without trailing entry.
+	 */
+	
 	@Override
 	public VarString assemble(VarString vs, ComProtocol subject);
 	

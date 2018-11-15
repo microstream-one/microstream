@@ -15,22 +15,22 @@ import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 
-public interface ComPersistenceChannelBinary extends ComPersistenceChannel<SocketChannel, Binary>
+public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
-	public static ComPersistenceChannelBinary New(
+	public static ComPersistenceChannelBinary.Default New(
 		final SocketChannel      channel           ,
 		final BufferSizeProvider bufferSizeProvider
 	)
 	{
-		return new ComPersistenceChannelBinary.Implementation(
+		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider)
 		);
 	}
 	
-	public final class Implementation
-	extends ComPersistenceChannel.AbstractImplementation<SocketChannel, Binary>
-	implements ComPersistenceChannelBinary
+	public abstract class Abstract<C>
+	extends ComPersistenceChannel.AbstractImplementation<C, Binary>
+	implements ComPersistenceChannelBinary<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -45,7 +45,7 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 		// constructors //
 		/////////////////
 
-		Implementation(final SocketChannel channel, final BufferSizeProvider bufferSizeProvider)
+		Abstract(final C channel, final BufferSizeProvider bufferSizeProvider)
 		{
 			super(channel);
 			this.bufferSizeProvider = bufferSizeProvider;
@@ -57,7 +57,7 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 		// methods //
 		////////////
 		
-		private ByteBuffer ensureDefaultBuffer()
+		protected ByteBuffer ensureDefaultBuffer()
 		{
 			if(this.defaultBuffer == null)
 			{
@@ -68,7 +68,28 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 			
 			return this.defaultBuffer;
 		}
+		
+	}
+	
 
+	
+	public final class Default extends ComPersistenceChannelBinary.Abstract<SocketChannel>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Default(final SocketChannel channel, final BufferSizeProvider bufferSizeProvider)
+		{
+			super(channel, bufferSizeProvider);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		///////////
+		
 		@Override
 		protected XGettingCollection<? extends Binary> internalRead(final SocketChannel channel)
 			throws PersistenceExceptionTransfer
@@ -151,14 +172,14 @@ public interface ComPersistenceChannelBinary extends ComPersistenceChannel<Socke
 		}
 		
 		@Override
-		public final void closeSource()
+		public void closeSource()
 		{
 			// SocketChannel#close is idempotent
 			this.close();
 		}
 		
 		@Override
-		public final void closeTarget()
+		public void closeTarget()
 		{
 			// SocketChannel#close is idempotent
 			this.close();

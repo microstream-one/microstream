@@ -1,5 +1,7 @@
 package net.jadoth.com;
 
+import static net.jadoth.X.notNull;
+
 import net.jadoth.persistence.types.PersistenceManager;
 
 
@@ -12,6 +14,13 @@ public interface ComChannel
 	public void close();
 	
 	
+	
+	public static ComChannel New(final PersistenceManager<?> persistenceManager)
+	{
+		return new ComChannel.Implementation(
+			notNull(persistenceManager)
+		);
+	}
 		
 	public class Implementation implements ComChannel
 	{
