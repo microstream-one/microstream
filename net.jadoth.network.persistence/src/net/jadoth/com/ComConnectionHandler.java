@@ -43,9 +43,7 @@ public interface ComConnectionHandler<C>
 	public void sendProtocol(C connection, ComProtocol protocol, ComProtocolStringConverter stringConverter);
 	
 	public ComProtocol receiveProtocol(C connection, ComProtocolStringConverter stringConverter);
-	
-	public ComHostContext.Builder<C> createHostContextBuilder();
-	
+		
 	public ComConnectionListener<C> createConnectionListener(InetSocketAddress address);
 	
 	
@@ -139,12 +137,6 @@ public interface ComConnectionHandler<C>
 			return stringConverter.parse(_charArrayRange.New(protocolChars));
 		}
 		
-		@Override
-		public ComHostContext.Builder<SocketChannel> createHostContextBuilder()
-		{
-			return ComHostContext.<SocketChannel>Builder();
-		}
-
 		@Override
 		public ComConnectionListener<SocketChannel> createConnectionListener(final InetSocketAddress address)
 		{

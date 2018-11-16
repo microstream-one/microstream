@@ -1033,5 +1033,16 @@ Wird benutzt in:\par
 Hm. Dann passt das vorerst mal so.\par
 \par
 ComClient braucht noch einen Creator, so wie ComHost, falls man mal einen Wrapper rumlegen will oder so.\par
+\par
+Hm. Wenn die clientTargetAddress jetzt als einzelnes Datum in der Foundation liegt, dann w\'e4r es bl\'f6d, wenn die HostBindingAddress in dem eigentlich sinnlosen ComHostContext drinstecken w\'fcrde.\par
+\par
+Die Address Instanzen mal besser benennen.\par
+\par
+Soweit so gut. Aber die Koppelung von ComBinary an Com fehlt immer noch.\par
+Evtl. muss ich das wirklich so machen, dass man von ComBinary aus eine Erzeugerlogik static in Com setzen kann.\par
+\par
+Au\'dferdem fehlt noch:\par
+Ohne bereits vorhandenen Persistence Context des Servers muss einer on-demand erzeugt werden k\'f6nnen.\par
+Das hei\'dft auch, es muss eine Liste an Typen geben, die man durchiterieren kann, f\'fcr die dann der Persistence Kontext initialisiert, d.h. TypeHandler erzeugt werden.\par
 }
  
