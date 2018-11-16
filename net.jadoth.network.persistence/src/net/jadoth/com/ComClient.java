@@ -10,6 +10,11 @@ public interface ComClient
 	
 	
 	
+	public static <C> ComClientCreator<C> Creator()
+	{
+		return ComClientCreator.New();
+	}
+	
 	public static <C> ComClient.Implementation<C> New(
 		final InetSocketAddress          hostAddress      ,
 		final ComConnectionHandler<C>    connectionHandler,
