@@ -306,7 +306,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 
 			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)
-			final PersistenceTypeHandlerManager<?>       thm = ecf.getTypeHandlerManager();
+			final PersistenceTypeHandlerManager<?> thm = ecf.getTypeHandlerManager();
 			thm.initialize();
 			
 			// the registered supplier callback leads back to this class' createStorageManager method
