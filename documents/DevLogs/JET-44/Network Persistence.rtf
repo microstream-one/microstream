@@ -988,5 +988,25 @@ Das muss ich probieren, das ist super!\par
 Das ersetzt gleich den ComConnectionListenerCreator und den ComProtocolSender. Und der Code zum Protokoll senden und empfangen steht direkt nebeneinander, so dass man sich mit der Einhaltung des Formats bei der Implementierung sehr leicht tut.\par
 \par
 Fertig. Nur bei den beiden ComBinary Implementierungen muss ich mal noch \'fcberlegen, ob sich das konsolidieren l\'e4sst.\par
+\par
+\par
+2018-11-16\par
+\par
+Ich mach am besten einen ReadOnly TypeDictionaryManager.\par
+Daf\'fcr muss der TypeDictionaryView wieder "hochgecastet", bzw. gewrappt werden als TypeDictionary mit entsprechenden UnsupportedOperation Exceptions.\par
+Implementieren ...\par
+\par
+Hm, bl\'f6d dabei: Die TypeLineageView Dinger sind auch nicht mehr typm\'e4\'dfig kompatibel zu den TypeLineages.\par
+Bzw. das eigentlich bl\'f6de ist: Das sind durchaus mutable TypeLineage Instanzen, nur genericsm\'e4\'dfig registriert als TypeLineageView.\par
+Aber eigentlich ist das bl\'f6d: Sie sind nicht wirklich immutable, was gef\'e4hrlich ist und man muss sie herumcasten oder alles einmal in die Tiefe umwrappen.\par
+\par
+Vielleicht w\'e4re es doch besser, das anders rum zu typisieren:\par
+View extends das normale mit UnsupportedOperation Exceptions.\par
+Denn die Verwendung ist ja eher so:\par
+- Alle ver\'e4ndernden Operationen werden schon von den ~Manager Typen abgefangen und eine Exception geworfen.\par
+- Alle lesenden Operationen, evtl. sogar direkt auf dem TypeDictionary, gehen ja.\par
+\par
+Trotzdem m\'fcsten die TypeLineages einmap umgewrappt werden in ~View Instanzen nach demselben Konzept. Wenn was immutable ist / sein soll / sein muss, muss es schon richtig immutable sein, sonst ist es scheisse.\par
+\par
 }
  
