@@ -13,6 +13,10 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 
 public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreator<C>
 {
+	/* (16.11.2018 TM)FIXME: JET-43: integrate ComClientChannelCreatorBinary
+	 * Also, but tricky: Maybe the "Default" concept here could be replaced by the ComConnectionHandler concept.
+	 * That, in turn, might require to consolidate the Binary type to act as an implicit self-collection.
+	 */
 	public static ComClientChannelCreatorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider
