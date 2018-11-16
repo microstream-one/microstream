@@ -40,6 +40,18 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 	}
 
 
+	
+	
+	public static PersistenceTypeDictionaryManager New(
+		final PersistenceTypeDictionaryProvider typeDictionaryProvider,
+		final PersistenceTypeDictionaryExporter typeDictionaryExporter
+	)
+	{
+		return new PersistenceTypeDictionaryManager.Implementation(
+			notNull(typeDictionaryProvider),
+			notNull(typeDictionaryExporter)
+		);
+	}
 
 	public final class Implementation implements PersistenceTypeDictionaryManager
 	{
@@ -60,14 +72,14 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final PersistenceTypeDictionaryProvider typeDictionaryProvider,
 			final PersistenceTypeDictionaryExporter typeDictionaryExporter
 		)
 		{
 			super();
-			this.typeDictionaryProvider = notNull(typeDictionaryProvider);
-			this.typeDictionaryExporter = notNull(typeDictionaryExporter);
+			this.typeDictionaryProvider = typeDictionaryProvider;
+			this.typeDictionaryExporter = typeDictionaryExporter;
 		}
 
 
@@ -231,6 +243,15 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 	}
 
+	
+	public static PersistenceTypeDictionaryManager Immutable(
+		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider
+	)
+	{
+		return new PersistenceTypeDictionaryManager.Immutable(
+			notNull(typeDictionaryProvider)
+		);
+	}
 	
 	public final class Immutable implements PersistenceTypeDictionaryManager
 	{
