@@ -35,9 +35,10 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
 	
 	public ComHostChannelCreator<C> getChannelCreator();
-
 	
 	public ComHostContext<C> getHostContext();
+	
+	public ComClientCreator<C> getClientCreator();
 	
 	
 	public F setProtocolName(String protocolName);
@@ -73,8 +74,12 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		PersistenceFoundation<?, ?> persistenceFoundation
 	);
 	
+	public F setClientCreator(ComClientCreator<C> clientCreator);
+	
 	
 	public ComHost<C> createHost();
+	
+	public ComClient createClient();
 	
 	
 	
@@ -99,12 +104,15 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComProtocolProviderCreator      protocolProviderCreator  ;
                                                 
 		private ComProtocolStringConverter      protocolStringConverter  ;
+		
 		private ComHostCreator<C>               hostCreator              ;
 		private ComConnectionHandler<C>         connectionHandler        ;
 		private ComConnectionAcceptorCreator<C> connectionAcceptorCreator;
 		private ComHostChannelCreator<C>        hostChannelCreator       ;
 		                                        
 		private ComHostContext<C>               hostContext              ;
+		
+		private ComClientCreator<C>             clientCreator            ;
 
 		
 		
@@ -229,6 +237,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
+		public ComClientCreator<C> getClientCreator()
+		{
+			if(this.clientCreator == null)
+			{
+				this.clientCreator = this.ensureClientCreator();
+			}
+			
+			return this.clientCreator;
+		}
+		
+		@Override
 		public ComConnectionHandler<C> getConnectionHandler()
 		{
 			if(this.connectionHandler == null)
@@ -313,6 +332,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return ComHost.Creator();
 		}
 		
+		protected ComClientCreator<C> ensureClientCreator()
+		{
+			return ComClient.Creator();
+		}
+		
 		protected ComConnectionAcceptorCreator<C> ensureConnectionAcceptorCreator()
 		{
 			return ComConnectionAcceptor.Creator();
@@ -370,7 +394,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return this.getHostContext().provideChannelAcceptor();
 		}
 		
-		protected InetSocketAddress provideSocktAddress()
+		protected InetSocketAddress provideSocketAddress()
 		{
 			return this.getHostContext().provideAddress();
 		}
@@ -440,6 +464,13 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
+		public F setClientCreator(final ComClientCreator<C> clientCreator)
+		{
+			this.clientCreator = clientCreator;
+			return this.$();
+		}
+		
+		@Override
 		public F setConnectionAcceptorCreator(final ComConnectionAcceptorCreator<C> connectionAcceptorCreator)
 		{
 			this.connectionAcceptorCreator = connectionAcceptorCreator;
@@ -498,11 +529,24 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 				this.provideChannelAcceptor()
 			);
 
-			final ComHostCreator<C>  hostCreator = this.getHostCreator();
+			final ComHostCreator<C> hostCreator = this.getHostCreator();
 			return hostCreator.createComHost(
-				this.provideSocktAddress() ,
+				this.provideSocketAddress() ,
 				this.getConnectionHandler(),
 				connectionAcceptor
+			);
+		}
+		
+		@Override
+		public ComClient createClient()
+		{
+			final ComClientCreator<C> clientCreator = this.getClientCreator();
+			
+			return clientCreator.createClient(
+				null,
+				connectionHandler,
+				protocolStringConverter,
+				null
 			);
 		}
 		
