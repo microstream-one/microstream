@@ -1,5 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
+import java.nio.ByteOrder;
+
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XEnum;
@@ -28,6 +30,9 @@ extends PersistenceFoundation<Binary, F>
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
+	// (16.11.2018 TM)TODO: JET-49: handle divergent target ByteOrder
+	public ByteOrder getTargetByteOrder();
+	
 
 	
 	public F setCustomTranslatorLookup(
@@ -45,6 +50,8 @@ extends PersistenceFoundation<Binary, F>
 	public F setValueTranslatorMappingProvider(
 		BinaryValueTranslatorMappingProvider valueTranslatorMappingProvider
 	);
+	
+	public F setTargetByteOrder(ByteOrder targetByteOrder);
 
 
 	
@@ -70,6 +77,7 @@ extends PersistenceFoundation<Binary, F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
+		private ByteOrder                              targetByteOrder        ;
 		
 		
 		
@@ -132,6 +140,17 @@ extends PersistenceFoundation<Binary, F>
 			return this.valueTranslatorProvider;
 		}
 		
+		@Override
+		public ByteOrder getTargetByteOrder()
+		{
+			if(this.targetByteOrder == null)
+			{
+				this.targetByteOrder = this.dispatch(this.ensureTargetByteOrder());
+			}
+			
+			return this.targetByteOrder;
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -163,6 +182,13 @@ extends PersistenceFoundation<Binary, F>
 		public F setValueTranslatorMappingProvider(final BinaryValueTranslatorMappingProvider valueTranslatorMapping)
 		{
 			this.valueTranslatorMapping = valueTranslatorMapping;
+			return this.$();
+		}
+		
+		@Override
+		public F setTargetByteOrder(final ByteOrder targetByteOrder)
+		{
+			this.targetByteOrder = targetByteOrder;
 			return this.$();
 		}
 		
@@ -245,6 +271,11 @@ extends PersistenceFoundation<Binary, F>
 				this.getTranslatorKeyBuilders()         ,
 				this.getValueTranslatorMappingProvider()
 			);
+		}
+		
+		protected ByteOrder ensureTargetByteOrder()
+		{
+			return ByteOrder.nativeOrder();
 		}
 		
 	}

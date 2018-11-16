@@ -9,6 +9,7 @@ import net.jadoth.com.ComProtocol;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 
 public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreator<C>
 {
@@ -66,19 +67,17 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 				connection,
 				this.bufferSizeProvider
 			);
+			this.foundation.setPersistenceChannel(channel);
 			
-			/* FIXME ComClientChannelCreatorBinary.Default#createPersistenceManager()
-			 * - create TypeDictionaryIoHandler:
-			 *   read-only implementation that throws exceptions for writing operations.
-			 *   or maybe even at the TypeDictionaryManager level.
-			 *   loader implementation that feeds from the received TypeDictionary string.
-			 *   Only problem with that is: the nicely typed protocol parameter would have to degrade into a string.
-			 *   Or maybe an alterantive provider logic that builds a runtime TypeDictionary from the received view.
-			 * 
-			 * - set byte order
-			 * - set channel to foundation
-			 */
-			throw new net.jadoth.meta.NotImplementedYetError();
+			final PersistenceTypeDictionaryManager typeDictionaryManager =
+				PersistenceTypeDictionaryManager.Immutable(protocol)
+			;
+			this.foundation.setTypeDictionaryManager(typeDictionaryManager);
+			
+			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
+			this.foundation.setTargetByteOrder(protocol.byteOrder());
+			
+			return this.foundation.createPersistenceManager();
 		}
 		
 	}
