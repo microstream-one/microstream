@@ -121,7 +121,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			if(chunks.length != 1)
 			{
-				/* (11.08.2018 TM)NOTE:
+				/* (11.08.2018 TM)TODO: binary chunks array ugliness
 				 * This is a somewhat unclean API:
 				 * Chunks is only an array because the Storage's channel hashing mechanism requires it.
 				 * But for each channel, there is only exactely one chunk.
