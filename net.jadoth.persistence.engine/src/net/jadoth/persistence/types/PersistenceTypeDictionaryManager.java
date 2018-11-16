@@ -19,6 +19,25 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
 		
 	public PersistenceTypeDictionaryManager exportTypeDictionary();
+	
+	
+	public static void validateTypeDefinition(
+		final PersistenceTypeDictionary dictionary    ,
+		final PersistenceTypeDefinition typeDefinition
+	)
+	{
+		PersistenceTypeDictionary.validateTypeId(typeDefinition);
+		
+		// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
+		final PersistenceTypeDefinition registered = dictionary.lookupTypeById(typeDefinition.typeId());
+
+		// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
+		if(registered != null && !PersistenceTypeDescription.equalDescription(registered, typeDefinition))
+		{
+			// (31.07.2014 TM)EXCP: proper exception
+			throw new RuntimeException("Type Definition mismatch: " + typeDefinition);
+		}
+	}
 
 
 
@@ -72,36 +91,22 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			this.changed = false;
 		}
 
-		private PersistenceTypeDictionary cachedTypeDictionary()
+		private PersistenceTypeDictionary ensureTypeDictionary()
 		{
 			if(this.cachedTypeDictionary == null)
 			{
-				this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
-				this.markChanged();
+				synchronized(this)
+				{
+					// recheck after synch
+					if(this.cachedTypeDictionary == null)
+					{
+						this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
+						this.markChanged();
+					}
+				}
 			}
+			
 			return this.cachedTypeDictionary;
-		}
-
-		@Override
-		public synchronized PersistenceTypeDictionaryManager validateTypeDefinition(
-			final PersistenceTypeDefinition typeDefinition
-		)
-		{
-			PersistenceTypeDictionary.validateTypeId(typeDefinition);
-			
-			final PersistenceTypeDictionary dictionary = this.cachedTypeDictionary();
-			
-			// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
-			final PersistenceTypeDefinition registered = dictionary.lookupTypeById(typeDefinition.typeId());
-
-			// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
-			if(registered != null && !PersistenceTypeDescription.equalDescription(registered, typeDefinition))
-			{
-				// (31.07.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Type Definition mismatch: " + typeDefinition);
-			}
-			
-			return this;
 		}
 
 		public final PersistenceTypeDictionaryManager.Implementation synchUpdateExport()
@@ -124,14 +129,14 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		@Override
 		public final synchronized PersistenceTypeDictionary provideTypeDictionary()
 		{
-			return this.cachedTypeDictionary();
+			return this.ensureTypeDictionary();
 		}
 		
 		@Override
 		public final synchronized boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
 			this.validateTypeDefinition(typeDefinition);
-			final boolean hasChanged = this.cachedTypeDictionary().registerTypeDefinition(typeDefinition);
+			final boolean hasChanged = this.ensureTypeDictionary().registerTypeDefinition(typeDefinition);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -147,7 +152,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
-			final boolean hasChanged = this.cachedTypeDictionary().registerTypeDefinitions(typeDefinitions);
+			final boolean hasChanged = this.ensureTypeDictionary().registerTypeDefinitions(typeDefinitions);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -163,7 +168,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinition(typeDefinition);
-			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeTypeDefinition(typeDefinition);
+			final boolean hasChanged = this.ensureTypeDictionary().registerRuntimeTypeDefinition(typeDefinition);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -180,7 +185,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		)
 		{
 			this.validateTypeDefinitions(typeDefinitions);
-			final boolean hasChanged = this.cachedTypeDictionary().registerRuntimeTypeDefinitions(typeDefinitions);
+			final boolean hasChanged = this.ensureTypeDictionary().registerRuntimeTypeDefinitions(typeDefinitions);
 			if(hasChanged)
 			{
 				this.markChanged();
@@ -191,18 +196,36 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		}
 
 		@Override
+		public synchronized PersistenceTypeDictionaryManager validateTypeDefinition(
+			final PersistenceTypeDefinition typeDefinition
+		)
+		{
+			PersistenceTypeDictionaryManager.validateTypeDefinition(
+				this.ensureTypeDictionary(),
+				typeDefinition
+			);
+			
+			return this;
+		}
+
+		@Override
 		public final synchronized PersistenceTypeDictionaryManager.Implementation validateTypeDefinitions(
 			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
-			typeDefinitions.forEach(this::validateTypeDefinition);
+			final PersistenceTypeDictionary typeDictionary = this.ensureTypeDictionary();
+			for(final PersistenceTypeDefinition td : typeDefinitions)
+			{
+				PersistenceTypeDictionaryManager.validateTypeDefinition(typeDictionary, td);
+			}
+			
 			return this;
 		}
 
 		@Override
 		public final synchronized PersistenceTypeDictionaryManager.Implementation exportTypeDictionary()
 		{
-			this.typeDictionaryExporter.exportTypeDictionary(this.cachedTypeDictionary());
+			this.typeDictionaryExporter.exportTypeDictionary(this.ensureTypeDictionary());
 			return this;
 		}
 
@@ -217,7 +240,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		
 		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
 		
-		private transient PersistenceTypeDictionary cachedTypeDictionary;
+		private transient PersistenceTypeDictionaryView cachedTypeDictionary;
 		
 		
 		
@@ -232,84 +255,87 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		}
 		
 		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 		
-		private PersistenceTypeDictionary ensureTypeDictionary()
+		private PersistenceTypeDictionaryView ensureTypeDictionary()
 		{
 			if(this.cachedTypeDictionary == null)
 			{
-				
+				synchronized(this)
+				{
+					// recheck after synch
+					if(this.cachedTypeDictionary == null)
+					{
+						this.cachedTypeDictionary = this.typeDictionaryProvider.provideTypeDictionary();
+					}
+				}
 			}
+			
+			return this.cachedTypeDictionary;
 		}
-		
-		private PersistenceTypeDictionary wrapTypeDictionary()
-
-
 
 		@Override
-		public PersistenceTypeDictionary provideTypeDictionary()
+		public final PersistenceTypeDictionaryView provideTypeDictionary()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryProvider#provideTypeDictionary()
+			return this.ensureTypeDictionary();
 		}
-
-
 
 		@Override
-		public PersistenceTypeDictionaryManager validateTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public PersistenceTypeDictionaryManager validateTypeDefinition(
+			final PersistenceTypeDefinition typeDefinition
+		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#validateTypeDefinition()
+			PersistenceTypeDictionaryManager.validateTypeDefinition(this.ensureTypeDictionary(), typeDefinition);
+			
+			return this;
 		}
-
-
 
 		@Override
-		public PersistenceTypeDictionaryManager validateTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		public final PersistenceTypeDictionaryManager validateTypeDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
+		)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#validateTypeDefinitions()
+			final PersistenceTypeDictionary typeDictionary = this.ensureTypeDictionary();
+			for(final PersistenceTypeDefinition td : typeDefinitions)
+			{
+				PersistenceTypeDictionaryManager.validateTypeDefinition(typeDictionary, td);
+			}
+			
+			return this;
 		}
-
-
 
 		@Override
-		public boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public final boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerTypeDefinition()
+			throw new UnsupportedOperationException();
 		}
-
-
 
 		@Override
-		public boolean registerTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		public final boolean registerTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerTypeDefinitions()
+			throw new UnsupportedOperationException();
 		}
-
-
 
 		@Override
-		public boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public final boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition typeDefinition)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerRuntimeTypeDefinition()
+			throw new UnsupportedOperationException();
 		}
-
-
 
 		@Override
-		public boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		public final boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerRuntimeTypeDefinitions()
+			throw new UnsupportedOperationException();
 		}
-
-
 
 		@Override
-		public PersistenceTypeDictionaryManager exportTypeDictionary()
+		public final PersistenceTypeDictionaryManager exportTypeDictionary()
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#exportTypeDictionary()
+			throw new UnsupportedOperationException();
 		}
-		
 		
 	}
 	

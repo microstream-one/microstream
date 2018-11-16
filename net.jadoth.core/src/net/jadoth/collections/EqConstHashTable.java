@@ -87,6 +87,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			Hashing.hashEqualityValue()
 		);
 	}
+	
 	public static final <K, V> EqConstHashTable<K, V> New(
 		final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries
 	)
@@ -96,6 +97,18 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			DEFAULT_HASH_FACTOR,
 			Hashing.hashEqualityValue()
 		).internalAddEntries(entries);
+	}
+	
+	public static final <V0, K, V> EqConstHashTable<K, V> New(
+		final XGettingCollection<? extends KeyValue<? extends K, ? extends V0>> entries,
+		final Function<? super V0, V>                                           mapper
+	)
+	{
+		return new EqConstHashTable<K, V>(
+			DEFAULT_HASH_LENGTH,
+			DEFAULT_HASH_FACTOR,
+			Hashing.hashEqualityValue()
+		).internalAddEntries(entries, mapper);
 	}
 
 	public static final <K, V> EqConstHashTable<K, V> NewCustom(
@@ -416,16 +429,27 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		this.chain.appendEntry(this.createNewEntry(hash, key, value));
 	}
 
-	final EqConstHashTable<K, V> internalAddEntries(final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries)
+	final EqConstHashTable<K, V> internalAddEntries(
+		final XGettingCollection<? extends KeyValue<? extends K, ? extends V>> entries
+	)
 	{
-		entries.iterate(new Consumer<KeyValue<? extends K, ? extends V>>()
-		{
-			@Override
-			public void accept(final KeyValue<? extends K, ? extends V> e)
-			{
-				EqConstHashTable.this.internalAdd(e.key(), e.value());
-			}
-		});
+		entries.iterate(kv ->
+			this.internalAdd(kv.key(), kv.value())
+		);
+
+		return this;
+	}
+	
+	final <V0> EqConstHashTable<K, V> internalAddEntries(
+		final XGettingCollection<? extends KeyValue<? extends K, ? extends V0>> entries,
+		final Function<? super V0, V>                                           mapper
+		
+	)
+	{
+		entries.iterate(kv ->
+			this.internalAdd(kv.key(), mapper.apply(kv.value()))
+		);
+
 		return this;
 	}
 
@@ -437,10 +461,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	final int internalRehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                                          reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
-		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots         = ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity);
-		final int                                          range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
-		final HashEqualator<? super K>                     hashEqualator = this.hashEqualator;
+		final int reqCapacity = Hashing.padHashLength((int)(this.size / this.hashDensity));
+		
+		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots =
+			ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity)
+		;
+		final int range = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
+		final HashEqualator<? super K> hashEqualator = this.hashEqualator;
 		final AbstractChainKeyValueStorage<K, V, ChainMapEntryLinkedHashedStrongStrong<K, V>> chain = this.chain;
 
 		// keep the old chain head for old entries iteration and clear the chain for the new entries

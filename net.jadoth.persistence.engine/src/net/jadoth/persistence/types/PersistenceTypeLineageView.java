@@ -4,18 +4,25 @@ import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
 
-public interface PersistenceTypeLineageView
+public interface PersistenceTypeLineageView extends PersistenceTypeLineage
 {
-	public String typeName();
+	@Override
+	public default PersistenceTypeLineageView view()
+	{
+		return this;
+	}
 	
-	public Class<?> type();
-	
-	public XGettingTable<Long, PersistenceTypeDefinition> entries();
-	
-	public PersistenceTypeDefinition latest();
-	
-	public PersistenceTypeDefinition runtimeDefinition();
-	
+	@Override
+	public default boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public default boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
+	{
+		throw new UnsupportedOperationException();
+	}
 	
 	
 	public static PersistenceTypeLineageView New(final PersistenceTypeLineage typeLineage)
@@ -23,8 +30,8 @@ public interface PersistenceTypeLineageView
 		synchronized(typeLineage)
 		{
 			return new PersistenceTypeLineageView.Implementation(
-				typeLineage.typeName(),
-				typeLineage.type()    ,
+				typeLineage.typeName()                     ,
+				typeLineage.type()                         ,
 				EqConstHashTable.New(typeLineage.entries()),
 				typeLineage.runtimeDefinition()
 			);

@@ -15,7 +15,6 @@ import net.jadoth.low.XVM;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
-import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
 import net.jadoth.typing.KeyValue;
@@ -301,12 +300,13 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final XGettingTable<String, String> content
 		)
 		{
-			final String                        version    = content.get(this.labelProtocolVersion());
-			final ByteOrder                     byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
-			final SwizzleIdStrategy             idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
-			final PersistenceTypeDictionaryView typeDict   = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
+			final String            version    = content.get(this.labelProtocolVersion());
+			final ByteOrder         byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
+			final SwizzleIdStrategy idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
 			
-			return ComProtocol.New(protocolName, version, byteOrder, idStrategy, typeDict);
+			final PersistenceTypeDictionary typeDict = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
+						
+			return ComProtocol.New(protocolName, version, byteOrder, idStrategy, typeDict.view());
 		}
 		
 		private ByteOrder parseByteOrder(final String input)
