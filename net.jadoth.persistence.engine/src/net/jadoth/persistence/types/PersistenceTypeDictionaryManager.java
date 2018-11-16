@@ -208,4 +208,109 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 	}
 
+	
+	public final class Immutable implements PersistenceTypeDictionaryManager
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
+		
+		private transient PersistenceTypeDictionary cachedTypeDictionary;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Immutable(final PersistenceTypeDictionaryViewProvider typeDictionaryProvider)
+		{
+			super();
+			this.typeDictionaryProvider = typeDictionaryProvider;
+		}
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private PersistenceTypeDictionary ensureTypeDictionary()
+		{
+			if(this.cachedTypeDictionary == null)
+			{
+				
+			}
+		}
+		
+		private PersistenceTypeDictionary wrapTypeDictionary()
+
+
+
+		@Override
+		public PersistenceTypeDictionary provideTypeDictionary()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryProvider#provideTypeDictionary()
+		}
+
+
+
+		@Override
+		public PersistenceTypeDictionaryManager validateTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#validateTypeDefinition()
+		}
+
+
+
+		@Override
+		public PersistenceTypeDictionaryManager validateTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#validateTypeDefinitions()
+		}
+
+
+
+		@Override
+		public boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerTypeDefinition()
+		}
+
+
+
+		@Override
+		public boolean registerTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerTypeDefinitions()
+		}
+
+
+
+		@Override
+		public boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerRuntimeTypeDefinition()
+		}
+
+
+
+		@Override
+		public boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#registerRuntimeTypeDefinitions()
+		}
+
+
+
+		@Override
+		public PersistenceTypeDictionaryManager exportTypeDictionary()
+		{
+			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryManager#exportTypeDictionary()
+		}
+		
+		
+	}
+	
 }
