@@ -10,22 +10,87 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import net.jadoth.reflect.XReflect;
+import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.typing.KeyValue;
 
 
-public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
+public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 {
 	@Override
+	public PersistenceTypeDefinition lookupTypeByName(String typeName);
+
+	@Override
+	public PersistenceTypeDefinition lookupTypeById(long typeId);
+	
+	
 	public XGettingTable<String, ? extends PersistenceTypeLineage> typeLineages();
 
-	@Override
 	public PersistenceTypeLineage lookupTypeLineage(Class<?> type);
 	
-	@Override
 	public PersistenceTypeLineage lookupTypeLineage(String typeName);
+	
+	
+	public XGettingTable<Long, PersistenceTypeDefinition> allTypeDefinitions();
+	
+	public boolean isEmpty();
+
+	public long determineHighestTypeId();
+	
+	public PersistenceTypeDictionaryView view();
+	
+	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateAllTypeDefinitions(final C logic)
+	{
+		return this.allTypeDefinitions().values().iterate(logic);
+	}
+	
+	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateRuntimeDefinitions(final C logic)
+	{
+		this.iterateTypeLineageViews(tl ->
+		{
+			logic.accept(tl.runtimeDefinition());
+		});
+		
+		return logic;
+	}
+	
+	public default <C extends Consumer<? super PersistenceTypeDefinition>> C resolveTypeIds(
+		final Iterable<Long> typeIds  ,
+		final C              collector
+	)
+	{
+		for(final Long typeId : typeIds)
+		{
+			final PersistenceTypeDefinition typeDefinition = this.lookupTypeById(typeId);
+			if(typeDefinition == null)
+			{
+				throw new PersistenceExceptionTypeConsistencyDictionary("TypeId cannot be resolved: " + typeId);
+			}
+			
+			collector.accept(typeDefinition);
+		}
+		
+		return collector;
+	}
+	
+	public default <C extends Consumer<? super PersistenceTypeDefinition>> C iterateLatestTypes(final C logic)
+	{
+		this.iterateTypeLineageViews(tl ->
+		{
+			logic.accept(tl.latest());
+		});
+		
+		return logic;
+	}
+	
+	public default <C extends Consumer<? super PersistenceTypeLineage>> C iterateTypeLineageViews(final C logic)
+	{
+		return this.typeLineages().values().iterate(logic);
+	}
 
 	
+	// mutating logic //
 	
 	public PersistenceTypeLineage ensureTypeLineage(Class<?> type);
 	
@@ -514,135 +579,6 @@ public interface PersistenceTypeDictionary extends PersistenceTypeDictionaryView
 			// can be extended to access the symbols
 		}
 
-	}
-
-	
-	public final class ImmutableWrapper implements PersistenceTypeDictionary
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		private final PersistenceTypeDictionaryView actual;
-
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		ImmutableWrapper(final PersistenceTypeDictionaryView actual)
-		{
-			super();
-			this.actual = actual;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
-		@Override
-		public XGettingTable<Long, PersistenceTypeDefinition> allTypeDefinitions()
-		{
-			return this.actual.allTypeDefinitions();
-		}
-
-		@Override
-		public boolean isEmpty()
-		{
-			return this.actual.isEmpty();
-		}
-
-		@Override
-		public PersistenceTypeDefinition lookupTypeByName(final String typeName)
-		{
-			/* (16.11.2018 TM)FIXME: Reverse PersistenceTypeDictionary and ~View type hiararchy
-			 * To fit the way a ~View is actually used.
-			 */
-			return this.actual.lookupTypeByName();
-		}
-
-		@Override
-		public PersistenceTypeDefinition lookupTypeById(final long typeId)
-		{
-			return this.actual.lookupTypeById();
-		}
-
-		@Override
-		public long determineHighestTypeId()
-		{
-			return this.actual.determineHighestTypeId();
-		}
-
-		@Override
-		public PersistenceTypeDictionaryView view()
-		{
-			return this.actual;
-		}
-
-		@Override
-		public XGettingTable<String, ? extends PersistenceTypeLineage> typeLineages()
-		{
-			return this.actual.typeLineages();
-		}
-
-		@Override
-		public PersistenceTypeLineage lookupTypeLineage(final Class<?> type)
-		{
-			return this.actual.lookupTypeLineage();
-		}
-
-		@Override
-		public PersistenceTypeLineage lookupTypeLineage(final String typeName)
-		{
-			return this.actual.lookupTypeLineage();
-		}
-
-		@Override
-		public PersistenceTypeLineage ensureTypeLineage(final Class<?> type)
-		{
-			return this.actual.();
-		}
-
-		@Override
-		public boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean registerTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition typeDefinition)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setTypeDescriptionRegistrationObserver(final PersistenceTypeDefinitionRegistrationObserver observer)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver()
-		{
-			throw new UnsupportedOperationException();
-		}
-		
-		
 	}
 	
 }

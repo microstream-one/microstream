@@ -7,8 +7,24 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 
 
-public interface PersistenceTypeLineage extends PersistenceTypeLineageView
+public interface PersistenceTypeLineage
 {
+	public String typeName();
+	
+	public Class<?> type();
+	
+	public XGettingTable<Long, PersistenceTypeDefinition> entries();
+	
+	public PersistenceTypeDefinition latest();
+	
+	public PersistenceTypeDefinition runtimeDefinition();
+	
+	public PersistenceTypeLineageView view();
+	
+	
+
+	// mutating logic //
+	
 	public boolean registerTypeDefinition(PersistenceTypeDefinition typeDefinition);
 
 	public boolean setRuntimeTypeDefinition(PersistenceTypeDefinition runtimeDefinition);
@@ -180,6 +196,12 @@ public interface PersistenceTypeLineage extends PersistenceTypeLineageView
 			throw new RuntimeException(
 				"Invalid runtime definition for " + this.typeName() + " with type id: " + runtimeDefinition.typeId()
 			);
+		}
+		
+		@Override
+		public synchronized PersistenceTypeLineageView view()
+		{
+			return PersistenceTypeLineageView.New(this);
 		}
 		
 	}

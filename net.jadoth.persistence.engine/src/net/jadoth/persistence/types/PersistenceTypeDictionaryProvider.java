@@ -3,9 +3,8 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 
 
-public interface PersistenceTypeDictionaryProvider extends PersistenceTypeDictionaryViewProvider
+public interface PersistenceTypeDictionaryProvider
 {
-	@Override
 	public PersistenceTypeDictionary provideTypeDictionary();
 
 	
