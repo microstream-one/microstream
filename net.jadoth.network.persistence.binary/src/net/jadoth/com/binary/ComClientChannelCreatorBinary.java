@@ -17,6 +17,17 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 	 * Also, but tricky: Maybe the "Default" concept here could be replaced by the ComConnectionHandler concept.
 	 * That, in turn, might require to consolidate the Binary type to act as an implicit self-collection.
 	 */
+	
+	public static ComClientChannelCreatorBinary.Default New(
+		final BinaryPersistenceFoundation<?> foundation
+	)
+	{
+		return new ComClientChannelCreatorBinary.Default(
+			notNull(foundation)     ,
+			BufferSizeProvider.New()
+		);
+	}
+	
 	// (16.11.2018 TM)TODO: set Persistence.typeMismatchValidatorFailing()?
 	public static ComClientChannelCreatorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
@@ -78,6 +89,8 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 				PersistenceTypeDictionaryManager.Immutable(protocol)
 			;
 			this.foundation.setTypeDictionaryManager(typeDictionaryManager);
+			this.foundation.setObjectIdProvider(protocol.idStrategy().createObjectIdProvider());
+			this.foundation.setTypeIdProvider(protocol.idStrategy().createTypeIdProvider());
 			
 			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
 			this.foundation.setTargetByteOrder(protocol.byteOrder());

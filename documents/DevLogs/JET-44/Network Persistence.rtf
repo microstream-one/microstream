@@ -1044,5 +1044,26 @@ Evtl. muss ich das wirklich so machen, dass man von ComBinary aus eine Erzeugerl
 Au\'dferdem fehlt noch:\par
 Ohne bereits vorhandenen Persistence Context des Servers muss einer on-demand erzeugt werden k\'f6nnen.\par
 Das hei\'dft auch, es muss eine Liste an Typen geben, die man durchiterieren kann, f\'fcr die dann der Persistence Kontext initialisiert, d.h. TypeHandler erzeugt werden.\par
+\par
+\par
+\par
+2018-11-17\par
+\par
+ComClientChannelCreatorBinary einbauen.\par
+Testklassen fertigbauen.\par
+\par
+Dabei aufgefallen: ComChannel sollte eine M\'f6glichkeit haben, auf die verwendete Connection zuzugreifen. Genauer gesagt: ComHostChannel und ComClientChannel sollten das jeweils bieten. Der Blanke ComChannel kann ohne Typisierung und ohne Quering Methode so bleiben, der ist ja h\'fcbsch simpel.\par
+\par
+Hm. Es g\'e4b ja sogar SocketChannel#shutdownOutput und ~Input. Aber f\'fcr den Moment erst mal nur TODOs machen.\par
+Muss vor dem einbauen genauer untersucht werden, z.B., ob die JDK-Vollpfeiffen den "isClosed()" State dann richtig setzen. F\'fcr differenzierte querying-Methoden hats ja immerhin schon nicht mehr gereicht. Nur Deppen unterwegs im JDK.\par
+\par
+Jetzt mal testen.\par
+\par
+Hm: Beim Client muss man die PersistenceFoundation zweimal \'fcbergeben, f\'fcr zwei verschiedene Verwendungszwecke. Das ist etwas seltsam.\par
+\par
+Und, hehe: Beim Host wird noch \'fcberhaupt kein PersistenceChannel aus der Connection gemacht und gesetzt. Beim Client passiert das schon. Darum auch die zweite Stelle.\par
+\par
+Idee: Beide sollte auf beiden Seiten \'fcber den PersistenceAdaptor gehen.\par
+Evtl. braucht der dann ein \'e4hnliches Konzept wie der ConnectionHandler.\par
 }
  

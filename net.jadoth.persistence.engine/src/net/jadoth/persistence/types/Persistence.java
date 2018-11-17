@@ -122,7 +122,7 @@ public class Persistence extends Swizzle
 	public static final PersistenceTypeEvaluator defaultTypeEvaluatorTypeIdMappable()
 	{
 		return type ->
-			!isNotTypeIdMappable(type)
+			isTypeIdMappable(type)
 		;
 	}
 	
@@ -139,7 +139,7 @@ public class Persistence extends Swizzle
 	public static final PersistenceTypeEvaluator defaultTypeEvaluatorPersistable()
 	{
 		return type ->
-			!isNotPersistable(type)
+			isPersistable(type)
 		;
 	}
 

@@ -84,6 +84,8 @@ public interface ComConnectionHandler<C>
 		@Override
 		public void closeReading(final SocketChannel connection)
 		{
+			// (17.11.2018 TM)TODO: SocketChannel#shutdownInput ?
+			
 			// SocketChannel#close is idempotent
 			this.close(connection);
 		}
@@ -91,6 +93,8 @@ public interface ComConnectionHandler<C>
 		@Override
 		public void closeWriting(final SocketChannel connection)
 		{
+			// (17.11.2018 TM)TODO: SocketChannel#shutdownOutput ?
+			
 			// SocketChannel#close is idempotent
 			this.close(connection);
 		}

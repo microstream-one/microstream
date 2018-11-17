@@ -88,6 +88,15 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		@Override
 		public final PersistenceFoundation<?, ?> providePersistenceFoundation(final C connection)
 		{
+			/* (17.11.2018 TM)FIXME: must set a persistencechannel to the foundation
+			 * Something similar to (taken from the client channel creator):
+			 */
+//			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
+//				connection,
+//				this.bufferSizeProvider
+//			);
+			
+			
 			return this.persistenceFoundation;
 		}
 		

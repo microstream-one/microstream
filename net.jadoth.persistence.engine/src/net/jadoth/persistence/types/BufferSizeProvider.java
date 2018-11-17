@@ -26,7 +26,10 @@ public interface BufferSizeProvider
 	
 	public final class Default implements BufferSizeProvider, Stateless
 	{
-		// since default methods, java is missing interface instantiation
+		Default()
+		{
+			super();
+		}
 	}
 	
 	public final class Implementation implements BufferSizeProviderIncremental, Immutable
