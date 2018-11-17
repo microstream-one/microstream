@@ -309,7 +309,10 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			PersistenceTypeDictionaryManager.validateTypeDefinition(this.ensureTypeDictionary(), typeDefinition);
+			PersistenceTypeDictionaryManager.validateTypeDefinition(
+				this.ensureTypeDictionary(),
+				typeDefinition
+			);
 			
 			return this;
 		}
@@ -329,26 +332,42 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		}
 
 		@Override
-		public final boolean registerTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public final boolean registerTypeDefinition(
+			final PersistenceTypeDefinition typeDefinition
+		)
 		{
+			// (18.11.2018 TM)FIXME: check for and allow no-ops
+			
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public final boolean registerTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		public final boolean registerTypeDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
+		)
 		{
+			// (18.11.2018 TM)FIXME: check for and allow no-ops
+			
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public final boolean registerRuntimeTypeDefinition(final PersistenceTypeDefinition typeDefinition)
+		public final boolean registerRuntimeTypeDefinition(
+			final PersistenceTypeDefinition typeDefinition
+		)
 		{
+			// (18.11.2018 TM)FIXME: check for and allow no-ops
+			
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public final boolean registerRuntimeTypeDefinitions(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)
+		public final boolean registerRuntimeTypeDefinitions(
+			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
+		)
 		{
+			// (18.11.2018 TM)FIXME: check for and allow no-ops
+			
 			throw new UnsupportedOperationException();
 		}
 

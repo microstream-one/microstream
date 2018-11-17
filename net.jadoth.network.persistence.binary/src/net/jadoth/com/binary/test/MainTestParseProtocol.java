@@ -8,6 +8,7 @@ import net.jadoth.com.ComProtocol;
 import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
 import net.jadoth.com.XSockets;
+import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -33,14 +34,14 @@ public class MainTestParseProtocol
 			.setHostContext(
 				XSockets.localHostSocketAddress(),
 				System.out::println,
-				pf
+				ComPersistenceAdaptorBinary.New(pf)
 			)
 		;
 		
 		final ComProtocolProvider        protocolProvider = foundation.getProtocolProvider();
-		final ComProtocol                protocol  = protocolProvider.provideProtocol();
-		final ComProtocolStringConverter converter = foundation.getProtocolStringConverter();
-		final String                     assembled = converter.assemble(protocol);
+		final ComProtocol                protocol         = protocolProvider.provideProtocol();
+		final ComProtocolStringConverter converter        = foundation.getProtocolStringConverter();
+		final String                     assembled        = converter.assemble(protocol);
 		System.out.println(assembled);
 		
 		final ComProtocol parsed     = converter.parse(assembled);

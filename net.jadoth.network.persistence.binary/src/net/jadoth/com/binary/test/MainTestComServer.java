@@ -8,6 +8,7 @@ import net.jadoth.com.Com;
 import net.jadoth.com.ComHost;
 import net.jadoth.com.ComHostChannel;
 import net.jadoth.com.XSockets;
+import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -30,7 +31,7 @@ public class MainTestComServer
 	static final ComHost<?> COM = Com.Foundation()
 		.setHostBindingAddress(XSockets.localHostSocketAddress(1337))
 		.setHostChannelAcceptor(MainTestComServer::handleChannel)
-		.setPersistence(pf)
+		.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
 		.createHost()
 	;
 	

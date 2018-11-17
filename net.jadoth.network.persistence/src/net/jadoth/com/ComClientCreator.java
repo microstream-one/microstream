@@ -8,10 +8,10 @@ import java.net.InetSocketAddress;
 public interface ComClientCreator<C>
 {
 	public ComClient.Implementation<C> createClient(
-		final InetSocketAddress          hostAddress       ,
-		final ComConnectionHandler<C>    connectionHandler ,
-		final ComProtocolStringConverter protocolParser    ,
-		final ComPersistenceAdaptor<C>   persistenceAdaptor
+		InetSocketAddress          hostAddress       ,
+		ComConnectionHandler<C>    connectionHandler ,
+		ComProtocolStringConverter protocolParser    ,
+		ComPersistenceAdaptor<C>   persistenceAdaptor
 	);
 	
 	
