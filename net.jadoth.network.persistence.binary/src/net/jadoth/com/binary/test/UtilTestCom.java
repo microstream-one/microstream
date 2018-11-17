@@ -12,7 +12,6 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.BufferSizeProvider;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
 
@@ -79,10 +78,12 @@ public class UtilTestCom
 		;
 		
 		return BinaryPersistenceFoundation.New()
-			.setTypeDictionaryIoHandling   (dictionaryStorage            )
-			.setSwizzleIdProvider          (idProvider                   )
-			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
-			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
+			.setTypeDictionaryIoHandling   (dictionaryStorage)
+			.setSwizzleIdProvider          (idProvider       )
+			
+			// (17.11.2018 TM)NOTE: these are default anyway.
+//			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
+//			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
 		;
 	}
 	

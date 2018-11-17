@@ -25,17 +25,17 @@ public interface ComConnectionAcceptor<C>
 	
 	public static <C> ComConnectionAcceptor<C> New(
 		final ComProtocolProvider        protocolProvider       ,
-		final ComConnectionHandler<C>    connectionHandler      ,
 		final ComProtocolStringConverter protocolStringConverter,
+		final ComConnectionHandler<C>    connectionHandler      ,
 		final ComHostChannelCreator<C>   channelCreator         ,
-		final ComChannelAcceptor         channelAcceptor
+		final ComHostChannelAcceptor<C>      channelAcceptor
 	)
 	{
 		
 		return new ComConnectionAcceptor.Implementation<>(
 			notNull(protocolProvider)       ,
-			notNull(connectionHandler)      ,
 			notNull(protocolStringConverter),
+			notNull(connectionHandler)      ,
 			notNull(channelCreator)         ,
 			notNull(channelAcceptor)
 		);
@@ -48,10 +48,10 @@ public interface ComConnectionAcceptor<C>
 		////////////////////
 		
 		private final ComProtocolProvider        protocolProvider       ;
-		private final ComConnectionHandler<C>    connectionHandler      ;
 		private final ComProtocolStringConverter protocolStringConverter;
+		private final ComConnectionHandler<C>    connectionHandler      ;
 		private final ComHostChannelCreator<C>   channelCreator         ;
-		private final ComChannelAcceptor         channelAcceptor        ;
+		private final ComHostChannelAcceptor<C>      channelAcceptor        ;
 				
 		
 		
@@ -61,16 +61,16 @@ public interface ComConnectionAcceptor<C>
 		
 		Implementation(
 			final ComProtocolProvider        protocolProvider       ,
-			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComProtocolStringConverter protocolStringConverter,
+			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComHostChannelCreator<C>   channelCreator         ,
-			final ComChannelAcceptor         channelAcceptor
+			final ComHostChannelAcceptor<C>      channelAcceptor
 		)
 		{
 			super();
 			this.protocolProvider        = protocolProvider       ;
-			this.connectionHandler       = connectionHandler      ;
 			this.protocolStringConverter = protocolStringConverter;
+			this.connectionHandler       = connectionHandler      ;
 			this.channelCreator          = channelCreator         ;
 			this.channelAcceptor         = channelAcceptor        ;
 		}
@@ -95,7 +95,7 @@ public interface ComConnectionAcceptor<C>
 			final ComProtocol protocol = this.protocolProvider.provideProtocol();
 			this.connectionHandler.sendProtocol(socketChannel, protocol, this.protocolStringConverter);
 			
-			final ComChannel comChannel = this.channelCreator.createChannel(socketChannel);
+			final ComHostChannel<C> comChannel = this.channelCreator.createChannel(socketChannel);
 			this.channelAcceptor.acceptChannel(comChannel);
 		}
 		

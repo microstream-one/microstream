@@ -4,23 +4,57 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.PersistenceManager;
 
-public interface ComHostChannel extends ComChannel
+public interface ComHostChannel<C> extends ComChannel
 {
-	// empty so far, but who knows
+	public C connection();
+
 	
-	public static ComHostChannel New(final PersistenceManager<?> persistenceManager)
+	
+	public static <C> ComHostChannel<C> New(
+		final C                     connection        ,
+		final PersistenceManager<?> persistenceManager
+	)
 	{
-		return new ComHostChannel.Implementation(
+		return new ComHostChannel.Implementation<>(
+			notNull(connection)        ,
 			notNull(persistenceManager)
 		);
 	}
 	
-	public final class Implementation extends ComChannel.Implementation implements ComHostChannel
+	public final class Implementation<C>
+	extends ComChannel.Implementation
+	implements ComHostChannel<C>
 	{
-		Implementation(final PersistenceManager<?> persistenceManager)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final C connection;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation(final C connection, final PersistenceManager<?> persistenceManager)
 		{
 			super(persistenceManager);
+			this.connection = connection;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final C connection()
+		{
+			return this.connection;
+		}
+		
 	}
 	
 }

@@ -6,7 +6,7 @@ import net.jadoth.persistence.types.PersistenceManager;
 
 public interface ComHostChannelCreator<C>
 {
-	public ComHostChannel createChannel(C connection);
+	public ComHostChannel<C> createChannel(C connection);
 	
 	
 	
@@ -44,11 +44,11 @@ public interface ComHostChannelCreator<C>
 		////////////
 
 		@Override
-		public ComHostChannel createChannel(final C connection)
+		public ComHostChannel<C> createChannel(final C connection)
 		{
 			final PersistenceManager<?> pm = this.persistenceAdaptor.providePersistenceManager(connection);
 			
-			return ComHostChannel.New(pm);
+			return ComHostChannel.New(connection, pm);
 		}
 		
 	}

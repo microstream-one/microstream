@@ -11,6 +11,15 @@ public interface ComChannel
 	
 	public void send(Object graphRoot);
 	
+	public default Object request(final Object graphRoot)
+	{
+		synchronized(this)
+		{
+			this.send(graphRoot);
+			return this.receive();
+		}
+	}
+	
 	public void close();
 	
 	

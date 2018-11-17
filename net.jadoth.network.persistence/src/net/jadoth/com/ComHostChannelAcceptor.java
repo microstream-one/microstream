@@ -12,28 +12,28 @@ import java.util.function.Consumer;
  *
  */
 @FunctionalInterface
-public interface ComChannelAcceptor
+public interface ComHostChannelAcceptor<C>
 {
-	public void acceptChannel(ComChannel channel);
+	public void acceptChannel(ComHostChannel<C> channel);
 	
 	
 	
-	public static ComChannelAcceptor.Wrapper Wrap(
-		final Consumer<? super ComChannel> acceptor
+	public static <C>ComHostChannelAcceptor.Wrapper<C> Wrap(
+		final Consumer<? super ComHostChannel<C>> acceptor
 	)
 	{
-		return new ComChannelAcceptor.Wrapper(
+		return new ComHostChannelAcceptor.Wrapper<>(
 			notNull(acceptor)
 		);
 	}
 	
-	public final class Wrapper implements ComChannelAcceptor
+	public final class Wrapper<C> implements ComHostChannelAcceptor<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final Consumer<? super ComChannel> acceptor;
+		private final Consumer<? super ComHostChannel<C>> acceptor;
 		
 		
 		
@@ -41,7 +41,7 @@ public interface ComChannelAcceptor
 		// constructors //
 		/////////////////
 
-		Wrapper(final Consumer<? super ComChannel> acceptor)
+		Wrapper(final Consumer<? super ComHostChannel<C>> acceptor)
 		{
 			super();
 			this.acceptor = acceptor;
@@ -54,7 +54,7 @@ public interface ComChannelAcceptor
 		////////////
 
 		@Override
-		public final void acceptChannel(final ComChannel channel)
+		public final void acceptChannel(final ComHostChannel<C> channel)
 		{
 			this.acceptor.accept(channel);
 		}
