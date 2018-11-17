@@ -4,21 +4,25 @@ import static net.jadoth.time.XTime.now;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
+import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
+import net.jadoth.low.XVM;
 import net.jadoth.typing.KeyValue;
 
 
@@ -484,6 +488,25 @@ public final class XDebug
 		final Path destinationPath = targetFile.toPath();
 
 		Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+	}
+	
+	
+	public static byte[] copyDirectByteBufferRange(final ByteBuffer bb, final int offset, final int length)
+	{
+		final long address = XVM.getDirectByteBufferAddress(bb);
+		final byte[] data = new byte[length];
+		XVM.copyRangeToArray(address + XArrays.validateArrayIndex(length, offset), data);
+		return data;
+	}
+	
+	public static byte[] copyDirectByteBuffer(final ByteBuffer bb)
+	{
+		return copyDirectByteBufferRange(bb, bb.position(), bb.limit());
+	}
+	
+	public static void printDirectByteBuffer(final ByteBuffer bb)
+	{
+		XDebug.println(Arrays.toString(copyDirectByteBuffer(bb)));
 	}
 
 

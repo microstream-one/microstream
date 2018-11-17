@@ -1,9 +1,9 @@
 package net.jadoth.com.binary.test;
 
 import net.jadoth.com.Com;
-import net.jadoth.com.ComClientChannel;
+import net.jadoth.com.ComChannel;
 import net.jadoth.com.XSockets;
-import net.jadoth.com.binary.ComClientChannelCreatorBinary;
+import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 
 public class MainTestComClient
@@ -11,10 +11,11 @@ public class MainTestComClient
 	static final BinaryPersistenceFoundation<?> pf = BinaryPersistenceFoundation.New();
 	
 	// (16.11.2018 TM)TODO: Convenience client methods
-	static final ComClientChannel COM = Com.Foundation()
+	// (18.11.2018 TM)TODO: test 0-port and set localhost as default address
+	// (18.11.2018 TM)FIXME: implements PersistenceTypeDictionaryManager$Immutable FIX-MEs
+	static final ComChannel COM = Com.Foundation()
 		.setClientTargetAddress(XSockets.localHostSocketAddress(1337))
-		.setClientChannelCreator(ComClientChannelCreatorBinary.New(pf))
-		.setPersistence(pf)
+		.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
 		.createClient()
 		.connect()
 	;

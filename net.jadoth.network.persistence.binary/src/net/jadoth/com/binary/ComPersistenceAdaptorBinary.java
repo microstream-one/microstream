@@ -4,45 +4,38 @@ import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
 
-import net.jadoth.com.ComClientChannelCreator;
+import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
-import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 
-public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreator<C>
+public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 {
-	/* (16.11.2018 TM)FIXME: JET-43: integrate ComClientChannelCreatorBinary
-	 * Also, but tricky: Maybe the "Default" concept here could be replaced by the ComConnectionHandler concept.
-	 * That, in turn, might require to consolidate the Binary type to act as an implicit self-collection.
-	 */
-	
-	public static ComClientChannelCreatorBinary.Default New(
+	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation
 	)
 	{
-		return new ComClientChannelCreatorBinary.Default(
+		return new ComPersistenceAdaptorBinary.Default(
 			notNull(foundation)     ,
 			BufferSizeProvider.New()
 		);
 	}
 	
 	// (16.11.2018 TM)TODO: set Persistence.typeMismatchValidatorFailing()?
-	public static ComClientChannelCreatorBinary.Default New(
+	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider
 	)
 	{
-		return new ComClientChannelCreatorBinary.Default(
+		return new ComPersistenceAdaptorBinary.Default(
 			notNull(foundation)        ,
 			notNull(bufferSizeProvider)
 		);
 	}
 
-	public final class Default
-	extends ComClientChannelCreator.Abstract<SocketChannel>
-	implements ComClientChannelCreatorBinary<SocketChannel>
+	public final class Default implements ComPersistenceAdaptorBinary<SocketChannel>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -72,9 +65,28 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
+		
 		@Override
-		protected PersistenceManager<?> createPersistenceManager(
+		public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(
+			final SocketChannel connection
+		)
+		{
+			if(connection == null)
+			{
+				return this.foundation;
+			}
+			
+			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
+				connection,
+				this.bufferSizeProvider
+			);
+			this.foundation.setPersistenceChannel(channel);
+			
+			return this.foundation;
+		}
+		
+		@Override
+		public PersistenceFoundation<?, ?> provideClientPersistenceFoundation(
 			final SocketChannel connection,
 			final ComProtocol   protocol
 		)
@@ -94,11 +106,10 @@ public interface ComClientChannelCreatorBinary<C> extends ComClientChannelCreato
 			
 			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
 			this.foundation.setTargetByteOrder(protocol.byteOrder());
-						
-			// including TypeHandlerManager initialization
-			return this.foundation.createPersistenceManager();
+			
+			return this.foundation;
 		}
-		
+				
 	}
 	
 }

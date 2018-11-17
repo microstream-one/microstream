@@ -131,12 +131,19 @@ public interface ComConnectionHandler<C>
 			final ByteBuffer lengthBuffer = ByteBuffer.allocateDirect(this.protocolLengthDigitCount);
 			this.read(connection, lengthBuffer);
 			
+//			XDebug.printDirectByteBuffer(lengthBuffer);
+			
+			// buffer position must be reset for the decoder to see the bytes
+			lengthBuffer.position(0);
 			final String lengthDigits = XFiles.standardCharset().decode(lengthBuffer).toString();
 			final int    length       = Integer.parseInt(lengthDigits);
 			
-			final ByteBuffer protocolBuffer = ByteBuffer.allocateDirect(length - this.protocolLengthDigitCount - 1);
+			final ByteBuffer protocolBuffer = ByteBuffer.allocateDirect(length - this.protocolLengthDigitCount);
 			this.read(connection, protocolBuffer);
-			final char[] protocolChars = XFiles.standardCharset().decode(lengthBuffer).array();
+			
+			// buffer position must be reset to after the separator for the decoder to see the bytes
+			protocolBuffer.position(1);
+			final char[] protocolChars = XFiles.standardCharset().decode(protocolBuffer).array();
 			
 			return stringConverter.parse(_charArrayRange.New(protocolChars));
 		}
