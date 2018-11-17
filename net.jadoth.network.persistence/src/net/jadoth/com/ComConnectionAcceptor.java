@@ -14,7 +14,7 @@ public interface ComConnectionAcceptor<C>
 {
 	public ComProtocolProvider protocolProvider();
 	
-	public void acceptConnection(C socketChannel);
+	public void acceptConnection(C connection, ComHost<C> parent);
 	
 	
 	
@@ -27,8 +27,8 @@ public interface ComConnectionAcceptor<C>
 		final ComProtocolProvider        protocolProvider       ,
 		final ComProtocolStringConverter protocolStringConverter,
 		final ComConnectionHandler<C>    connectionHandler      ,
-		final ComHostChannelCreator<C>   channelCreator         ,
-		final ComHostChannelAcceptor<C>      channelAcceptor
+		final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
+		final ComHostChannelAcceptor<C>  channelAcceptor
 	)
 	{
 		
@@ -36,7 +36,7 @@ public interface ComConnectionAcceptor<C>
 			notNull(protocolProvider)       ,
 			notNull(protocolStringConverter),
 			notNull(connectionHandler)      ,
-			notNull(channelCreator)         ,
+			notNull(persistenceAdaptor)     ,
 			notNull(channelAcceptor)
 		);
 	}
@@ -50,8 +50,8 @@ public interface ComConnectionAcceptor<C>
 		private final ComProtocolProvider        protocolProvider       ;
 		private final ComProtocolStringConverter protocolStringConverter;
 		private final ComConnectionHandler<C>    connectionHandler      ;
-		private final ComHostChannelCreator<C>   channelCreator         ;
-		private final ComHostChannelAcceptor<C>      channelAcceptor        ;
+		private final ComPersistenceAdaptor<C>   persistenceAdaptor     ;
+		private final ComHostChannelAcceptor<C>  channelAcceptor        ;
 				
 		
 		
@@ -63,15 +63,15 @@ public interface ComConnectionAcceptor<C>
 			final ComProtocolProvider        protocolProvider       ,
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
-			final ComHostChannelCreator<C>   channelCreator         ,
-			final ComHostChannelAcceptor<C>      channelAcceptor
+			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
+			final ComHostChannelAcceptor<C>  channelAcceptor
 		)
 		{
 			super();
 			this.protocolProvider        = protocolProvider       ;
 			this.protocolStringConverter = protocolStringConverter;
 			this.connectionHandler       = connectionHandler      ;
-			this.channelCreator          = channelCreator         ;
+			this.persistenceAdaptor      = persistenceAdaptor     ;
 			this.channelAcceptor         = channelAcceptor        ;
 		}
 		
@@ -88,14 +88,18 @@ public interface ComConnectionAcceptor<C>
 		}
 		
 		@Override
-		public void acceptConnection(final C socketChannel)
+		public void acceptConnection(final C connection, final ComHost<C> parent)
 		{
 			// note: things like authentication could be done here in a wrapping implementation.
 						
 			final ComProtocol protocol = this.protocolProvider.provideProtocol();
-			this.connectionHandler.sendProtocol(socketChannel, protocol, this.protocolStringConverter);
+			this.connectionHandler.sendProtocol(connection, protocol, this.protocolStringConverter);
 			
-			final ComHostChannel<C> comChannel = this.channelCreator.createChannel(socketChannel);
+			final ComHostChannel<C> comChannel = this.persistenceAdaptor.createHostChannel(
+				connection,
+				protocol  ,
+				parent
+			);
 			this.channelAcceptor.acceptChannel(comChannel);
 		}
 		

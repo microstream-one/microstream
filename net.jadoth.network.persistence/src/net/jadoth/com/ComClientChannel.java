@@ -4,35 +4,40 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.PersistenceManager;
 
-public interface ComClientChannel extends ComChannel
+public interface ComClientChannel<C> extends ComChannel
 {
+	public C connection();
+	
 	public ComProtocol protocol();
 	
-	public ComClient parent();
+	public ComClient<C> parent();
 	
 	
 	
-	public static ComClientChannel New(
+	public static <C> ComClientChannel<C> New(
 		final PersistenceManager<?> persistenceManager,
+		final C                     connection        ,
 		final ComProtocol           protocol          ,
-		final ComClient             parent
+		final ComClient<C>          parent
 	)
 	{
-		return new ComClientChannel.Implementation(
+		return new ComClientChannel.Implementation<>(
 			notNull(persistenceManager),
+			notNull(connection)        ,
 			notNull(protocol)          ,
 			notNull(parent)
 		);
 	}
 	
-	public final class Implementation extends ComChannel.Implementation implements ComClientChannel
+	public final class Implementation<C> extends ComChannel.Implementation implements ComClientChannel<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final ComProtocol protocol;
-		private final ComClient   parent  ;
+		private final C            connection;
+		private final ComProtocol  protocol  ;
+		private final ComClient<C> parent    ;
 		
 		
 		
@@ -42,13 +47,15 @@ public interface ComClientChannel extends ComChannel
 		
 		Implementation(
 			final PersistenceManager<?> persistenceManager,
+			final C                     connection        ,
 			final ComProtocol           protocol          ,
-			final ComClient             parent
+			final ComClient<C>          parent
 		)
 		{
 			super(persistenceManager);
-			this.protocol = protocol;
-			this.parent   = parent  ;
+			this.connection = connection;
+			this.protocol   = protocol  ;
+			this.parent     = parent    ;
 		}
 
 		
@@ -56,6 +63,12 @@ public interface ComClientChannel extends ComChannel
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final C connection()
+		{
+			return this.connection;
+		}
 
 		@Override
 		public final ComProtocol protocol()
@@ -64,7 +77,7 @@ public interface ComClientChannel extends ComChannel
 		}
 
 		@Override
-		public final ComClient parent()
+		public final ComClient<C> parent()
 		{
 			return this.parent;
 		}

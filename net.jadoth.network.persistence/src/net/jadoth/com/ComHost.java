@@ -150,7 +150,7 @@ public interface ComHost<C>
 		private void synchAcceptConnection()
 		{
 			final C connection = this.liveConnectionListener.listenForConnection();
-			this.connectionAcceptor.acceptConnection(connection);
+			this.connectionAcceptor.acceptConnection(connection, this);
 		}
 	}
 	

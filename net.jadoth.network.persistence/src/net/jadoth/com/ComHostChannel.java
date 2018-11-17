@@ -7,17 +7,25 @@ import net.jadoth.persistence.types.PersistenceManager;
 public interface ComHostChannel<C> extends ComChannel
 {
 	public C connection();
+	
+	public ComProtocol protocol();
+	
+	public ComHost<C> parent();
 
 	
 	
 	public static <C> ComHostChannel<C> New(
+		final PersistenceManager<?> persistenceManager,
 		final C                     connection        ,
-		final PersistenceManager<?> persistenceManager
+		final ComProtocol           protocol          ,
+		final ComHost<C>            parent
 	)
 	{
 		return new ComHostChannel.Implementation<>(
+			notNull(persistenceManager),
 			notNull(connection)        ,
-			notNull(persistenceManager)
+			notNull(protocol)          ,
+			notNull(parent)
 		);
 	}
 	
@@ -29,7 +37,9 @@ public interface ComHostChannel<C> extends ComChannel
 		// instance fields //
 		////////////////////
 		
-		private final C connection;
+		private final C           connection;
+		private final ComProtocol protocol  ;
+		private final ComHost<C>  parent    ;
 		
 		
 		
@@ -37,10 +47,17 @@ public interface ComHostChannel<C> extends ComChannel
 		// constructors //
 		/////////////////
 		
-		Implementation(final C connection, final PersistenceManager<?> persistenceManager)
+		Implementation(
+			final PersistenceManager<?> persistenceManager,
+			final C                     connection        ,
+			final ComProtocol           protocol          ,
+			final ComHost<C>            parent
+		)
 		{
 			super(persistenceManager);
 			this.connection = connection;
+			this.protocol   = protocol  ;
+			this.parent     = parent    ;
 		}
 		
 		
@@ -53,6 +70,18 @@ public interface ComHostChannel<C> extends ComChannel
 		public final C connection()
 		{
 			return this.connection;
+		}
+		
+		@Override
+		public final ComProtocol protocol()
+		{
+			return this.protocol;
+		}
+		
+		@Override
+		public final ComHost<C> parent()
+		{
+			return this.parent;
 		}
 		
 	}

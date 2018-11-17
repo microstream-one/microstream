@@ -8,10 +8,10 @@ import java.net.InetSocketAddress;
 public interface ComClientCreator<C>
 {
 	public ComClient.Implementation<C> createClient(
-		InetSocketAddress          hostAddress      ,
-		ComConnectionHandler<C>    connectionHandler,
-		ComProtocolStringConverter protocolParser   ,
-		ComClientChannelCreator<C> channelCreator
+		final InetSocketAddress          hostAddress       ,
+		final ComConnectionHandler<C>    connectionHandler ,
+		final ComProtocolStringConverter protocolParser    ,
+		final ComPersistenceAdaptor<C>   persistenceAdaptor
 	);
 	
 	
@@ -24,17 +24,17 @@ public interface ComClientCreator<C>
 	{
 		@Override
 		public ComClient.Implementation<C> createClient(
-			final InetSocketAddress          hostAddress      ,
-			final ComConnectionHandler<C>    connectionHandler,
-			final ComProtocolStringConverter protocolParser   ,
-			final ComClientChannelCreator<C> channelCreator
+			final InetSocketAddress          hostAddress       ,
+			final ComConnectionHandler<C>    connectionHandler ,
+			final ComProtocolStringConverter protocolParser    ,
+			final ComPersistenceAdaptor<C>   persistenceAdaptor
 		)
 		{
 			return ComClient.New(
-				notNull(hostAddress)      ,
-				notNull(connectionHandler),
-				notNull(protocolParser)   ,
-				notNull(channelCreator)
+				notNull(hostAddress)       ,
+				notNull(connectionHandler) ,
+				notNull(protocolParser)    ,
+				notNull(persistenceAdaptor)
 			);
 		}
 		
