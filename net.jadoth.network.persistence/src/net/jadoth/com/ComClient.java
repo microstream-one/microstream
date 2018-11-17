@@ -2,9 +2,9 @@ package net.jadoth.com;
 
 import java.net.InetSocketAddress;
 
-public interface ComClient
+public interface ComClient<C>
 {
-	public ComClientChannel connect() throws ComException;
+	public ComClientChannel<C> connect() throws ComException;
 	
 	public InetSocketAddress hostAddress();
 	
@@ -16,30 +16,30 @@ public interface ComClient
 	}
 	
 	public static <C> ComClient.Implementation<C> New(
-		final InetSocketAddress          hostAddress      ,
-		final ComConnectionHandler<C>    connectionHandler,
-		final ComProtocolStringConverter protocolParser   ,
-		final ComClientChannelCreator<C> channelCreator
+		final InetSocketAddress          hostAddress       ,
+		final ComConnectionHandler<C>    connectionHandler ,
+		final ComProtocolStringConverter protocolParser    ,
+		final ComPersistenceAdaptor<C>   persistenceAdaptor
 	)
 	{
 		return new ComClient.Implementation<>(
-			hostAddress      ,
-			connectionHandler,
-			protocolParser   ,
-			channelCreator
+			hostAddress       ,
+			connectionHandler ,
+			protocolParser    ,
+			persistenceAdaptor
 		);
 	}
 	
-	public final class Implementation<C> implements ComClient
+	public final class Implementation<C> implements ComClient<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final InetSocketAddress          hostAddress      ;
-		private final ComConnectionHandler<C>    connectionHandler;
-		private final ComProtocolStringConverter protocolParser   ;
-		private final ComClientChannelCreator<C> channelCreator   ;
+		private final InetSocketAddress          hostAddress       ;
+		private final ComConnectionHandler<C>    connectionHandler ;
+		private final ComProtocolStringConverter protocolParser    ;
+		private final ComPersistenceAdaptor<C>   persistenceAdaptor;
 		
 		
 		
@@ -48,17 +48,17 @@ public interface ComClient
 		/////////////////
 		
 		Implementation(
-			final InetSocketAddress          hostAddress      ,
-			final ComConnectionHandler<C>    connectionHandler,
-			final ComProtocolStringConverter protocolParser   ,
-			final ComClientChannelCreator<C> channelCreator
+			final InetSocketAddress          hostAddress       ,
+			final ComConnectionHandler<C>    connectionHandler ,
+			final ComProtocolStringConverter protocolParser    ,
+			final ComPersistenceAdaptor<C>   persistenceAdaptor
 		)
 		{
 			super();
-			this.hostAddress       = hostAddress      ;
-			this.connectionHandler = connectionHandler;
-			this.protocolParser    = protocolParser   ;
-			this.channelCreator    = channelCreator   ;
+			this.hostAddress        = hostAddress       ;
+			this.connectionHandler  = connectionHandler ;
+			this.protocolParser     = protocolParser    ;
+			this.persistenceAdaptor = persistenceAdaptor;
 		}
 
 
@@ -74,12 +74,13 @@ public interface ComClient
 		}
 		
 		@Override
-		public ComClientChannel connect() throws ComException
+		public ComClientChannel<C> connect() throws ComException
 		{
-			final C           connection = this.connectionHandler.openConnection(this.hostAddress);
-			final ComProtocol protocol   = this.connectionHandler.receiveProtocol(connection, this.protocolParser);
+			final C                   conn     = this.connectionHandler.openConnection(this.hostAddress);
+			final ComProtocol         protocol = this.connectionHandler.receiveProtocol(conn, this.protocolParser);
+			final ComClientChannel<C> channel  = this.persistenceAdaptor.createClientChannel(conn, protocol, this);
 			
-			return this.channelCreator.createChannel(connection, protocol, this);
+			return channel;
 		}
 		
 	}

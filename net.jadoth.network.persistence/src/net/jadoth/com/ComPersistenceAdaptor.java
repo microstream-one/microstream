@@ -33,6 +33,17 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		;
 	}
 	
+	@Override
+	public default PersistenceTypeDictionaryView provideTypeDictionary()
+	{
+		// initialization is checked to be done only once.
+		return this.providePersistenceFoundation(null).getTypeHandlerManager()
+			.initialize()
+			.typeDictionary()
+			.view()
+		;
+	}
+	
 	/**
 	 * Provides a {@link PersistenceFoundation} instance prepared for the passed connection instance.
 	 * The passed connection instance might be null, in which case the returned foundation instance
@@ -47,6 +58,28 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * @see #provideTypeDictionaryCompiler()
 	 */
 	public PersistenceFoundation<?, ?> providePersistenceFoundation(C connection);
+	
+	public default ComHostChannel<C> createHostChannel(
+		final C           connection,
+		final ComProtocol protocol  ,
+		final ComHost<C>  parent
+	)
+	{
+		final PersistenceManager<?> pm = this.providePersistenceManager(connection);
+		
+		return ComHostChannel.New(pm, connection, protocol, parent);
+	}
+	
+	public default ComClientChannel<C> createClientChannel(
+		final C            connection,
+		final ComProtocol  protocol  ,
+		final ComClient<C> parent
+	)
+	{
+		final PersistenceManager<?> pm = this.providePersistenceManager(connection);
+		
+		return ComClientChannel.New(pm, connection, protocol, parent);
+	}
 	
 	
 	
@@ -96,19 +129,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 //				this.bufferSizeProvider
 //			);
 			
-			
 			return this.persistenceFoundation;
-		}
-		
-		@Override
-		public final PersistenceTypeDictionaryView provideTypeDictionary()
-		{
-			// initialization is checked to be done only once.
-			return this.persistenceFoundation.getTypeHandlerManager()
-				.initialize()
-				.typeDictionary()
-				.view()
-			;
 		}
 		
 	}

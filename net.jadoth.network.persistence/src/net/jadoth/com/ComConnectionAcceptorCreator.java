@@ -6,8 +6,8 @@ public interface ComConnectionAcceptorCreator<C>
 		ComProtocolProvider        protocolProvider       ,
 		ComProtocolStringConverter protocolStringConverter,
 		ComConnectionHandler<C>    connectionHandler      ,
-		ComHostChannelCreator<C>   channelCreator         ,
-		ComHostChannelAcceptor<C>      channelAcceptor
+		ComPersistenceAdaptor<C>   persistenceAdaptor     ,
+		ComHostChannelAcceptor<C>  channelAcceptor
 	);
 	
 	
@@ -38,15 +38,15 @@ public interface ComConnectionAcceptorCreator<C>
 			final ComProtocolProvider        protocolProvider       ,
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
-			final ComHostChannelCreator<C>   channelCreator         ,
-			final ComHostChannelAcceptor<C>      channelAcceptor
+			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
+			final ComHostChannelAcceptor<C>  channelAcceptor
 		)
 		{
 			return ComConnectionAcceptor.New(
 				protocolProvider       ,
 				protocolStringConverter,
 				connectionHandler      ,
-				channelCreator         ,
+				persistenceAdaptor     ,
 				channelAcceptor
 			);
 		}
