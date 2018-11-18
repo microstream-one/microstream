@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
+import net.jadoth.X;
+
 public interface PersistenceTypeDictionaryManager extends PersistenceTypeDictionaryProvider
 {
 	public PersistenceTypeDictionaryManager validateTypeDefinition(PersistenceTypeDefinition typeDefinition);
@@ -336,9 +338,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			// (18.11.2018 TM)FIXME: check for and allow no-ops
-			
-			throw new UnsupportedOperationException();
+			return this.registerTypeDefinitions(X.Constant(typeDefinition));
 		}
 
 		@Override
@@ -346,9 +346,24 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
-			// (18.11.2018 TM)FIXME: check for and allow no-ops
+			final PersistenceTypeDictionaryView typeDictionary = this.ensureTypeDictionary();
+			for(final PersistenceTypeDefinition td : typeDefinitions)
+			{
+				PersistenceTypeDictionary.validateTypeId(td);
+				
+				// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
+				final PersistenceTypeDefinition registered = typeDictionary.lookupTypeById(td.typeId());
+
+				// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
+				if(registered == null || !PersistenceTypeDescription.equalDescription(registered, td))
+				{
+					// (31.07.2014 TM)EXCP: proper exception
+					throw new UnsupportedOperationException("Read-only TypeDictionary cannot change.");
+				}
+			}
 			
-			throw new UnsupportedOperationException();
+			// no change required (no exception)
+			return false;
 		}
 
 		@Override
@@ -356,9 +371,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			// (18.11.2018 TM)FIXME: check for and allow no-ops
-			
-			throw new UnsupportedOperationException();
+			return this.registerRuntimeTypeDefinition(typeDefinition);
 		}
 
 		@Override
@@ -366,9 +379,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final Iterable<? extends PersistenceTypeDefinition> typeDefinitions
 		)
 		{
-			// (18.11.2018 TM)FIXME: check for and allow no-ops
-			
-			throw new UnsupportedOperationException();
+			return this.registerTypeDefinitions(typeDefinitions);
 		}
 
 		@Override

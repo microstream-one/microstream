@@ -19,11 +19,7 @@ public class Com
 		return 9_100_000_000_000_000_000L;
 	}
 	
-	public static ComFoundation.Default<?> Foundation()
-	{
-		return ComFoundation.New();
-	}
-	
+	// (18.11.2018 TM)FIXME: use or remove default id strategies
 	public static ComDefaultIdStrategy DefaultIdStrategy(final long startingObjectId)
 	{
 		return ComDefaultIdStrategy.New(startingObjectId);
@@ -42,6 +38,19 @@ public class Com
 	public static ByteOrder byteOrder()
 	{
 		return XVM.nativeByteOrder();
+	}
+	
+	public static int defaultPort()
+	{
+		// arbitrary, totally random port. Totally random, really.
+		return 1099;
+	}
+	
+	
+	
+	public static ComFoundation.Default<?> Foundation()
+	{
+		return ComFoundation.New();
 	}
 	
 	

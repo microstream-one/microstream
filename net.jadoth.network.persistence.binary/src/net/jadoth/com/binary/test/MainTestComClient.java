@@ -11,8 +11,7 @@ public class MainTestComClient
 	static final BinaryPersistenceFoundation<?> pf = BinaryPersistenceFoundation.New();
 	
 	// (16.11.2018 TM)TODO: Convenience client methods
-	// (18.11.2018 TM)TODO: test 0-port and set localhost as default address
-	// (18.11.2018 TM)FIXME: implements PersistenceTypeDictionaryManager$Immutable FIX-MEs
+	// (18.11.2018 TM)TODO: set localhost as default address plus an arbitrary default port
 	static final ComChannel COM = Com.Foundation()
 		.setClientTargetAddress(XSockets.localHostSocketAddress(1337))
 		.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))

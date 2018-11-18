@@ -18,6 +18,8 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class MainTestComServer
 {
+	// (18.11.2018 TM)FIXME: default PersistenceTypeDictionaryViewProvider with explicitely defined type list
+	// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
 	static final BinaryPersistenceFoundation<?> pf = BinaryPersistence.foundation()
 		.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 			XFiles.ensureDirectory(new File("TypeDictionary"))
@@ -27,7 +29,6 @@ public class MainTestComServer
 	;
 	
 	// (16.11.2018 TM)TODO: Convenience host methods
-	// (16.11.2018 TM)FIXME: default host persistence plus persistable type iterable
 	static final ComHost<?> COM = Com.Foundation()
 		.setHostBindingAddress(XSockets.localHostSocketAddress(1337))
 		.setHostChannelAcceptor(MainTestComServer::handleChannel)

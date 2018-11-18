@@ -5,6 +5,7 @@ import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
+import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 
 public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewProvider
@@ -70,6 +71,11 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(C connection);
 
 	public PersistenceFoundation<?, ?> provideClientPersistenceFoundation(C connection, ComProtocol protocol);
+	
+	public ComPersistenceAdaptor<C> initializePersistenceFoundation(
+		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		SwizzleIdStrategy                     idStrategy
+	);
 	
 	public default ComHostChannel<C> createHostChannel(
 		final C           connection,
