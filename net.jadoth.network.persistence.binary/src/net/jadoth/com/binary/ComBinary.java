@@ -1,11 +1,15 @@
 package net.jadoth.com.binary;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
+import net.jadoth.com.Com;
+import net.jadoth.com.ComClientChannel;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComExceptionTimeout;
+import net.jadoth.com.ComFoundation;
 import net.jadoth.com.XSockets;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -114,6 +118,68 @@ public class ComBinary
 		{
 			XSockets.writeFromBuffer(channel, bb, operationTimeout());
 		}
+	}
+	
+	
+	public static ComPersistenceAdaptorBinary.Default DefaultPersistenceAdaptor()
+	{
+		return ComPersistenceAdaptorBinary.New();
+	}
+	
+	public static ComFoundation.Default<?> Foundation()
+	{
+		return ComFoundation.New()
+			.setPersistenceAdaptor(DefaultPersistenceAdaptor())
+		;
+	}
+	
+	
+	public static final ComClientChannel<SocketChannel> connect()
+	{
+		return Com.connect(
+			DefaultPersistenceAdaptor()
+		);
+	}
+	
+	public static final ComClientChannel<SocketChannel> connect(final int localHostPort)
+	{
+		return Com.connect(
+			localHostPort              ,
+			DefaultPersistenceAdaptor()
+		);
+	}
+		
+	public static final ComClientChannel<SocketChannel> connect(
+		final InetSocketAddress targetAddress
+	)
+	{
+		return Com.connect(
+			targetAddress,
+			DefaultPersistenceAdaptor()
+		);
+	}
+	
+	public static final ComClientChannel<SocketChannel> connect(
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.connect(persistenceAdaptor);
+	}
+	
+	public static final ComClientChannel<SocketChannel> connect(
+		final int                                        localHostPort     ,
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.connect(localHostPort, persistenceAdaptor);
+	}
+	
+	public static final ComClientChannel<SocketChannel> connect(
+		final InetSocketAddress                          targetAddress     ,
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.connect(targetAddress, persistenceAdaptor);
 	}
 	
 	

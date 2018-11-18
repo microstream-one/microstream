@@ -1,12 +1,9 @@
 package net.jadoth.com;
 
-import static net.jadoth.X.mayNull;
-
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
-import java.util.function.Supplier;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
@@ -14,19 +11,33 @@ import net.jadoth.low.XVM;
 
 public class Com
 {
-	private static Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier;
-	
-	public static final synchronized void setPersistenceAdaptorSupplier(
-		final Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier
-	)
-	{
-		Com.persistenceAdaptorSupplier = mayNull(persistenceAdaptorSupplier);
-	}
-	
-	public static final synchronized Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier()
-	{
-		return Com.persistenceAdaptorSupplier;
-	}
+	// (19.11.2018 TM)NOTE: TEH EVIL
+//	private static Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier;
+//
+//	public static final synchronized void setPersistenceAdaptorSupplier(
+//		final Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier
+//	)
+//	{
+//		Com.persistenceAdaptorSupplier = mayNull(persistenceAdaptorSupplier);
+//	}
+//
+//	public static final synchronized Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier()
+//	{
+//		return Com.persistenceAdaptorSupplier;
+//	}
+//
+//	public static final synchronized ComPersistenceAdaptor<SocketChannel> DefaultPersistenceAdaptor()
+//	{
+//		if(Com.persistenceAdaptorSupplier == null)
+//		{
+//			// (19.11.2018 TM)EXCP: proper exception
+//			throw new NullPointerException(
+//				"No default " + ComPersistenceAdaptor.class.getSimpleName() + " supplier registered."
+//			);
+//		}
+//
+//		return Com.persistenceAdaptorSupplier.get();
+//	}
 	
 	
 	public static long defaultObjectIdBaseServer()
@@ -166,40 +177,42 @@ public class Com
 		
 		return vs;
 	}
+
 	
-		
 	public static final ComClientChannel<SocketChannel> connect(
-		final InetSocketAddress                    targetAddress     ,
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		final ComChannel channel = Com.Foundation()
-			.setClientTargetAddress(targetAddress)
-			.setPersistenceAdaptor(persistenceAdaptor)
-			.createClient()
-			.connect()
-		;
+		return connect(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor
+		);
 	}
-		
+	
 	public static final ComClientChannel<SocketChannel> connect(
 		final int                                  localHostPort     ,
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
 		return connect(
-			XSockets.localHostSocketAddress(localHostPort),
+			Com.localHostSocketAddress(localHostPort),
 			persistenceAdaptor
 		);
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
+		final InetSocketAddress                    targetAddress     ,
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		return connect(
-			XSockets.localHostSocketAddress(),
-			persistenceAdaptor
-		);
+		final ComClientChannel<SocketChannel> channel = Com.Foundation()
+			.setClientTargetAddress(targetAddress)
+			.setPersistenceAdaptor(persistenceAdaptor)
+			.createClient()
+			.connect()
+		;
+		
+		return channel;
 	}
 			
 	
