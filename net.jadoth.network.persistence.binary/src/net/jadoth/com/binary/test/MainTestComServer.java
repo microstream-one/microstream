@@ -7,7 +7,6 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.com.Com;
 import net.jadoth.com.ComHost;
 import net.jadoth.com.ComHostChannel;
-import net.jadoth.com.XSockets;
 import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -30,7 +29,7 @@ public class MainTestComServer
 	
 	// (16.11.2018 TM)TODO: Convenience host methods
 	static final ComHost<?> COM = Com.Foundation()
-		.setHostBindingAddress(XSockets.localHostSocketAddress(1337))
+//		.setHostBindingAddress(XSockets.localHostSocketAddress(1337))
 		.setHostChannelAcceptor(MainTestComServer::handleChannel)
 		.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
 		.createHost()
@@ -38,6 +37,7 @@ public class MainTestComServer
 	
 	public static void main(final String[] args)
 	{
+		System.out.println("Starting host ...");
 		COM.run();
 	}
 	
