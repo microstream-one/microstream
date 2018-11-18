@@ -10,9 +10,17 @@ import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
+import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 {
+	@Override
+	public ComPersistenceAdaptorBinary<C> initializePersistenceFoundation(
+		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		SwizzleIdStrategy                     idStrategy
+	);
+	
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation
 	)
@@ -86,24 +94,35 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		}
 		
 		@Override
+		public ComPersistenceAdaptorBinary.Default initializePersistenceFoundation(
+			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+			final SwizzleIdStrategy                     idStrategy
+		)
+		{
+			final PersistenceTypeDictionaryManager typeDictionaryManager =
+				PersistenceTypeDictionaryManager.Immutable(typeDictionaryProvider)
+			;
+			this.foundation.setTypeDictionaryManager(typeDictionaryManager);
+			this.foundation.setObjectIdProvider     (idStrategy.createObjectIdProvider());
+			this.foundation.setTypeIdProvider       (idStrategy.createTypeIdProvider());
+			
+			return this;
+		}
+		
+		@Override
 		public PersistenceFoundation<?, ?> provideClientPersistenceFoundation(
 			final SocketChannel connection,
 			final ComProtocol   protocol
 		)
 		{
+			this.initializePersistenceFoundation(protocol, protocol.idStrategy());
+			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider
 			);
 			this.foundation.setPersistenceChannel(channel);
-			
-			final PersistenceTypeDictionaryManager typeDictionaryManager =
-				PersistenceTypeDictionaryManager.Immutable(protocol)
-			;
-			this.foundation.setTypeDictionaryManager(typeDictionaryManager);
-			this.foundation.setObjectIdProvider(protocol.idStrategy().createObjectIdProvider());
-			this.foundation.setTypeIdProvider(protocol.idStrategy().createTypeIdProvider());
-			
+						
 			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
 			this.foundation.setTargetByteOrder(protocol.byteOrder());
 			

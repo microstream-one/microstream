@@ -32,15 +32,18 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ComConnectionHandler<C> getConnectionHandler();
 	
 	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
-	
-	public InetSocketAddress getHostBindingAddress();
-	
+		
 	public ComHostChannelAcceptor<C> getChannelAcceptor();
 	
 	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
-	
-	
+		
 	public ComClientCreator<C> getClientCreator();
+	
+	
+	// the port applies to host and client alike, that's what using a common channel is all about.
+	public int getPort();
+	
+	public InetSocketAddress getHostBindingAddress();
 	
 	public InetSocketAddress getClientTargetAddress();
 	
