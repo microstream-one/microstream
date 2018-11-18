@@ -71,7 +71,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setConnectionAcceptorCreator(ComConnectionAcceptorCreator<C> connectionAcceptorCreator);
 		
-	public F setHostBindingAddress(InetSocketAddress hostBindingAddress);
 	
 	public F setHostChannelAcceptor(ComHostChannelAcceptor<C> channelAcceptor);
 	
@@ -85,8 +84,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setClientCreator(ComClientCreator<C> clientCreator);
 	
-	public F setClientTargetAddress(InetSocketAddress clientTargetAddress);
+	public F setPort(int port);
+
+	public F setHostBindingAddress(InetSocketAddress hostBindingAddress);
 	
+	public F setClientTargetAddress(InetSocketAddress clientTargetAddress);
 	
 	public ComHost<C> createHost();
 	
@@ -120,11 +122,13 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComConnectionHandler<C>         connectionHandler        ;
 		private ComConnectionAcceptorCreator<C> connectionAcceptorCreator;
 		                                        
-		private InetSocketAddress               hostBindingAddress       ;
 		private ComHostChannelAcceptor<C>       channelAcceptor          ;
 		private ComPersistenceAdaptor<C>        persistenceAdaptor       ;
 		
 		private ComClientCreator<C>             clientCreator            ;
+		
+		private int                             port                     ;
+		private InetSocketAddress               hostBindingAddress       ;
 		private InetSocketAddress               clientTargetAddress      ;
 
 		
@@ -237,17 +241,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			
 			return this.protocolStringConverter;
 		}
-		
-		@Override
-		public InetSocketAddress getHostBindingAddress()
-		{
-			if(this.hostBindingAddress == null)
-			{
-				this.hostBindingAddress = this.ensureHostBindingAddress();
-			}
-
-			return this.hostBindingAddress;
-		}
 
 		@Override
 		public ComHostChannelAcceptor<C> getChannelAcceptor()
@@ -291,6 +284,28 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			}
 			
 			return this.clientCreator;
+		}
+		
+		@Override
+		public int getPort()
+		{
+			if(this.port == 0)
+			{
+				this.port = this.ensurePort();
+			}
+
+			return this.port;
+		}
+		
+		@Override
+		public InetSocketAddress getHostBindingAddress()
+		{
+			if(this.hostBindingAddress == null)
+			{
+				this.hostBindingAddress = this.ensureHostBindingAddress();
+			}
+
+			return this.hostBindingAddress;
 		}
 		
 		@Override
@@ -399,12 +414,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 				adaptor.provideTypeDictionaryCompiler()
 			);
 		}
-				
-		protected InetSocketAddress ensureHostBindingAddress()
-		{
-			// the address to be used is application-specific and cannot be defined here.
-			throw new MissingFoundationPartException(InetSocketAddress.class, "Host Binding Address");
-		}
 
 		protected ComHostChannelAcceptor<C> ensureChannelAcceptor()
 		{
@@ -424,10 +433,24 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			throw new MissingFoundationPartException(ComConnectionHandler.class);
 		}
 		
+		protected int ensurePort()
+		{
+			// however meaningful that may be ...
+			return Com.defaultPort();
+		}
+		
+		protected InetSocketAddress ensureHostBindingAddress()
+		{
+			return XSockets.localHostSocketAddress(
+				this.getPort()
+			);
+		}
+		
 		protected InetSocketAddress ensureClientTargetAddress()
 		{
-			// the address to be used is application-specific and cannot be defined here.
-			throw new MissingFoundationPartException(InetSocketAddress.class, "Client Target Address");
+			return XSockets.localHostSocketAddress(
+				this.getPort()
+			);
 		}
 				
 
@@ -502,6 +525,20 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
+		public F setPort(final int port)
+		{
+			this.port = port;
+			return this.$();
+		}
+		
+		@Override
+		public F setHostBindingAddress(final InetSocketAddress hostBindingAddress)
+		{
+			this.hostBindingAddress = hostBindingAddress;
+			return this.$();
+		}
+		
+		@Override
 		public F setClientTargetAddress(final InetSocketAddress clientTargetAddress)
 		{
 			this.clientTargetAddress = clientTargetAddress;
@@ -519,13 +556,6 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setConnectionHandler(final ComConnectionHandler<C> connectionHandler)
 		{
 			this.connectionHandler = connectionHandler;
-			return this.$();
-		}
-				
-		@Override
-		public F setHostBindingAddress(final InetSocketAddress hostBindingAddress)
-		{
-			this.hostBindingAddress = hostBindingAddress;
 			return this.$();
 		}
 

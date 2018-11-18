@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComProtocol;
+import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -20,6 +21,16 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		SwizzleIdStrategy                     idStrategy
 	);
+	
+	
+	public static ComPersistenceAdaptorBinary.Default New()
+	{
+		return New(
+			BinaryPersistence.foundation()
+		);
+	}
+	
+	
 	
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation
