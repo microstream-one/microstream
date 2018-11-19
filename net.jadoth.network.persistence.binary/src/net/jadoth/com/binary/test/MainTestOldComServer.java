@@ -16,7 +16,7 @@ public class MainTestOldComServer
 	public static void main(final String[] args) throws Exception
 	{
 		final ServerSocketChannel serverSocketChannel = XSockets.openServerSocketChannel(
-			new InetSocketAddress(UtilTestCom.defaultPort())
+			new InetSocketAddress(UtilTestOldCom.defaultPort())
 		);
 		
 		run(serverSocketChannel, cc ->
@@ -48,7 +48,7 @@ public class MainTestOldComServer
 	{
 		XDebug.println("Server initializing " + PersistenceManager.class.getSimpleName());
 		// create a PersistenceManager around the connection to receive and interpret data (= rebuild the serialized graph)
-		final ComChannel cc = UtilTestCom.openComChannel(
+		final ComChannel cc = UtilTestOldCom.openComChannel(
 			socketChannel,
 			new File(MainTestOldComServer.class.getSimpleName()),
 			false

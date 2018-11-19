@@ -24,13 +24,13 @@ public class MainTestOldComClient
 		for(int i = 1; i <= REQUEST_COUNT; i++)
 		{
 			XDebug.println("Client opens channel ...");
-			try(final SocketChannel channel = XSockets.openChannelLocalhost(UtilTestCom.defaultPort()))
+			try(final SocketChannel channel = XSockets.openChannelLocalhost(UtilTestOldCom.defaultPort()))
 			{
 				XDebug.println("Client opened channel. Sleeping ...");
 				Thread.sleep(REQUEST_DELAY);
 
 				XDebug.println("Client initializing " + PersistenceManager.class.getSimpleName());
-				final ComChannel cc = UtilTestCom.openComChannel(
+				final ComChannel cc = UtilTestOldCom.openComChannel(
 					channel,
 					new File(MainTestOldComClient.class.getSimpleName()),
 					true

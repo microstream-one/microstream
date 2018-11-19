@@ -15,7 +15,7 @@ import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
 
-public class UtilTestCom
+public class UtilTestOldCom
 {
 	public static int defaultPort()
 	{
