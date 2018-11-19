@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
 import net.jadoth.com.Com;
+import net.jadoth.com.ComClient;
 import net.jadoth.com.ComClientChannel;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComExceptionTimeout;
@@ -134,36 +135,85 @@ public class ComBinary
 	}
 	
 	
-	public static final ComClientChannel<SocketChannel> connect()
+	public static final ComClient<SocketChannel> Client()
 	{
-		return Com.connect(
+		return Com.Client(
 			DefaultPersistenceAdaptor()
 		);
 	}
 	
-	public static final ComClientChannel<SocketChannel> connect(final int localHostPort)
+	public static final ComClient<SocketChannel> Client(final int localHostPort)
 	{
-		return Com.connect(
+		return Com.Client(
 			localHostPort              ,
 			DefaultPersistenceAdaptor()
 		);
+	}
+		
+	public static final ComClient<SocketChannel> Client(
+		final InetSocketAddress targetAddress
+	)
+	{
+		return Com.Client(
+			targetAddress,
+			DefaultPersistenceAdaptor()
+		);
+	}
+	
+	public static final ComClient<SocketChannel> Client(
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.Client(persistenceAdaptor);
+	}
+	
+	public static final ComClient<SocketChannel> Client(
+		final int                                        localHostPort     ,
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.Client(localHostPort, persistenceAdaptor);
+	}
+	
+	public static final ComClient<SocketChannel> Client(
+		final InetSocketAddress                          targetAddress     ,
+		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Com.Client(targetAddress, persistenceAdaptor);
+	}
+	
+	
+	public static final ComClientChannel<SocketChannel> connect()
+	{
+		return Client()
+			.connect()
+		;
+	}
+	
+	public static final ComClientChannel<SocketChannel> connect(final int localHostPort)
+	{
+		return Client(localHostPort)
+			.connect()
+		;
 	}
 		
 	public static final ComClientChannel<SocketChannel> connect(
 		final InetSocketAddress targetAddress
 	)
 	{
-		return Com.connect(
-			targetAddress,
-			DefaultPersistenceAdaptor()
-		);
+		return Client(targetAddress)
+			.connect()
+		;
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
 		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
 	)
 	{
-		return Com.connect(persistenceAdaptor);
+		return Client(persistenceAdaptor)
+			.connect()
+		;
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
@@ -171,7 +221,9 @@ public class ComBinary
 		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
 	)
 	{
-		return Com.connect(localHostPort, persistenceAdaptor);
+		return Client(localHostPort, persistenceAdaptor)
+			.connect()
+		;
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
@@ -179,7 +231,9 @@ public class ComBinary
 		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
 	)
 	{
-		return Com.connect(targetAddress, persistenceAdaptor);
+		return Client(targetAddress, persistenceAdaptor)
+			.connect()
+		;
 	}
 	
 	

@@ -33,7 +33,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ComConnectionAcceptorCreator<C> getConnectionAcceptorCreator();
 		
-	public ComHostChannelAcceptor<C> getChannelAcceptor();
+	public ComHostChannelAcceptor<C> getHostChannelAcceptor();
 	
 	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
 		
@@ -122,7 +122,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComConnectionHandler<C>         connectionHandler        ;
 		private ComConnectionAcceptorCreator<C> connectionAcceptorCreator;
 		                                        
-		private ComHostChannelAcceptor<C>       channelAcceptor          ;
+		private ComHostChannelAcceptor<C>       hostChannelAcceptor      ;
 		private ComPersistenceAdaptor<C>        persistenceAdaptor       ;
 		
 		private ComClientCreator<C>             clientCreator            ;
@@ -243,14 +243,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 
 		@Override
-		public ComHostChannelAcceptor<C> getChannelAcceptor()
+		public ComHostChannelAcceptor<C> getHostChannelAcceptor()
 		{
-			if(this.channelAcceptor == null)
+			if(this.hostChannelAcceptor == null)
 			{
-				this.channelAcceptor = this.ensureChannelAcceptor();
+				this.hostChannelAcceptor = this.ensureHostChannelAcceptor();
 			}
 
-			return this.channelAcceptor;
+			return this.hostChannelAcceptor;
 		}
 
 		@Override
@@ -415,7 +415,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			);
 		}
 
-		protected ComHostChannelAcceptor<C> ensureChannelAcceptor()
+		protected ComHostChannelAcceptor<C> ensureHostChannelAcceptor()
 		{
 			// the channel acceptor is the link to the application / framework logic and cannot be created here.
 			throw new MissingFoundationPartException(ComHostChannelAcceptor.class);
@@ -562,7 +562,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		@Override
 		public F setHostChannelAcceptor(final ComHostChannelAcceptor<C> channelAcceptor)
 		{
-			this.channelAcceptor = channelAcceptor;
+			this.hostChannelAcceptor = channelAcceptor;
 			return this.$();
 		}
 
@@ -598,7 +598,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 				this.getProtocolStringConverter(),
 				this.getConnectionHandler()      ,
 				this.getPersistenceAdaptor()     ,
-				this.getChannelAcceptor()
+				this.getHostChannelAcceptor()
 			);
 
 			final ComHostCreator<C> hostCreator = this.getHostCreator();
@@ -641,6 +641,12 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		protected ComHostChannelAcceptor<SocketChannel> ensureHostChannelAcceptor()
+		{
+			return Com::bounce;
+		}
 		
 		@Override
 		public ComConnectionHandler.Default ensureConnectionHandler()
