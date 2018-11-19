@@ -3,7 +3,7 @@ package net.jadoth.com;
 public interface ComConnectionAcceptorCreator<C>
 {
 	public ComConnectionAcceptor<C> createConnectionAcceptor(
-		ComProtocolProvider        protocolProvider       ,
+		ComProtocolProvider<C>     protocolProvider       ,
 		ComProtocolStringConverter protocolStringConverter,
 		ComConnectionHandler<C>    connectionHandler      ,
 		ComPersistenceAdaptor<C>   persistenceAdaptor     ,
@@ -35,7 +35,7 @@ public interface ComConnectionAcceptorCreator<C>
 
 		@Override
 		public ComConnectionAcceptor<C> createConnectionAcceptor(
-			final ComProtocolProvider        protocolProvider       ,
+			final ComProtocolProvider<C>     protocolProvider       ,
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,

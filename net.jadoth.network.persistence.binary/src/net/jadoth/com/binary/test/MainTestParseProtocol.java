@@ -38,8 +38,8 @@ public class MainTestParseProtocol
 			)
 		;
 		
-		final ComProtocolProvider        protocolProvider = foundation.getProtocolProvider();
-		final ComProtocol                protocol         = protocolProvider.provideProtocol();
+		final ComProtocolProvider<?>     protocolProvider = foundation.getProtocolProvider();
+		final ComProtocol                protocol         = protocolProvider.provideProtocol(null);
 		final ComProtocolStringConverter converter        = foundation.getProtocolStringConverter();
 		final String                     assembled        = converter.assemble(protocol);
 		System.out.println(assembled);

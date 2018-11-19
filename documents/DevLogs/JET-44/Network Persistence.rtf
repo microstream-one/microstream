@@ -1093,5 +1093,9 @@ Damit fehlt jetzt f\'fcr einen ersten Prototyp nur noch ein Default beim Host f\
 23:00\par
 Also erst mal defaults f\'fcr die IDs machen.\par
 Bzw. die gibts ja schon. Mal schauen, wie ich die integrier und ob das so passt.\par
+\par
+Oh, dabei aufgefallen: Der ProtocolProvider gibt ja immer die gleiche IdStrategy f\'fcr den Client zur\'fcck. Das ist defaultm\'e4\'dfig schon richtig, aber es sollte/muss hier die M\'f6glichkeit geben, jedem Client eine andere IdRange mitzuteilen.\par
+Ich denk es reicht, dem ProtocolProvider einfach die Connection zu \'fcbergeben. Falls es nicht reicht, den SocketChannel zu \'fcbergeben, muss man halt einen Wrapper schreiben, in dem vorher erst noch ein Username oder sowas festgestellt wird.\par
+Also ausreichende M\'f6glichkeiten hat man damit auf jeden Fall.\par
 }
  

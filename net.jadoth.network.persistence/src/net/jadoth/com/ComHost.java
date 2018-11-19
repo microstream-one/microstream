@@ -16,7 +16,7 @@ public interface ComHost<C> extends Runnable
 {
 	public InetSocketAddress address();
 	
-	public ComProtocolProvider protocolProvider();
+	public ComProtocolProvider<C> protocolProvider();
 	
 	/**
 	 * Listens for incoming connections and relays them for processing.
@@ -90,7 +90,7 @@ public interface ComHost<C> extends Runnable
 		}
 
 		@Override
-		public final ComProtocolProvider protocolProvider()
+		public final ComProtocolProvider<C> protocolProvider()
 		{
 			return this.connectionAcceptor.protocolProvider();
 		}
