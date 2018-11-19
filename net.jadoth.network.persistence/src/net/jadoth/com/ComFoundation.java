@@ -76,6 +76,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
 	
+	// (19.11.2018 TM)TODO: setHostContext still relevant at all after defaults?
 	public F setHostContext(
 		InetSocketAddress         socketAddress        ,
 		ComHostChannelAcceptor<C> channelAcceptor      ,
