@@ -1,5 +1,6 @@
 package net.jadoth.com;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -71,6 +72,11 @@ public class Com
 		return XVM.nativeByteOrder();
 	}
 	
+	/**
+	 * An arbitrary default port, mostly only viable for uber-simplicity demonstration purposes.
+	 * 
+	 * @return the framework's default port.
+	 */
 	public static int defaultPort()
 	{
 		// arbitrary, totally random port. Totally random, really.
@@ -177,7 +183,110 @@ public class Com
 		
 		return vs;
 	}
+	
+	
+	public static final ComHost<SocketChannel> Host(
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Host(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final int                                  localHostPort     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Host(
+			Com.localHostSocketAddress(localHostPort),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final InetSocketAddress                    targetAddress     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		final ComHost<SocketChannel> host = Com.Foundation()
+			.setHostBindingAddress(targetAddress)
+			.setPersistenceAdaptor(persistenceAdaptor)
+			.createHost()
+		;
+		
+		return host;
+	}
+	
+	
+	public static final void runHost(
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final void runHost(
+		final int                                  localHostPort     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(localHostPort),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final void runHost(
+		final InetSocketAddress                    targetAddress     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		final ComHost<SocketChannel> host = Com.Host(targetAddress, persistenceAdaptor);
+		host.run();
+	}
 
+	
+	public static final ComClient<SocketChannel> Client(
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Client(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final ComClient<SocketChannel> Client(
+		final int                                  localHostPort     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		return Client(
+			Com.localHostSocketAddress(localHostPort),
+			persistenceAdaptor
+		);
+	}
+	
+	public static final ComClient<SocketChannel> Client(
+		final InetSocketAddress                    targetAddress     ,
+		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+	)
+	{
+		final ComClient<SocketChannel> client = Com.Foundation()
+			.setClientTargetAddress(targetAddress)
+			.setPersistenceAdaptor(persistenceAdaptor)
+			.createClient()
+		;
+		
+		return client;
+	}
+	
 	
 	public static final ComClientChannel<SocketChannel> connect(
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
@@ -205,14 +314,53 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		final ComClientChannel<SocketChannel> channel = Com.Foundation()
-			.setClientTargetAddress(targetAddress)
-			.setPersistenceAdaptor(persistenceAdaptor)
-			.createClient()
+		final ComClientChannel<SocketChannel> channel = Com.Client(targetAddress, persistenceAdaptor)
 			.connect()
 		;
 		
 		return channel;
+	}
+	
+	/**
+	 * This method is catastrophically naive. And by design. Its only purpose and viability is to serve
+	 * as an uber-simplicity default implementation for {@link ComHostChannelAcceptor} for framework demonstration
+	 * purposes.<p>
+	 * Used logic:
+	 * <ul>
+	 * <li>tied to {@link SocketChannel}</li>
+	 * <li>calls {@link ComHostChannel#receive()} on the passed channel.</li>
+	 * <li>calls {@link Object#toString()} on the received instance to assemble its {@link String} representation.</li>
+	 * <li>calls {@code System.out.println} (yes, it does) to print the connection's remote address and the string.</li>
+	 * <li>sends a new {@link String} echoing the {@link String} representation back to the sender.
+	 * <li>calls {@link ComHostChannel#close()} on the passed channel.
+	 * </ul>
+	 * So this method depends on the mercy of whatever the received instance's Class {@link Object#toString()}
+	 * implementation is, uses hardcoded {@code System.out.println}, works only with strings and closes the channel.
+	 * It is absolutely not recommended to use this method for anything except basic demonstration purposes and
+	 * as an API usage example.<p>
+	 * DO NOT USE THIS METHOD IN PRODUCTION MODE!
+	 * 
+	 * You have been warned.
+	 * 
+	 * @param channel a one-shot {@link ComHostChannel} to receive data from and send a reply to.
+	 */
+	public static void bounce(final ComHostChannel<SocketChannel> channel)
+	{
+		final Object received = channel.receive();
+		final String string = received.toString();
+		
+		try
+		{
+			System.out.println("Received from " + channel.connection().getRemoteAddress()+": " + string);
+		}
+		catch(final IOException e)
+		{
+			throw new ComException(e);
+		}
+		
+		final String answer = "You said: \"" + string + "\"";
+		channel.send(answer);
+		channel.close();
 	}
 			
 	

@@ -1,12 +1,8 @@
 package net.jadoth.com.binary.test;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
-import net.jadoth.com.ComHost;
-import net.jadoth.com.ComHostChannel;
 import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -17,46 +13,41 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class MainTestComServer
 {
-	// (18.11.2018 TM)FIXME: default PersistenceTypeDictionaryViewProvider with explicitely defined type list
-	// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
-	static final BinaryPersistenceFoundation<?> pf = BinaryPersistence.foundation()
-		.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
-			XFiles.ensureDirectory(new File("TypeDictionary"))
-		))
-		.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
-		.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
-	;
-	
-	// (16.11.2018 TM)TODO: Convenience host methods
-	static final ComHost<?> COM = Com.Foundation()
-//		.setHostBindingAddress(XSockets.localHostSocketAddress(1337))
-		.setHostChannelAcceptor(MainTestComServer::handleChannel)
-		.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
-		.createHost()
-	;
-	
 	public static void main(final String[] args)
 	{
-		System.out.println("Starting host ...");
-		COM.run();
+		// (18.11.2018 TM)FIXME: default PersistenceTypeDictionaryViewProvider with explicitely defined type list
+		// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
+
+		// (16.11.2018 TM)TODO: Convenience host methods
+		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.foundation()
+			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
+				XFiles.ensureDirectory(new File("TypeDictionary"))
+			))
+			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
+			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
+		;
+		
+		// convenience & customization example 1
+//		final ComHost<?> host = Com.Foundation()
+//			.setHostBindingAddress(Com.localHostSocketAddress(Com.defaultPort()))
+//			.setHostChannelAcceptor(Com::bounce)
+//			.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(persistence))
+//			.createHost()
+//		;
+//		System.out.println("Starting host ...");
+//		host.run();
+		
+		// convenience & customization example 2
+//		final ComHost<?> host = Com.Host(
+//			ComPersistenceAdaptorBinary.New(persistence)
+//		);
+//		System.out.println("Starting host ...");
+//		host.run();
+		
+		
+		// convenience & customization example 3
+		Com.runHost(ComPersistenceAdaptorBinary.New(persistence));
 	}
 	
-	static void handleChannel(final ComHostChannel<SocketChannel> channel)
-	{
-		final Object received = channel.receive();
-		
-		try
-		{
-			System.out.println("Received from " + channel.connection().getRemoteAddress()+": " + received);
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-		
-		final String answer = "You said: \"" + received + "\"";
-		channel.send(answer);
-		channel.close();
-	}
 	
 }
