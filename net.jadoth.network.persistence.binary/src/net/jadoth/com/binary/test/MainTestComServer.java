@@ -23,7 +23,7 @@ public class MainTestComServer
 		// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
 
 		// (16.11.2018 TM)TODO: Convenience host methods
-		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.foundation()
+		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.Foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 				XFiles.ensureDirectory(new File("TypeDictionary"))
 			))

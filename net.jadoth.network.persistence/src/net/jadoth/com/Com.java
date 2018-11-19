@@ -11,36 +11,7 @@ import net.jadoth.low.XVM;
 
 public class Com
 {
-	// (19.11.2018 TM)NOTE: TEH EVIL
-//	private static Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier;
-//
-//	public static final synchronized void setPersistenceAdaptorSupplier(
-//		final Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier
-//	)
-//	{
-//		Com.persistenceAdaptorSupplier = mayNull(persistenceAdaptorSupplier);
-//	}
-//
-//	public static final synchronized Supplier<? extends ComPersistenceAdaptor<SocketChannel>> persistenceAdaptorSupplier()
-//	{
-//		return Com.persistenceAdaptorSupplier;
-//	}
-//
-//	public static final synchronized ComPersistenceAdaptor<SocketChannel> DefaultPersistenceAdaptor()
-//	{
-//		if(Com.persistenceAdaptorSupplier == null)
-//		{
-//			// (19.11.2018 TM)EXCP: proper exception
-//			throw new NullPointerException(
-//				"No default " + ComPersistenceAdaptor.class.getSimpleName() + " supplier registered."
-//			);
-//		}
-//
-//		return Com.persistenceAdaptorSupplier.get();
-//	}
-	
-	
-	public static long defaultObjectIdBaseServer()
+	public static long defaultObjectIdBaseHost()
 	{
 		return 9_200_000_000_000_000_000L;
 	}
@@ -56,9 +27,9 @@ public class Com
 		return ComDefaultIdStrategy.New(startingObjectId);
 	}
 	
-	public static ComDefaultIdStrategy DefaultIdStrategyServer()
+	public static ComDefaultIdStrategy DefaultIdStrategyHost()
 	{
-		return DefaultIdStrategy(defaultObjectIdBaseServer());
+		return DefaultIdStrategy(defaultObjectIdBaseHost());
 	}
 	
 	public static ComDefaultIdStrategy DefaultIdStrategyClient()

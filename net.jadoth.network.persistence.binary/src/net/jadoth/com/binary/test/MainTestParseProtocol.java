@@ -21,7 +21,7 @@ public class MainTestParseProtocol
 {
 	public static void main(final String[] args)
 	{
-		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.foundation()
+		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 				XFiles.ensureDirectory(new File("TypeDictionary"))
 			))
@@ -30,7 +30,7 @@ public class MainTestParseProtocol
 		;
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
-			.setClientIdStrategy(Com.DefaultIdStrategyServer())
+			.setClientIdStrategy(Com.DefaultIdStrategyHost())
 			.setHostContext(
 				XSockets.localHostSocketAddress(),
 				System.out::println,
