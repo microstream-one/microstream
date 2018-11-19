@@ -8,6 +8,14 @@ package net.jadoth.storage.types;
  */
 public interface StorageWriteListener
 {
+	/* (19.11.2018 TM)TODO: Consolidate StorageWriteListener
+	 * Using explicit "listener" types is always clumsily restricted.
+	 * Perferable:
+	 * - better encapsulate some of the logic in StorageFileManager to some "StorageFileHandler" or so.
+	 * - probably consolidate with "StorageFileWriter"
+	 * - implement the "listening" concerns here as a Wrapper implementation of that handler type.
+	 */
+	
 	public void registerStore(StorageDataFile<?> dataFile, long offset, long length);
 
 	public void registerTransfer(StorageDataFile<?> dataFile, long offset, long length);
