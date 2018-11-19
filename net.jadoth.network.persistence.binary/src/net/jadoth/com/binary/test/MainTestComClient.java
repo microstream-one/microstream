@@ -26,6 +26,6 @@ public class MainTestComClient
 		// convenience & customization example 4
 		final ComChannel com = ComBinary.connect();
 		
-		System.out.println(com.request("Hello Server!"));
+		System.out.println("Server reply: " + com.request("Hello Server!"));
 	}
 }
