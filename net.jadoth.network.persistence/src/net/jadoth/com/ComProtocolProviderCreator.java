@@ -5,9 +5,9 @@ import java.nio.ByteOrder;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
-public interface ComProtocolProviderCreator
+public interface ComProtocolProviderCreator<C>
 {
-	public ComProtocolProvider creatProtocolProvider(
+	public ComProtocolProvider<C> creatProtocolProvider(
 		String                                name                  ,
 		String                                version               ,
 		ByteOrder                             byteOrder             ,
@@ -18,12 +18,12 @@ public interface ComProtocolProviderCreator
 	
 	
 	
-	public static ComProtocolProviderCreator New()
+	public static <C> ComProtocolProviderCreator<C> New()
 	{
-		return new ComProtocolProviderCreator.Implementation();
+		return new ComProtocolProviderCreator.Implementation<>();
 	}
 	
-	public final class Implementation implements ComProtocolProviderCreator
+	public final class Implementation<C> implements ComProtocolProviderCreator<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -41,7 +41,7 @@ public interface ComProtocolProviderCreator
 		////////////
 
 		@Override
-		public ComProtocolProvider creatProtocolProvider(
+		public ComProtocolProvider<C> creatProtocolProvider(
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
@@ -50,7 +50,7 @@ public interface ComProtocolProviderCreator
 			final ComProtocolCreator                    protocolCreator
 		)
 		{
-			return new ComProtocolProvider.Implementation(
+			return new ComProtocolProvider.Implementation<>(
 				name                  ,
 				version               ,
 				byteOrder             ,

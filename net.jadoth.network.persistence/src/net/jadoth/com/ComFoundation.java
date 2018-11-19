@@ -18,9 +18,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public SwizzleIdStrategy getClientIdStrategy();
 			
-	public ComProtocolProvider getProtocolProvider();
+	public ComProtocolProvider<C> getProtocolProvider();
 	
-	public ComProtocolProviderCreator getProtocolProviderCreator();
+	public ComProtocolProviderCreator<C> getProtocolProviderCreator();
 	
 	public ComProtocolCreator getProtocolCreator();
 	
@@ -58,9 +58,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setProtocolCreator(ComProtocolCreator protocolCreator);
 	
-	public F setProtocolProvider(ComProtocolProvider protocolProvider);
+	public F setProtocolProvider(ComProtocolProvider<C> protocolProvider);
 	
-	public F setProtocolProviderCreator(ComProtocolProviderCreator protocolProviderCreator);
+	public F setProtocolProviderCreator(ComProtocolProviderCreator<C> protocolProviderCreator);
 	
 	
 	public F setProtocolStringConverter(ComProtocolStringConverter protocolStringConverter);
@@ -114,8 +114,8 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ByteOrder                       byteOrder                ;
 		private SwizzleIdStrategy               clientIdStrategy         ;
 		private ComProtocolCreator              protocolCreator          ;
-		private ComProtocolProvider             protocolProvider         ;
-		private ComProtocolProviderCreator      protocolProviderCreator  ;
+		private ComProtocolProvider<C>          protocolProvider         ;
+		private ComProtocolProviderCreator<C>   protocolProviderCreator  ;
                                                 
 		private ComProtocolStringConverter      protocolStringConverter  ;
 		
@@ -200,7 +200,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComProtocolProvider getProtocolProvider()
+		public ComProtocolProvider<C> getProtocolProvider()
 		{
 			if(this.protocolProvider == null)
 			{
@@ -211,7 +211,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public ComProtocolProviderCreator getProtocolProviderCreator()
+		public ComProtocolProviderCreator<C> getProtocolProviderCreator()
 		{
 			if(this.protocolProviderCreator == null)
 			{
@@ -373,7 +373,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return ComProtocol.Creator();
 		}
 		
-		protected ComProtocolProviderCreator ensureProtocolProviderCreator()
+		protected ComProtocolProviderCreator<C> ensureProtocolProviderCreator()
 		{
 			return ComProtocolProviderCreator.New();
 		}
@@ -393,9 +393,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return ComConnectionAcceptor.Creator();
 		}
 
-		protected ComProtocolProvider ensureProtocolProvider()
+		protected ComProtocolProvider<C> ensureProtocolProvider()
 		{
-			final ComProtocolProviderCreator providerCreator = this.getProtocolProviderCreator();
+			final ComProtocolProviderCreator<C> providerCreator = this.getProtocolProviderCreator();
 			
 			return providerCreator.creatProtocolProvider(
 				this.getProtocolName()      ,
@@ -491,14 +491,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setProtocolProvider(final ComProtocolProvider protocolProvider)
+		public F setProtocolProvider(final ComProtocolProvider<C> protocolProvider)
 		{
 			this.protocolProvider = protocolProvider;
 			return this.$();
 		}
 		
 		@Override
-		public F setProtocolProviderCreator(final ComProtocolProviderCreator protocolProviderCreator)
+		public F setProtocolProviderCreator(final ComProtocolProviderCreator<C> protocolProviderCreator)
 		{
 			this.protocolProviderCreator = protocolProviderCreator;
 			return this.$();

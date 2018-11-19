@@ -9,18 +9,18 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
-public interface ComProtocolProvider extends ComProtocolData
+public interface ComProtocolProvider<C> extends ComProtocolData
 {
-	public ComProtocol provideProtocol();
+	public ComProtocol provideProtocol(C connection);
 	
 	
 	
-	public static ComProtocolProviderCreator Creator()
+	public static <C> ComProtocolProviderCreator<C> Creator()
 	{
 		return ComProtocolProviderCreator.New();
 	}
 	
-	public static ComProtocolProvider New(
+	public static <C> ComProtocolProvider<C> New(
 		final String                                name                  ,
 		final String                                version               ,
 		final ByteOrder                             byteOrder             ,
@@ -29,7 +29,7 @@ public interface ComProtocolProvider extends ComProtocolData
 		final ComProtocolCreator                    protocolCreator
 	)
 	{
-		return new ComProtocolProvider.Implementation(
+		return new ComProtocolProvider.Implementation<>(
 			notNull(name)                  ,
 			notNull(version)               ,
 			notNull(byteOrder)             ,
@@ -39,7 +39,7 @@ public interface ComProtocolProvider extends ComProtocolData
 		);
 	}
 	
-	public final class Implementation implements ComProtocolProvider, Immutable
+	public final class Implementation<C> implements ComProtocolProvider<C>, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -113,8 +113,9 @@ public interface ComProtocolProvider extends ComProtocolData
 		}
 		
 		@Override
-		public ComProtocol provideProtocol()
+		public ComProtocol provideProtocol(final C connection)
 		{
+			// the default implementation assigns the same id range to every client
 			return this.protocolCreator.creatProtocol(
 				this.name()          ,
 				this.version()       ,

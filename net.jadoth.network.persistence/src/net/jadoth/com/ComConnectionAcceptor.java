@@ -12,7 +12,7 @@ import static net.jadoth.X.notNull;
  */
 public interface ComConnectionAcceptor<C>
 {
-	public ComProtocolProvider protocolProvider();
+	public ComProtocolProvider<C> protocolProvider();
 	
 	public void acceptConnection(C connection, ComHost<C> parent);
 	
@@ -24,7 +24,7 @@ public interface ComConnectionAcceptor<C>
 	}
 	
 	public static <C> ComConnectionAcceptor<C> New(
-		final ComProtocolProvider        protocolProvider       ,
+		final ComProtocolProvider<C>     protocolProvider       ,
 		final ComProtocolStringConverter protocolStringConverter,
 		final ComConnectionHandler<C>    connectionHandler      ,
 		final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
@@ -47,7 +47,7 @@ public interface ComConnectionAcceptor<C>
 		// instance fields //
 		////////////////////
 		
-		private final ComProtocolProvider        protocolProvider       ;
+		private final ComProtocolProvider<C>     protocolProvider       ;
 		private final ComProtocolStringConverter protocolStringConverter;
 		private final ComConnectionHandler<C>    connectionHandler      ;
 		private final ComPersistenceAdaptor<C>   persistenceAdaptor     ;
@@ -60,7 +60,7 @@ public interface ComConnectionAcceptor<C>
 		/////////////////
 		
 		Implementation(
-			final ComProtocolProvider        protocolProvider       ,
+			final ComProtocolProvider<C>     protocolProvider       ,
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
@@ -82,25 +82,21 @@ public interface ComConnectionAcceptor<C>
 		////////////
 		
 		@Override
-		public final ComProtocolProvider protocolProvider()
+		public final ComProtocolProvider<C> protocolProvider()
 		{
 			return this.protocolProvider;
 		}
 		
 		@Override
-		public void acceptConnection(final C connection, final ComHost<C> parent)
+		public final void acceptConnection(final C connection, final ComHost<C> parent)
 		{
 			// note: things like authentication could be done here in a wrapping implementation.
 						
-			final ComProtocol protocol = this.protocolProvider.provideProtocol();
+			final ComProtocol protocol = this.protocolProvider.provideProtocol(connection);
 			this.connectionHandler.sendProtocol(connection, protocol, this.protocolStringConverter);
 			
-			final ComHostChannel<C> comChannel = this.persistenceAdaptor.createHostChannel(
-				connection,
-				protocol  ,
-				parent
-			);
-			this.channelAcceptor.acceptChannel(comChannel);
+			final ComHostChannel<C> channel = this.persistenceAdaptor.createHostChannel(connection, protocol, parent);
+			this.channelAcceptor.acceptChannel(channel);
 		}
 		
 	}
