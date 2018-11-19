@@ -1,6 +1,5 @@
 package net.jadoth.com;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -185,14 +184,16 @@ public class Com
 	}
 	
 	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// convenience methods //
+	////////////////////////
+	
 	public static final ComHost<SocketChannel> Host(
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		return Host(
-			Com.localHostSocketAddress(),
-			persistenceAdaptor
-		);
+		return Host(persistenceAdaptor, null);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
@@ -200,10 +201,7 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		return Host(
-			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor
-		);
+		return Host(localHostPort, persistenceAdaptor, null);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
@@ -211,9 +209,44 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
+		return Host(targetAddress, persistenceAdaptor, null);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		return Host(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor,
+			channelAcceptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final int                                   localHostPort     ,
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		return Host(
+			Com.localHostSocketAddress(localHostPort),
+			persistenceAdaptor,
+			channelAcceptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final InetSocketAddress                     targetAddress     ,
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
 		final ComHost<SocketChannel> host = Com.Foundation()
-			.setHostBindingAddress(targetAddress)
-			.setPersistenceAdaptor(persistenceAdaptor)
+			.setHostBindingAddress (targetAddress)
+			.setPersistenceAdaptor (persistenceAdaptor)
+			.setHostChannelAcceptor(channelAcceptor)
 			.createHost()
 		;
 		
@@ -225,10 +258,7 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		runHost(
-			Com.localHostSocketAddress(),
-			persistenceAdaptor
-		);
+		runHost(persistenceAdaptor, null);
 	}
 	
 	public static final void runHost(
@@ -236,10 +266,7 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		runHost(
-			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor
-		);
+		runHost(localHostPort, persistenceAdaptor, null);
 	}
 	
 	public static final void runHost(
@@ -247,7 +274,41 @@ public class Com
 		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
 	)
 	{
-		final ComHost<SocketChannel> host = Com.Host(targetAddress, persistenceAdaptor);
+		runHost(targetAddress, persistenceAdaptor, null);
+	}
+	
+	public static final void runHost(
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(),
+			persistenceAdaptor,
+			channelAcceptor
+		);
+	}
+	
+	public static final void runHost(
+		final int                                   localHostPort     ,
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(localHostPort),
+			persistenceAdaptor,
+			channelAcceptor
+		);
+	}
+	
+	public static final void runHost(
+		final InetSocketAddress                     targetAddress     ,
+		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		final ComHost<SocketChannel> host = Com.Host(targetAddress, persistenceAdaptor, channelAcceptor);
 		host.run();
 	}
 
@@ -327,39 +388,26 @@ public class Com
 	 * purposes.<p>
 	 * Used logic:
 	 * <ul>
-	 * <li>tied to {@link SocketChannel}</li>
+	 * <li>uses {@link SocketChannel}.</li>
 	 * <li>calls {@link ComHostChannel#receive()} on the passed channel.</li>
 	 * <li>calls {@link Object#toString()} on the received instance to assemble its {@link String} representation.</li>
-	 * <li>calls {@code System.out.println} (yes, it does) to print the connection's remote address and the string.</li>
-	 * <li>sends a new {@link String} echoing the {@link String} representation back to the sender.
+	 * <li>sends a new {@link String} echoing the string representation back to the sender.
 	 * <li>calls {@link ComHostChannel#close()} on the passed channel.
 	 * </ul>
 	 * So this method depends on the mercy of whatever the received instance's Class {@link Object#toString()}
-	 * implementation is, uses hardcoded {@code System.out.println}, works only with strings and closes the channel.
+	 * implementation is and works only with strings and closes the channel after one sent message.
 	 * It is absolutely not recommended to use this method for anything except basic demonstration purposes and
-	 * as an API usage example.<p>
-	 * DO NOT USE THIS METHOD IN PRODUCTION MODE!
+	 * as an API usage/learning example.<p>
+	 * 
+	 * /!\ DO NOT USE THIS METHOD FOR PRODUCTION Purposes!<p>
 	 * 
 	 * You have been warned.
 	 * 
-	 * @param channel a one-shot {@link ComHostChannel} to receive data from and send a reply to.
+	 * @param channel A one-shot {@link ComHostChannel} to receive and send exactely one message.
 	 */
-	public static void bounce(final ComHostChannel<SocketChannel> channel)
+	public static void bounce(final ComHostChannel<SocketChannel> channel) throws ComException
 	{
-		final Object received = channel.receive();
-		final String string = received.toString();
-		
-		try
-		{
-			System.out.println("Received from " + channel.connection().getRemoteAddress()+": " + string);
-		}
-		catch(final IOException e)
-		{
-			throw new ComException(e);
-		}
-		
-		final String answer = "You said: \"" + string + "\"";
-		channel.send(answer);
+		channel.send("You said: \"" + channel.receive().toString() + "\". Goodbye.");
 		channel.close();
 	}
 			

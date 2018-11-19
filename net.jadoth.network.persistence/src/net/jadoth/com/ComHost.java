@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
  * @author TM
  *
  */
-public interface ComHost<C>
+public interface ComHost<C> extends Runnable
 {
 	public InetSocketAddress address();
 	
@@ -23,6 +23,7 @@ public interface ComHost<C>
 	 */
 	public void acceptConnections();
 	
+	@Override
 	public void run();
 	
 	public void stop();
@@ -102,6 +103,7 @@ public interface ComHost<C>
 			{
 				if(this.isRunning())
 				{
+					// if the host is already running, this method must abort here.
 					return;
 				}
 				

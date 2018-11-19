@@ -38,7 +38,10 @@ public class ComBinary
 		return XVM.get_long(XVM.getDirectByteBufferAddress(directByteBuffer));
 	}
 	
-	public static ByteBuffer setChunkHeaderContentLength(final ByteBuffer directByteBuffer, final long contentLength)
+	public static ByteBuffer setChunkHeaderContentLength(
+		final ByteBuffer directByteBuffer,
+		final long       contentLength
+	)
 	{
 		directByteBuffer.clear().limit(ComBinary.chunkHeaderLength());
 		XVM.set_long(XVM.getDirectByteBufferAddress(directByteBuffer), contentLength);
@@ -68,7 +71,7 @@ public class ComBinary
 	
 	
 	public static ByteBuffer readChunk(
-		final SocketChannel channel,
+		final SocketChannel channel      ,
 		final ByteBuffer    defaultBuffer
 	)
 		throws ComException, ComExceptionTimeout
@@ -191,7 +194,9 @@ public class ComBinary
 		;
 	}
 	
-	public static final ComClientChannel<SocketChannel> connect(final int localHostPort)
+	public static final ComClientChannel<SocketChannel> connect(
+		final int localHostPort
+	)
 	{
 		return Client(localHostPort)
 			.connect()
