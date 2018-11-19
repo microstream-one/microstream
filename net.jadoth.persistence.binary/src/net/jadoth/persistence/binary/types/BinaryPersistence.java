@@ -1876,12 +1876,12 @@ public final class BinaryPersistence extends Persistence
 		};
 	}
 
-	public static BinaryPersistenceFoundation<?> foundation()
+	public static BinaryPersistenceFoundation<?> Foundation()
 	{
-		return foundation(null);
+		return Foundation(null);
 	}
 
-	public static BinaryPersistenceFoundation<?> foundation(final InstanceDispatcherLogic dispatcher)
+	public static BinaryPersistenceFoundation<?> Foundation(final InstanceDispatcherLogic dispatcher)
 	{
 		final BinaryPersistenceFoundation<?> foundation = BinaryPersistenceFoundation.New()
 			.setInstanceDispatcher(dispatcher)
