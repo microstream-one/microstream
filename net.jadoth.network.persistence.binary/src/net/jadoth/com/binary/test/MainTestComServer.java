@@ -48,7 +48,7 @@ public class MainTestComServer
 //		Com.runHost(ComPersistenceAdaptorBinary.New(persistence), MainTestComServer::logAndBounce);
 		
 		// convenience & customization example 5
-		Com.runHost(ComPersistenceAdaptorBinary.New());
+		Com.runHost(ComPersistenceAdaptorBinary.Creator());
 	}
 	
 	/**

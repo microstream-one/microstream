@@ -2,6 +2,7 @@ package net.jadoth.com;
 
 import java.util.function.Consumer;
 
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
@@ -26,14 +27,14 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 			)
 		);
 		
-		final SwizzleIdStrategy idStrategy = this.provideHostInitializationIdStrategy();
+		final SwizzleIdStrategy idStrategy = this.hostInitializationIdStrategy();
 		initFoundation.setObjectIdProvider(idStrategy.createObjectIdProvider());
 		initFoundation.setTypeIdProvider(idStrategy.createTypeIdProvider());
 
 		final PersistenceTypeHandlerManager<?> thm = initFoundation.getTypeHandlerManager();
 		thm.initialize();
 		
-		this.iterateHandleableClasses(c ->
+		this.iterateEntityTypes(c ->
 			thm.ensureTypeHandler(c)
 		);
 		
@@ -46,21 +47,11 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	
 	public PersistenceFoundation<?, ?> createInitializationFoundation();
 	
-	public default void iterateHandleableClasses(final Consumer<? super Class<?>> iterator)
-	{
-		// no-op by default
-	}
+	public void iterateEntityTypes(final Consumer<? super Class<?>> iterator);
 	
+	public SwizzleIdStrategy hostInitializationIdStrategy();
 	
-	public default SwizzleIdStrategy provideHostInitializationIdStrategy()
-	{
-		return Com.DefaultIdStrategyHostInitialization();
-	}
-	
-	public default SwizzleIdStrategy provideHostIdStrategy()
-	{
-		return Com.DefaultIdStrategyHost();
-	}
+	public SwizzleIdStrategy hostIdStrategy();
 	
 	public default PersistenceTypeDictionaryCompiler provideTypeDictionaryCompiler()
 	{
@@ -171,7 +162,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		
 		this.initializePersistenceFoundation(
 			PersistenceTypeDictionaryViewProvider.Wrapper(typeDictionary),
-			this.provideHostIdStrategy()
+			this.hostIdStrategy()
 		);
 		
 		return this;
@@ -184,14 +175,52 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		// instance fields //
 		////////////////////
 		
+		private final SwizzleIdStrategy      hostInitIdStrategy;
+		private final XGettingEnum<Class<?>> entityTypes       ;
+		private final SwizzleIdStrategy      hostIdStrategy    ;
+		
 		private transient PersistenceTypeDictionaryView cachedTypeDictionary     ;
 		private transient boolean                       initializedHostFoundation;
 		
-
 		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Abstract(
+			final SwizzleIdStrategy      hostInitIdStrategy,
+			final XGettingEnum<Class<?>> entityTypes       ,
+			final SwizzleIdStrategy      hostIdStrategy
+		)
+		{
+			super();
+			this.hostInitIdStrategy = hostInitIdStrategy;
+			this.entityTypes        = entityTypes       ;
+			this.hostIdStrategy     = hostIdStrategy    ;
+		}
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public SwizzleIdStrategy hostIdStrategy()
+		{
+			return this.hostIdStrategy;
+		}
+		
+		@Override
+		public SwizzleIdStrategy hostInitializationIdStrategy()
+		{
+			return this.hostInitIdStrategy;
+		}
+		
+		@Override
+		public void iterateEntityTypes(final Consumer<? super Class<?>> iterator)
+		{
+			this.entityTypes.iterate(iterator);
+		}
 		
 		@Override
 		public PersistenceTypeDictionaryView provideTypeDictionary()
