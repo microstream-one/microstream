@@ -164,6 +164,35 @@ public class Com
 		return vs;
 	}
 	
+	/**
+	 * This method is catastrophically naive. And by design. Its only purpose and viability is to serve
+	 * as an uber-simplicity default implementation for {@link ComHostChannelAcceptor} for framework demonstration
+	 * purposes.<p>
+	 * Used logic:
+	 * <ul>
+	 * <li>uses {@link SocketChannel}.</li>
+	 * <li>calls {@link ComHostChannel#receive()} on the passed channel.</li>
+	 * <li>calls {@link Object#toString()} on the received instance to assemble its {@link String} representation.</li>
+	 * <li>sends a new {@link String} echoing the string representation back to the sender.
+	 * <li>calls {@link ComHostChannel#close()} on the passed channel.
+	 * </ul>
+	 * So this method depends on the mercy of whatever the received instance's Class {@link Object#toString()}
+	 * implementation is and works only with strings and closes the channel after one sent message.
+	 * It is absolutely not recommended to use this method for anything except basic demonstration purposes and
+	 * as an API usage/learning example.<p>
+	 * 
+	 * /!\ DO NOT USE THIS METHOD FOR PRODUCTION Purposes!<p>
+	 * 
+	 * You have been warned.
+	 * 
+	 * @param channel A one-shot {@link ComHostChannel} to receive and send exactely one message.
+	 */
+	public static void bounce(final ComHostChannel<SocketChannel> channel) throws ComException
+	{
+		channel.send("You said: \"" + channel.receive().toString() + "\". Goodbye.");
+		channel.close();
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -362,35 +391,6 @@ public class Com
 		;
 		
 		return channel;
-	}
-	
-	/**
-	 * This method is catastrophically naive. And by design. Its only purpose and viability is to serve
-	 * as an uber-simplicity default implementation for {@link ComHostChannelAcceptor} for framework demonstration
-	 * purposes.<p>
-	 * Used logic:
-	 * <ul>
-	 * <li>uses {@link SocketChannel}.</li>
-	 * <li>calls {@link ComHostChannel#receive()} on the passed channel.</li>
-	 * <li>calls {@link Object#toString()} on the received instance to assemble its {@link String} representation.</li>
-	 * <li>sends a new {@link String} echoing the string representation back to the sender.
-	 * <li>calls {@link ComHostChannel#close()} on the passed channel.
-	 * </ul>
-	 * So this method depends on the mercy of whatever the received instance's Class {@link Object#toString()}
-	 * implementation is and works only with strings and closes the channel after one sent message.
-	 * It is absolutely not recommended to use this method for anything except basic demonstration purposes and
-	 * as an API usage/learning example.<p>
-	 * 
-	 * /!\ DO NOT USE THIS METHOD FOR PRODUCTION Purposes!<p>
-	 * 
-	 * You have been warned.
-	 * 
-	 * @param channel A one-shot {@link ComHostChannel} to receive and send exactely one message.
-	 */
-	public static void bounce(final ComHostChannel<SocketChannel> channel) throws ComException
-	{
-		channel.send("You said: \"" + channel.receive().toString() + "\". Goodbye.");
-		channel.close();
 	}
 			
 	
