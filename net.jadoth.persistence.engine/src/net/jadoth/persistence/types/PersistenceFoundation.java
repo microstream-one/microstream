@@ -1462,7 +1462,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected PersistenceTypeDictionaryManager createTypeDictionaryManager()
 		{
 			final PersistenceTypeDictionaryManager newTypeDictionaryManager =
-				new PersistenceTypeDictionaryManager.Implementation(
+				PersistenceTypeDictionaryManager.Exporting(
 					this.getTypeDictionaryProvider(),
 					this.getTypeDictionaryExporter()
 				)
