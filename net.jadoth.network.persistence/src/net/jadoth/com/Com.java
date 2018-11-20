@@ -171,63 +171,64 @@ public class Com
 	////////////////////////
 	
 	public static final ComHost<SocketChannel> Host(
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		return Host(persistenceAdaptor, null);
+		return Host(persistenceAdaptorCreator, null);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
-		final int                                  localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final int                                         localHostPort            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		return Host(localHostPort, persistenceAdaptor, null);
+		return Host(localHostPort, persistenceAdaptorCreator, null);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
-		final InetSocketAddress                    targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final InetSocketAddress                           targetAddress            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		return Host(targetAddress, persistenceAdaptor, null);
+		return Host(targetAddress, persistenceAdaptorCreator, null);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
 		return Host(
 			Com.localHostSocketAddress(),
-			persistenceAdaptor,
+			persistenceAdaptorCreator   ,
 			channelAcceptor
 		);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
-		final int                                   localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final int                                         localHostPort            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
 		return Host(
 			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor,
+			persistenceAdaptorCreator                ,
 			channelAcceptor
 		);
 	}
 	
 	public static final ComHost<SocketChannel> Host(
-		final InetSocketAddress                     targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final InetSocketAddress                           targetAddress            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
-		final ComHost<SocketChannel> host = Com.Foundation()
-			.setHostBindingAddress (targetAddress)
-			.setPersistenceAdaptor (persistenceAdaptor)
-			.setHostChannelAcceptor(channelAcceptor)
+		final ComHost<SocketChannel> host =
+			Com.Foundation()
+			.setHostBindingAddress       (targetAddress)
+			.setPersistenceAdaptorCreator(persistenceAdaptorCreator)
+			.setHostChannelAcceptor      (channelAcceptor)
 			.createHost()
 		;
 		
@@ -236,93 +237,93 @@ public class Com
 	
 	
 	public static final void runHost(
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		runHost(persistenceAdaptor, null);
+		runHost(persistenceAdaptorCreator, null);
 	}
 	
 	public static final void runHost(
-		final int                                  localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final int                                         localHostPort            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		runHost(localHostPort, persistenceAdaptor, null);
+		runHost(localHostPort, persistenceAdaptorCreator, null);
 	}
 	
 	public static final void runHost(
-		final InetSocketAddress                    targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final InetSocketAddress                           targetAddress            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		runHost(targetAddress, persistenceAdaptor, null);
+		runHost(targetAddress, persistenceAdaptorCreator, null);
 	}
 	
 	public static final void runHost(
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
 		runHost(
 			Com.localHostSocketAddress(),
-			persistenceAdaptor,
+			persistenceAdaptorCreator   ,
 			channelAcceptor
 		);
 	}
 	
 	public static final void runHost(
-		final int                                   localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final int                                         localHostPort            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
 		runHost(
 			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor,
+			persistenceAdaptorCreator,
 			channelAcceptor
 		);
 	}
 	
 	public static final void runHost(
-		final InetSocketAddress                     targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel>  persistenceAdaptor,
-		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+		final InetSocketAddress                           targetAddress            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator,
+		final ComHostChannelAcceptor<SocketChannel>       channelAcceptor
 	)
 	{
-		final ComHost<SocketChannel> host = Com.Host(targetAddress, persistenceAdaptor, channelAcceptor);
+		final ComHost<SocketChannel> host = Com.Host(targetAddress, persistenceAdaptorCreator, channelAcceptor);
 		host.run();
 	}
 
 	
 	public static final ComClient<SocketChannel> Client(
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
 		return Client(
 			Com.localHostSocketAddress(),
-			persistenceAdaptor
+			persistenceAdaptorCreator
 		);
 	}
 	
 	public static final ComClient<SocketChannel> Client(
-		final int                                  localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final int                                         localHostPort     ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
 		return Client(
 			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor
+			persistenceAdaptorCreator
 		);
 	}
 	
 	public static final ComClient<SocketChannel> Client(
-		final InetSocketAddress                    targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final InetSocketAddress                           targetAddress     ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
 		final ComClient<SocketChannel> client = Com.Foundation()
 			.setClientTargetAddress(targetAddress)
-			.setPersistenceAdaptor(persistenceAdaptor)
+			.setPersistenceAdaptorCreator(persistenceAdaptorCreator)
 			.createClient()
 		;
 		
@@ -331,32 +332,32 @@ public class Com
 	
 	
 	public static final ComClientChannel<SocketChannel> connect(
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
 		return connect(
 			Com.localHostSocketAddress(),
-			persistenceAdaptor
+			persistenceAdaptorCreator
 		);
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
-		final int                                  localHostPort     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final int                                         localHostPort            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
 		return connect(
 			Com.localHostSocketAddress(localHostPort),
-			persistenceAdaptor
+			persistenceAdaptorCreator
 		);
 	}
 	
 	public static final ComClientChannel<SocketChannel> connect(
-		final InetSocketAddress                    targetAddress     ,
-		final ComPersistenceAdaptor<SocketChannel> persistenceAdaptor
+		final InetSocketAddress                           targetAddress            ,
+		final ComPersistenceAdaptorCreator<SocketChannel> persistenceAdaptorCreator
 	)
 	{
-		final ComClientChannel<SocketChannel> channel = Com.Client(targetAddress, persistenceAdaptor)
+		final ComClientChannel<SocketChannel> channel = Com.Client(targetAddress, persistenceAdaptorCreator)
 			.connect()
 		;
 		

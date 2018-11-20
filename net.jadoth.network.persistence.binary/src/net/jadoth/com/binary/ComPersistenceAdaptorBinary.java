@@ -1,5 +1,6 @@
 package net.jadoth.com.binary;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
@@ -42,9 +43,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		return new ComPersistenceAdaptorBinary.Default(
 			notNull(foundation)        ,
 			notNull(bufferSizeProvider),
-			notNull(hostInitIdStrategy),
-			notNull(entityTypes)       ,
-			notNull(hostIdStrategy)
+			mayNull(hostInitIdStrategy), // null for client persistence. Checked for host persistence beforehand.
+			mayNull(entityTypes)       , // null for client persistence. Checked for host persistence beforehand.
+			mayNull(hostIdStrategy)      // null for client persistence. Checked for host persistence beforehand.
 		);
 	}
 	
@@ -248,6 +249,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		
 		public final class Default extends ComPersistenceAdaptorBinary.Creator.Abstract<SocketChannel>
 		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
 
 			protected Default(
 				final BinaryPersistenceFoundation<?> foundation        ,
@@ -257,6 +261,11 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 				super(foundation, bufferSizeProvider);
 			}
 			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 
 			@Override
 			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(

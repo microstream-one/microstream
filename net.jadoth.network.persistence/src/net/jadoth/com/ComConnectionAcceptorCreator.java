@@ -1,5 +1,7 @@
 package net.jadoth.com;
 
+
+@FunctionalInterface
 public interface ComConnectionAcceptorCreator<C>
 {
 	public ComConnectionAcceptor<C> createConnectionAcceptor(
