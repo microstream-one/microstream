@@ -509,9 +509,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			final ComPersistenceAdaptorCreator<C> creator = this.getPersistenceAdaptorCreator();
 			
 			return creator.createHostPersistenceAdaptor(
-				this.getHostIdStrategy()              ,
+				this.getHostInitializationIdStrategy(),
 				this.getEntityTypes()                 ,
-				this.getHostInitializationIdStrategy()
+				this.getHostIdStrategy()
 			);
 		}
 		

@@ -11,6 +11,8 @@ import net.jadoth.com.ComClientChannel;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComExceptionTimeout;
 import net.jadoth.com.ComFoundation;
+import net.jadoth.com.ComHost;
+import net.jadoth.com.ComHostChannelAcceptor;
 import net.jadoth.com.XSockets;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -137,6 +139,108 @@ public class ComBinary
 		;
 	}
 	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// convenience methods //
+	////////////////////////
+	
+	public static final ComHost<SocketChannel> Host()
+	{
+		return Com.Host(DefaultPersistenceAdaptorCreator());
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final int localHostPort
+	)
+	{
+		return Com.Host(localHostPort, DefaultPersistenceAdaptorCreator());
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final InetSocketAddress  targetAddress
+	)
+	{
+		return Com.Host(targetAddress, DefaultPersistenceAdaptorCreator());
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		return Com.Host(
+			DefaultPersistenceAdaptorCreator()   ,
+			channelAcceptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final int                                   localHostPort  ,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		return Com.Host(
+			DefaultPersistenceAdaptorCreator(),
+			channelAcceptor
+		);
+	}
+	
+	public static final ComHost<SocketChannel> Host(
+		final InetSocketAddress                     targetAddress  ,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		return Com.Host(targetAddress, DefaultPersistenceAdaptorCreator(), channelAcceptor);
+	}
+	
+	
+	public static final void runHost()
+	{
+		runHost(null, null);
+	}
+	
+	public static final void runHost(
+		final int localHostPort
+	)
+	{
+		runHost(localHostPort, null);
+	}
+	
+	public static final void runHost(
+		final InetSocketAddress targetAddress
+	)
+	{
+		runHost(targetAddress, null);
+	}
+	
+	public static final void runHost(
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(),
+			channelAcceptor
+		);
+	}
+	
+	public static final void runHost(
+		final int                                   localHostPort  ,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		runHost(
+			Com.localHostSocketAddress(localHostPort),
+			channelAcceptor
+		);
+	}
+	
+	public static final void runHost(
+		final InetSocketAddress                     targetAddress  ,
+		final ComHostChannelAcceptor<SocketChannel> channelAcceptor
+	)
+	{
+		final ComHost<SocketChannel> host = Host(targetAddress, channelAcceptor);
+		host.run();
+	}
 	
 	public static final ComClient<SocketChannel> Client()
 	{

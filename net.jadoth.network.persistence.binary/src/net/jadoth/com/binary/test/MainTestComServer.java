@@ -6,16 +6,12 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.com.Com;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComHostChannel;
-import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
+import net.jadoth.com.binary.ComBinary;
 
 public class MainTestComServer
 {
 	public static void main(final String[] args)
 	{
-		// (18.11.2018 TM)FIXME: default PersistenceTypeDictionaryViewProvider with explicitely defined type list
-		// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
-
-		// (16.11.2018 TM)TODO: Convenience host methods
 //		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.Foundation()
 //			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 //				XFiles.ensureDirectory(new File("TypeDictionary"))
@@ -36,19 +32,19 @@ public class MainTestComServer
 		
 		// convenience & customization example 2
 //		final ComHost<?> host = Com.Host(
-//			ComPersistenceAdaptorBinary.New(persistence)
+//			ComPersistenceAdaptorBinaryCreator.New(persistence)
 //		);
 //		System.out.println("Starting host ...");
 //		host.run();
 
 		// convenience & customization example 3
-//		Com.runHost(ComPersistenceAdaptorBinary.New(persistence), channel -> channel.send("Go away."));
+//		ComBinary.runHost(channel -> channel.send("Go away."));
 		
 		// convenience & customization example 4
-//		Com.runHost(ComPersistenceAdaptorBinary.New(persistence), MainTestComServer::logAndBounce);
+//		ComBinary.runHost(MainTestComServer::logAndBounce);
 		
 		// convenience & customization example 5
-		Com.runHost(ComPersistenceAdaptorBinary.Creator());
+		ComBinary.runHost();
 	}
 	
 	/**
