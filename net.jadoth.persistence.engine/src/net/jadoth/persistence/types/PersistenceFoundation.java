@@ -32,6 +32,26 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
+	
+	/**
+	 * This method creates a new instance of the same {@link Class} of the instance on which this method is called.
+	 * Whatever initializations required to create a functional new instance are performed.
+	 * <p>
+	 * However, this method does NOT create a copy of the current instance. (A common mistake is to confuse cloning
+	 * with copying: cloning creates a duplicate with only equal initial state while copying creates a duplicate
+	 * with equal full state. Example: a clone of an adult would not be an identical adult, but just an embryo with
+	 * equal DNA. An identical adult would be a copy, not a clone.)
+	 * <p>
+	 * This method is effectively a constructor called on an existing instance. The use case of such a method is
+	 * to eliminate the need to redundantly pass a second instance or constructor if a clone of an instance is needed.<br>
+	 * To indicate the constructor-like character of this method, the pattern of starting the name with a capital letter
+	 * is applied to this method (and to workaround the botch-job protected method the moronic JDK developers created)
+	 * 
+	 * @return a clone of this instance.
+	 */
+	public PersistenceFoundation<M, F> Clone();
+	
+	
 	// (31.05.2018 TM)TODO: rename ALL get~ methods in ALL foundations to provide~? Because that is what they do.
 	
 	public SwizzleRegistry getSwizzleRegistry();
@@ -270,7 +290,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 
 
-	public abstract class AbstractImplementation<M, F extends PersistenceFoundation.AbstractImplementation<M, ?>>
+	public class Implementation<M, F extends PersistenceFoundation.Implementation<M, ?>>
 	extends SwizzleFoundation.Implementation<F>
 	implements PersistenceFoundation<M, F>, Unpersistable
 	{
@@ -334,7 +354,19 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
 		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
 		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public PersistenceFoundation.Implementation<M, F> Clone()
+		{
+			return new PersistenceFoundation.Implementation<>();
+		}
 
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// getters          //

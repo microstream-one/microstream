@@ -75,14 +75,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public F setHostChannelAcceptor(ComHostChannelAcceptor<C> channelAcceptor);
 	
 	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
-	
-	// (19.11.2018 TM)TODO: setHostContext still relevant at all after defaults?
-	public F setHostContext(
-		InetSocketAddress         socketAddress        ,
-		ComHostChannelAcceptor<C> channelAcceptor      ,
-		ComPersistenceAdaptor<C>  persistenceFoundation
-	);
-	
+		
 	public F setClientCreator(ComClientCreator<C> clientCreator);
 	
 	public F setPort(int port);
@@ -573,23 +566,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			this.persistenceAdaptor = persistenceAdaptor;
 			return this.$();
 		}
-		
-		@Override
-		public F setHostContext(
-			final InetSocketAddress         socketAddress        ,
-			final ComHostChannelAcceptor<C> channelAcceptor      ,
-			final ComPersistenceAdaptor<C>  persistenceFoundation
-		)
-		{
-			this
-			.setHostBindingAddress (socketAddress)
-			.setHostChannelAcceptor(channelAcceptor)
-			.setPersistenceAdaptor (persistenceFoundation)
-			;
-			
-			return this.$();
-		}
-		
+				
 		@Override
 		public ComHost<C> createHost()
 		{

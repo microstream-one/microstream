@@ -1,11 +1,15 @@
 package net.jadoth.com;
 
+import java.util.function.Consumer;
+
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
+import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 
@@ -14,31 +18,38 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	@Override
 	public default PersistenceTypeDictionaryView provideTypeDictionary()
 	{
-		/* (19.11.2018 TM)FIXME: default provideTypeDictionary
-		 * must do something along the line of the following code, but different:
-		 * - create a new PersistenceFoundation of appropriate type (e.g. binary)
-		 * - set a transient type dictionary manager
-		 * - set a transient typeid provider
-		 * - get its TypeHandlerManager and initialize (filling it with default type handlers and TypeIds)
-		 * - register an arbitrary set of classes
-		 * - get the completed TypeDictionary from that
-		 * - construct a TypeDictionaryView (immure the TypeDictionary, important!)
-		 * - return it, discarding the foundation with its mutable TypeDictionary and TypeId Provider
-		 */
-//		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
-//			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
-//				XFiles.ensureDirectory(new File("TypeDictionary"))
-//			))
-//			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
-//			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
-//		;
+		final PersistenceFoundation<?, ?> initFoundation = this.createInitializationFoundation();
+		// (20.11.2018 TM)FIXME: set transient TypeDictionaryManager
 		
-		// initialization is checked to be done only once.
-		return this.provideHostPersistenceFoundation(null).getTypeHandlerManager()
-			.initialize()
-			.typeDictionary()
-			.view()
-		;
+		final SwizzleIdStrategy idStrategy = this.provideHostInitializationIdStrategy();
+		initFoundation.setObjectIdProvider(idStrategy.createObjectIdProvider());
+		initFoundation.setTypeIdProvider(idStrategy.createTypeIdProvider());
+
+		final PersistenceTypeHandlerManager<?> thm = initFoundation.getTypeHandlerManager();
+		thm.initialize();
+		
+		this.iterateHandleableClasses(c ->
+			thm.ensureTypeHandler(c)
+		);
+		
+		final PersistenceTypeDictionary typeDictionary = thm.typeDictionary();
+		
+		final PersistenceTypeDictionaryView typeDictionaryView = typeDictionary.view();
+		
+		return typeDictionaryView;
+	}
+	
+	public PersistenceFoundation<?, ?> createInitializationFoundation();
+	
+	public default void iterateHandleableClasses(final Consumer<? super Class<?>> iterator)
+	{
+		// no-op by default
+	}
+	
+	
+	public default SwizzleIdStrategy provideHostInitializationIdStrategy()
+	{
+		return Com.DefaultIdStrategyHostInitialization();
 	}
 	
 	public default SwizzleIdStrategy provideHostIdStrategy()
