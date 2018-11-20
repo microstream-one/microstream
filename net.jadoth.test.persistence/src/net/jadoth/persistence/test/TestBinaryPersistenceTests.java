@@ -12,6 +12,7 @@ import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
 import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.swizzling.types.SwizzleRegistry;
@@ -130,7 +131,9 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testWriteStateDefs(final BinaryPersistenceFoundation<?> factory)
 	{
-		factory.getTypeDictionaryManager().exportTypeDictionary();
+		((PersistenceTypeDictionaryManager.Exporting)factory.getTypeDictionaryManager())
+			.exportTypeDictionary()
+		;
 	}
 
 	static void testReadStateDefs(final BinaryPersistenceFoundation<?> factory)

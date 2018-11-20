@@ -19,7 +19,12 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	public default PersistenceTypeDictionaryView provideTypeDictionary()
 	{
 		final PersistenceFoundation<?, ?> initFoundation = this.createInitializationFoundation();
-		// (20.11.2018 TM)FIXME: set transient TypeDictionaryManager
+		
+		initFoundation.setTypeDictionaryManager(
+			PersistenceTypeDictionaryManager.Transient(
+				initFoundation.getTypeDictionaryCreator()
+			)
+		);
 		
 		final SwizzleIdStrategy idStrategy = this.provideHostInitializationIdStrategy();
 		initFoundation.setObjectIdProvider(idStrategy.createObjectIdProvider());
@@ -122,6 +127,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		foundation.setObjectIdProvider     (idStrategy.createObjectIdProvider());
 		foundation.setTypeIdProvider       (idStrategy.createTypeIdProvider());
 		
+		// (16.11.2018 TM)TODO: set Persistence.typeMismatchValidatorFailing()?
+		
 		return this;
 	}
 	
@@ -154,16 +161,74 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	)
 	{
 		this.initializePersistenceFoundation(protocol, protocol.idStrategy());
+		
 		return this;
 	}
 	
 	public default ComPersistenceAdaptor<C> initializeHostPersistenceFoundation()
 	{
-		// (19.11.2018 TM)FIXME: set IdStrategies and TypeDictionaryViewProvider
-		throw new net.jadoth.meta.NotImplementedYetError();
+		final PersistenceTypeDictionaryView typeDictionary = this.provideTypeDictionary();
+		
+		this.initializePersistenceFoundation(
+			PersistenceTypeDictionaryViewProvider.Wrapper(typeDictionary),
+			this.provideHostIdStrategy()
+		);
+		
+		return this;
 	}
 	
 	
-	
+	public abstract class Abstract<C> implements ComPersistenceAdaptor<C>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private transient PersistenceTypeDictionaryView cachedTypeDictionary     ;
+		private transient boolean                       initializedHostFoundation;
+		
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public PersistenceTypeDictionaryView provideTypeDictionary()
+		{
+			if(this.cachedTypeDictionary == null)
+			{
+				synchronized(this)
+				{
+					// recheck after synch
+					if(this.cachedTypeDictionary == null)
+					{
+						this.cachedTypeDictionary = ComPersistenceAdaptor.super.provideTypeDictionary();
+					}
+				}
+			}
+			
+			return this.cachedTypeDictionary;
+		}
+		
+		@Override
+		public ComPersistenceAdaptor.Abstract<C> initializeHostPersistenceFoundation()
+		{
+			if(!this.initializedHostFoundation)
+			{
+				synchronized(this)
+				{
+					// recheck after synch
+					if(!this.initializedHostFoundation)
+					{
+						ComPersistenceAdaptor.super.initializeHostPersistenceFoundation();
+						this.initializedHostFoundation = true;
+					}
+				}
+			}
+			
+			return this;
+		}
+	}
 		
 }

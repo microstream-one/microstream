@@ -1,6 +1,5 @@
 package net.jadoth.com.binary.test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
@@ -8,12 +7,6 @@ import net.jadoth.com.Com;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComHostChannel;
 import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
-import net.jadoth.files.XFiles;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
 
 public class MainTestComServer
 {
@@ -23,13 +16,13 @@ public class MainTestComServer
 		// (18.11.2018 TM)FIXME: default SwizzleIdStrategy
 
 		// (16.11.2018 TM)TODO: Convenience host methods
-		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.Foundation()
-			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
-				XFiles.ensureDirectory(new File("TypeDictionary"))
-			))
-			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
-			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
-		;
+//		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.Foundation()
+//			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
+//				XFiles.ensureDirectory(new File("TypeDictionary"))
+//			))
+//			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
+//			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
+//		;
 		
 		// convenience & customization example 1
 //		final ComHost<?> host = Com.Foundation()
@@ -55,7 +48,7 @@ public class MainTestComServer
 //		Com.runHost(ComPersistenceAdaptorBinary.New(persistence), MainTestComServer::logAndBounce);
 		
 		// convenience & customization example 5
-		Com.runHost(ComPersistenceAdaptorBinary.New(persistence));
+		Com.runHost(ComPersistenceAdaptorBinary.New());
 	}
 	
 	/**

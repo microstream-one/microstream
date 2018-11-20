@@ -48,7 +48,6 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		);
 	}
 	
-	// (16.11.2018 TM)TODO: set Persistence.typeMismatchValidatorFailing()?
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider
@@ -60,7 +59,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		);
 	}
 
-	public final class Default implements ComPersistenceAdaptorBinary<SocketChannel>
+	public final class Default
+	extends ComPersistenceAdaptor.Abstract<SocketChannel>
+	implements ComPersistenceAdaptorBinary<SocketChannel>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
