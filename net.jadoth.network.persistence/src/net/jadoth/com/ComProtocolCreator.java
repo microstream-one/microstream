@@ -5,6 +5,8 @@ import java.nio.ByteOrder;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
+
+@FunctionalInterface
 public interface ComProtocolCreator
 {
 	public ComProtocol creatProtocol(

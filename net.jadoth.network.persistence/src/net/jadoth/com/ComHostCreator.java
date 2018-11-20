@@ -2,6 +2,7 @@ package net.jadoth.com;
 
 import java.net.InetSocketAddress;
 
+@FunctionalInterface
 public interface ComHostCreator<C>
 {
 	public ComHost<C> createComHost(

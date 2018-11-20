@@ -148,8 +148,8 @@ public class ComBinary
 	public static final ComClient<SocketChannel> Client(final int localHostPort)
 	{
 		return Com.Client(
-			localHostPort              ,
-			DefaultPersistenceAdaptor()
+			localHostPort                     ,
+			DefaultPersistenceAdaptorCreator()
 		);
 	}
 		
@@ -159,31 +159,8 @@ public class ComBinary
 	{
 		return Com.Client(
 			targetAddress,
-			DefaultPersistenceAdaptor()
+			DefaultPersistenceAdaptorCreator()
 		);
-	}
-	
-	public static final ComClient<SocketChannel> Client(
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Com.Client(persistenceAdaptor);
-	}
-	
-	public static final ComClient<SocketChannel> Client(
-		final int                                        localHostPort     ,
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Com.Client(localHostPort, persistenceAdaptor);
-	}
-	
-	public static final ComClient<SocketChannel> Client(
-		final InetSocketAddress                          targetAddress     ,
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Com.Client(targetAddress, persistenceAdaptor);
 	}
 	
 	
@@ -212,34 +189,6 @@ public class ComBinary
 		;
 	}
 	
-	public static final ComClientChannel<SocketChannel> connect(
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Client(persistenceAdaptor)
-			.connect()
-		;
-	}
-	
-	public static final ComClientChannel<SocketChannel> connect(
-		final int                                        localHostPort     ,
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Client(localHostPort, persistenceAdaptor)
-			.connect()
-		;
-	}
-	
-	public static final ComClientChannel<SocketChannel> connect(
-		final InetSocketAddress                          targetAddress     ,
-		final ComPersistenceAdaptorBinary<SocketChannel> persistenceAdaptor
-	)
-	{
-		return Client(targetAddress, persistenceAdaptor)
-			.connect()
-		;
-	}
 	
 	
 	

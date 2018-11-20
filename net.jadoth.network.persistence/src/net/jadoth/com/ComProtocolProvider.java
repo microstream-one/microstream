@@ -9,6 +9,7 @@ import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
+
 public interface ComProtocolProvider<C> extends ComProtocolData
 {
 	public ComProtocol provideProtocol(C connection);

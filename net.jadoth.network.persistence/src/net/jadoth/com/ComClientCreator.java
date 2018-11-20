@@ -5,6 +5,7 @@ import static net.jadoth.X.notNull;
 import java.net.InetSocketAddress;
 
 
+@FunctionalInterface
 public interface ComClientCreator<C>
 {
 	public ComClient.Implementation<C> createClient(
