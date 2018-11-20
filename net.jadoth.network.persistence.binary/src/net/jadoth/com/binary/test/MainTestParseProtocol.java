@@ -29,7 +29,7 @@ public class MainTestParseProtocol
 		;
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
-			.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
+			.setPersistenceAdaptorCreator(ComPersistenceAdaptorBinary.Creator(pf))
 		;
 		
 		final ComProtocolProvider<?>     protocolProvider = foundation.getProtocolProvider();

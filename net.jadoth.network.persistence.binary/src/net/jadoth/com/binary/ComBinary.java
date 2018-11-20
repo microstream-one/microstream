@@ -125,15 +125,15 @@ public class ComBinary
 	}
 	
 	
-	public static ComPersistenceAdaptorBinary.Default DefaultPersistenceAdaptor()
+	public static ComPersistenceAdaptorBinary.Creator.Default DefaultPersistenceAdaptorCreator()
 	{
-		return ComPersistenceAdaptorBinary.New();
+		return ComPersistenceAdaptorBinary.Creator();
 	}
 	
 	public static ComFoundation.Default<?> Foundation()
 	{
 		return ComFoundation.New()
-			.setPersistenceAdaptor(DefaultPersistenceAdaptor())
+			.setPersistenceAdaptorCreator(DefaultPersistenceAdaptorCreator())
 		;
 	}
 	
@@ -141,7 +141,7 @@ public class ComBinary
 	public static final ComClient<SocketChannel> Client()
 	{
 		return Com.Client(
-			DefaultPersistenceAdaptor()
+			DefaultPersistenceAdaptorCreator()
 		);
 	}
 	

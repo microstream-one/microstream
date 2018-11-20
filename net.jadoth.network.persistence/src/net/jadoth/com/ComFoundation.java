@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.collections.HashEnum;
+import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
@@ -36,6 +38,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public ComHostChannelAcceptor<C> getHostChannelAcceptor();
 	
 	public ComPersistenceAdaptor<C> getPersistenceAdaptor();
+	
+	public ComPersistenceAdaptorCreator<C> getPersistenceAdaptorCreator();
+	
+	public SwizzleIdStrategy getHostInitializationIdStrategy();
+	
+	public XEnum<Class<?>> getEntityTypes();
+	
+	public SwizzleIdStrategy getHostIdStrategy();
 		
 	public ComClientCreator<C> getClientCreator();
 	
@@ -75,6 +85,20 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	public F setHostChannelAcceptor(ComHostChannelAcceptor<C> channelAcceptor);
 	
 	public F setPersistenceAdaptor(ComPersistenceAdaptor<C> persistenceAdaptor);
+	
+	public F setPersistenceAdaptorCreator(ComPersistenceAdaptorCreator<C> persistenceAdaptorCreator);
+	
+	public F setHostInitializationIdStrategy(SwizzleIdStrategy hostInitializationIdStrategy);
+	
+	public F setEntityTypes(XEnum<Class<?>> entityTypes);
+	
+	public boolean registerEntityType(Class<?> entityType);
+	
+	public F registerEntityTypes(Class<?>... entityTypes);
+	
+	public F registerEntityTypes(final Iterable<Class<?>> entityTypes);
+	
+	public F setHostIdStrategy(SwizzleIdStrategy hostIdStrategy);
 		
 	public F setClientCreator(ComClientCreator<C> clientCreator);
 	
@@ -118,6 +142,10 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		                                        
 		private ComHostChannelAcceptor<C>       hostChannelAcceptor      ;
 		private ComPersistenceAdaptor<C>        persistenceAdaptor       ;
+		private ComPersistenceAdaptorCreator<C> persistenceAdaptorCreator;
+		private SwizzleIdStrategy               hostInitIdStrategy       ;
+		private XEnum<Class<?>>                 entityTypes              ;
+		private SwizzleIdStrategy               hostIdStrategy           ;
 		
 		private ComClientCreator<C>             clientCreator            ;
 		
@@ -256,6 +284,50 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			}
 
 			return this.persistenceAdaptor;
+		}
+		
+		@Override
+		public ComPersistenceAdaptorCreator<C> getPersistenceAdaptorCreator()
+		{
+			if(this.persistenceAdaptorCreator == null)
+			{
+				this.persistenceAdaptorCreator = this.ensurePersistenceAdaptorCreator();
+			}
+
+			return this.persistenceAdaptorCreator;
+		}
+		
+		@Override
+		public SwizzleIdStrategy getHostInitializationIdStrategy()
+		{
+			if(this.hostInitIdStrategy == null)
+			{
+				this.hostInitIdStrategy = this.ensureHostInitializationIdStrategy();
+			}
+
+			return this.hostInitIdStrategy;
+		}
+		
+		@Override
+		public XEnum<Class<?>> getEntityTypes()
+		{
+			if(this.entityTypes == null)
+			{
+				this.entityTypes = this.ensureEntityTypes();
+			}
+
+			return this.entityTypes;
+		}
+		
+		@Override
+		public SwizzleIdStrategy getHostIdStrategy()
+		{
+			if(this.hostIdStrategy == null)
+			{
+				this.hostIdStrategy = this.ensureHostIdStrategy();
+			}
+
+			return this.hostIdStrategy;
 		}
 		
 		@Override
@@ -417,8 +489,34 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 
 		protected ComPersistenceAdaptor<C> ensurePersistenceAdaptor()
 		{
+			final ComPersistenceAdaptorCreator<C> creator = this.getPersistenceAdaptorCreator();
+			
+			return creator.createPersistenceAdaptor(
+				this.getHostIdStrategy()              ,
+				this.getEntityTypes()                 ,
+				this.getHostInitializationIdStrategy()
+			);
+		}
+		
+		protected ComPersistenceAdaptorCreator<C> ensurePersistenceAdaptorCreator()
+		{
 			// the p.adaptor is the link to the application / framework persistence context and cannot be created here.
-			throw new MissingFoundationPartException(ComPersistenceAdaptor.class);
+			throw new MissingFoundationPartException(ComPersistenceAdaptorCreator.class);
+		}
+		
+		protected SwizzleIdStrategy ensureHostInitializationIdStrategy()
+		{
+			return Com.DefaultIdStrategyHostInitialization();
+		}
+		
+		protected XEnum<Class<?>> ensureEntityTypes()
+		{
+			return HashEnum.New();
+		}
+		
+		protected SwizzleIdStrategy ensureHostIdStrategy()
+		{
+			return Com.DefaultIdStrategyHost();
 		}
 				
 		protected ComConnectionHandler<C> ensureConnectionHandler()
@@ -564,6 +662,61 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setPersistenceAdaptor(final ComPersistenceAdaptor<C> persistenceAdaptor)
 		{
 			this.persistenceAdaptor = persistenceAdaptor;
+			return this.$();
+		}
+		
+		@Override
+		public F setPersistenceAdaptorCreator(final ComPersistenceAdaptorCreator<C> persistenceAdaptorCreator)
+		{
+			this.persistenceAdaptorCreator = persistenceAdaptorCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setHostInitializationIdStrategy(final SwizzleIdStrategy hostInitializationIdStrategy)
+		{
+			this.hostInitIdStrategy = hostInitializationIdStrategy;
+			return this.$();
+		}
+		
+		@Override
+		public F setEntityTypes(final XEnum<Class<?>> entityTypes)
+		{
+			this.entityTypes = entityTypes;
+			return this.$();
+		}
+		
+		@Override
+		public boolean registerEntityType(final Class<?> entityType)
+		{
+			return this.getEntityTypes().add(entityType);
+		}
+		
+		@Override
+		public F registerEntityTypes(final Class<?>... entityTypes)
+		{
+			this.getEntityTypes().addAll(entityTypes);
+			
+			return this.$();
+		}
+		
+		@Override
+		public F registerEntityTypes(final Iterable<Class<?>> entityTypes)
+		{
+			final XEnum<Class<?>> registeredEntityTypes = this.getEntityTypes();
+			
+			for(final Class<?> entityType : entityTypes)
+			{
+				registeredEntityTypes.add(entityType);
+			}
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setHostIdStrategy(final SwizzleIdStrategy hostIdStrategy)
+		{
+			this.hostIdStrategy = hostIdStrategy;
 			return this.$();
 		}
 				

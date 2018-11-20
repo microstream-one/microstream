@@ -4,9 +4,10 @@ import static net.jadoth.X.notNull;
 
 import java.nio.channels.SocketChannel;
 
+import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.com.ComPersistenceAdaptor;
+import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -29,39 +30,27 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	public BinaryPersistenceFoundation<?> persistenceFoundation();
 		
 	
-	public static ComPersistenceAdaptorBinary.Default New()
-	{
-		return New(
-			BinaryPersistence.Foundation()
-		);
-	}
-	
-	
-	
-	public static ComPersistenceAdaptorBinary.Default New(
-		final BinaryPersistenceFoundation<?> foundation
-	)
-	{
-		return new ComPersistenceAdaptorBinary.Default(
-			notNull(foundation)     ,
-			BufferSizeProvider.New()
-		);
-	}
 	
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
-		final BufferSizeProvider             bufferSizeProvider
+		final BufferSizeProvider             bufferSizeProvider,
+		final SwizzleIdStrategy              hostInitIdStrategy,
+		final XGettingEnum<Class<?>>         entityTypes       ,
+		final SwizzleIdStrategy              hostIdStrategy
 	)
 	{
 		return new ComPersistenceAdaptorBinary.Default(
 			notNull(foundation)        ,
-			notNull(bufferSizeProvider)
+			notNull(bufferSizeProvider),
+			notNull(hostInitIdStrategy),
+			notNull(entityTypes)       ,
+			notNull(hostIdStrategy)
 		);
 	}
-
-	public final class Default
-	extends ComPersistenceAdaptor.Abstract<SocketChannel>
-	implements ComPersistenceAdaptorBinary<SocketChannel>
+	
+	public abstract class Abstract<C>
+	extends ComPersistenceAdaptor.Abstract<C>
+	implements ComPersistenceAdaptorBinary<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -76,12 +65,15 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		// constructors //
 		/////////////////
 
-		protected Default(
+		protected Abstract(
 			final BinaryPersistenceFoundation<?> foundation        ,
-			final BufferSizeProvider             bufferSizeProvider
+			final BufferSizeProvider             bufferSizeProvider,
+			final SwizzleIdStrategy              hostInitIdStrategy,
+			final XGettingEnum<Class<?>>         entityTypes       ,
+			final SwizzleIdStrategy              hostIdStrategy
 		)
 		{
-			super();
+			super(hostInitIdStrategy, entityTypes, hostIdStrategy);
 			this.foundation         = foundation        ;
 			this.bufferSizeProvider = bufferSizeProvider;
 		}
@@ -104,6 +96,36 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			return this.foundation.Clone();
 		}
 		
+		public BufferSizeProvider bufferSizeProvider()
+		{
+			return this.bufferSizeProvider;
+		}
+						
+	}
+
+	public final class Default extends ComPersistenceAdaptorBinary.Abstract<SocketChannel>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected Default(
+			final BinaryPersistenceFoundation<?> foundation        ,
+			final BufferSizeProvider             bufferSizeProvider,
+			final SwizzleIdStrategy              hostInitIdStrategy,
+			final XGettingEnum<Class<?>>         entityTypes       ,
+			final SwizzleIdStrategy              hostIdStrategy
+		)
+		{
+			super(foundation, bufferSizeProvider, hostInitIdStrategy, entityTypes, hostIdStrategy);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
 		@Override
 		public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(
 			final SocketChannel connection
@@ -111,18 +133,18 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		{
 			this.initializeHostPersistenceFoundation();
 			
-			if(connection == null)
+			final BinaryPersistenceFoundation<?> foundation = this.persistenceFoundation();
+			
+			if(connection != null)
 			{
-				return this.foundation;
+				final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
+					connection,
+					this.bufferSizeProvider()
+				);
+				foundation.setPersistenceChannel(channel);
 			}
 			
-			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
-				connection,
-				this.bufferSizeProvider
-			);
-			this.foundation.setPersistenceChannel(channel);
-			
-			return this.foundation;
+			return foundation;
 		}
 		
 		@Override
@@ -133,18 +155,127 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		{
 			this.initializeClientPersistenceFoundation(protocol);
 			
+			final BinaryPersistenceFoundation<?> foundation = this.persistenceFoundation();
+			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
-				this.bufferSizeProvider
+				this.bufferSizeProvider()
 			);
-			this.foundation.setPersistenceChannel(channel);
+			foundation.setPersistenceChannel(channel);
 						
 			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
-			this.foundation.setTargetByteOrder(protocol.byteOrder());
+			foundation.setTargetByteOrder(protocol.byteOrder());
 			
-			return this.foundation;
+			return foundation;
 		}
 				
+	}
+	
+	
+	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
+	{
+		return new ComPersistenceAdaptorBinary.Creator.Default(
+			BinaryPersistenceFoundation.New(),
+			BufferSizeProvider.New()
+		);
+	}
+	
+	public static ComPersistenceAdaptorBinary.Creator.Default Creator(
+		final BinaryPersistenceFoundation<?> foundation
+	)
+	{
+		return new ComPersistenceAdaptorBinary.Creator.Default(
+			notNull(foundation),
+			BufferSizeProvider.New()
+		);
+	}
+	
+	public static ComPersistenceAdaptorBinary.Creator.Default Creator(
+		final BinaryPersistenceFoundation<?> foundation        ,
+		final BufferSizeProvider             bufferSizeProvider
+	)
+	{
+		return new ComPersistenceAdaptorBinary.Creator.Default(
+			notNull(foundation)        ,
+			notNull(bufferSizeProvider)
+		);
+	}
+	
+	public interface Creator<C> extends ComPersistenceAdaptorCreator<C>
+	{
+		public abstract class Abstract<C> implements ComPersistenceAdaptorBinary.Creator<C>
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+
+			private final BinaryPersistenceFoundation<?> foundation        ;
+			private final BufferSizeProvider             bufferSizeProvider;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			protected Abstract(
+				final BinaryPersistenceFoundation<?> foundation        ,
+				final BufferSizeProvider             bufferSizeProvider
+			)
+			{
+				super();
+				this.foundation         = foundation        ;
+				this.bufferSizeProvider = bufferSizeProvider;
+			}
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			public BinaryPersistenceFoundation<?> foundation()
+			{
+				return this.foundation;
+			}
+			
+			public BufferSizeProvider bufferSizeProvider()
+			{
+				return this.bufferSizeProvider;
+			}
+			
+		}
+		
+		
+		public final class Default extends ComPersistenceAdaptorBinary.Creator.Abstract<SocketChannel>
+		{
+
+			protected Default(
+				final BinaryPersistenceFoundation<?> foundation        ,
+				final BufferSizeProvider             bufferSizeProvider
+			)
+			{
+				super(foundation, bufferSizeProvider);
+			}
+			
+
+			@Override
+			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(
+				final SwizzleIdStrategy      hostIdStrategyInitialization,
+				final XGettingEnum<Class<?>> entityTypes                 ,
+				final SwizzleIdStrategy      hostIdStrategy
+			)
+			{
+				return ComPersistenceAdaptorBinary.New(
+					this.foundation()           ,
+					this.bufferSizeProvider()   ,
+					hostIdStrategyInitialization,
+					entityTypes                 ,
+					hostIdStrategy
+				);
+			}
+			
+		}
+		
 	}
 	
 }
