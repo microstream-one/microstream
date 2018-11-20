@@ -84,11 +84,11 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			this.typeDictionaryExporter = typeDictionaryExporter;
 		}
 
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		private boolean hasChanged()
 		{
@@ -133,12 +133,6 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			
 			return this;
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
 
 		@Override
 		public final synchronized PersistenceTypeDictionary provideTypeDictionary()
@@ -243,6 +237,13 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			return this;
 		}
 
+	}
+	
+	
+
+	public final class Transient implements PersistenceTypeDictionaryManager
+	{
+		
 	}
 
 	

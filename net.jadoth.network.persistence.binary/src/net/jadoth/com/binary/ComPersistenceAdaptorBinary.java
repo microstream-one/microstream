@@ -97,21 +97,11 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			return this.foundation;
 		}
 		
-//		@Override
-//		public ComPersistenceAdaptorBinary.Default initializePersistenceFoundation(
-//			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
-//			final SwizzleIdStrategy                     idStrategy
-//		)
-//		{
-//			final PersistenceTypeDictionaryManager typeDictionaryManager =
-//				PersistenceTypeDictionaryManager.Immutable(typeDictionaryProvider)
-//			;
-//			this.foundation.setTypeDictionaryManager(typeDictionaryManager);
-//			this.foundation.setObjectIdProvider     (idStrategy.createObjectIdProvider());
-//			this.foundation.setTypeIdProvider       (idStrategy.createTypeIdProvider());
-//
-//			return this;
-//		}
+		@Override
+		public final BinaryPersistenceFoundation<?> createInitializationFoundation()
+		{
+			return this.foundation.Clone();
+		}
 		
 		@Override
 		public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(

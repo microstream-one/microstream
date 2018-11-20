@@ -8,6 +8,9 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
 import net.jadoth.low.XVM;
+import net.jadoth.swizzling.types.SwizzleIdStrategy;
+import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
+import net.jadoth.swizzling.types.SwizzleTypeIdStrategy;
 
 public class Com
 {
@@ -20,8 +23,7 @@ public class Com
 	{
 		return 9_100_000_000_000_000_000L;
 	}
-	
-	// (18.11.2018 TM)FIXME: use or remove default id strategies
+
 	public static ComDefaultIdStrategy DefaultIdStrategy(final long startingObjectId)
 	{
 		return ComDefaultIdStrategy.New(startingObjectId);
@@ -35,6 +37,14 @@ public class Com
 	public static ComDefaultIdStrategy DefaultIdStrategyClient()
 	{
 		return DefaultIdStrategy(defaultObjectIdBaseClient());
+	}
+	
+	public static SwizzleIdStrategy DefaultIdStrategyHostInitialization()
+	{
+		return SwizzleIdStrategy.New(
+			SwizzleObjectIdStrategy.None(),
+			SwizzleTypeIdStrategy.Transient()
+		);
 	}
 	
 	public static ByteOrder byteOrder()

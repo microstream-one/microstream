@@ -7,7 +7,6 @@ import net.jadoth.com.ComFoundation;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.com.ComProtocolProvider;
 import net.jadoth.com.ComProtocolStringConverter;
-import net.jadoth.com.XSockets;
 import net.jadoth.com.binary.ComPersistenceAdaptorBinary;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -30,12 +29,7 @@ public class MainTestParseProtocol
 		;
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
-			.setClientIdStrategy(Com.DefaultIdStrategyHost())
-			.setHostContext(
-				XSockets.localHostSocketAddress(),
-				System.out::println,
-				ComPersistenceAdaptorBinary.New(pf)
-			)
+			.setPersistenceAdaptor(ComPersistenceAdaptorBinary.New(pf))
 		;
 		
 		final ComProtocolProvider<?>     protocolProvider = foundation.getProtocolProvider();

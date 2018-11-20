@@ -22,6 +22,10 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
 extends PersistenceFoundation<Binary, F>
 {
+
+	@Override
+	public BinaryPersistenceFoundation<F> Clone();
+	
 	public XTable<String, BinaryValueSetter> getCustomTranslatorLookup();
 	
 	public XEnum<BinaryValueTranslatorKeyBuilder> getTranslatorKeyBuilders();
@@ -66,7 +70,7 @@ extends PersistenceFoundation<Binary, F>
 	}
 
 	public class Implementation<F extends BinaryPersistenceFoundation.Implementation<?>>
-	extends PersistenceFoundation.AbstractImplementation<Binary, F>
+	extends PersistenceFoundation.Implementation<Binary, F>
 	implements BinaryPersistenceFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -88,6 +92,18 @@ extends PersistenceFoundation<Binary, F>
 		protected Implementation()
 		{
 			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public BinaryPersistenceFoundation.Implementation<F> Clone()
+		{
+			return new BinaryPersistenceFoundation.Implementation<>();
 		}
 		
 		

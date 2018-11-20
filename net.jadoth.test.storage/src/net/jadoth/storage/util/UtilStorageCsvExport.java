@@ -19,7 +19,7 @@ import net.jadoth.storage.types.StorageTypeDictionary;
 
 
 /**
- * Inoffizielle Helfer-Util-Klasse, um den Inhalt einer OGS Datenbank als CSV zu exportieren.
+ * Inofficial helper-util class to export the content of a OGS database as CSV.
  * <br>
  * <br>
  * Siehe<br>
@@ -254,16 +254,16 @@ public class UtilStorageCsvExport
 	
 	public static void main(final String[] args)
 	{
-		// die Instanz muss irgendwoher aus der Anwendungslogik kommen, wo die Storage initialisiert wird.
+		// the instance must come from somewhere in the application logic, where the storage has been initialized.
 		final EmbeddedStorageManager storage = null; // FIXME: EmbeddedStorageManager Instanz der Anwendung.
 		
-		// alles exportieren
+		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
 			new File("C:/StorageExportTest_2018-02-20-1600_ALL")
 		);
 		
-		// Export-Type-Filter Beispiel: Nur alle Strings exportieren.
+		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
 			new File("C:/StorageExportTest_2018-02-20-1600_Strings"),
