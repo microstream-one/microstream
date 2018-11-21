@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.swizzling.types.SwizzleRegistry;
+import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
 
 public interface PersistenceManager<M>
@@ -37,7 +37,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		storing.storeBy(this.createStorer()).commit();
 	}
 	
-	public SwizzleRegistry swizzleRegistry();
+	public SwizzleObjectRegistry swizzleRegistry();
 	
 	public PersistenceTypeDictionary typeDictionary();
 	
@@ -60,7 +60,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		/////////////////////
 
 		// swizzling components //
-		private final SwizzleRegistry                  objectRegistry    ;
+		private final SwizzleObjectRegistry                  objectRegistry    ;
 		private final SwizzleObjectManager             objectManager     ;
 		private final PersistenceRegisterer.Creator    registererCreator ;
 
@@ -81,7 +81,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		/////////////////////
 
 		public Implementation(
-			final SwizzleRegistry                  objectRegistering ,
+			final SwizzleObjectRegistry                  objectRegistering ,
 			final SwizzleObjectManager             objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
 			final PersistenceStorer.Creator<M>     storerCreatorDeep ,
@@ -111,7 +111,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		////////////
 		
 		@Override
-		public final SwizzleRegistry swizzleRegistry()
+		public final SwizzleObjectRegistry swizzleRegistry()
 		{
 			return this.objectRegistry;
 		}

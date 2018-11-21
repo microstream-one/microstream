@@ -12,7 +12,7 @@ public class MainTestSwizzleRegistry
 
 	public static void main(final String[] args)
 	{
-		final SwizzleRegistryGrowingRange reg = new SwizzleRegistryGrowingRange(COUNT);
+		final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(COUNT);
 
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
@@ -28,7 +28,6 @@ public class MainTestSwizzleRegistry
 			reg.clear();
 			System.gc();
 //			reg.shrink();
-			reg.registerType(10L, Object.class);
 			tStart = System.nanoTime();
 			for(int i = 0; i < objects.length; i++)
 			{

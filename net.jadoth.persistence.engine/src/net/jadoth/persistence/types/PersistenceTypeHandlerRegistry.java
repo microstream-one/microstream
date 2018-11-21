@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import static net.jadoth.X.notNull;
+
 import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
@@ -21,6 +23,14 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 	
 	
 
+	public static <M> PersistenceTypeHandlerRegistry.Implementation<M> New(
+		final SwizzleTypeRegistry typeRegistry
+	)
+	{
+		return new PersistenceTypeHandlerRegistry.Implementation<>(
+			notNull(typeRegistry)
+		);
+	}
 
 	public final class Implementation<M> implements PersistenceTypeHandlerRegistry<M>
 	{
@@ -39,7 +49,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final SwizzleTypeRegistry typeRegistry)
+		Implementation(final SwizzleTypeRegistry typeRegistry)
 		{
 			super();
 			this.typeRegistry = typeRegistry;

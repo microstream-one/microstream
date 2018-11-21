@@ -1524,7 +1524,7 @@ public interface StorageFileManager
 			finally
 			{
 				/* this method only gets called if there is something to transfer, hence at least one entity must have
-				 * been transferred, hence a flush is always apropriate at the end. This also applies to exceptions.
+				 * been transferred, hence a flush is always appropriate at the end. This also applies to exceptions.
 				 */
 				this.flush();
 			}

@@ -2,8 +2,6 @@ package net.jadoth.swizzling.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownType;
-
 public interface SwizzleObjectManager extends SwizzleObjectLookup
 {
 	public long ensureObjectId(Object object);
@@ -22,9 +20,9 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		// instance fields  //
 		/////////////////////
 
-		private final SwizzleObjectIdProvider oidProvider    ;
-		private final SwizzleRegistry         swizzleRegistry;
-		private final SwizzleTypeManager      typeManager    ;
+		private final SwizzleObjectIdProvider oidProvider          ;
+		private final SwizzleObjectRegistry   swizzleObjectRegistry;
+		private final SwizzleTypeManager      typeManager          ;
 		/*
 		 * Note that the type manager may not be a tid-assigning (master) manager on a type slave side!
 		 * It must be a retrieving type handler manager instead.
@@ -37,15 +35,15 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		/////////////////////
 
 		public Implementation(
-			final SwizzleRegistry         swizzleRegistry,
-			final SwizzleObjectIdProvider oidProvider    ,
+			final SwizzleObjectRegistry   swizzleObjectRegistry,
+			final SwizzleObjectIdProvider oidProvider          ,
 			final SwizzleTypeManager      typeManager
 		)
 		{
 			super();
-			this.oidProvider     = notNull(oidProvider)    ;
-			this.swizzleRegistry = notNull(swizzleRegistry);
-			this.typeManager     = notNull(typeManager)    ;
+			this.oidProvider           = notNull(oidProvider)          ;
+			this.swizzleObjectRegistry = notNull(swizzleObjectRegistry);
+			this.typeManager           = notNull(typeManager)          ;
 		}
 
 
@@ -57,13 +55,13 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		@Override
 		public void cleanUp()
 		{
-			this.swizzleRegistry.cleanUp();
+			this.swizzleObjectRegistry.cleanUp();
 		}
 
 		@Override
 		public long lookupObjectId(final Object object)
 		{
-			return this.swizzleRegistry.lookupObjectId(object);
+			return this.swizzleObjectRegistry.lookupObjectId(object);
 		}
 
 		@Override
@@ -73,18 +71,18 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 //				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
 //			);
 
-			return this.swizzleRegistry.lookupObject(oid);
+			return this.swizzleObjectRegistry.lookupObject(oid);
 		}
 
-		protected long internalLookupExistingTypeId(final Class<?> type)
-		{
-			final long tid;
-			if((tid = this.swizzleRegistry.lookupTypeId(type)) == 0L)
-			{
-				throw new SwizzleExceptionConsistencyUnknownType(type);
-			}
-			return tid;
-		}
+//		protected long internalLookupExistingTypeId(final Class<?> type)
+//		{
+//			final long tid;
+//			if((tid = this.swizzleObjectRegistry.lookupTypeId(type)) == 0L)
+//			{
+//				throw new SwizzleExceptionConsistencyUnknownType(type);
+//			}
+//			return tid;
+//		}
 
 		@Override
 		public long ensureObjectId(final Object object)
@@ -102,12 +100,12 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 			}
 
 			// if not found either assign new oid or return the meanwhile registered oid
-			synchronized(this.swizzleRegistry)
+			synchronized(this.swizzleObjectRegistry)
 			{
-				if((oid = this.swizzleRegistry.lookupObjectId(object)) == 0L)
+				if((oid = this.swizzleObjectRegistry.lookupObjectId(object)) == 0L)
 				{
 					oid = this.oidProvider.provideNextObjectId();
-					this.swizzleRegistry.registerObject(oid, object);
+					this.swizzleObjectRegistry.registerObject(oid, object);
 				}
 			}
 
@@ -120,7 +118,7 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		@Override
 		public final long currentObjectId()
 		{
-			synchronized(this.swizzleRegistry)
+			synchronized(this.swizzleObjectRegistry)
 			{
 				return this.oidProvider.currentObjectId();
 			}
@@ -129,7 +127,7 @@ public interface SwizzleObjectManager extends SwizzleObjectLookup
 		@Override
 		public void updateCurrentObjectId(final long currentObjectId)
 		{
-			synchronized(this.swizzleRegistry)
+			synchronized(this.swizzleObjectRegistry)
 			{
 				if(this.oidProvider.currentObjectId() >= currentObjectId)
 				{

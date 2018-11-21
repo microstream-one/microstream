@@ -15,9 +15,10 @@ public class MainTestSwizzleRegistryConcurrency
 
 	static final Object[] objects = new Object[COUNT];
 	static final long[]   oids    = new long[COUNT];
-	static final SwizzleRegistryGrowingRange reg = new SwizzleRegistryGrowingRange(HASH_DENSITY);
-	static {
-		reg.registerType(10L, Object.class);
+	static final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(HASH_DENSITY);
+	
+	static
+	{
 		long oid = 1_000_000_000_000L;
 		for(int i = 0; i < objects.length; i++)
 		{

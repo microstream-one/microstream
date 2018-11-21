@@ -8,19 +8,15 @@ import java.util.function.Predicate;
 
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.XMath;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidTypeId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyObject;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyObjectId;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownMapping;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyWrongType;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyWrongTypeId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionNullObjectId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionNullTypeId;
-import net.jadoth.swizzling.types.SwizzleRegistry;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
+import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
-public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
+public final class SwizzleRegistryGrowingRange implements SwizzleObjectRegistry
 {
 	/* Notes:
 	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . welcome to this user code class!
@@ -116,8 +112,36 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		}
 		throw new NumberRangeException();
 	}
+	
 
 
+	public static SwizzleRegistryGrowingRange New()
+	{
+		return New(MINIMUM_SLOT_LENGTH);
+	}
+
+	public static SwizzleRegistryGrowingRange New(final int slotSize)
+	{
+		return New(slotSize, DEFAULT_HASH_DENSITY);
+	}
+
+	public static SwizzleRegistryGrowingRange New(final float hashDensity)
+	{
+		return New(MINIMUM_SLOT_LENGTH, hashDensity);
+	}
+
+	public static SwizzleRegistryGrowingRange New(
+		final int   slotSize   ,
+		final float hashDensity
+	)
+	{
+		return new SwizzleRegistryGrowingRange(
+			padCapacity(slotSize),
+			positive(hashDensity)
+		);
+	}
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -137,52 +161,18 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	private int       capacity   ;
 	private int       modulo     ; // shortcut for "slots.length - 1" (yields around 3% performance in put tests)
 
-	private final Consumer<SwizzleTypeLink> typeExistsValidator = new Consumer<SwizzleTypeLink>()
-	{
-		@Override
-		public void accept(final SwizzleTypeLink e)
-		{
-			SwizzleRegistryGrowingRange.this.validateExistingMapping(e.type(), e.typeId());
-		}
-	};
-
-	private final Consumer<SwizzleTypeLink> typePossibleValidator = new Consumer<SwizzleTypeLink>()
-	{
-		@Override
-		public void accept(final SwizzleTypeLink e)
-		{
-			SwizzleRegistryGrowingRange.this.validatePossibleMapping(e.type(), e.typeId());
-		}
-	};
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public SwizzleRegistryGrowingRange()
-	{
-		this(MINIMUM_SLOT_LENGTH);
-	}
-
-	public SwizzleRegistryGrowingRange(final int slotSize)
-	{
-		this(slotSize, DEFAULT_HASH_DENSITY);
-	}
-
-	public SwizzleRegistryGrowingRange(final float hashDensity)
-	{
-		this(MINIMUM_SLOT_LENGTH, hashDensity);
-	}
-
-	public SwizzleRegistryGrowingRange(final int slotSize, final float hashDensity)
+	SwizzleRegistryGrowingRange(final int paddedSlotSize, final float hashDensity)
 	{
 		super();
-		final int paddedSlotSize = padCapacity(slotSize);
 		this.slotsPerOid = new Entry[paddedSlotSize][];
 		this.slotsPerRef = new Entry[paddedSlotSize][];
-		this.capacity    = (int)(paddedSlotSize * (this.hashDensity = positive(hashDensity)));
+		this.capacity    = (int)(paddedSlotSize * (this.hashDensity = hashDensity));
 		this.size        = 0;
 		this.modulo      = paddedSlotSize - 1;
 	}
@@ -347,7 +337,8 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 				}
 			}
 		}
-		return 0L;
+		
+		return Swizzle.nullId();
 	}
 
 	private static Object lookupObject(final Entry[] bucketsI, final long oid)
@@ -577,93 +568,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		}
 	}
 
-	private static void validateExistingTypeForTypeId(final Entry[] bucketsI, final long tid, final Class<?> type)
-	{
-		if(isConsistentRegisteredTypeForTypeId(bucketsI, tid, type))
-		{
-			return;
-		}
-		throw new SwizzleExceptionConsistencyUnknownMapping(tid, type);
-	}
-
-	private static void validateExistingTypeIdForType(final Entry[] bucketsR, final long tid, final Class<?> type)
-	{
-		if(isConsistentRegisteredTypeIdForType(bucketsR, tid, type))
-		{
-			return;
-		}
-		throw new SwizzleExceptionConsistencyUnknownMapping(tid, type);
-	}
-
-	private static boolean isConsistentRegisteredTypeForTypeId(
-		final Entry[]  bucketsI,
-		final long     tid     ,
-		final Class<?> type
-	)
-	{
-		if(bucketsI != null)
-		{
-			for(int i = 0; i < bucketsI.length; i++)
-			{
-				if(bucketsI[i] != null && bucketsI[i].oid == tid)
-				{
-					// tid == oid for types
-					if(bucketsI[i].ref.get() == type)
-					{
-						return true;
-					}
-					throw new SwizzleExceptionConsistencyWrongType(tid, (Class<?>)bucketsI[i].ref.get(), type);
-				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean isConsistentRegisteredTypeIdForType(
-		final Entry[]  bucketsR,
-		final long     tid     ,
-		final Class<?> type
-	)
-	{
-		if(bucketsR != null)
-		{
-			for(int i = 0; i < bucketsR.length; i++)
-			{
-				if(bucketsR[i] != null && bucketsR[i].oid == tid)
-				{
-					// tid == oid for types
-					if(bucketsR[i].oid == tid)
-					{
-						// getting here actually means the registry is inconsistent. Maybe throw exception etc.
-						return true;
-					}
-					throw new SwizzleExceptionConsistencyWrongTypeId(type, bucketsR[i].oid, tid);
-				}
-			}
-		}
-		return false;
-	}
-
-	private static void iterateTypes(final Entry[][] slots, final Consumer<? super SwizzleRegistry.Entry> iterator)
-	{
-		for(int s = 0; s < slots.length; s++)
-		{
-			if(slots[s] != null)
-			{
-				final Entry[] buckets = slots[s];
-				for(int b = 0; b < buckets.length; b++)
-				{
-					if(buckets[b] != null && buckets[b].ref.get() instanceof Class<?>)
-					{
-						// no idea how to do it otherwise (and don't want to wrap the procedure in a relay procedure :P)
-						iterator.accept(buckets[b]);
-					}
-				}
-			}
-		}
-	}
-
-	private static void iterateEntries(final Entry[][] slots, final Consumer<? super SwizzleRegistry.Entry> iterator)
+	private static void iterateEntries(final Entry[][] slots, final Consumer<? super SwizzleObjectRegistry.Entry> iterator)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -699,7 +604,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		}
 	}
 	
-	private static void synchClearEntries(final Entry[][] slots, final Predicate<? super SwizzleRegistry.Entry> filter)
+	private static void synchClearEntries(final Entry[][] slots, final Predicate<? super SwizzleObjectRegistry.Entry> filter)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -781,100 +686,19 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public long lookupTypeId(final Class<?> type)
-	{
-		if(type == null)
-		{
-			throw new NullPointerException();
-		}
-		return lookupOid(this.synchronizedGetSlotsPerRef()[identityHashCode(type) & this.modulo], type);
-	}
-
-	@Override
 	public Object lookupObject(final long oid)
 	{
 		return lookupObject(this.synchronizedGetSlotsPerOid()[(int)oid & this.modulo], oid);
-	}
-
-	@SuppressWarnings("unchecked") // safety of cast guaranteed by logic
-	@Override
-	public <T> Class<T> lookupType(final long tid)
-	{
-		return (Class<T>)lookupObject(this.synchronizedGetSlotsPerOid()[(int)tid & this.modulo], tid);
 	}
 	
 	@Override
 	public Object registerObjectId(final long oid)
 	{
-		if(oid == 0L)
+		if(oid == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullObjectId();
 		}
 		return this.synchronizedPutId(oid);
-	}
-
-	void validateExistingMapping(final Class<?> type, final long typeId)
-	{
-		// don't know if this method's synchronization pattern is worth much performance, but it's funny to use it
-		final Entry[][] slotsPerOid, slotsPerRef;
-		final int modulo;
-		synchronized(this)
-		{
-			slotsPerOid = this.slotsPerOid;
-			slotsPerRef = this.slotsPerRef;
-			modulo      = this.modulo;
-		}
-
-		// don't lock out other threads while doing mere non-writing validation work
-		validateExistingTypeForTypeId(slotsPerOid[(int)(typeId & modulo)         ], typeId, type);
-		validateExistingTypeIdForType(slotsPerRef[identityHashCode(type) & modulo], typeId, type);
-	}
-
-	void validatePossibleMapping(final Class<?> type, final long typeId)
-	{
-		// don't know if this method's synchronization pattern is worth much performance, but it's funny to use it
-		final Entry[][] slotsPerOid, slotsPerRef;
-		final int modulo;
-		synchronized(this)
-		{
-			slotsPerOid = this.slotsPerOid;
-			slotsPerRef = this.slotsPerRef;
-			modulo      = this.modulo;
-		}
-
-		// don't lock out other threads while doing mere non-writing validation work
-		// only use for consistency check. Wether type is registered or unknown is irrelevant here
-		isConsistentRegisteredTypeForTypeId(slotsPerOid[(int)(typeId & modulo)         ], typeId, type);
-		isConsistentRegisteredTypeIdForType(slotsPerRef[identityHashCode(type) & modulo], typeId, type);
-	}
-
-	@Override
-	public synchronized void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
-	{
-		mappings.forEach(this.typeExistsValidator);
-	}
-
-	@Override
-	public synchronized void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
-	{
-		mappings.forEach(this.typePossibleValidator);
-	}
-
-	@Override
-	public boolean registerType(final long tid, final Class<?> type)
-	{
-		if(type == null)
-		{
-			throw new NullPointerException();
-		}
-		if(tid == 0L)
-		{
-			throw new SwizzleExceptionNullTypeId();
-		}
-
-		return this.synchronizedPut(tid, type);
 	}
 
 	@Override
@@ -884,7 +708,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(oid == 0L)
+		if(oid == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullObjectId();
 		}
@@ -899,7 +723,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(oid == 0L)
+		if(oid == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullObjectId();
 		}
@@ -909,7 +733,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	@Override
 	public synchronized Object retrieveByOid(final long oid)
 	{
-		if(oid == 0L)
+		if(oid == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullObjectId();
 		}
@@ -953,16 +777,18 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 				}
 			}
 		}
-		return 0L;
+		
+		return Swizzle.nullId();
 	}
 
 	@Override
 	public synchronized Class<?> retrieveByTid(final long tid)
 	{
-		if(tid == 0L)
+		if(tid == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullTypeId();
 		}
+		
 		final Entry[] bucketsI;
 		if((bucketsI = this.slotsPerOid[(int)tid & this.modulo]) != null)
 		{
@@ -989,7 +815,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	@Override
 	public synchronized boolean removeById(final long id)
 	{
-		if(id == 0L)
+		if(id == Swizzle.nullId())
 		{
 			throw new SwizzleExceptionNullObjectId();
 		}
@@ -1035,21 +861,9 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 
 	@Override
-	public void iterateTypes(final Consumer<? super SwizzleRegistry.Entry> iterator)
-	{
-		iterateTypes(this.synchronizedGetSlotsPerOid(), iterator);
-	}
-
-	@Override
-	public void iterateEntries(final Consumer<? super SwizzleRegistry.Entry> iterator)
+	public void iterateEntries(final Consumer<? super SwizzleObjectRegistry.Entry> iterator)
 	{
 		iterateEntries(this.synchronizedGetSlotsPerOid(), iterator);
-	}
-
-	@Override
-	public void validateExistingTypeMapping(final long typeId, final Class<?> type)
-	{
-		this.validateExistingMapping(type, typeId);
 	}
 
 	@Override
@@ -1078,7 +892,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	}
 	
 	@Override
-	public synchronized void clear(final Predicate<? super SwizzleRegistry.Entry> filter)
+	public synchronized void clear(final Predicate<? super SwizzleObjectRegistry.Entry> filter)
 	{
 		synchClearEntries(this.slotsPerOid, filter);
 		synchClearEntries(this.slotsPerRef, filter);
@@ -1095,7 +909,7 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 	 * This saves memory footprint.
 	 * Must however on referen update replace Entries with new instances instead of just setting a new WeakReference.
 	 */
-	private static final class Entry implements SwizzleRegistry.Entry
+	private static final class Entry implements SwizzleObjectRegistry.Entry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

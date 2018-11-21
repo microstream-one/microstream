@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.jadoth.collections.ListView;
+import net.jadoth.collections.SubListView;
 import net.jadoth.collections.interfaces.CapacityCarrying;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ConsolidatableCollection;
@@ -126,6 +128,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).equality();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -143,6 +146,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			((Consumer<E>)this.subject).accept(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -153,6 +157,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XAddingList<E>)this.subject).add(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -165,6 +170,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XAddingList<E>)this.subject).addAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -176,6 +182,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XAddingList<E>)this.subject).addAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -187,6 +194,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XAddingList<E>)this.subject).addAll(elements, offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -197,6 +205,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XAddingList<E>)this.subject).nullAdd();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -213,6 +222,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPuttingList<E>)this.subject).put(e);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -225,6 +235,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPuttingList<E>)this.subject).putAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -236,6 +247,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPuttingList<E>)this.subject).putAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -247,6 +259,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPuttingList<E>)this.subject).putAll(elements, offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -257,6 +270,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPuttingList<E>)this.subject).nullPut();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -273,6 +287,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPrependingList<E>)this.subject).prepend(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -285,6 +300,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPrependingList<E>)this.subject).prependAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -296,6 +312,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPrependingList<E>)this.subject).prependAll(elements, offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -307,6 +324,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPrependingList<E>)this.subject).prependAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -317,6 +335,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPrependingList<E>)this.subject).nullPrepend();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -334,6 +353,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPreputtingSequence<E>)this.subject).preput(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -346,6 +366,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPreputtingSequence<E>)this.subject).preputAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -358,6 +379,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPreputtingSequence<E>)this.subject).preputAll(elements, offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -370,6 +392,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XPreputtingSequence<E>)this.subject).preputAll(elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -381,6 +404,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XPreputtingSequence<E>)this.subject).nullPreput();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -397,6 +421,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInsertingList<E>)this.subject).insert(index, element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -408,6 +433,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInsertingList<E>)this.subject).insertAll(index, elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -418,6 +444,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInsertingList<E>)this.subject).insertAll(index, elements, offset, length);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -428,6 +455,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInsertingList<E>)this.subject).insertAll(index, elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -438,6 +466,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInsertingList<E>)this.subject).nullInsert(index);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -454,6 +483,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInputtingList<E>)this.subject).input(index, element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -465,6 +495,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInputtingList<E>)this.subject).inputAll(index, elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -475,6 +506,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInputtingList<E>)this.subject).inputAll(index, elements, offset, length);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -485,6 +517,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInputtingList<E>)this.subject).inputAll(index, elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -495,19 +528,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XInputtingList<E>)this.subject).nullInput(index);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).iterate(aggregate);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -517,6 +540,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).containsSearched(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -528,6 +552,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).applies(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -537,7 +562,9 @@ public final class DownwrapList<E> implements XList<E>
 		if(this.subject instanceof Clearable)
 		{
 			((Clearable)this.subject).clear();
+			return;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -548,19 +575,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((ConsolidatableCollection)this.subject).consolidate();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).contains(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -570,6 +587,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).contains(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -581,19 +599,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).containsAll(elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).containsAll(samples, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -603,6 +611,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).containsId(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -620,6 +629,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).copySelection(target, indices);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -631,6 +641,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).filterTo(target, predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -642,19 +653,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).iterate(target);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).count(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -664,6 +665,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).count(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -675,6 +677,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).countBy(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -686,6 +689,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).distinct(target, equalator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -697,6 +701,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).distinct(target);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -708,6 +713,7 @@ public final class DownwrapList<E> implements XList<E>
 			((CapacityExtendable)this.subject).ensureFreeCapacity(minimalFreeCapacity);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -719,6 +725,7 @@ public final class DownwrapList<E> implements XList<E>
 			((CapacityExtendable)this.subject).ensureCapacity(minimalCapacity);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -737,6 +744,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).equals(samples, equalator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -748,6 +756,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).equalsContent(samples, equalator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -763,6 +772,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).except(other, equalator, target);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -775,6 +785,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XGettingCollection<E>)this.subject).iterate(procedure);
 			return procedure;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -787,6 +798,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XGettingSequence<E>)this.subject).iterateIndexed(procedure);
 			return procedure;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -799,6 +811,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XJoinable<E>)this.subject).join(joiner, aggregate);
 			return aggregate;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -810,6 +823,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSettingList<E>)this.subject).fill(offset, length, element);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -821,6 +835,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).at(index);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -832,6 +847,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).get();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -843,6 +859,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).first();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -854,6 +871,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).last();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -865,6 +883,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).poll();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -876,6 +895,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).peek();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -886,28 +906,6 @@ public final class DownwrapList<E> implements XList<E>
 		return this.subject.hashCode();
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).hasDistinctValues(equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).hasDistinctValues();
-//		}
-//		throw new UnsupportedOperationException();
-//	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean hasVolatileElements()
@@ -916,19 +914,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).hasVolatileElements();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingSequence<?>)
-//		{
-//			return ((XGettingSequence<E>)this.subject).indexOf(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -938,6 +926,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).indexOf(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -949,6 +938,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).indexBy(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -964,6 +954,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).intersect(other, equalator, target);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -974,6 +965,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((Sized)this.subject).isEmpty();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -985,6 +977,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).isSorted(comparator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -996,6 +989,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((Iterable<E>)this.subject).iterator();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1007,6 +1001,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).lastIndexBy(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1018,6 +1013,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).lastIndexOf(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1028,6 +1024,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingList<E>)this.subject).listIterator();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1038,6 +1035,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingList<E>)this.subject).listIterator(index);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1049,6 +1047,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).max(comparator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1060,6 +1059,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).maxIndex(comparator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1071,6 +1071,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).min(comparator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1082,6 +1083,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).minIndex(comparator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1093,6 +1095,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).moveSelection(target, indices);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1104,6 +1107,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).moveTo(target, predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1116,20 +1120,9 @@ public final class DownwrapList<E> implements XList<E>
 			((XProcessingCollection<E>)this.subject).process(procedure);
 			return procedure;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public DownwrapList<E> process(final CtrlProcedure<? super E> processor)
-//	{
-//		if(this.subject instanceof XProcessingCollection<?>)
-//		{
-//			((XProcessingCollection<E>)this.subject).process(processor);
-//			return this;
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1139,19 +1132,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).removeBy(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XProcessingCollection<?>)
-//		{
-//			return ((XProcessingCollection<E>)this.subject).remove(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1161,6 +1144,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).remove(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1172,19 +1156,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).removeAt(index);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XProcessingCollection<?>)
-//		{
-//			return ((XProcessingCollection<E>)this.subject).removeAll(samples, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1194,6 +1168,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).removeAll(elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1205,6 +1180,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).removeDuplicates(equalator);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1216,6 +1192,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).removeDuplicates();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1227,6 +1204,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).fetch();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1238,6 +1216,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).pop();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1249,6 +1228,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).pinch();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1260,6 +1240,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).pick();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1271,19 +1252,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XRemovingCollection<E>)this.subject).removeOne(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XProcessingCollection<?>)
-//		{
-//			return ((XProcessingCollection<E>)this.subject).removeOne(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1293,6 +1264,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).retrieve(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1304,6 +1276,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).retrieveBy(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1316,6 +1289,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XProcessingSequence<E>)this.subject).removeRange(offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1328,6 +1302,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XProcessingSequence<E>)this.subject).retainRange(offset, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1339,18 +1314,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingSequence<E>)this.subject).removeSelection(indices);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@Override
-//	public int replace(final E oldElement, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		if(this.subject instanceof XSettingList<?>)
-//		{
-//			return ((XSettingList<E>)this.subject).replace(oldElement, equalator, replacement);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@Override
 	public long replace(final E element, final E replacement)
@@ -1359,6 +1325,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).replace(element, replacement);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1369,18 +1336,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).replace(predicate, substitute);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@Override
-//	public int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		if(this.subject instanceof XSettingList<?>)
-//		{
-//			return ((XSettingList<E>)this.subject).replace(predicate, substitute);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@Override
 	public long substitute(final Function<? super E, ? extends E> mapper)
@@ -1389,6 +1347,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).substitute(mapper);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1399,28 +1358,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).substitute(predicate, mapper);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@Override
-//	public int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		if(this.subject instanceof XSettingList<?>)
-//		{
-//			return ((XSettingList<E>)this.subject).modify(predicate, mapper);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
-
-//	@Override
-//	public int replaceAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator, final E newElement)
-//	{
-//		if(this.subject instanceof XSettingList<?>)
-//		{
-//			return ((XSettingList<E>)this.subject).replaceAll(samples, equalator, newElement);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@Override
 	public long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
@@ -1429,18 +1369,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).replaceAll(elements, replacement);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@Override
-//	public boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		if(this.subject instanceof XSettingList<?>)
-//		{
-//			return ((XSettingList<E>)this.subject).replaceOne(sample, equalator, replacement);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@Override
 	public boolean replaceOne(final E element, final E replacement)
@@ -1449,6 +1380,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).replaceOne(element, replacement);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1459,19 +1391,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).replaceOne(predicate, substitute);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XProcessingCollection<?>)
-//		{
-//			return ((XProcessingCollection<E>)this.subject).retainAll(samples, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1481,6 +1403,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).retainAll(elements);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1493,6 +1416,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).reverse();
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1504,19 +1428,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingSequence<E>)this.subject).scan(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(this.subject instanceof XGettingCollection<?>)
-//		{
-//			return ((XGettingCollection<E>)this.subject).search(sample, equalator);
-//		}
-//		throw new UnsupportedOperationException();
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1526,6 +1440,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).seek(sample);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1537,6 +1452,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).search(predicate);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1549,6 +1465,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSettingList<E>)this.subject).setAll(offset, elements);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1559,6 +1476,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).set(index, element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1569,6 +1487,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XSettingList<E>)this.subject).setGet(index, element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1580,6 +1499,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSettingList<E>)this.subject).set(offset, src, srcIndex, srcLength);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1591,6 +1511,7 @@ public final class DownwrapList<E> implements XList<E>
 			 ((XSettingList<E>)this.subject).set(offset, elements, elementsOffset, elementsLength);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1601,6 +1522,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			((XSettingList<E>)this.subject).setFirst(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1611,6 +1533,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			((XSettingList<E>)this.subject).setLast(element);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1621,6 +1544,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((OptimizableCollection)this.subject).optimize();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1631,6 +1555,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((Sized)this.subject).size();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1643,6 +1568,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).sort(comparator);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1657,6 +1583,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return new DownwrapList<>(((XGettingList<E>)this.subject).range(fromIndex, toIndex));
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1681,6 +1608,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).shiftTo(sourceIndex, targetIndex);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1693,6 +1621,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).shiftTo(sourceIndex, targetIndex, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1705,6 +1634,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).shiftBy(sourceIndex, distance);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1717,6 +1647,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).shiftBy(sourceIndex, distance, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1729,6 +1660,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).swap(indexA, indexB);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1741,6 +1673,7 @@ public final class DownwrapList<E> implements XList<E>
 			((XSortableSequence<E>)this.subject).swap(indexA, indexB, length);
 			return this;
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1752,6 +1685,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).toArray();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1763,6 +1697,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).toArray(type);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1773,6 +1708,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingList<E>)this.subject).immure();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1783,6 +1719,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return new DownwrapList<>(((XGettingList<E>)this.subject).toReversed());
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1793,6 +1730,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			((Truncateable)this.subject).truncate();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1808,6 +1746,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).union(other, equalator, target);
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1818,6 +1757,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((CapacityExtendable)this.subject).currentCapacity();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1828,6 +1768,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((CapacityCarrying)this.subject).maximumCapacity();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1838,6 +1779,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((CapacityCarrying)this.subject).isFull();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1848,6 +1790,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((CapacityCarrying)this.subject).remainingCapacity();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1865,6 +1808,7 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XGettingCollection<E>)this.subject).nullContained();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
 
@@ -1876,9 +1820,9 @@ public final class DownwrapList<E> implements XList<E>
 		{
 			return ((XProcessingCollection<E>)this.subject).nullRemove();
 		}
+		
 		throw new UnsupportedOperationException();
 	}
-
 
 	@Override
 	public OldWrapperList<E> old()
@@ -1900,6 +1844,5 @@ public final class DownwrapList<E> implements XList<E>
 		}
 
 	}
-
 
 }
