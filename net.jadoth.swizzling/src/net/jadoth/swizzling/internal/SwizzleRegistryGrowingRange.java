@@ -372,9 +372,10 @@ public final class SwizzleRegistryGrowingRange implements SwizzleRegistry
 		/* (31.10.2018 TM)TODO: Decoupled constant registry
 		 * a lookup in a decoupled constant registry could be performed here.
 		 * This would cause the following changes:
-		 * - none to a proper OID lookup (the fast majority of lookups)
+		 * - none to a proper OID lookup (the vast majority of lookups)
 		 * - a tiny delay (double lookup) to looking up constants, which is not noticable in the grand scheme
-		 * - a tiny delay (double lookup) to looking up unresolvable OIDs, which is an error anyway.
+		 * - a tiny delay (double lookup) to looking up erroneously unresolvable OIDs, which is irrelevant.
+		 * - a tiny delay (double lookup) to looking up OIDs during loading. And that is the painful point.
 		 * - yield a modular and immutable constant-registry that could be shared (e.g. OGC) and spared from clearing.
 		 * Also see issue JET-48.
 		 * 
