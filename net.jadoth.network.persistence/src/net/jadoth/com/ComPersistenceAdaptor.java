@@ -3,6 +3,7 @@ package net.jadoth.com;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
@@ -118,7 +119,13 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		foundation.setObjectIdProvider     (idStrategy.createObjectIdProvider());
 		foundation.setTypeIdProvider       (idStrategy.createTypeIdProvider());
 		
-		// (16.11.2018 TM)TODO: set Persistence.typeMismatchValidatorFailing()?
+		/*
+		 * Communication differs from Storing in some essential details, so the OGS Legacy Type Mapping
+		 * is not applicable here.
+		 * Also see descriptions in Issue JET-46. At some point in the future, a OGC-suitable type mapping
+		 * will probably become necessary. Until then, type mismatches are invalid.
+		 */
+		foundation.setTypeMismatchValidator(Persistence.typeMismatchValidatorFailing());
 		
 		return this;
 	}
