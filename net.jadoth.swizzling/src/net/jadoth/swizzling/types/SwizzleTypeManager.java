@@ -16,7 +16,18 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 
 	public void updateCurrentHighestTypeId(long highestTypeId);
 
-
+	
+	
+	public static SwizzleTypeManager.Implementation New(
+		final SwizzleTypeRegistry   registry   ,
+		final SwizzleTypeIdProvider tidProvider
+	)
+	{
+		return new SwizzleTypeManager.Implementation(
+			notNull(registry)   ,
+			notNull(tidProvider)
+		);
+	}
 
 	public final class Implementation implements SwizzleTypeManager
 	{
@@ -33,19 +44,21 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		// constructors     //
 		/////////////////////
 
-
-		public Implementation(final SwizzleTypeRegistry registry, final SwizzleTypeIdProvider tidProvider)
+		Implementation(
+			final SwizzleTypeRegistry   registry   ,
+			final SwizzleTypeIdProvider tidProvider
+		)
 		{
 			super();
-			this.typeRegistry   = notNull(registry   );
-			this.tidProvider    = notNull(tidProvider);
+			this.typeRegistry = notNull(registry)   ;
+			this.tidProvider  = notNull(tidProvider);
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		protected long createNewTid()
 		{
@@ -58,7 +71,7 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 			synchronized(this.typeRegistry)
 			{
 				// if not found either assign new oid or return the meanwhile registered oid
-				if((tid = this.typeRegistry.lookupTypeId(type)) != 0L)
+				if((tid = this.typeRegistry.lookupTypeId(type)) != Swizzle.nullId())
 				{
 					return tid;
 				}
@@ -72,12 +85,6 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 			}
 			return tid;
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)
@@ -121,11 +128,11 @@ public interface SwizzleTypeManager extends SwizzleTypeRegistry
 		public long ensureTypeId(final Class<?> type)
 		{
 			long tid; // quick read-only check for already registered tid
-			if((tid = this.typeRegistry.lookupTypeId(type)) != 0L)
+			if((tid = this.typeRegistry.lookupTypeId(type)) != Swizzle.nullId())
 			{
 				return tid;
 			}
-//			XDebug.debugln("not yet contained type id for " + type);
+
 			return this.internalEnsureTypeId(type);
 		}
 

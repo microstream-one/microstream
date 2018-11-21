@@ -519,13 +519,13 @@ public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
 		;
 	}
 
-	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
+	// type is primarily defined by the dictionary string. Parser must guarantee to create the appropriate member types
 	public static boolean isInlinedComplexType(final String typeName)
 	{
 		return Symbols.TYPE_COMPLEX.equals(typeName);
 	}
 
-	// type is primarily defined by the dictionary string. Parser must guarantee to create the apropriate member types
+	// type is primarily defined by the dictionary string. Parser must guarantee to create the appropriate member types
 	public static boolean isInlinedVariableLengthType(final String typeName)
 	{
 		return Symbols.TYPE_BYTES.equals(typeName)

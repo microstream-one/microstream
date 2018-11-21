@@ -49,17 +49,17 @@ public interface SwizzleFoundation<F extends SwizzleFoundation<?>>
 
 		/* Explanation:
 		 * These methods are not actually abstract because it is not necessaryly required
-		 * to create new instances of these types. Instead, apropriate instances can be set.
+		 * to create new instances of these types. Instead, appropriate instances can be set.
 		 * These methods exist in order to allow sub classes to implement them optionally
 		 * and throw an exception if neither implementation nor set instance is available.
 		 */
 
-		protected SwizzleObjectIdProvider createObjectIdProvider()
+		protected SwizzleObjectIdProvider ensureObjectIdProvider()
 		{
 			throw new MissingFoundationPartException(SwizzleObjectIdProvider.class);
 		}
 
-		protected SwizzleTypeIdProvider createTypeIdProvider()
+		protected SwizzleTypeIdProvider ensureTypeIdProvider()
 		{
 			throw new MissingFoundationPartException(SwizzleTypeIdProvider.class);
 		}
@@ -81,7 +81,7 @@ public interface SwizzleFoundation<F extends SwizzleFoundation<?>>
 		{
 			if(this.oidProvider == null)
 			{
-				this.oidProvider = this.dispatch(this.createObjectIdProvider());
+				this.oidProvider = this.dispatch(this.ensureObjectIdProvider());
 			}
 			return this.oidProvider;
 		}
@@ -91,7 +91,7 @@ public interface SwizzleFoundation<F extends SwizzleFoundation<?>>
 		{
 			if(this.tidProvider == null)
 			{
-				this.tidProvider = this.dispatch(this.createTypeIdProvider());
+				this.tidProvider = this.dispatch(this.ensureTypeIdProvider());
 			}
 			return this.tidProvider;
 		}

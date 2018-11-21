@@ -13,7 +13,7 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.SwizzleRegistry;
+import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 import net.jadoth.swizzling.types.SwizzleTypeLink;
 import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
@@ -42,7 +42,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public PersistenceTypeHandlerManager<M> initialize();
 
-	public PersistenceDistrict<M> createDistrict(SwizzleRegistry registry);
+	public PersistenceDistrict<M> createDistrict(SwizzleObjectRegistry registry);
 
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
@@ -169,7 +169,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 			/*
 			 * Must ensure type handlers for all field types as well to keep type definitions consistent.
 			 * If some field's type is "too abstract" to be persisted, is has to be registered to an
-			 * apropriate type handler (No-op, etc.) manually beforehand.
+			 * appropriate type handler (No-op, etc.) manually beforehand.
 			 *
 			 * creating new type handlers in the process will eventually end up here again for the new types
 			 * until all reachable types are ensured to have type handlers registered.
@@ -706,7 +706,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final PersistenceDistrict<M> createDistrict(final SwizzleRegistry registry)
+		public final PersistenceDistrict<M> createDistrict(final SwizzleObjectRegistry registry)
 		{
 			return new PersistenceDistrict.Implementation<>(registry, this.typeHandlerRegistry);
 		}

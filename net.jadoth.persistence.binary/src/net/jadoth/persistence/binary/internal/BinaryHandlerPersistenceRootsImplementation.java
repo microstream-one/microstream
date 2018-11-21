@@ -15,7 +15,7 @@ import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.swizzling.types.SwizzleBuildLinker;
 import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleRegistry;
+import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -35,7 +35,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	
 	public static BinaryHandlerPersistenceRootsImplementation New(
 		final PersistenceRootResolver resolver      ,
-		final SwizzleRegistry         globalRegistry
+		final SwizzleObjectRegistry         globalRegistry
 	)
 	{
 		return new BinaryHandlerPersistenceRootsImplementation(
@@ -58,7 +58,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
 	 * indeed part of this handler's task
 	 */
-	final SwizzleRegistry globalRegistry;
+	final SwizzleObjectRegistry globalRegistry;
 
 
 
@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	BinaryHandlerPersistenceRootsImplementation(
 		final PersistenceRootResolver resolver      ,
-		final SwizzleRegistry         globalRegistry
+		final SwizzleObjectRegistry         globalRegistry
 	)
 	{
 		super(
@@ -163,7 +163,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
-		final SwizzleRegistry registry = this.globalRegistry;
+		final SwizzleObjectRegistry registry = this.globalRegistry;
 
 		// lock the whole registry for the complete registration process because it is definitely used by other threads
 		synchronized(registry)

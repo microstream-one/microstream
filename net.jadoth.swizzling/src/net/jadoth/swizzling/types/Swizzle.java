@@ -1,12 +1,9 @@
 package net.jadoth.swizzling.types;
 
-import java.util.function.Consumer;
-
 import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidObjectId;
 import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyInvalidTypeId;
-import net.jadoth.typing.KeyValue;
 
 public class Swizzle
 {
@@ -307,9 +304,10 @@ public class Swizzle
 		NATIVE_TYPES.add(java.util.HashSet  .class.getSuperclass(), TID_java_util_AbstractSet );
 		NATIVE_TYPES.add(java.util.ArrayList.class, TID_java_util_ArrayList );
 		NATIVE_TYPES.add(java.util.HashSet  .class, TID_java_util_HashSet   );
+		
 		/* (27.03.2012)FIXME more native types
 		 *
-		 * And apropriate type handlers in persistence, of course
+		 * And appropriate type handlers in persistence, of course
 		 *
 		 * more jdk collections
 		 * XCollections here as well?
@@ -371,27 +369,23 @@ public class Swizzle
 		return NATIVE_TYPES.get(type);
 	}
 
-	public static final <R extends SwizzleRegistry> R registerJavaNatives(final R registry)
+	public static final <R extends SwizzleObjectRegistry> R registerJavaNatives(final R registry)
 	{
-		registerJavaBasicTypes(registry);
+//		registerJavaBasicTypes(registry);
 		registerJavaConstants(registry);
 		return registry;
 	}
 
 	public static final <R extends SwizzleTypeRegistry> R registerJavaBasicTypes(final R registry)
 	{
-		NATIVE_TYPES.iterate(new Consumer<KeyValue<Class<?>, Long>>()
-		{
-			@Override
-			public void accept(final KeyValue<Class<?>, Long> e)
-			{
-				registry.registerType(e.value(), e.key());
-			}
-		});
+		NATIVE_TYPES.iterate(e ->
+			registry.registerType(e.value(), e.key())
+		);
+		
 		return registry;
 	}
 
-	public static final <R extends SwizzleRegistry> R registerJavaConstants(final R registry)
+	public static final <R extends SwizzleObjectRegistry> R registerJavaConstants(final R registry)
 	{
 		long
 			oidByte      = START_CID_BYTE     ,
@@ -421,10 +415,10 @@ public class Swizzle
 	}
 
 	public static final boolean getCached(
-		final SwizzleObjectIdResolving oidResolver,
-		final Object[] target,
-		final int targetOffset,
-		final long[] oids
+		final SwizzleObjectIdResolving oidResolver ,
+		final Object[]                 target      ,
+		final int                      targetOffset,
+		final long[]                   oids
 	)
 	{
 		for(int i = 0; i < oids.length; i++)
