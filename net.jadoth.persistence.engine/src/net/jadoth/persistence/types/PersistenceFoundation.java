@@ -290,7 +290,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	 * generic name is intentional as the role of the created instance may change in extended types
 	 * (e.g. representing a database connection)
 	 */
-	public PersistenceManager<M> ensurePersistenceManager();
+	public PersistenceManager<M> createPersistenceManager();
 
 
 
@@ -1781,7 +1781,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public PersistenceManager<M> ensurePersistenceManager()
+		public PersistenceManager<M> createPersistenceManager()
 		{
 			final PersistenceTypeHandlerManager<M> typeHandlerManager = this.getTypeHandlerManager();
 			typeHandlerManager.initialize(); // initialize type handlers (i.e. import/validate type dictionary)

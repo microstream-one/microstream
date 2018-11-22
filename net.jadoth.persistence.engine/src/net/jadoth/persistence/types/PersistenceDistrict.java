@@ -45,8 +45,6 @@ public interface PersistenceDistrict<M>
 		long oid
 	);
 
-//	public long lookupTypeId(Class<?> type);
-
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long objectId, long typeId);
@@ -54,15 +52,12 @@ public interface PersistenceDistrict<M>
 	/* (23.05.2018 TM)TODO: SwizzleRegistry nonsense method?
 	 * Isn't this method nonsense since the tid got removed?
 	 * Wouldn't a simple lookup suffice for the calling site and the actual registration only done when it's needed?
-	 * 
 	 */
-	public Object registerObjectId(long oid);
+	public Object ensureRegisteredObjectId(long oid);
 	
 	public Object optionalRegisterObject(long oid, Object object);
 
 	public Object lookupObject(long oid);
-
-//	public boolean knowsReferencedObject(long referenceOid);
 
 	public boolean handleKnownObject(long objectId, PersistenceInstanceHandler handler);
 
@@ -87,7 +82,7 @@ public interface PersistenceDistrict<M>
 		private final PersistenceTypeHandlerLookup<M> typeLookup;
 		
 		// global registry to synch with other threads
-		private final SwizzleObjectRegistry                 registry  ;
+		private final SwizzleObjectRegistry           registry  ;
 
 
 
@@ -96,7 +91,7 @@ public interface PersistenceDistrict<M>
 		/////////////////////
 
 		public Implementation(
-			final SwizzleObjectRegistry                 registry  ,
+			final SwizzleObjectRegistry           registry  ,
 			final PersistenceTypeHandlerLookup<M> typeLookup
 
 		)
@@ -146,12 +141,12 @@ public interface PersistenceDistrict<M>
 			return creator.createBuildItem(
 				oid,
 				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(oid, tid),
-				this.registerObjectId(oid)
+				this.ensureRegisteredObjectId(oid)
 			);
 		}
 		
 		@Override
-		public Object registerObjectId(final long oid)
+		public Object ensureRegisteredObjectId(final long oid)
 		{
 			return this.registry.registerObjectId(oid);
 		}
