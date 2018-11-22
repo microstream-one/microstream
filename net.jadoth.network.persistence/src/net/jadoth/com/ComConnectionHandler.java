@@ -10,6 +10,8 @@ import net.jadoth.files.XFiles;
 
 public interface ComConnectionHandler<C>
 {
+	public ComConnectionListener<C> createConnectionListener(InetSocketAddress address);
+	
 	public C openConnection(InetSocketAddress address);
 	
 	public void prepareReading(C connection);
@@ -21,7 +23,7 @@ public interface ComConnectionHandler<C>
 	public void closeReading(C connection);
 	
 	public void closeWriting(C connection);
-	
+		
 	public void read(C connction, ByteBuffer buffer);
 	
 	public void write(C connction, ByteBuffer buffer);
@@ -44,7 +46,6 @@ public interface ComConnectionHandler<C>
 	
 	public ComProtocol receiveProtocol(C connection, ComProtocolStringConverter stringConverter);
 		
-	public ComConnectionListener<C> createConnectionListener(InetSocketAddress address);
 	
 	
 	
@@ -55,7 +56,38 @@ public interface ComConnectionHandler<C>
 	
 	public final class Default implements ComConnectionHandler<SocketChannel>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		final int protocolLengthDigitCount = Com.defaultProtocolLengthDigitCount();
+				
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default()
+		{
+			super();
+		}
+		
+		
+	
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public ComConnectionListener<SocketChannel> createConnectionListener(
+			final InetSocketAddress address
+		)
+		{
+			final ServerSocketChannel serverSocketChannel = XSockets.openServerSocketChannel(address);
+			
+			return ComConnectionListener.Default(serverSocketChannel);
+		}
 		
 		@Override
 		public SocketChannel openConnection(final InetSocketAddress address)
@@ -118,7 +150,12 @@ public interface ComConnectionHandler<C>
 			final ComProtocolStringConverter stringConverter
 		)
 		{
-			final ByteBuffer bufferedProtocol = Com.bufferProtocol(protocol, stringConverter, this.protocolLengthDigitCount);
+			final ByteBuffer bufferedProtocol = Com.bufferProtocol(
+				protocol                     ,
+				stringConverter              ,
+				this.protocolLengthDigitCount
+			);
+			
 			this.write(connection, bufferedProtocol);
 		}
 		
@@ -146,27 +183,6 @@ public interface ComConnectionHandler<C>
 			final char[] protocolChars = XFiles.standardCharset().decode(protocolBuffer).array();
 			
 			return stringConverter.parse(_charArrayRange.New(protocolChars));
-		}
-		
-		@Override
-		public ComConnectionListener<SocketChannel> createConnectionListener(final InetSocketAddress address)
-		{
-			final ServerSocketChannel serverSocketChannel = XSockets.openServerSocketChannel(address);
-			
-			return new ComConnectionListener<SocketChannel>()
-			{
-				@Override
-				public SocketChannel listenForConnection()
-				{
-					return XSockets.acceptSocketChannel(serverSocketChannel);
-				}
-
-				@Override
-				public void close()
-				{
-					XSockets.closeChannel(serverSocketChannel);
-				}
-			};
 		}
 		
 	}

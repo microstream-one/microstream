@@ -122,7 +122,7 @@ extends BinaryPersistenceFoundation<F>
 		}
 
 		@Override
-		protected BinaryLoader.Creator createBuilderCreator()
+		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorChannelHashing(
 				this.getStorageManager().channelController().channelCountProvider()
@@ -130,7 +130,7 @@ extends BinaryPersistenceFoundation<F>
 		}
 
 		@Override
-		protected BinaryStorer.Creator createStorerCreator()
+		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
 				this.getStorageManager().channelCountProvider()
@@ -138,13 +138,13 @@ extends BinaryPersistenceFoundation<F>
 		}
 
 		@Override
-		protected EmbeddedStorageBinarySource createPersistenceSource()
+		protected EmbeddedStorageBinarySource ensurePersistenceSource()
 		{
 			return new EmbeddedStorageBinarySource.Implementation(this.internalGetStorageRequestAcceptor());
 		}
 
 		@Override
-		protected EmbeddedStorageBinaryTarget createPersistenceTarget()
+		protected EmbeddedStorageBinaryTarget ensurePersistenceTarget()
 		{
 			return new EmbeddedStorageBinaryTarget.Implementation(this.internalGetStorageRequestAcceptor());
 		}
@@ -159,7 +159,7 @@ extends BinaryPersistenceFoundation<F>
 		}
 		
 		@Override
-		protected PersistenceRootResolver createRootResolver()
+		protected PersistenceRootResolver ensureRootResolver()
 		{
 			// default root is an empty reference that can be set afterwards
 			return Persistence.RootResolver(X.Reference(null));

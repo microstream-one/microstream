@@ -51,6 +51,8 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		
 	public ComClientCreator<C> getClientCreator();
 	
+	public ComConnectionLogicDispatcher<C> getConnectionLogicDispatcher();
+	
 	
 	// the port applies to host and client alike, that's what using a common channel is all about.
 	public int getPort();
@@ -106,6 +108,8 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		
 	public F setClientCreator(ComClientCreator<C> clientCreator);
 	
+	public F setConnectionLogicDispatcher(ComConnectionLogicDispatcher<C> connectionLogicDispatcher);
+	
 	public F setPort(int port);
 
 	public F setHostBindingAddress(InetSocketAddress hostBindingAddress);
@@ -158,6 +162,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private SwizzleIdStrategy               hostIdStrategy           ;
 		
 		private ComClientCreator<C>             clientCreator            ;
+		private ComConnectionLogicDispatcher<C> connectionLogicDispatcher;
 
 		
 		
@@ -370,6 +375,17 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
+		public ComConnectionLogicDispatcher<C> getConnectionLogicDispatcher()
+		{
+			if(this.connectionLogicDispatcher == null)
+			{
+				this.connectionLogicDispatcher = this.ensureConnectionLogicDispatcher();
+			}
+			
+			return this.connectionLogicDispatcher;
+		}
+		
+		@Override
 		public int getPort()
 		{
 			if(this.port == 0)
@@ -409,8 +425,8 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			{
 				this.connectionHandler = this.ensureConnectionHandler();
 			}
-			
-			return this.connectionHandler;
+
+			return this.getConnectionLogicDispatcher().dispatch(this.connectionHandler);
 		}
 		
 		@Override
@@ -421,7 +437,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 				this.connectionAcceptorCreator = this.ensureConnectionAcceptorCreator();
 			}
 			
-			return this.connectionAcceptorCreator;
+			return this.getConnectionLogicDispatcher().dispatch(this.connectionAcceptorCreator);
 		}
 
 		/*
@@ -468,6 +484,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		protected ComClientCreator<C> ensureClientCreator()
 		{
 			return ComClient.Creator();
+		}
+		
+		protected ComConnectionLogicDispatcher<C> ensureConnectionLogicDispatcher()
+		{
+			return ComConnectionLogicDispatcher.New();
 		}
 		
 		protected ComConnectionAcceptorCreator<C> ensureConnectionAcceptorCreator()
@@ -637,6 +658,13 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		public F setClientCreator(final ComClientCreator<C> clientCreator)
 		{
 			this.clientCreator = clientCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setConnectionLogicDispatcher(final ComConnectionLogicDispatcher<C> connectionLogicDispatcher)
+		{
+			this.connectionLogicDispatcher = connectionLogicDispatcher;
 			return this.$();
 		}
 		
