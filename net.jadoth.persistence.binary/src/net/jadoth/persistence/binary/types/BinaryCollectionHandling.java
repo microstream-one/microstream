@@ -196,6 +196,18 @@ public final class BinaryCollectionHandling
 
 	public static final int getSizedArrayLength(final Binary bytes, final long headerOffset)
 	{
+		/* (23.11.2018 TM)FIXME: Security: prevent array bombs
+		 * A forged binary form array could specifiy a max integer length despite actually
+		 * having very few or even no elements. The naive code below returns the array size
+		 * in good faith without checking its validity.
+		 * A validation would be very simple: the specified element count times the array element size
+		 * plus the header length must yield the total binary length of the binary form array.
+		 * Meaning in order for the receiver to accept and creae a 2 billion element array, there actually has to
+		 * be data for 2 billion elements.
+		 * Of course an attacker could still send an actual 2-billion-elements array, but it wouldn't be much
+		 * of an attack and it could be easily recognized and denied (e.g. no chunk received from outside
+		 * may be longer than X bytes.)
+		 */
 		return X.checkArrayRange(
 			XVM.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
