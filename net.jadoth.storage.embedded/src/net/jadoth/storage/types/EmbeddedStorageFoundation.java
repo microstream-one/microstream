@@ -304,6 +304,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final Reference<Object> root = this.createRoot(explicitRoot);
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
+			
+			// must be created BEFORE the type handler manager is initilized to register its custom type handler
+			final PersistenceRootsProvider<Binary> prp = ecf.getRootsProvider();
 
 			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)
 			final PersistenceTypeHandlerManager<?> thm = ecf.getTypeHandlerManager();
@@ -323,7 +326,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 
 			// the roots instance to be used
-			final PersistenceRootsProvider<Binary> prp = ecf.getRootsProvider();
 			final PersistenceRoots roots = prp.provideRoots();
 				
 			// everything bundled together in the actual manager instance
