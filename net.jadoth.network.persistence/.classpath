@@ -4,6 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.persistence.engine"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/net.jadoth.swizzling"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
