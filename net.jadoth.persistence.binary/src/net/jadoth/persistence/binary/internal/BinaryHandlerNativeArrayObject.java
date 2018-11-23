@@ -7,11 +7,11 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
 {
@@ -64,7 +64,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final A instance, final long oid, final SwizzleHandler handler)
+	public final void store(final Binary bytes, final A instance, final long oid, final PersistenceHandler handler)
 	{
 		BinaryPersistence.storeArrayContentAsList(
 			bytes                      ,
@@ -88,7 +88,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void update(final Binary bytes, final A instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final A instance, final PersistenceBuildLinker builder)
 	{
 		// better check length consistency here
 		final Object[] arrayInstance = (Object[])instance;
@@ -98,9 +98,9 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 	
 	@Override
-	public final void iterateInstanceReferences(final A instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final A instance, final PersistenceFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, (Object[])instance, 0, ((Object[])instance).length);
+		Persistence.iterateReferences(iterator, (Object[])instance, 0, ((Object[])instance).length);
 	}
 
 	@Override

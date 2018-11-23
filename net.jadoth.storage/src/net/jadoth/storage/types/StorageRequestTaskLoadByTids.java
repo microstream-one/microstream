@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 {
@@ -12,7 +12,7 @@ public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 		// instance fields //
 		////////////////////
 
-		private final SwizzleIdSet tidList;
+		private final PersistenceIdSet tidList;
 
 
 
@@ -20,7 +20,7 @@ public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final SwizzleIdSet tidList, final int channelCount)
+		Implementation(final long timestamp, final PersistenceIdSet tidList, final int channelCount)
 		{
 			super(timestamp, channelCount);
 			this.tidList = tidList;

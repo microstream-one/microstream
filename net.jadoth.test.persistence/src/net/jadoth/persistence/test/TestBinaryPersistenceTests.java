@@ -10,12 +10,12 @@ import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.DebugGraphPrinter;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryManager;
 import net.jadoth.persistence.types.PersistenceTypeHandlerRegistry;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
+import net.jadoth.persistence.types.Persistence;
 
 public class TestBinaryPersistenceTests extends TestComponentProvider
 {
@@ -144,14 +144,14 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void resetRegistries(final BinaryPersistenceFoundation<?> factory)
 	{
-		final SwizzleObjectRegistry registry = factory.getObjectRegistry();
+		final PersistenceObjectRegistry registry = factory.getObjectRegistry();
 		final PersistenceTypeHandlerRegistry.Implementation<Binary> typeHandlerRegistry =
 			(PersistenceTypeHandlerRegistry.Implementation<Binary>)factory.getTypeHandlerRegistry()
 		;
 		registry.clear();
 		typeHandlerRegistry.clear();
-//		Swizzle.registerJavaBasicTypes(registry); // no more need to re-register types with separated TypeRegistry
-		Swizzle.registerJavaConstants(registry);
+//		Persistence.registerJavaBasicTypes(registry); // no more need to re-register types with separated TypeRegistry
+		Persistence.registerJavaConstants(registry);
 	}
 
 	static void testRegisterer(final PersistenceManager<Binary> persistenceManager)

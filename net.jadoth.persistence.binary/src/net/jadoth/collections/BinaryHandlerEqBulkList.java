@@ -10,11 +10,11 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -80,7 +80,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		final Binary         bytes   ,
 		final EqBulkList<?>  instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
@@ -109,7 +109,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqBulkList<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceBuildLinker builder)
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
@@ -130,10 +130,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final EqBulkList<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final EqBulkList<?> instance, final PersistenceFunction iterator)
 	{
 		iterator.apply(instance.equalator);
-		Swizzle.iterateReferences(iterator, instance.data, 0, instance.size);
+		Persistence.iterateReferences(iterator, instance.data, 0, instance.size);
 	}
 
 	@Override

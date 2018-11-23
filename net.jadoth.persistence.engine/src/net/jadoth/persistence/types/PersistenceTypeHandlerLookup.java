@@ -1,9 +1,6 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.swizzling.types.SwizzleTypeLookup;
-
-
-public interface PersistenceTypeHandlerLookup<M> extends SwizzleTypeLookup
+public interface PersistenceTypeHandlerLookup<M> extends PersistenceTypeLookup
 {
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(T instance);
 

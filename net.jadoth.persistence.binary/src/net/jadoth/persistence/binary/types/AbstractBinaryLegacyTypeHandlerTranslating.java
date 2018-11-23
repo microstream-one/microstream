@@ -5,11 +5,11 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
+import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.swizzling.types.SwizzleFunction;
 
 public abstract class AbstractBinaryLegacyTypeHandlerTranslating<T>
 extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
@@ -120,7 +120,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	}
 
 	@Override
-	public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
+	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		this.typeHandler.iterateInstanceReferences(instance, iterator);
 	}

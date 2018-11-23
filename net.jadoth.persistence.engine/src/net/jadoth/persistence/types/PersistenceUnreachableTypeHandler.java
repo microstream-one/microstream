@@ -5,8 +5,6 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
 
 
 /**
@@ -33,7 +31,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
+	public default void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}
@@ -60,13 +58,13 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void update(final M medium, final T instance, final SwizzleBuildLinker builder)
+	public default void update(final M medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		// nothing to do here in either case (null or exception)
 	}
 
 	@Override
-	public default void complete(final M medium, final T instance, final SwizzleBuildLinker builder)
+	public default void complete(final M medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		// nothing to do here in either case (null or exception)
 	}

@@ -23,15 +23,15 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 public abstract class AbstractBinaryHandlerReflective<T>
 extends BinaryTypeHandler.AbstractImplementation<T>
@@ -301,7 +301,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final SwizzleHandler handler)
+	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceHandler handler)
 	{
 		BinaryPersistence.storeFixedSize(
 			bytes                   ,
@@ -319,7 +319,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public abstract T create(final Binary bytes);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -341,13 +341,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}
 
 	@Override
-	public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
+	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		BinaryPersistence.iterateInstanceReferences(iterator, instance, this.refBinaryOffsets);
 	}

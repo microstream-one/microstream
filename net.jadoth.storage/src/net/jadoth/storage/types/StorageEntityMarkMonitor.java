@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.persistence.types.Persistence;
 
 
 /**
@@ -311,7 +311,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		{
 			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				this.channelRootOids[i] = Swizzle.nullId();
+				this.channelRootOids[i] = Persistence.nullId();
 			}
 		}
 
@@ -351,7 +351,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			// at least one channel MUST have a non-null root oid, otherwise the whole database would be wiped.
 			final long currentMaxRootOid = rootOidSelector.yieldGlobal();
 
-			if(currentMaxRootOid == Swizzle.nullId())
+			if(currentMaxRootOid == Persistence.nullId())
 			{
 				/*
 				 * no error here. Strictly seen, an empty or cleared database is valid.
@@ -374,7 +374,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 		public final void accept(final long oid)
 		{
 			// do not enqueue null oids, not even get the lock
-			if(oid == Swizzle.nullId())
+			if(oid == Persistence.nullId())
 			{
 				return;
 			}
@@ -485,7 +485,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			public final void accept(final long oid)
 			{
 				// do not enqueue null oids
-				if(oid == Swizzle.nullId())
+				if(oid == Persistence.nullId())
 				{
 					return;
 				}

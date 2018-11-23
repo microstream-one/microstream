@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
+import net.jadoth.persistence.types.PersistenceTypeIdProvider;
+import net.jadoth.persistence.types.Persistence;
 
 
 /**
@@ -10,7 +10,7 @@ import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
  *
  * @author Thomas Muenz
  */
-public class TransientTidProvider implements SwizzleTypeIdProvider
+public class TransientTidProvider implements PersistenceTypeIdProvider
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
@@ -26,13 +26,13 @@ public class TransientTidProvider implements SwizzleTypeIdProvider
 
 	public TransientTidProvider()
 	{
-		this(Swizzle.defaultStartTypeId());
+		this(Persistence.defaultStartTypeId());
 	}
 
 	public TransientTidProvider(final long tid)
 	{
 		super();
-		this.tid = Swizzle.validateTypeId(tid);
+		this.tid = Persistence.validateTypeId(tid);
 	}
 
 
@@ -60,7 +60,7 @@ public class TransientTidProvider implements SwizzleTypeIdProvider
 	}
 
 	@Override
-	public SwizzleTypeIdProvider updateCurrentTypeId(final long currentTypeId)
+	public PersistenceTypeIdProvider updateCurrentTypeId(final long currentTypeId)
 	{
 		this.tid = currentTypeId;
 		return this;

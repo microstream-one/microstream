@@ -13,9 +13,9 @@ import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.reference.Reference;
-import net.jadoth.swizzling.types.Swizzle;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -53,7 +53,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		final Reference<Object> root = this.root();
 		
 		return root == null
-			? Swizzle.nullId()
+			? Persistence.nullId()
 			: this.store(this.root())
 		;
 	}
@@ -399,7 +399,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		{
 			this.singletonConnection().importFiles(importFiles);
 		}
-
 
 	}
 

@@ -5,10 +5,10 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.exceptions.TypeCastException;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryLegacyTypeHandlerReflective<T>
 extends AbstractBinaryLegacyTypeHandlerTranslating<T>
@@ -70,7 +70,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public final void update(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary rawData, final T instance, final PersistenceBuildLinker builder)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -92,7 +92,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		// no-op for reflective logic
 	}

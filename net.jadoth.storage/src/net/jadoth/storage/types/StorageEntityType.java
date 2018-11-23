@@ -4,8 +4,8 @@ import java.util.function.Predicate;
 
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.storage.exceptions.StorageException;
-import net.jadoth.swizzling.types.Swizzle;
 
 
 public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
@@ -233,21 +233,21 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 				typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
 
 				final long oid = entity.objectId();
-				if(Swizzle.IdType.OID.isInRange(oid))
+				if(Persistence.IdType.OID.isInRange(oid))
 				{
 					if(oid >= maxOid)
 					{
 						maxOid = oid;
 					}
 				}
-				else if(Swizzle.IdType.CID.isInRange(oid))
+				else if(Persistence.IdType.CID.isInRange(oid))
 				{
 					if(oid >= maxCid)
 					{
 						maxCid = oid;
 					}
 				}
-				else if(Swizzle.IdType.TID.isInRange(oid))
+				else if(Persistence.IdType.TID.isInRange(oid))
 				{
 					/* note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
 					 * as the entities' identifying object ID. Hence encountering a TID here is valid.

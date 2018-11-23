@@ -6,10 +6,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -57,7 +57,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final Binary         bytes   ,
 		final ArrayList<?>   instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -80,7 +80,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceBuildLinker builder)
 	{
 		instance.ensureCapacity(BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET));
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
@@ -93,9 +93,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final ArrayList<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final ArrayList<?> instance, final PersistenceFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, XVM.accessStorage(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, XVM.accessStorage(instance), 0, instance.size());
 	}
 
 	@Override

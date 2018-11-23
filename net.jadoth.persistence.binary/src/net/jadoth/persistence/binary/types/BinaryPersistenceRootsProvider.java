@@ -4,10 +4,10 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.binary.internal.BinaryHandlerPersistenceRootsImplementation;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
 
 public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider<Binary>
@@ -61,7 +61,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		@Override
 		public final void registerRootsTypeHandlerCreator(
 			final PersistenceCustomTypeHandlerRegistry<Binary> typeHandlerRegistry,
-			final SwizzleObjectRegistry                              objectRegistry
+			final PersistenceObjectRegistry                              objectRegistry
 		)
 		{
 			final BinaryHandlerPersistenceRootsImplementation handler =

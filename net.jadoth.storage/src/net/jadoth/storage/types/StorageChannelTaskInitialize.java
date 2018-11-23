@@ -4,7 +4,7 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.XSort;
-import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.persistence.types.Persistence;
 
 public interface StorageChannelTaskInitialize extends StorageChannelTask
 {
@@ -81,19 +81,19 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 		private synchronized void updateIdAnalysis(final StorageIdAnalysis idAnalysis)
 		{
-			final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
+			final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Persistence.IdType.TID);
 			if(typeMaxTid != null && typeMaxTid >= this.maxEntityTypeOid)
 			{
 				this.maxEntityTypeOid = typeMaxTid;
 			}
 
-			final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+			final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Persistence.IdType.OID);
 			if(typeMaxOid != null && typeMaxOid >= this.maxEntityObjectOid)
 			{
 				this.maxEntityObjectOid = typeMaxOid;
 			}
 
-			final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
+			final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Persistence.IdType.CID);
 			if(typeMaxCid != null && typeMaxCid >= this.maxEntityConstantOid)
 			{
 				this.maxEntityConstantOid = typeMaxCid;

@@ -57,15 +57,15 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
+import net.jadoth.persistence.types.BinaryHandlerLazyReference;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdResolving;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.swizzling.types.BinaryHandlerLazyReference;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
@@ -310,7 +310,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putByte(address, VM.getByte(src, srcOffset));
@@ -325,7 +325,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putShort(address, VM.getShort(src, srcOffset));
@@ -340,7 +340,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putInt(address, VM.getInt(src, srcOffset));
@@ -355,7 +355,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putLong(address, VM.getLong(src, srcOffset));
@@ -370,7 +370,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putLong(address, handler.apply(VM.getObject(src, srcOffset)));
@@ -385,7 +385,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         source       ,
 			final long           sourceOffset ,
 			final long           targetAddress,
-			final SwizzleHandler handler
+			final PersistenceHandler handler
 		)
 		{
 			VM.putLong(targetAddress, handler.applyEager(VM.getObject(source, sourceOffset)));
@@ -400,7 +400,7 @@ public final class BinaryPersistence extends Persistence
 			final long                     sourceAddress,
 			final Object                   target       ,
 			final long                     targetOffset ,
-			final SwizzleObjectIdResolving idResolver
+			final PersistenceObjectIdResolving idResolver
 		)
 		{
 			VM.putByte(target, targetOffset, VM.getByte(sourceAddress));
@@ -415,7 +415,7 @@ public final class BinaryPersistence extends Persistence
 			final long                     sourceAddress,
 			final Object                   target       ,
 			final long                     targetOffset ,
-			final SwizzleObjectIdResolving idResolver
+			final PersistenceObjectIdResolving idResolver
 		)
 		{
 			VM.putShort(target, targetOffset, VM.getShort(sourceAddress));
@@ -430,7 +430,7 @@ public final class BinaryPersistence extends Persistence
 			final long                     sourceAddress,
 			final Object                   target       ,
 			final long                     targetOffset ,
-			final SwizzleObjectIdResolving idResolver
+			final PersistenceObjectIdResolving idResolver
 		)
 		{
 			VM.putInt(target, targetOffset, VM.getInt(sourceAddress));
@@ -445,7 +445,7 @@ public final class BinaryPersistence extends Persistence
 			final long                     sourceAddress,
 			final Object                   target       ,
 			final long                     targetOffset ,
-			final SwizzleObjectIdResolving idResolver
+			final PersistenceObjectIdResolving idResolver
 		)
 		{
 			VM.putLong(target, targetOffset, VM.getLong(sourceAddress));
@@ -460,7 +460,7 @@ public final class BinaryPersistence extends Persistence
 			final long                     sourceAddress,
 			final Object                   target       ,
 			final long                     targetOffset ,
-			final SwizzleObjectIdResolving idResolver
+			final PersistenceObjectIdResolving idResolver
 		)
 		{
 			VM.putObject(target, targetOffset, idResolver.lookupObject(VM.getLong(sourceAddress)));
@@ -475,7 +475,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                   src        ,
 			final long                     srcOffset  ,
 			final long                     address    ,
-			final SwizzleObjectIdResolving oidResolver
+			final PersistenceObjectIdResolving oidResolver
 		)
 		{
 			return VM.getByte(src, srcOffset) == VM.getByte(address);
@@ -489,7 +489,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                   src        ,
 			final long                     srcOffset  ,
 			final long                     address    ,
-			final SwizzleObjectIdResolving oidResolver
+			final PersistenceObjectIdResolving oidResolver
 		)
 		{
 			return VM.getShort(src, srcOffset) == VM.getShort(address);
@@ -503,7 +503,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                   src        ,
 			final long                     srcOffset  ,
 			final long                     address    ,
-			final SwizzleObjectIdResolving oidResolver
+			final PersistenceObjectIdResolving oidResolver
 		)
 		{
 			return VM.getInt(src, srcOffset) == VM.getInt(address);
@@ -517,7 +517,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                   src        ,
 			final long                     srcOffset  ,
 			final long                     address    ,
-			final SwizzleObjectIdResolving oidResolver
+			final PersistenceObjectIdResolving oidResolver
 		)
 		{
 			return VM.getLong(src, srcOffset) == VM.getLong(address);
@@ -531,7 +531,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                   src        ,
 			final long                     srcOffset  ,
 			final long                     address    ,
-			final SwizzleObjectIdResolving oidResolver
+			final PersistenceObjectIdResolving oidResolver
 		)
 		{
 			return VM.getObject(src, srcOffset) == oidResolver.lookupObject(VM.getLong(address));
@@ -551,7 +551,7 @@ public final class BinaryPersistence extends Persistence
 	
 	static final void initializeNativeTypeId(final PersistenceTypeHandler<Binary, ?> typeHandler)
 	{
-		final Long nativeTypeId = Swizzle.getNativeTypeId(typeHandler.type());
+		final Long nativeTypeId = Persistence.getNativeTypeId(typeHandler.type());
 		if(nativeTypeId == null)
 		{
 			// (07.11.2018 TM)EXCP: proper exception
@@ -655,7 +655,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeFixedSize(
 		final Binary                   bytes        ,
-		final SwizzleHandler           handler      ,
+		final PersistenceHandler           handler      ,
 		final long                     contentLength,
 		final long                     typeId       ,
 		final long                     objectId     ,
@@ -676,7 +676,7 @@ public final class BinaryPersistence extends Persistence
 		final BinaryValueSetter[]      setters      ,
 		final long[]                   memoryOffsets,
 		final long                     dataAddress  ,
-		final SwizzleObjectIdResolving idResolver
+		final PersistenceObjectIdResolving idResolver
 	)
 	{
 		long address = dataAddress;
@@ -692,7 +692,7 @@ public final class BinaryPersistence extends Persistence
 		final long[]                   memoryOffsets,
 		final long[]                   binaryOffsets,
 		final long                     address      ,
-		final SwizzleObjectIdResolving oidResolver
+		final PersistenceObjectIdResolving oidResolver
 	)
 	{
 		for(int i = 0; i < equalators.length; i++)
@@ -706,7 +706,7 @@ public final class BinaryPersistence extends Persistence
 	}
 
 	public static final void iterateInstanceReferences(
-		final SwizzleFunction iterator,
+		final PersistenceFunction iterator,
 		final Object instance,
 		final long[] referenceOffsets
 	)
@@ -1009,7 +1009,7 @@ public final class BinaryPersistence extends Persistence
 		final long            typeId      ,
 		final long            objectId    ,
 		final long            binaryOffset,
-		final SwizzleFunction persister   ,
+		final PersistenceFunction persister   ,
 		final Object[]        array       ,
 		final int             offset      ,
 		final int             length
@@ -1028,7 +1028,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeArrayContentAsList(
 		final long            storeAddress,
-		final SwizzleFunction persister   ,
+		final PersistenceFunction persister   ,
 		final Object[]        array       ,
 		final int             offset      ,
 		final int             length
@@ -1060,7 +1060,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeIterableContentAsList(
 		final long            storeAddress,
-		final SwizzleFunction persister   ,
+		final PersistenceFunction persister   ,
 		final Iterable<?>     elements    ,
 		final long            elementCount
 	)
@@ -1100,7 +1100,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeKeyValuesAsEntries(
 		final long                               storeAddress,
-		final SwizzleFunction                    persister   ,
+		final PersistenceFunction                    persister   ,
 		final Iterable<? extends KeyValue<?, ?>> elements    ,
 		final long                               elementCount
 	)
@@ -1635,7 +1635,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary bytes,
 		final T instance,
 		final int[] referenceOffsets,
-		final SwizzleObjectIdResolving oidResolver
+		final PersistenceObjectIdResolving oidResolver
 	)
 	{
 		final long referencesBinaryOffset = bytes.entityContentAddress;
@@ -1733,7 +1733,7 @@ public final class BinaryPersistence extends Persistence
 	public static final void updateArrayObjectReferences(
 		final Binary                   bytes       ,
 		final long                     binaryOffset,
-		final SwizzleObjectIdResolving oidResolver ,
+		final PersistenceObjectIdResolving oidResolver ,
 		final Object[]                 array       ,
 		final int                      offset      ,
 		final int                      length
@@ -1759,7 +1759,7 @@ public final class BinaryPersistence extends Persistence
 	public static final void collectElementsIntoArray(
 		final Binary                   bytes       ,
 		final long                     binaryOffset,
-		final SwizzleObjectIdResolving oidResolver ,
+		final PersistenceObjectIdResolving oidResolver ,
 		final Object[]                 target
 	)
 	{
@@ -1776,7 +1776,7 @@ public final class BinaryPersistence extends Persistence
 	public static final int collectListObjectReferences(
 		final Binary                   bytes       ,
 		final long                     binaryOffset,
-		final SwizzleObjectIdResolving oidResolver ,
+		final PersistenceObjectIdResolving oidResolver ,
 		final Consumer<Object>        collector
 	)
 	{
@@ -1795,7 +1795,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary                   bytes       ,
 		final long                     binaryOffset,
 		final int                      length      ,
-		final SwizzleObjectIdResolving oidResolver ,
+		final PersistenceObjectIdResolving oidResolver ,
 		final Consumer<Object>         collector
 	)
 	{
@@ -1814,7 +1814,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary                      bytes       ,
 		final long                        binaryOffset,
 		final int                         length      ,
-		final SwizzleObjectIdResolving    oidResolver ,
+		final PersistenceObjectIdResolving    oidResolver ,
 		final BiConsumer<Object, Object> collector
 	)
 	{

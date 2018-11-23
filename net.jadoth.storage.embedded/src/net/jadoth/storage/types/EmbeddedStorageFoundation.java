@@ -6,14 +6,14 @@ import net.jadoth.X;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceObjectIdProvider;
 import net.jadoth.persistence.types.PersistenceRefactoringMappingProvider;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceRootsProvider;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
+import net.jadoth.persistence.types.PersistenceTypeManager;
 import net.jadoth.reference.Reference;
-import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
@@ -239,7 +239,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 
 		private void initializeEmbeddedStorageRootTypeIdProvider(
 			final StorageRootTypeIdProvider rootTypeIdProvider,
-			final SwizzleTypeManager        typeIdLookup
+			final PersistenceTypeManager        typeIdLookup
 		)
 		{
 			// a little hacky instanceof here, maybe refactor to cleaner structure in the future
@@ -253,7 +253,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		protected StorageObjectIdRangeEvaluator createObjectIdRangeEvaluator()
 		{
-			final SwizzleObjectIdProvider oip = this.getConnectionFoundation().getObjectIdProvider();
+			final PersistenceObjectIdProvider oip = this.getConnectionFoundation().getObjectIdProvider();
 			return (min, max) ->
 			{
 				// update OID provider if necessary to avoid OID inconsistencies.

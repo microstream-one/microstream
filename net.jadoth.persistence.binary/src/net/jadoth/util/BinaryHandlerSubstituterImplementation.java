@@ -4,8 +4,8 @@ import net.jadoth.collections.BinaryHandlerEqHashEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 
 /**
@@ -52,7 +52,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 		final Binary                        bytes   ,
 		final Substituter.Implementation<?> instance,
 		final long                          oid     ,
-		final SwizzleHandler                handler
+		final PersistenceHandler                handler
 	)
 	{
 		synchronized(instance)
@@ -72,7 +72,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	public final void update(
 		final Binary                        bytes   ,
 		final Substituter.Implementation<?> instance,
-		final SwizzleBuildLinker            builder
+		final PersistenceBuildLinker            builder
 	)
 	{
 		synchronized(instance)
@@ -85,7 +85,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	public void complete(
 		final Binary                        medium  ,
 		final Substituter.Implementation<?> instance,
-		final SwizzleBuildLinker            builder
+		final PersistenceBuildLinker            builder
 	)
 	{
 		synchronized(instance)

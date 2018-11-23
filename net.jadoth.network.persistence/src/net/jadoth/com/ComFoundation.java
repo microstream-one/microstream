@@ -7,7 +7,7 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.collections.HashEnum;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.util.InstanceDispatcher;
 
 public interface ComFoundation<C, F extends ComFoundation<C, ?>>
@@ -18,7 +18,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ByteOrder getByteOrder();
 	
-	public SwizzleIdStrategy getClientIdStrategy();
+	public PersistenceIdStrategy getClientIdStrategy();
 			
 	public ComProtocolProvider<C> getProtocolProvider();
 	
@@ -43,11 +43,11 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public ComPersistenceAdaptorCreator<C> getPersistenceAdaptorCreator();
 	
-	public SwizzleIdStrategy getHostInitializationIdStrategy();
+	public PersistenceIdStrategy getHostInitializationIdStrategy();
 	
 	public XEnum<Class<?>> getEntityTypes();
 	
-	public SwizzleIdStrategy getHostIdStrategy();
+	public PersistenceIdStrategy getHostIdStrategy();
 		
 	public ComClientCreator<C> getClientCreator();
 	
@@ -68,7 +68,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setByteOrder(ByteOrder byteOrder);
 	
-	public F setClientIdStrategy(SwizzleIdStrategy idStrategy);
+	public F setClientIdStrategy(PersistenceIdStrategy idStrategy);
 	
 	public F setProtocolCreator(ComProtocolCreator protocolCreator);
 	
@@ -94,7 +94,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setPersistenceAdaptorCreator(ComPersistenceAdaptorCreator<C> persistenceAdaptorCreator);
 	
-	public F setHostInitializationIdStrategy(SwizzleIdStrategy hostInitializationIdStrategy);
+	public F setHostInitializationIdStrategy(PersistenceIdStrategy hostInitializationIdStrategy);
 	
 	public F setEntityTypes(XEnum<Class<?>> entityTypes);
 	
@@ -104,7 +104,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F registerEntityTypes(final Iterable<Class<?>> entityTypes);
 	
-	public F setHostIdStrategy(SwizzleIdStrategy hostIdStrategy);
+	public F setHostIdStrategy(PersistenceIdStrategy hostIdStrategy);
 		
 	public F setClientCreator(ComClientCreator<C> clientCreator);
 	
@@ -141,7 +141,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private String                          protocolName             ;
 		private String                          protocolVersion          ;
 		private ByteOrder                       byteOrder                ;
-		private SwizzleIdStrategy               clientIdStrategy         ;
+		private PersistenceIdStrategy               clientIdStrategy         ;
 		private ComProtocolCreator              protocolCreator          ;
 		private ComProtocolProvider<C>          protocolProvider         ;
 		private ComProtocolProviderCreator<C>   protocolProviderCreator  ;
@@ -157,9 +157,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComPersistenceAdaptor<C>        hostPersistenceAdaptor   ;
 		private ComPersistenceAdaptor<C>        clientPersistenceAdaptor ;
 		
-		private SwizzleIdStrategy               hostInitIdStrategy       ;
+		private PersistenceIdStrategy               hostInitIdStrategy       ;
 		private XEnum<Class<?>>                 entityTypes              ;
-		private SwizzleIdStrategy               hostIdStrategy           ;
+		private PersistenceIdStrategy               hostIdStrategy           ;
 		
 		private ComClientCreator<C>             clientCreator            ;
 		private ComConnectionLogicDispatcher<C> connectionLogicDispatcher;
@@ -221,7 +221,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public SwizzleIdStrategy getClientIdStrategy()
+		public PersistenceIdStrategy getClientIdStrategy()
 		{
 			if(this.clientIdStrategy == null)
 			{
@@ -320,7 +320,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public SwizzleIdStrategy getHostInitializationIdStrategy()
+		public PersistenceIdStrategy getHostInitializationIdStrategy()
 		{
 			if(this.hostInitIdStrategy == null)
 			{
@@ -342,7 +342,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public SwizzleIdStrategy getHostIdStrategy()
+		public PersistenceIdStrategy getHostIdStrategy()
 		{
 			if(this.hostIdStrategy == null)
 			{
@@ -461,7 +461,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return Com.byteOrder();
 		}
 
-		protected SwizzleIdStrategy ensureClientIdStrategy()
+		protected PersistenceIdStrategy ensureClientIdStrategy()
 		{
 			return Com.DefaultIdStrategyClient();
 		}
@@ -549,7 +549,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			throw new MissingFoundationPartException(ComPersistenceAdaptorCreator.class);
 		}
 		
-		protected SwizzleIdStrategy ensureHostInitializationIdStrategy()
+		protected PersistenceIdStrategy ensureHostInitializationIdStrategy()
 		{
 			return Com.DefaultIdStrategyHostInitialization();
 		}
@@ -559,7 +559,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return HashEnum.New();
 		}
 		
-		protected SwizzleIdStrategy ensureHostIdStrategy()
+		protected PersistenceIdStrategy ensureHostIdStrategy()
 		{
 			return Com.DefaultIdStrategyHost();
 		}
@@ -613,7 +613,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setClientIdStrategy(final SwizzleIdStrategy idStrategy)
+		public F setClientIdStrategy(final PersistenceIdStrategy idStrategy)
 		{
 			this.clientIdStrategy = idStrategy;
 			return this.$();
@@ -732,7 +732,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setHostInitializationIdStrategy(final SwizzleIdStrategy hostInitializationIdStrategy)
+		public F setHostInitializationIdStrategy(final PersistenceIdStrategy hostInitializationIdStrategy)
 		{
 			this.hostInitIdStrategy = hostInitializationIdStrategy;
 			return this.$();
@@ -773,7 +773,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setHostIdStrategy(final SwizzleIdStrategy hostIdStrategy)
+		public F setHostIdStrategy(final PersistenceIdStrategy hostIdStrategy)
 		{
 			this.hostIdStrategy = hostIdStrategy;
 			return this.$();

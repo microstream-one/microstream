@@ -1,11 +1,11 @@
 package net.jadoth.com;
 
-import net.jadoth.swizzling.internal.CompositeSwizzleIdProvider;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
-import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
-import net.jadoth.swizzling.types.SwizzleTypeIdStrategy;
+import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
+import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
+import net.jadoth.persistence.types.PersistenceTypeIdStrategy;
 
-public final class ComDefaultIdStrategy implements SwizzleIdStrategy
+public final class ComDefaultIdStrategy implements PersistenceIdStrategy
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -14,8 +14,8 @@ public final class ComDefaultIdStrategy implements SwizzleIdStrategy
 	public static ComDefaultIdStrategy New(final long startingObjectId)
 	{
 		return new ComDefaultIdStrategy(
-			SwizzleTypeIdStrategy.None(),
-			SwizzleObjectIdStrategy.Transient(startingObjectId)
+			PersistenceTypeIdStrategy.None(),
+			PersistenceObjectIdStrategy.Transient(startingObjectId)
 		);
 	}
 	
@@ -25,8 +25,8 @@ public final class ComDefaultIdStrategy implements SwizzleIdStrategy
 	// instance fields //
 	////////////////////
 	
-	private final SwizzleTypeIdStrategy.None        typeIdStrategy  ;
-	private final SwizzleObjectIdStrategy.Transient objectIdStrategy;
+	private final PersistenceTypeIdStrategy.None        typeIdStrategy  ;
+	private final PersistenceObjectIdStrategy.Transient objectIdStrategy;
 	
 	
 	
@@ -35,8 +35,8 @@ public final class ComDefaultIdStrategy implements SwizzleIdStrategy
 	/////////////////
 
 	ComDefaultIdStrategy(
-		final SwizzleTypeIdStrategy.None        typeIdStrategy  ,
-		final SwizzleObjectIdStrategy.Transient objectIdStrategy
+		final PersistenceTypeIdStrategy.None        typeIdStrategy  ,
+		final PersistenceObjectIdStrategy.Transient objectIdStrategy
 	)
 	{
 		super();
@@ -51,13 +51,13 @@ public final class ComDefaultIdStrategy implements SwizzleIdStrategy
 	////////////
 
 	@Override
-	public SwizzleObjectIdStrategy.Transient objectIdStragegy()
+	public PersistenceObjectIdStrategy.Transient objectIdStragegy()
 	{
 		return this.objectIdStrategy;
 	}
 	
 	@Override
-	public SwizzleTypeIdStrategy.None typeIdStragegy()
+	public PersistenceTypeIdStrategy.None typeIdStragegy()
 	{
 		return this.typeIdStrategy;
 	}

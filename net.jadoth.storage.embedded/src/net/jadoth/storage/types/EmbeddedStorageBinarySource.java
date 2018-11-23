@@ -4,8 +4,8 @@ import net.jadoth.collections.ArrayView;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.PersistenceSource;
-import net.jadoth.swizzling.types.SwizzleIdSet;
 
 
 public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
@@ -14,7 +14,7 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer;
 
 	@Override
-	public XGettingCollection<? extends Binary> readByObjectIds(SwizzleIdSet[] oids)
+	public XGettingCollection<? extends Binary> readByObjectIds(PersistenceIdSet[] oids)
 		throws PersistenceExceptionTransfer;
 
 
@@ -75,7 +75,7 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 		}
 
 		@Override
-		public XGettingCollection<? extends Binary> readByObjectIds(final SwizzleIdSet[] oids)
+		public XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
 			throws PersistenceExceptionTransfer
 		{
 			try

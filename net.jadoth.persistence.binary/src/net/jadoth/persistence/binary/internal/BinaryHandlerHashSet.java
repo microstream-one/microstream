@@ -9,9 +9,9 @@ import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -68,7 +68,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final SwizzleHandler handler)
+	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceHandler handler)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
@@ -95,7 +95,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceBuildLinker builder)
 	{
 		final int elementCount = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
@@ -106,7 +106,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
 	{
 		for(final Object e : instance)
 		{
@@ -121,7 +121,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final SwizzleBuildLinker builder)
+	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceBuildLinker builder)
 	{
 		final Object helper = rawData.getHelper();
 		

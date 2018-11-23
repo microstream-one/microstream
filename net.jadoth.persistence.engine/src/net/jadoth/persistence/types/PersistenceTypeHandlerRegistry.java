@@ -6,15 +6,13 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedType;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedTypeId;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.swizzling.types.SwizzleTypeRegistry;
 
 public interface PersistenceTypeHandlerRegistry<M>
-extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHandlerIterable<M>
+extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTypeHandlerIterable<M>
 {
 	public boolean registerTypeHandler(PersistenceTypeHandler<M, ?> typeHandler);
 	
@@ -24,7 +22,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 	
 
 	public static <M> PersistenceTypeHandlerRegistry.Implementation<M> New(
-		final SwizzleTypeRegistry typeRegistry
+		final PersistenceTypeRegistry typeRegistry
 	)
 	{
 		return new PersistenceTypeHandlerRegistry.Implementation<>(
@@ -38,7 +36,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		// instance fields //
 		////////////////////
 
-		private final SwizzleTypeRegistry typeRegistry;
+		private final PersistenceTypeRegistry typeRegistry;
 
 		private final MiniMap<Class<?>, PersistenceTypeHandler<M, ?>> handlersByType   = new MiniMap<>();
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>>   handlersByTypeId = HashMapIdObject.New();
@@ -49,7 +47,7 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		// constructors     //
 		/////////////////////
 
-		Implementation(final SwizzleTypeRegistry typeRegistry)
+		Implementation(final PersistenceTypeRegistry typeRegistry)
 		{
 			super();
 			this.typeRegistry = typeRegistry;
@@ -206,21 +204,21 @@ extends PersistenceTypeHandlerLookup<M>, SwizzleTypeRegistry, PersistenceTypeHan
 		}
 
 		@Override
-		public boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
+		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 		{
 			return this.typeRegistry.registerType(tid, type);
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.typeRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.typeRegistry.validatePossibleTypeMappings(mappings);
 		}

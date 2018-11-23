@@ -6,9 +6,6 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
@@ -28,7 +25,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 
 	@Override
-	public default void store(final M medium, final T instance, final long objectId, final SwizzleHandler handler)
+	public default void store(final M medium, final T instance, final long objectId, final PersistenceHandler handler)
 	{
 		// (13.09.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -185,7 +182,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
+		public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 		{
 			this.typeHandler.iterateInstanceReferences(instance, iterator);
 		}
@@ -204,13 +201,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public void update(final M medium, final T instance, final SwizzleBuildLinker builder)
+		public void update(final M medium, final T instance, final PersistenceBuildLinker builder)
 		{
 			this.typeHandler.update(medium, instance, builder);
 		}
 
 		@Override
-		public void complete(final M medium, final T instance, final SwizzleBuildLinker builder)
+		public void complete(final M medium, final T instance, final PersistenceBuildLinker builder)
 		{
 			this.typeHandler.complete(medium, instance, builder);
 		}

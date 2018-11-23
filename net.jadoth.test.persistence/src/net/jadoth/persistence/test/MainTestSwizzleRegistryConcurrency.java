@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import static net.jadoth.math.XMath.random;
 
 import net.jadoth.concurrency.XThreads;
-import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
+import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 import net.jadoth.typing.XTypes;
 
 @SuppressWarnings("deprecation")
@@ -15,7 +15,7 @@ public class MainTestSwizzleRegistryConcurrency
 
 	static final Object[] objects = new Object[COUNT];
 	static final long[]   oids    = new long[COUNT];
-	static final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(HASH_DENSITY);
+	static final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(HASH_DENSITY);
 	
 	static
 	{

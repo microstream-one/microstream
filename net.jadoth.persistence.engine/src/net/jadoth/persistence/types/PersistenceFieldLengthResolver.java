@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.Swizzle;
 
 
 public interface PersistenceFieldLengthResolver
@@ -99,12 +98,12 @@ public interface PersistenceFieldLengthResolver
 
 	public default long referenceMinimumLength()
 	{
-		return this.resolveMinimumLengthFromPrimitiveType(Swizzle.objectIdType());
+		return this.resolveMinimumLengthFromPrimitiveType(Persistence.objectIdType());
 	}
 
 	public default long referenceMaximumLength()
 	{
-		return this.resolveMinimumLengthFromPrimitiveType(Swizzle.objectIdType());
+		return this.resolveMinimumLengthFromPrimitiveType(Persistence.objectIdType());
 	}
 
 	public long variableLengthTypeMinimumLength(

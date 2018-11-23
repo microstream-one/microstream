@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 {
@@ -31,7 +31,7 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 		// instance fields //
 		////////////////////
 
-		private final SwizzleIdSet[] oidList;
+		private final PersistenceIdSet[] oidList;
 
 
 
@@ -39,7 +39,7 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final SwizzleIdSet[] oidList)
+		Implementation(final long timestamp, final PersistenceIdSet[] oidList)
 		{
 			/* (16.01.2014 TM)NOTE:
 			 * using calculateRequiredProgress() here is a clear bug as a lower progress count (e.g. 1)

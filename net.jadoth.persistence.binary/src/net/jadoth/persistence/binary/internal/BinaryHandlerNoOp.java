@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 {
@@ -21,7 +21,7 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final SwizzleHandler handler)
+	public final void store(final Binary bytes, final T instance, final long oid, final PersistenceHandler handler)
 	{
 		// no-op, abort recursive storing here
 	}

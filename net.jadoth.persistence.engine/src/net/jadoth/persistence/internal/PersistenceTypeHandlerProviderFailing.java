@@ -2,12 +2,12 @@ package net.jadoth.persistence.internal;
 
 import java.util.function.Consumer;
 
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
+import net.jadoth.persistence.types.PersistenceTypeLink;
 
 /**
  * Trivial implementation that throws a {@link PersistenceExceptionTypeNotPersistable} for every type.
@@ -50,7 +50,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
+	public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 	{
 		throw new PersistenceExceptionTypeNotPersistable(type);
 	}
@@ -77,8 +77,8 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
+	public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+		throws PersistenceExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.
@@ -87,8 +87,8 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 
 	@Override
-	public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
+	public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+		throws PersistenceExceptionConsistency
 	{
 		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
 		 * this implementation actually does not support that operation.

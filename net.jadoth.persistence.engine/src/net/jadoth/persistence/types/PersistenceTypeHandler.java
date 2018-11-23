@@ -13,10 +13,6 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 {
@@ -35,17 +31,17 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
-	public void iterateInstanceReferences(T instance, SwizzleFunction iterator);
+	public void iterateInstanceReferences(T instance, PersistenceFunction iterator);
 
 	public void iteratePersistedReferences(M medium, _longProcedure iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, SwizzleHandler linker);
+	public void store(M medium, T instance, long objectId, PersistenceHandler linker);
 
 	public T    create(M medium);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public void update(M medium, T instance, SwizzleBuildLinker builder);
+	public void update(M medium, T instance, PersistenceBuildLinker builder);
 
 	/**
 	 * Completes an initially built instance after all loaded instances have been built.
@@ -56,7 +52,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * @param instance
 	 * @param builder
 	 */
-	public void complete(M medium, T instance, SwizzleBuildLinker builder);
+	public void complete(M medium, T instance, PersistenceBuildLinker builder);
 
 	/* (09.12.2012)XXX: PersistenceTypeHandler#isEqualPersistentState(M medium, T instc, ObjectIdResolving oidResolver);
 	 * additionally, with validation using it
@@ -137,7 +133,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		private final Class<T> type;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
-		private long           typeId = Swizzle.nullId();
+		private long           typeId = Persistence.nullId();
 
 
 		

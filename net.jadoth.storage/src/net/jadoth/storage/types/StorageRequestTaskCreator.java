@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Chunks;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskCreator
 {
@@ -18,11 +18,11 @@ public interface StorageRequestTaskCreator
 
 	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
 
-	public StorageRequestTaskLoadByOids createLoadTaskByOids(SwizzleIdSet[] loadOids);
+	public StorageRequestTaskLoadByOids createLoadTaskByOids(PersistenceIdSet[] loadOids);
 
 	public StorageRequestTaskLoadRoots createRootsLoadTask(int channelCount);
 	
-	public StorageRequestTaskLoadByTids createLoadTaskByTids(SwizzleIdSet loadTids, int channelCount);
+	public StorageRequestTaskLoadByTids createLoadTaskByTids(PersistenceIdSet loadTids, int channelCount);
 
 	public default StorageRequestTaskExportEntitiesByType createExportTypesTask(
 		final int                                 channelCount      ,
@@ -151,7 +151,7 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskLoadByOids createLoadTaskByOids(final SwizzleIdSet[] loadOids)
+		public StorageRequestTaskLoadByOids createLoadTaskByOids(final PersistenceIdSet[] loadOids)
 		{
 			return new StorageRequestTaskLoadByOids.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
@@ -169,7 +169,7 @@ public interface StorageRequestTaskCreator
 		}
 		
 		@Override
-		public StorageRequestTaskLoadByTids createLoadTaskByTids(final SwizzleIdSet loadTids, final int channelCount)
+		public StorageRequestTaskLoadByTids createLoadTaskByTids(final PersistenceIdSet loadTids, final int channelCount)
 		{
 			return new StorageRequestTaskLoadByTids.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),

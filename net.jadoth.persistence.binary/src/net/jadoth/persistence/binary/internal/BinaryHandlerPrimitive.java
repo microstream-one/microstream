@@ -6,9 +6,9 @@ import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
@@ -70,7 +70,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final SwizzleHandler handler)
+	public void store(final Binary bytes, final T instance, final long oid, final PersistenceHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -82,7 +82,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final SwizzleBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
 	{
 		throw new UnsupportedOperationException();
 	}

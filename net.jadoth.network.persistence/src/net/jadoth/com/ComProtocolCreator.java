@@ -2,8 +2,8 @@ package net.jadoth.com;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 
 @FunctionalInterface
@@ -13,7 +13,7 @@ public interface ComProtocolCreator
 		String                        name          ,
 		String                        version       ,
 		ByteOrder                     byteOrder     ,
-		SwizzleIdStrategy             idStrategy    ,
+		PersistenceIdStrategy             idStrategy    ,
 		PersistenceTypeDictionaryView typeDictionary
 	);
 	
@@ -46,7 +46,7 @@ public interface ComProtocolCreator
 			final String                        name          ,
 			final String                        version       ,
 			final ByteOrder                     byteOrder     ,
-			final SwizzleIdStrategy             idStrategy    ,
+			final PersistenceIdStrategy             idStrategy    ,
 			final PersistenceTypeDictionaryView typeDictionary
 		)
 		{

@@ -6,12 +6,12 @@ import static net.jadoth.X.notNull;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
 import net.jadoth.math.XMath;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceObjectManager;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleObjectManager;
 
-public class DebugGraphPrinter implements SwizzleFunction
+public class DebugGraphPrinter implements PersistenceFunction
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -25,7 +25,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 	// instance fields //
 	////////////////////
 
-	private final SwizzleObjectManager             objectManager     ;
+	private final PersistenceObjectManager             objectManager     ;
 	private final PersistenceTypeHandlerManager<?> typeHandlerManager;
 	private final DebugGraphPrinter.Entry[]        oidsSlots         ;
 	private final int                              oidsModulo        ;
@@ -39,7 +39,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 	/////////////////
 
 	public DebugGraphPrinter(
-		final SwizzleObjectManager             objectManager,
+		final PersistenceObjectManager             objectManager,
 		final PersistenceTypeHandlerManager<?> typeManager
 	)
 	{
@@ -51,7 +51,7 @@ public class DebugGraphPrinter implements SwizzleFunction
 	}
 
 	public DebugGraphPrinter(
-		final SwizzleObjectManager objectManager,
+		final PersistenceObjectManager objectManager,
 		final PersistenceTypeHandlerManager<?> typeManager,
 		final int hashRange
 	)

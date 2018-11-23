@@ -7,11 +7,11 @@ import java.util.function.Consumer;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.types.PersistenceDistrict;
 import net.jadoth.persistence.types.PersistenceLoader;
+import net.jadoth.persistence.types.PersistenceObjectSupplier;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceSwizzleSupplier;
 import net.jadoth.reference._intReference;
-import net.jadoth.swizzling.types.SwizzleObjectSupplier;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 {
@@ -235,7 +235,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		}
 
 		@Override
-		public SwizzleObjectSupplier getSwizzleObjectSupplier()
+		public PersistenceObjectSupplier getSwizzleObjectSupplier()
 		{
 			return this.swizzleSupplier;
 		}

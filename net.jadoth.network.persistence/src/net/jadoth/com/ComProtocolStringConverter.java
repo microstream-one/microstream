@@ -12,11 +12,11 @@ import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
+import net.jadoth.persistence.types.PersistenceIdStrategyStringConverter;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryAssembler;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryCompiler;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
-import net.jadoth.swizzling.types.SwizzleIdStrategyStringConverter;
 import net.jadoth.typing.KeyValue;
 
 
@@ -77,10 +77,10 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		return "IdStrategy";
 	}
 	
-	public static SwizzleIdStrategyStringConverter defaultIdStrategyStringConverter()
+	public static PersistenceIdStrategyStringConverter defaultIdStrategyStringConverter()
 	{
 		// light-weight and easy collectable one-shot instance instead of permanent constant instance.
-		return SwizzleIdStrategyStringConverter.New();
+		return PersistenceIdStrategyStringConverter.New();
 	}
 	
 	public static PersistenceTypeDictionaryAssembler defaultTypeDictionaryAssembler()
@@ -125,7 +125,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		return defaultLabelIdStrategy();
 	}
 	
-	public default SwizzleIdStrategyStringConverter idStrategyStringConverter()
+	public default PersistenceIdStrategyStringConverter idStrategyStringConverter()
 	{
 		return defaultIdStrategyStringConverter();
 	}
@@ -247,7 +247,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		
 		private VarString assembleIdStrategy(final VarString vs, final ComProtocol p)
 		{
-			final SwizzleIdStrategyStringConverter idsc = this.idStrategyStringConverter();
+			final PersistenceIdStrategyStringConverter idsc = this.idStrategyStringConverter();
 			
 			return vs
 				.add(this.labelIdStrategy())
@@ -302,7 +302,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final String            version    = content.get(this.labelProtocolVersion());
 			final ByteOrder         byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
-			final SwizzleIdStrategy idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
+			final PersistenceIdStrategy idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
 			
 			final PersistenceTypeDictionary typeDict = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
 						
@@ -314,9 +314,9 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			return XVM.lookupByteOrder(input);
 		}
 		
-		private SwizzleIdStrategy parseIdStrategy(final String input)
+		private PersistenceIdStrategy parseIdStrategy(final String input)
 		{
-			final SwizzleIdStrategyStringConverter idsc = this.idStrategyStringConverter();
+			final PersistenceIdStrategyStringConverter idsc = this.idStrategyStringConverter();
 			
 			return idsc.parse(input);
 		}

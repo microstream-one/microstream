@@ -4,10 +4,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 
 
 /**
@@ -67,7 +67,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 		final Binary         bytes   ,
 		final LimitList<?>   instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -88,7 +88,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LimitList<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceBuildLinker builder)
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
@@ -101,9 +101,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final LimitList<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final LimitList<?> instance, final PersistenceFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, instance.data, 0, instance.size);
+		Persistence.iterateReferences(iterator, instance.data, 0, instance.size);
 	}
 
 	@Override

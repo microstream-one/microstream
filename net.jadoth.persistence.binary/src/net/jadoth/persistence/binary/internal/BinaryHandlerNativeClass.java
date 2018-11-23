@@ -3,9 +3,9 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 
 // (18.09.2018 TM)NOTE: removed from BinaryPersistence#defaultHandlers as of today. See comment below for the rationale.
@@ -46,7 +46,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Class<?> instance, final long oid, final SwizzleHandler handler)
+	public void store(final Binary bytes, final Class<?> instance, final long oid, final PersistenceHandler handler)
 	{
 		// no-op, static state is not stored
 	}
@@ -91,7 +91,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 	}
 
 	@Override
-	public void update(final Binary bytes, final Class<?> instance, final SwizzleBuildLinker builder)
+	public void update(final Binary bytes, final Class<?> instance, final PersistenceBuildLinker builder)
 	{
 		// no-op, see create()
 	}

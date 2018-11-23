@@ -12,15 +12,15 @@ import net.jadoth.com.ComProtocol;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceFoundation;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 {
 	@Override
 	public default ComPersistenceAdaptorBinary<C> initializePersistenceFoundation(
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
-		final SwizzleIdStrategy                     idStrategy
+		final PersistenceIdStrategy                     idStrategy
 	)
 	{
 		ComPersistenceAdaptor.super.initializePersistenceFoundation(typeDictionaryProvider, idStrategy);
@@ -35,9 +35,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider,
-		final SwizzleIdStrategy              hostInitIdStrategy,
+		final PersistenceIdStrategy              hostInitIdStrategy,
 		final XGettingEnum<Class<?>>         entityTypes       ,
-		final SwizzleIdStrategy              hostIdStrategy
+		final PersistenceIdStrategy              hostIdStrategy
 	)
 	{
 		return new ComPersistenceAdaptorBinary.Default(
@@ -69,9 +69,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		protected Abstract(
 			final BinaryPersistenceFoundation<?> foundation        ,
 			final BufferSizeProvider             bufferSizeProvider,
-			final SwizzleIdStrategy              hostInitIdStrategy,
+			final PersistenceIdStrategy              hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final SwizzleIdStrategy              hostIdStrategy
+			final PersistenceIdStrategy              hostIdStrategy
 		)
 		{
 			super(hostInitIdStrategy, entityTypes, hostIdStrategy);
@@ -113,9 +113,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		protected Default(
 			final BinaryPersistenceFoundation<?> foundation        ,
 			final BufferSizeProvider             bufferSizeProvider,
-			final SwizzleIdStrategy              hostInitIdStrategy,
+			final PersistenceIdStrategy              hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final SwizzleIdStrategy              hostIdStrategy
+			final PersistenceIdStrategy              hostIdStrategy
 		)
 		{
 			super(foundation, bufferSizeProvider, hostInitIdStrategy, entityTypes, hostIdStrategy);
@@ -269,9 +269,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 
 			@Override
 			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(
-				final SwizzleIdStrategy      hostIdStrategyInitialization,
+				final PersistenceIdStrategy      hostIdStrategyInitialization,
 				final XGettingEnum<Class<?>> entityTypes                 ,
-				final SwizzleIdStrategy      hostIdStrategy
+				final PersistenceIdStrategy      hostIdStrategy
 			)
 			{
 				return ComPersistenceAdaptorBinary.New(

@@ -12,11 +12,11 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -104,7 +104,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		final Binary            bytes   ,
 		final EqHashTable<?, ?> instance,
 		final long              oid     ,
-		final SwizzleHandler    handler
+		final PersistenceHandler    handler
 	)
 	{
 		// store elements simply as array binary form
@@ -145,7 +145,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceBuildLinker builder)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final EqHashTable<Object, Object> collectingInstance = (EqHashTable<Object, Object>)instance;
@@ -185,19 +185,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceBuildLinker builder)
 	{
 		// rehash all previously unhashed collected elements
 		instance.rehash();
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final EqHashTable<?, ?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final EqHashTable<?, ?> instance, final PersistenceFunction iterator)
 	{
 		iterator.apply(instance.hashEqualator);
 		iterator.apply(instance.keys);
 		iterator.apply(instance.values);
-		Swizzle.iterateReferences(iterator, instance);
+		Persistence.iterateReferences(iterator, instance);
 	}
 
 	@Override

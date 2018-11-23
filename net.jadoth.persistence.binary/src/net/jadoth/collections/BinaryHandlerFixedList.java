@@ -7,10 +7,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 
 
 /**
@@ -66,7 +66,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 		final Binary         bytes   ,
 		final FixedList<?>   instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		final Object[] arrayInstance = instance.data;
@@ -85,7 +85,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final FixedList<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final FixedList<?> instance, final PersistenceBuildLinker builder)
 	{
 		final Object[] arrayInstance = instance.data;
 
@@ -101,9 +101,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final FixedList<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final FixedList<?> instance, final PersistenceFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, instance.data, 0, instance.data.length);
+		Persistence.iterateReferences(iterator, instance.data, 0, instance.data.length);
 	}
 
 	@Override

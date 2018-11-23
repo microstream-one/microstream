@@ -1,10 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-
-
-
 public interface PersistenceStorer<M> extends Storer
 {
 	/**
@@ -53,8 +48,8 @@ public interface PersistenceStorer<M> extends Storer
 		 * @return
 		 */
 		public PersistenceStorer<M> createLazyStorer(
-			SwizzleObjectManager             objectManager     ,
-			SwizzleObjectSupplier            objectSupplier    ,
+			PersistenceObjectManager             objectManager     ,
+			PersistenceObjectSupplier            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
@@ -72,8 +67,8 @@ public interface PersistenceStorer<M> extends Storer
 		 * @return
 		 */
 		public default PersistenceStorer<M> createStorer(
-			final SwizzleObjectManager             objectManager     ,
-			final SwizzleObjectSupplier            objectSupplier    ,
+			final PersistenceObjectManager             objectManager     ,
+			final PersistenceObjectSupplier            objectSupplier    ,
 			final PersistenceTypeHandlerManager<M> typeManager       ,
 			final PersistenceTarget<M>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
@@ -100,8 +95,8 @@ public interface PersistenceStorer<M> extends Storer
 		 * @return
 		 */
 		public PersistenceStorer<M> createEagerStorer(
-			SwizzleObjectManager             objectManager     ,
-			SwizzleObjectSupplier            objectSupplier    ,
+			PersistenceObjectManager             objectManager     ,
+			PersistenceObjectSupplier            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider

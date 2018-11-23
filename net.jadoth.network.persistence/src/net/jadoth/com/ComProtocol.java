@@ -4,8 +4,8 @@ import static net.jadoth.X.notNull;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
 public interface ComProtocol extends ComProtocolData
@@ -32,7 +32,7 @@ public interface ComProtocol extends ComProtocolData
 		final String                        name          ,
 		final String                        version       ,
 		final ByteOrder                     byteOrder     ,
-		final SwizzleIdStrategy             idStrategy    ,
+		final PersistenceIdStrategy             idStrategy    ,
 		final PersistenceTypeDictionaryView typeDictionary
 	)
 	{
@@ -54,7 +54,7 @@ public interface ComProtocol extends ComProtocolData
 		private final String                        name          ;
 		private final String                        version       ;
 		private final ByteOrder                     byteOrder     ;
-		private final SwizzleIdStrategy             idStrategy    ;
+		private final PersistenceIdStrategy             idStrategy    ;
 		private final PersistenceTypeDictionaryView typeDictionary;
 		
 		
@@ -67,7 +67,7 @@ public interface ComProtocol extends ComProtocolData
 			final String                        name          ,
 			final String                        version       ,
 			final ByteOrder                     byteOrder     ,
-			final SwizzleIdStrategy             idStrategy    ,
+			final PersistenceIdStrategy             idStrategy    ,
 			final PersistenceTypeDictionaryView typeDictionary
 		)
 		{
@@ -104,7 +104,7 @@ public interface ComProtocol extends ComProtocolData
 		}
 
 		@Override
-		public final SwizzleIdStrategy idStrategy()
+		public final PersistenceIdStrategy idStrategy()
 		{
 			return this.idStrategy;
 		}

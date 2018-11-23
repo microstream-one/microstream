@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.persistence.types.Persistence;
 
 /**
  * Note on zombie OID / null entry during GC:
@@ -13,8 +13,8 @@ import net.jadoth.swizzling.types.Swizzle;
  * For that reason, handling an encountered zombie OID is modularized with the default of ignoring it.
  *
  * Note that ConstantIds for JLS constants and TypeIds are intentionally unresolvable in the persistent state.
- * @see Swizzle.IdType#TID
- * @see Swizzle.IdType#CID
+ * @see Persistence.IdType#TID
+ * @see Persistence.IdType#CID
  *
  */
 @FunctionalInterface
@@ -34,12 +34,12 @@ public interface StorageGCZombieOidHandler
 			 * but are resolved at runtime by the loading mechanism.
 			 * It is NOT an error that these OIDs cannot be resolved on the persistent form level.
 			 */
-			if(Swizzle.IdType.TID.isInRange(oid))
+			if(Persistence.IdType.TID.isInRange(oid))
 			{
 				// debug hook for TypeIDs
 				return true;
 			}
-			if(Swizzle.IdType.CID.isInRange(oid))
+			if(Persistence.IdType.CID.isInRange(oid))
 			{
 				// debug hook for ConstantIDs
 				return true;

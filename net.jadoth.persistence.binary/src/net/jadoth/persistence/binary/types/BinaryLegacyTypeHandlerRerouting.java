@@ -8,10 +8,10 @@ import java.nio.ByteBuffer;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.low.XVM;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
 
 public final class BinaryLegacyTypeHandlerRerouting<T>
 extends AbstractBinaryLegacyTypeHandlerTranslating<T>
@@ -104,14 +104,14 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 
 	@Override
-	public final void update(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary rawData, final T instance, final PersistenceBuildLinker builder)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
 		this.typeHandler().update(rawData, instance, builder);
 	}
 
 	@Override
-	public final void complete(final Binary rawData, final T instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary rawData, final T instance, final PersistenceBuildLinker builder)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
 		this.typeHandler().complete(rawData, instance, builder);

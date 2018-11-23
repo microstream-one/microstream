@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 
 /**
  * Data that describes the persistence-relevant aspects of a type, meaning its full type name and all its
@@ -12,7 +11,7 @@ import net.jadoth.swizzling.types.SwizzleTypeIdentity;
  * @author TM
  *
  */
-public interface PersistenceTypeDescription extends SwizzleTypeIdentity
+public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 {
 	@Override
 	public String typeName();

@@ -8,9 +8,9 @@ import java.nio.channels.SocketChannel;
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
 import net.jadoth.low.XVM;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
-import net.jadoth.swizzling.types.SwizzleObjectIdStrategy;
-import net.jadoth.swizzling.types.SwizzleTypeIdStrategy;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
+import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
+import net.jadoth.persistence.types.PersistenceTypeIdStrategy;
 
 public class Com
 {
@@ -39,11 +39,11 @@ public class Com
 		return DefaultIdStrategy(defaultObjectIdBaseClient());
 	}
 	
-	public static SwizzleIdStrategy DefaultIdStrategyHostInitialization()
+	public static PersistenceIdStrategy DefaultIdStrategyHostInitialization()
 	{
-		return SwizzleIdStrategy.New(
-			SwizzleObjectIdStrategy.None(),
-			SwizzleTypeIdStrategy.Transient()
+		return PersistenceIdStrategy.New(
+			PersistenceObjectIdStrategy.None(),
+			PersistenceTypeIdStrategy.Transient()
 		);
 	}
 	
