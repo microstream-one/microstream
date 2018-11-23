@@ -2,8 +2,8 @@ package net.jadoth.persistence.test;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
-import net.jadoth.persistence.types.Lazy;
-import net.jadoth.persistence.types.LazyReferenceManager;
+import net.jadoth.persistence.lazy.Lazy;
+import net.jadoth.persistence.lazy.LazyReferenceManager;
 import net.jadoth.persistence.types.PersistenceObjectSupplier;
 
 public class MainTestLazyReferenceHandling

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
-import net.jadoth.persistence.types.BufferSizeProviderIncremental;
+import net.jadoth.util.BufferSizeProviderIncremental;
 
 
 public final class ChunksBuffer extends Binary implements MemoryRangeCopier

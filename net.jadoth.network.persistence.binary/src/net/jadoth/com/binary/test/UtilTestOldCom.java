@@ -12,8 +12,8 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceManager;
+import net.jadoth.util.BufferSizeProvider;
 
 public class UtilTestOldCom
 {

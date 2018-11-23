@@ -41,7 +41,7 @@ class TestPerson
 {
 	java.lang.String                        firstName;
 	java.lang.String                        lastName ;
-	net.jadoth.persistence.types.Lazy<String> hugeText ;
+	net.jadoth.persistence.lazy.Lazy<String> hugeText ;
 }
 
 

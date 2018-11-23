@@ -1,6 +1,8 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.lazy;
 
 import net.jadoth.chars.XChars;
+import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceObjectSupplier;
 import net.jadoth.reference.LazyReferencing;
 
 

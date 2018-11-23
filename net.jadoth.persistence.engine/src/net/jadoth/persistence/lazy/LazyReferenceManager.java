@@ -1,4 +1,4 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.lazy;
 
 import static net.jadoth.X.coalesce;
 

@@ -1,4 +1,4 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.lazy;
 
 import net.jadoth.util.traversing.AbstractTraversalSkipSignal;
 import net.jadoth.util.traversing.MutationListener;

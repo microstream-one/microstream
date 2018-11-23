@@ -13,7 +13,7 @@ import net.jadoth.com.XSockets;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
-import net.jadoth.persistence.types.BufferSizeProvider;
+import net.jadoth.util.BufferSizeProvider;
 
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {

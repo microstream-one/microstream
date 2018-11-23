@@ -4,6 +4,8 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.util.BufferSizeProviderIncremental;
+
 
 public interface PersistenceManager<M>
 extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
