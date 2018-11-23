@@ -97,11 +97,31 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 			// standard registry does not consider actual objects
 			return this.lookupTypeHandler(typeId);
 		}
+		
+		@Override
+		public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency
+		{
+			return this.typeRegistry.validateTypeMapping(typeId, type);
+		}
+		
+		@Override
+		public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
+		{
+			return this.typeRegistry.validateTypeMappings(mappings);
+		}
 
 		@Override
-		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 		{
-			this.typeRegistry.validateExistingTypeMapping(typeId, type);
+			return this.typeRegistry.registerType(tid, type);
+		}
+		
+		@Override
+		public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
+			throws PersistenceExceptionConsistency
+		{
+			return this.typeRegistry.registerTypes(types);
 		}
 
 		@Override
@@ -202,27 +222,6 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 			this.handlersByType.iterateValues(iterator);
 			return iterator;
 		}
-
-		@Override
-		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
-		{
-			return this.typeRegistry.registerType(tid, type);
-		}
-
-		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.typeRegistry.validateExistingTypeMappings(mappings);
-		}
-
-		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.typeRegistry.validatePossibleTypeMappings(mappings);
-		}
-
 	}
 
 }

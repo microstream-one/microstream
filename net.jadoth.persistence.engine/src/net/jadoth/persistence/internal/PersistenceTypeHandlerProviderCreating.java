@@ -81,15 +81,6 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		return this.provideTypeHandler(type, typeId);
 	}
 
-//	@Override
-//	public final PersistenceTypeHandler<M, ?> provideTypeHandler(final long typeId)
-//	{
-//		// either the type can be found or an exception is thrown
-//		final Class<?> type = this.typeManager.ensureType(typeId);
-//
-//		return this.provideTypeHandler(type, typeId);
-//	}
-
 	@Override
 	public final long ensureTypeId(final Class<?> type)
 	{
@@ -125,25 +116,25 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	{
 		return this.typeManager.lookupType(typeId);
 	}
-
+	
 	@Override
-	public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
+	public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency
 	{
-		this.typeManager.validateExistingTypeMapping(typeId, type);
+		return this.typeManager.validateTypeMapping(typeId, type);
 	}
-
+	
 	@Override
-	public final void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+	public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
 		throws PersistenceExceptionConsistency
 	{
-		this.typeManager.validateExistingTypeMappings(mappings);
+		return this.typeManager.validateTypeMappings(mappings);
 	}
-
+		
 	@Override
-	public final void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+	public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
 		throws PersistenceExceptionConsistency
 	{
-		this.typeManager.validatePossibleTypeMappings(mappings);
+		return this.typeManager.registerTypes(types);
 	}
 
 	@Override

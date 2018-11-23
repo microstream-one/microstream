@@ -10,12 +10,10 @@ public interface PersistenceTypeLookup extends PersistenceTypeIdLookup
 
 	public <T> Class<T> lookupType(long typeId);
 
-	public void validateExistingTypeMapping(long typeId, Class<?> type);
-
-	public void validateExistingTypeMappings(Iterable<? extends PersistenceTypeLink> mappings)
+	public boolean validateTypeMapping(long typeId, Class<?> type)
 		throws PersistenceExceptionConsistency;
 
-	public void validatePossibleTypeMappings(Iterable<? extends PersistenceTypeLink> mappings)
+	public boolean validateTypeMappings(Iterable<? extends PersistenceTypeLink> mappings)
 		throws PersistenceExceptionConsistency;
 
 }
