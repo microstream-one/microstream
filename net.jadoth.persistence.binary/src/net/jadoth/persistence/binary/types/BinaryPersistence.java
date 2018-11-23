@@ -65,7 +65,6 @@ import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceObjectIdResolving;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
