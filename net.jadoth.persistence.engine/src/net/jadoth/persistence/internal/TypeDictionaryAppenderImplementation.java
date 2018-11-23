@@ -1,11 +1,19 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.internal;
 
 import static net.jadoth.math.XMath.notNegative;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPrimitiveDefinition;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldSimple;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
+import net.jadoth.persistence.types.PersistenceTypeDictionary;
 
-final class TypeDictionaryAppenderImplementation
+public final class TypeDictionaryAppenderImplementation
 extends PersistenceTypeDictionary.Symbols
 implements PersistenceTypeDescriptionMember.Appender
 {

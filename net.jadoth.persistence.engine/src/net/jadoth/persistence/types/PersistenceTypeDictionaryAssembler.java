@@ -3,6 +3,8 @@ package net.jadoth.persistence.types;
 import net.jadoth.chars.ObjectStringAssembler;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.internal.TypeDictionaryAppenderBuilder;
+import net.jadoth.persistence.internal.TypeDictionaryAppenderImplementation;
 
 public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssembler<PersistenceTypeDictionary>
 {
