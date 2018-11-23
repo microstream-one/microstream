@@ -14,12 +14,12 @@ import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
-import net.jadoth.persistence.types.BufferSizeProvider;
-import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.util.BufferSizeProvider;
+import net.jadoth.util.BufferSizeProviderIncremental;
 
 
 public interface StorageChannel extends Runnable, StorageHashChannelPart

@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
-import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
@@ -14,6 +13,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference._intReference;
+import net.jadoth.util.BufferSizeProviderIncremental;
 
 
 public interface BinaryStorer extends PersistenceStorer<Binary>

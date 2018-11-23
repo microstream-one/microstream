@@ -1,4 +1,4 @@
-package net.jadoth.persistence.types;
+package net.jadoth.util;
 
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Immutable;

@@ -18,13 +18,13 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.low.XVM;
-import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
 import net.jadoth.storage.types.StorageRawFileStatistics.FileStatistics;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
 import net.jadoth.typing.XTypes;
+import net.jadoth.util.BufferSizeProvider;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel

@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.util.BufferSizeProviderIncremental;
+
 public interface PersistenceStorer<M> extends Storer
 {
 	/**

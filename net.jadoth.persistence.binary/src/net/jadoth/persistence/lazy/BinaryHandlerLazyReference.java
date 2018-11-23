@@ -1,10 +1,10 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.lazy;
 
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.Lazy;
+import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceHandler;
 

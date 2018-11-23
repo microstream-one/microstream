@@ -5,7 +5,7 @@ import java.util.Date;
 
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.types.Lazy;
+import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.persistence.types.Storer;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.StorageConnection;

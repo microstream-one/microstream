@@ -10,7 +10,7 @@ import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.Lazy;
+import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.storage.types.StorageConnection;
 import net.jadoth.storage.types.StorageDataFileEvaluator;

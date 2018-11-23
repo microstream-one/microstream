@@ -10,10 +10,10 @@ import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
+import net.jadoth.util.BufferSizeProvider;
 
 public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 {

@@ -8,6 +8,7 @@ import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
+import net.jadoth.util.BufferSizeProviderIncremental;
 import net.jadoth.util.InstanceDispatcher;
 
 

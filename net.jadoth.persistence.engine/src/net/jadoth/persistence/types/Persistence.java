@@ -303,7 +303,7 @@ public class Persistence
 
 		// framework types //
 
-		NATIVE_TYPES.add(net.jadoth.persistence.types.Lazy.class, TID_X_swizzling_types_Lazy);
+		NATIVE_TYPES.add(net.jadoth.persistence.lazy.Lazy.class, TID_X_swizzling_types_Lazy);
 	}
 
 

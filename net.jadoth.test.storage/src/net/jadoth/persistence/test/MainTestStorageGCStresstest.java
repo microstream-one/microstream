@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import net.jadoth.chars.XChars;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.math.XMath;
-import net.jadoth.persistence.types.Lazy;
+import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.storage.types.DEBUGStorage;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageConnection;

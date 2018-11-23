@@ -1,5 +1,6 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.reference.Referencing;
 
 

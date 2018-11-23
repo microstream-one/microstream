@@ -57,7 +57,7 @@ import net.jadoth.persistence.binary.internal.BinaryHandlerPrimitive;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuffer;
 import net.jadoth.persistence.binary.internal.BinaryHandlerStringBuilder;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.persistence.types.BinaryHandlerLazyReference;
+import net.jadoth.persistence.lazy.BinaryHandlerLazyReference;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
