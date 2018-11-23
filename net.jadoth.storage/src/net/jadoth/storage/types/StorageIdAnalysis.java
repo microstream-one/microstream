@@ -10,7 +10,6 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Persistence.IdType;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.typing.KeyValue;
 
 public interface StorageIdAnalysis

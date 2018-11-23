@@ -15,7 +15,6 @@ import net.jadoth.math.XMath;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.typing.XTypes;
