@@ -2,9 +2,7 @@ package net.jadoth.persistence.types;
 
 import java.util.function.Consumer;
 
-import net.jadoth.swizzling.types.SwizzleObjectSupplier;
-
-public interface PersistenceRetrieving extends SwizzleObjectSupplier
+public interface PersistenceRetrieving extends PersistenceObjectSupplier
 {
 	/* Note on naming:
 	 * The main use case on the application (business logic) level is to "get" instances.

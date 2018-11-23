@@ -1,11 +1,10 @@
 package net.jadoth.persistence.types;
 
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 
 
 
-public interface PersistenceTypeHandlerProvider<M> extends SwizzleTypeManager, PersistenceTypeHandlerEnsurer<M>
+public interface PersistenceTypeHandlerProvider<M> extends PersistenceTypeManager, PersistenceTypeHandlerEnsurer<M>
 {
 	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 

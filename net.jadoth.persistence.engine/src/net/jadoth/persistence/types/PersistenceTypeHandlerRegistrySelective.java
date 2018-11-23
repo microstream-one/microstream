@@ -6,12 +6,10 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.MiniMap;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyUnknownObject;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyWrongTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyWrongHandler;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyUnknownObject;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistencyWrongTypeId;
-import net.jadoth.swizzling.types.SwizzleObjectLookup;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
 
 public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceTypeHandlerRegistry<M>
 {
@@ -34,7 +32,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		/////////////////////
 
 		private final PersistenceTypeHandlerRegistry<M> handlerRegistry;
-		private final SwizzleObjectLookup               objectLookup   ;
+		private final PersistenceObjectLookup               objectLookup   ;
 
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> oidToHandler = HashMapIdObject.New();
 		private final MiniMap<Object, PersistenceTypeHandler<M, ?>> objToHandler = new MiniMap<>();
@@ -47,7 +45,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 		public Implementation(
 			final PersistenceTypeHandlerRegistry<M> handlerRegistry,
-			final SwizzleObjectLookup objectLookup
+			final PersistenceObjectLookup objectLookup
 		)
 		{
 			super();
@@ -136,12 +134,12 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 			final long oid;
 			if((oid = this.objectLookup.lookupObjectId(object)) == 0L)
 			{
-				throw new SwizzleExceptionConsistencyUnknownObject(object);
+				throw new PersistenceExceptionConsistencyUnknownObject(object);
 			}
 			final long tid;
 			if((tid = this.handlerRegistry.lookupTypeId(object.getClass())) != typeHandler.typeId())
 			{
-				throw new SwizzleExceptionConsistencyWrongTypeId(object.getClass(), tid, typeHandler.typeId());
+				throw new PersistenceExceptionConsistencyWrongTypeId(object.getClass(), tid, typeHandler.typeId());
 			}
 
 			this.oidToHandler.put(oid, typeHandler);
@@ -149,21 +147,21 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		}
 
 		@Override
-		public boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
+		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 		{
 			return this.handlerRegistry.registerType(tid, type);
 		}
 
 		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.handlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.handlerRegistry.validatePossibleTypeMappings(mappings);
 		}

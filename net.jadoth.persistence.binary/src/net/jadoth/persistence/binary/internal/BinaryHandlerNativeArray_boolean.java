@@ -2,8 +2,8 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandlerNativeArrayPrimitive<boolean[]>
 {
@@ -23,7 +23,7 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final boolean[] array, final long oid, final SwizzleHandler handler)
+	public final void store(final Binary bytes, final boolean[] array, final long oid, final PersistenceHandler handler)
 	{
 		BinaryPersistence.storeArray_boolean(bytes, this.typeId(), oid, array);
 	}
@@ -35,7 +35,7 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	}
 
 	@Override
-	public final void update(final Binary bytes, final boolean[] instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final boolean[] instance, final PersistenceBuildLinker builder)
 	{
 		BinaryPersistence.updateArray_boolean(instance, bytes);
 	}

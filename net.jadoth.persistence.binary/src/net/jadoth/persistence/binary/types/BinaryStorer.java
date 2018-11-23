@@ -5,15 +5,15 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.BufferSizeProviderIncremental;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceObjectManager;
+import net.jadoth.persistence.types.PersistenceObjectSupplier;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference._intReference;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.swizzling.types.SwizzleObjectSupplier;
 
 
 public interface BinaryStorer extends PersistenceStorer<Binary>
@@ -50,7 +50,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	 * 
 	 * @author TM
 	 */
-	public class Implementation implements BinaryStorer, SwizzleHandler
+	public class Implementation implements BinaryStorer, PersistenceHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -88,8 +88,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		////////////////////
 
 		// (12.04.2013)XXX: encapsulate by "PersistenceDistrictManager" complementary to builder?
-		private final SwizzleObjectManager                  objectManager ;
-		private final SwizzleObjectSupplier                 objectSupplier;
+		private final PersistenceObjectManager                  objectManager ;
+		private final PersistenceObjectSupplier                 objectSupplier;
 		private final PersistenceTypeHandlerManager<Binary> typeManager   ;
 		private final PersistenceTarget<Binary>             target        ;
 		
@@ -117,8 +117,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 
 		protected Implementation(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectManager                  objectManager     ,
+			final PersistenceObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -172,17 +172,17 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			if(instance == null)
 			{
-				return Swizzle.nullId();
+				return Persistence.nullId();
 			}
 
 			final long oidLocal;
-			if((oidLocal = this.lookupOid(instance)) != Swizzle.nullId())
+			if((oidLocal = this.lookupOid(instance)) != Persistence.nullId())
 			{
 				return oidLocal;
 			}
 
 			final long oidGlobal;
-			if((oidGlobal = this.objectManager.lookupObjectId(instance)) != Swizzle.nullId())
+			if((oidGlobal = this.objectManager.lookupObjectId(instance)) != Persistence.nullId())
 			{
 				return oidGlobal;
 			}
@@ -195,7 +195,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			if(instance == null)
 			{
-				return Swizzle.nullId();
+				return Persistence.nullId();
 			}
 
 			/*
@@ -206,7 +206,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * the local registry.
 			 */
 			final long oidLocal;
-			if((oidLocal = this.lookupOid(instance)) != Swizzle.nullId())
+			if((oidLocal = this.lookupOid(instance)) != Persistence.nullId())
 			{
 				return oidLocal;
 			}
@@ -215,7 +215,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final SwizzleObjectSupplier getSwizzleObjectSupplier()
+		public final PersistenceObjectSupplier getSwizzleObjectSupplier()
 		{
 			return this.objectSupplier;
 		}
@@ -519,8 +519,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 		
 		ImplementationEager(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectManager                  objectManager     ,
+			final PersistenceObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -579,8 +579,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	{
 		@Override
 		public BinaryStorer createLazyStorer(
-			SwizzleObjectManager                  objectManager     ,
-			SwizzleObjectSupplier                 objectSupplier    ,
+			PersistenceObjectManager                  objectManager     ,
+			PersistenceObjectSupplier                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -588,8 +588,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		@Override
 		public default BinaryStorer createStorer(
-			final SwizzleObjectManager                  objectManager     ,
-			final SwizzleObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectManager                  objectManager     ,
+			final PersistenceObjectSupplier                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
@@ -600,8 +600,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		@Override
 		public BinaryStorer createEagerStorer(
-			SwizzleObjectManager                  objectManager     ,
-			SwizzleObjectSupplier                 objectSupplier    ,
+			PersistenceObjectManager                  objectManager     ,
+			PersistenceObjectSupplier                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -651,8 +651,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			@Override
 			public final BinaryStorer createLazyStorer(
-				final SwizzleObjectManager                  objectManager     ,
-				final SwizzleObjectSupplier                 objectSupplier    ,
+				final PersistenceObjectManager                  objectManager     ,
+				final PersistenceObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
@@ -669,8 +669,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 			@Override
 			public BinaryStorer createEagerStorer(
-				final SwizzleObjectManager                  objectManager     ,
-				final SwizzleObjectSupplier                 objectSupplier    ,
+				final PersistenceObjectManager                  objectManager     ,
+				final PersistenceObjectSupplier                 objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider

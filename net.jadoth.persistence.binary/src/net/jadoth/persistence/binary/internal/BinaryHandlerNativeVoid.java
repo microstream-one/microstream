@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCustom<Void>
 {
@@ -22,7 +22,7 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerNativeCu
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Void instance, final long oid, final SwizzleHandler handler)
+	public void store(final Binary bytes, final Void instance, final long oid, final PersistenceHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

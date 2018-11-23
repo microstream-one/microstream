@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.low.XVM;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
+import net.jadoth.persistence.types.PersistenceTypeLink;
 
 // CHECKSTYLE.OFF: MagicNumber: just a deprecated debugging class
 
@@ -117,7 +117,7 @@ public final class DEBUG_BinaryPersistence
 		return vc.toString();
 	}
 
-	public static final String typeToString(final SwizzleTypeLink typeLink)
+	public static final String typeToString(final PersistenceTypeLink typeLink)
 	{
 		return "Type = " + typeLink.type() + " " + tidToString(typeLink.typeId());
 	}

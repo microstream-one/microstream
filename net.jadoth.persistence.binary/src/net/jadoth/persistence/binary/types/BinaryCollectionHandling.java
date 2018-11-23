@@ -7,9 +7,9 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
 import net.jadoth.typing.KeyValue;
 
 public final class BinaryCollectionHandling
@@ -79,7 +79,7 @@ public final class BinaryCollectionHandling
 		final long            headerOffset,
 		final Object[]        array       ,
 		final int             size        ,
-		final SwizzleFunction persister
+		final PersistenceFunction persister
 	)
 	{
 		// store entity header including the complete content size (8 + elements)
@@ -112,7 +112,7 @@ public final class BinaryCollectionHandling
 		final long            headerOffset,
 		final Iterable<?>     elements    ,
 		final long            size        ,
-		final SwizzleFunction persister
+		final PersistenceFunction persister
 	)
 	{
 		// store entity header including the complete content size (headerOffset + elements)
@@ -136,7 +136,7 @@ public final class BinaryCollectionHandling
 		final long                               headerOffset,
 		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
 		final long                               size        ,
-		final SwizzleFunction                    persister
+		final PersistenceFunction                    persister
 	)
 	{
 		// store entity header including the complete content size (headerOffset + entries)
@@ -166,7 +166,7 @@ public final class BinaryCollectionHandling
 		final Binary         bytes       ,
 		final long           headerOffset,
 		final Object[]       array       ,
-		final SwizzleBuildLinker builder
+		final PersistenceBuildLinker builder
 	)
 	{
 		final int size = X.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));

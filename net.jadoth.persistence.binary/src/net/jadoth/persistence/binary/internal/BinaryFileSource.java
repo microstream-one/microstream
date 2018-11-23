@@ -20,8 +20,8 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.binary.types.MessageWaiter;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.PersistenceSource;
-import net.jadoth.swizzling.types.SwizzleIdSet;
 
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
@@ -156,7 +156,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	}
 
 	@Override
-	public XGettingCollection<? extends Binary> readByObjectIds(final SwizzleIdSet[] oids)
+	public XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
 		throws PersistenceExceptionTransfer
 	{
 		// simple input file reading implementation can't do complex queries

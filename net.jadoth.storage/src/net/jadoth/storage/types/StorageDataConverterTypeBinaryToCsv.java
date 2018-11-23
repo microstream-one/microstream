@@ -32,8 +32,8 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.storage.exceptions.StorageException;
-import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CsvConfiguration;
 
@@ -690,7 +690,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			this.checkForFlush();
 
-			if(value == Swizzle.nullId())
+			if(value == Persistence.nullId())
 			{
 				// a reference is merely a primitive id long, so null is the numerical literal '0'
 				XVM.set_byte(this.writeAddress++, (byte)'0');

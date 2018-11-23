@@ -4,13 +4,13 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerEnsurer;
 import net.jadoth.persistence.types.PersistenceTypeHandlerProvider;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
+import net.jadoth.persistence.types.PersistenceTypeLink;
+import net.jadoth.persistence.types.PersistenceTypeManager;
 
 public final class PersistenceTypeHandlerProviderCreating<M> implements PersistenceTypeHandlerProvider<M>
 {
@@ -19,7 +19,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	///////////////////
 	
 	public static <M> PersistenceTypeHandlerProviderCreating<M> New(
-		final SwizzleTypeManager               typeManager       ,
+		final PersistenceTypeManager               typeManager       ,
 		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
 	)
 	{
@@ -35,7 +35,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	// instance fields  //
 	/////////////////////
 
-	private final SwizzleTypeManager               typeManager       ;
+	private final PersistenceTypeManager               typeManager       ;
 	private final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;
 
 		
@@ -45,7 +45,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	/////////////////////
 
 	PersistenceTypeHandlerProviderCreating(
-		final SwizzleTypeManager               typeManager       ,
+		final PersistenceTypeManager               typeManager       ,
 		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
 	)
 	{
@@ -109,7 +109,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
+	public final boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 	{
 		return this.typeManager.registerType(tid, type);
 	}
@@ -133,15 +133,15 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 
 	@Override
-	public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
+	public final void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+		throws PersistenceExceptionConsistency
 	{
 		this.typeManager.validateExistingTypeMappings(mappings);
 	}
 
 	@Override
-	public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-		throws SwizzleExceptionConsistency
+	public final void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+		throws PersistenceExceptionConsistency
 	{
 		this.typeManager.validatePossibleTypeMappings(mappings);
 	}

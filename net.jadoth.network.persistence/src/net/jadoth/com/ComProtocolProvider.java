@@ -4,9 +4,9 @@ import static net.jadoth.X.notNull;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 import net.jadoth.typing.Immutable;
 
 
@@ -25,7 +25,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		final String                                name                  ,
 		final String                                version               ,
 		final ByteOrder                             byteOrder             ,
-		final SwizzleIdStrategy                     idStrategy            ,
+		final PersistenceIdStrategy                     idStrategy            ,
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		final ComProtocolCreator                    protocolCreator
 	)
@@ -49,7 +49,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		private final String                                name                  ;
 		private final String                                version               ;
 		private final ByteOrder                             byteOrder             ;
-		private final SwizzleIdStrategy                     idStrategy            ;
+		private final PersistenceIdStrategy                     idStrategy            ;
 		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
 		private final ComProtocolCreator                    protocolCreator       ;
 		
@@ -63,7 +63,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
-			final SwizzleIdStrategy                     idStrategy            ,
+			final PersistenceIdStrategy                     idStrategy            ,
 			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 			final ComProtocolCreator                    protocolCreator
 		)
@@ -102,7 +102,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		}
 
 		@Override
-		public final SwizzleIdStrategy idStrategy()
+		public final PersistenceIdStrategy idStrategy()
 		{
 			return this.idStrategy;
 		}

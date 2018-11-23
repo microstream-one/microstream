@@ -2,10 +2,10 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import net.jadoth.storage.exceptions.StorageExceptionNotRunning;
-import net.jadoth.swizzling.types.Swizzle;
 
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
 public interface StorageManager extends StorageController
@@ -304,7 +304,7 @@ public interface StorageManager extends StorageController
 			this.createChannels();
 
 			final StorageIdAnalysis idAnalysis = this.startThreads(task);
-			final Long              maxOid     = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+			final Long              maxOid     = idAnalysis.highestIdsPerType().get(Persistence.IdType.OID);
 
 			// only ObjectId is relevant at this point
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);

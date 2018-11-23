@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.swizzling.types.SwizzleObjectIdResolving;
+import net.jadoth.persistence.types.PersistenceObjectIdResolving;
 
 
 public interface BinaryValueSetter
@@ -34,5 +34,5 @@ public interface BinaryValueSetter
 	 * @param idResolver a helper instance to resolve OIDs to instance references.
 	 * @return absolute source memory address pointing at the first byte following the read value.
 	 */
-	public long setValueToMemory(long address, Object target, long targetOffset, SwizzleObjectIdResolving idResolver);
+	public long setValueToMemory(long address, Object target, long targetOffset, PersistenceObjectIdResolving idResolver);
 }

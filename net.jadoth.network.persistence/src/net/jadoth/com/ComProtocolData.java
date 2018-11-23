@@ -2,9 +2,9 @@ package net.jadoth.com;
 
 import java.nio.ByteOrder;
 
+import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
 
 public interface ComProtocolData extends PersistenceTypeDictionaryViewProvider
 {
@@ -16,7 +16,7 @@ public interface ComProtocolData extends PersistenceTypeDictionaryViewProvider
 	
 	public PersistenceTypeDictionaryView typeDictionary();
 	
-	public SwizzleIdStrategy idStrategy();
+	public PersistenceIdStrategy idStrategy();
 	
 	@Override
 	public default PersistenceTypeDictionaryView provideTypeDictionary()

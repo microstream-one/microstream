@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
+import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 
 
 public class MainTestSwizzleRegistry
@@ -12,7 +12,7 @@ public class MainTestSwizzleRegistry
 
 	public static void main(final String[] args)
 	{
-		final SwizzleRegistryGrowingRange reg = SwizzleRegistryGrowingRange.New(COUNT);
+		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(COUNT);
 
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)

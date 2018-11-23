@@ -6,10 +6,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.Persistence;
 
 
 /**
@@ -77,7 +77,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 		final Binary         bytes   ,
 		final HashEnum<?>    instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		// store elements simply as array binary form
@@ -105,7 +105,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashEnum<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final HashEnum<?> instance, final PersistenceBuildLinker builder)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final HashEnum<Object> collectingInstance = (HashEnum<Object>)instance;
@@ -123,9 +123,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashEnum<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final HashEnum<?> instance, final PersistenceFunction iterator)
 	{
-		Swizzle.iterateReferences(iterator, instance);
+		Persistence.iterateReferences(iterator, instance);
 	}
 
 	@Override

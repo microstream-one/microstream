@@ -6,9 +6,9 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceChannel;
+import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceTarget;
-import net.jadoth.swizzling.types.SwizzleIdSet;
 
 public final class BinaryFileStorage implements PersistenceChannel<Binary>
 {
@@ -51,7 +51,7 @@ public final class BinaryFileStorage implements PersistenceChannel<Binary>
 	}
 
 	@Override
-	public final XGettingCollection<? extends Binary> readByObjectIds(final SwizzleIdSet[] oids)
+	public final XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
 		throws PersistenceExceptionTransfer
 	{
 		return this.source.readByObjectIds(oids);

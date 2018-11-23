@@ -9,13 +9,13 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -35,7 +35,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	
 	public static BinaryHandlerPersistenceRootsImplementation New(
 		final PersistenceRootResolver resolver      ,
-		final SwizzleObjectRegistry         globalRegistry
+		final PersistenceObjectRegistry         globalRegistry
 	)
 	{
 		return new BinaryHandlerPersistenceRootsImplementation(
@@ -58,7 +58,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
 	 * indeed part of this handler's task
 	 */
-	final SwizzleObjectRegistry globalRegistry;
+	final PersistenceObjectRegistry globalRegistry;
 
 
 
@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	BinaryHandlerPersistenceRootsImplementation(
 		final PersistenceRootResolver resolver      ,
-		final SwizzleObjectRegistry         globalRegistry
+		final PersistenceObjectRegistry         globalRegistry
 	)
 	{
 		super(
@@ -97,7 +97,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final Binary                          bytes   ,
 		final PersistenceRoots.Implementation instance,
 		final long                            oid     ,
-		final SwizzleHandler                  handler
+		final PersistenceHandler                  handler
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -163,7 +163,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
 	{
-		final SwizzleObjectRegistry registry = this.globalRegistry;
+		final PersistenceObjectRegistry registry = this.globalRegistry;
 
 		// lock the whole registry for the complete registration process because it is definitely used by other threads
 		synchronized(registry)
@@ -192,7 +192,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	public final void update(
 		final Binary                          bytes   ,
 		final PersistenceRoots.Implementation instance,
-		final SwizzleBuildLinker              builder
+		final PersistenceBuildLinker              builder
 	)
 	{
 		/*
@@ -218,7 +218,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	@Override
 	public final void iterateInstanceReferences(
 		final PersistenceRoots.Implementation instance,
-		final SwizzleFunction                 iterator
+		final PersistenceFunction                 iterator
 	)
 	{
 		// the identifier strings are not considered instances (that are worth iterating/knowing) but mere value types

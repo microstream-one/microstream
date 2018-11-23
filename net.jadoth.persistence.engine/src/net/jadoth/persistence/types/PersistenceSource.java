@@ -4,7 +4,6 @@ import java.io.File;
 
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
-import net.jadoth.swizzling.types.SwizzleIdSet;
 
 public interface PersistenceSource<M>
 {
@@ -23,7 +22,7 @@ public interface PersistenceSource<M>
 	 */
 	public XGettingCollection<? extends M> read() throws PersistenceExceptionTransfer;
 
-	public XGettingCollection<? extends M> readByObjectIds(SwizzleIdSet[] oids) throws PersistenceExceptionTransfer;
+	public XGettingCollection<? extends M> readByObjectIds(PersistenceIdSet[] oids) throws PersistenceExceptionTransfer;
 	
 	/**
 	 * Prepare to read from this source. E.g. open a defined {@link File}.

@@ -14,9 +14,10 @@ import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
-import net.jadoth.swizzling.types.Swizzle;
 import net.jadoth.typing.XTypes;
 
 
@@ -487,7 +488,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private void validateObjectId(final long objectId)
 		{
 			// validate object Id in general
-			Swizzle.validateObjectId(objectId);
+			Persistence.validateObjectId(objectId);
 
 			// validate channel for object Id
 			if(this.oidChannelIndex(objectId) != this.channelIndex)
@@ -516,19 +517,19 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					final StorageIdAnalysis idAnalysis = type.validateEntities();
 					type = type.hashNext;
 
-					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.TID);
+					final Long typeMaxTid = idAnalysis.highestIdsPerType().get(Persistence.IdType.TID);
 					if(typeMaxTid != null && typeMaxTid >= maxTid)
 					{
 						maxTid = typeMaxTid;
 					}
 
-					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.OID);
+					final Long typeMaxOid = idAnalysis.highestIdsPerType().get(Persistence.IdType.OID);
 					if(typeMaxOid != null && typeMaxOid >= maxOid)
 					{
 						maxOid = typeMaxOid;
 					}
 
-					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Swizzle.IdType.CID);
+					final Long typeMaxCid = idAnalysis.highestIdsPerType().get(Persistence.IdType.CID);
 					if(typeMaxCid != null && typeMaxCid >= maxCid)
 					{
 						maxCid = typeMaxCid;

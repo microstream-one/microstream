@@ -3,7 +3,7 @@ package net.jadoth.com;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceChannel;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 
 
 public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
@@ -85,7 +85,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		public abstract void closeTarget();
 		
 		@Override
-		public XGettingCollection<? extends M> readByObjectIds(final SwizzleIdSet[] oids) throws PersistenceExceptionTransfer
+		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] oids) throws PersistenceExceptionTransfer
 		{
 			/* (08.08.2018 TM)NOTE:
 			 * Makes sense in principle. One side of a network connection requests data specified by a set of OIDs.

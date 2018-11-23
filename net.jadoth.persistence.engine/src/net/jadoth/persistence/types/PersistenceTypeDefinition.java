@@ -7,9 +7,8 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
 
-public interface PersistenceTypeDefinition extends PersistenceTypeDescription, SwizzleTypeLink
+public interface PersistenceTypeDefinition extends PersistenceTypeDescription, PersistenceTypeLink
 {
 	/**
 	 * The biuniquely associated id value identifying a type description.

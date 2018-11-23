@@ -4,10 +4,8 @@ import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.math.XMath;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleObjectManager;
 
-public interface PersistenceRegisterer extends SwizzleFunction
+public interface PersistenceRegisterer extends PersistenceFunction
 {
 	public long register(Object instance);
 
@@ -21,7 +19,7 @@ public interface PersistenceRegisterer extends SwizzleFunction
 		// instance fields //
 		////////////////////
 
-		private final SwizzleObjectManager             objectManager     ;
+		private final PersistenceObjectManager             objectManager     ;
 		private final PersistenceTypeHandlerManager<?> typeHandlerManager;
 
 		private final Entry[]                          oidsSlots         ;
@@ -34,7 +32,7 @@ public interface PersistenceRegisterer extends SwizzleFunction
 		/////////////////
 
 		public Implementation(
-			final SwizzleObjectManager             objectManager,
+			final PersistenceObjectManager             objectManager,
 			final PersistenceTypeHandlerManager<?> typeManager
 		)
 		{
@@ -46,7 +44,7 @@ public interface PersistenceRegisterer extends SwizzleFunction
 		}
 
 		public Implementation(
-			final SwizzleObjectManager             objectManager,
+			final PersistenceObjectManager             objectManager,
 			final PersistenceTypeHandlerManager<?> typeManager,
 			final int                              hashRange
 		)
@@ -177,7 +175,7 @@ public interface PersistenceRegisterer extends SwizzleFunction
 		{
 			@Override
 			public PersistenceRegisterer createRegisterer(
-				final SwizzleObjectManager             objectManager,
+				final PersistenceObjectManager             objectManager,
 				final PersistenceTypeHandlerManager<?> typeManager
 			)
 			{
@@ -208,7 +206,7 @@ public interface PersistenceRegisterer extends SwizzleFunction
 	public interface Creator
 	{
 		public PersistenceRegisterer createRegisterer(
-			SwizzleObjectManager             objectManager,
+			PersistenceObjectManager             objectManager,
 			PersistenceTypeHandlerManager<?> typeManager
 		);
 	}

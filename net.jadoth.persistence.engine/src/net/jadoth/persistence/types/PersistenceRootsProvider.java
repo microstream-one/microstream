@@ -1,8 +1,5 @@
 package net.jadoth.persistence.types;
 
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
-
-
 public interface PersistenceRootsProvider<M>
 {
 	public PersistenceRoots provideRoots();
@@ -15,7 +12,7 @@ public interface PersistenceRootsProvider<M>
 	 */
 	public void registerRootsTypeHandlerCreator(
 		PersistenceCustomTypeHandlerRegistry<M> typeHandlerRegistry,
-		SwizzleObjectRegistry                         objectRegistry
+		PersistenceObjectRegistry                         objectRegistry
 	);
 
 }

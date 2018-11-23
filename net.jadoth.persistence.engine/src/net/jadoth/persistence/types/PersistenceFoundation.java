@@ -5,14 +5,7 @@ import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
-import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
-import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
-import net.jadoth.swizzling.types.SwizzleTypeRegistry;
+import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.InstanceDispatcher;
@@ -56,16 +49,16 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
 
-	public SwizzleObjectIdProvider getObjectIdProvider();
+	public PersistenceObjectIdProvider getObjectIdProvider();
 
-	public SwizzleTypeIdProvider getTypeIdProvider();
+	public PersistenceTypeIdProvider getTypeIdProvider();
 
 
-	public F setObjectIdProvider(SwizzleObjectIdProvider oidProvider);
+	public F setObjectIdProvider(PersistenceObjectIdProvider oidProvider);
 
-	public F setTypeIdProvider(SwizzleTypeIdProvider tidProvider);
+	public F setTypeIdProvider(PersistenceTypeIdProvider tidProvider);
 
-	public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
+	public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
 	F setSwizzleIdProvider(P swizzleTypeIdProvider);
 	
 
@@ -80,13 +73,13 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public PersistenceSource<M> getPersistenceSource();
 	
 	
-	public SwizzleObjectRegistry getObjectRegistry();
+	public PersistenceObjectRegistry getObjectRegistry();
 
-	public SwizzleObjectManager getObjectManager();
+	public PersistenceObjectManager getObjectManager();
 	
-	public SwizzleTypeRegistry getTypeRegistry();
+	public PersistenceTypeRegistry getTypeRegistry();
 	
-	public SwizzleTypeManager getTypeManager();
+	public PersistenceTypeManager getTypeManager();
 
 	public PersistenceTypeHandlerManager<M> getTypeHandlerManager();
 
@@ -172,19 +165,19 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	
 	
-	public F setObjectRegistry(SwizzleObjectRegistry swizzleObjectRegistry);
+	public F setObjectRegistry(PersistenceObjectRegistry swizzleObjectRegistry);
 	
-	public F setTypeRegistry(SwizzleTypeRegistry swizzleTypeRegistry);
+	public F setTypeRegistry(PersistenceTypeRegistry swizzleTypeRegistry);
 
 	public F setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
-	public F setObjectManager(SwizzleObjectManager objectManager);
+	public F setObjectManager(PersistenceObjectManager objectManager);
 
 	public F setStorerCreator(PersistenceStorer.Creator<M> storerCreator);
 
 	public F setTypeHandlerManager(PersistenceTypeHandlerManager<M> typeHandlerManager);
 
-	public F setTypeManager(SwizzleTypeManager typeManager);
+	public F setTypeManager(PersistenceTypeManager typeManager);
 
 	public F setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup);
 	
@@ -318,12 +311,12 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		// instance fields //
 		////////////////////
 
-		private SwizzleObjectIdProvider oidProvider;
-		private SwizzleTypeIdProvider   tidProvider;
+		private PersistenceObjectIdProvider oidProvider;
+		private PersistenceTypeIdProvider   tidProvider;
 
 		// first level assembly parts (used directly to build manager instance) \\
-		private SwizzleTypeRegistry                     swizzleTypeRegistry        ;
-		private SwizzleObjectRegistry                   swizzleObjectRegistry      ;
+		private PersistenceTypeRegistry                     swizzleTypeRegistry        ;
+		private PersistenceObjectRegistry                   swizzleObjectRegistry      ;
 		private PersistenceTypeHandlerManager<M>        typeHandlerManager         ;
 		private PersistenceStorer.Creator<M>            storerCreator              ;
 		private PersistenceRegisterer.Creator           registererCreator          ;
@@ -332,8 +325,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceSource<M>                    source                     ;
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
-		private SwizzleTypeManager                      typeManager                ;
-		private SwizzleObjectManager                    objectManager              ;
+		private PersistenceTypeManager                      typeManager                ;
+		private PersistenceObjectManager                    objectManager              ;
 		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
 		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
 		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
@@ -409,7 +402,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 
 		@Override
-		public SwizzleObjectIdProvider getObjectIdProvider()
+		public PersistenceObjectIdProvider getObjectIdProvider()
 		{
 			if(this.oidProvider == null)
 			{
@@ -419,7 +412,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 
 		@Override
-		public SwizzleTypeIdProvider getTypeIdProvider()
+		public PersistenceTypeIdProvider getTypeIdProvider()
 		{
 			if(this.tidProvider == null)
 			{
@@ -440,7 +433,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 
 		@Override
-		public SwizzleObjectRegistry getObjectRegistry()
+		public PersistenceObjectRegistry getObjectRegistry()
 		{
 			if(this.swizzleObjectRegistry == null)
 			{
@@ -451,7 +444,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public SwizzleTypeRegistry getTypeRegistry()
+		public PersistenceTypeRegistry getTypeRegistry()
 		{
 			if(this.swizzleTypeRegistry == null)
 			{
@@ -462,7 +455,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 
 		@Override
-		public SwizzleObjectManager getObjectManager()
+		public PersistenceObjectManager getObjectManager()
 		{
 			if(this.objectManager == null)
 			{
@@ -561,7 +554,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 
 		@Override
-		public SwizzleTypeManager getTypeManager()
+		public PersistenceTypeManager getTypeManager()
 		{
 			if(this.typeManager == null)
 			{
@@ -988,21 +981,21 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public F setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
+		public F setObjectIdProvider(final PersistenceObjectIdProvider oidProvider)
 		{
 			this.oidProvider = oidProvider;
 			return this.$();
 		}
 
 		@Override
-		public F setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
+		public F setTypeIdProvider(final PersistenceTypeIdProvider tidProvider)
 		{
 			this.tidProvider = tidProvider;
 			return this.$();
 		}
 
 		@Override
-		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
+		public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
 		F setSwizzleIdProvider(final P swizzleTypeIdProvider)
 		{
 			this.setObjectIdProvider(swizzleTypeIdProvider);
@@ -1012,7 +1005,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		@Override
 		public F setObjectManager(
-			final SwizzleObjectManager objectManager
+			final PersistenceObjectManager objectManager
 		)
 		{
 			this.objectManager = objectManager;
@@ -1057,7 +1050,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		@Override
 		public F setObjectRegistry(
-			final SwizzleObjectRegistry swizzleObjectRegistry
+			final PersistenceObjectRegistry swizzleObjectRegistry
 		)
 		{
 			this.swizzleObjectRegistry = swizzleObjectRegistry;
@@ -1065,7 +1058,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		}
 		
 		@Override
-		public F setTypeRegistry(final SwizzleTypeRegistry swizzleTypeRegistry)
+		public F setTypeRegistry(final PersistenceTypeRegistry swizzleTypeRegistry)
 		{
 			this.swizzleTypeRegistry = swizzleTypeRegistry;
 			return this.$();
@@ -1073,7 +1066,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		@Override
 		public F setTypeManager(
-			final SwizzleTypeManager typeManager
+			final PersistenceTypeManager typeManager
 		)
 		{
 			this.typeManager = typeManager;
@@ -1460,29 +1453,29 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		 * and throw an exception if neither implementation nor set instance is available.
 		 */
 
-		protected SwizzleObjectIdProvider ensureObjectIdProvider()
+		protected PersistenceObjectIdProvider ensureObjectIdProvider()
 		{
-			throw new MissingFoundationPartException(SwizzleObjectIdProvider.class);
+			throw new MissingFoundationPartException(PersistenceObjectIdProvider.class);
 		}
 
-		protected SwizzleTypeIdProvider ensureTypeIdProvider()
+		protected PersistenceTypeIdProvider ensureTypeIdProvider()
 		{
-			throw new MissingFoundationPartException(SwizzleTypeIdProvider.class);
+			throw new MissingFoundationPartException(PersistenceTypeIdProvider.class);
 		}
 
-		protected SwizzleObjectRegistry ensureSwizzleObjectRegistry()
+		protected PersistenceObjectRegistry ensureSwizzleObjectRegistry()
 		{
-			final SwizzleRegistryGrowingRange registry = SwizzleRegistryGrowingRange.New();
+			final ObjectRegistryGrowingRange registry = ObjectRegistryGrowingRange.New();
 			// (21.11.2018 TM)FIXME: JET-48: register constants as constants.
-			Swizzle.registerJavaConstants(registry);
+			Persistence.registerJavaConstants(registry);
 			
 			return registry;
 		}
 
-		protected SwizzleTypeRegistry ensureSwizzleTypeRegistry()
+		protected PersistenceTypeRegistry ensureSwizzleTypeRegistry()
 		{
-			final SwizzleTypeRegistry registry = SwizzleTypeRegistry.New();
-			Swizzle.registerJavaBasicTypes(registry);
+			final PersistenceTypeRegistry registry = PersistenceTypeRegistry.New();
+			Persistence.registerJavaBasicTypes(registry);
 			
 			return registry;
 		}
@@ -1495,21 +1488,20 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			return newTypeLineageCreator;
 		}
 
-		protected SwizzleObjectManager ensureObjectManager()
+		protected PersistenceObjectManager ensureObjectManager()
 		{
-			final SwizzleObjectManager newObjectManager =
-				new SwizzleObjectManager.Implementation(
+			final PersistenceObjectManager newObjectManager =
+				new PersistenceObjectManager.Implementation(
 					this.getObjectRegistry(),
-					this.getObjectIdProvider(),
-					this.getTypeManager()
+					this.getObjectIdProvider()
 				)
 			;
 			return newObjectManager;
 		}
 
-		protected SwizzleTypeManager ensureTypeManager()
+		protected PersistenceTypeManager ensureTypeManager()
 		{
-			final SwizzleTypeManager newTypeManager = SwizzleTypeManager.New(
+			final PersistenceTypeManager newTypeManager = PersistenceTypeManager.New(
 				this.getTypeRegistry(),
 				this.getTypeIdProvider()
 			);

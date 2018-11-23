@@ -7,7 +7,7 @@ import net.jadoth.collections.EqConstHashTable;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.swizzling.types.Swizzle;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.csv.CSV;
 import net.jadoth.util.csv.CsvConfiguration;
@@ -354,13 +354,13 @@ public interface StorageDataConverterCsvConfiguration
 		@Override
 		public final String objectIdColumnName()
 		{
-			return Swizzle.objectIdName();
+			return Persistence.objectIdName();
 		}
 
 		@Override
 		public final String objectIdColumnTypeName()
 		{
-			return Swizzle.objectIdType().getName(); // avoids substring of getSimpleName() and yields same result
+			return Persistence.objectIdType().getName(); // avoids substring of getSimpleName() and yields same result
 		}
 
 		@Override

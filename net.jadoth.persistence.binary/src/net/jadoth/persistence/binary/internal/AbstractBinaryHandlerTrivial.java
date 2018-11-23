@@ -7,9 +7,9 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
 
 public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
@@ -29,13 +29,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final SwizzleBuildLinker builder)
+	public void update(final Binary medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)
@@ -43,7 +43,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final T instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		// no-op, no references
 	}

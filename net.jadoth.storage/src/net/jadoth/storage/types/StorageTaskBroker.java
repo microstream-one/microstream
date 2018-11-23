@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Chunks;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.util.UtilStackTrace;
 
 public interface StorageTaskBroker
@@ -17,10 +17,10 @@ public interface StorageTaskBroker
 	public StorageRequestTaskLoadRoots enqueueRootsLoadTask()
 		throws InterruptedException;
 
-	public StorageRequestTaskLoadByTids enqueueLoadTaskByTids(SwizzleIdSet loadTids)
+	public StorageRequestTaskLoadByTids enqueueLoadTaskByTids(PersistenceIdSet loadTids)
 		throws InterruptedException;
 
-	public StorageRequestTaskLoadByOids enqueueLoadTaskByOids(SwizzleIdSet[] loadOids)
+	public StorageRequestTaskLoadByOids enqueueLoadTaskByOids(PersistenceIdSet[] loadOids)
 		throws InterruptedException;
 	
 	public StorageRequestTaskStoreEntities enqueueStoreTask(Chunks[] medium)
@@ -360,7 +360,7 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskLoadByOids enqueueLoadTaskByOids(
-			final SwizzleIdSet[] loadOids
+			final PersistenceIdSet[] loadOids
 		)
 			throws InterruptedException
 		{
@@ -383,7 +383,7 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskLoadByTids enqueueLoadTaskByTids(
-			final SwizzleIdSet loadTids
+			final PersistenceIdSet loadTids
 		)
 			throws InterruptedException
 		{

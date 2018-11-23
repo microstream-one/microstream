@@ -1,11 +1,12 @@
 package net.jadoth.storage.types;
 
 import static net.jadoth.math.XMath.positive;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
+
+import net.jadoth.persistence.types.PersistenceTypeManager;
 
 public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProvider
 {
-	public void initialize(SwizzleTypeManager typeIdResolver);
+	public void initialize(PersistenceTypeManager typeIdResolver);
 
 
 
@@ -53,7 +54,7 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 		}
 
 		@Override
-		public final void initialize(final SwizzleTypeManager typeIdResolver)
+		public final void initialize(final PersistenceTypeManager typeIdResolver)
 		{
 			final long typeId = typeIdResolver.ensureTypeId(this.rootType);
 			this.cachedRootTypeId = positive(typeId);

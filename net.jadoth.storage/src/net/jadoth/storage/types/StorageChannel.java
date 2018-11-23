@@ -16,9 +16,9 @@ import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.BufferSizeProvider;
 import net.jadoth.persistence.types.BufferSizeProviderIncremental;
+import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
-import net.jadoth.swizzling.types.SwizzleIdSet;
 import net.jadoth.typing.KeyValue;
 
 
@@ -26,11 +26,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 {
 	public StorageTypeDictionary typeDictionary();
 
-	public Binary collectLoadByOids(SwizzleIdSet loadOids);
+	public Binary collectLoadByOids(PersistenceIdSet loadOids);
 
 	public Binary collectLoadRoots();
 
-	public Binary collectLoadByTids(SwizzleIdSet loadTids);
+	public Binary collectLoadByTids(PersistenceIdSet loadTids);
 
 	public KeyValue<ByteBuffer[], long[]> storeEntities(long timestamp, Chunks chunkData);
 
@@ -384,7 +384,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public final Binary collectLoadByOids(final SwizzleIdSet loadOids)
+		public final Binary collectLoadByOids(final PersistenceIdSet loadOids)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading " + loadOids.size() + " references");
 
@@ -410,7 +410,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public final Binary collectLoadByTids(final SwizzleIdSet loadTids)
+		public final Binary collectLoadByTids(final PersistenceIdSet loadTids)
 		{
 			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
 			if(!loadTids.isEmpty())

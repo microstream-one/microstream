@@ -4,12 +4,9 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.swizzling.types.SwizzleObjectManager;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
-
 
 public interface PersistenceManager<M>
-extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
+extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
 {
 	// manager methods //
 	
@@ -37,7 +34,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		storing.storeBy(this.createStorer()).commit();
 	}
 	
-	public SwizzleObjectRegistry swizzleRegistry();
+	public PersistenceObjectRegistry swizzleRegistry();
 	
 	public PersistenceTypeDictionary typeDictionary();
 	
@@ -60,8 +57,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		/////////////////////
 
 		// swizzling components //
-		private final SwizzleObjectRegistry                  objectRegistry    ;
-		private final SwizzleObjectManager             objectManager     ;
+		private final PersistenceObjectRegistry                  objectRegistry    ;
+		private final PersistenceObjectManager             objectManager     ;
 		private final PersistenceRegisterer.Creator    registererCreator ;
 
 		// instance handling components //
@@ -81,8 +78,8 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		/////////////////////
 
 		public Implementation(
-			final SwizzleObjectRegistry                  objectRegistering ,
-			final SwizzleObjectManager             objectManager     ,
+			final PersistenceObjectRegistry                  objectRegistering ,
+			final PersistenceObjectManager             objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
 			final PersistenceStorer.Creator<M>     storerCreatorDeep ,
 			final PersistenceLoader.Creator<M>     loaderCreator     ,
@@ -111,7 +108,7 @@ extends SwizzleObjectManager, PersistenceRetrieving, PersistenceStoring, Persist
 		////////////
 		
 		@Override
-		public final SwizzleObjectRegistry swizzleRegistry()
+		public final PersistenceObjectRegistry swizzleRegistry()
 		{
 			return this.objectRegistry;
 		}

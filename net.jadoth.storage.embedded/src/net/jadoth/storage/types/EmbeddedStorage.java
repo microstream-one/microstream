@@ -7,11 +7,11 @@ import java.io.File;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceIdStrategy;
+import net.jadoth.persistence.types.PersistenceObjectIdProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.swizzling.types.SwizzleIdStrategy;
-import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
+import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
 public final class EmbeddedStorage
 {
@@ -27,7 +27,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler,
-		final SwizzleIdStrategy                  idStrategy
+		final PersistenceIdStrategy                  idStrategy
 	)
 	{
 		return ConnectionFoundation(
@@ -40,13 +40,13 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
-		final SwizzleIdStrategy                  idStrategy                 ,
+		final PersistenceIdStrategy                  idStrategy                 ,
 		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
 		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
 	)
 	{
-		final SwizzleObjectIdProvider objectIdProvider = idStrategy.objectIdStragegy().createObjectIdProvider();
-		final SwizzleTypeIdProvider   typeIdProvider   = idStrategy.typeIdStragegy().createTypeIdProvider();
+		final PersistenceObjectIdProvider objectIdProvider = idStrategy.objectIdStragegy().createObjectIdProvider();
+		final PersistenceTypeIdProvider   typeIdProvider   = idStrategy.typeIdStragegy().createTypeIdProvider();
 		
 		return EmbeddedStorageConnectionFoundation.New()
 			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler    )
@@ -61,7 +61,7 @@ public final class EmbeddedStorage
 	{
 		return ConnectionFoundation(
 			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory),
-			SwizzleIdStrategy.NewInDirectory(directory)
+			PersistenceIdStrategy.NewInDirectory(directory)
 		);
 	}
 

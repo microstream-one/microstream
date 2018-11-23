@@ -12,12 +12,12 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleBuildLinker;
-import net.jadoth.swizzling.types.SwizzleFunction;
-import net.jadoth.swizzling.types.SwizzleHandler;
 
 
 /**
@@ -67,7 +67,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		final EqHashEnum<?>   instance ,
 		final long            tid      ,
 		final long            oid      ,
-		final SwizzleFunction persister
+		final PersistenceFunction persister
 	)
 	{
 		// store elements simply as array binary form
@@ -105,7 +105,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	public static final void staticUpdate(
 		final Binary             bytes   ,
 		final EqHashEnum<?>      instance,
-		final SwizzleBuildLinker builder
+		final PersistenceBuildLinker builder
 	)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
@@ -147,11 +147,11 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	public static final void staticIterateInstanceReferences(
 		final EqHashEnum<?>   instance,
-		final SwizzleFunction iterator
+		final PersistenceFunction iterator
 	)
 	{
 		iterator.apply(instance.hashEqualator);
-		Swizzle.iterateReferences(iterator, instance);
+		Persistence.iterateReferences(iterator, instance);
 	}
 
 	public static final void staticIteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
@@ -194,7 +194,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		final Binary         bytes   ,
 		final EqHashEnum<?>  instance,
 		final long           oid     ,
-		final SwizzleHandler handler
+		final PersistenceHandler handler
 	)
 	{
 		staticStore(bytes, instance, this.typeId(), oid, handler);
@@ -207,19 +207,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashEnum<?> instance, final SwizzleBuildLinker builder)
+	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceBuildLinker builder)
 	{
 		staticUpdate(bytes, instance, builder);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashEnum<?> instance, final SwizzleBuildLinker builder)
+	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceBuildLinker builder)
 	{
 		staticComplete(medium, instance);
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final EqHashEnum<?> instance, final SwizzleFunction iterator)
+	public final void iterateInstanceReferences(final EqHashEnum<?> instance, final PersistenceFunction iterator)
 	{
 		staticIterateInstanceReferences(instance, iterator);
 	}

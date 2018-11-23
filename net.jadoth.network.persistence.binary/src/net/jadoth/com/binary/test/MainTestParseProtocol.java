@@ -12,8 +12,8 @@ import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
-import net.jadoth.swizzling.types.SwizzleTypeIdProvider;
+import net.jadoth.persistence.types.PersistenceObjectIdProvider;
+import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
 
 public class MainTestParseProtocol
@@ -24,8 +24,8 @@ public class MainTestParseProtocol
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 				XFiles.ensureDirectory(new File("TypeDictionary"))
 			))
-			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
-			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
+			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
+			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())
 		;
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()

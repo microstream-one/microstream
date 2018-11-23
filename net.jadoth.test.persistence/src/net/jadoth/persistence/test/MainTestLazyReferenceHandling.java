@@ -2,13 +2,13 @@ package net.jadoth.persistence.test;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
-import net.jadoth.swizzling.types.Lazy;
-import net.jadoth.swizzling.types.LazyReferenceManager;
-import net.jadoth.swizzling.types.SwizzleObjectSupplier;
+import net.jadoth.persistence.types.Lazy;
+import net.jadoth.persistence.types.LazyReferenceManager;
+import net.jadoth.persistence.types.PersistenceObjectSupplier;
 
 public class MainTestLazyReferenceHandling
 {
-	static final SwizzleObjectSupplier DUMMY_LOADER = o -> null;
+	static final PersistenceObjectSupplier DUMMY_LOADER = o -> null;
 
 
 	public static void main(final String[] args) throws Exception

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.swizzling.types.SwizzleHandler;
+import net.jadoth.persistence.types.PersistenceHandler;
 
 public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerNativeCustomValueVariableLength<BigDecimal>
 {
@@ -29,7 +29,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerNativeCu
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final BigDecimal instance, final long oid, final SwizzleHandler handler)
+	public void store(final Binary bytes, final BigDecimal instance, final long oid, final PersistenceHandler handler)
 	{
 		// there's a char[] constructor but no char[] utility method, so there's no other option than this
 		BinaryPersistence.storeStringValue(bytes, this.typeId(), oid, instance.toString());

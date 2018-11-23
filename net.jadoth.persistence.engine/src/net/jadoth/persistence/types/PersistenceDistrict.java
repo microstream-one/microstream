@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
 
 
 
@@ -82,7 +81,7 @@ public interface PersistenceDistrict<M>
 		private final PersistenceTypeHandlerLookup<M> typeLookup;
 		
 		// global registry to synch with other threads
-		private final SwizzleObjectRegistry           registry  ;
+		private final PersistenceObjectRegistry           registry  ;
 
 
 
@@ -91,7 +90,7 @@ public interface PersistenceDistrict<M>
 		/////////////////////
 
 		public Implementation(
-			final SwizzleObjectRegistry           registry  ,
+			final PersistenceObjectRegistry           registry  ,
 			final PersistenceTypeHandlerLookup<M> typeLookup
 
 		)

@@ -9,17 +9,14 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.equality.Equalator;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.exceptions.SwizzleExceptionConsistency;
-import net.jadoth.swizzling.types.SwizzleObjectRegistry;
-import net.jadoth.swizzling.types.SwizzleTypeLink;
-import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.typing.KeyValue;
 
 
-public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, PersistenceTypeHandlerRegistry<M>
+public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<M>
 {
 	@Override
 	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(T instance);
@@ -42,7 +39,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 
 	public PersistenceTypeHandlerManager<M> initialize();
 
-	public PersistenceDistrict<M> createDistrict(SwizzleObjectRegistry registry);
+	public PersistenceDistrict<M> createDistrict(PersistenceObjectRegistry registry);
 
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
@@ -496,7 +493,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final boolean registerType(final long tid, final Class<?> type) throws SwizzleExceptionConsistency
+		public final boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 		{
 			// if the passed type is new, ensure a handler for it as well
 			if(this.typeHandlerRegistry.registerType(tid, type))
@@ -508,15 +505,15 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final void validateExistingTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public final void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.typeHandlerRegistry.validateExistingTypeMappings(mappings);
 		}
 
 		@Override
-		public final void validatePossibleTypeMappings(final Iterable<? extends SwizzleTypeLink> mappings)
-			throws SwizzleExceptionConsistency
+		public final void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
 		{
 			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
 		}
@@ -706,7 +703,7 @@ public interface PersistenceTypeHandlerManager<M> extends SwizzleTypeManager, Pe
 		}
 
 		@Override
-		public final PersistenceDistrict<M> createDistrict(final SwizzleObjectRegistry registry)
+		public final PersistenceDistrict<M> createDistrict(final PersistenceObjectRegistry registry)
 		{
 			return new PersistenceDistrict.Implementation<>(registry, this.typeHandlerRegistry);
 		}

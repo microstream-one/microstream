@@ -2,10 +2,9 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.swizzling.types.SwizzleTypeIdentity;
 
 /**
- * Data that ties a {@link PersistenceTypeDescription} to a biunique type id, aka a {@link SwizzleTypeIdentity}.
+ * Data that ties a {@link PersistenceTypeDescription} to a biunique type id, aka a {@link PersistenceTypeIdentity}.
  * 
  * @author TM
  *

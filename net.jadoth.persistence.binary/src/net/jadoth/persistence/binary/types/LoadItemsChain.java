@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.types;
 import static net.jadoth.collections.XArrays.copy;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.swizzling.types.SwizzleIdSet;
+import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface LoadItemsChain
 {
@@ -13,7 +13,7 @@ public interface LoadItemsChain
 
 	public boolean isEmpty();
 
-	public SwizzleIdSet[] getObjectIdSets();
+	public PersistenceIdSet[] getObjectIdSets();
 
 	public void clear();
 
@@ -166,7 +166,7 @@ public interface LoadItemsChain
 
 	}
 
-	public final class Simple extends LoadItemsChain.AbstractImplementation implements SwizzleIdSet
+	public final class Simple extends LoadItemsChain.AbstractImplementation implements PersistenceIdSet
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -197,9 +197,9 @@ public interface LoadItemsChain
 
 
 		@Override
-		public final SwizzleIdSet[] getObjectIdSets()
+		public final PersistenceIdSet[] getObjectIdSets()
 		{
-			return new SwizzleIdSet[]{this};
+			return new PersistenceIdSet[]{this};
 		}
 
 		@Override
@@ -259,10 +259,10 @@ public interface LoadItemsChain
 		}
 
 		@Override
-		public SwizzleIdSet[] getObjectIdSets()
+		public PersistenceIdSet[] getObjectIdSets()
 		{
 			final Entry[] hashChainHeads = this.hashChainHeads;
-			final SwizzleIdSet[] idSets = new SwizzleIdSet[hashChainHeads.length];
+			final PersistenceIdSet[] idSets = new PersistenceIdSet[hashChainHeads.length];
 			for(int i = 0; i < hashChainHeads.length; i++)
 			{
 				idSets[i] = new ChainItemObjectIdSet(hashChainHeads[i].next);
@@ -291,7 +291,7 @@ public interface LoadItemsChain
 			;
 		}
 
-		static final class ChainItemObjectIdSet implements SwizzleIdSet
+		static final class ChainItemObjectIdSet implements PersistenceIdSet
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields  //

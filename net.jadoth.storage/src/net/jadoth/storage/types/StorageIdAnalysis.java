@@ -8,13 +8,14 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.Swizzle.IdType;
+import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.Persistence.IdType;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.typing.KeyValue;
 
 public interface StorageIdAnalysis
 {
-	public XGettingTable<Swizzle.IdType, Long> highestIdsPerType();
+	public XGettingTable<Persistence.IdType, Long> highestIdsPerType();
 	
 	public XGettingEnum<Long> occuringTypeIds();
 
@@ -43,16 +44,16 @@ public interface StorageIdAnalysis
 	{
 		return New(
 			ConstHashTable.New(
-				X.KeyValue(Swizzle.IdType.TID, highestTid),
-				X.KeyValue(Swizzle.IdType.OID, highestOid),
-				X.KeyValue(Swizzle.IdType.CID, highestCid)
+				X.KeyValue(Persistence.IdType.TID, highestTid),
+				X.KeyValue(Persistence.IdType.OID, highestOid),
+				X.KeyValue(Persistence.IdType.CID, highestCid)
 			),
 			occuringTypeIds
 		);
 	}
 
 	public static StorageIdAnalysis New(
-		final XGettingSequence<KeyValue<Swizzle.IdType, Long>> values         ,
+		final XGettingSequence<KeyValue<Persistence.IdType, Long>> values         ,
 		final XGettingEnum<Long>                               occuringTypeIds
 	)
 	{
@@ -70,7 +71,7 @@ public interface StorageIdAnalysis
 		// instance fields //
 		////////////////////
 		
-		final XGettingTable<Swizzle.IdType, Long> highestIdsPerType;
+		final XGettingTable<Persistence.IdType, Long> highestIdsPerType;
 		final XGettingEnum<Long>                  occuringTypeIds  ;
 		
 		
