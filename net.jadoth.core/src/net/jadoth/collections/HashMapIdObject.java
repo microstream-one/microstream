@@ -65,8 +65,8 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
 	@Override
 	public final long size()
@@ -79,12 +79,6 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 	{
 		return this.size == 0;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// declared methods //
-	/////////////////////
 
 	private void rebuild(final int newLength)
 	{
@@ -112,6 +106,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 		this.hashRange = newRange;
 	}
 
+	// (23.11.2018 TM)TODO: why are there 2 rebuild methods?
 	@SuppressWarnings("unchecked")
 	private void rebuild()
 	{

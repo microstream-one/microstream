@@ -22,66 +22,65 @@ import net.jadoth.typing.KeyValue;
 public final class HashMapObjectId<T> implements Sized, OptimizableCollection, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	@SuppressWarnings("unchecked")
+	private static <T> Entry<T>[] newHashSlots(final int length)
+	{
+		return new Entry[length];
+	}
+
+	public static final <T> HashMapObjectId<T> New()
+	{
+		return new HashMapObjectId<>(1);
+	}
+
+	public static final <T> HashMapObjectId<T> New(final int initialSlotLength)
+	{
+		return new HashMapObjectId<>(XMath.pow2BoundCapped(initialSlotLength));
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private Entry<T>[] slots;
-	private int modulo;
-	private int size;
+	private Entry<T>[] hashSlots;
+	private int        hashRange;
+	private int        size     ;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
-
-	@SuppressWarnings("unchecked")
-	public HashMapObjectId()
+	
+	HashMapObjectId(final int initialSlotLength)
 	{
 		super();
-		this.slots  = new Entry[1];
-		this.modulo = 0;
-	}
-
-	@SuppressWarnings("unchecked")
-	public HashMapObjectId(final int slotSize)
-	{
-		super();
-		final int cappedSlotSize = XMath.pow2BoundCapped(slotSize);
-		this.slots = new Entry[cappedSlotSize];
-		this.modulo = cappedSlotSize - 1;
+		this.hashSlots  = newHashSlots(initialSlotLength);
+		this.hashRange = initialSlotLength - 1;
 	}
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
 
-	/**
-	 * @return the size
-	 */
 	@Override
 	public long size()
 	{
 		return this.size;
 	}
 
-	/**
-	 * @return
-	 * @see net.jadoth.collections.interfaces.Sized#isEmpty()
-	 */
 	@Override
 	public boolean isEmpty()
 	{
 		return this.size == 0;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// declared methods //
-	/////////////////////
 
 	@SuppressWarnings("unchecked")
 	private void rebuild(final int newCapacity)
@@ -89,7 +88,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		final Entry<T>[] newSlots = new Entry[newCapacity]; // potential int overflow ignored deliberately
 		final int newSlotCountMinusOne = newCapacity - 1;
 		int index;
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(Entry<T> next; entry != null; entry = next)
 			{
@@ -98,22 +97,22 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 				newSlots[index] = entry;
 			}
 		}
-		this.slots = newSlots;
-		this.modulo = newSlotCountMinusOne;
+		this.hashSlots = newSlots;
+		this.hashRange = newSlotCountMinusOne;
 	}
 
 	public boolean add(final T object, final long id)
 	{
 		final int index;
-		final Entry<T> head = this.slots[index = identityHashCode(object) & this.modulo];
+		final Entry<T> head = this.hashSlots[index = identityHashCode(object) & this.hashRange];
 
 		// case 1: new head entry
 		if(head == null)
 		{
-			this.slots[index] = new Entry<>(id, object);
-			if(this.size++ >= this.modulo)
+			this.hashSlots[index] = new Entry<>(id, object);
+			if(this.size++ >= this.hashRange)
 			{
-				this.rebuild(this.modulo + 1 << 1);
+				this.rebuild(this.hashRange + 1 << 1);
 			}
 			return true;
 		}
@@ -132,10 +131,10 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		}
 
 		// case 3: append new entry
-		this.slots[index] = new Entry<>(id, object, head);
-		if(this.size++ >= this.modulo)
+		this.hashSlots[index] = new Entry<>(id, object, head);
+		if(this.size++ >= this.hashRange)
 		{
-			this.rebuild(this.modulo + 1 << 1);
+			this.rebuild(this.hashRange + 1 << 1);
 		}
 		return true;
 	}
@@ -143,15 +142,15 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public boolean put(final T object, final long id)
 	{
 		final int index;
-		final Entry<T> head = this.slots[index = identityHashCode(object) & this.modulo];
+		final Entry<T> head = this.hashSlots[index = identityHashCode(object) & this.hashRange];
 
 		// case 1: new head entry
 		if(head == null)
 		{
-			this.slots[index] = new Entry<>(id, object);
-			if(this.size++ >= this.modulo)
+			this.hashSlots[index] = new Entry<>(id, object);
+			if(this.size++ >= this.hashRange)
 			{
-				this.rebuild(this.modulo + 1 << 1);
+				this.rebuild(this.hashRange + 1 << 1);
 			}
 			return true;
 		}
@@ -172,10 +171,10 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		}
 
 		// case 3: append new entry
-		this.slots[index] = new Entry<>(id, object, head);
-		if(this.size++ >= this.modulo)
+		this.hashSlots[index] = new Entry<>(id, object, head);
+		if(this.size++ >= this.hashRange)
 		{
-			this.rebuild(this.modulo + 1 << 1);
+			this.rebuild(this.hashRange + 1 << 1);
 		}
 		return true;
 	}
@@ -183,15 +182,15 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public long putGet(final T object, final long id)
 	{
 		final int index;
-		final Entry<T> head = this.slots[index = identityHashCode(object) & this.modulo];
+		final Entry<T> head = this.hashSlots[index = identityHashCode(object) & this.hashRange];
 
 		// case 1: new head entry
 		if(head == null)
 		{
-			this.slots[index] = new Entry<>(id, object);
-			if(this.size++ >= this.modulo)
+			this.hashSlots[index] = new Entry<>(id, object);
+			if(this.size++ >= this.hashRange)
 			{
-				this.rebuild(this.modulo + 1 << 1);
+				this.rebuild(this.hashRange + 1 << 1);
 			}
 			return 0L;
 		}
@@ -214,10 +213,10 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		}
 
 		// case 3: append new entry
-		this.slots[index] = new Entry<>(id, object, head);
-		if(this.size++ >= this.modulo)
+		this.hashSlots[index] = new Entry<>(id, object, head);
+		if(this.size++ >= this.hashRange)
 		{
-			this.rebuild(this.modulo + 1 << 1);
+			this.rebuild(this.hashRange + 1 << 1);
 		}
 		return 0L;
 	}
@@ -228,7 +227,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		{
 			throw new NullPointerException();
 		}
-		for(Entry<T> entry = this.slots[identityHashCode(object) & this.modulo]; entry != null; entry = entry.next)
+		for(Entry<T> entry = this.hashSlots[identityHashCode(object) & this.hashRange]; entry != null; entry = entry.next)
 		{
 			if(entry.ref == object)
 			{
@@ -241,7 +240,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public XList<T> getObjects()
 	{
 		final BulkList<T> list = new BulkList<>(this.size);
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(; entry != null; entry = entry.next)
 			{
@@ -254,7 +253,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public XList<Long> getIds()
 	{
 		final BulkList<Long> list = new BulkList<>(this.size);
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(; entry != null; entry = entry.next)
 			{
@@ -266,7 +265,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 
 	public int iterateObjects(final Consumer<? super T> procedure)
 	{
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(; entry != null; entry = entry.next)
 			{
@@ -284,7 +283,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 	public long optimize()
 	{
 		final int newCapacity;
-		if((newCapacity = XMath.pow2BoundCapped(this.size)) != this.slots.length)
+		if((newCapacity = XMath.pow2BoundCapped(this.size)) != this.hashSlots.length)
 		{
 			this.rebuild(newCapacity);
 		}
@@ -293,7 +292,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 
 	public int iterateIds(final Consumer<? super Long> procedure)
 	{
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(; entry != null; entry = entry.next)
 			{
@@ -305,7 +304,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 
 	public int iterateIds(final _longProcedure procedure)
 	{
-		for(Entry<T> entry : this.slots)
+		for(Entry<T> entry : this.hashSlots)
 		{
 			for(; entry != null; entry = entry.next)
 			{
@@ -317,7 +316,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 
 	public void clear()
 	{
-		final Entry<T>[] slots = this.slots;
+		final Entry<T>[] slots = this.hashSlots;
 		for(int i = 0, len = slots.length; i < len; i++)
 		{
 			slots[i] = null;
