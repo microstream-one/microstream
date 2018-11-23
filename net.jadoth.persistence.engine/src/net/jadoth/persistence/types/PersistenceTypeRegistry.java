@@ -3,11 +3,13 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.HashMapIdObject;
 import net.jadoth.collections.HashMapObjectId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyWrongType;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyWrongTypeId;
 import net.jadoth.util.Flag;
 
 public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 {
-	public boolean registerType(long tid, Class<?> type) throws PersistenceExceptionConsistency;
+	public boolean registerType(long typeId, Class<?> type) throws PersistenceExceptionConsistency;
 	
 	public default boolean registerTypes(
 		final Iterable<? extends PersistenceTypeLink> types
@@ -163,8 +165,8 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		// instance fields //
 		////////////////////
 
-		private final HashMapIdObject<Class<?>> perTypeId = HashMapIdObject.New();
-		private final HashMapObjectId<Class<?>> perType   = HashMapObjectId.New();
+		private final HashMapIdObject<Class<?>> typesPerIds = HashMapIdObject.New();
+		private final HashMapObjectId<Class<?>> idsPerTypes = HashMapObjectId.New();
 		
 		
 		
@@ -184,15 +186,16 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		////////////
 
 		@Override
-		public long lookupTypeId(final Class<?> type)
+		public final synchronized long lookupTypeId(final Class<?> type)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeLookup#lookupTypeId()
+			return this.idsPerTypes.get(type);
 		}
 
+		@SuppressWarnings("unchecked") // cast safety ensured by registration logic
 		@Override
-		public <T> Class<T> lookupType(final long typeId)
+		public final synchronized <T> Class<T> lookupType(final long typeId)
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeLookup#lookupType()
+			return (Class<T>)this.typesPerIds.get(typeId);
 		}
 
 		@Override
@@ -216,9 +219,38 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		}
 
 		@Override
-		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
+		public final synchronized boolean registerType(
+			final long     typeId,
+			final Class<?> type
+		)
+			throws PersistenceExceptionConsistency
 		{
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME SwizzleTypeRegistry#registerType()
+			final Class<?> registeredType   = this.typesPerIds.get(typeId);
+			final long     registeredTypeId = this.idsPerTypes.get(type);
+			
+			if(registeredType == null)
+			{
+				if(registeredTypeId == Persistence.nullId())
+				{
+					this.typesPerIds.add(typeId, type);
+					this.idsPerTypes.add(type, typeId);
+					return true;
+				}
+				
+				throw new PersistenceExceptionConsistencyWrongTypeId(type, registeredTypeId, typeId);
+			}
+			
+			if(registeredType == type)
+			{
+				if(registeredTypeId == typeId)
+				{
+					return false;
+				}
+
+				throw new PersistenceExceptionConsistencyWrongTypeId(type, registeredTypeId, typeId);
+			}
+
+			throw new PersistenceExceptionConsistencyWrongType(typeId, registeredType, type);
 		}
 		
 	}
