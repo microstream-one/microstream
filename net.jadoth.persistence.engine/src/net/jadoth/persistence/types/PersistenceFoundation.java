@@ -7,7 +7,6 @@ import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.swizzling.internal.SwizzleRegistryGrowingRange;
 import net.jadoth.swizzling.types.Swizzle;
-import net.jadoth.swizzling.types.SwizzleFoundation;
 import net.jadoth.swizzling.types.SwizzleObjectIdProvider;
 import net.jadoth.swizzling.types.SwizzleObjectManager;
 import net.jadoth.swizzling.types.SwizzleObjectRegistry;
@@ -16,6 +15,7 @@ import net.jadoth.swizzling.types.SwizzleTypeManager;
 import net.jadoth.swizzling.types.SwizzleTypeRegistry;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
+import net.jadoth.util.InstanceDispatcher;
 
 
 /**
@@ -29,7 +29,7 @@ import net.jadoth.typing.XTypes;
  * @author Thomas Muenz
  * @param <M>
  */
-public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>> extends SwizzleFoundation<F>
+public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
@@ -51,6 +51,22 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	 * @return a clone of this instance.
 	 */
 	public PersistenceFoundation<M, F> Clone();
+	
+
+	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
+
+
+	public SwizzleObjectIdProvider getObjectIdProvider();
+
+	public SwizzleTypeIdProvider getTypeIdProvider();
+
+
+	public F setObjectIdProvider(SwizzleObjectIdProvider oidProvider);
+
+	public F setTypeIdProvider(SwizzleTypeIdProvider tidProvider);
+
+	public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
+	F setSwizzleIdProvider(P swizzleTypeIdProvider);
 	
 
 	public PersistenceStorer.Creator<M> getStorerCreator();
@@ -295,12 +311,15 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 
 	public class Implementation<M, F extends PersistenceFoundation.Implementation<M, ?>>
-	extends SwizzleFoundation.Implementation<F>
+	extends InstanceDispatcher.Implementation
 	implements PersistenceFoundation<M, F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+
+		private SwizzleObjectIdProvider oidProvider;
+		private SwizzleTypeIdProvider   tidProvider;
 
 		// first level assembly parts (used directly to build manager instance) \\
 		private SwizzleTypeRegistry                     swizzleTypeRegistry        ;
@@ -365,6 +384,12 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		// methods //
 		////////////
 		
+		@SuppressWarnings("unchecked") // magic self-type.
+		protected final F $()
+		{
+			return (F)this;
+		}
+		
 		@Override
 		public PersistenceFoundation.Implementation<M, F> Clone()
 		{
@@ -374,8 +399,34 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
+
+		@Override
+		public InstanceDispatcherLogic getInstanceDispatcherLogic()
+		{
+			return this.getInstanceDispatcherLogic();
+		}
+
+		@Override
+		public SwizzleObjectIdProvider getObjectIdProvider()
+		{
+			if(this.oidProvider == null)
+			{
+				this.oidProvider = this.dispatch(this.ensureObjectIdProvider());
+			}
+			return this.oidProvider;
+		}
+
+		@Override
+		public SwizzleTypeIdProvider getTypeIdProvider()
+		{
+			if(this.tidProvider == null)
+			{
+				this.tidProvider = this.dispatch(this.ensureTypeIdProvider());
+			}
+			return this.tidProvider;
+		}
 		
 		@Override
 		public PersistenceTypeLineageCreator getTypeLineageCreator()
@@ -935,6 +986,29 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			super.setInstanceDispatcherLogic(instanceDispatcher);
 			return this.$();
 		}
+		
+		@Override
+		public F setObjectIdProvider(final SwizzleObjectIdProvider oidProvider)
+		{
+			this.oidProvider = oidProvider;
+			return this.$();
+		}
+
+		@Override
+		public F setTypeIdProvider(final SwizzleTypeIdProvider tidProvider)
+		{
+			this.tidProvider = tidProvider;
+			return this.$();
+		}
+
+		@Override
+		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider>
+		F setSwizzleIdProvider(final P swizzleTypeIdProvider)
+		{
+			this.setObjectIdProvider(swizzleTypeIdProvider);
+			this.setTypeIdProvider(swizzleTypeIdProvider);
+			return this.$();
+		}
 
 		@Override
 		public F setObjectManager(
@@ -994,34 +1068,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		public F setTypeRegistry(final SwizzleTypeRegistry swizzleTypeRegistry)
 		{
 			this.swizzleTypeRegistry = swizzleTypeRegistry;
-			return this.$();
-		}
-
-		@Override
-		public F setObjectIdProvider(
-			final SwizzleObjectIdProvider oidProvider
-		)
-		{
-			super.setObjectIdProvider(oidProvider);
-			return this.$();
-		}
-
-		@Override
-		public F setTypeIdProvider(
-			final SwizzleTypeIdProvider tidProvider
-		)
-		{
-			super.setTypeIdProvider(tidProvider);
-			return this.$();
-		}
-
-		@Override
-		public <P extends SwizzleTypeIdProvider & SwizzleObjectIdProvider> F setSwizzleIdProvider(
-			final P swizzleTypeIdProvider
-		)
-		{
-			this.setObjectIdProvider(swizzleTypeIdProvider);
-			this.setTypeIdProvider  (swizzleTypeIdProvider);
 			return this.$();
 		}
 
@@ -1404,8 +1450,25 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		
 		///////////////////////////////////////////////////////////////////////////
-		// creators //
+		// ensuring //
 		/////////////
+		
+		/* Explanation:
+		 * These methods are not actually abstract because it is not necessaryly required
+		 * to create new instances of these types. Instead, appropriate instances can be set.
+		 * These methods exist in order to allow sub classes to implement them optionally
+		 * and throw an exception if neither implementation nor set instance is available.
+		 */
+
+		protected SwizzleObjectIdProvider ensureObjectIdProvider()
+		{
+			throw new MissingFoundationPartException(SwizzleObjectIdProvider.class);
+		}
+
+		protected SwizzleTypeIdProvider ensureTypeIdProvider()
+		{
+			throw new MissingFoundationPartException(SwizzleTypeIdProvider.class);
+		}
 
 		protected SwizzleObjectRegistry ensureSwizzleObjectRegistry()
 		{
