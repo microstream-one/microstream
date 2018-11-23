@@ -12,16 +12,13 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.swizzling.types.SwizzleTypeDictionary;
 import net.jadoth.typing.KeyValue;
 
 
-public interface PersistenceTypeDictionary extends SwizzleTypeDictionary
+public interface PersistenceTypeDictionary
 {
-	@Override
 	public PersistenceTypeDefinition lookupTypeByName(String typeName);
 
-	@Override
 	public PersistenceTypeDefinition lookupTypeById(long typeId);
 	
 	
