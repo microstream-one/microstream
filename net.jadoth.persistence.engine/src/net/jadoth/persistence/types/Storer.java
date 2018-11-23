@@ -3,8 +3,9 @@ package net.jadoth.persistence.types;
 /**
  * A type extending the simple {@link PersistenceStoring} to have stateful store handling.
  * This can be used to do what is generally called "transactions": preprocess data to be stored and then store
- * either all or nothing.
- * It can also be used to skip certain references, etc.
+ * either all or nothing.<br>
+ * It can also be used to skip certain references, etc.<br>
+ * The naming (missing "Persistence" prefix) is intentional to support convenience on the application code level.
  *
  * @author TM
  */

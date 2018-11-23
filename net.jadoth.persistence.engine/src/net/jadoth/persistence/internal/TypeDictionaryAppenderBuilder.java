@@ -1,9 +1,12 @@
-package net.jadoth.persistence.types;
+package net.jadoth.persistence.internal;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.functional.Aggregator;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberField;
+import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 
-final class TypeDictionaryAppenderBuilder
+public final class TypeDictionaryAppenderBuilder
 implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderImplementation>
 {
 	///////////////////////////////////////////////////////////////////////////
