@@ -91,7 +91,7 @@ public interface ComConnectionAcceptor<C>
 		public final void acceptConnection(final C connection, final ComHost<C> parent)
 		{
 			// note: things like authentication could be done here in a wrapping implementation.
-						
+			
 			final ComProtocol protocol = this.protocolProvider.provideProtocol(connection);
 			this.connectionHandler.sendProtocol(connection, protocol, this.protocolStringConverter);
 			
