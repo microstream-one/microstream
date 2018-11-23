@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.collections.HashMapIdObject;
+import net.jadoth.collections.HashMapObjectId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
 import net.jadoth.util.Flag;
 
@@ -7,24 +9,30 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 {
 	public boolean registerType(long tid, Class<?> type) throws PersistenceExceptionConsistency;
 	
-	public default boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
+	public default boolean registerTypes(
+		final Iterable<? extends PersistenceTypeLink> types
+	)
 		throws PersistenceExceptionConsistency
 	{
-		// validate all type mappings before registering anything
-		this.validatePossibleTypeMappings(types);
-		
-		final Flag hasChanged = Flag.New();
-		
-		// register type identities (typeId<->type) first to make all types available for type handler creation
-		types.forEach(e ->
+		synchronized(this)
 		{
-			if(this.registerType(e.typeId(), e.type()) && hasChanged.isOff())
+			// validate all type mappings before registering anything
+			this.validatePossibleTypeMappings(types);
+			
+			final Flag hasChanged = Flag.New();
+			
+			// register type identities (typeId<->type) first to make all types available for type handler creation
+			types.forEach(e ->
 			{
-				hasChanged.on();
-			}
-		});
+				if(this.registerType(e.typeId(), e.type()) && hasChanged.isOff())
+				{
+					hasChanged.on();
+				}
+			});
+			
+			return hasChanged.isOn();
+		}
 		
-		return hasChanged.isOn();
 	}
 	
 	
@@ -148,6 +156,32 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 //			}
 //			return false;
 //		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+
+		private final HashMapIdObject<Class<?>> perTypeId = HashMapIdObject.New();
+		private final HashMapObjectId<Class<?>> perType   = HashMapObjectId.New();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long lookupTypeId(final Class<?> type)
@@ -188,7 +222,5 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		}
 		
 	}
-	
-	
 
 }
