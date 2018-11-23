@@ -43,16 +43,11 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public long currentTypeId()
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
-	{
-		throw new PersistenceExceptionTypeNotPersistable(type);
 	}
 
 	@Override
@@ -66,32 +61,46 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	{
 		throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 	}
-
+	
 	@Override
-	public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+	public boolean validateTypeMapping(final long typeId, final Class<?> type)
+		throws PersistenceExceptionConsistency
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+		throws PersistenceExceptionConsistency
+	{
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-		throws PersistenceExceptionConsistency
+	public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
-
+	
 	@Override
-	public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+	public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
 		throws PersistenceExceptionConsistency
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -99,8 +108,9 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public void updateCurrentHighestTypeId(final long highestTypeId)
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -109,8 +119,9 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}
@@ -118,8 +129,9 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	@Override
 	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 	{
-		/* this is not an API misdesign abuse of this exception (like in the JDK), but instead
-		 * this implementation actually does not support that operation.
+		/*
+		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
 	}

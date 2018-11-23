@@ -432,11 +432,25 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			return this.typeHandlerRegistry.lookupType(typeId);
 		}
-
+		
 		@Override
-		public final void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency
 		{
-			this.typeHandlerRegistry.validateExistingTypeMapping(typeId, type);
+			return this.typeHandlerRegistry.validateTypeMapping(typeId, type);
+		}
+		
+		@Override
+		public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
+		{
+			return this.typeHandlerRegistry.validateTypeMappings(mappings);
+		}
+				
+		@Override
+		public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
+			throws PersistenceExceptionConsistency
+		{
+			return this.typeHandlerRegistry.registerTypes(types);
 		}
 
 		@Override
@@ -502,20 +516,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				return true;
 			}
 			return false;
-		}
-
-		@Override
-		public final void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.typeHandlerRegistry.validateExistingTypeMappings(mappings);
-		}
-
-		@Override
-		public final void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.typeHandlerRegistry.validatePossibleTypeMappings(mappings);
 		}
 
 		@Override

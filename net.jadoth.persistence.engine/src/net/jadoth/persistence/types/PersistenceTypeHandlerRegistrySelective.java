@@ -32,7 +32,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		/////////////////////
 
 		private final PersistenceTypeHandlerRegistry<M> handlerRegistry;
-		private final PersistenceObjectLookup               objectLookup   ;
+		private final PersistenceObjectLookup           objectLookup   ;
 
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> oidToHandler = HashMapIdObject.New();
 		private final MiniMap<Object, PersistenceTypeHandler<M, ?>> objToHandler = new MiniMap<>();
@@ -70,11 +70,31 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		{
 			return this.handlerRegistry.lookupType(typeId);
 		}
+		
+		@Override
+		public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency
+		{
+			return this.handlerRegistry.validateTypeMapping(typeId, type);
+		}
+		
+		@Override
+		public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
+			throws PersistenceExceptionConsistency
+		{
+			return this.handlerRegistry.validateTypeMappings(mappings);
+		}
 
 		@Override
-		public void validateExistingTypeMapping(final long typeId, final Class<?> type)
+		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
 		{
-			this.handlerRegistry.validateExistingTypeMapping(typeId, type);
+			return this.handlerRegistry.registerType(tid, type);
+		}
+		
+		@Override
+		public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
+			throws PersistenceExceptionConsistency
+		{
+			return this.handlerRegistry.registerTypes(types);
 		}
 
 		@Override
@@ -145,27 +165,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 			this.oidToHandler.put(oid, typeHandler);
 			return this.objToHandler.put(object, typeHandler) != typeHandler;
 		}
-
-		@Override
-		public boolean registerType(final long tid, final Class<?> type) throws PersistenceExceptionConsistency
-		{
-			return this.handlerRegistry.registerType(tid, type);
-		}
-
-		@Override
-		public void validateExistingTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.handlerRegistry.validateExistingTypeMappings(mappings);
-		}
-
-		@Override
-		public void validatePossibleTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
-			throws PersistenceExceptionConsistency
-		{
-			this.handlerRegistry.validatePossibleTypeMappings(mappings);
-		}
-
+		
 		@Override
 		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
