@@ -20,9 +20,9 @@ import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
 public interface PersistenceDistrict<M>
 {
 	public <I extends PersistenceBuildItem<M>> I createBuildItem(
-		PersistenceBuildItem.Creator<M, I> creator,
-		long oid,
-		long tid
+		PersistenceBuildItem.Creator<M, I> creator ,
+		long                               objectId,
+		long                               typeId
 	);
 
 	/**
@@ -31,17 +31,17 @@ public interface PersistenceDistrict<M>
 	 * on demand, e.g. when newly received data meanwhile added the OID<->TID association
 	 *
 	 * @param creator
-	 * @param oid
+	 * @param objectId
 	 * @return
 	 */
 	public <I extends PersistenceBuildItem<M>> I createBuildItem(
-		PersistenceBuildItem.Creator<M, I> creator,
-		long oid
+		PersistenceBuildItem.Creator<M, I> creator ,
+		long                               objectId
 	);
 
 	public <I extends PersistenceBuildItem<M>> I createSkipBuildItem(
-		PersistenceBuildItem.Creator<M, I> creator,
-		long oid
+		PersistenceBuildItem.Creator<M, I> creator ,
+		long                               objectId
 	);
 
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
@@ -51,16 +51,17 @@ public interface PersistenceDistrict<M>
 	/* (23.05.2018 TM)TODO: SwizzleRegistry nonsense method?
 	 * Isn't this method nonsense since the tid got removed?
 	 * Wouldn't a simple lookup suffice for the calling site and the actual registration only done when it's needed?
+	 * Or maybe it's a performance optimization to pull expensive rebuilds before a locked phase?
 	 */
-	public Object ensureRegisteredObjectId(long oid);
+	public Object ensureRegisteredObjectId(long objectId);
 	
-	public Object optionalRegisterObject(long oid, Object object);
+	public Object optionalRegisterObject(long objectId, Object object);
 
-	public Object lookupObject(long oid);
+	public Object lookupObject(long objectId);
 
 	public boolean handleKnownObject(long objectId, PersistenceInstanceHandler handler);
 
-	public Object lookupObject(long oid, long tid);
+	public Object lookupObject(long objectId, long typeId);
 
 	/**
 	 * Commits all uncommitted instances to an effective state, e.g. a parent district or global swizzle registry.
@@ -81,7 +82,7 @@ public interface PersistenceDistrict<M>
 		private final PersistenceTypeHandlerLookup<M> typeLookup;
 		
 		// global registry to synch with other threads
-		private final PersistenceObjectRegistry           registry  ;
+		private final PersistenceObjectRegistry       registry  ;
 
 
 
@@ -90,7 +91,7 @@ public interface PersistenceDistrict<M>
 		/////////////////////
 
 		public Implementation(
-			final PersistenceObjectRegistry           registry  ,
+			final PersistenceObjectRegistry       registry  ,
 			final PersistenceTypeHandlerLookup<M> typeLookup
 
 		)
@@ -107,53 +108,56 @@ public interface PersistenceDistrict<M>
 		////////////
 
 		@Override
-		public <I extends PersistenceBuildItem<M>> I createBuildItem(final Creator<M, I> creator, final long oid)
-		{
-			return creator.createBuildItem(
-				oid,
-				null,
-				this.lookupObject(oid)
-			);
-		}
-
-		@Override
-		public <I extends PersistenceBuildItem<M>> I createSkipBuildItem(
-			final PersistenceBuildItem.Creator<M, I> creator,
-			final long oid
+		public <I extends PersistenceBuildItem<M>> I createBuildItem(
+			final Creator<M, I> creator ,
+			final long          objectId
 		)
 		{
-			return creator.createSkipBuildItem(
-				oid,
-				this.lookupObject(oid)
+			return creator.createBuildItem(
+				objectId,
+				null,
+				this.lookupObject(objectId)
 			);
 		}
 
 		@SuppressWarnings("unchecked") // weird interplay between ? and Object. Correctness guaranteed by logic.
 		@Override
 		public <I extends PersistenceBuildItem<M>> I createBuildItem(
-			final Creator<M, I> creator,
-			final long          oid    ,
-			final long          tid
+			final Creator<M, I> creator ,
+			final long          objectId,
+			final long          typeId
 		)
 		{
 			// type handler lookup (potential miss / validation error, etc.) must be executed BEFORE tid registration
 			return creator.createBuildItem(
-				oid,
-				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(oid, tid),
-				this.ensureRegisteredObjectId(oid)
+				objectId,
+				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(objectId, typeId),
+				this.ensureRegisteredObjectId(objectId)
+			);
+		}
+
+		@Override
+		public <I extends PersistenceBuildItem<M>> I createSkipBuildItem(
+			final PersistenceBuildItem.Creator<M, I> creator ,
+			final long                               objectId
+		)
+		{
+			return creator.createSkipBuildItem(
+				objectId,
+				this.lookupObject(objectId)
 			);
 		}
 		
 		@Override
-		public Object ensureRegisteredObjectId(final long oid)
+		public Object ensureRegisteredObjectId(final long objectId)
 		{
-			return this.registry.registerObjectId(oid);
+			return this.registry.registerObjectId(objectId);
 		}
 		
 		@Override
-		public Object optionalRegisterObject(final long oid, final Object object)
+		public Object optionalRegisterObject(final long objectId, final Object object)
 		{
-			return this.registry.optionalRegisterObject(oid, object);
+			return this.registry.optionalRegisterObject(objectId, object);
 		}
 
 		@Override
@@ -169,9 +173,9 @@ public interface PersistenceDistrict<M>
 		}
 
 		@Override
-		public Object lookupObject(final long oid)
+		public Object lookupObject(final long objectId)
 		{
-			return this.registry.lookupObject(oid);
+			return this.registry.lookupObject(objectId);
 		}
 
 		@Override
@@ -182,14 +186,16 @@ public interface PersistenceDistrict<M>
 			{
 				return false;
 			}
+			
 			handler.handle(objectId, instance);
+			
 			return true;
 		}
 
 		@Override
-		public Object lookupObject(final long oid, final long tid)
+		public Object lookupObject(final long objectId, final long typeId)
 		{
-			return this.lookupObject(oid);
+			return this.lookupObject(objectId);
 		}
 
 		@Override
