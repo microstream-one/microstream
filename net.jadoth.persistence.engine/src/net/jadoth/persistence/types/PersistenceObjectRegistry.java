@@ -3,73 +3,73 @@ package net.jadoth.persistence.types;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.jadoth.collections.interfaces.Sized;
-import net.jadoth.typing.Clearable;
 
 /**
+ * A registry type for biunique associations of arbitrary objects with ids.
  *
  * @author Thomas Muenz
  */
-public interface PersistenceObjectRegistry
-extends PersistenceObjectLookup, Sized, Clearable
+public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 {
 	/* funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
 	 * welcome to this user code class
 	 */
-
-	@Override
-	public long size();
-
-	@Override
-	public boolean isEmpty();
-
-	public int getHashRange();
-
-	public float getHashDensity();
-
-	public int capacity();
-
-	@Override
-	public void clear();
-
-	public boolean containsObjectId(long oid);
+	
+	// entry querying //
 
 	@Override
 	public long lookupObjectId(Object object);
 
 	@Override
-	public Object lookupObject(long oid);
+	public Object lookupObject(long objectId);
 
-	public boolean registerObject(long oid, Object object);
+	public boolean containsObjectId(long objectId);
 
-	public Object optionalRegisterObject(long oid, Object object);
+	public void iterateEntries(Consumer<? super PersistenceObjectRegistry.Entry> iterator);
+
+	// general querying //
+
+	public long size();
+
+	public boolean isEmpty();
+
+	public int hashRange();
+
+	public float hashDensity();
+
+	public int capacity();
+		
+	// registering //
 	
-	public Object registerObjectId(long oid);
+	public boolean registerObject(long objectId, Object object);
 
-	public void clearOrphanEntries();
+	public Object optionalRegisterObject(long objectId, Object object);
 	
-	public void clear(Predicate<? super PersistenceObjectRegistry.Entry> filter);
+	public Object registerObjectId(long objectId);
 
-	public void shrink();
+	// housekeeping //
 
 	/**
 	 * Cleans up internal data structures, e.g. by removing orphan entries and empty hash chains.
 	 * Depending on the implementation and the size of the registry, this can take a considerable amount of time.
 	 */
 	public void cleanUp();
+	
+	public void clearOrphanEntries();
 
-	public void iterateEntries(Consumer<? super PersistenceObjectRegistry.Entry> iterator);
+	public void shrink();
+	
+	// removing //
+	
+	public boolean removeObjectById(long id);
 
-	public Object retrieveByOid(long oid);
+	public boolean removeObject(Object object);
 
-	public long retrieveByObject(Object object);
-
-	public Class<?> retrieveByTid(long tid);
-
-	public boolean removeById(long id);
-
-	public boolean remove(Object object);
+	public void clear();
+	
+	public void clear(Predicate<? super PersistenceObjectRegistry.Entry> filter);
+	
 	
 	
 	public interface Entry

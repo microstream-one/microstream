@@ -8,13 +8,11 @@ import java.util.function.Predicate;
 
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.XMath;
-import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionNullObjectId;
-import net.jadoth.persistence.exceptions.PersistenceExceptionNullTypeId;
-import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
 
 public final class ObjectRegistryGrowingRange implements PersistenceObjectRegistry
 {
@@ -641,13 +639,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public int getHashRange()
+	public int hashRange()
 	{
 		return this.slotsPerOid.length;
 	}
 
 	@Override
-	public float getHashDensity()
+	public float hashDensity()
 	{
 		return this.hashDensity;
 	}
@@ -731,89 +729,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public synchronized Object retrieveByOid(final long oid)
-	{
-		if(oid == Persistence.nullId())
-		{
-			throw new PersistenceExceptionNullObjectId();
-		}
-		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerOid[(int)oid & this.modulo]) != null)
-		{
-			for(int i = 0; i < bucketsI.length; i++)
-			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
-				{
-					final Entry entry = bucketsI[i];
-					synchRemoveEntry(this.slotsPerRef[entry.hash & this.modulo], entry);
-					bucketsI[i] = null;
-					this.size--;
-					return entry.ref.get();
-				}
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public synchronized long retrieveByObject(final Object object)
-	{
-		if(object == null)
-		{
-			throw new NullPointerException();
-		}
-		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerRef[identityHashCode(object) & this.modulo]) != null)
-		{
-			for(int i = 0; i < bucketsI.length; i++)
-			{
-				if(bucketsI[i] != null && bucketsI[i].ref.get() == object)
-				{
-					final Entry entry = bucketsI[i];
-					synchRemoveEntry(this.slotsPerOid[(int)entry.oid & this.modulo], entry);
-					bucketsI[i] = null;
-					this.size--;
-					return entry.oid;
-				}
-			}
-		}
-		
-		return Persistence.nullId();
-	}
-
-	@Override
-	public synchronized Class<?> retrieveByTid(final long tid)
-	{
-		if(tid == Persistence.nullId())
-		{
-			throw new PersistenceExceptionNullTypeId();
-		}
-		
-		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerOid[(int)tid & this.modulo]) != null)
-		{
-			for(int i = 0; i < bucketsI.length; i++)
-			{
-				if(bucketsI[i] != null && bucketsI[i].oid == tid)
-				{
-					final Object ref = bucketsI[i].ref.get();
-					if(ref != null && !(ref instanceof Class<?>))
-					{
-						throw new PersistenceExceptionConsistencyInvalidTypeId(tid);
-					}
-					synchRemoveEntry(this.slotsPerRef[bucketsI[i].hash & this.modulo], bucketsI[i]);
-
-					bucketsI[i] = null;
-					this.size--;
-					return (Class<?>)ref;
-				}
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public synchronized boolean removeById(final long id)
+	public synchronized boolean removeObjectById(final long id)
 	{
 		if(id == Persistence.nullId())
 		{
@@ -837,7 +753,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public synchronized boolean remove(final Object object)
+	public synchronized boolean removeObject(final Object object)
 	{
 		if(object == null)
 		{
