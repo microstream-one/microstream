@@ -1202,6 +1202,124 @@ Nach einigen \'dcberlegungen zwischendurch: Das beste wird sein, die ObjectRegis
 Intern h\'e4lt die Implementierung sich einfach eine List an Entries mit den Constants und bei jedem clear werden die paar wieder dazugeaddet.\par
 Braucht halt dann clear (nur Objects), clearAll, clearConstants Methoden.\par
 \par
+Wenn ich eh daran rumbau, w\'e4re es eine \'dcberlegung wert, gleich die inzwischen aufgelaufenen Ideen f\'fcr eine Verbesserung und evtl. auch algorithmus vereinfachung der ObjectRegistry umzusetzen.\par
+Erst mal evaluieren, was memory-m\'e4\'dfig g\'fcnstiger w\'e4re ...\par
 \par
+Memory consumption without compressed pointers for a single entry:\par
+\par
+Entry:\par
+- 16 byte object header\par
+- 8 byte oid\par
+- 8 byte hash int plus memory padding to 8 byte alignment\par
+- 8 byte reference field to weakReference instance\par
+\par
+WeakReference\par
+- 16 byte object header\par
+- 32 byte for 4 reference fields\par
+\par
+8 byte per-oid-bucket array reference to the Entry instance\par
+8 byte per-ref-bucket array reference to the Entry instance\par
+\par
+always:\par
+104 byte\par
+\par
+\par
+PLUS: \par
+\par
+default hash density of 1.0:\par
+\par
+slotsPerOid: 8 byte array entry reference to the bucket\par
+24 byte bucket array header (1-element bucket is the common case!)\par
+\par
+slotsPerRef: 8 byte array entry reference to the bucket\par
+24 byte bucket array header (1-element bucket is the common case!)\par
+\par
+additional: 64 bytes\par
+\par
+total: 168 bytes\par
+\par
+\par
+\par
+default hash density of 2.0:\par
+\par
+additional: 32 bytes\par
+\par
+total: 136 bytes\par
+\par
+\par
+default hash density of 4.0:\par
+\par
+additional: 16 bytes\par
+\par
+total: 120 bytes\par
+\par
+default hash density of 8.0:\par
+\par
+additional: 8 bytes\par
+\par
+total: 120 bytes\par
+\par
+\par
+With Entry extends WeakReference:\par
+- 16 byte Object header\par
+- 8 byte reference\par
+\par
+change: -24 bytes\par
+\par
+Meaning:\par
+\par
+1.0 hash density: 144 bytes\par
+2.0 hash density: 112 bytes\par
+4.0 hash density: 96 bytes\par
+8.0 hash density: 88 bytes\par
+\par
+\par
+\par
+\par
+With removed unnecessary hash field in Entry:\par
+\par
+1.0 hash density with explicit WeakReference reference: 160 bytes\par
+2.0 hash density with explicit WeakReference reference: 128 bytes\par
+4.0 hash density with explicit WeakReference reference: 112 bytes\par
+8.0 hash density with explicit WeakReference reference: 104 bytes\par
+\par
+1.0 hash density with WeakReference-extending Entry: 136 bytes\par
+2.0 hash density with WeakReference-extending Entry: 104 bytes\par
+4.0 hash density with WeakReference-extending Entry: 88 bytes\par
+8.0 hash density with WeakReference-extending Entry: 80 bytes\par
+\par
+\par
+No Entry class at all but redundant arrays for OID and WeakReference:\par
+\par
+\par
+WeakReference\par
+- 16 byte object header\par
+- 32 byte for 4 reference fields\par
+\par
+8 byte per-oid-bucket array reference to the WeakReference instance\par
+8 byte per-ref-bucket array reference to the WeakReference instance\par
+\par
+WeakReference total: 64 bytes\par
+\par
+1.00 hash density:\par
+- slotsPerOidOids (keys)  : 8 byte array entry reference to the bucket\par
+- slotsPerOidRefs (values): 8 byte array entry reference to the bucket\par
+- slotsPerRefRefs (keys)  : 8 byte array entry reference to the bucket\par
+- slotsPerRefOids (values : 8 byte array entry reference to the bucket\par
+- 24 byte slotsPerOidOids bucket array header (1-element bucket is the common case!)\par
+- 24 byte slotsPerOidRefs bucket array header (1-element bucket is the common case!)\par
+- 24 byte slotsPerRefRefs bucket array header (1-element bucket is the common case!)\par
+- 24 byte slotsPerRefOids bucket array header (1-element bucket is the common case!)\par
+\par
+Hashing total: 128 bytes\par
+\par
+1.0 hash density total: 192\par
+2.0 hash density total: 128\par
+4.0 hash density total: 96\par
+8.0 hash density total: 80\par
+\par
+With 16 elements per bucket: here 72 bytes vs. 76 bytes above.\par
+\par
+plus it would have a LOT less pointer chasing in every case\par
 }
  
