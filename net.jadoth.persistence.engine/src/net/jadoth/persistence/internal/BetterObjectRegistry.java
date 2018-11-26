@@ -5,6 +5,8 @@ import static net.jadoth.X.notNull;
 
 import java.lang.ref.WeakReference;
 
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistency;
+import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 
@@ -63,17 +65,12 @@ public final class BetterObjectRegistry
 	 */
 	private int hashRange;
 	
-	/**
-	 * The initial length of a hashing bucket array. Correlates to {@link #hashDensity}.
-	 * Also serves as the increment in case a bucket becomes too small.
-	 */
-	private int bucketStartLength;
-	/* (26.11.2018 TM)FIXME: bucket length must either be an exact fit or lookups have to null-check
-	 * exact fit would mean a lot of copying overhead, but would have a lot of advantages, too:
-	 * - no locking on buckets during lookup required since all modifications create new bucket instances
-	 * - no memory overhead for partially filled buckets
-	 * - lookups do not require null-checks
-	 */
+	// (27.11.2018 TM)FIXME: not sure its worth it. Rethink.
+//	/**
+//	 * The array length at which buckets become suspiciously long. Correlates to {@link #hashDensity}.
+//	 */
+//	private int bucketLengthThreshold;
+//	private int currentHighestBucketLength;
 	
 	/**
 	 * The amount of conainable entries before a rebuild is required
@@ -91,6 +88,14 @@ public final class BetterObjectRegistry
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+//	private void updateCurrentHighestBucketLength(final int bucketLength)
+//	{
+//		if(bucketLength > this.currentHighestBucketLength)
+//		{
+//			this.currentHighestBucketLength = bucketLength;
+//		}
+//	}
 
 	public long lookupObjectId(final Object object)
 	{
@@ -200,26 +205,255 @@ public final class BetterObjectRegistry
 				{
 					acceptor.accept(oidHashedOidKeys[i], instance);
 				}
-				
 			}
 		}
 		
 		return acceptor;
 	}
 	
-	
-
 	public boolean registerObject(final long objectId, final Object object)
 	{
+		final long[] oidHashedOidKeys;
+		final Item[] oidHashedRefVals;
+		synchronized(this)
+		{
+			// access to all global mutable state is protected by a global lock
+			oidHashedOidKeys = this.oidHashedOidKeysTable[(int)objectId & this.hashRange];
+			oidHashedRefVals = this.oidHashedRefValsTable[(int)objectId & this.hashRange];
+		}
 		
+		// quick check for already contained or colliding entry.
+		for(int i = 0; i < oidHashedOidKeys.length; i++)
+		{
+			if(oidHashedOidKeys[i] == objectId)
+			{
+				if(oidHashedRefVals[i].get() == object)
+				{
+					return false;
+				}
+				
+				final Object alreadyRegistered = oidHashedRefVals[i].get();
+				if(alreadyRegistered != null)
+				{
+					throw new PersistenceExceptionConsistencyObject(objectId, alreadyRegistered, object);
+				}
+
+				// Orphan entry. To be handled as if the object is not registered, yet.
+			}
+		}
+		
+		// also does a re-check during bucket rebuild
+		this.synchronizedRegister(objectId, object);
+		
+		// check for global rebuild
+		this.synchCheckForRebuild();
+		
+		return true;
 	}
 	
+	private void synchCheckForRebuild()
+	{
+		// even if some buckets are too long
+		if(this.size <= this.capacity)
+		{
+			return;
+		}
+		
+		this.synchRebuild();
+	}
+	
+	private void synchRebuild()
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME BetterObjectRegistry#synchRebuild()
+	}
+	
+	
+	private synchronized boolean synchronizedRegister(final long objectId, final Object object)
+	{
+		if(this.addPerObjectId(objectId, object))
+		{
+			this.addPerObject(objectId, object);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	private boolean addPerObjectId(final long objectId, final Object object)
+	{
+		final long[] oldOidKeys = this.oidHashedOidKeysTable[(int)objectId & this.hashRange];
+		final Item[] oldRefVals = this.oidHashedRefValsTable[(int)objectId & this.hashRange];
+		final int    oldLength  = oldOidKeys.length;
+		
+		final long[] newOidKeys = new long[oldLength + 1];
+		final Item[] newRefVals = new Item[oldLength + 1];
+		
+		int t = 0; // target index in the new bucket arrays. Drags behind i for orphan entries.
+		for(int i = 0; i < oldLength; i++)
+		{
+			if(oldOidKeys[i] == objectId)
+			{
+				if(oldRefVals[i].get() == object)
+				{
+					// object has been concurrently registered in the meantime, abort.
+					return false;
+				}
+				
+				final Object alreadyRegistered = oldRefVals[i].get();
+				if(alreadyRegistered != null)
+				{
+					throw new PersistenceExceptionConsistencyObject(objectId, alreadyRegistered, object);
+				}
+				
+				// subject orphan entry, note and discard (can NOT be consolidated with the general case below!)
+				continue;
+			}
+			
+			// check for general orphan case
+			if(oldRefVals[i].get() == null)
+			{
+				// non-subject orphan entry, note and discard.
+				continue;
+			}
+			
+			// copy non-orphan non-subject entry to new bucket arrays
+			newOidKeys[t] = oldOidKeys[i];
+			newRefVals[t] = oldRefVals[i];
+			t++;
+		}
+		
+		// if at least orphan was found, the bucket arrays have to be rebuilt again.
+		if(t < oldLength)
+		{
+			this.addNewEntryPerObjectId(truncatePlus1(newOidKeys, t), truncatePlus1(newRefVals, t), objectId, object);
+			
+			// size change: subtract orphan count, add one for the new entry
+			this.size = this.size - oldLength + t + 1;
+		}
+		else
+		{
+			this.addNewEntryPerObjectId(newOidKeys, newRefVals, objectId, object);
+			
+			// size change: no orphans, so just an increment.
+			this.size++;
+		}
+		
+		return true;
+	}
+	
+	private void addPerObject(final long objectId, final Object object)
+	{
+		final Item[] oldRefKeys = this.refHashedRefKeysTable[identityHashCode(object) & this.hashRange];
+		final long[] oldOidVals = this.refHashedOidValsTable[identityHashCode(object) & this.hashRange];
+		final int    oldLength  = oldRefKeys.length;
+		
+		final Item[] newRefKeys = new Item[oldLength + 1];
+		final long[] newOidVals = new long[oldLength + 1];
+		
+		int t = 0; // target index in the new bucket arrays. Drags behind i for orphan entries.
+		for(int i = 0; i < oldLength; i++)
+		{
+			if(oldOidVals[i] == objectId)
+			{
+				if(oldRefKeys[i].get() != null)
+				{
+					// this may never happen as it means the registry has become inherently inconsistent.
+					// (27.11.2018 TM)EXCP: proper exception
+					throw new PersistenceExceptionConsistency("Object registry inconsistency for objectId " + objectId);
+				}
+				
+				// subject orphan entry, note and discard (can NOT be consolidated with the general case below!)
+				continue;
+			}
+			
+			// check for general orphan case
+			if(oldRefKeys[i].get() == null)
+			{
+				// non-subject orphan entry, note and discard.
+				continue;
+			}
+			
+			// copy non-orphan non-subject entry to new bucket arrays
+			newRefKeys[t] = oldRefKeys[i];
+			newOidVals[t] = oldOidVals[i];
+			t++;
+		}
+		
+		// if at least orphan was found, the bucket arrays have to be rebuilt again.
+		if(t < oldLength)
+		{
+			this.addNewEntryPerObject(truncatePlus1(newRefKeys, t), truncatePlus1(newOidVals, t), objectId, object);
+			// size change already done by per-oid adding
+		}
+		else
+		{
+			this.addNewEntryPerObject(newRefKeys, newOidVals, objectId, object);
+			// size change already done by per-oid adding
+		}
+	}
+	
+	private static void addNewEntry(
+		final long[] oidBucket,
+		final Item[] refBucket,
+		final long   objectId  ,
+		final Object object
+	)
+	{
+		// a new entry is always at the last index
+		oidBucket[oidBucket.length - 1] = objectId;
+		refBucket[refBucket.length - 1] = new ObjectEntry(object);
+	}
+	
+	private void addNewEntryPerObjectId(
+		final long[] oidBucket,
+		final Item[] refBucket,
+		final long   objectId ,
+		final Object object
+	)
+	{
+		addNewEntry(oidBucket, refBucket, objectId, object);
+		this.oidHashedOidKeysTable[(int)objectId & this.hashRange] = oidBucket;
+		this.oidHashedRefValsTable[(int)objectId & this.hashRange] = refBucket;
+	}
+	
+	private void addNewEntryPerObject(
+		final Item[] refBucket,
+		final long[] oidBucket,
+		final long   objectId ,
+		final Object object
+	)
+	{
+		addNewEntry(oidBucket, refBucket, objectId, object);
+		
+		this.refHashedRefKeysTable[identityHashCode(object) & this.hashRange] = refBucket;
+		this.refHashedOidValsTable[identityHashCode(object) & this.hashRange] = oidBucket;
+	}
+	
+	private static long[] truncatePlus1(final long[] array, final int elementCount)
+	{
+		final long[] newArray = new long[elementCount + 1];
+		System.arraycopy(array, 0, newArray, 0, elementCount);
+		return newArray;
+	}
+	
+	private static Item[] truncatePlus1(final Item[] array, final int elementCount)
+	{
+		final Item[] newArray = new Item[elementCount + 1];
+		System.arraycopy(array, 0, newArray, 0, elementCount);
+		return newArray;
+	}
 	
 	
 	
 	public interface Item
 	{
 		public Object get();
+		
+		public default boolean isOrphan()
+		{
+			return this.get() == null;
+		}
 	}
 	
 	
