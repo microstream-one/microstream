@@ -298,6 +298,16 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 		this.synchRebuild(this.slotsPerOid.length << 1);
 	}
+	
+	
+	/**
+	 * Rebuild with maintained hash size to clean up orphan entries.
+	 * 
+	 */
+	private void synchRebuild()
+	{
+		this.synchRebuild(this.slotsPerOid.length);
+	}
 
 	private void synchRebuild(final int slotLength)
 	{
@@ -689,15 +699,15 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return lookupObject(this.synchronizedGetSlotsPerOid()[(int)oid & this.modulo], oid);
 	}
 	
-	@Override
-	public Object registerObjectId(final long oid)
-	{
-		if(oid == Persistence.nullId())
-		{
-			throw new PersistenceExceptionNullObjectId();
-		}
-		return this.synchronizedPutId(oid);
-	}
+//	@Override
+//	public Object registerObjectId(final long oid)
+//	{
+//		if(oid == Persistence.nullId())
+//		{
+//			throw new PersistenceExceptionNullObjectId();
+//		}
+//		return this.synchronizedPutId(oid);
+//	}
 
 	@Override
 	public boolean registerObject(final long oid, final Object object)
@@ -797,7 +807,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	public synchronized void cleanUp()
 	{
 		this.clearOrphanEntries();
-		this.synchRebuild(this.slotsPerOid.length);
+		this.synchRebuild();
 	}
 
 	@Override

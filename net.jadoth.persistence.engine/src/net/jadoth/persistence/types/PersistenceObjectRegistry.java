@@ -46,7 +46,9 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public Object optionalRegisterObject(long objectId, Object object);
 	
-	public Object registerObjectId(long objectId);
+
+	// (26.11.2018 TM)NOTE: since the removal of the TID registration, the registerObjectId method is nonsense.
+//	public Object registerObjectId(long objectId);
 
 	// housekeeping //
 
@@ -77,6 +79,11 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		public long id();
 		
 		public Object reference();
+	}
+	
+	public interface Acceptor
+	{
+		public void accept(long objectId, Object instance);
 	}
 
 }
