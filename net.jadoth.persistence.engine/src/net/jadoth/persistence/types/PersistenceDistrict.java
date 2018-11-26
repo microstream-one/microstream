@@ -52,8 +52,9 @@ public interface PersistenceDistrict<M>
 	 * Isn't this method nonsense since the tid got removed?
 	 * Wouldn't a simple lookup suffice for the calling site and the actual registration only done when it's needed?
 	 * Or maybe it's a performance optimization to pull expensive rebuilds before a locked phase?
+	 * (26.11.2018 TM)NOTE: replaced with lookupObject
 	 */
-	public Object ensureRegisteredObjectId(long objectId);
+//	public Object ensureRegisteredObjectId(long objectId);
 	
 	public Object optionalRegisterObject(long objectId, Object object);
 
@@ -132,7 +133,9 @@ public interface PersistenceDistrict<M>
 			return creator.createBuildItem(
 				objectId,
 				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(objectId, typeId),
-				this.ensureRegisteredObjectId(objectId)
+				// (26.11.2018 TM)NOTE: since the removal of the TID registration, the ensure method is nonsense.
+				this.lookupObject(objectId)
+//				this.ensureRegisteredObjectId(objectId)
 			);
 		}
 
@@ -148,11 +151,11 @@ public interface PersistenceDistrict<M>
 			);
 		}
 		
-		@Override
-		public Object ensureRegisteredObjectId(final long objectId)
-		{
-			return this.registry.registerObjectId(objectId);
-		}
+//		@Override
+//		public Object ensureRegisteredObjectId(final long objectId)
+//		{
+//			return this.registry.registerObjectId(objectId);
+//		}
 		
 		@Override
 		public Object optionalRegisterObject(final long objectId, final Object object)
