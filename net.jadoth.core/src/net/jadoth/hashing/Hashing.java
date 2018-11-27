@@ -134,17 +134,22 @@ public final class Hashing
 	{
 		return (HashEqualator<KV>)HASH_EQUALITY_IDENTITY_KV;
 	}
-
-	public static final int padHashLength(final int minimalHashLength)
+	
+	public static final int calculateHashLength(final long desiredCapacity, final float hashDensity)
 	{
-		if(XMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
+		return padHashLength((long)(desiredCapacity / hashDensity));
+	}
+
+	public static final int padHashLength(final long desiredHashLength)
+	{
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(desiredHashLength))
 		{
 			// (technical) magic value. Cannot be higher due to hashing bit arithmetic.
-			return XMath.highestPowerOf2Integer();
+			return XMath.highestPowerOf2_int();
 		}
 		
 		int capacity = 1;
-		while(capacity < minimalHashLength)
+		while(capacity < desiredHashLength)
 		{
 			capacity <<= 1;
 		}

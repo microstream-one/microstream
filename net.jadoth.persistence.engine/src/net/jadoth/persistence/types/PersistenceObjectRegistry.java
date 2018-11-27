@@ -1,8 +1,5 @@
 package net.jadoth.persistence.types;
 
-import java.util.function.Predicate;
-
-
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
  *
@@ -25,7 +22,7 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public boolean containsObjectId(long objectId);
 
-	public <A extends PersistenceObjectRegistry.Acceptor> A iterateEntries(A acceptor);
+	public <A extends PersistenceAcceptor> A iterateEntries(A acceptor);
 
 	// general querying //
 
@@ -63,28 +60,15 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	
 	// removing //
 	
-	public boolean removeObjectById(long id);
+	public boolean removeObjectById(long objectId);
 
 	public boolean removeObject(Object object);
+	
+	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
 
 	public void clear();
-	
-	public void clear(Predicate<? super PersistenceObjectRegistry.Entry> filter);
 	
 
 	// (27.11.2018 TM)FIXME: JET-48: methods for constants handling
 	
-	
-	public interface Entry
-	{
-		public long id();
-		
-		public Object reference();
-	}
-	
-	public interface Acceptor
-	{
-		public void accept(long objectId, Object instance);
-	}
-
 }

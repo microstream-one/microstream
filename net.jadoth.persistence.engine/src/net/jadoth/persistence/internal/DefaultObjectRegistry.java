@@ -4,92 +4,31 @@ import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
 import java.lang.ref.WeakReference;
-import java.util.function.Predicate;
 
 import net.jadoth.hashing.Hashing;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
+import net.jadoth.persistence.types.PersistencePredicate;
 
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
-	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
-	
-	/**
-	 * Object registries are meant to keep thousands of objects, even in small applications.
-	 * So anything below ~1000 is just a redundant excercise in initial array copying, especially
-	 * considering the numerous constant instanes that must be registered
+	/* Notes:
+	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . welcome to this user code class!
+	 * - all methods prefixed with "synch" are only called from inside a synchronized context
 	 */
-	private static final int MINIMUM_HASH_LENGTH = 1<<10; // 1024
-	
-	/**
-	 * (Technical) magic value. Cannot be higher due to hashing bit arithmetic.
-	 */
-	private static final int MAXIMUM_HASH_LENGTH = 1<<30; // 1073741824, highest power-of-2 int value
-	
-	
-	
+			
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
-	public static final int padHashLength(final long desiredHashLength)
-	{
-		if(desiredHashLength >= MAXIMUM_HASH_LENGTH)
-		{
-			return MAXIMUM_HASH_LENGTH;
-		}
 		
-		int capacity = MINIMUM_HASH_LENGTH;
-		while(capacity < desiredHashLength)
-		{
-			capacity <<= 1;
-		}
-		
-		return capacity;
-	}
-	
-	public static final float padHashDensity(final float desiredHashDensity)
-	{
-		if(Hashing.hashDensity(desiredHashDensity) < minimumHashDensity())
-		{
-			return minimumHashDensity();
-		}
-		
-		// the desired hash density is valid, so it can be used directly
-		return desiredHashDensity;
-	}
-	
-	public static final float minimumHashDensity()
+	public static final float defaultHashDensity()
 	{
 		// below that, the overhead for the quad-bucket-arrays does not pay off and performance gain wouldn't be much.
 		return 8.0f;
 	}
-	
-	public static final float defaultHashDensity()
-	{
-		// start low
-		return minimumHashDensity();
-	}
-	
-	public static final int minimumHashLength()
-	{
-		return MINIMUM_HASH_LENGTH;
-	}
-	
-	public static final int defaultHashLength()
-	{
-		// start low
-		return MINIMUM_HASH_LENGTH;
-	}
-	
-	public static final int maximumHashLength()
-	{
-		return MAXIMUM_HASH_LENGTH;
-	}
-	
+		
 	
 	
 	public static final DefaultObjectRegistry New()
@@ -101,10 +40,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		// there is no point in supporting a desired initial capacity when there's a capacity low bound for the size.
 		
-		final float hashDensity  = padHashDensity(desiredHashDensity);
-		final int   hashLength   = defaultHashLength();
-		final int   hashRange    = hashLength - 1;
-		final long  capacityHigh = (long)(hashLength * hashDensity);
+		final float hashDensity  = Hashing.hashDensity(desiredHashDensity);
+		final int   hashLength   = 1;
+		final int   hashRange    = 0;
+		final long  capacityHigh = (long)hashDensity;
 		final long  capacityLow  = 0;
 		final long  size         = 0;
 		
@@ -316,7 +255,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public synchronized <A extends PersistenceObjectRegistry.Acceptor> A iterateEntries(final A acceptor)
+	public synchronized <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
 	{
 		// iterating everything has so many bucket accesses that a total lock is the only viable thing to do.
 		
@@ -442,6 +381,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#removeObject()
 	}
+	
+	@Override
+	public <P extends PersistencePredicate> P removeObjectsBy(final P filter)
+	{
+		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#clear()
+	}
 
 	@Override
 	public final synchronized void clear()
@@ -453,22 +398,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	public final synchronized void clearAll()
 	{
 		// there is no point in keeping the old hash table arrays when there's a capacity low bound.
-		final int hashLength = defaultHashLength();
-		this.oidHashedOidKeysTable = new long[hashLength][];
-		this.oidHashedRefValsTable = new Item[hashLength][];
-		this.refHashedRefKeysTable = new Item[hashLength][];
-		this.refHashedOidValsTable = new long[hashLength][];
-		this.hashLength   = hashLength;
-		this.hashRange    = hashLength - 1;
+		this.oidHashedOidKeysTable = new long[1][];
+		this.oidHashedRefValsTable = new Item[1][];
+		this.refHashedRefKeysTable = new Item[1][];
+		this.refHashedOidValsTable = new long[1][];
+		this.capacityHigh = (long)this.hashDensity;
 		this.capacityLow  = 0;
-		this.capacityHigh = (long)(hashLength * this.hashDensity);
+		this.hashLength   = 1;
+		this.hashRange    = 0;
 		this.size         = 0;
-	}
-	
-	@Override
-	public final synchronized void clear(final Predicate<? super PersistenceObjectRegistry.Entry> filter)
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#clear()
 	}
 		
 	
@@ -687,10 +625,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		final Item[][] oldRefValsTable = this.oidHashedRefValsTable;
 		
 		// locally created new references / values.
-		final int newHashLength = padHashLength((long)(this.size / this.hashDensity));
+		final int newHashLength = Hashing.calculateHashLength(this.size, this.hashDensity);
 		final int newHashRange  = newHashLength - 1;
 		final long newCapacityHigh = this.calculateCapacityFromHashLength(newHashLength);
-		final long newCapacityLow  = newHashLength == MINIMUM_HASH_LENGTH
+		final long newCapacityLow  = newHashLength == 1
 			? 0
 			: this.calculateCapacityFromHashLength(newHashLength / 2)
 		;

@@ -136,13 +136,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 	@SafeVarargs
 	public static final <K, V> HashTable<K, V> NewCustom(
-		final int                                   initialHashLength,
-		final float                                 hashDensity      ,
+		final long                                  desiredCapacity,
+		final float                                 hashDensity    ,
 		final KeyValue<? extends K, ? extends V>... entries
 	)
 	{
 		return new HashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
+			Hashing.calculateHashLength(desiredCapacity, hashDensity),
 			Hashing.hashDensity(hashDensity)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
@@ -700,7 +700,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)(minimalCapacity / this.hashDensity);
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -732,7 +732,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)((this.size + requiredFreeCapacity) / this.hashDensity);
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -751,7 +751,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	public final long optimize()
 	{
 		final int requiredCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredCapacity = (int)(this.size / this.hashDensity)))
 		{
 			// (technical) magic value
 			if(this.slots.length != Integer.MAX_VALUE)

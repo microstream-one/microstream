@@ -95,7 +95,7 @@ public final class _intSet implements Composition
 	{
 		super();
 		this.capLower = uncheckedInitialCapacity >>> 1; // capacity 1 yields 0, which is correct.
-		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2Integer(uncheckedInitialCapacity)
+		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2(uncheckedInitialCapacity)
 			? Integer.MAX_VALUE
 			: uncheckedInitialCapacity
 		;
@@ -145,7 +145,7 @@ public final class _intSet implements Composition
 		this.lines    = newLines;
 		this.range    = newRange;
 		this.capLower = newLength >> 1;
-		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2Integer(newLength)
+		this.capUpper = XMath.isGreaterThanOrEqualHighestPowerOf2(newLength)
 			? Integer.MAX_VALUE
 			: newLength
 		;

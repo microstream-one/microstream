@@ -71,7 +71,7 @@ public final class VarByte implements Externalizable
 	private static final int boundPow2(final int n)
 	{
 		//if desired capacity is not boundable by shifting, max capacity is required
-		if(XMath.isGreaterThanHighestPowerOf2Integer(n))
+		if(XMath.isGreaterThanHighestPowerOf2(n))
 		{
 			return Integer.MAX_VALUE;
 		}
@@ -343,7 +343,7 @@ public final class VarByte implements Externalizable
 		// calculate new capacity
 		final int newSize = this.size + requiredFreeCapacity;
 		int newCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -749,7 +749,7 @@ public final class VarByte implements Externalizable
 	public void trimToSize()
 	{
 		final int size = this.size;
-		if(size << 1 > this.data.length || XMath.isGreaterThanHighestPowerOf2Integer(size))
+		if(size << 1 > this.data.length || XMath.isGreaterThanHighestPowerOf2(size))
 		{
 			return; //not shrinkable, abort
 		}

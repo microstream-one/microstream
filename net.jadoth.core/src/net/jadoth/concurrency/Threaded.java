@@ -88,9 +88,9 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	private static <E> Entry<E>[] createSlots(final int minimumLength)
 	{
 		// escape condition for highest int value that can be reached by leftshifting 1.
-		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(minimumLength))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(minimumLength))
 		{
-			return new Entry[XMath.highestPowerOf2Integer()]; // technical magic number
+			return new Entry[XMath.highestPowerOf2_int()]; // technical magic number
 		}
 
 		int slotCount = 1; // in this case small memory need is preferable to good low-grow performance.

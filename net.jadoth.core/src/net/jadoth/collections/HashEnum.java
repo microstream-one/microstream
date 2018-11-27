@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.interfaces.CapacityExtendable;
 import net.jadoth.collections.interfaces.ChainStorage;
@@ -44,7 +43,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public static final <E> HashEnum<E> NewCustom(final long initialCapacity)
 	{
 		return new HashEnum<>(
-			Hashing.padHashLength(X.checkArrayRange(initialCapacity)),
+			Hashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -54,11 +53,10 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		return new HashEnum<>(DEFAULT_HASH_LENGTH, hashDensity);
 	}
 
-	public static final <E> HashEnum<E> NewCustom(final long initialCapacity, final float hashDensity)
+	public static final <E> HashEnum<E> NewCustom(final long desiredCapacity, final float hashDensity)
 	{
-		// (14.04.2016)FIXME: properly calculate slot length from desired capacity in regard to hashDensity
 		return new HashEnum<>(
-			Hashing.padHashLength(X.checkArrayRange(initialCapacity)),
+			Hashing.calculateHashLength(desiredCapacity, hashDensity),
 			Hashing.hashDensity(hashDensity)
 		);
 	}
@@ -351,7 +349,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)(minimalCapacity / this.hashDensity);
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -383,7 +381,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 		}
 
 		final int requiredSlotLength = (int)((this.size + requiredFreeCapacity) / this.hashDensity);
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredSlotLength))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredSlotLength))
 		{
 			// (technical) magic value
 			this.rebuildStorage(Integer.MAX_VALUE); // special case: maximum slots length needed ("perfect" hashing)
@@ -403,7 +401,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public final long optimize()
 	{
 		final int requiredCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(requiredCapacity = (int)(this.size / this.hashDensity)))
+		if(XMath.isGreaterThanHighestPowerOf2(requiredCapacity = (int)(this.size / this.hashDensity)))
 		{
 			// (technical) magic value
 			if(this.slots.length != Integer.MAX_VALUE)

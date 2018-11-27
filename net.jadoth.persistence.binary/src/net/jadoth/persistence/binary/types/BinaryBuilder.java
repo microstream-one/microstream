@@ -417,7 +417,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		private void rebuildBuildItems()
 		{
 			// moreless academic check for more than 1 billion entries
-			if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.buildItemsHashSlots.length))
+			if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.buildItemsHashSlots.length))
 			{
 				return; // note that aborting rebuild does not ruin anything, only performance degrades
 			}
