@@ -55,9 +55,16 @@ public class Persistence
 	static final long START_CID_INTEGER   = START_CID_BASE + 5_000;
 	static final long START_CID_LONG      = START_CID_BASE + 6_000;
 
-	static final int JSL_CACHE_INTEGER_MIN = -128;
-	static final int JSL_CACHE_INTEGER_MAX = +128;
-	static final int JSL_CACHE_CHARACTER_MAX = +128;
+	/* (27.11.2018 TM)NOTE: actually, the bound can be dynamically defined by a JVM system property
+	 * But the problem is that a database with persisted data cannot change its instances from one
+	 * JVM start to another.
+	 * It is assumed here that no one will modify the default bound, anyway.
+	 * Let's see how long this will hold ...
+	 */
+	static final int JSL_CACHE_INTEGER_START   = -128; // inclusive (first value)
+	static final int JSL_CACHE_INTEGER_BOUND   = +128; // exclusive (bounding value)
+	static final int JSL_CACHE_CHARACTER_START =    0; // inclusive (first value)
+	static final int JSL_CACHE_CHARACTER_BOUND = +128; // exclusive (bounding value)
 
 	static final long START_CID_REAL = START_CID_BASE +    10_000L; // first 10K reserved for JLS constants
 	static final long START_TID_REAL = START_TID_BASE + 1_000_000L; // first new type gets 1M1 assigned.
@@ -356,14 +363,14 @@ public class Persistence
 			registry.registerObject(oidBoolean++, Boolean.FALSE);
 			registry.registerObject(oidBoolean++, Boolean.TRUE );
 		}
-		for(int i = JSL_CACHE_INTEGER_MIN; i < JSL_CACHE_INTEGER_MAX; i++)
+		for(int i = JSL_CACHE_INTEGER_START; i < JSL_CACHE_INTEGER_BOUND; i++)
 		{
 			registry.registerObject(oidByte++   , Byte.valueOf((byte)i)  );
 			registry.registerObject(oidShort++  , Short.valueOf((short)i));
 			registry.registerObject(oidInteger++, Integer.valueOf(i)     );
 			registry.registerObject(oidLong++   , Long.valueOf(i)        );
 		}
-		for(int i = 0; i < JSL_CACHE_CHARACTER_MAX; i++)
+		for(int i = JSL_CACHE_CHARACTER_START; i < JSL_CACHE_CHARACTER_BOUND; i++)
 		{
 			registry.registerObject(oidCharacter++, Character.valueOf((char)i));
 		}

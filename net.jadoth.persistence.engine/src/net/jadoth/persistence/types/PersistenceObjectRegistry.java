@@ -1,6 +1,5 @@
 package net.jadoth.persistence.types;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 
@@ -26,7 +25,7 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public boolean containsObjectId(long objectId);
 
-	public void iterateEntries(Consumer<? super PersistenceObjectRegistry.Entry> iterator);
+	public <A extends PersistenceObjectRegistry.Acceptor> A iterateEntries(A acceptor);
 
 	// general querying //
 
@@ -38,7 +37,7 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public float hashDensity();
 
-	public int capacity();
+	public long capacity();
 		
 	// registering //
 	
@@ -72,6 +71,8 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	
 	public void clear(Predicate<? super PersistenceObjectRegistry.Entry> filter);
 	
+
+	// (27.11.2018 TM)FIXME: JET-48: methods for constants handling
 	
 	
 	public interface Entry

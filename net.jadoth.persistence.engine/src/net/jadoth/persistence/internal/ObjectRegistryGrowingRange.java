@@ -3,7 +3,6 @@ package net.jadoth.persistence.internal;
 import static java.lang.System.identityHashCode;
 
 import java.lang.ref.WeakReference;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.jadoth.exceptions.NumberRangeException;
@@ -248,26 +247,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		 */
 		this.synchPutNewEntry(new Entry(oid, ref));
 		return ref;
-	}
-
-	private synchronized Object synchronizedPutId(final long oid)
-	{
-		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerOid[(int)oid & this.modulo]) != null)
-		{
-			for(int i = 0; i < bucketsI.length; i++)
-			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
-				{
-					return bucketsI[i].ref.get();
-				}
-			}
-		}
-
-		// intentionally no registration at all in the perReference slots because there is no reference (yet)
-
-		this.synchPutNewEntry(new Entry(oid));
-		return null;
 	}
 
 	private void synchPutNewEntry(final Entry entry)
@@ -576,7 +555,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 	}
 
-	private static void iterateEntries(final Entry[][] slots, final Consumer<? super PersistenceObjectRegistry.Entry> iterator)
+	private static void iterateEntries(final Entry[][] slots, final PersistenceObjectRegistry.Acceptor acceptor)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -587,7 +566,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				{
 					if(buckets[b] != null)
 					{
-						iterator.accept(buckets[b]);
+						acceptor.accept(buckets[b].id(), buckets[b].reference());
 					}
 				}
 			}
@@ -661,7 +640,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public int capacity()
+	public long capacity()
 	{
 		return this.capacity;
 	}
@@ -787,9 +766,10 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public void iterateEntries(final Consumer<? super PersistenceObjectRegistry.Entry> iterator)
+	public <A extends PersistenceObjectRegistry.Acceptor> A iterateEntries(final A acceptor)
 	{
-		iterateEntries(this.synchronizedGetSlotsPerOid(), iterator);
+		iterateEntries(this.synchronizedGetSlotsPerOid(), acceptor);
+		return acceptor;
 	}
 
 	@Override
@@ -857,14 +837,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			this.oid  = oid;
 			this.ref  = new WeakReference<>(ref);
 			this.hash = identityHashCode(ref);
-		}
-
-		Entry(final long oid)
-		{
-			super();
-			this.oid  = oid;
-			this.ref  = new WeakReference<>(null); // dummy to avoid NPEs / explicit null checks for ref
-			this.hash = 0;
 		}
 		
 		

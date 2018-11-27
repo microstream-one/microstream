@@ -1,8 +1,8 @@
 package net.jadoth.hashing;
 
 import net.jadoth.math.XMath;
-import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
+import net.jadoth.typing.XTypes;
 
 
 /**
@@ -135,23 +135,20 @@ public final class Hashing
 		return (HashEqualator<KV>)HASH_EQUALITY_IDENTITY_KV;
 	}
 
-	private static String exceptionHashDensity(final float hashDensity)
-	{
-		return "Illegal hash density: " + hashDensity;
-	}
-
 	public static final int padHashLength(final int minimalHashLength)
 	{
 		if(XMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
 		{
-			// (technical) magic value
-			return Integer.MAX_VALUE;
+			// (technical) magic value. Cannot be higher due to hashing bit arithmetic.
+			return XMath.highestPowerOf2Integer();
 		}
+		
 		int capacity = 1;
 		while(capacity < minimalHashLength)
 		{
 			capacity <<= 1;
 		}
+		
 		return capacity;
 	}
 
@@ -159,8 +156,10 @@ public final class Hashing
 	{
 		if(hashDensity <= 0 || Float.isNaN(hashDensity))
 		{
-			throw new IllegalArgumentException(exceptionHashDensity(hashDensity));
+			// (27.11.2018 TM)EXCP: proper exception
+			throw new IllegalArgumentException("Illegal hash density: " + hashDensity);
 		}
+		
 		return hashDensity;
 	}
 
