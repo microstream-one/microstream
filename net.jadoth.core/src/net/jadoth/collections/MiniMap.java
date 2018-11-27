@@ -182,7 +182,7 @@ public final class MiniMap<K, V> implements Composition
 
 	private void increaseStorage()
 	{
-		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slots.length))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.slots.length))
 		{
 			return;
 		}

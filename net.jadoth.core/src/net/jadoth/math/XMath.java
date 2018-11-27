@@ -1374,22 +1374,35 @@ public final class XMath
 		return column;
 	}
 
-	public static final int capInt(final long value)
+	public static final int cap_int(final long value)
 	{
-		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)value;
+		return value >= Integer.MAX_VALUE
+			? Integer.MAX_VALUE
+			: (int)value
+		;
 	}
-
-	public static final boolean isGreaterThanOrEqualHighestPowerOf2Integer(final int value)
+	
+	public static final boolean isGreaterThanOrEqualHighestPowerOf2(final long value)
 	{
 		return value >= MAX_POW_2_INT;
 	}
 
-	public static final boolean isGreaterThanHighestPowerOf2Integer(final int value)
+	public static final boolean isGreaterThanHighestPowerOf2(final long value)
 	{
 		return value > MAX_POW_2_INT;
 	}
 
-	public static final int highestPowerOf2Integer()
+	public static final boolean isGreaterThanOrEqualHighestPowerOf2(final int value)
+	{
+		return value >= MAX_POW_2_INT;
+	}
+
+	public static final boolean isGreaterThanHighestPowerOf2(final int value)
+	{
+		return value > MAX_POW_2_INT;
+	}
+
+	public static final int highestPowerOf2_int()
 	{
 		return MAX_POW_2_INT;
 	}

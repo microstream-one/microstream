@@ -48,7 +48,7 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	private static int padHashLength(final int minimalHashLength)
 	{
 		// check for technical limit
-		if(XMath.isGreaterThanHighestPowerOf2Integer(minimalHashLength))
+		if(XMath.isGreaterThanHighestPowerOf2(minimalHashLength))
 		{
 			return Integer.MAX_VALUE;
 		}

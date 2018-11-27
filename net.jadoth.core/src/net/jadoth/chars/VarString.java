@@ -95,7 +95,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	private static int calculateNewCapacity(final int capacity, final int minimumCapacity)
 	{
 		// handle max int value special case
-		if(XMath.isGreaterThanHighestPowerOf2Integer(minimumCapacity))
+		if(XMath.isGreaterThanHighestPowerOf2(minimumCapacity))
 		{
 			return Integer.MAX_VALUE;
 		}

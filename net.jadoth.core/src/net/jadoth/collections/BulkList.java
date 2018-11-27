@@ -351,7 +351,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + elementsSize;
 		int newCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -412,7 +412,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -468,7 +468,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// required and reachable capacity increase
 		final int newSize = this.size + length;
 		int newCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;
@@ -1298,7 +1298,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		// calculate new capacity
 		final int newSize = XTypes.to_int(this.size + requiredFreeCapacity);
 		int newCapacity;
-		if(XMath.isGreaterThanHighestPowerOf2Integer(newSize))
+		if(XMath.isGreaterThanHighestPowerOf2(newSize))
 		{
 			// JVM technical limit
 			newCapacity = Integer.MAX_VALUE;

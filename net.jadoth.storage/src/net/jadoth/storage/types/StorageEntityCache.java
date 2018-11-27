@@ -246,7 +246,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			final int newModulo;
 			final StorageEntity.Implementation[] newSlots =
-				XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.oidHashTable.length)
+				XMath.isGreaterThanOrEqualHighestPowerOf2(this.oidHashTable.length)
 				? new StorageEntity.Implementation[newModulo = Integer.MAX_VALUE] // perfect hash range special case
 				: new StorageEntity.Implementation[(newModulo = (this.oidModulo + 1 << 1) - 1) + 1] // 1111 :D
 			;

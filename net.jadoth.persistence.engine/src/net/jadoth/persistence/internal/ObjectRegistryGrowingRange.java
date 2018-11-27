@@ -3,7 +3,6 @@ package net.jadoth.persistence.internal;
 import static java.lang.System.identityHashCode;
 
 import java.lang.ref.WeakReference;
-import java.util.function.Predicate;
 
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.math.XMath;
@@ -11,7 +10,9 @@ import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionNullObjectId;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
+import net.jadoth.persistence.types.PersistencePredicate;
 
 public final class ObjectRegistryGrowingRange implements PersistenceObjectRegistry
 {
@@ -19,45 +20,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . welcome to this user code class!
 	 * - all methods prefixed with "synch" are only called from inside a synchronized context
 	 */
-
-	/* Memory demands per entry:
-	 * A) 64 bit coops
-	 *  08 2*4 byte in hashing arrays
-	 *  08 2*4 byte in buckets arrays
-	 *  08 entry instance object header
-	 *  04 int hash
-	 *  08 long oid
-	 *  08 long tid
-	 *  04 coop ref (to WeakReference instance)
-	 *  04 alignment overhead
-	 *  32 WeakReference instance (08 + 4*coop + alignment overhead 4)
-	 * ---------------------------------
-	 *  80 total size
-	 *
-	 * B) 64 bit full oops
-	 *  16 2*8 byte in hashing arrays
-	 *  16 2*8 byte in buckets arrays
-	 *  16 entry instance object header
-	 *  08 long oid
-	 *  08 long tid
-	 *  04 int hash
-	 *  04 primitive alignment overhead
-	 *  08 oop ref (to WeakReference instance)
-	 *  48 WeakReference instance (16 + 4*oop + no alignment overhead)
-	 * ---------------------------------
-	 * 128 total size
-	 *
-	 * Note: in both modes, there are 4 bytes to spare per entry. Maybe useful for future flags etc.
-	 */
-
-	/* maybe future to-do: SwizzleRegistryFixedRange
-	 * Once stable, derive a SwizzleRegistryFixedRange implementation from this class.
-	 * Hash range (slots length) is set once in the constructor and is then unchangeable (final arrays).
-	 * Advantage: avoids unnecessary increase checks, probably easier (= faster) to get it thread safe.
-	 */
-
-
-
 
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -88,10 +50,10 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private static int padCapacity(final int desiredSlotLength)
 	{
-		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(desiredSlotLength))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(desiredSlotLength))
 		{
 			// (16.04.2016)TODO: why isn't this max integer? See general purpose hash collections
-			return XMath.highestPowerOf2Integer();
+			return XMath.highestPowerOf2_int();
 		}
 		int slotCount = MINIMUM_SLOT_LENGTH;
 		while(slotCount < desiredSlotLength)
@@ -270,7 +232,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		 * - it is mathematically impossible that rebuilding would require another increase
 		 * - recalculating modulo every time when inserting is inefficent here, but more efficient for single puts.
 		 */
-		if(XMath.isGreaterThanOrEqualHighestPowerOf2Integer(this.slotsPerOid.length))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.slotsPerOid.length))
 		{
 			this.capacity = Integer.MAX_VALUE; // disable special case after running into it once (cool 8-) )
 			return;
@@ -555,7 +517,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 	}
 
-	private static void iterateEntries(final Entry[][] slots, final PersistenceObjectRegistry.Acceptor acceptor)
+	private static void iterateEntries(final Entry[][] slots, final PersistenceAcceptor acceptor)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -566,7 +528,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				{
 					if(buckets[b] != null)
 					{
-						acceptor.accept(buckets[b].id(), buckets[b].reference());
+						acceptor.accept(buckets[b].oid, buckets[b].ref.get());
 					}
 				}
 			}
@@ -591,7 +553,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 	}
 	
-	private static void synchClearEntries(final Entry[][] slots, final Predicate<? super PersistenceObjectRegistry.Entry> filter)
+	private static void synchClearEntries(final Entry[][] slots, final PersistencePredicate filter)
 	{
 		for(int s = 0; s < slots.length; s++)
 		{
@@ -600,7 +562,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				final Entry[] buckets = slots[s];
 				for(int b = 0; b < buckets.length; b++)
 				{
-					if(buckets[b] != null && (buckets[b].isOrphan() || filter.test(buckets[b])))
+					if(buckets[b] != null && (buckets[b].isOrphan()
+						|| filter.test(buckets[b].oid, buckets[b].ref.get()))
+					)
 					{
 						buckets[b] = null;
 					}
@@ -677,16 +641,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	{
 		return lookupObject(this.synchronizedGetSlotsPerOid()[(int)oid & this.modulo], oid);
 	}
-	
-//	@Override
-//	public Object registerObjectId(final long oid)
-//	{
-//		if(oid == Persistence.nullId())
-//		{
-//			throw new PersistenceExceptionNullObjectId();
-//		}
-//		return this.synchronizedPutId(oid);
-//	}
 
 	@Override
 	public boolean registerObject(final long oid, final Object object)
@@ -766,7 +720,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public <A extends PersistenceObjectRegistry.Acceptor> A iterateEntries(final A acceptor)
+	public <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
 	{
 		iterateEntries(this.synchronizedGetSlotsPerOid(), acceptor);
 		return acceptor;
@@ -798,11 +752,12 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 	
 	@Override
-	public synchronized void clear(final Predicate<? super PersistenceObjectRegistry.Entry> filter)
+	public synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
 	{
 		synchClearEntries(this.slotsPerOid, filter);
 		synchClearEntries(this.slotsPerRef, filter);
 		this.synchRebuild(this.slotsPerOid.length);
+		return filter;
 	}
 
 
@@ -815,7 +770,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	 * This saves memory footprint.
 	 * Must however on referen update replace Entries with new instances instead of just setting a new WeakReference.
 	 */
-	private static final class Entry implements PersistenceObjectRegistry.Entry
+	private static final class Entry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -844,18 +799,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public final long id()
-		{
-			return this.oid;
-		}
-
-		@Override
-		public final Object reference()
-		{
-			return this.ref.get();
-		}
 
 		/**
 		 * @return {@code true} if this entry has lost its referent.

@@ -61,7 +61,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	)
 	{
 		final ConstHashEnum<E> newEnum = new ConstHashEnum<>(
-			Hashing.padHashLength(XTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			Hashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
 			Hashing.hashDensity(hashDensity)
 		);
 		newEnum.internalAddAll(entries);
@@ -72,7 +72,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	public static final <E> ConstHashEnum<E> NewCustom(final float hashDensity, final E... entries)
 	{
 		final ConstHashEnum<E> newEnum = new ConstHashEnum<>(
-			Hashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
+			Hashing.calculateHashLength(entries.length, hashDensity),
 			Hashing.hashDensity(hashDensity)
 		);
 		for(final E e : entries)

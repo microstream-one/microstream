@@ -111,7 +111,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			Hashing.padHashLength(XTypes.to_int(entries.size())), // might be too big if entries contains a lot of duplicates
+			Hashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
 			Hashing.hashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
