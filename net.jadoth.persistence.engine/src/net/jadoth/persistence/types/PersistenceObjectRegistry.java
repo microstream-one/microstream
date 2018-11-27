@@ -55,8 +55,6 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	public void cleanUp();
 	
 	public void clearOrphanEntries();
-
-	public void shrink();
 	
 	// removing //
 	
