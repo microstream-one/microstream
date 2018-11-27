@@ -726,7 +726,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return acceptor;
 	}
 
-	@Override
 	public synchronized void shrink()
 	{
 		final int requiredSlotLength;

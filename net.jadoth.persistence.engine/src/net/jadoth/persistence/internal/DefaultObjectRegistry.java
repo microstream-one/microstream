@@ -135,6 +135,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.capacityLow           = capacityLow          ;
 		this.size                  = size                 ;
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
 
 	private int hash(final long objectId)
 	{
@@ -322,7 +328,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	public synchronized boolean registerObject(final long objectId, final Object object)
 	{
 		// both branches must use the SAME Item instance to reduce memory consumption
-		final Item newItem = this.synchAddPerObjectId(objectId, object);
+		final Item newItem = this.synchAddPerObjectId(objectId, object, false);
 		if(newItem == null)
 		{
 			return false;
@@ -340,8 +346,26 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public Object optionalRegisterObject(final long objectId, final Object object)
 	{
-		// FIXME DefaultObjectRegistry#optionalRegisterObject()
-		throw new net.jadoth.meta.NotImplementedYetError();
+		// both branches must use the SAME Item instance to reduce memory consumption
+		final Item newItem = this.synchAddPerObjectId(objectId, object, true);
+		if(newItem == null)
+		{
+			// null indicates that the object is already contained, so abort and return it.
+			return object;
+		}
+		if(newItem.get() != object)
+		{
+			// a different object is already registered, so abort and return that.
+			return newItem.get();
+		}
+
+		// the second branch must be changed accordingly
+		this.synchAddPerObject(objectId, newItem);
+
+		// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
+		this.synchCheckForRebuild();
+		
+		return object;
 	}
 	
 	@Override
@@ -360,12 +384,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	public final synchronized void clearOrphanEntries()
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#clearOrphanEntries()
-	}
-
-	@Override
-	public final synchronized void shrink()
-	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#shrink()
 	}
 	
 	// removing //
@@ -411,7 +429,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 	
 	
-	private Item synchAddPerObjectId(final long objectId, final Object object)
+	private Item synchAddPerObjectId(final long objectId, final Object object, final boolean optional)
 	{
 		final long[] oldOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
 		if(oldOidKeys == null)
@@ -439,6 +457,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				final Object alreadyRegistered = oldRefVals[i].get();
 				if(alreadyRegistered != null)
 				{
+					if(optional)
+					{
+						return oldRefVals[i];
+					}
 					throw new PersistenceExceptionConsistencyObject(objectId, alreadyRegistered, object);
 				}
 				
