@@ -107,7 +107,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 			// if not found either assign new oid or return the meanwhile registered oid
 			synchronized(this.objectRegistry)
 			{
-				if((oid = this.objectRegistry.lookupObjectId(object)) == 0L)
+				if((oid = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
 				{
 					oid = this.oidProvider.provideNextObjectId();
 					this.objectRegistry.registerObject(oid, object);
@@ -117,6 +117,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 //			XDebug.debugln(XChars.systemString(this) + " assigned \n" + oid
 //				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
 //			);
+			
 			return oid;
 		}
 

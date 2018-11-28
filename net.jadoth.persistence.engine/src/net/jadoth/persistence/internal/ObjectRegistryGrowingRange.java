@@ -590,7 +590,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public synchronized void clear()
+	public synchronized void truncate()
 	{
 		final Entry[][] slotsI = this.slotsPerOid, slotsR = this.slotsPerRef;
 		for(int i = 0; i < slotsI.length; i++)

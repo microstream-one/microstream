@@ -177,7 +177,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 				}
 				
 				// all still live instances are registered for their OID.
-				registry.registerObject(oids[i], instances[i]);
+				registry.registerConstant(oids[i], instances[i]);
 			}
 		}
 	}
