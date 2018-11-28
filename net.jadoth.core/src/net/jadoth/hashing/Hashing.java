@@ -137,7 +137,7 @@ public final class Hashing
 	
 	public static final int calculateHashLength(final long desiredCapacity, final float hashDensity)
 	{
-		return padHashLength((long)(desiredCapacity / hashDensity));
+		return padHashLength((long)Math.ceil(desiredCapacity / hashDensity));
 	}
 
 	public static final int padHashLength(final long desiredHashLength)

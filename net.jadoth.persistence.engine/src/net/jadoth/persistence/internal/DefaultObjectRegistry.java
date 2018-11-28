@@ -1,10 +1,15 @@
 package net.jadoth.persistence.internal;
 
 import static java.lang.System.identityHashCode;
+import static net.jadoth.X.KeyValue;
 import static net.jadoth.X.notNull;
 
 import java.lang.ref.WeakReference;
 
+import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.XSort;
+import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.hashing.HashStatisticsBucketBased;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.types.Persistence;
@@ -26,7 +31,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	public static final float defaultHashDensity()
 	{
 		// below that, the overhead for the quad-bucket-arrays does not pay off and performance gain wouldn't be much.
-		return 8.0f;
+		return 16.0f;
 	}
 		
 	
@@ -341,6 +346,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public final synchronized boolean registerObject(final long objectId, final Object object)
 	{
+//		XDebug.println("(Size " + this.size + ") Registering " + objectId + " <-> " + XChars.systemString(object));
+		
 		// both branches must use the SAME Item instance to reduce memory consumption
 		final Item newItem = this.synchAddPerObjectId(objectId, object, false);
 		if(newItem == null)
@@ -586,6 +593,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		if(this.size > this.capacityHigh)
 		{
+//			XDebug.println("Increase required.");
 			// increase required because the hash table became too small (or entries distribution too dense).
 			this.synchRebuild();
 			return;
@@ -593,6 +601,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 		if(this.size < this.capacityLow)
 		{
+//			XDebug.println("Decrease required.");
 			// decrease required because the hash table became unnecessarily big. Redundant call for debugging.
 			this.synchRebuild();
 			return;
@@ -622,6 +631,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// both new branches are populated from the per-oid-branch
 		for(int h = 0; h < oldHashLength; h++)
 		{
+//			XDebug.println("Rebuild old hash table " + h);
 			final long[] oldOidKeys = oldOidKeysTable[h];
 			if(oldOidKeys == null)
 			{
@@ -631,8 +641,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			final Item[] oldRefVals = oldRefValsTable[h];
 			for(int i = 0; i < oldRefVals.length; i++)
 			{
+//				XDebug.println("Rebuild old hash table " + h + " -> " + i);
 				if(oldRefVals[i].get() == null)
 				{
+//					XDebug.println("Orphan");
 					continue;
 				}
 				
@@ -641,8 +653,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				populateByObjectId(newOidKeysTable, newRefValsTable, (int)oid & newHashRange, oid, ref);
 				populateByObject(newRefKeysTable, newOidValsTable, identityHashCode(ref.get()) & newHashRange, oid, ref);
 				size++;
+				
+//				XDebug.println("new Entry: " + size);
 			}
 		}
+		
+//		XDebug.println("Rebuild " + this.hashLength  + " -> " + newHashLength);
 		
 		// registry state gets switched over from old to new
 		this.oidHashedOidKeysTable = newOidKeysTable;
@@ -740,7 +756,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			return new long[]{oid};
 		}
 		
-		final long[] newBucket = new long[oids.length];
+		final long[] newBucket = new long[oids.length + 1];
 		System.arraycopy(oids, 0, newBucket, 0, oids.length);
 		newBucket[newBucket.length - 1] = oid;
 		return newBucket;
@@ -753,10 +769,97 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			return new Item[]{item};
 		}
 		
-		final Item[] newBucket = new Item[refs.length];
+		final Item[] newBucket = new Item[refs.length + 1];
 		System.arraycopy(refs, 0, newBucket, 0, refs.length);
 		newBucket[newBucket.length - 1] = item;
 		return newBucket;
+	}
+	
+	
+	
+	// HashStatistics logic //
+	
+	@Override
+	public final synchronized XGettingTable<String, HashStatisticsBucketBased> createHashStatistics()
+	{
+		return EqHashTable.New(
+			KeyValue("PerObjectIds", this.synchCreateHashStatisticsOids()),
+			KeyValue("PerObjects", this.synchCreateHashStatisticsRefs())
+		);
+	}
+	
+	private HashStatisticsBucketBased synchCreateHashStatisticsOids()
+	{
+		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
+		
+		final long[][] oidHashedOidKeysTable = this.oidHashedOidKeysTable;
+		final int oidHashedOidKeysLength = oidHashedOidKeysTable.length;
+		for(int h = 0; h < oidHashedOidKeysLength; h++)
+		{
+			final long[] bucket = oidHashedOidKeysTable[h];
+			final Long bucketLength = bucket == null ? null : (long)bucket.length;
+			registerDistribution(distributionTable, bucketLength);
+		}
+		complete(distributionTable);
+		
+		return HashStatisticsBucketBased.New(
+			this.hashLength                ,
+			this.size                      ,
+			this.hashDensity               ,
+			distributionTable.keys().last(),
+			distributionTable
+		);
+	}
+	
+	private HashStatisticsBucketBased synchCreateHashStatisticsRefs()
+	{
+		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
+
+		final Item[][] refHashedRefKeysTable = this.refHashedRefKeysTable;
+		final int refHashedRefKeysLength = refHashedRefKeysTable.length;
+		for(int h = 0; h < refHashedRefKeysLength; h++)
+		{
+			final Item[] bucket = refHashedRefKeysTable[h];
+			final Long bucketLength = bucket == null ? null : (long)bucket.length;
+			registerDistribution(distributionTable, bucketLength);
+		}
+		complete(distributionTable);
+		
+		return HashStatisticsBucketBased.New(
+			this.hashLength                ,
+			this.size                      ,
+			this.hashDensity               ,
+			distributionTable.keys().last(),
+			distributionTable
+		);
+	}
+	
+	private static void registerDistribution(final EqHashTable<Long, Long> distributionTable, final Long bucketLength)
+	{
+		// (28.11.2018 TM)NOTE: this is pretty ineffecient. Could be done much more efficient if required.
+		final Long count = distributionTable.get(bucketLength);
+		if(count == null)
+		{
+			distributionTable.put(bucketLength, 1L);
+		}
+		else
+		{
+			distributionTable.put(bucketLength, count + 1L);
+		}
+	}
+	
+	private static void complete(final EqHashTable<Long, Long> distributionTable)
+	{
+		distributionTable.keys().sort(XSort::compare);
+		final Long highest = distributionTable.last().key();
+		final Long zero = 0L;
+		
+		distributionTable.add(null, zero);
+		for(long l = 0; l < highest; l++)
+		{
+			distributionTable.add(l, zero);
+		}
+		distributionTable.keys().sort(XSort::compare);
 	}
 	
 	

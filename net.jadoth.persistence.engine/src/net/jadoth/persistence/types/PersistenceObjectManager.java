@@ -20,8 +20,8 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceObjectIdProvider oidProvider          ;
-		private final PersistenceObjectRegistry   swizzleObjectRegistry;
+		private final PersistenceObjectIdProvider oidProvider   ;
+		private final PersistenceObjectRegistry   objectRegistry;
 		/*
 		 * Note that the type manager may not be a tid-assigning (master) manager on a type slave side!
 		 * It must be a retrieving type handler manager instead.
@@ -34,13 +34,13 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		/////////////////////
 
 		public Implementation(
-			final PersistenceObjectRegistry   swizzleObjectRegistry,
+			final PersistenceObjectRegistry   objectRegistry,
 			final PersistenceObjectIdProvider oidProvider
 		)
 		{
 			super();
-			this.oidProvider           = notNull(oidProvider)          ;
-			this.swizzleObjectRegistry = notNull(swizzleObjectRegistry);
+			this.oidProvider    = notNull(oidProvider)   ;
+			this.objectRegistry = notNull(objectRegistry);
 		}
 
 
@@ -52,31 +52,31 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		@Override
 		public void cleanUp()
 		{
-			this.swizzleObjectRegistry.cleanUp();
+			this.objectRegistry.cleanUp();
 		}
 
 		@Override
 		public long lookupObjectId(final Object object)
 		{
-			return this.swizzleObjectRegistry.lookupObjectId(object);
+			return this.objectRegistry.lookupObjectId(object);
 		}
 
 		@Override
 		public Object lookupObject(final long oid)
 		{
 //			XDebug.debugln(XChars.systemString(this) + " looking up \n" + oid
-//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
+//				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
 //			);
 
-			return this.swizzleObjectRegistry.lookupObject(oid);
+			return this.objectRegistry.lookupObject(oid);
 		}
 
 //		protected long internalLookupExistingTypeId(final Class<?> type)
 //		{
 //			final long tid;
-//			if((tid = this.swizzleObjectRegistry.lookupTypeId(type)) == 0L)
+//			if((tid = this.objectRegistry.lookupTypeId(type)) == 0L)
 //			{
-//				throw new SwizzleExceptionConsistencyUnknownType(type);
+//				throw new PersistenceExceptionConsistencyUnknownType(type);
 //			}
 //			return tid;
 //		}
@@ -105,17 +105,17 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 			}
 
 			// if not found either assign new oid or return the meanwhile registered oid
-			synchronized(this.swizzleObjectRegistry)
+			synchronized(this.objectRegistry)
 			{
-				if((oid = this.swizzleObjectRegistry.lookupObjectId(object)) == 0L)
+				if((oid = this.objectRegistry.lookupObjectId(object)) == 0L)
 				{
 					oid = this.oidProvider.provideNextObjectId();
-					this.swizzleObjectRegistry.registerObject(oid, object);
+					this.objectRegistry.registerObject(oid, object);
 				}
 			}
 
 //			XDebug.debugln(XChars.systemString(this) + " assigned \n" + oid
-//				+ " -> " + XChars.systemString(this.swizzleRegistry.lookupObject(oid))
+//				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
 //			);
 			return oid;
 		}
@@ -123,7 +123,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		@Override
 		public final long currentObjectId()
 		{
-			synchronized(this.swizzleObjectRegistry)
+			synchronized(this.objectRegistry)
 			{
 				return this.oidProvider.currentObjectId();
 			}
@@ -132,7 +132,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		@Override
 		public void updateCurrentObjectId(final long currentObjectId)
 		{
-			synchronized(this.swizzleObjectRegistry)
+			synchronized(this.objectRegistry)
 			{
 				if(this.oidProvider.currentObjectId() >= currentObjectId)
 				{

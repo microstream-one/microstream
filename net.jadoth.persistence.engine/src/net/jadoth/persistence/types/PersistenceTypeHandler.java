@@ -54,11 +54,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 */
 	public void complete(M medium, T instance, PersistenceBuildLinker builder);
 
-	/* (09.12.2012)XXX: PersistenceTypeHandler#isEqualPersistentState(M medium, T instc, ObjectIdResolving oidResolver);
-	 * additionally, with validation using it
-	 */
-//	public void validatePersistentState(M medium, T instance, SwizzleObjectIdResolving oidResolver);
-
 	/* (06.10.2012)XXX: PersistenceDomainTypeHandler<M,T> ?
 	 * to bind a generic TypeHandler to a specific registry inside a Domain
 	 * specific registry could replace the oidResolver parameter.

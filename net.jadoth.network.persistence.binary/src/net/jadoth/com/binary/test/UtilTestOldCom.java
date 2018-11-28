@@ -10,7 +10,7 @@ import net.jadoth.files.XFiles;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.internal.CompositeIdProvider;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.util.BufferSizeProvider;
@@ -72,14 +72,14 @@ public class UtilTestOldCom
 		);
 		XDebug.println("Starting OID: " + idStrategy.startingObjectId());
 		
-		final CompositeSwizzleIdProvider idProvider = idStrategy
+		final CompositeIdProvider idProvider = idStrategy
 			.createIdProvider()
 			.initialize()
 		;
 		
 		return BinaryPersistenceFoundation.New()
 			.setTypeDictionaryIoHandling   (dictionaryStorage)
-			.setSwizzleIdProvider          (idProvider       )
+			.setIdProvider          (idProvider       )
 			
 			// (17.11.2018 TM)NOTE: these are default anyway.
 //			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )

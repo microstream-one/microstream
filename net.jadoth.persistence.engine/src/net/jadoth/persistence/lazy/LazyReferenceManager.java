@@ -280,30 +280,6 @@ public interface LazyReferenceManager
 			this.cleanUp(this.nanoTimeBudgetProvider.get());
 		}
 
-//		/**
-//		 * Simply clears all references of {@link Lazy} instances with OID not equal to {@link Swizzle#nullId()}.
-//		 * This method is (currently) only meant for debugging purposes.
-//		 */
-//		public final void clearAll()
-//		{
-//			for(Entry e = this.head; e != null; e = e.nextLazyManagerEntry)
-//			{
-//				final LazyReferencing<?> ref = e.get();
-//				if(ref == null)
-//				{
-//					continue;
-//				}
-//				if(!(ref instanceof Lazy))
-//				{
-//					continue;
-//				}
-//				if(((Lazy<?>)ref).objectId() != Persistence.nullId())
-//				{
-//					((Lazy<?>)ref).clear();
-//				}
-//			}
-//		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
