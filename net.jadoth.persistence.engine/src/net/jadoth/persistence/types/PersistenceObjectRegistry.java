@@ -6,6 +6,7 @@ import static net.jadoth.X.notNull;
 
 import java.lang.ref.WeakReference;
 
+import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingTable;
@@ -13,6 +14,7 @@ import net.jadoth.hashing.HashStatistics;
 import net.jadoth.hashing.HashStatisticsBucketBased;
 import net.jadoth.hashing.Hashing;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
+import net.jadoth.typing.KeyValue;
 
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
@@ -106,14 +108,17 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		final float hashDensity = Hashing.hashDensity(desiredHashDensity);
 		return new Default()
 			.internalSetHashDensity(hashDensity)
-			.internalReset(1)
+			.internalReset()
 		;
 	}
 	
 	public final class Default implements PersistenceObjectRegistry
 	{
 		/* Notes:
-		 * - all methods prefixed with "synch" are only called from inside a synchronized context
+		 * - all methods prefixed with "synch" are only called from inside a synchronized or another "synch" method.
+		 * - all bucket arrays are effectively immutable, which makes lookups (storing) very fast.
+		 * - the quad-bucket array storage is memory-inefficient for low density, but very efficient for high density.
+		 * - sadly, WeakReferences occupy a lot of memory and there is no alternative to them for weakly referencing.
 		 */
 				
 		///////////////////////////////////////////////////////////////////////////
@@ -122,7 +127,7 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 			
 		public static final float defaultHashDensity()
 		{
-			// below that, the overhead for the quad-bucket-arrays does not pay off and performance gain wouldn't be much.
+			// below that, the overhead for the quad-bucket-arrays does not pay off.
 			return 8.0f;
 		}
 		
@@ -169,6 +174,10 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		 */
 		private long size;
 		
+		private EqHashTable<Long, Object> constantsHotRegistry = EqHashTable.New();
+		private Object[]                  constantsColdStorageObjects  ;
+		private long[]                    constantsColdStorageObjectIds;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -185,6 +194,12 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		final Default internalReset()
+		{
+			// staring low makes no performance difference in the long run.
+			return this.internalReset(1);
+		}
 		
 		final Default internalReset(final int hashLength)
 		{
@@ -466,8 +481,60 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		@Override
 		public final synchronized boolean registerConstant(final long objectId, final Object constant)
 		{
-			// (28.11.2018 TM)FIXME: JET-48: implement registerConstant()
-			return this.registerObject(objectId, constant);
+			if(!this.registerObject(objectId, constant))
+			{
+				return false;
+			}
+			
+			this.synchEnsureConstantsHotRegistry().add(objectId, constant);
+			
+			return true;
+		}
+		
+		private EqHashTable<Long, Object> synchEnsureConstantsHotRegistry()
+		{
+			if(this.constantsHotRegistry == null)
+			{
+				final EqHashTable<Long, Object> constantsHotRegistry = EqHashTable.New();
+				final Object[] constantsObjects   = this.constantsColdStorageObjects  ;
+				final long[]   constantsObjectIds = this.constantsColdStorageObjectIds;
+				
+				final int constantsLength = constantsObjects.length;
+				for(int i = 0; i < constantsLength; i++)
+				{
+					constantsHotRegistry.add(constantsObjectIds[i], constantsObjects[i]);
+				}
+				
+				this.constantsHotRegistry          = constantsHotRegistry;
+				this.constantsColdStorageObjects   = null;
+				this.constantsColdStorageObjectIds = null;
+			}
+			
+			return this.constantsHotRegistry;
+		}
+		
+		private void synchEnsureConstantColdStorage()
+		{
+			if(this.constantsColdStorageObjects != null)
+			{
+				return;
+			}
+			
+			final EqHashTable<Long, Object> constantsHotRegistry = this.constantsHotRegistry;
+			final int                       constantCount        = X.checkArrayRange(constantsHotRegistry.size());
+			final Object[] constantsObjects   = new Object[constantCount];
+			final long[]   constantsObjectIds = new long[constantCount];
+			
+			final int i = 0;
+			for(final KeyValue<Long, Object> e : constantsHotRegistry)
+			{
+				constantsObjects[i] = e.value();
+				constantsObjectIds[i] = e.key();
+			}
+
+			this.constantsHotRegistry          = null;
+			this.constantsColdStorageObjects   = constantsObjects;
+			this.constantsColdStorageObjectIds = constantsObjectIds;
 		}
 		
 		@Override
@@ -479,18 +546,28 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 		@Override
 		public final synchronized void clear()
 		{
-			// (27.11.2018 TM)FIXME: JET-48: reregister constants
-			final long constantsCount = 0;
-			
 			// reinitialize storage strucuture with a suitable size for the incoming constants.
-			this.internalReset(Hashing.padHashLength(constantsCount));
+			this.synchEnsureConstantColdStorage();
+			
+			final Object[] constantsObjects   = this.constantsColdStorageObjects  ;
+			final long[]   constantsObjectIds = this.constantsColdStorageObjectIds;
+			final int      constantsLength    = constantsObjects.length;
+			final int      requiredHashLength = Hashing.calculateHashLength(constantsLength, this.hashDensity);
+			
+			this.internalReset(requiredHashLength);
+			
+			for(int i = 0; i < constantsLength; i++)
+			{
+				// NOT registerConstant() at this point!
+				this.registerObject(constantsObjectIds[i], constantsObjects[i]);
+			}
 		}
 		
 		@Override
 		public final synchronized void truncate()
 		{
 			// there is no point in keeping the old hash table arrays when there's a capacity low bound for the size.
-			this.internalReset(1);
+			this.internalReset();
 		}
 			
 		// removing //
@@ -685,7 +762,8 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 			{
 //				XDebug.println("Decrease required.");
 				// decrease required because the hash table became unnecessarily big. Redundant call for debugging.
-				this.synchRebuild();
+				// (28.11.2018 TM)FIXME: /!\ DEBUG
+//				this.synchRebuild();
 				return;
 			}
 			
@@ -752,6 +830,9 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 			this.size                  = size           ;
 			// hash density remains the same
 			this.internalUpdateCapacities();
+			
+			// at some point, constant registration is completed, so an efficient storage form is preferable.
+			this.synchEnsureConstantColdStorage();
 		}
 		
 		private void addEntryPerObjectId(
