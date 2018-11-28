@@ -33,6 +33,8 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	public int hashRange();
 
 	public float hashDensity();
+	
+	public PersistenceObjectRegistry setHashDensity(float hashDensity);
 
 	public long capacity();
 		
@@ -53,8 +55,6 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	 * Depending on the implementation and the size of the registry, this can take a considerable amount of time.
 	 */
 	public void cleanUp();
-	
-	public void clearOrphanEntries();
 	
 	// removing //
 	

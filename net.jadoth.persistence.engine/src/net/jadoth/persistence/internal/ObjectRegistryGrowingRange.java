@@ -602,6 +602,16 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	{
 		return this.hashDensity;
 	}
+	
+	@Override
+	public synchronized ObjectRegistryGrowingRange setHashDensity(final float hashDensity)
+	{
+		// (28.11.2018 TM)NOTE: this implementation will be replaced soon. No point in improving it.
+		throw new net.jadoth.meta.NotImplementedYetError();
+//		this.hashDensity = Hashing.hashDensity(hashDensity);
+//		// ToDO: recalculate capacity, check for rebuild
+//		return this;
+	}
 
 	@Override
 	public long capacity()
@@ -743,7 +753,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		this.synchRebuild();
 	}
 
-	@Override
 	public synchronized void clearOrphanEntries()
 	{
 		synchClearOrphanEntries(this.slotsPerOid);
