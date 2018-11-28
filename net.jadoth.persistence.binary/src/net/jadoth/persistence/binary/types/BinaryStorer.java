@@ -215,7 +215,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final PersistenceObjectSupplier getSwizzleObjectSupplier()
+		public final PersistenceObjectSupplier getObjectSupplier()
 		{
 			return this.objectSupplier;
 		}

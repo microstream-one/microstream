@@ -1,6 +1,6 @@
 package net.jadoth.com;
 
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.internal.CompositeIdProvider;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeIdStrategy;
@@ -67,9 +67,9 @@ public final class ComDefaultIdStrategy implements PersistenceIdStrategy
 		return this.objectIdStragegy().startingObjectId();
 	}
 	
-	public CompositeSwizzleIdProvider createIdProvider()
+	public CompositeIdProvider createIdProvider()
 	{
-		return CompositeSwizzleIdProvider.New(
+		return CompositeIdProvider.New(
 			this.createTypeIdProvider(),
 			this.createObjectIdProvider()
 		);

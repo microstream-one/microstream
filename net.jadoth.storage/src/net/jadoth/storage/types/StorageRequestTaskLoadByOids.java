@@ -9,25 +9,6 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 	implements StorageRequestTaskLoadByOids, StorageChannelTaskLoadByOids
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
-
-//		private static int calculateRequiredProgress(final SwizzleObjectIdSet[] data)
-//		{
-//			int requiredProgressCount = data.length;
-//			for(int i = 0; i < data.length; i++)
-//			{
-//				if(data[i].isEmpty())
-//				{
-//					requiredProgressCount--;
-//				}
-//			}
-//			return requiredProgressCount;
-//		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 

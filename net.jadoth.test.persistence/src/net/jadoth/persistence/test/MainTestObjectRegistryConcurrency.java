@@ -7,7 +7,7 @@ import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 import net.jadoth.typing.XTypes;
 
 @SuppressWarnings("deprecation")
-public class MainTestSwizzleRegistryConcurrency
+public class MainTestObjectRegistryConcurrency
 {
 	static final int   COUNT        = 1_000_000;
 	static final float HASH_DENSITY = 100F     ; // provoke collisions

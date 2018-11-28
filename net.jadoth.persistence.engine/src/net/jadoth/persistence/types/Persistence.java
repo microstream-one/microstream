@@ -30,7 +30,7 @@ import net.jadoth.typing.KeyValue;
 
 public class Persistence
 {
-	// (23.11.2018 TM)TODO: cleanup Persistence class after consolidation of gainless Swizzle class
+	// (23.11.2018 TM)TODO: cleanup Persistence class now that consolidation is complete.
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -215,9 +215,7 @@ public class Persistence
 	}
 
 
-	/* (22.03.2013 TM)XXX: remove or optionally replace with SwizzleTypeDictionary lookup
-	 * here and in persistence
-	 */
+	// (22.03.2013 TM)XXX: remove or optionally replace with PersistenceTypeDictionary lookup
 
 	static final HashTable<Class<?>, Long> NATIVE_TYPES = HashTable.New();
 	static

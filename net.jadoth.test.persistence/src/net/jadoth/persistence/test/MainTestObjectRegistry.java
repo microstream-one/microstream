@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 
 
-public class MainTestSwizzleRegistry
+public class MainTestObjectRegistry
 {
 	private static final int RUNS = 100;
 	private static final int COUNT = 1_000_000;

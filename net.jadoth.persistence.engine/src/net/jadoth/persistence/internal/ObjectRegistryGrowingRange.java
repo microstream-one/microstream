@@ -4,7 +4,9 @@ import static java.lang.System.identityHashCode;
 
 import java.lang.ref.WeakReference;
 
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.exceptions.NumberRangeException;
+import net.jadoth.hashing.HashStatisticsBucketBased;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
@@ -52,7 +54,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	{
 		if(XMath.isGreaterThanOrEqualHighestPowerOf2(desiredSlotLength))
 		{
-			// (16.04.2016)TODO: why isn't this max integer? See general purpose hash collections
 			return XMath.highestPowerOf2_int();
 		}
 		int slotCount = MINIMUM_SLOT_LENGTH;
@@ -105,13 +106,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
-
-	/* (31.10.2018 TM)TODO: SwizzleRegistry improvment
-	 * Maybe split the Entry[][] into a long[][] just for the oid and a corresponding 2D-array
-	 * of Entry (extrends WeakReference).
-	 * This would probably make the lookup per OID ("loading") faster due to less pointer chasing.
-	 * But maybe not due to passing around references to two arrays instead of one.
-	 */
 	
 	private Entry[][] slotsPerOid; // "primary" slots. See put() and increaseStorage() methods
 	private Entry[][] slotsPerRef;
@@ -308,31 +302,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				}
 			}
 		}
-		
-		/* (31.10.2018 TM)TODO: Decoupled constant registry
-		 * a lookup in a decoupled constant registry could be performed here.
-		 * This would cause the following changes:
-		 * - none to a proper OID lookup (the vast majority of lookups)
-		 * - a tiny delay (double lookup) to looking up constants, which is not noticable in the grand scheme
-		 * - a tiny delay (double lookup) to looking up erroneously unresolvable OIDs, which is irrelevant.
-		 * - a tiny delay (double lookup) to looking up OIDs during loading. And that is the painful point.
-		 * - yield a modular and immutable constant-registry that could be shared (e.g. OGC) and spared from clearing.
-		 * Also see issue JET-48.
-		 * 
-		 * The only problem is that this method has a static context and cannot relay to a constant registry.
-		 * Making it an instance method might cost performance (has to be tested)
-		 * Or wait a second:
-		 * The constant registry only handles constants (JSL cached instances and references to constant field instances)
-		 * So it is by definition static, anyway.
-		 * The only problem is that the RootResolver is dynamic that is executed long after static initializers.
-		 * Maybe the constant registry has to be pseudo-immutable then, with the root resolving being allowed
-		 * to add resolved instances.
-		 * However, that creates new problems:
-		 * - What if there is more than one RootResolver in the same process?
-		 * - If that registry is shared with an OGC channel, it might even be a security loophole
-		 * (know the ID of an important constant and you can request everything it references)
-		 */
-		
+				
 		return null;
 	}
 
@@ -767,6 +737,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		this.synchRebuild(this.slotsPerOid.length);
 		return filter;
 	}
+	
+	@Override
+	public final synchronized XGettingTable<String, HashStatisticsBucketBased> createHashStatistics()
+	{
+		// (28.11.2018 TM)NOTE: this implementation will be replaced soon. No point in improving it.
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
 
 
 
@@ -774,10 +751,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// member types     //
 	/////////////////////
 
-	/* (16.03.2015 TM)TODO: let SwizzleRegistryGrowingRange$Entry extend WeakReference
-	 * This saves memory footprint.
-	 * Must however on referen update replace Entries with new instances instead of just setting a new WeakReference.
-	 */
 	private static final class Entry
 	{
 		///////////////////////////////////////////////////////////////////////////

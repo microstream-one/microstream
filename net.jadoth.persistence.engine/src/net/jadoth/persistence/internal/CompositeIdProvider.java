@@ -5,18 +5,18 @@ import static net.jadoth.X.notNull;
 import net.jadoth.persistence.types.PersistenceObjectIdProvider;
 import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
-public final class CompositeSwizzleIdProvider implements PersistenceObjectIdProvider, PersistenceTypeIdProvider
+public final class CompositeIdProvider implements PersistenceObjectIdProvider, PersistenceTypeIdProvider
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static CompositeSwizzleIdProvider New(
+	public static CompositeIdProvider New(
 		final PersistenceTypeIdProvider   typeIdProvider  ,
 		final PersistenceObjectIdProvider objectIdProvider
 	)
 	{
-		return new CompositeSwizzleIdProvider(
+		return new CompositeIdProvider(
 			notNull(typeIdProvider)  ,
 			notNull(objectIdProvider)
 		);
@@ -38,7 +38,7 @@ public final class CompositeSwizzleIdProvider implements PersistenceObjectIdProv
 	// constructors     //
 	/////////////////////
 
-	CompositeSwizzleIdProvider(
+	CompositeIdProvider(
 		final PersistenceTypeIdProvider   typeIdProvider  ,
 		final PersistenceObjectIdProvider objectIdProvider
 	)
@@ -70,7 +70,7 @@ public final class CompositeSwizzleIdProvider implements PersistenceObjectIdProv
 	// constructors     //
 	/////////////////////
 
-	public final synchronized CompositeSwizzleIdProvider initialize()
+	public final synchronized CompositeIdProvider initialize()
 	{
 		if(!this.isInitialized())
 		{
@@ -88,13 +88,13 @@ public final class CompositeSwizzleIdProvider implements PersistenceObjectIdProv
 	/////////////////////
 
 	@Override
-	public final CompositeSwizzleIdProvider initializeTypeId()
+	public final CompositeIdProvider initializeTypeId()
 	{
 		return this.initialize();
 	}
 
 	@Override
-	public final CompositeSwizzleIdProvider initializeObjectId()
+	public final CompositeIdProvider initializeObjectId()
 	{
 		return this.initialize();
 	}
@@ -124,14 +124,14 @@ public final class CompositeSwizzleIdProvider implements PersistenceObjectIdProv
 	}
 
 	@Override
-	public final CompositeSwizzleIdProvider updateCurrentObjectId(final long currentObjectId)
+	public final CompositeIdProvider updateCurrentObjectId(final long currentObjectId)
 	{
 		this.objectIdProvider.updateCurrentObjectId(currentObjectId);
 		return this;
 	}
 
 	@Override
-	public final CompositeSwizzleIdProvider updateCurrentTypeId(final long currentTypeId)
+	public final CompositeIdProvider updateCurrentTypeId(final long currentTypeId)
 	{
 		this.typeIdProvider.updateCurrentTypeId(currentTypeId);
 		return this;

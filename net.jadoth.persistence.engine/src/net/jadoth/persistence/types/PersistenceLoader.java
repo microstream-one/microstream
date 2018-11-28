@@ -14,7 +14,7 @@ public interface PersistenceLoader<M> extends PersistenceRetrieving
 	{
 		public PersistenceLoader<M> createBuilder(
 			PersistenceDistrict<M>        district,
-			PersistenceSwizzleSupplier<M> source
+			PersistenceSourceSupplier<M> source
 		);
 	}
 

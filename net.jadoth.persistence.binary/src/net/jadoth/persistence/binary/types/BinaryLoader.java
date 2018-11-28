@@ -10,7 +10,7 @@ import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceObjectSupplier;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceSource;
-import net.jadoth.persistence.types.PersistenceSwizzleSupplier;
+import net.jadoth.persistence.types.PersistenceSourceSupplier;
 import net.jadoth.reference._intReference;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
@@ -19,8 +19,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 	{
 		@Override
 		public BinaryLoader createBuilder(
-			PersistenceDistrict<Binary>        district,
-			PersistenceSwizzleSupplier<Binary> source
+			PersistenceDistrict<Binary>       district,
+			PersistenceSourceSupplier<Binary> source
 		);
 	}
 
@@ -32,8 +32,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceSwizzleSupplier<Binary> swizzleSupplier;
-		private final LoadItemsChain                     loadItems      ;
+		private final PersistenceSourceSupplier<Binary> sourceSupplier;
+		private final LoadItemsChain                    loadItems     ;
 
 
 
@@ -41,19 +41,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		// constructors     //
 		/////////////////////
 
-		/* (17.12.2012)TODO: thread local swizzle registry
+		/* (17.12.2012)TODO: thread local object registry
 		 * for fast thread local graph building
-		 * (optional) commit to parent global swizzle registry
+		 * (optional) commit to parent global object registry
 		 */
 		public Implementation(
-			final PersistenceSwizzleSupplier<Binary> source   ,
-			final PersistenceDistrict<Binary>        district ,
-			final LoadItemsChain                     loadItems
+			final PersistenceSourceSupplier<Binary> source   ,
+			final PersistenceDistrict<Binary>       district ,
+			final LoadItemsChain                    loadItems
 		)
 		{
 			super(district);
-			this.swizzleSupplier = notNull(source)   ;
-			this.loadItems       = notNull(loadItems);
+			this.sourceSupplier = notNull(source)   ;
+			this.loadItems      = notNull(loadItems);
 		}
 
 
@@ -64,7 +64,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		private void readLoadOnce()
 		{
-			this.addChunks(this.swizzleSupplier.source().read());
+			this.addChunks(this.sourceSupplier.source().read());
 
 			/* the processing of the initial read might have resulted in reference oids that have to be loaded
 			 * (e.g. the initial read returns a root instance). So call the standard loading method at this point.
@@ -94,7 +94,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			 * boolean requireOid(long)
 			 * that is called for every OID to be loaded by the storage entity type handler while deep-loading
 			 * references.
-			 * The function is or delegates to this instance, which in turn asks the swizzle registry, if the instance
+			 * The function is or delegates to this instance, which in turn asks the object registry, if the instance
 			 * is already present. If yes, it is enqueued as a build item (to ensure a strong reference) and for later
 			 * building. If no, then a new blank instance of the type and length is enqueued as a local build item.
 			 * Return values are no/yes accordingly.
@@ -107,9 +107,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			 * Which is kind of ugly :(.
 			 * The currently used logic-side BinaryHandler solution is much more elegant...
 			 *
-			 * 2.) maybe, once all the data is assembled, the loader has to acquire and keep a lock on the swizzle
+			 * 2.) maybe, once all the data is assembled, the loader has to acquire and keep a lock on the object
 			 * registry for the whole building process. Otherwise, it could occur that concurrent modifications in the
-			 * the swizzle registry lead to a mixture of entity state (inconcistencies).
+			 * the object registry lead to a mixture of entity state (inconcistencies).
 			 * Or maybe than can never happen as the memory is always more current than the database and building
 			 * the graph automatically creates the right state. Tricky ... needs more thought.
 			 *
@@ -125,7 +125,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			 * Is that correct?
 			 */
 
-			final PersistenceSource<Binary> source = this.swizzleSupplier.source();
+			final PersistenceSource<Binary> source = this.sourceSupplier.source();
 			while(!this.loadItems.isEmpty())
 			{
 				this.addChunks(source.readByObjectIds(this.loadItems.getObjectIdSets()));
@@ -235,9 +235,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		}
 
 		@Override
-		public PersistenceObjectSupplier getSwizzleObjectSupplier()
+		public PersistenceObjectSupplier getObjectSupplier()
 		{
-			return this.swizzleSupplier;
+			return this.sourceSupplier;
 		}
 
 	}
@@ -249,7 +249,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		@Override
 		public BinaryLoader createBuilder(
 			final PersistenceDistrict<Binary>        district,
-			final PersistenceSwizzleSupplier<Binary> source
+			final PersistenceSourceSupplier<Binary> source
 		)
 		{
 			return new BinaryLoader.Implementation(source, district, new LoadItemsChain.Simple());
@@ -288,7 +288,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		@Override
 		public BinaryLoader createBuilder(
 			final PersistenceDistrict<Binary>        district,
-			final PersistenceSwizzleSupplier<Binary> source
+			final PersistenceSourceSupplier<Binary> source
 		)
 		{
 			return new BinaryLoader.Implementation(

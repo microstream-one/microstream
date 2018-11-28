@@ -8,7 +8,7 @@ import net.jadoth.util.BufferSizeProviderIncremental;
 
 
 public interface PersistenceManager<M>
-extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSwizzleSupplier<M>
+extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSourceSupplier<M>
 {
 	// manager methods //
 	
@@ -36,7 +36,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		storing.storeBy(this.createStorer()).commit();
 	}
 	
-	public PersistenceObjectRegistry swizzleRegistry();
+	public PersistenceObjectRegistry objectRegistry();
 	
 	public PersistenceTypeDictionary typeDictionary();
 	
@@ -110,7 +110,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		////////////
 		
 		@Override
-		public final PersistenceObjectRegistry swizzleRegistry()
+		public final PersistenceObjectRegistry objectRegistry()
 		{
 			return this.objectRegistry;
 		}

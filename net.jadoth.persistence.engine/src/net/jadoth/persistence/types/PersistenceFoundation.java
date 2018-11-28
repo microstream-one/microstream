@@ -3,9 +3,9 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
+import net.jadoth.persistence.internal.DefaultObjectRegistry;
 import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
-import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.BufferSizeProviderIncremental;
@@ -60,7 +60,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setTypeIdProvider(PersistenceTypeIdProvider tidProvider);
 
 	public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
-	F setSwizzleIdProvider(P swizzleTypeIdProvider);
+	F setIdProvider(P idProvider);
 	
 
 	public PersistenceStorer.Creator<M> getStorerCreator();
@@ -166,9 +166,9 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	
 	
 	
-	public F setObjectRegistry(PersistenceObjectRegistry swizzleObjectRegistry);
+	public F setObjectRegistry(PersistenceObjectRegistry objectRegistry);
 	
-	public F setTypeRegistry(PersistenceTypeRegistry swizzleTypeRegistry);
+	public F setTypeRegistry(PersistenceTypeRegistry typeRegistry);
 
 	public F setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
@@ -316,18 +316,18 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceTypeIdProvider   tidProvider;
 
 		// first level assembly parts (used directly to build manager instance) \\
-		private PersistenceTypeRegistry                     swizzleTypeRegistry        ;
-		private PersistenceObjectRegistry                   swizzleObjectRegistry      ;
-		private PersistenceTypeHandlerManager<M>        typeHandlerManager         ;
-		private PersistenceStorer.Creator<M>            storerCreator              ;
-		private PersistenceRegisterer.Creator           registererCreator          ;
-		private PersistenceLoader.Creator<M>            builderCreator             ;
-		private PersistenceTarget<M>                    target                     ;
-		private PersistenceSource<M>                    source                     ;
+		private PersistenceTypeRegistry          typeRegistry      ;
+		private PersistenceObjectRegistry        objectRegistry    ;
+		private PersistenceTypeHandlerManager<M> typeHandlerManager;
+		private PersistenceStorer.Creator<M>     storerCreator     ;
+		private PersistenceRegisterer.Creator    registererCreator ;
+		private PersistenceLoader.Creator<M>     builderCreator    ;
+		private PersistenceTarget<M>             target            ;
+		private PersistenceSource<M>             source            ;
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
-		private PersistenceTypeManager                      typeManager                ;
-		private PersistenceObjectManager                    objectManager              ;
+		private PersistenceTypeManager                  typeManager                ;
+		private PersistenceObjectManager                objectManager              ;
 		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
 		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
 		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
@@ -436,23 +436,23 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		@Override
 		public PersistenceObjectRegistry getObjectRegistry()
 		{
-			if(this.swizzleObjectRegistry == null)
+			if(this.objectRegistry == null)
 			{
-				this.swizzleObjectRegistry = this.dispatch(this.ensureSwizzleObjectRegistry());
+				this.objectRegistry = this.dispatch(this.ensureObjectRegistry());
 			}
 			
-			return this.swizzleObjectRegistry;
+			return this.objectRegistry;
 		}
 		
 		@Override
 		public PersistenceTypeRegistry getTypeRegistry()
 		{
-			if(this.swizzleTypeRegistry == null)
+			if(this.typeRegistry == null)
 			{
-				this.swizzleTypeRegistry = this.dispatch(this.ensureSwizzleTypeRegistry());
+				this.typeRegistry = this.dispatch(this.ensureTypeRegistry());
 			}
 			
-			return this.swizzleTypeRegistry;
+			return this.typeRegistry;
 		}
 
 		@Override
@@ -997,10 +997,10 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		@Override
 		public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
-		F setSwizzleIdProvider(final P swizzleTypeIdProvider)
+		F setIdProvider(final P typeIdProvider)
 		{
-			this.setObjectIdProvider(swizzleTypeIdProvider);
-			this.setTypeIdProvider(swizzleTypeIdProvider);
+			this.setObjectIdProvider(typeIdProvider);
+			this.setTypeIdProvider(typeIdProvider);
 			return this.$();
 		}
 
@@ -1051,17 +1051,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		@Override
 		public F setObjectRegistry(
-			final PersistenceObjectRegistry swizzleObjectRegistry
+			final PersistenceObjectRegistry objectRegistry
 		)
 		{
-			this.swizzleObjectRegistry = swizzleObjectRegistry;
+			this.objectRegistry = objectRegistry;
 			return this.$();
 		}
 		
 		@Override
-		public F setTypeRegistry(final PersistenceTypeRegistry swizzleTypeRegistry)
+		public F setTypeRegistry(final PersistenceTypeRegistry typeRegistry)
 		{
-			this.swizzleTypeRegistry = swizzleTypeRegistry;
+			this.typeRegistry = typeRegistry;
 			return this.$();
 		}
 
@@ -1464,16 +1464,18 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			throw new MissingFoundationPartException(PersistenceTypeIdProvider.class);
 		}
 
-		protected PersistenceObjectRegistry ensureSwizzleObjectRegistry()
+		protected PersistenceObjectRegistry ensureObjectRegistry()
 		{
-			final ObjectRegistryGrowingRange registry = ObjectRegistryGrowingRange.New();
+			// (28.11.2018 TM)FIXME: /!\ DEBUG: DefaultObjectRegistry test
+			final PersistenceObjectRegistry registry = DefaultObjectRegistry.New();
+//			final PersistenceObjectRegistry registry = ObjectRegistryGrowingRange.New();
 			// (21.11.2018 TM)FIXME: JET-48: register constants as constants.
 			Persistence.registerJavaConstants(registry);
 			
 			return registry;
 		}
 
-		protected PersistenceTypeRegistry ensureSwizzleTypeRegistry()
+		protected PersistenceTypeRegistry ensureTypeRegistry()
 		{
 			final PersistenceTypeRegistry registry = PersistenceTypeRegistry.New();
 			Persistence.registerJavaBasicTypes(registry);

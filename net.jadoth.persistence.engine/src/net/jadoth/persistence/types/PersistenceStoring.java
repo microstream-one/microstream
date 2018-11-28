@@ -17,7 +17,7 @@ public interface PersistenceStoring
 	 * instances along with it while skipping all existing (and normally unchanged) referenced instances.<p>
 	 *
 	 * @param instance the root instance of the subgraph of required instances to be stored.
-	 * @return the object id representing the passed instances that was used to unswizzle it.
+	 * @return the object id representing the passed instance.
 	 */
 	public long store(Object instance); // store passed instance in any case and required instances recursively
 	
@@ -26,7 +26,7 @@ public interface PersistenceStoring
 	 * The passed array (maybe implicitely created by the compiler) itself is NOT stored.
 	 *
 	 * @param instances multiple root instances of the subgraphs of required instances to be stored.
-	 * @return an array containing the object ids representing the passed instances that were used to unswizzle them.
+	 * @return an array containing the object ids representing the passed instances.
 	 */
 	/* (09.11.2018 TM)NOTE: change from "store" to "storeAll".
 	 * While the prior would be more convenient, it has one critical loophole:

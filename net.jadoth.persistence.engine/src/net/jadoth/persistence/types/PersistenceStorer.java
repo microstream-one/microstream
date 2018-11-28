@@ -40,7 +40,7 @@ public interface PersistenceStorer<M> extends Storer
 		 * Creates a {@link PersistenceStorer} instance with a storing logic that stores instances that are
 		 * encountered during the traversal of the entity graph that "require" to be stored. The actual meaning
 		 * of being "required" depends on the implementation. An example for being "required" is not having an
-		 * instance registered in the global swizzle registry and associated an biunique OID.
+		 * instance registered in the global object registry and associated an biunique OID.
 		 * 
 		 * @param objectManager
 		 * @param objectSupplier

@@ -47,14 +47,6 @@ public interface PersistenceDistrict<M>
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long objectId, long typeId);
-
-	/* (23.05.2018 TM)TODO: SwizzleRegistry nonsense method?
-	 * Isn't this method nonsense since the tid got removed?
-	 * Wouldn't a simple lookup suffice for the calling site and the actual registration only done when it's needed?
-	 * Or maybe it's a performance optimization to pull expensive rebuilds before a locked phase?
-	 * (26.11.2018 TM)NOTE: replaced with lookupObject
-	 */
-//	public Object ensureRegisteredObjectId(long objectId);
 	
 	public Object optionalRegisterObject(long objectId, Object object);
 
@@ -65,8 +57,8 @@ public interface PersistenceDistrict<M>
 	public Object lookupObject(long objectId, long typeId);
 
 	/**
-	 * Commits all uncommitted instances to an effective state, e.g. a parent district or global swizzle registry.
-	 * May be a no-op if no such action is applicable (e.g. global swizzle registry is already used internally or
+	 * Commits all uncommitted instances to an effective state, e.g. a parent district or global object registry.
+	 * May be a no-op if no such action is applicable (e.g. global object registry is already used internally or
 	 * used registry is a local stand-alone instance)
 	 */
 	public void commit();

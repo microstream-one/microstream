@@ -16,8 +16,8 @@ public class MainTestComServer
 //			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
 //				XFiles.ensureDirectory(new File("TypeDictionary"))
 //			))
-//			.setObjectIdProvider(SwizzleObjectIdProvider.Transient())
-//			.setTypeIdProvider(SwizzleTypeIdProvider.Transient())
+//			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
+//			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())
 //		;
 		
 		// convenience & customization example 1

@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceSwizzleSupplier<M> extends PersistenceObjectSupplier
+public interface PersistenceSourceSupplier<M> extends PersistenceObjectSupplier
 {
 	@Override
 	public Object get(long oid);

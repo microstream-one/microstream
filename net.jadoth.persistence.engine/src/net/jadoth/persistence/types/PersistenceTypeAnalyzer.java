@@ -15,7 +15,6 @@ public interface PersistenceTypeAnalyzer
 {
 	public XGettingEnum<Field> collectPersistableFields(
 		Class<?>                                               type             ,
-//		SwizzleTypeManager                                     typeManager      ,
 		XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 	);
 
@@ -31,7 +30,6 @@ public interface PersistenceTypeAnalyzer
 			final XPrependingSequence<Field> collection   ,
 			final Class<?>                   entityType   ,
 			final PersistenceFieldEvaluator  isPersistable
-//			final SwizzleTypeManager         typeManager
 		)
 		{
 
@@ -81,7 +79,6 @@ public interface PersistenceTypeAnalyzer
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(
 			final Class<?>                                               type             ,
-//			final SwizzleTypeManager                                     typeManager      ,
 			final XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
 		)
 		{

@@ -7,7 +7,7 @@ import java.io.File;
 
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.internal.CompositeSwizzleIdProvider;
+import net.jadoth.persistence.internal.CompositeIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdStrategy;
 import net.jadoth.persistence.internal.FileTypeIdProvider;
@@ -51,8 +51,8 @@ public class TestComponentProvider extends InvocationLogging
 
 	private String filenameData;
 
-	private transient CompositeSwizzleIdProvider         swizzleIdProvider  = null;
-	private transient BinaryFileStorage             persistenceStorage = null;
+	private transient CompositeIdProvider                  idProvider         = null;
+	private transient BinaryFileStorage                    persistenceStorage = null;
 	private transient PersistenceTypeDictionaryFileHandler dictionaryStorage  = null;
 
 
@@ -105,16 +105,16 @@ public class TestComponentProvider extends InvocationLogging
 		return this;
 	}
 
-	final CompositeSwizzleIdProvider swizzleIdProvider()
+	final CompositeIdProvider idProvider()
 	{
-		if(this.swizzleIdProvider == null)
+		if(this.idProvider == null)
 		{
-			this.swizzleIdProvider = CompositeSwizzleIdProvider.New(
+			this.idProvider = CompositeIdProvider.New(
 				dispatch(FileTypeIdProvider.New  (new File(this.directory, this.filenameTypeId  ))),
 				dispatch(FileObjectIdProvider.New(new File(this.directory, this.filenameObjectId)))
 			).initialize();
 		}
-		return this.swizzleIdProvider;
+		return this.idProvider;
 	}
 
 	final BinaryFileStorage persistenceStorage()
@@ -143,7 +143,7 @@ public class TestComponentProvider extends InvocationLogging
 	public final <F extends PersistenceFoundation<Binary, ?>> F initialize(final F foundation)
 	{
 		foundation
-			.setSwizzleIdProvider          (this.swizzleIdProvider()     )
+			.setIdProvider          (this.idProvider()     )
 			.setTypeDictionaryIoHandling      (this.dictionaryStorage()     )
 			.setPersistenceChannel         (this.persistenceStorage()    )
 			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )

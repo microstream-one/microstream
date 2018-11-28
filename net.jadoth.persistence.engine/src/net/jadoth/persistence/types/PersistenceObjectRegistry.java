@@ -1,5 +1,8 @@
 package net.jadoth.persistence.types;
 
+import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.hashing.HashStatistics;
+
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
  *
@@ -65,6 +68,8 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
 
 	public void clear();
+	
+	public XGettingTable<String, ? extends HashStatistics> createHashStatistics();
 	
 
 	// (27.11.2018 TM)FIXME: JET-48: methods for constants handling

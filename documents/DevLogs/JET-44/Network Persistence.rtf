@@ -1347,5 +1347,26 @@ Nach dem allen in ca. 5 Stunden tut jetzt der Kopf weh ...\par
 2018-11-28\par
 \par
 Mal DefaultObjectRegistry soweit abschlie\'dfen, dass sie verwendet werden kann. Nice-to-have Methoden als TODO vermerken. Aufr\'e4umen.\par
+\par
+\par
+Testen. L\'e4uft schon mal auf Anhieb durch, aber mal paar debugging Ausgaben reinbauen.\par
+A, fieser Fehler: da fehlt ein Math.ceil(), sonst rundet der long cast ab.\par
+Testen. Passt.\par
+Au\'dferdem ein "+ 1" beim bucket rebuilden vergessen, so dass er immer nur 1-elementige Buckets erzeugt hat. Haha.\par
+Testen. Passt.\par
+\par
+HashStatistics und HashStatisticsBucketBased typen implementieren.\par
+Inklusive String assembly.\par
+Erzeugung in DefaultObjectRegistry daf\'fcr.\par
+\par
+Jetzt kann man die Hashingsverteilung der ObjectRegistry wunderbar auf Knopfdruck analysieren.\par
+\par
+Aufgefallen:\par
+Es kommt noch sehr oft der Begriff "Swizzle" vor, obwohl das l\'e4ngst \'fcberholt ist. Rausrefactoren.\par
+\par
+Bisschen rumprobieren und kontrollieren mit verschiedenen HashDensities.\par
+Sieht alles gut aus.\par
+\par
+\par
 }
  
