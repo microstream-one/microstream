@@ -356,22 +356,28 @@ public class Persistence
 			oidInteger   = START_CID_INTEGER  ,
 			oidLong      = START_CID_LONG
 		;
-		/* Booleans */
+		
+		// Booleans
 		{
-			registry.registerObject(oidBoolean++, Boolean.FALSE);
-			registry.registerObject(oidBoolean++, Boolean.TRUE );
+			registry.registerConstant(oidBoolean++, Boolean.FALSE);
+			registry.registerConstant(oidBoolean++, Boolean.TRUE );
 		}
+		
+		// primitive numeric wrappers (Byte, Short, Integer, Long)
 		for(int i = JSL_CACHE_INTEGER_START; i < JSL_CACHE_INTEGER_BOUND; i++)
 		{
-			registry.registerObject(oidByte++   , Byte.valueOf((byte)i)  );
-			registry.registerObject(oidShort++  , Short.valueOf((short)i));
-			registry.registerObject(oidInteger++, Integer.valueOf(i)     );
-			registry.registerObject(oidLong++   , Long.valueOf(i)        );
+			registry.registerConstant(oidByte++   , Byte.valueOf((byte)i)  );
+			registry.registerConstant(oidShort++  , Short.valueOf((short)i));
+			registry.registerConstant(oidInteger++, Integer.valueOf(i)     );
+			registry.registerConstant(oidLong++   , Long.valueOf(i)        );
 		}
+
+		// Characters
 		for(int i = JSL_CACHE_CHARACTER_START; i < JSL_CACHE_CHARACTER_BOUND; i++)
 		{
-			registry.registerObject(oidCharacter++, Character.valueOf((char)i));
+			registry.registerConstant(oidCharacter++, Character.valueOf((char)i));
 		}
+		
 		return registry;
 	}
 

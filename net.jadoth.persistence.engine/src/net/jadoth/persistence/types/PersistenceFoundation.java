@@ -3,7 +3,6 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
-import net.jadoth.persistence.internal.DefaultObjectRegistry;
 import net.jadoth.persistence.internal.InquiringLegacyTypeMappingResultor;
 import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.typing.TypeMapping;
@@ -1466,10 +1465,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 		protected PersistenceObjectRegistry ensureObjectRegistry()
 		{
-			// (28.11.2018 TM)FIXME: /!\ DEBUG: DefaultObjectRegistry test
-			final PersistenceObjectRegistry registry = DefaultObjectRegistry.New();
+			final PersistenceObjectRegistry registry = PersistenceObjectRegistry.New();
 //			final PersistenceObjectRegistry registry = ObjectRegistryGrowingRange.New();
-			// (21.11.2018 TM)FIXME: JET-48: register constants as constants.
 			Persistence.registerJavaConstants(registry);
 			
 			return registry;
