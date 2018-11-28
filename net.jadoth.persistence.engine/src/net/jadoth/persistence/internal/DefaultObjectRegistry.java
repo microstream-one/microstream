@@ -15,7 +15,7 @@ import net.jadoth.persistence.types.PersistencePredicate;
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
 	/* Notes:
-	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . welcome to this user code class!
+	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . Welcome to this user code class!
 	 * - all methods prefixed with "synch" are only called from inside a synchronized context
 	 */
 			
@@ -40,25 +40,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		// there is no point in supporting a desired initial capacity when there's a capacity low bound for the size.
 		
-		final float hashDensity  = Hashing.hashDensity(desiredHashDensity);
-		final int   hashLength   = 1;
-		final int   hashRange    = 0;
-		final long  capacityHigh = (long)hashDensity;
-		final long  capacityLow  = 0;
-		final long  size         = 0;
-		
-		return new DefaultObjectRegistry(
-			new long[hashLength][],
-			new Item[hashLength][],
-			new Item[hashLength][],
-			new long[hashLength][],
-			hashLength            ,
-			hashDensity           ,
-			hashRange             ,
-			capacityLow           ,
-			capacityHigh          ,
-			size
-		);
+		final float hashDensity = Hashing.hashDensity(desiredHashDensity);
+		return new DefaultObjectRegistry()
+			.internalSetHashDensity(hashDensity)
+			.internalReset(1)
+		;
 	}
 	
 	
@@ -77,7 +63,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 * Higher density means less memory consumption but also lower performance.<br>
 	 * See {@link #minimumHashDensity()}.
 	 */
-	private final float hashDensity;
+	private float hashDensity;
 	
 	/**
 	 * The current length of the hash table master arrays. All four have always the same length.
@@ -104,36 +90,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 */
 	private long size;
 	
-
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 	
-	DefaultObjectRegistry(
-		final long[][] oidHashedOidKeysTable,
-		final Item[][] oidHashedRefValsTable,
-		final Item[][] refHashedRefKeysTable,
-		final long[][] refHashedOidValsTable,
-		final int      hashLength           ,
-		final float    hashDensity          ,
-		final int      hashRange            ,
-		final long     capacityHigh         ,
-		final long     capacityLow          ,
-		final long     size
-	)
+	DefaultObjectRegistry()
 	{
 		super();
-		this.oidHashedOidKeysTable = oidHashedOidKeysTable;
-		this.oidHashedRefValsTable = oidHashedRefValsTable;
-		this.refHashedRefKeysTable = refHashedRefKeysTable;
-		this.refHashedOidValsTable = refHashedOidValsTable;
-		this.hashLength            = hashLength           ;
-		this.hashDensity           = hashDensity          ;
-		this.hashRange             = hashRange            ;
-		this.capacityHigh          = capacityHigh         ;
-		this.capacityLow           = capacityLow          ;
-		this.size                  = size                 ;
 	}
 	
 	
@@ -141,7 +106,40 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
+	
+	private DefaultObjectRegistry internalReset(final int hashLength)
+	{
+		this.oidHashedOidKeysTable = new long[hashLength][];
+		this.oidHashedRefValsTable = new Item[hashLength][];
+		this.refHashedRefKeysTable = new Item[hashLength][];
+		this.refHashedOidValsTable = new long[hashLength][];
+		
+		this.hashLength = hashLength;
+		this.hashRange  = hashLength - 1;
+		
+		this.internalUpdateCapacities();
+		
+		this.size = 0;
+		
+		return this;
+	}
+	
+	private void internalUpdateCapacities()
+	{
+		this.capacityHigh = (long)(this.hashLength * this.hashDensity);
+		this.capacityLow  = this.hashLength == 1
+			? 0
+			: (long)(this.hashLength / 2 * this.hashDensity)
+		;
+	}
+	
+	private DefaultObjectRegistry internalSetHashDensity(final float hashDensity)
+	{
+		this.hashDensity = hashDensity;
+		
+		return this;
+	}
+	
 	private int hash(final long objectId)
 	{
 		/* (27.11.2018 TM)TODO: test and comment hashing performance
@@ -170,8 +168,52 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return System.identityHashCode(object) & this.hashRange;
 	}
 	
+	
+	
 	@Override
-	public long lookupObjectId(final Object object)
+	public final synchronized long size()
+	{
+		return this.size;
+	}
+	
+	@Override
+	public final synchronized boolean isEmpty()
+	{
+		return this.size == 0;
+	}
+	
+	@Override
+	public final synchronized int hashRange()
+	{
+		return this.hashRange;
+	}
+	
+	@Override
+	public final synchronized float hashDensity()
+	{
+		return this.hashDensity;
+	}
+		
+	@Override
+	public final synchronized DefaultObjectRegistry setHashDensity(final float hashDensity)
+	{
+		this.internalSetHashDensity(Hashing.hashDensity(hashDensity));
+		this.internalUpdateCapacities();
+		this.synchCheckForRebuild();
+		
+		return this;
+	}
+	
+	@Override
+	public final synchronized long capacity()
+	{
+		return this.capacityHigh;
+	}
+	
+	
+	
+	@Override
+	public final long lookupObjectId(final Object object)
 	{
 		notNull(object);
 		
@@ -219,7 +261,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			
 			oidHashedRefVals = this.oidHashedRefValsTable[this.hash(objectId)];
 		}
-
+		
 		// bucket arrays are effectively immutable, so the rest does not require a lock.
 		for(int i = 0; i < oidHashedOidKeys.length; i++)
 		{
@@ -228,13 +270,13 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				return oidHashedRefVals[i].get();
 			}
 		}
-
+		
 		// since null can never be contained, returning the null signals a miss.
 		return null;
 	}
 	
 	@Override
-	public boolean containsObjectId(final long objectId)
+	public final boolean containsObjectId(final long objectId)
 	{
 		final long[] oidHashedOidKeys;
 		synchronized(this)
@@ -246,7 +288,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				return false;
 			}
 		}
-
+		
 		// bucket arrays are effectively immutable, so the rest does not require a lock.
 		for(int i = 0; i < oidHashedOidKeys.length; i++)
 		{
@@ -255,13 +297,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				return true;
 			}
 		}
-
+		
 		// signal objectId not found.
 		return false;
 	}
 	
+	
+	
 	@Override
-	public synchronized <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
+	public final synchronized <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
 	{
 		// iterating everything has so many bucket accesses that a total lock is the only viable thing to do.
 		
@@ -293,39 +337,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 		return acceptor;
 	}
-	
-	@Override
-	public long size()
-	{
-		return this.size;
-	}
-
-	@Override
-	public boolean isEmpty()
-	{
-		return this.size == 0;
-	}
-
-	@Override
-	public int hashRange()
-	{
-		return this.hashRange;
-	}
-
-	@Override
-	public float hashDensity()
-	{
-		return this.hashDensity;
-	}
-
-	@Override
-	public long capacity()
-	{
-		return this.capacityHigh;
-	}
 		
 	@Override
-	public synchronized boolean registerObject(final long objectId, final Object object)
+	public final synchronized boolean registerObject(final long objectId, final Object object)
 	{
 		// both branches must use the SAME Item instance to reduce memory consumption
 		final Item newItem = this.synchAddPerObjectId(objectId, object, false);
@@ -333,18 +347,18 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			return false;
 		}
-
+		
 		// the second branch must be changed accordingly
 		this.synchAddPerObject(objectId, newItem);
-
+		
 		// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
 		this.synchCheckForRebuild();
 		
 		return true;
 	}
-
+	
 	@Override
-	public Object optionalRegisterObject(final long objectId, final Object object)
+	public final synchronized Object optionalRegisterObject(final long objectId, final Object object)
 	{
 		// both branches must use the SAME Item instance to reduce memory consumption
 		final Item newItem = this.synchAddPerObjectId(objectId, object, true);
@@ -358,10 +372,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			// a different object is already registered, so abort and return that.
 			return newItem.get();
 		}
-
+		
 		// the second branch must be changed accordingly
 		this.synchAddPerObject(objectId, newItem);
-
+		
 		// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
 		this.synchCheckForRebuild();
 		
@@ -371,62 +385,58 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public final synchronized void cleanUp()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#cleanUp()
+		this.synchRebuild();
 	}
-
-	/* (27.11.2018 TM)FIXME: orphan management
-	 * - check orphan count (rebuilds if too high)
-	 * - quick check orphan count (a few random samples as an estimate)
-	 * - there is no explicit orphan removal as this is done implicitely by the rebuild
-	 */
 	
 	@Override
-	public final synchronized void clearOrphanEntries()
+	public final synchronized void clear()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#clearOrphanEntries()
+		// (27.11.2018 TM)FIXME: JET-48: reregister constants
+		final long constantsCount = 0;
+		
+		// reinitialize storage strucuture with a suitable size for the incoming constants.
+		this.internalReset(Hashing.padHashLength(constantsCount));
 	}
 	
+	public final synchronized void truncate()
+	{
+		// there is no point in keeping the old hash table arrays when there's a capacity low bound for the size.
+		this.internalReset(1);
+	}
+		
 	// removing //
+	
+	// (28.11.2018 TM)NOTE: removing is not required for normal operations, so its implementation is postponed.
 	
 	@Override
 	public final synchronized boolean removeObjectById(final long id)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#removeObjectById()
+		// TODO DefaultObjectRegistry#removeObjectById()
+		throw new net.jadoth.meta.NotImplementedYetError();
 	}
-
+	
 	@Override
 	public final synchronized boolean removeObject(final Object object)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#removeObject()
+		// TODO DefaultObjectRegistry#removeObject()
+		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 	
 	@Override
-	public <P extends PersistencePredicate> P removeObjectsBy(final P filter)
+	public final synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME DefaultObjectRegistry#clear()
-	}
-
-	@Override
-	public final synchronized void clear()
-	{
-		this.clearAll();
-		// (27.11.2018 TM)FIXME: JET-48: reregister constants
+		// TODO DefaultObjectRegistry#removeObjectsBy()
+		throw new net.jadoth.meta.NotImplementedYetError();
 	}
 	
-	public final synchronized void clearAll()
-	{
-		// there is no point in keeping the old hash table arrays when there's a capacity low bound.
-		this.oidHashedOidKeysTable = new long[1][];
-		this.oidHashedRefValsTable = new Item[1][];
-		this.refHashedRefKeysTable = new Item[1][];
-		this.refHashedOidValsTable = new long[1][];
-		this.capacityHigh = (long)this.hashDensity;
-		this.capacityLow  = 0;
-		this.hashLength   = 1;
-		this.hashRange    = 0;
-		this.size         = 0;
-	}
-		
+	
+	
+	/* (27.11.2018 TM)TODO: smarter orphan management
+	 * - fully check orphan count and rebuild if too high.
+	 * - quick check orphan count (a few random samples asan estimate).
+	 * - maybe implement a removeOrphans logic, but that could end up being almost as much work as a rebuild
+	 */
+	
 	
 	
 	private Item synchAddPerObjectId(final long objectId, final Object object, final boolean optional)
@@ -481,34 +491,35 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			t++;
 		}
 		
-		final Item item = new Item(object);
+		final Item objectItem = new Item(object);
 		
 		// if at least one orphan was found, the bucket arrays have to be rebuilt again.
 		if(t < oldLength)
 		{
-			this.addNewEntryPerObjectId(truncatePlus1(newOidKeys, t), truncatePlus1(newRefVals, t), objectId, item);
+			this.addEntryPerObjectId(consolidate(newOidKeys, t), consolidate(newRefVals, t), objectId, objectItem);
 			
 			// size change: orphan count is subtracted, the new entry adds one.
 			this.size = this.size - oldLength + t + 1;
 		}
 		else
 		{
-			this.addNewEntryPerObjectId(newOidKeys, newRefVals, objectId, item);
+			this.addEntryPerObjectId(newOidKeys, newRefVals, objectId, objectItem);
 			
 			// size change: no orphans, so just an increment.
 			this.size++;
 		}
 		
-		return item;
+		return objectItem;
 	}
 	
-	private void synchAddPerObject(final long objectId, final Item newItem)
+	private void synchAddPerObject(final long objectId, final Item item)
 	{
-		final int    hashIndex  = this.hash(newItem.get());
+		// this .get() is effectively strong referencing as the stack frames below reference the object itself.
+		final int    hashIndex  = this.hash(item.get());
 		final Item[] oldRefKeys = this.refHashedRefKeysTable[hashIndex];
 		if(oldRefKeys == null)
 		{
-			this.synchAddPerObjectInNewBucket(objectId, newItem, hashIndex);
+			this.synchAddPerObjectInNewBucket(objectId, item, hashIndex);
 			return;
 		}
 		
@@ -543,97 +554,48 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// if at least orphan was found, the bucket arrays have to be rebuilt again.
 		if(t < oldLength)
 		{
-			this.addNewEntryPerObject(truncatePlus1(newRefKeys, t), truncatePlus1(newOidVals, t), objectId, newItem, hashIndex);
+			this.addEntryPerObject(consolidate(newRefKeys, t), consolidate(newOidVals, t), hashIndex, objectId, item);
 			// size change already done by per-oid adding. Orphans not accounted for there are neglected here.
 		}
 		else
 		{
-			this.addNewEntryPerObject(newRefKeys, newOidVals, objectId, newItem, hashIndex);
+			this.addEntryPerObject(newRefKeys, newOidVals, hashIndex, objectId, item);
 			// size change already done by per-oid adding
 		}
 	}
 	
 	private Item synchAddPerObjectIdInNewBucket(final long objectId, final Object object)
 	{
-		final Item newItem = new Item(object);
+		final Item objectItem = new Item(object);
 		
 		this.oidHashedOidKeysTable[this.hash(objectId)] = new long[]{objectId};
-		this.oidHashedRefValsTable[this.hash(objectId)] = new Item[]{newItem};
+		this.oidHashedRefValsTable[this.hash(objectId)] = new Item[]{objectItem};
 		this.size++;
 		
-		return newItem;
+		return objectItem;
 	}
 	
-	private void synchAddPerObjectInNewBucket(final long objectId, final Item newItem, final int hashIndex)
+	private void synchAddPerObjectInNewBucket(final long objectId, final Item objectItem, final int hashIndex)
 	{
-		this.refHashedRefKeysTable[hashIndex] = new Item[]{newItem};
+		this.refHashedRefKeysTable[hashIndex] = new Item[]{objectItem};
 		this.refHashedOidValsTable[hashIndex] = new long[]{objectId};
 		// size change already done by per-oid adding
 	}
-	
-	private static void addNewEntry(
-		final long[] oidBucket,
-		final Item[] refBucket,
-		final long   objectId ,
-		final Item   item
-	)
-	{
-		// a new entry is always at the last index
-		oidBucket[oidBucket.length - 1] = objectId;
-		refBucket[refBucket.length - 1] = item;
-	}
-		
-	private void addNewEntryPerObjectId(
-		final long[] oidBucket,
-		final Item[] refBucket,
-		final long   objectId ,
-		final Item   object
-	)
-	{
-		addNewEntry(oidBucket, refBucket, objectId, object);
-		this.oidHashedOidKeysTable[this.hash(objectId)] = oidBucket;
-		this.oidHashedRefValsTable[this.hash(objectId)] = refBucket;
-	}
-	
-	private void addNewEntryPerObject(
-		final Item[] refBucket,
-		final long[] oidBucket,
-		final long   objectId ,
-		final Item   item     ,
-		final int    hashIndex
-	)
-	{
-		addNewEntry(oidBucket, refBucket, objectId, item);
-		this.refHashedRefKeysTable[hashIndex] = refBucket;
-		this.refHashedOidValsTable[hashIndex] = oidBucket;
-	}
-	
-	private static long[] truncatePlus1(final long[] array, final int elementCount)
-	{
-		final long[] newArray = new long[elementCount + 1];
-		System.arraycopy(array, 0, newArray, 0, elementCount);
-		return newArray;
-	}
-	
-	private static Item[] truncatePlus1(final Item[] array, final int elementCount)
-	{
-		final Item[] newArray = new Item[elementCount + 1];
-		System.arraycopy(array, 0, newArray, 0, elementCount);
-		return newArray;
-	}
-	
+					
 	private void synchCheckForRebuild()
 	{
 		if(this.size > this.capacityHigh)
 		{
-			// increasing rebuild required because the hash table became too small (or entries distribution too dense).
+			// increase required because the hash table became too small (or entries distribution too dense).
 			this.synchRebuild();
+			return;
 		}
 		
 		if(this.size < this.capacityLow)
 		{
-			// decreasing rebuild required because the hash table became unnecessarily big.
+			// decrease required because the hash table became unnecessarily big. Redundant call for debugging.
 			this.synchRebuild();
+			return;
 		}
 		
 		// otherwise, no rebuild is required.
@@ -642,18 +604,13 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	private void synchRebuild()
 	{
 		// locally cached old references / values.
-		final int oldHashLength = this.hashLength;
+		final int      oldHashLength   = this.hashLength;
 		final long[][] oldOidKeysTable = this.oidHashedOidKeysTable;
 		final Item[][] oldRefValsTable = this.oidHashedRefValsTable;
 		
 		// locally created new references / values.
-		final int newHashLength = Hashing.calculateHashLength(this.size, this.hashDensity);
-		final int newHashRange  = newHashLength - 1;
-		final long newCapacityHigh = this.calculateCapacityFromHashLength(newHashLength);
-		final long newCapacityLow  = newHashLength == 1
-			? 0
-			: this.calculateCapacityFromHashLength(newHashLength / 2)
-		;
+		final int      newHashLength   = Hashing.calculateHashLength(this.size, this.hashDensity);
+		final int      newHashRange    = newHashLength - 1;
 		final long[][] newOidKeysTable = new long[newHashLength][];
 		final Item[][] newRefValsTable = new Item[newHashLength][];
 		final Item[][] newRefKeysTable = new Item[newHashLength][];
@@ -686,7 +643,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				size++;
 			}
 		}
-
+		
 		// registry state gets switched over from old to new
 		this.oidHashedOidKeysTable = newOidKeysTable;
 		this.oidHashedRefValsTable = newRefValsTable;
@@ -694,15 +651,62 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.refHashedOidValsTable = newOidValsTable;
 		this.hashLength            = newHashLength  ;
 		this.hashRange             = newHashRange   ;
-		this.capacityHigh          = newCapacityHigh;
-		this.capacityLow           = newCapacityLow ;
 		this.size                  = size           ;
 		// hash density remains the same
+		this.internalUpdateCapacities();
 	}
 	
-	private long calculateCapacityFromHashLength(final int hashLength)
+	private void addEntryPerObjectId(
+		final long[] oidBucket ,
+		final Item[] refBucket ,
+		final long   objectId  ,
+		final Item   objectItem
+	)
 	{
-		return (long)(hashLength * this.hashDensity);
+		addNewEntry(oidBucket, refBucket, objectId, objectItem);
+		this.oidHashedOidKeysTable[this.hash(objectId)] = oidBucket;
+		this.oidHashedRefValsTable[this.hash(objectId)] = refBucket;
+	}
+	
+	private void addEntryPerObject(
+		final Item[] refBucket ,
+		final long[] oidBucket ,
+		final int    hashIndex ,
+		final long   objectId  ,
+		final Item   objectItem
+	)
+	{
+		addNewEntry(oidBucket, refBucket, objectId, objectItem);
+		this.refHashedRefKeysTable[hashIndex] = refBucket;
+		this.refHashedOidValsTable[hashIndex] = oidBucket;
+	}
+
+	
+	
+	private static void addNewEntry(
+		final long[] oidBucket ,
+		final Item[] refBucket ,
+		final long   objectId  ,
+		final Item   objectItem
+	)
+	{
+		// a new entry is always at the last index
+		oidBucket[oidBucket.length - 1] = objectId;
+		refBucket[refBucket.length - 1] = objectItem;
+	}
+	
+	private static long[] consolidate(final long[] array, final int elementCount)
+	{
+		final long[] newArray = new long[elementCount + 1];
+		System.arraycopy(array, 0, newArray, 0, elementCount);
+		return newArray;
+	}
+	
+	private static Item[] consolidate(final Item[] array, final int elementCount)
+	{
+		final Item[] newArray = new Item[elementCount + 1];
+		System.arraycopy(array, 0, newArray, 0, elementCount);
+		return newArray;
 	}
 	
 	private static void populateByObjectId(
@@ -729,7 +733,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		oidValsTable[hashIndex] = newOidsBucket(oidValsTable[hashIndex], oid);
 	}
 	
-	private static final long[] newOidsBucket(final long[] oids, final long oid)
+	private static long[] newOidsBucket(final long[] oids, final long oid)
 	{
 		if(oids == null)
 		{
@@ -742,7 +746,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return newBucket;
 	}
 	
-	private static final Item[] newRefsBucket(final Item[] refs, final Item item)
+	private static Item[] newRefsBucket(final Item[] refs, final Item item)
 	{
 		if(refs == null)
 		{
@@ -754,8 +758,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		newBucket[newBucket.length - 1] = item;
 		return newBucket;
 	}
-		
-		
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// member types     //
+	/////////////////////
 	
 	static final class Item extends WeakReference<Object>
 	{
