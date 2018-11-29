@@ -708,7 +708,7 @@ public final class ObjectRegistryCrazyArrays implements PersistenceObjectRegistr
 				}
 				
 				final long oid = oldOidKeys[i];
-				final ObjectRegistryCrazyArrays.Item ref = oldRefVals[i];
+				final Item ref = oldRefVals[i];
 				populateByObjectId(newOidKeysTable, newRefValsTable, (int)oid & newHashRange, oid, ref);
 				populateByObject(newRefKeysTable, newOidValsTable, identityHashCode(ref.get()) & newHashRange, oid, ref);
 				size++;
