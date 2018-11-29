@@ -50,14 +50,14 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	public static DefaultObjectRegistry New()
 	{
-		return New(ObjectRegistryCrazyArrays.defaultHashDensity());
+		return New(defaultHashDensity());
 	}
 	
 	public static DefaultObjectRegistry New(final float desiredHashDensity)
 	{
 		return New(
 			desiredHashDensity,
-			(int)Math.ceil(desiredHashDensity / 2)
+			(int)Math.ceil(desiredHashDensity / 2) + 1
 		);
 	}
 	
@@ -579,8 +579,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 
 	
+	
 	private Object synchRegisterObject(final long objectId, final Object object, final boolean optional)
 	{
+		// (29.11.2018 TM)XXX: test and comment if optional flag removal improved performance
+		
 		int i = -1;
 		final long[] oidKeys;
 		final Item[] refVals;
@@ -836,21 +839,28 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	private void synchRebuild()
 	{
+		/* Potential Optimization:
+		 * "refHashed~" arrays could be recycled. Already processed "oidHashed~" arrays, too.
+		 * However, it would have to be tested if that really brings performance or just
+		 * eases garbage collection, maybe even at the cost of performence.
+		 */
+		
 		// locally cached old references / values.
 		final int      oldHashLength   = this.hashLength;
 		final long[][] oldOidKeysTable = this.oidHashedOidKeysTable;
 		final Item[][] oldRefValsTable = this.oidHashedRefValsTable;
+		final int      increase  = this.bucketLengthIncrease;
 		
 		// locally created new references / values.
-		final int      newHashLength   = Hashing.calculateHashLength(this.size, this.hashDensity);
-		final int      newHashRange    = newHashLength - 1;
-		final long[][] newOidKeysTable = new long[newHashLength][];
-		final Item[][] newRefValsTable = new Item[newHashLength][];
-		final Item[][] newRefKeysTable = new Item[newHashLength][];
-		final long[][] newOidValsTable = new long[newHashLength][];
+		final int   newHashLength = Hashing.calculateHashLength(this.size, this.hashDensity);
+		final int   newHashRange  = newHashLength - 1;
+		final long[][] newOidKeys = new long[newHashLength][this.bucketLengthInitial];
+		final Item[][] newRefVals = new Item[newHashLength][this.bucketLengthInitial];
+		final Item[][] newRefKeys = new Item[newHashLength][this.bucketLengthInitial];
+		final long[][] newOidVals = new long[newHashLength][this.bucketLengthInitial];
 		
 		// this is also the only opportunity to recalculate the actual size
-		final long size = 0;
+		long size = 0;
 		
 		// both new branches are populated from the per-oid-branch
 		for(int h = 0; h < oldHashLength; h++)
@@ -866,14 +876,18 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			for(int i = 0; i < oldRefVals.length; i++)
 			{
 //				XDebug.println("Rebuild old hash table " + h + " -> " + i);
-				if(oldRefVals[i].get() == null)
+				final Object object;
+				if((object = oldRefVals[i].get()) == null)
 				{
 //					XDebug.println("Orphan");
 					continue;
 				}
 				
-				// FIXME ObjectRegistry2#synchRebuild()
-				throw new net.jadoth.meta.NotImplementedYetError();
+				final long oid  = oldOidKeys[i];
+				final Item item = oldRefVals[i];
+				register(newOidKeys, newRefVals, increase, oid, item, item.oidHashIndex = (int)oid & newHashRange);
+				register(newOidVals, newRefKeys, increase, oid, item, item.refHashIndex = System.identityHashCode(object) & newHashRange);
+				size++;
 				
 //				XDebug.println("new Entry: " + size);
 			}
@@ -882,20 +896,45 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 //		XDebug.println("Rebuild " + this.hashLength  + " -> " + newHashLength);
 		
 		// registry state gets switched over from old to new
-		this.oidHashedOidKeysTable = newOidKeysTable;
-		this.oidHashedRefValsTable = newRefValsTable;
-		this.refHashedRefKeysTable = newRefKeysTable;
-		this.refHashedOidValsTable = newOidValsTable;
-		this.hashLength            = newHashLength  ;
-		this.hashRange             = newHashRange   ;
-		this.size                  = size           ;
+		this.oidHashedOidKeysTable = newOidKeys;
+		this.oidHashedRefValsTable = newRefVals;
+		this.refHashedRefKeysTable = newRefKeys;
+		this.refHashedOidValsTable = newOidVals;
+		this.hashLength            = newHashLength;
+		this.hashRange             = newHashRange;
+		this.size                  = size ;
 		// hash density remains the same
 		this.internalUpdateCapacities();
 		
 		// at some point, constant registration is completed, so an efficient storage form is preferable.
 		this.synchEnsureConstantColdStorage();
 	}
-				
+	
+	private static void register(
+		final long[][] oidBucketTable,
+		final Item[][] refBucketTable,
+		final int      bucketIncrease,
+		final long     objectId      ,
+		final Item     item          ,
+		final int      hashIndex
+	)
+	{
+		final long[] oidBucket = oidBucketTable[hashIndex];
+		final Item[] refBucket = refBucketTable[hashIndex];
+		
+		for(int i = 0; i < refBucket.length; i++)
+		{
+			if(refBucket[i] == null)
+			{
+				oidBucket[i] = objectId;
+				refBucket[i] = item    ;
+				return;
+			}
+		}
+		
+		(oidBucketTable[hashIndex] = enlargeBucket(oidBucket, bucketIncrease))[refBucket.length] = objectId;
+		(refBucketTable[hashIndex] = enlargeBucket(refBucket, bucketIncrease))[refBucket.length] = item    ;
+	}
 	
 	
 	// HashStatistics logic //
