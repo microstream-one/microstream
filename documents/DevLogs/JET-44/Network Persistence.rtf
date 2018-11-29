@@ -1368,5 +1368,24 @@ Bisschen rumprobieren und kontrollieren mit verschiedenen HashDensities.\par
 Sieht alles gut aus.\par
 \par
 \par
+2018-11-29\par
+\par
+Also funktionieren tut die Implementierung, braucht deutlich weniger Speicher als die bisherige und w\'e4re potenziell auch genauso schnell oder schneller, aber die Tests haben gezeigt, dass das massive Bucket Array Instanzieren und umkopieren die Performance killt und den heap extrem schnell zum\'fcllt. Ein GC r\'e4umt das alles wieder auf, also nat\'fcrlich kein Memory Leak, aber die permanenten GC-Pausen machen dann die performance schlechter als das bisherige ist.\par
+\par
+Ich hab gestern daheim ein bisschen rum\'fcberlegt und auch schon implementiert und ein Konzept gefunden, dass die Vorteile beh\'e4lt, aber die Nachteile entfernt:\par
+- Buckets mit mehr length als n\'f6tig machen. Der erste null-Eintrag kennzeichnet das Ende der Eintr\'e4ge\par
+- daf\'fcr eine optimize() Methode, die einmal \'fcber alle buckets l\'e4uft und sie einmalig auf ein Bucket Array mit minimal n\'f6tiger L\'e4nger umkopiert.\par
+- Damit man die nicht manuell aufrufen muss, bekommt die registry einen eigenen Thread, der das regelm\'e4\'dfig checkt.\par
+- Der Thread macht dann auch gleich Stichproben nach Orphen Entries.\par
+- Damit der Thread nicht l\'e4nger lebt, als die Registry, kriegt er eine weak R\'fcck-Referenz.\par
+- Damit er einen Ladevorgang aus vielen (potenziell millionen) register Aufrufen nicht st\'f6rt, checkt er einen "lastRegister" Timestamp.\par
+- Nat\'fcrlich ein paar Konfigurationswerte f\'fcr Check Interval, Wartezeit nach letztem Register, usw.\par
+- Die Registry bekommt eine Start- und Stop-Methode f\'fcr den Thread. Z.B. f\'fcr die Verwendung in OGC mit stateless Kommunikation macht der Thread gar keinen Sinn.\par
+- Ein register Aufruf checkt, dass der Thread l\'e4uft.\par
+- Setzen der size auf 0 deaktiviert den Thread.\par
+\par
+Damit wird das eine rundum-sorglos ObjectRegistry mit minimalem Speicherverbrauch und trotzdem sehr hoher Performance.\par
+\par
+Jetzt muss ich das nur noch darauf umbauen.\par
 }
  
