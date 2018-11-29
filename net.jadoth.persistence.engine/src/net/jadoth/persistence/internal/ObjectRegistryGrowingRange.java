@@ -651,8 +651,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return this.synchronizedAddRef(oid, object);
 	}
 
-	@Override
-	public synchronized boolean removeObjectById(final long id)
+	public final synchronized boolean removeObjectById(final long id)
 	{
 		if(id == Persistence.nullId())
 		{
@@ -675,8 +674,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return false;
 	}
 
-	@Override
-	public synchronized boolean removeObject(final Object object)
+	public final synchronized boolean removeObject(final Object object)
 	{
 		if(object == null)
 		{
@@ -729,8 +727,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		synchClearOrphanEntries(this.slotsPerRef);
 	}
 	
-	@Override
-	public synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
+	public final synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
 	{
 		synchClearEntries(this.slotsPerOid, filter);
 		synchClearEntries(this.slotsPerRef, filter);

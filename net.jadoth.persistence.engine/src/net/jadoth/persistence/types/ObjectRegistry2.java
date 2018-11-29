@@ -19,13 +19,21 @@ import net.jadoth.typing.KeyValue;
 
 public final class ObjectRegistry2 implements PersistenceObjectRegistry
 {
+	/* (27.11.2018 TM)TODO: ObjectRegistry housekeeping thread
+	 * - optimize() method to trim bucket arrays and random-sample-check for orphans.
+	 * - thread with weak back-reference to this registry to make it stop automatically.
+	 * - "lastRegister" timestamp to not interrupt registering-heavy phases.
+	 * - the usual config values for check intervals etc.
+	 * - start() and stop() method in the registry for explicit control.
+	 * - a size increase ensures the thread is running, a size of 0 terminates it.
+	 */
+	
 	/* Notes:
 	 * - all methods prefixed with "synch" are only called from inside a synchronized or another "synch" method.
-	 * - all bucket arrays are effectively immutable, which makes lookups (storing) very fast.
 	 * - the quad-bucket array storage is memory-inefficient for low density, but very efficient for high density.
 	 * - sadly, WeakReferences occupy a lot of memory and there is no alternative to them for weakly referencing.
 	 */
-			
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -203,7 +211,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	
 	private int hash(final long objectId)
 	{
-		/* (27.11.2018 TM)TODO: test and comment hashing performance
+		/* (27.11.2018 TM)XXX: test and comment hashing performance
 		 * - hash(){ (int)objectId & this.hashRange
 		 * - hash(){ (int)(objectId & this.hashRange)
 		 * - hash(){ (int)(objectId & this.hashRangeLong)
@@ -220,7 +228,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	
 	private int hash(final Object object)
 	{
-		/* (27.11.2018 TM)TODO: test and comment hashing performance
+		/* (27.11.2018 TM)XXX: test and comment hashing performance
 		 * - hash(){ System.identityHashCode(object) & this.hashRange
 		 * - inlined System.identityHashCode(object) & this.hashRange
 		 */
@@ -274,23 +282,26 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	
 	
 	@Override
-	public final long lookupObjectId(final Object object)
+	public final synchronized long lookupObjectId(final Object object)
 	{
 		notNull(object);
 		
 		final Item[] refHashedRefKeys;
-		final long[] refHashedOidVals;
-		synchronized(this)
+		if((refHashedRefKeys = this.refHashedRefKeysTable[this.hash(object)]) == null)
 		{
-			// both must be queried under protection of the same lock to guarantee consistency.
-			refHashedRefKeys = this.refHashedRefKeysTable[this.hash(object)];
-			if(refHashedRefKeys == null)
-			{
-				return Persistence.nullId();
-			}
-			
-			refHashedOidVals = this.refHashedOidValsTable[this.hash(object)];
+			return Persistence.nullId();
 		}
+		
+		/* Potential Optimization:
+		 * Only lock while the oidKeys bucket is queries.
+		 * Could be reliably thread-local after that.
+		 * (not exactely sure about the "reliably". Would have to be researched/tested)
+		 */
+		
+		/* Potential Optimization:
+		 * Quick-check at index 0, since buckets never have a length of 0.
+		 * Performance-gain must be tested, first, though.
+		 */
 		
 		// the array should be a concurrency-safe thread-local stack copy, but honestly not exactely sure about it.
 		for(int i = 0; i < refHashedRefKeys.length; i++)
@@ -304,7 +315,9 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 			// can be null for orphan entries
 			if(refHashedRefKeys[i].get() == object)
 			{
-				return refHashedOidVals[i];
+				// lookup and return the associated objectId (always located at the same index in its bucket)
+				// (29.11.2018 TM)XXX: test and comment if rehashing is faster than "refHashedRefKeys[i].refHashIndex".
+				return this.refHashedOidValsTable[refHashedRefKeys[i].refHashIndex][i];
 			}
 		}
 		
@@ -313,26 +326,29 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public final Object lookupObject(final long objectId)
+	public final synchronized Object lookupObject(final long objectId)
 	{
 		final long[] oidHashedOidKeys;
-		final Item[] oidHashedRefVals;
-		synchronized(this)
+		if((oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)]) == null)
 		{
-			// both must be queried under protection of the same lock to guarantee consistency.
-			oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
-			if(oidHashedOidKeys == null)
-			{
-				return null;
-			}
-			
-			oidHashedRefVals = this.oidHashedRefValsTable[this.hash(objectId)];
+			// since null can never be contained, returning the null signals a miss.
+			return null;
 		}
+		
+		/* Potential Optimization:
+		 * Only lock while the oidKeys bucket is queries.
+		 * Could be reliably thread-local after that.
+		 * (not exactely sure about the "reliably". Would have to be researched/tested)
+		 */
+		
+		/* Potential Optimization:
+		 * Quick-check at index 0, since buckets never have a length of 0.
+		 * Performance-gain must be tested, first, though.
+		 */
 
-		// the array should be a concurrency-safe thread-local stack copy, but honestly not exactely sure about it.
 		for(int i = 0; i < oidHashedOidKeys.length; i++)
 		{
-			// the first 0 terminates the bucket's entries
+			// the first 0 terminates the bucket's entries.
 			if(oidHashedOidKeys[i] == 0L)
 			{
 				break;
@@ -340,7 +356,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 			
 			if(oidHashedOidKeys[i] == objectId)
 			{
-				return oidHashedRefVals[i].get();
+				return this.oidHashedRefValsTable[this.hash(objectId)][i].get();
 			}
 		}
 		
@@ -349,18 +365,24 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public final boolean containsObjectId(final long objectId)
+	public final synchronized boolean containsObjectId(final long objectId)
 	{
 		final long[] oidHashedOidKeys;
-		synchronized(this)
+		if((oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)]) == null)
 		{
-			// must be queried under protection of a lock to guarantee consistency.
-			oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
-			if(oidHashedOidKeys == null)
-			{
-				return false;
-			}
+			return false;
 		}
+		
+		/* Potential Optimization:
+		 * Only lock while the oidKeys bucket is queries.
+		 * Could be reliably thread-local after that.
+		 * (not exactely sure about the "reliably". Would have to be researched/tested)
+		 */
+		
+		/* Potential Optimization:
+		 * Quick-check at index 0, since buckets never have a length of 0.
+		 * Performance-gain must be tested, first, though.
+		 */
 
 		// the array should be a concurrency-safe thread-local stack copy, but honestly not exactely sure about it.
 		for(int i = 0; i < oidHashedOidKeys.length; i++)
@@ -373,6 +395,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 			
 			if(oidHashedOidKeys[i] == objectId)
 			{
+				// signal objectId found.
 				return true;
 			}
 		}
@@ -411,12 +434,8 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 					break;
 				}
 				
-				// might be an orphan item with a hollow weak reference.
-				final Object instance = oidHashedRefVals[i].get();
-				if(instance != null)
-				{
-					acceptor.accept(oidHashedOidKeys[i], instance);
-				}
+				// orphan entries are passed intentionally to give this method a usage as an orphan analyzing tool.
+				acceptor.accept(oidHashedOidKeys[i], oidHashedRefVals[i].get());
 			}
 		}
 		
@@ -427,46 +446,41 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	public final synchronized boolean registerObject(final long objectId, final Object object)
 	{
 //		XDebug.println("(Size " + this.size + ") Registering " + objectId + " <-> " + XChars.systemString(object));
-		
-		// both branches must use the SAME Item instance to reduce memory consumption
-		final Item newItem = this.synchAddPerObjectId(objectId, object, false);
-		if(newItem == null)
+
+		// case 1: the same object is already contained (indicated by null), so "no change" is reported.
+		if(this.synchRegisterObject(objectId, object, false) == null)
 		{
 			return false;
 		}
 		
-		// the second branch must be changed accordingly
-		this.synchAddPerObject(objectId, newItem);
-		
-		// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
+		// case 2: the object has been newly registered. Better check for a required rebuild.
 		this.synchCheckForRebuild();
 		
+		// "change" is reported.
 		return true;
 	}
 	
 	@Override
 	public final synchronized Object optionalRegisterObject(final long objectId, final Object object)
 	{
-		// both branches must use the SAME Item instance to reduce memory consumption
-		final Item newItem = this.synchAddPerObjectId(objectId, object, true);
-		if(newItem == null)
+		final Object registered;
+		
+		// case 1: the same object is already contained (indicated by null), so it is returned.
+		if((registered = this.synchRegisterObject(objectId, object, true)) == null)
 		{
-			// null indicates that the object is already contained, so abort and return it.
 			return object;
 		}
-		if(newItem.get() != object)
+		
+		// case 2: the object has been newly registered. Better check for a required rebuild.
+		if(registered == object)
 		{
-			// a different object is already registered, so abort and return that.
-			return newItem.get();
+			// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
+			this.synchCheckForRebuild();
 		}
+		// else case 3: another object is already registered for that objectId.
 		
-		// the second branch must be changed accordingly
-		this.synchAddPerObject(objectId, newItem);
-		
-		// check for global rebuild after entries have changed (more or even fewer because of removed orphans)
-		this.synchCheckForRebuild();
-		
-		return object;
+		// return case 2/3 reference.
+		return registered;
 	}
 	
 	@Override
@@ -561,209 +575,162 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 		this.internalReset();
 	}
 		
-	// removing //
+
 	
-	// (28.11.2018 TM)NOTE: removing is not required for normal operations, so its implementation is postponed.
 	
-	@Override
-	public final synchronized boolean removeObjectById(final long id)
+	private Object synchRegisterObject(final long objectId, final Object object, final boolean optional)
 	{
-		// TODO DefaultObjectRegistry#removeObjectById()
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-	
-	@Override
-	public final synchronized boolean removeObject(final Object object)
-	{
-		// TODO DefaultObjectRegistry#removeObject()
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-	
-	@Override
-	public final synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
-	{
-		// TODO DefaultObjectRegistry#removeObjectsBy()
-		throw new net.jadoth.meta.NotImplementedYetError();
-	}
-	
-	
-	
-	/* (27.11.2018 TM)TODO: smarter orphan management
-	 * - fully check orphan count and rebuild if too high.
-	 * - quick check orphan count (a few random samples asan estimate).
-	 * - maybe implement a removeOrphans logic, but that could end up being almost as much work as a rebuild
-	 */
-	
-	
-	
-	private Item synchAddPerObjectId(final long objectId, final Object object, final boolean optional)
-	{
-		final long[] oidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
-		if(oidKeys == null)
+		final int oidHashIndex;
+		final int refHashIndex = this.hash(object);
+		final long[] oidKeys;
+		
+		// case 1: no oidKeys bucket, so the object CANNOT be registered, yet. Add in a new bucket.
+		if((oidKeys = this.oidHashedOidKeysTable[oidHashIndex = this.hash(objectId)]) == null)
 		{
-			return this.synchAddPerObjectIdInNewBucket(objectId, object);
+			this.synchAddPerObjectIdInNewBucket(objectId, new Item(object, oidHashIndex, refHashIndex));
+			this.size++;
+			return object;
 		}
 		
-		final Item[] refVals = this.oidHashedRefValsTable[this.hash(objectId)];
-		final int    length  = oidKeys.length;
-		
-		int t = 0; // target index in the new bucket arrays. Drags behind i for found orphan entries.
-		for(int i = 0; i < length; i++)
+		// case 2: existing oidKeys bucket must be scanned for various sub-cases.
+		final Item[] refVals = this.oidHashedRefValsTable[oidHashIndex];
+		for(int i = 0; i < oidKeys.length; i++)
 		{
+			// case 2a: entry with the same objectId
 			if(oidKeys[i] == objectId)
 			{
+				// case 2a1: object is already consistently registered
 				if(refVals[i].get() == object)
 				{
 					// object is already registered, abort.
 					return null;
 				}
-				
+
+				// case 2a2: another object is already registered for the same objectId. Handle depending on flag.
 				final Object alreadyRegistered = refVals[i].get();
 				if(alreadyRegistered != null)
 				{
 					if(optional)
 					{
-						return refVals[i];
+						return alreadyRegistered;
 					}
+					
 					throw new PersistenceExceptionConsistencyObject(objectId, alreadyRegistered, object);
 				}
 				
-				// subject orphan entry, replace
-				refVals[i] = new Item(object);
-				// (28.11.2018 TM)FIXME: how to link from oid keys to ref keys? a link-int[] is needed.
+				// case 2a3: matching entry, but orphaned. Can be reused for a new Item.
+				final Item item;
+				this.synchReplaceOrphanEntry(refVals[i], objectId, item = new Item(object, oidHashIndex, refHashIndex));
+				refVals[i] = item;
+				// no size change when replacing an orphan entry.
+				return object;
 			}
-			
-			// check for general orphan case
-			if(refVals[i].get() == null)
+
+			// case 2b: no entry matched, but there is a free slot behind the last, so add the new entry there.
+			if(refVals[i] == null)
 			{
-				// non-subject orphan entry, discard.
-				continue;
+				this.synchAddPerObjectIdInBucket(oidKeys, refVals, i, objectId, new Item(object, oidHashIndex, refHashIndex));
+				this.size++;
+				return object;
 			}
-			
-			// copy non-orphan non-subject entry to new bucket arrays
-			newOidKeys[t] = oidKeys[i];
-			newRefVals[t] = refVals[i];
-			t++;
 		}
 		
-		final Item objectItem = new Item(object);
+		// case 3: the existing oidKeys bucket does fit in no way, so it has to be enlarged and the entry added
+		final Item item;
+		this.synchAddItemPerObject(objectId, item = new Item(object, oidHashIndex, refHashIndex));
+		setEntry(
+			this.oidHashedOidKeysTable[item.oidHashIndex] = enlargeBucket(oidKeys, this.bucketLengthIncrease),
+			this.oidHashedRefValsTable[item.oidHashIndex] = enlargeBucket(refVals, this.bucketLengthIncrease),
+			oidKeys.length,
+			objectId,
+			item
+		);
 		
-		// if at least one orphan was found, the bucket arrays have to be rebuilt again.
-		if(t < length)
-		{
-			this.addEntryPerObjectId(consolidate(newOidKeys, t), consolidate(newRefVals, t), objectId, objectItem);
-			
-			// size change: orphan count is subtracted, the new entry adds one.
-			this.size = this.size - length + t + 1;
-		}
-		else
-		{
-			this.addEntryPerObjectId(newOidKeys, newRefVals, objectId, objectItem);
-			
-			// size change: no orphans, so just an increment.
-			this.size++;
-		}
-		
-		return objectItem;
+		this.size++;
+		return object;
 	}
 	
-	private void synchAddPerObject(final long objectId, final Item item)
+	private void synchAddPerObjectIdInNewBucket(final long objectId, final Item item)
 	{
-		// this .get() is effectively strong referencing as the stack frames below reference the object itself.
-		final int    hashIndex  = this.hash(item.get());
-		final Item[] oldRefKeys = this.refHashedRefKeysTable[hashIndex];
-		if(oldRefKeys == null)
+		// adds or throws exception on collision
+		this.synchAddItemPerObject(objectId, item);
+		
+		setEntry(
+			this.oidHashedOidKeysTable[item.oidHashIndex] = new long[this.bucketLengthInitial],
+			this.oidHashedRefValsTable[item.oidHashIndex] = new Item[this.bucketLengthInitial],
+			0,
+			objectId,
+			item
+		);
+	}
+	
+	private void synchReplaceOrphanEntry(final Item orphanItem, final long objectId, final Item newItem)
+	{
+		// FIXME ObjectRegistry2#synchReplaceOrphanEntry()
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
+	
+	private void synchAddPerObjectIdInBucket(
+		final long[] oidKeys ,
+		final Item[] refVals ,
+		final int    i       ,
+		final long   objectId,
+		final Item   item
+	)
+	{
+		// FIXME ObjectRegistry2#synchAddPerObjectIdInBucket()
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
+	
+	private void synchAddItemPerObject(final long objectId, final Item item)
+	{
+		final Item[] refKeys = this.refHashedRefKeysTable[item.refHashIndex];
+		if(refKeys == null)
 		{
-			this.synchAddPerObjectInNewBucket(objectId, item, hashIndex);
+			setEntry(
+				this.refHashedOidValsTable[item.refHashIndex] = new long[this.bucketLengthInitial],
+				this.refHashedRefKeysTable[item.refHashIndex] = new Item[this.bucketLengthInitial],
+				0,
+				objectId,
+				item
+			);
 			return;
 		}
 		
-		final long[] oldOidVals = this.refHashedOidValsTable[hashIndex];
-		final int    oldLength  = oldOidVals.length;
+		// (29.11.2018 TM)FIXME: scan through and throw exception or add
+	}
 		
-		final Item[] newRefKeys = new Item[oldLength + 1];
-		final long[] newOidVals = new long[oldLength + 1];
-		
-		int t = 0; // target index in the new bucket arrays. Drags behind i for found orphan entries.
-		for(int i = 0; i < oldLength; i++)
-		{
-			if(oldOidVals[i] == objectId)
-			{
-				// can only be a subject orphan entry as the other cases would have been handled before entering here.
-				continue;
-			}
-			
-			// check for general orphan case
-			if(oldRefKeys[i].get() == null)
-			{
-				// non-subject orphan entry, discard.
-				continue;
-			}
-			
-			// copy non-orphan non-subject entry to new bucket arrays
-			newRefKeys[t] = oldRefKeys[i];
-			newOidVals[t] = oldOidVals[i];
-			t++;
-		}
-		
-		// if at least orphan was found, the bucket arrays have to be rebuilt again.
-		if(t < oldLength)
-		{
-			this.addEntryPerObject(consolidate(newRefKeys, t), consolidate(newOidVals, t), hashIndex, objectId, item);
-			// size change already done by per-oid adding. Orphans not accounted for there are neglected here.
-		}
-		else
-		{
-			this.addEntryPerObject(newRefKeys, newOidVals, hashIndex, objectId, item);
-			// size change already done by per-oid adding
-		}
+	private static long[] enlargeBucket(final long[] bucket, final int increase)
+	{
+		final long[] newBucket;
+		System.arraycopy(bucket, 0, newBucket = new long[bucket.length + increase], 0, bucket.length);
+		return newBucket;
 	}
 	
-	private Item synchAddPerObjectIdInNewBucket(final long objectId, final Object object)
+	private static Item[] enlargeBucket(final Item[] bucket, final int increase)
 	{
-		final int refHashIndex = this.hash(object);
-		final Item objectItem = new Item(object, refHashIndex);
-		
-		(this.oidHashedOidKeysTable[this.hash(objectId)] = new long[this.bucketLengthInitial])[0] = objectId;
-		(this.oidHashedRefValsTable[this.hash(objectId)] = new Item[this.bucketLengthInitial])[0] = objectItem;
-		
-		final Item[] refBucket = this.refHashedRefKeysTable[refHashIndex];
-		if(refBucket == null)
-		{
-			(this.refHashedRefKeysTable[this.hash(objectId)] = new Item[this.bucketLengthInitial])[0] = objectItem;
-			(this.refHashedOidValsTable[this.hash(objectId)] = new long[this.bucketLengthInitial])[0] = objectId;
-		}
-		else
-		{
-			for(int i = 0; i < refBucket.length; i++)
-			{
-				if(refBucket[i] != null)
-				{
-					continue;
-				}
-				refBucket[i] = objectItem;
-				this.refHashedOidValsTable[refHashIndex][i] = objectId;
-			}
-			// (28.11.2018 TM)FIXME: enlarge bucket arrays and add entry at the current length
-		}
-		
-		this.size++;
-		
-		return objectItem;
+		final Item[] newBucket;
+		System.arraycopy(bucket, 0, newBucket = new Item[bucket.length + increase], 0, bucket.length);
+		return newBucket;
 	}
 	
-	private void synchAddPerObjectInNewBucket(final long objectId, final Item objectItem, final int hashIndex)
+	private static void setEntry(
+		final long[] oidBucket,
+		final Item[] refBucket,
+		final int    i        ,
+		final long   objectId ,
+		final Item   item
+	)
 	{
-		(this.refHashedRefKeysTable[hashIndex] = new Item[this.bucketLengthInitial])[0] = objectItem;
-		(this.refHashedOidValsTable[hashIndex] = new long[this.bucketLengthInitial])[0] = objectId  ;
-		// size change already done by per-oid adding
+		oidBucket[i] = objectId;
+		refBucket[i] = item;
 	}
-					
+						
 	private void synchCheckForRebuild()
 	{
 		if(this.size > this.capacityHigh)
 		{
-//				XDebug.println("Increase required.");
+//			XDebug.println("Increase required.");
 			// increase required because the hash table became too small (or entries distribution too dense).
 			this.synchRebuild();
 			return;
@@ -771,10 +738,9 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 		
 		if(this.size < this.capacityLow)
 		{
-//				XDebug.println("Decrease required.");
+//			XDebug.println("Decrease required.");
 			// decrease required because the hash table became unnecessarily big. Redundant call for debugging.
-			// (28.11.2018 TM)FIXME: /!\ DEBUG
-//				this.synchRebuild();
+			this.synchRebuild();
 			return;
 		}
 		
@@ -802,7 +768,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 		// both new branches are populated from the per-oid-branch
 		for(int h = 0; h < oldHashLength; h++)
 		{
-//				XDebug.println("Rebuild old hash table " + h);
+//			XDebug.println("Rebuild old hash table " + h);
 			final long[] oldOidKeys = oldOidKeysTable[h];
 			if(oldOidKeys == null)
 			{
@@ -812,10 +778,10 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 			final Item[] oldRefVals = oldRefValsTable[h];
 			for(int i = 0; i < oldRefVals.length; i++)
 			{
-//					XDebug.println("Rebuild old hash table " + h + " -> " + i);
+//				XDebug.println("Rebuild old hash table " + h + " -> " + i);
 				if(oldRefVals[i].get() == null)
 				{
-//						XDebug.println("Orphan");
+//					XDebug.println("Orphan");
 					continue;
 				}
 				
@@ -825,11 +791,11 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 				populateByObject(newRefKeysTable, newOidValsTable, identityHashCode(ref.get()) & newHashRange, oid, ref);
 				size++;
 				
-//					XDebug.println("new Entry: " + size);
+//				XDebug.println("new Entry: " + size);
 			}
 		}
 		
-//			XDebug.println("Rebuild " + this.hashLength  + " -> " + newHashLength);
+//		XDebug.println("Rebuild " + this.hashLength  + " -> " + newHashLength);
 		
 		// registry state gets switched over from old to new
 		this.oidHashedOidKeysTable = newOidKeysTable;
@@ -845,60 +811,7 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 		// at some point, constant registration is completed, so an efficient storage form is preferable.
 		this.synchEnsureConstantColdStorage();
 	}
-	
-	private void addEntryPerObjectId(
-		final long[] oidBucket ,
-		final Item[] refBucket ,
-		final long   objectId  ,
-		final Item   objectItem
-	)
-	{
-		addNewEntry(oidBucket, refBucket, objectId, objectItem);
-		this.oidHashedOidKeysTable[this.hash(objectId)] = oidBucket;
-		this.oidHashedRefValsTable[this.hash(objectId)] = refBucket;
-	}
-	
-	private void addEntryPerObject(
-		final Item[] refBucket ,
-		final long[] oidBucket ,
-		final int    hashIndex ,
-		final long   objectId  ,
-		final Item   objectItem
-	)
-	{
-		addNewEntry(oidBucket, refBucket, objectId, objectItem);
-		this.refHashedRefKeysTable[hashIndex] = refBucket;
-		this.refHashedOidValsTable[hashIndex] = oidBucket;
-	}
-
-	
-	
-	private static void addNewEntry(
-		final long[] oidBucket ,
-		final Item[] refBucket ,
-		final long   objectId  ,
-		final Item   objectItem
-	)
-	{
-		// a new entry is always at the last index
-		oidBucket[oidBucket.length - 1] = objectId;
-		refBucket[refBucket.length - 1] = objectItem;
-	}
-	
-	private static long[] consolidate(final long[] array, final int elementCount)
-	{
-		final long[] newArray = new long[elementCount + 1];
-		System.arraycopy(array, 0, newArray, 0, elementCount);
-		return newArray;
-	}
-	
-	private static Item[] consolidate(final Item[] array, final int elementCount)
-	{
-		final Item[] newArray = new Item[elementCount + 1];
-		System.arraycopy(array, 0, newArray, 0, elementCount);
-		return newArray;
-	}
-	
+		
 	private static void populateByObjectId(
 		final long[][] oidKeysTable,
 		final Item[][] refValsTable,
@@ -1044,11 +957,13 @@ public final class ObjectRegistry2 implements PersistenceObjectRegistry
 	
 	static final class Item extends WeakReference<Object>
 	{
+		int oidHashIndex; // technically not necessary, but 8-byte memory padding leaves room for it, anyway.
 		int refHashIndex;
 		
-		Item(final Object referent, final int refHashIndex)
+		Item(final Object referent, final int oidHashIndex, final int refHashIndex)
 		{
 			super(referent);
+			this.oidHashIndex = oidHashIndex;
 			this.refHashIndex = refHashIndex;
 		}
 	}

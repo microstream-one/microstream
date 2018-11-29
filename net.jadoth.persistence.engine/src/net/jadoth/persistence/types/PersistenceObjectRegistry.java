@@ -71,13 +71,12 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	 */
 	public void cleanUp();
 	
-	// removing //
-	
-	public boolean removeObjectById(long objectId);
-
-	public boolean removeObject(Object object);
-	
-	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
+	// (29.11.2018 TM)NOTE: removing logic is not viable, except for debugging purposes
+//	public boolean removeObjectById(long objectId);
+//
+//	public boolean removeObject(Object object);
+//
+//	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
 
 	/**
 	 * Clears only non-constants.
@@ -569,32 +568,7 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 			// there is no point in keeping the old hash table arrays when there's a capacity low bound for the size.
 			this.internalReset();
 		}
-			
-		// removing //
-		
-		// (28.11.2018 TM)NOTE: removing is not required for normal operations, so its implementation is postponed.
-		
-		@Override
-		public final synchronized boolean removeObjectById(final long id)
-		{
-			// TODO DefaultObjectRegistry#removeObjectById()
-			throw new net.jadoth.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized boolean removeObject(final Object object)
-		{
-			// TODO DefaultObjectRegistry#removeObject()
-			throw new net.jadoth.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
-		{
-			// TODO DefaultObjectRegistry#removeObjectsBy()
-			throw new net.jadoth.meta.NotImplementedYetError();
-		}
-		
+					
 		
 		
 		/* (27.11.2018 TM)TODO: smarter orphan management
