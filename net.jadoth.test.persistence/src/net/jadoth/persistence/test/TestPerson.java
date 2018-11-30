@@ -54,8 +54,6 @@ class TestPerson extends AbstractPerson
 	float weight = Float.intBitsToFloat(0x4242_4242);
 	double credits = Double.longBitsToDouble(0x8282_8282_8282_8282L);
 	Serializable ser = null;
-	TestInterfaceD tiD = null;
-	TestInterfaceA tiA = null;
 
 	public TestPerson(final int age)
 	{
