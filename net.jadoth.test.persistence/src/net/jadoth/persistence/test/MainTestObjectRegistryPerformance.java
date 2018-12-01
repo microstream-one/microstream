@@ -17,9 +17,8 @@ public class MainTestObjectRegistryPerformance
 
 	public static void main(final String[] args)
 	{
-//		final ObjectRegistryCrazyArrays reg = ObjectRegistryCrazyArrays.New(0.5f);
-		final DefaultObjectRegistry reg = DefaultObjectRegistry.New();
-//		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New();
+		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(1);
+//		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(8.0f);
 		
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)

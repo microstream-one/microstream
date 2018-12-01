@@ -25,7 +25,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	// constants        //
 	/////////////////////
 	
-	private static final long[] EMPTY_OID_BUCKET = new long[0];
 	private static final Item[] EMPTY_REF_BUCKET = new Item[0];
 	
 	/* (27.11.2018 TM)TODO: ObjectRegistry housekeeping thread
@@ -78,10 +77,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	// instance fields //
 	////////////////////
 	
-	private long[][] oidHashedOidKeysTable;
-	private Item[][] oidHashedRefValsTable;
-	private Item[][] refHashedRefKeysTable;
-	private long[][] refHashedOidValsTable;
+	private Item[][] oidHashedItemTable;
+	private Item[][] refHashedItemTable;
 	
 	/**
 	 * A measurement of how "dense" entries are packed in the hashing structure.<br>
@@ -142,21 +139,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return this.internalReset(1);
 	}
 	
-	private static long[][] createOidBucketTable(final int hashLength)
-	{
-		/*
-		 * Weirdly enough, initializing all buckets as empty and then enlarge it is considerably faster
-		 * than initialzing the bucket with the required size right away. No idea why.
-		 */
-		final long[][] newTable = new long[hashLength][];
-		for(int i = 0; i < newTable.length; i++)
-		{
-			newTable[i] = EMPTY_OID_BUCKET;
-		}
-		
-		return newTable;
-	}
-	
 	private static Item[][] createRefBucketTable(final int hashLength)
 	{
 		/*
@@ -179,10 +161,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.internalUpdateCapacities();
 		this.size = 0;
 		
-		this.oidHashedOidKeysTable = createOidBucketTable(hashLength);
-		this.oidHashedRefValsTable = createRefBucketTable(hashLength);
-		this.refHashedRefKeysTable = createRefBucketTable(hashLength);
-		this.refHashedOidValsTable = createOidBucketTable(hashLength);
+		this.oidHashedItemTable = createRefBucketTable(hashLength);
+		this.refHashedItemTable = createRefBucketTable(hashLength);
 				
 		return this;
 	}
@@ -287,15 +267,14 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		notNull(object);
 		
 		// The bucket can never be null. The first null terminates the bucket's entries.
-		final Item[] refHashedRefKeys = this.refHashedRefKeysTable[this.hash(object)];
+		final Item[] refHashedRefKeys = this.refHashedItemTable[this.hash(object)];
 		for(int i = 0; i < refHashedRefKeys.length && refHashedRefKeys[i] != null; i++)
 		{
 			// can be null for orphan entries
 			if(refHashedRefKeys[i].get() == object)
 			{
 				// lookup and return the associated objectId (always located at the same index in its bucket)
-				// (29.11.2018 TM)XXX: test and comment if rehashing is faster than "refHashedRefKeys[i].refHashIndex".
-				return this.refHashedOidValsTable[refHashedRefKeys[i].hash & this.hashRange][i];
+				return refHashedRefKeys[i].objectId;
 			}
 		}
 		
@@ -313,12 +292,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		 */
 		
 		// The bucket can never be null. The first 0 terminates the bucket's entries.
-		final long[] oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
-		for(int i = 0; i < oidHashedOidKeys.length && oidHashedOidKeys[i] != 0L; i++)
+		final Item[] oidHashedItems = this.oidHashedItemTable[this.hash(objectId)];
+		for(int i = 0; i < oidHashedItems.length && oidHashedItems[i] != null; i++)
 		{
-			if(oidHashedOidKeys[i] == objectId)
+			if(oidHashedItems[i].objectId == objectId)
 			{
-				return this.oidHashedRefValsTable[this.hash(objectId)][i].get();
+				return oidHashedItems[i].get();
 			}
 		}
 		
@@ -336,10 +315,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		 */
 
 		// The bucket can never be null. The first 0 terminates the bucket's entries.
-		final long[] oidHashedOidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
-		for(int i = 0; i < oidHashedOidKeys.length && oidHashedOidKeys[i] != 0L; i++)
+		final Item[] oidHashedItems = this.oidHashedItemTable[this.hash(objectId)];
+		for(int i = 0; i < oidHashedItems.length && oidHashedItems[i] != null; i++)
 		{
-			if(oidHashedOidKeys[i] == objectId)
+			if(oidHashedItems[i].objectId == objectId)
 			{
 				return true;
 			}
@@ -355,20 +334,17 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		// iterating everything has so many bucket accesses that a total lock is the only viable thing to do.
 		
-		final long[][] oidHashedOidKeysTable = this.oidHashedOidKeysTable;
-		final Item[][] oidHashedRefValsTable = this.oidHashedRefValsTable;
-		final int oidHashedOidKeysLength = oidHashedOidKeysTable.length;
+		final Item[][] oidHashedItemTable = this.oidHashedItemTable;
 		
-		for(int h = 0; h < oidHashedOidKeysLength; h++)
+		for(int h = 0; h < oidHashedItemTable.length; h++)
 		{
 			// The buckets can never be null. The first 0/null terminates the bucket's entries.
-			final long[] oidHashedOidKeys = oidHashedOidKeysTable[h];
-			final Item[] oidHashedRefVals = oidHashedRefValsTable[h];
+			final Item[] oidHashedItems = oidHashedItemTable[h];
 			
-			for(int i = 0; i < oidHashedRefVals.length && oidHashedRefVals[i] != null; i++)
+			for(int i = 0; i < oidHashedItems.length && oidHashedItems[i] != null; i++)
 			{
 				// orphan entries are passed intentionally to give this method a usage as an orphan analyzing tool.
-				acceptor.accept(oidHashedOidKeys[i], oidHashedRefVals[i].get());
+				acceptor.accept(oidHashedItems[i].objectId, oidHashedItems[i].get());
 			}
 		}
 		
@@ -500,9 +476,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	private void synchConsolidateBuckets()
 	{
-		final long[][] oidKeysTable = this.oidHashedOidKeysTable;
-		final Item[][] refValsTable = this.oidHashedRefValsTable;
-		final int      hashLength   = this.hashLength;
+		final Item[][] oidHashedItems = this.oidHashedItemTable;
+		final int      hashLength     = this.hashLength;
 		
 		// this is also the only opportunity to recalculate the actual size without orphans.
 		long size = 0;
@@ -510,19 +485,17 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// both new branches are populated from the per-oid-branch
 		for(int h = 0; h < hashLength; h++)
 		{
-			size += consolidateBuckets(oidKeysTable, refValsTable, h);
+			size += consolidateBuckets(oidHashedItems, h);
 		}
 		
 		this.size = size;
 	}
 	
 	private static int consolidateBuckets(
-		final long[][] oidKeysTable,
 		final Item[][] refValsTable,
 		final int      h
 	)
 	{
-		final long[] oidKeys = oidKeysTable[h];
 		final Item[] refVals = refValsTable[h];
 		
 		int requiredSize = 0;
@@ -543,12 +516,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		if(requiredSize == 0)
 		{
 			// no (linear) memory consumption but still viable for non-null-assuming logic.
-			oidKeysTable[h] = EMPTY_OID_BUCKET;
 			refValsTable[h] = EMPTY_REF_BUCKET;
 			return 0;
 		}
 		
-		final long[] newOidKeys = new long[requiredSize];
 		final Item[] newRefVals = new Item[requiredSize];
 		
 		int t = 0;
@@ -556,7 +527,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			if(refVals[i].get() != null)
 			{
-				newOidKeys[t] = oidKeys[i];
 				newRefVals[t] = refVals[i];
 				t++;
 			}
@@ -568,7 +538,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		 * A system of weak referencing, where instances can "magically" disappear at any moment, has such implications.
 		 */
 		
-		oidKeysTable[h] = newOidKeys;
 		refValsTable[h] = newRefVals;
 		
 		return t;
@@ -611,12 +580,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	private Object synchRegisterObject(final long objectId, final Object object, final boolean optional)
 	{
 		// The buckets can never be null. The first 0/null terminates the bucket's entries.
-		final long[] oidKeys = this.oidHashedOidKeysTable[this.hash(objectId)];
+		final Item[] oidHashedItems = this.oidHashedItemTable[this.hash(objectId)];
 
 		int i = 0;
-		while(i < oidKeys.length && oidKeys[i] != 0L)
+		while(i < oidHashedItems.length && oidHashedItems[i] != null)
 		{
-			if(oidKeys[i] == objectId)
+			if(oidHashedItems[i].objectId == objectId)
 			{
 				return this.synchHandleOidKeyBucketsMatch(i, objectId, object, optional);
 			}
@@ -626,30 +595,20 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// add in oid buckets, either new ones or existing ones or enlarged ones.
 		
 		// using item.oidHashIndex is faster than a local variable or multiple hashing.
-		final Item item = new Item(object);
+		final Item item = new Item(objectId, object);
 		
 		this.synchAddInRefKeysBuckets(objectId, item);
-		if(i < oidKeys.length)
+		if(i < oidHashedItems.length)
 		{
 			// case 1: current buckets have a free slot.
-			setEntry(oidKeys, this.oidHashedRefValsTable[this.hash(objectId)], objectId, item, i);
+			oidHashedItems[i] = item;
 		}
 		else
 		{
 			// case 2: existing buckets must be enlarged
-			setEntry(
-				this.oidHashedOidKeysTable[this.hash(objectId)] = enlargeBucket(
-					oidKeys,
-					this.hashDensity
-				),
-				this.oidHashedRefValsTable[this.hash(objectId)] = enlargeBucket(
-					this.oidHashedRefValsTable[this.hash(objectId)],
-					this.hashDensity
-				),
-				objectId,
-				item,
-				i
-			);
+			(this.oidHashedItemTable[this.hash(objectId)] =
+				enlargeBucket(oidHashedItems, this.hashDensity))[i] = item
+			;
 		}
 		
 		this.size++;
@@ -664,7 +623,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		final boolean optional
 	)
 	{
-		final Item[] refVals = this.oidHashedRefValsTable[this.hash(objectId)];
+		final Item[] refVals = this.oidHashedItemTable[this.hash(objectId)];
 		final Object alreadyRegistered;
 
 		// case 1: object is already consistently registered, abort.
@@ -676,7 +635,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// case 2: matching entry, but orphaned. Can and MUST be reused for a new Item.
 		if(alreadyRegistered == null)
 		{
-			this.synchReplaceOrphanEntry(refVals[i], objectId, refVals[i] = new Item(object));
+			this.synchReplaceOrphanEntry(refVals[i], objectId, refVals[i] = new Item(objectId, object));
 			return object;
 		}
 		
@@ -692,22 +651,21 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 						
 	private void synchReplaceOrphanEntry(final Item orphanItem, final long objectId, final Item newItem)
 	{
-		final Item[] refHashedRefKeys = this.refHashedRefKeysTable[orphanItem.hash & this.hashRange];
-		for(int i = 0; i < refHashedRefKeys.length; i++)
+		final Item[] refHashedItems = this.refHashedItemTable[orphanItem.hash & this.hashRange];
+		for(int i = 0; i < refHashedItems.length; i++)
 		{
-			if(refHashedRefKeys[i] != orphanItem)
+			if(refHashedItems[i] != orphanItem)
 			{
 				continue;
 			}
 
-			final long[] refHashedOidVals = this.refHashedOidValsTable[orphanItem.hash & this.hashRange];
-			if(refHashedOidVals[i] != objectId)
+			if(refHashedItems[i].objectId != objectId)
 			{
 				// (29.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Orphan entry object id inconsistency: " + refHashedOidVals[i] + " != " + objectId);
+				throw new RuntimeException("Orphan entry object id inconsistency: " + refHashedItems[i] + " != " + objectId);
 			}
 			
-			this.removeOrphanEntry(refHashedRefKeys, refHashedOidVals, i);
+			this.removeOrphanEntry(refHashedItems, i);
 			this.synchAddInRefKeysBuckets(objectId, newItem);
 			return;
 		}
@@ -720,12 +678,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		 */
 	}
 	
-	private void removeOrphanEntry(final Item[] refHashedRefKeys, final long[] refHashedOidVals, final int i)
+	private void removeOrphanEntry(final Item[] refHashedItems, final int i)
 	{
 		int j = i;
-		while(++j < refHashedRefKeys.length)
+		while(++j < refHashedItems.length)
 		{
-			if(refHashedRefKeys[j] == null)
+			if(refHashedItems[j] == null)
 			{
 				break;
 			}
@@ -733,14 +691,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		if(j - i == 1)
 		{
 			// trailing entry just gets nulled out.
-			refHashedRefKeys[i] = null;
-			refHashedOidVals[i] = Persistence.nullId();
+			refHashedItems[i] = null;
 		}
 		else
 		{
 			// non-trailing entries are removed by shifting the remaining entries one slot forward
-			System.arraycopy(refHashedRefKeys, i + 1, refHashedRefKeys, i, j - (i + 1));
-			System.arraycopy(refHashedOidVals, i + 1, refHashedOidVals, i, j - (i + 1));
+			System.arraycopy(refHashedItems, i + 1, refHashedItems, i, j - (i + 1));
 		}
 	}
 	
@@ -749,23 +705,22 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		// (30.11.2018 TM)XXX: optimizable
 		
 		// The buckets can never be null. The first 0/null terminates the bucket's entries.
-		final Item[] refKeys = this.refHashedRefKeysTable[item.hash & this.hashRange];
-		final long[] oidVals = this.refHashedOidValsTable[item.hash & this.hashRange];
-		for(int i = 0; i < refKeys.length; i++)
+		final Item[] refHashedItems = this.refHashedItemTable[item.hash & this.hashRange];
+		for(int i = 0; i < refHashedItems.length; i++)
 		{
-			if(refKeys[i] == null)
+			if(refHashedItems[i] == null)
 			{
-				setEntry(oidVals, refKeys, objectId, item, i);
+				refHashedItems[i] = item;
 				return;
 			}
 			
 			// note: the item's referent is strongly referenced from a lower stack frame.
-			if(refKeys[i].get() == item.get())
+			if(refHashedItems[i].get() == item.get())
 			{
-				if(oidVals[i] != objectId)
+				if(refHashedItems[i].objectId != objectId)
 				{
 					// note: this is a valid exception because it recognized inconsistent data passed from outside.
-					throw new PersistenceExceptionConsistencyObjectId(item.get(), oidVals[i], objectId);
+					throw new PersistenceExceptionConsistencyObjectId(item.get(), refHashedItems[i].objectId, objectId);
 				}
 				
 				// this, however, is just another debugging exception that should never be possible to reach
@@ -775,20 +730,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		}
 		
 		// neither inconsistency nor free slot in the bucket, so it must be enlarged to add the new entry
-		setEntry(
-			this.refHashedOidValsTable[item.hash & this.hashRange] = enlargeBucket(oidVals, this.hashDensity),
-			this.refHashedRefKeysTable[item.hash & this.hashRange] = enlargeBucket(refKeys, this.hashDensity),
-			objectId,
-			item,
-			refKeys.length
-		);
-	}
-		
-	private static long[] enlargeBucket(final long[] bucket, final int increase)
-	{
-		final long[] newBucket;
-		System.arraycopy(bucket, 0, newBucket = new long[bucket.length + increase], 0, bucket.length);
-		return newBucket;
+		(this.refHashedItemTable[item.hash & this.hashRange] =
+			enlargeBucket(refHashedItems, this.hashDensity))[refHashedItems.length] = item
+		;
 	}
 	
 	private static Item[] enlargeBucket(final Item[] bucket, final int increase)
@@ -797,19 +741,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		System.arraycopy(bucket, 0, newBucket = new Item[bucket.length + increase], 0, bucket.length);
 		return newBucket;
 	}
-	
-	private static void setEntry(
-		final long[] oidBucket,
-		final Item[] refBucket,
-		final long   objectId ,
-		final Item   item     ,
-		final int    i
-	)
-	{
-		oidBucket[i] = objectId;
-		refBucket[i] = item;
-	}
-						
+							
 	private void synchCheckForRebuild()
 	{
 		if(this.size > this.capacityHigh)
@@ -841,43 +773,39 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		 */
 		
 		// locally cached old references / values.
-		final long[][] oldOidKeysTable = this.oidHashedOidKeysTable;
-		final Item[][] oldRefValsTable = this.oidHashedRefValsTable;
+		final Item[][] oldOidHashedItemTable = this.oidHashedItemTable;
 		final int      increase        = this.hashDensity;
 		
 		// locally created new references / values.
 		final int   newHashLength = Hashing.calculateHashLength(this.size, this.hashDensity);
 		final int   newHashRange  = newHashLength - 1;
-		final long[][] newOidKeys = createOidBucketTable(newHashLength);
 		final Item[][] newRefVals = createRefBucketTable(newHashLength);
 		final Item[][] newRefKeys = createRefBucketTable(newHashLength);
-		final long[][] newOidVals = createOidBucketTable(newHashLength);
 		
 		// this is also the only opportunity to recalculate the actual size without orphans.
 		long size = 0;
 		
 		// both new branches are populated from the per-oid-branch
-		for(int h = 0; h < oldOidKeysTable.length; h++)
+		for(int h = 0; h < oldOidHashedItemTable.length; h++)
 		{
 //			XDebug.println("Rebuild old hash table " + h);
 			
 			// The buckets can never be null. The first 0/null terminates the bucket's entries.
-			final long[] oids = oldOidKeysTable[h];
-			final Item[] refs = oldRefValsTable[h];
+			final Item[] items = oldOidHashedItemTable[h];
 			
-			for(int i = 0; i < refs.length; i++)
+			for(int i = 0; i < items.length; i++)
 			{
 				// looks like this is faster than inlining the check in the loop condition.
-				if(refs[i] == null)
+				if(items[i] == null)
 				{
 					break;
 				}
 				
 //				XDebug.println("Rebuild old hash table " + h + "-" + i);
-				if(refs[i].get() != null)
+				if(items[i].get() != null)
 				{
-					registerClean(newOidKeys, newRefVals, increase, oids[i], refs[i], (int)oids[i] & newHashRange);
-					registerClean(newOidVals, newRefKeys, increase, oids[i], refs[i], refs[i].hash & newHashRange);
+					registerClean(newRefVals, increase, items[i].objectId, items[i], (int)items[i].objectId & newHashRange);
+					registerClean(newRefKeys, increase, items[i].objectId, items[i], items[i].hash & newHashRange);
 					size++;
 				}
 			}
@@ -886,13 +814,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 //		XDebug.println("Rebuild " + this.hashLength  + " -> " + newHashLength);
 		
 		// registry state gets switched over from old to new
-		this.oidHashedOidKeysTable = newOidKeys;
-		this.oidHashedRefValsTable = newRefVals;
-		this.refHashedRefKeysTable = newRefKeys;
-		this.refHashedOidValsTable = newOidVals;
-		this.hashLength            = newHashLength;
-		this.hashRange             = newHashRange;
-		this.size                  = size;
+		this.oidHashedItemTable = newRefVals;
+		this.refHashedItemTable = newRefKeys;
+		this.hashLength         = newHashLength;
+		this.hashRange          = newHashRange;
+		this.size               = size;
 		// hash density remains the same
 		this.internalUpdateCapacities();
 		
@@ -901,7 +827,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 		
 	private static void registerClean(
-		final long[][] oidBucketTable,
 		final Item[][] refBucketTable,
 		final int      bucketIncrease,
 		final long     objectId      ,
@@ -909,20 +834,16 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		final int      hashIndex
 	)
 	{
-		final long[] oidBucket = oidBucketTable[hashIndex];
 		final Item[] refBucket = refBucketTable[hashIndex];
-		
 		for(int i = 0; i < refBucket.length; i++)
 		{
 			if(refBucket[i] == null)
 			{
-				oidBucket[i] = objectId;
 				refBucket[i] = item    ;
 				return;
 			}
 		}
 		
-		(oidBucketTable[hashIndex] = enlargeBucket(oidBucket, bucketIncrease))[refBucket.length] = objectId;
 		(refBucketTable[hashIndex] = enlargeBucket(refBucket, bucketIncrease))[refBucket.length] = item    ;
 	}
 	
@@ -942,11 +863,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	{
 		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
 		
-		final long[][] oidHashedOidKeysTable = this.oidHashedOidKeysTable;
+		final Item[][] oidHashedOidKeysTable = this.oidHashedItemTable;
 		final int oidHashedOidKeysLength = oidHashedOidKeysTable.length;
 		for(int h = 0; h < oidHashedOidKeysLength; h++)
 		{
-			final long[] bucket = oidHashedOidKeysTable[h];
+			final Item[] bucket = oidHashedOidKeysTable[h];
 			final Long bucketLength = countEntries(bucket);
 			registerDistribution(distributionTable, bucketLength);
 		}
@@ -960,25 +881,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			distributionTable
 		);
 	}
-	
-	private static Long countEntries(final long[] bucket)
-	{
-		for(int i = bucket.length; --i >= 0;)
-		{
-			if(bucket[i] != 0L)
-			{
-				return i + 1L;
-			}
-		}
-		
-		return 0L;
-	}
-	
+
 	private HashStatisticsBucketBased synchCreateHashStatisticsRefs()
 	{
 		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
 
-		final Item[][] refHashedRefKeysTable = this.refHashedRefKeysTable;
+		final Item[][] refHashedRefKeysTable = this.refHashedItemTable;
 		final int refHashedRefKeysLength = refHashedRefKeysTable.length;
 		for(int h = 0; h < refHashedRefKeysLength; h++)
 		{
@@ -1046,12 +954,14 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	static final class Item extends WeakReference<Object>
 	{
+		final long objectId;
 		int hash;
 		
-		Item(final Object referent)
+		Item(final long objectId, final Object referent)
 		{
 			super(referent);
-			this.hash = System.identityHashCode(referent);
+			this.objectId = objectId;
+			this.hash     = System.identityHashCode(referent);
 		}
 	}
 	
