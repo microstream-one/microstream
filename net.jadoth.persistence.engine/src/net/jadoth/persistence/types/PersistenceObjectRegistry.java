@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatistics;
-import net.jadoth.persistence.internal.ObjectRegistryCrazyArrays;
+import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
 
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
@@ -83,14 +83,9 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	
 	
 	
-	public static ObjectRegistryCrazyArrays New()
+	public static ObjectRegistryGrowingRange New()
 	{
-		return ObjectRegistryCrazyArrays.New();
+		return ObjectRegistryGrowingRange.New();
 	}
-	// (29.11.2018 TM)FIXME: switch default implementation
-//	public static DefaultObjectRegistry New()
-//	{
-//		return DefaultObjectRegistry.New();
-//	}
 	
 }

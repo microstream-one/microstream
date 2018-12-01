@@ -19,6 +19,7 @@ import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.typing.KeyValue;
 
 
+@Deprecated
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
 	///////////////////////////////////////////////////////////////////////////

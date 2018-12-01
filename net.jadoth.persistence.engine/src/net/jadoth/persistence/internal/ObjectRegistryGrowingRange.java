@@ -18,9 +18,18 @@ import net.jadoth.persistence.types.PersistencePredicate;
 
 public final class ObjectRegistryGrowingRange implements PersistenceObjectRegistry
 {
-	/* Notes:
-	 * - funny find: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451 . welcome to this user code class!
-	 * - all methods prefixed with "synch" are only called from inside a synchronized context
+	/* (27.11.2018 TM)TODO: ObjectRegistry housekeeping thread
+	 * - optimize() method to trim bucket arrays and random-sample-check for orphans.
+	 * - thread with weak back-reference to this registry to make it stop automatically.
+	 * - "lastRegister" timestamp to not interrupt registering-heavy phases.
+	 * - the usual config values for check intervals etc.
+	 * - start() and stop() method in the registry for explicit control.
+	 * - a size increase ensures the thread is running, a size of 0 terminates it.
+	 */
+	
+	/* funny find:
+	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
+	 * welcome to this user code class
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
@@ -172,6 +181,95 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		 */
 		this.synchPutNewEntry(new Entry(oid, ref));
 		return true;
+	}
+	
+	// (01.12.2018 TM)NOTE: 124
+	private synchronized boolean synchronizedPut2(final long oid, final Object ref)
+	{
+		if(this.checkExisting(oid, ref))
+		{
+			return false;
+		}
+
+		synchInsertEntry(this.slotsPerOid, this.slotsPerRef, new Entry(oid, ref), this.modulo);
+
+		if(++this.size >= this.capacity)
+		{
+			this.synchIncreaseStorage();
+		}
+
+		return true;
+	}
+	
+	
+	private boolean checkExisting(final long oid, final Object ref)
+	{
+		final Entry[] bucketsI;
+		if((bucketsI = this.slotsPerOid[(int)oid & this.modulo]) != null)
+		{
+			for(int i = 0; i < bucketsI.length; i++)
+			{
+				if(bucketsI[i] != null && bucketsI[i].oid == oid)
+				{
+					this.synchHandleExisting(i, oid, ref, bucketsI[i]);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+		
+	// (01.12.2018 TM)NOTE: 123-124
+	private void synchHandleExisting(final int oidBucketIndex, final long oid, final Object ref, final Entry entry)
+	{
+		if(entry.ref.get() == ref)
+		{
+			return;
+		}
+
+		validateReferenceNotYetRegistered(this.slotsPerRef[identityHashCode(ref) & this.modulo], oid, ref);
+
+		remove(this.slotsPerRef[entry.hash & this.modulo], entry);
+
+		final Entry newEntry = this.slotsPerOid[(int)oid & this.modulo][oidBucketIndex] = new Entry(oid, ref);
+		synchPutEntry(this.slotsPerRef, newEntry.hash & this.modulo, newEntry);
+	}
+		
+//	private static void replaceExisting(final long oid, final Object ref, final Entry entry)
+//	{
+//		final Entry[] oidBucket =
+//	}
+	
+	private static void validateReferenceNotYetRegistered(
+		final Entry[] bucketsR,
+		final long    oid     ,
+		final Object  ref
+	)
+	{
+		if(bucketsR != null)
+		{
+			for(int i = 0; i < bucketsR.length; i++)
+			{
+				if(bucketsR[i] != null && bucketsR[i].ref.get() == ref)
+				{
+					validateEntryOid(bucketsR[i], oid, ref);
+					return;
+				}
+			}
+		}
+	}
+	
+	private static void remove(final Entry[] buckets, final Entry entry)
+	{
+		for(int i = 0; i < buckets.length; i++)
+		{
+			if(buckets[i] == entry)
+			{
+				buckets[i] = null;
+				return;
+			}
+		}
 	}
 
 	private synchronized Object synchronizedAddRef(final long oid, final Object ref) // dirty flag, bua
@@ -376,9 +474,10 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		/* Notes:
 		 * - orphan entries are kept intentionally
 		 * - bucket length is very unlikely to grow beyond max pow2 int, so no grow length check is performed
+		 * - an increment of 4 proved to be highly efficient for reasonable hash densities.
 		 */
 		final Entry[] newBuckets;
-		System.arraycopy(oldBuckets, 0, newBuckets = new Entry[oldBuckets.length << 1], 0, oldBuckets.length);
+		System.arraycopy(oldBuckets, 0, newBuckets = new Entry[oldBuckets.length + 4], 0, oldBuckets.length);
 		newBuckets[oldBuckets.length] = entry;
 		return newBuckets;
 	}
@@ -428,11 +527,19 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	private static void synchInsertEntry(final Entry[][] slotsPerOid, final Entry[][] slotsPerRef, final Entry entry)
 	{
 		synchPutEntry(slotsPerOid, (int)entry.oid & slotsPerOid.length - 1, entry);
-		if(!entry.isEmpty())
-		{
-			// putting in a ref bucket makes no sense for neither hollow nor orphan (= empty) entries.
-			synchPutEntry(slotsPerRef, entry.hash & slotsPerOid.length - 1, entry);
-		}
+		synchPutEntry(slotsPerRef,     entry.hash & slotsPerOid.length - 1, entry);
+	}
+	
+	// The parameter order significantly influences performance. Do not change.
+	private static void synchInsertEntry(
+		final Entry[][] slotsPerOid,
+		final Entry[][] slotsPerRef,
+		final Entry     entry      ,
+		final int       hashRange
+	)
+	{
+		synchPutEntry(slotsPerOid, hashRange & (int)entry.oid, entry);
+		synchPutEntry(slotsPerRef, hashRange &     entry.hash, entry);
 	}
 
 	private static Entry[] synchCreateNewBuckets(final Entry entry)
@@ -480,7 +587,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	{
 		for(int i = 0; i < buckets.length; i++)
 		{
-			if(buckets[i] != null)
+			if(buckets[i] != null && !buckets[i].isEmpty())
 			{
 				synchInsertEntry(newSlotsPerOid, newSlotsPerRef, buckets[i]);
 			}
@@ -597,6 +704,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			slotsI[i] = slotsR[i] = null;
 		}
+		
 		this.size = 0;
 	}
 
@@ -623,7 +731,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public boolean registerObject(final long oid, final Object object)
+	public final boolean registerObject(final long oid, final Object object)
 	{
 		if(object == null)
 		{
@@ -635,6 +743,20 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 
 		return this.synchronizedPut(oid, object);
+	}
+	
+	public final boolean registerObject2(final long oid, final Object object)
+	{
+		if(object == null)
+		{
+			throw new NullPointerException();
+		}
+		if(oid == Persistence.nullId())
+		{
+			throw new PersistenceExceptionNullObjectId();
+		}
+
+		return this.synchronizedPut2(oid, object);
 	}
 
 	@Override
