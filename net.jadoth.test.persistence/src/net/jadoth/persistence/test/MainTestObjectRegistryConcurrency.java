@@ -29,7 +29,7 @@ public class MainTestObjectRegistryConcurrency
 				reg.registerObject(oids[i], objects[i]);
 			}
 		}
-		reg.DEBUG_analyze();
+//		reg.DEBUG_analyze();
 	}
 
 
