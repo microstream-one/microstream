@@ -11,14 +11,14 @@ import net.jadoth.persistence.types.PersistenceObjectRegistry;
 public class MainTestObjectRegistryPerformance
 {
 	private static final int RUNS  = 1000;
-	private static final int COUNT = 10_000_000;
+	private static final int COUNT = 1_000_000;
 
 	// -XX:-UseCompressedOops -XX:+PrintGC
 
 	public static void main(final String[] args)
 	{
 //		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(1);
-		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New();
+		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(1.0f);
 		
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
@@ -27,7 +27,9 @@ public class MainTestObjectRegistryPerformance
 		}
 		
 		System.out.println(
-			"Reference byte size = " + XVM.byteSizeReference() + ", array header size = " + XVM.byteSizeArrayObject(0)
+			"Reference byte size = " + XVM.byteSizeReference()
+			+ ", object header size = " + XVM.byteSizeObjectHeader()
+			+ ", array header size = " + XVM.byteSizeArrayObject(0)
 		);
 
 		for(int r = 1; r <= RUNS; r++)
@@ -39,7 +41,7 @@ public class MainTestObjectRegistryPerformance
 			tStart = System.nanoTime();
 			for(int i = 0; i < objects.length; i++)
 			{
-				reg.registerObject2(++oid, objects[i]);
+				reg.registerObject(++oid, objects[i]);
 			}
 			tStop = System.nanoTime();
 			System.out.println(

@@ -8,7 +8,6 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.hashing.HashStatisticsBucketBased;
 import net.jadoth.math.XMath;
-import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import net.jadoth.persistence.exceptions.PersistenceExceptionNullObjectId;
 import net.jadoth.persistence.types.Persistence;
@@ -27,9 +26,36 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	 * - a size increase ensures the thread is running, a size of 0 terminates it.
 	 */
 	
-	/* funny find:
+	/* Funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
-	 * welcome to this user code class
+	 * Welcome to this user code class.
+	 */
+	
+	/* Notes on byte size per entry (+/- COOPS):
+	 * - Entry instances occupy 40/64 bytes, including memory padding (12/16 bytes header, 4 references, 1 long, 1 int)
+	 * - The hash density specifies the average length of the hash chain in a hash table slot.
+	 * - Arrays have a header length of 16/24
+	 * - All entries in one hash chain share the bucket array total length and the two hash table slots.
+	 * 
+	 * Conclusion:
+	 * The major memory eater is the rather big JDK WeakReference implementation.
+	 * Increasing the hash density up to 16.0 can be reasonable to minimize the implementation's memory consumption.
+	 * Blame the rest on the JDK.
+	 * 
+	 * Hash   |  bytes/entry  | Perf.
+	 * density| +COOPS -COOPS |estim.
+	 * ------------------------------
+	 * ^ anything above is ridiculous
+	 *  16,00 |  57,50  84,00 | ~ 55%
+	 *   8,00 |  59,00  88,00 | ~ 65%
+	 *   4,00 |  62,00  96,00 | ~ 70%
+	 *   3,20 |  63,50 100,00 | ~ 75%
+	 *   2,00 |  68,00 112,00 | ~ 80%
+	 *   1,60 |  71,00 120,00 | ~ 85%
+	 *   1,00 |  80,00 144,00 | =100%
+	 *   0,80 |  86,00 160,00 | ~105%
+	 *   0,50 | 104,00 208,00 | ~110%
+	 * v anything below is ridiculous
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
@@ -99,6 +125,16 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return New(MINIMUM_SLOT_LENGTH, hashDensity);
 	}
 
+	/**
+	 * Note on hashDensity:
+	 * Values < 1.0 are hardly worth it.
+	 * Values from 1.6 to 8.0 can be a reasonable trade of less memory consumption for acceptably lower performance.
+	 * Anything above 16.0 or below 0.5 is ridiculous.
+	 * 
+	 * @param slotSize
+	 * @param hashDensity.
+	 * @return
+	 */
 	public static ObjectRegistryGrowingRange New(
 		final int   slotSize   ,
 		final float hashDensity
@@ -116,12 +152,12 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// instance fields //
 	////////////////////
 	
-	private Entry[][] slotsPerOid; // "primary" slots. See put() and increaseStorage() methods
-	private Entry[][] slotsPerRef;
-	private int       size       ;
+	private Entry[][] oidHashedEntries;
+	private Entry[][] refHashedEntries;
+	private long      size       ;
+	private long      capacity   ;
 	private float     hashDensity;
-	private int       capacity   ;
-	private int       modulo     ; // shortcut for "slots.length - 1" (yields around 3% performance in put tests)
+	private int       hashRange  ;
 
 	
 
@@ -132,11 +168,11 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	ObjectRegistryGrowingRange(final int paddedSlotSize, final float hashDensity)
 	{
 		super();
-		this.slotsPerOid = new Entry[paddedSlotSize][];
-		this.slotsPerRef = new Entry[paddedSlotSize][];
+		this.oidHashedEntries = new Entry[paddedSlotSize][];
+		this.refHashedEntries = new Entry[paddedSlotSize][];
 		this.capacity    = (int)(paddedSlotSize * (this.hashDensity = hashDensity));
 		this.size        = 0;
-		this.modulo      = paddedSlotSize - 1;
+		this.hashRange      = paddedSlotSize - 1;
 	}
 
 
@@ -148,50 +184,23 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// this method is a synchronization "point" for the otherwise thread-local lookup algorithm
 	private synchronized Entry[][] synchronizedGetSlotsPerRef()
 	{
-		return this.slotsPerRef;
+		return this.refHashedEntries;
 	}
 
 	// this method is a synchronization "point" for the otherwise thread-local lookup algorithm
 	private synchronized Entry[][] synchronizedGetSlotsPerOid()
 	{
-		return this.slotsPerOid;
+		return this.oidHashedEntries;
 	}
 
-	private synchronized boolean synchronizedPut(final long oid, final Object ref)
+	private synchronized boolean synchronizedAdd(final long oid, final Object ref)
 	{
-		if(alreadyRegisteredReference(this.slotsPerRef[identityHashCode(ref) & this.modulo], oid, ref))
+		if(this.synchAddCheck(oid, ref))
 		{
 			return false;
 		}
 
-		/* at this point, the reference is definitely not contained in the registry.
-		 * Either because it never has been or because there's an orphan weak entry with its oid.
-		 * Check for colliding id and orphan case
-		 */
-		final Entry entry;
-		if((entry = synchLookupEntryPerOid(this.slotsPerOid[(int)oid & this.modulo], oid)) != null)
-		{
-			synchRehash(this.slotsPerRef, entry.set(ref), entry);
-			return false;
-		}
-
-		/* at this point, neither the reference nor a fitting orphan entry is contained in the registry
-		 * and there is no colliding oid, either.
-		 * So create and put a new Entry for it
-		 */
-		this.synchPutNewEntry(new Entry(oid, ref));
-		return true;
-	}
-	
-	// (01.12.2018 TM)NOTE: 124
-	private synchronized boolean synchronizedPut2(final long oid, final Object ref)
-	{
-		if(this.checkExisting(oid, ref))
-		{
-			return false;
-		}
-
-		synchInsertEntry(this.slotsPerOid, this.slotsPerRef, new Entry(oid, ref), this.modulo);
+		synchInsertEntry(this.oidHashedEntries, this.refHashedEntries, new Entry(oid, ref), this.hashRange);
 
 		if(++this.size >= this.capacity)
 		{
@@ -202,14 +211,14 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 	
 	
-	private boolean checkExisting(final long oid, final Object ref)
+	private boolean synchAddCheck(final long oid, final Object ref)
 	{
 		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerOid[(int)oid & this.modulo]) != null)
+		if((bucketsI = this.oidHashedEntries[(int)oid & this.hashRange]) != null)
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
+				if(bucketsI[i] != null && bucketsI[i].objectId == oid)
 				{
 					this.synchHandleExisting(i, oid, ref, bucketsI[i]);
 					return true;
@@ -219,27 +228,21 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		
 		return false;
 	}
-		
-	// (01.12.2018 TM)NOTE: 123-124
+	
 	private void synchHandleExisting(final int oidBucketIndex, final long oid, final Object ref, final Entry entry)
 	{
-		if(entry.ref.get() == ref)
+		if(entry.get() == ref)
 		{
 			return;
 		}
 
-		validateReferenceNotYetRegistered(this.slotsPerRef[identityHashCode(ref) & this.modulo], oid, ref);
+		validateReferenceNotYetRegistered(this.refHashedEntries[identityHashCode(ref) & this.hashRange], oid, ref);
 
-		remove(this.slotsPerRef[entry.hash & this.modulo], entry);
+		remove(this.refHashedEntries[entry.refHash & this.hashRange], entry);
 
-		final Entry newEntry = this.slotsPerOid[(int)oid & this.modulo][oidBucketIndex] = new Entry(oid, ref);
-		synchPutEntry(this.slotsPerRef, newEntry.hash & this.modulo, newEntry);
+		final Entry newEntry = this.oidHashedEntries[(int)oid & this.hashRange][oidBucketIndex] = new Entry(oid, ref);
+		synchPutEntry(this.refHashedEntries, newEntry.refHash & this.hashRange, newEntry);
 	}
-		
-//	private static void replaceExisting(final long oid, final Object ref, final Entry entry)
-//	{
-//		final Entry[] oidBucket =
-//	}
 	
 	private static void validateReferenceNotYetRegistered(
 		final Entry[] bucketsR,
@@ -251,7 +254,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsR.length; i++)
 			{
-				if(bucketsR[i] != null && bucketsR[i].ref.get() == ref)
+				if(bucketsR[i] != null && bucketsR[i].get() == ref)
 				{
 					validateEntryOid(bucketsR[i], oid, ref);
 					return;
@@ -272,35 +275,48 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 	}
 
-	private synchronized Object synchronizedAddRef(final long oid, final Object ref) // dirty flag, bua
+	private synchronized Object synchronizedAddGet(final long oid, final Object ref) // dirty flag, bua
 	{
-		if(alreadyRegisteredReference(this.slotsPerRef[identityHashCode(ref) & this.modulo], oid, ref))
+		final Object alreadyRegistered;
+		if((alreadyRegistered = this.synchAddGetCheck(oid, ref)) != null)
 		{
-			return ref;
+			return alreadyRegistered;
 		}
 
-		/* at this point, the reference is definitely not contained in the registry.
-		 * either because it never has been or because there's an orphan weak entry with its id.
-		 * Check for colliding id and orphan case
-		 */
-		final Entry entry;
-		if((entry = synchLookupEntryPerOid(this.slotsPerOid[(int)oid & this.modulo], oid)) != null)
+		synchInsertEntry(this.oidHashedEntries, this.refHashedEntries, new Entry(oid, ref), this.hashRange);
+
+		if(++this.size >= this.capacity)
 		{
-			final Object current;
-			if((current = entry.ref.get()) != null)
-			{
-				return current; // no matter if current is already the same reference or not, just return it (add logic)
-			}
-			synchRehash(this.slotsPerRef, entry.set(ref), entry);
-			return ref;
+			this.synchIncreaseStorage();
 		}
 
-		/* at this point, neither the reference nor an orphan entry is not contained in the registry
-		 * and there is no colliding id either.
-		 * So create a new Entry for it
-		 */
-		this.synchPutNewEntry(new Entry(oid, ref));
 		return ref;
+	}
+	
+	private Object synchAddGetCheck(final long oid, final Object ref)
+	{
+		final Entry[] bucketsI;
+		if((bucketsI = this.oidHashedEntries[(int)oid & this.hashRange]) != null)
+		{
+			for(int i = 0; i < bucketsI.length; i++)
+			{
+				if(bucketsI[i] != null && bucketsI[i].objectId == oid)
+				{
+					final Object object;
+					if((object = bucketsI[i].get()) != null)
+					{
+						return object == ref
+							? null
+							: object
+						;
+					}
+					this.synchHandleExisting(i, oid, ref, bucketsI[i]);
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	private void synchPutNewEntry(final Entry entry)
@@ -312,7 +328,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 
 		// storage is defintely big enough, size has already been incremented, entry can be simply inserted
-		synchInsertEntry(this.slotsPerOid, this.slotsPerRef, entry);
+		synchInsertEntry(this.oidHashedEntries, this.refHashedEntries, entry);
 	}
 
 	private void synchIncreaseStorage()
@@ -324,12 +340,12 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		 * - it is mathematically impossible that rebuilding would require another increase
 		 * - recalculating modulo every time when inserting is inefficent here, but more efficient for single puts.
 		 */
-		if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.slotsPerOid.length))
+		if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.oidHashedEntries.length))
 		{
 			this.capacity = Integer.MAX_VALUE; // disable special case after running into it once (cool 8-) )
 			return;
 		}
-		this.synchRebuild(this.slotsPerOid.length << 1);
+		this.synchRebuild(this.oidHashedEntries.length << 1);
 	}
 	
 	
@@ -339,7 +355,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	 */
 	private void synchRebuild()
 	{
-		this.synchRebuild(this.slotsPerOid.length);
+		this.synchRebuild(this.oidHashedEntries.length);
 	}
 
 	private void synchRebuild(final int slotLength)
@@ -348,12 +364,12 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		final Entry[][] newSlotsPerOid = new Entry[slotLength][];
 		final Entry[][] newSlotsPerRef = new Entry[slotLength][];
 
-		synchRebuildSlots(this.slotsPerOid, newSlotsPerOid, newSlotsPerRef);
+		synchRebuildSlots(this.oidHashedEntries, newSlotsPerOid, newSlotsPerRef);
 
 		this.capacity    = (int)(slotLength * this.hashDensity);
-		this.slotsPerOid = newSlotsPerOid;
-		this.slotsPerRef = newSlotsPerRef;
-		this.modulo      = slotLength - 1;
+		this.oidHashedEntries = newSlotsPerOid;
+		this.refHashedEntries = newSlotsPerRef;
+		this.hashRange      = slotLength - 1;
 //		XDebug.debugln(" * done. new capacity = " + this.capacity);
 	}
 
@@ -372,9 +388,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsR.length; i++)
 			{
-				if(bucketsR[i] != null && bucketsR[i].ref.get() == object)
+				if(bucketsR[i] != null && bucketsR[i].get() == object)
 				{
-					return bucketsR[i].oid;
+					return bucketsR[i].objectId;
 				}
 			}
 		}
@@ -394,9 +410,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
+				if(bucketsI[i] != null && bucketsI[i].objectId == oid)
 				{
-					return bucketsI[i].ref.get();
+					return bucketsI[i].get();
 				}
 			}
 		}
@@ -416,7 +432,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
+				if(bucketsI[i] != null && bucketsI[i].objectId == oid)
 				{
 					return true;
 				}
@@ -428,9 +444,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private static void validateEntryOid(final Entry entry, final long oid, final Object ref)
 	{
-		if(entry.oid != oid)
+		if(entry.objectId != oid)
 		{
-			throw new PersistenceExceptionConsistencyObjectId(ref, entry.oid, oid);
+			throw new PersistenceExceptionConsistencyObjectId(ref, entry.objectId, oid);
 		}
 	}
 
@@ -444,7 +460,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsR.length; i++)
 			{
-				if(bucketsR[i] != null && bucketsR[i].ref.get() == ref)
+				if(bucketsR[i] != null && bucketsR[i].get() == ref)
 				{
 					validateEntryOid(bucketsR[i], oid, ref);
 					return true;
@@ -460,7 +476,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].oid == oid)
+				if(bucketsI[i] != null && bucketsI[i].objectId == oid)
 				{
 					return bucketsI[i];
 				}
@@ -503,7 +519,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			{
 				synchRemoveEntry(slotsPerRef[oldHash & slotsPerRef.length - 1], entry);
 			}
-			synchPutEntry(slotsPerRef, entry.hash & slotsPerRef.length - 1, entry);
+			synchPutEntry(slotsPerRef, entry.refHash & slotsPerRef.length - 1, entry);
 		}
 	}
 
@@ -526,8 +542,8 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private static void synchInsertEntry(final Entry[][] slotsPerOid, final Entry[][] slotsPerRef, final Entry entry)
 	{
-		synchPutEntry(slotsPerOid, (int)entry.oid & slotsPerOid.length - 1, entry);
-		synchPutEntry(slotsPerRef,     entry.hash & slotsPerOid.length - 1, entry);
+		synchPutEntry(slotsPerOid, (int)entry.objectId & slotsPerOid.length - 1, entry);
+		synchPutEntry(slotsPerRef,     entry.refHash & slotsPerOid.length - 1, entry);
 	}
 	
 	// The parameter order significantly influences performance. Do not change.
@@ -538,8 +554,8 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		final int       hashRange
 	)
 	{
-		synchPutEntry(slotsPerOid, hashRange & (int)entry.oid, entry);
-		synchPutEntry(slotsPerRef, hashRange &     entry.hash, entry);
+		synchPutEntry(slotsPerOid, hashRange & (int)entry.objectId, entry);
+		synchPutEntry(slotsPerRef, hashRange &     entry.refHash, entry);
 	}
 
 	private static Entry[] synchCreateNewBuckets(final Entry entry)
@@ -605,7 +621,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				{
 					if(buckets[b] != null)
 					{
-						acceptor.accept(buckets[b].oid, buckets[b].ref.get());
+						acceptor.accept(buckets[b].objectId, buckets[b].get());
 					}
 				}
 			}
@@ -640,7 +656,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 				for(int b = 0; b < buckets.length; b++)
 				{
 					if(buckets[b] != null && (buckets[b].isEmpty()
-						|| filter.test(buckets[b].oid, buckets[b].ref.get()))
+						|| filter.test(buckets[b].objectId, buckets[b].get()))
 					)
 					{
 						buckets[b] = null;
@@ -671,7 +687,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	@Override
 	public int hashRange()
 	{
-		return this.slotsPerOid.length;
+		return this.oidHashedEntries.length;
 	}
 
 	@Override
@@ -699,7 +715,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	@Override
 	public synchronized void truncate()
 	{
-		final Entry[][] slotsI = this.slotsPerOid, slotsR = this.slotsPerRef;
+		final Entry[][] slotsI = this.oidHashedEntries, slotsR = this.refHashedEntries;
 		for(int i = 0; i < slotsI.length; i++)
 		{
 			slotsI[i] = slotsR[i] = null;
@@ -711,7 +727,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	@Override
 	public boolean containsObjectId(final long oid)
 	{
-		return containsOid(this.synchronizedGetSlotsPerOid()[(int)oid & this.modulo], oid);
+		return containsOid(this.synchronizedGetSlotsPerOid()[(int)oid & this.hashRange], oid);
 	}
 
 	@Override
@@ -721,13 +737,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			throw new NullPointerException();
 		}
-		return lookupOid(this.synchronizedGetSlotsPerRef()[identityHashCode(object) & this.modulo], object);
+		return lookupOid(this.synchronizedGetSlotsPerRef()[identityHashCode(object) & this.hashRange], object);
 	}
 
 	@Override
 	public Object lookupObject(final long oid)
 	{
-		return lookupObject(this.synchronizedGetSlotsPerOid()[(int)oid & this.modulo], oid);
+		return lookupObject(this.synchronizedGetSlotsPerOid()[(int)oid & this.hashRange], oid);
 	}
 
 	@Override
@@ -742,21 +758,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			throw new PersistenceExceptionNullObjectId();
 		}
 
-		return this.synchronizedPut(oid, object);
-	}
-	
-	public final boolean registerObject2(final long oid, final Object object)
-	{
-		if(object == null)
-		{
-			throw new NullPointerException();
-		}
-		if(oid == Persistence.nullId())
-		{
-			throw new PersistenceExceptionNullObjectId();
-		}
-
-		return this.synchronizedPut2(oid, object);
+		return this.synchronizedAdd(oid, object);
 	}
 
 	@Override
@@ -770,7 +772,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			throw new PersistenceExceptionNullObjectId();
 		}
-		return this.synchronizedAddRef(oid, object);
+		return this.synchronizedAddGet(oid, object);
 	}
 
 	public final synchronized boolean removeObjectById(final long id)
@@ -780,13 +782,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			throw new PersistenceExceptionNullObjectId();
 		}
 		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerOid[(int)id & this.modulo]) != null)
+		if((bucketsI = this.oidHashedEntries[(int)id & this.hashRange]) != null)
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].oid == id)
+				if(bucketsI[i] != null && bucketsI[i].objectId == id)
 				{
-					synchRemoveEntry(this.slotsPerRef[bucketsI[i].hash & this.modulo], bucketsI[i]);
+					synchRemoveEntry(this.refHashedEntries[bucketsI[i].refHash & this.hashRange], bucketsI[i]);
 					bucketsI[i] = null;
 					this.size--;
 					return true;
@@ -803,13 +805,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			throw new NullPointerException();
 		}
 		final Entry[] bucketsI;
-		if((bucketsI = this.slotsPerRef[identityHashCode(object) & this.modulo]) != null)
+		if((bucketsI = this.refHashedEntries[identityHashCode(object) & this.hashRange]) != null)
 		{
 			for(int i = 0; i < bucketsI.length; i++)
 			{
-				if(bucketsI[i] != null && bucketsI[i].ref.get() == object)
+				if(bucketsI[i] != null && bucketsI[i].get() == object)
 				{
-					synchRemoveEntry(this.slotsPerOid[(int)bucketsI[i].oid & this.modulo], bucketsI[i]);
+					synchRemoveEntry(this.oidHashedEntries[(int)bucketsI[i].objectId & this.hashRange], bucketsI[i]);
 					bucketsI[i] = null;
 					this.size--;
 					return true;
@@ -829,7 +831,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	public synchronized void shrink()
 	{
 		final int requiredSlotLength;
-		if((requiredSlotLength = padCapacity((int)(this.size / this.hashDensity))) >= this.slotsPerOid.length)
+		if((requiredSlotLength = padCapacity((int)(this.size / this.hashDensity))) >= this.oidHashedEntries.length)
 		{
 			return; // can't shrink, abort
 		}
@@ -845,15 +847,15 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	public synchronized void clearOrphanEntries()
 	{
-		synchClearOrphanEntries(this.slotsPerOid);
-		synchClearOrphanEntries(this.slotsPerRef);
+		synchClearOrphanEntries(this.oidHashedEntries);
+		synchClearOrphanEntries(this.refHashedEntries);
 	}
 	
 	public final synchronized <P extends PersistencePredicate> P removeObjectsBy(final P filter)
 	{
-		synchClearEntries(this.slotsPerOid, filter);
-		synchClearEntries(this.slotsPerRef, filter);
-		this.synchRebuild(this.slotsPerOid.length);
+		synchClearEntries(this.oidHashedEntries, filter);
+		synchClearEntries(this.refHashedEntries, filter);
+		this.synchRebuild(this.oidHashedEntries.length);
 		return filter;
 	}
 	
@@ -870,15 +872,14 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// member types     //
 	/////////////////////
 
-	private static final class Entry
+	private static final class Entry extends WeakReference<Object>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		final long                  oid ;
-		      int                   hash; // causes 4 byte alignment overhead with and without coops. => 4 byte to spare
-		      WeakReference<Object> ref ;
+		final long objectId;
+		      int  refHash ;
 
 		      
 		
@@ -886,12 +887,11 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		// constructors //
 		/////////////////
 		
-		Entry(final long oid, final Object ref)
+		Entry(final long objectId, final Object referent)
 		{
-			super();
-			this.oid  = oid;
-			this.ref  = new WeakReference<>(ref);
-			this.hash = identityHashCode(ref);
+			super(referent);
+			this.objectId = objectId;
+			this.refHash  = System.identityHashCode(referent);
 		}
 		
 		
@@ -907,93 +907,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		 */
 		final boolean isEmpty()
 		{
-			return this.ref.get() == null;
-		}
-
-		final int set(final Object ref)
-		{
-			// case: hollow oid<->tid entry
-			if(this.hash == 0)
-			{
-				this.ref = new WeakReference<>(ref);
-				this.hash = System.identityHashCode(ref);
-				return 0;
-			}
-
-			// case: already contains this reference
-			if(this.ref.get() == ref)
-			{
-				return -1;
-			}
-
-			// case: orphan entry with same oid
-			if(this.ref.get() == null)
-			{
-				this.ref = new WeakReference<>(ref);
-				// hardly unlikely that a new instance will have the same hashcode, so ignore check
-				final int oldHash = this.hash; // required to rehash entry in the ref slots
-				this.hash = identityHashCode(ref);
-				return oldHash;
-			}
-			throw new PersistenceExceptionConsistencyObject(this.oid, this.ref.get(), ref);
+			return this.get() == null;
 		}
 
 	}
-
-	@Deprecated
-	public void DEBUG_analyze()
-	{
-		System.out.println("size        = " + this.size);
-		System.out.println("hashDensity = " + this.hashDensity);
-		System.out.println("hashRange   = " + this.slotsPerOid.length);
-		System.out.println("capacity    = " + this.capacity);
-		DEBUG_printAnalysis("perRef", DEBUG_analyze(this.slotsPerRef));
-		DEBUG_printAnalysis("perOid", DEBUG_analyze(this.slotsPerOid));
-
-	}
-
-	@Deprecated
-	private static void DEBUG_printAnalysis(final String label, final int[] analysis)
-	{
-		System.out.println(label + ":");
-		System.out.println("empty\t" + analysis[0]);
-		for(int i = 1; i < analysis.length; i++)
-		{
-			System.out.println(XMath.pow(2, i - 1) + "\t" + analysis[i]);
-		}
-		System.out.println("----");
-	}
-
-	// CHECKSTYLE:OFF only for debugging
-	@Deprecated
-	private static int[] DEBUG_analyze(final Entry[][] slots)
-	{
-		final int[] bucketsPow2Lenghts = new int[30];
-		for(int s = 0; s < slots.length; s++)
-		{
-			if(slots[s] != null)
-			{
-				bucketsPow2Lenghts[XMath.log2pow2(slots[s].length) + 1]++;
-			}
-			else
-			{
-				bucketsPow2Lenghts[0]++;
-			}
-		}
-		return bucketsPow2Lenghts;
-	}
-	// CHECKSTYLE:ON
-
-
-
-//	public static void main(final String[] args)
-//	{
-//		// -XX:-UseCompressedOops
-//		System.out.println(
-//			2*2*Memory.byteSizeReference()
-//			+ Memory.byteSizeInstance(Entry.class)
-//			+ Memory.byteSizeInstance(WeakReference.class)
-//		);
-//	}
 
 }
