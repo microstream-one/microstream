@@ -380,13 +380,8 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private static long lookupOid(final Entry[] bucketsR, final Object object)
 	{
-		/* Notes:
-		 * - if thread cache is up to date, the read-only algorithm on the slots array is thread-safe and correct
-		 * - orphan buckets are intentionally not checked and not removed on read-only lookups
-		 * - array length is intentionally not cached due to normally short array length and maybe JIT optimization
-		 * - recalculating the modulo here allows the method to be static and skip subject passing
-		 * - even during concurrent put, rebuild, clean, this algorithm is thread safe
-		 */
+		//Note: even during concurrent put, rebuild, clean, this algorithm is thread safe
+		// (03.12.2018 TM)FIXME: why? thread-local stack copy of the array? Is it really never updated concurrently?
 		if(bucketsR != null)
 		{
 			for(int i = 0; i < bucketsR.length; i++)
@@ -403,12 +398,8 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private static Object lookupObject(final Entry[] bucketsI, final long oid)
 	{
-		/* Notes:
-		 * - if thread cache is up to date, the read-only algorithm on the slots array is thread-safe and correct
-		 * - array length is intentionally not cached due to normally short array length and maybe JIT optimization
-		 * - even during concurrent put, rebuild, clean, this algorithm is thread safe
-		 * - oids are assumed to be roughly sequential, hence the lower 32 bit are sufficient for proper distribution
-		 */
+		//Note: even during concurrent put, rebuild, clean, this algorithm is thread safe
+		// (03.12.2018 TM)FIXME: why? thread-local stack copy of the array? Is it really never updated concurrently?
 		if(bucketsI != null)
 		{
 			for(int i = 0; i < bucketsI.length; i++)
