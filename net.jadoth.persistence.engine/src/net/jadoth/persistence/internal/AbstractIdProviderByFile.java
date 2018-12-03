@@ -10,14 +10,6 @@ import net.jadoth.files.AbstractProviderByFile;
 public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
-
-	protected static final long DEFAULT_INCREASE = 1000;
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
@@ -26,33 +18,15 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 		write(file, Long.toString(value));
 	}
 
-//	public static final long readId(final File file, final _longReference defaultId)
-//	{
-//		if(!file.exists())
-//		{
-//			return defaultId.get();
-//		}
-//		try
-//		{
-//			return Long.parseLong(XFiles.readStringFromFile(file, standardCharset()));
-//		}
-//		catch(final Exception e)
-//		{
-//			throw new PersistenceExceptionTransfer(e);
-//		}
-//	}
-	
-
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
 
-	private final long increase;
-
-	private long id       ;
-	private long threshold;
+	private final long increase ;
+	private       long id       ;
+	private       long threshold;
 
 
 
@@ -60,22 +34,12 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	// constructors     //
 	/////////////////////
 
-	public AbstractIdProviderByFile(final File file)
-	{
-		this(file, DEFAULT_INCREASE);
-	}
-
-	public AbstractIdProviderByFile(final File file, final long increase)
-	{
-		this(file, increase, 0L);
-	}
-
-	public AbstractIdProviderByFile(final File file, final long increase, final long id)
+	protected AbstractIdProviderByFile(final File file, final long increase, final long id)
 	{
 		super(file);
 		this.id        = notNegative(id      );
 		this.increase  =    positive(increase);
-		this.threshold = id + increase        ;
+		this.threshold =        id + increase ;
 	}
 
 

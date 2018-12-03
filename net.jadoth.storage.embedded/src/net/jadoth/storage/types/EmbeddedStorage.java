@@ -27,7 +27,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler,
-		final PersistenceIdStrategy                  idStrategy
+		final PersistenceIdStrategy              idStrategy
 	)
 	{
 		return ConnectionFoundation(
@@ -40,7 +40,7 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
-		final PersistenceIdStrategy                  idStrategy                 ,
+		final PersistenceIdStrategy              idStrategy                 ,
 		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
 		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
 	)

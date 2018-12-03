@@ -128,9 +128,9 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	private Entry[][] refHashTable;
 	private int       hashRange   ;
 	private float     hashDensity ;
-	private long      minimumCapacity ;
-	private long      capacityLowBound ;
 	private long      capacityHighBound ;
+	private long      capacityLowValue ;
+	private long      minimumCapacity ;
 	private long      size        ;
 
 	
@@ -170,15 +170,29 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	final ObjectRegistryGrowingRange internalReset(final long minimumCapacity)
 	{
 		this.size = 0;
-		this.hashRange = Hashing.padHashLength((long)(minimumCapacity / this.hashDensity)) - 1;
-		this.internalUpdateCapacities();
-		
-		
-		this.oidHashTable = this.createHashTable();
-		this.refHashTable = this.createHashTable();
+		final int hashLength = Hashing.padHashLength((long)(minimumCapacity / this.hashDensity));
+		this.setHashTables(
+			this.createHashTable(hashLength),
+			this.createHashTable(hashLength)
+		);
 				
 		return this;
 	}
+		
+	private void setHashTables(final Entry[][] oidHashTable, final Entry[][] refHashTable)
+	{
+		// debugging check for a problem that can never occur in use.
+//		if(oidHashTable.length != refHashTable.length)
+//		{
+//			throw new RuntimeException();
+//		}
+		
+		this.oidHashTable = oidHashTable;
+		this.refHashTable = refHashTable;
+		this.hashRange    = oidHashTable.length - 1;
+		this.internalUpdateCapacities();
+	}
+	
 	
 	private Entry[][] createHashTable()
 	{
@@ -187,7 +201,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	
 	private Entry[][] createHashTable(final int hashLength)
 	{
-		return new Entry[this.hashLength()][(int)Math.ceil(this.hashDensity)];
+		return new Entry[hashLength][(int)Math.ceil(this.hashDensity)];
 	}
 	
 	private void internalUpdateCapacities()
@@ -198,11 +212,11 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			? Long.MAX_VALUE
 			: (long)(this.hashLength() * this.hashDensity)
 		;
-		this.capacityLowBound = (long)(
+		this.capacityLowValue = (long)(
 			Hashing.padHashLength(
 				Math.max(
 					(long)(this.minimumCapacity / this.hashDensity),
-					hashLength / 1)
+					hashLength / 2)
 				)
 			* this.hashDensity
 		);
@@ -363,17 +377,12 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 	private void synchRebuild(final int hashLength)
 	{
-//		XDebug.debugln("rebuilding to length " + slotLength);
 		final Entry[][] newSlotsPerOid = this.createHashTable(hashLength);
 		final Entry[][] newSlotsPerRef = this.createHashTable(hashLength);
 
 		synchRebuildSlots(this.oidHashTable, newSlotsPerOid, newSlotsPerRef);
 
-		this.oidHashTable = newSlotsPerOid;
-		this.refHashTable = newSlotsPerRef;
-		this.hashRange    = hashLength - 1;
-		this.internalUpdateCapacities();
-//		XDebug.debugln(" * done. new capacity = " + this.capacity);
+		this.setHashTables(newSlotsPerOid, newSlotsPerRef);
 	}
 
 

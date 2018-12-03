@@ -60,7 +60,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 		// methods //
 		////////////
 
-		protected long createNewTid()
+		protected long createNewTypeId()
 		{
 			return this.tidProvider.provideNextTypeId();
 		}
@@ -75,7 +75,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 				{
 					return tid;
 				}
-				tid = this.createNewTid();
+				tid = this.createNewTypeId();
 
 				this.typeRegistry.registerType(tid, type);
 				if(type.getSuperclass() != null)

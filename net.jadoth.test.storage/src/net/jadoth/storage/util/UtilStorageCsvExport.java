@@ -60,7 +60,7 @@ public class UtilStorageCsvExport
 	{
 		return exportCsv(storage, targetDirectory, null);
 	}
-	
+		
 	/**
 	 * Variante von {@link UtilStorageCsvExport#exportCsv(EmbeddedStorageManager, File)} mit optionaler Filterlogik.
 	 * 

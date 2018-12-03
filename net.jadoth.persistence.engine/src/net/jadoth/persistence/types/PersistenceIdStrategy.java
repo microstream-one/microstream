@@ -44,7 +44,7 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 		return NewFromFiles(
 			directory                             ,
 			FileObjectIdStrategy.defaultFilename(),
-			FileObjectIdStrategy.defaultFilename()
+			FileTypeIdStrategy.defaultFilename()
 		);
 	}
 	
