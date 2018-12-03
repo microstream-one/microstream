@@ -23,7 +23,7 @@ import net.jadoth.util.cql.CQL;
 public class TestImportExport
 {
 	@SuppressWarnings("unused")
-	static void testExport(final EmbeddedStorageManager storage, final File targetDirectory)
+	public static void testExport(final EmbeddedStorageManager storage, final File targetDirectory)
 	{
 		final StorageConnection storageConnection = storage.createConnection();
 		long tStart, tStop;
