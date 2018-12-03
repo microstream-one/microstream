@@ -3,8 +3,10 @@ package com.mysql.dev.sakila;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+
 /**
- * Java Entity class pendant for the MySQL Sakila "customer" table.<br>
+ * Java entity class counterpart for the MySQL Sakila "customer" table.<br>
  * A collection of instances of this class corresponds to a "customer" table with entries.<br>
  * Source: <a href="https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html">https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html</a> and <code>sakila-schema.sql</code> definitions.
  * <p>
@@ -13,7 +15,7 @@ import java.util.Date;
  * MySQL SMALLINT: Java primitive short (being unsigned merely means appyling an offset in Java).<br>
  * MySQL VARCHAR : java.lang.String.
  * MySQL BOOLEAN : Java primitive boolean.
- * MySQL DATETIME : java.time.LocalDateTime (with protest, as that JDK class is written pretty incompetently)
+ * MySQL DATETIME : java.time.LocalDateTime (with protest, as that JDK class is written pretty inefficiently)
  * MySQL TIMESTAMP: java.util.Date (outdated, but corresponds very well to the MySQL type)
  * 
  * @author TM
@@ -31,7 +33,10 @@ public class Customer
 	 * Such primitive value Ids are superfluous in an object-oriented datamodel as the reference itself is the identity.
 	 * The internal swizzling Id-Value used by the jetstream persistence is usually invisible to the user.
 	 * However, this value is kept because it might have meaning as a business logical value, as well.
-	 * (and because Jetstream is tremendously faster, anyway)
+	 * (and because Jetstream is tremendously faster, anyway)<br>
+	 * Side note: usting a SMALLINT as an entity id allows only very tiny databases. The {@link Customer} instances
+	 * created for the Jetstream test cause this value to overflow numerous times. However, since it is superfluous,
+	 * anyway, this is not a problem.
 	 */
 	private final short customerId;
 
@@ -76,8 +81,10 @@ public class Customer
 	/**
 	 * The date the customer was added to the system. This date is automatically set using a trigger during an INSERT.
 	 * Jetstream note:<br>
-	 * {@link LocalDateTime} is badly writen and would have to be replaced by a competent implementation for a
-	 * sane usage.
+	 * {@link LocalDateTime} is badly written and would have to be replaced by a competent implementation for a
+	 * sane usage. A custom-written {@link BinaryTypeHandler} could compensate the inefficiency on the storage-level,
+	 * but that is not done here to avoid giving the impression of trickery. Instead, Jetstream atones for the
+	 * once again bad programming in the JDK.
 	 */
 	private LocalDateTime createDate;
 
