@@ -8,9 +8,7 @@ import java.io.File;
 import net.jadoth.persistence.binary.internal.BinaryFileStorage;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.internal.CompositeIdProvider;
-import net.jadoth.persistence.internal.FileObjectIdProvider;
 import net.jadoth.persistence.internal.FileObjectIdStrategy;
-import net.jadoth.persistence.internal.FileTypeIdProvider;
 import net.jadoth.persistence.internal.FileTypeIdStrategy;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
@@ -110,8 +108,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.idProvider == null)
 		{
 			this.idProvider = CompositeIdProvider.New(
-				dispatch(FileTypeIdProvider.New  (new File(this.directory, this.filenameTypeId  ))),
-				dispatch(FileObjectIdProvider.New(new File(this.directory, this.filenameObjectId)))
+				dispatch(FileTypeIdStrategy.New  (new File(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
+				dispatch(FileObjectIdStrategy.New(new File(this.directory, this.filenameObjectId)).createObjectIdProvider())
 			).initialize();
 		}
 		return this.idProvider;

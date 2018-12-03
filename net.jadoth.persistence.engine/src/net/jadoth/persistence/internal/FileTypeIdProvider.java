@@ -5,8 +5,8 @@ import static net.jadoth.math.XMath.positive;
 
 import java.io.File;
 
-import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
 
 public final class FileTypeIdProvider extends AbstractIdProviderByFile implements PersistenceTypeIdProvider
@@ -14,15 +14,6 @@ public final class FileTypeIdProvider extends AbstractIdProviderByFile implement
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
-	public static FileTypeIdProvider New(final File file)
-	{
-		return new FileTypeIdProvider(
-			notNull(file)               ,
-			DEFAULT_INCREASE            ,
-			Persistence.defaultStartTypeId()
-		);
-	}
 
 	public static FileTypeIdProvider New(final File file, final long increase)
 	{

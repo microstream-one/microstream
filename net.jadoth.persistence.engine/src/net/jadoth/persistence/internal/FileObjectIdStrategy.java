@@ -10,6 +10,14 @@ import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
 public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 {
 	///////////////////////////////////////////////////////////////////////////
+	// constants        //
+	/////////////////////
+
+	private static final long DEFAULT_INCREASE = 1000;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
@@ -83,7 +91,7 @@ public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 	@Override
 	public final PersistenceObjectIdProvider createObjectIdProvider()
 	{
-		return FileObjectIdProvider.New(this.objectIdFile);
+		return FileObjectIdProvider.New(this.objectIdFile, DEFAULT_INCREASE);
 	}
 	
 }

@@ -35,7 +35,7 @@ public class MainTestStorageExample
 			STORAGE.store(STORAGE.root());
 			STORAGE.issueFullFileCheck();
 			Test.print("STORAGE: storing completed.");
-			printObjectRegistryStatistics();
+//			printObjectRegistryStatistics();
 		}
 		else
 		{
@@ -44,7 +44,7 @@ public class MainTestStorageExample
 			Test.print("TEST: model data loaded." );
 			Test.print(STORAGE.root().get());
 			Test.print("TEST: exporting data ..." );
-			printObjectRegistryStatistics();
+//			printObjectRegistryStatistics();
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
 			Test.print("TEST: data export completed.");
 		}
