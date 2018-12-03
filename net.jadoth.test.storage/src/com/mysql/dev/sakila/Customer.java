@@ -58,7 +58,7 @@ public class Customer
 	/**
 	 * The customer's last name.
 	 */
-	private String last_name;
+	private String lastName;
 
 	/**
 	 * The customer's email address.
@@ -115,7 +115,7 @@ public class Customer
 		this.customerId = customerId;
 		this.storeId    = storeId   ;
 		this.firstName  = firstName ;
-		this.last_name  = last_name ;
+		this.lastName  = last_name ;
 		this.email      = email     ;
 		this.addressId  = addressId ;
 		this.active     = active    ;
@@ -154,14 +154,14 @@ public class Customer
 		this.firstName = firstName;
 	}
 
-	public String getLast_name()
+	public String getLastName()
 	{
-		return this.last_name;
+		return this.lastName;
 	}
 	
-	public void setLast_name(final String last_name)
+	public void setLastName(final String lastName)
 	{
-		this.last_name = last_name;
+		this.lastName = lastName;
 	}
 
 	public String getEmail()

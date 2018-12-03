@@ -113,9 +113,9 @@ public class MainTestStoreCustomers
 		
 		System.out.println(
 			"\nResult:\n"
-			+ " Average per run     : " + timeFormat.format(totalTime / RUNS) + " ns\n"
-			+ " Average per entity  : " + timeFormat.format(totalTime / RUNS / ENTITY_COUNT) + " ns\n"
-			+ " Average per instance: " + timeFormat.format(totalTime / RUNS / INSTANCE_COUNT) + " ns\n"
+			+ "Average per run     : " + timeFormat.format(totalTime / RUNS) + " ns\n"
+			+ "Average per entity  : " + timeFormat.format(totalTime / RUNS / ENTITY_COUNT) + " ns\n"
+			+ "Average per instance: " + timeFormat.format(totalTime / RUNS / INSTANCE_COUNT) + " ns\n"
 		);
 		System.exit(0);
 	}
@@ -128,10 +128,10 @@ public class MainTestStoreCustomers
 		
 		final ArrayList<Customer> customers = ROOT.get();
 		
-		System.out.println("Generating entities " + ENTITY_COUNT +" (" + INSTANCE_COUNT + " instances) ...");
+		System.out.println("Generating Customer entities " + ENTITY_COUNT +" (" + INSTANCE_COUNT + " instances) ...");
 		for(int i = 0; i < ENTITY_COUNT; i++)
 		{
-			final long creationTimestamp = baseDate.getTime() + XMath.random(secondsPerYear)*1000;
+			final long creationTimestamp = baseDate.getTime() + XMath.random(secondsPerYear) * 1000;
 			final long updateTimestamp   = creationTimestamp + XMath.random(Integer.MAX_VALUE); // ~25 days
 			customers.add(
 				new Customer(
