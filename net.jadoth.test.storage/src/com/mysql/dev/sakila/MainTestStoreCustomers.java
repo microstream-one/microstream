@@ -72,6 +72,8 @@ public class MainTestStoreCustomers
 		// assumed application logic that generate entities in some way. The generation is NOT part of the storing.
 		final ArrayList<Customer> customers = generateEntities();
 
+		System.out.println("Storing entities ...");
+		
 		long totalTime = 0;
 		for(int r = 1; r <= TOTAL_RUNS; r++)
 		{
