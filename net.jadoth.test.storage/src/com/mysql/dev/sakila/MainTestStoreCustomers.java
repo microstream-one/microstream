@@ -113,9 +113,9 @@ public class MainTestStoreCustomers
 		
 		System.out.println(
 			"\nResult:\n"
-			+ "Average per run     : " + timeFormat.format(totalTime / RUNS) + " ns\n"
-			+ "Average per entity  : " + timeFormat.format(totalTime / RUNS / ENTITY_COUNT) + " ns\n"
-			+ "Average per instance: " + timeFormat.format(totalTime / RUNS / INSTANCE_COUNT) + " ns\n"
+			+ "Average per run     : " + timeFormat.format(totalTime / RUNS) + " ns.\n"
+			+ "Average per entity  : " + timeFormat.format(totalTime / RUNS / ENTITY_COUNT) + " ns.\n"
+			+ "Average per instance: " + timeFormat.format(totalTime / RUNS / INSTANCE_COUNT) + " ns.\n"
 		);
 		System.exit(0);
 	}
