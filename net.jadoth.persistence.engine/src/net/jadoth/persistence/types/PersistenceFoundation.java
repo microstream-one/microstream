@@ -1466,7 +1466,6 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		protected PersistenceObjectRegistry ensureObjectRegistry()
 		{
 			final PersistenceObjectRegistry registry = PersistenceObjectRegistry.New();
-//			final PersistenceObjectRegistry registry = ObjectRegistryGrowingRange.New();
 			Persistence.registerJavaConstants(registry);
 			
 			return registry;

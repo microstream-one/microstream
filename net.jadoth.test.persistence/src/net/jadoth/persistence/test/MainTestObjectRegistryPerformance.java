@@ -10,7 +10,7 @@ import net.jadoth.persistence.types.PersistenceObjectRegistry;
 
 public class MainTestObjectRegistryPerformance
 {
-	private static final int RUNS  = 1000;
+	private static final int RUNS  = 1;
 	private static final int COUNT = 1_000_000;
 
 	// -XX:-UseCompressedOops -XX:+PrintGC
@@ -18,7 +18,7 @@ public class MainTestObjectRegistryPerformance
 	public static void main(final String[] args)
 	{
 //		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(1);
-		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(1.0f);
+		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New();
 		
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
@@ -50,7 +50,7 @@ public class MainTestObjectRegistryPerformance
 				+ " (" + (tStop - tStart) / COUNT + " per entry)"
 			);
 			System.gc();
-//			printObjectRegistryStatistics(reg);
+			printObjectRegistryStatistics(reg);
 		}
 
 	}
