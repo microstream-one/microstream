@@ -67,17 +67,32 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 //	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
 
 	/**
-	 * Clears only non-constants.
+	 * Clears all entries except those that are essential for a correctly executed program (e.g. constants).
+	 * Clearing means to leave the current capacity as it is and just to actually clear its entries.
 	 */
-	public default void clear()
-	{
-		this.truncate();
-	}
+	public void clear();
+
+	/**
+	 * Clears all entries, including those that are essential for a correctly executed program (e.g. constants),
+	 * effectively leaving a completely empty registry.
+	 * Clearing means to leave the current capacity as it is and just to actually clear its entries.
+	 */
+	public void clearAll();
 	
 	/**
-	 * Clears everything, including constants.
+	 * Truncates all entries except those that are essential for a correctly executed program (e.g. constants).
+	 * Truncating means to quickly empty the registry by reinitializing the internal storage structures with a
+	 * new and minimal capacity.
 	 */
 	public void truncate();
+
+	/**
+	 * Truncates all entries, including those that are essential for a correctly executed program (e.g. constants),
+	 * effectively leaving a completely empty registry.
+	 * Truncating means to quickly empty the registry by reinitializing the internal storage structures with a
+	 * new and minimal capacity.
+	 */
+	public void truncateAll();
 	
 	public XGettingTable<String, ? extends HashStatistics> createHashStatistics();
 	

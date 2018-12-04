@@ -209,7 +209,7 @@ public final class XArrays
 		return array;
 	}
 
-	public static final byte[] fill(final byte[] array, final byte fillElement)
+	public static final char[] fill(final char[] array, final char fillElement)
 	{
 		final int length = array.length;
 		for(int i = 0; i < length; i++)
@@ -218,33 +218,13 @@ public final class XArrays
 		}
 		return array;
 	}
-
-	public static final int[] fill(final int[] array, final int fillElement, final int fromIndex, final int toIndex)
+	
+	public static final byte[] fill(final byte[] array, final byte fillElement)
 	{
-		if(fromIndex < 0 || fromIndex >= array.length)
+		final int length = array.length;
+		for(int i = 0; i < length; i++)
 		{
-			throw new ArrayIndexOutOfBoundsException(fromIndex);
-		}
-		if(toIndex < 0 || toIndex >= array.length)
-		{
-			throw new ArrayIndexOutOfBoundsException(toIndex);
-		}
-
-		if(fromIndex < toIndex)
-		{
-			while(fromIndex <= toIndex)
-			{
-				int i = fromIndex;
-				array[i++] = fillElement;
-			}
-		}
-		else
-		{
-			while(fromIndex >= toIndex)
-			{
-				int i = toIndex;
-				array[i--] = fillElement;
-			}
+			array[i] = fillElement;
 		}
 		return array;
 	}
