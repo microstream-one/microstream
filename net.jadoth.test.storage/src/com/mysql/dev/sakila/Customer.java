@@ -18,7 +18,7 @@ import net.jadoth.persistence.binary.types.BinaryTypeHandler;
  * MySQL DATETIME : java.time.LocalDateTime (with protest, as that JDK class is written pretty inefficiently)
  * MySQL TIMESTAMP: java.util.Date (outdated, but corresponds very well to the MySQL type)
  * 
- * @author TM
+ * @author Jetstream
  *
  */
 public class Customer
@@ -81,10 +81,10 @@ public class Customer
 	/**
 	 * The date the customer was added to the system. This date is automatically set using a trigger during an INSERT.
 	 * Jetstream note:<br>
-	 * {@link LocalDateTime} is badly written and would have to be replaced by a competent implementation for a
-	 * sane usage. A custom-written {@link BinaryTypeHandler} could compensate the inefficiency on the storage-level,
-	 * but that is not done here to avoid giving the impression of trickery. Instead, Jetstream atones for the
-	 * once again bad programming in the JDK.
+	 * {@link LocalDateTime} is badly written and would have to be replaced by a competent implementation for
+	 * reasonable usability. A custom-written {@link BinaryTypeHandler} could compensate the inefficiency on the
+	 * storage-level, but that is not done here to avoid giving the impression of trickery.
+	 * Instead, Jetstream atones for the once again bad programming in the JDK.
 	 */
 	private LocalDateTime createDate;
 

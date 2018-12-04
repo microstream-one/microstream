@@ -18,16 +18,18 @@ import net.jadoth.test.corp.logic.Test;
 import net.jadoth.test.corp.logic.TestImportExport;
 import net.jadoth.time.XTime;
 
-public class MainTestStoreCustomers
+
+public class MainTestStoreCustomersPerformance
 {
 	/**
 	 * Since the Jetstream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
-	static final File DIRECTORY = new File("C:/" + MainTestStoreCustomers.class.getSimpleName());
+	static final File DIRECTORY = new File("C:/" + MainTestStoreCustomersPerformance.class.getSimpleName());
 	
 	static
 	{
+		// the database directory is completely cleaned before every execution.
 		XDebug.deleteAllFiles(DIRECTORY, true);
 	}
 	
@@ -37,21 +39,29 @@ public class MainTestStoreCustomers
 	 */
 	static final int CHANNEL_COUNT = 4;
 
+	/**
+	 * The application's entity graph root node/instance.
+	 */
 	static final Reference<ArrayList<Customer>> ROOT = Reference.New(new ArrayList<>());
 
-	// create a storage manager, link the root, start the "embedded" database
+	/**
+	 * The control instance managing the database with arguments specific for this test.
+	 */
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
-			DIRECTORY                                        , // location for the database files
-			Storage.ChannelCountProvider(CHANNEL_COUNT)      , // amount of storage channels (parallel database threads)
-			Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
-			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
-			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
+			DIRECTORY                                  , // location for the database files
+			Storage.ChannelCountProvider(CHANNEL_COUNT), // amount of storage channels (parallel database threads)
+			Storage.HousekeepingController()           , // housekeeping time config (file cleanup, cache checks, etc.)
+			Storage.DataFileEvaluator()                , // evaluator for dissolving data files to optimize disc usage.
+			Storage.EntityCacheEvaluator()               // evaluator for unloading entity data from the storage cache.
 		)
 		.setRoot(ROOT)
 		.start()
 	;
 
+	/**
+	 * The amount of entities to be created.
+	 */
 	private static final int ENTITY_COUNT = 125_000;
 	
 	/**
@@ -59,9 +69,15 @@ public class MainTestStoreCustomers
 	 */
 	private static final int INSTANCE_COUNT = ENTITY_COUNT * 8;
 	
+	/**
+	 * See (google) the complex topic "Java performance measuring".
+	 * Warm-up runs are needed to account for class loading, JVM code optimizing etc.
+	 * Measured times can vary from run to run for a variety of reasons (code optimization work, OS interrupts, etc.)
+	 */
 	private static final int WARM_UP_RUNS = 3;
 	private static final int RUNS         = 10;
 	private static final int TOTAL_RUNS   = RUNS + WARM_UP_RUNS;
+	
 	
 	
 	public static void main(final String[] args)
@@ -81,6 +97,8 @@ public class MainTestStoreCustomers
 			resetTest();
 			
 			long tStart, tStop;
+			
+			// the actual work (storing all entities) that is being measured.
 			tStart = System.nanoTime();
 			STORAGE.store(customers);
 			tStop = System.nanoTime();
@@ -113,15 +131,23 @@ public class MainTestStoreCustomers
 			}
 		}
 		
+		// result
 		System.out.println(
 			"\nResult:\n"
 			+ "Average per run     : " + timeFormat.format(totalTime / RUNS) + " ns.\n"
 			+ "Average per entity  : " + timeFormat.format(totalTime / RUNS / ENTITY_COUNT) + " ns.\n"
 			+ "Average per instance: " + timeFormat.format(totalTime / RUNS / INSTANCE_COUNT) + " ns.\n"
 		);
+		
+		// exit (no shutdown needed, the database is guaranteed to always be in a consistent state)
 		System.exit(0);
 	}
 	
+	/**
+	 * Generates {@value #ENTITY_COUNT} entities with generic / random data.
+	 * 
+	 * @return the ROOT's ArrayList instance filled with the generated entities.
+	 */
 	static ArrayList<Customer> generateEntities()
 	{
 		final Date baseDate       = XTime.date(XTime.currentYear(), 1, 1);
@@ -155,10 +181,13 @@ public class MainTestStoreCustomers
 		return customers;
 	}
 	
+	/**
+	 * Work that must be done to reset the application's state for each run to get reasonable results.
+	 */
 	static void resetTest()
 	{
 		// the central object registry holding the internal object<->objectId associations must be reset
-		STORAGE.persistenceManager().objectRegistry().truncate();
+		STORAGE.persistenceManager().objectRegistry().clear();
 		System.gc();
 	}
 
