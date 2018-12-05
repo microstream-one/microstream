@@ -21,7 +21,7 @@ import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.XTypes;
@@ -43,7 +43,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public static final <E> HashEnum<E> NewCustom(final long initialCapacity)
 	{
 		return new HashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -56,8 +56,8 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	public static final <E> HashEnum<E> NewCustom(final long desiredCapacity, final float hashDensity)
 	{
 		return new HashEnum<>(
-			Hashing.calculateHashLength(desiredCapacity, hashDensity),
-			Hashing.hashDensity(hashDensity)
+			XHashing.calculateHashLength(desiredCapacity, hashDensity),
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 
@@ -411,7 +411,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 			return this.capacity;
 		}
 
-		final int newCapacity = Hashing.padHashLength(requiredCapacity);
+		final int newCapacity = XHashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -451,7 +451,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = XHashing.validateHashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 
@@ -590,7 +590,7 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final HashEqualator<E> hashEquality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 	@Override

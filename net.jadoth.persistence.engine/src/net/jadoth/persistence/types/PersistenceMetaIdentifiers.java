@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 
 public interface PersistenceMetaIdentifiers
 {
@@ -39,8 +39,8 @@ public interface PersistenceMetaIdentifiers
 		final EqHashTable<String, Supplier<?>> entries = EqHashTable.New();
 		
 		// arbitrary constant identifiers that decouple constant resolving from class/field names.
-		entries.add("XHashEqualator:hashEqualityValue"   , Hashing::hashEqualityValue   );
-		entries.add("XHashEqualator:hashEqualityIdentity", Hashing::hashEqualityIdentity);
+		entries.add("XHashEqualator:hashEqualityValue"   , XHashing::hashEqualityValue   );
+		entries.add("XHashEqualator:hashEqualityIdentity", XHashing::hashEqualityIdentity);
 		entries.add("XEmpty:Collection"                  , X::empty                     );
 		entries.add("XEmpty:Table"                       , X::emptyTable                );
 		

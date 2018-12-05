@@ -19,7 +19,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.XTypes;
 
@@ -37,25 +37,25 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		return new EqConstHashEnum<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.<E>hashEqualityValue()
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqConstHashEnum<E> New(final int initialCapacity)
 	{
 		return new EqConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
-			Hashing.<E>hashEqualityValue()
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqConstHashEnum<E> New(final int initialCapacity, final float hashDensity)
 	{
 		return new EqConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
-			Hashing.hashDensity(hashDensity),
-			Hashing.<E>hashEqualityValue()
+			XHashing.padHashLength(initialCapacity),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
@@ -77,7 +77,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
 			hashEqualator
 		);
@@ -98,8 +98,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialCapacity),
+			XHashing.validateHashDensity(hashDensity),
 			hashEqualator
 		);
 	}
@@ -111,8 +111,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			Hashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 		newEnum.internalAddAll(entries);
@@ -124,7 +124,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		final E...  entries
 	)
 	{
-		return New(Hashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
+		return New(XHashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
 	}
 
 	@SafeVarargs
@@ -133,7 +133,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 		final E...                     entries
 	)
 	{
-		return New(Hashing.<E>hashEqualityValue(), hashDensity, entries);
+		return New(XHashing.<E>hashEqualityValue(), hashDensity, entries);
 	}
 
 	@SafeVarargs
@@ -153,8 +153,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		final EqConstHashEnum<E> newEnum = new EqConstHashEnum<>(
-			Hashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 		for(final E e : entries)
@@ -287,7 +287,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	final int internalRehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                               reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
+		final int                               reqCapacity   = XHashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainEntryLinkedHashedStrong<E>[] slots         = ChainEntryLinkedHashedStrong.<E>array(reqCapacity);
 		final int                               range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super E>          hashEqualator = this.hashEqualator;

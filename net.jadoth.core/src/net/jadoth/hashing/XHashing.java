@@ -10,7 +10,7 @@ import net.jadoth.typing.XTypes;
  *
  * @author Thomas Muenz
  */
-public final class Hashing
+public final class XHashing
 {
 	/* it is important for the singleton to have its own proper named type
 	 * to make the type indifferent to declaration order, e.g. for purposes of persisting metadata.
@@ -156,10 +156,15 @@ public final class Hashing
 		
 		return capacity;
 	}
-
-	public static final float hashDensity(final float hashDensity)
+	
+	public static final boolean isValidHashDensity(final float hashDensity)
 	{
-		if(hashDensity <= 0 || Float.isNaN(hashDensity))
+		return hashDensity > 0 && !Float.isNaN(hashDensity);
+	}
+
+	public static final float validateHashDensity(final float hashDensity)
+	{
+		if(!isValidHashDensity(hashDensity))
 		{
 			// (27.11.2018 TM)EXCP: proper exception
 			throw new IllegalArgumentException("Illegal hash density: " + hashDensity);
@@ -198,14 +203,14 @@ public final class Hashing
 	public static final <E> HashEqualator<E> deriveHashEquality(final Class<E> type)
 	{
 		return XTypes.isValueType(type)
-			? Hashing.<E>hashEqualityValue()
-			: Hashing.<E>hashEqualityIdentity()
+			? XHashing.<E>hashEqualityValue()
+			: XHashing.<E>hashEqualityIdentity()
 		;
 	}
 
 
 
-	private Hashing()
+	private XHashing()
 	{
 		// static only
 		throw new UnsupportedOperationException();

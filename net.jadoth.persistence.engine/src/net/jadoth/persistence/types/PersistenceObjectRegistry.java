@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatistics;
-import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
+import net.jadoth.persistence.internal.DefaultObjectRegistry;
 
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
@@ -38,9 +38,28 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public float hashDensity();
 	
-	public PersistenceObjectRegistry setHashDensity(float hashDensity);
+	public long minimumCapacity();
 
+	/**
+	 * Returns the current size potential before a (maybe costly) rebuild becomes necessary.
+	 * @return
+	 */
 	public long capacity();
+	
+	public boolean setHashDensity(float hashDensity);
+	
+	public boolean setMinimumCapacity(long minimumCapacity);
+	
+	public boolean setConfiguration(float hashDensity, long  minimumCapacity);
+	
+	/**
+	 * Makes sure the internal storage structure is prepared to provide a {@link #capacity()} of at least
+	 * the passed capacity value.
+	 * 
+	 * @param capacity
+	 * @return whether a rebuild of internal storage structures was necessary.
+	 */
+	public boolean ensureCapacity(long capacity);
 		
 	// registering //
 	
@@ -48,23 +67,15 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 
 	public Object optionalRegisterObject(long objectId, Object object);
 	
-	public default boolean registerConstant(final long objectId, final Object constant)
-	{
-		return this.registerObject(objectId, constant);
-	}
+	public boolean registerConstant(final long objectId, final Object constant);
 
 	/**
-	 * Cleans up internal data structures, e.g. by removing orphan entries and empty hash chains.
+	 * Consolidate internal data structures, e.g. by removing orphan entries and empty hash chains.
 	 * Depending on the implementation and the size of the registry, this can take a considerable amount of time.
+	 * 
+	 * @return whether a rebuild was required.
 	 */
-	public void cleanUp();
-	
-	// removing logic is not viable except for testing purposes, which can be done implementation-specific.
-//	public boolean removeObjectById(long objectId);
-//
-//	public boolean removeObject(Object object);
-//
-//	public <P extends PersistencePredicate> P removeObjectsBy(P filter);
+	public boolean consolidate();
 
 	/**
 	 * Clears all entries except those that are essential for a correctly executed program (e.g. constants).
@@ -94,13 +105,15 @@ public interface PersistenceObjectRegistry extends PersistenceObjectLookup
 	 */
 	public void truncateAll();
 	
+	// removing logic is not viable except for testing purposes, which can be done implementation-specific.
+	
 	public XGettingTable<String, ? extends HashStatistics> createHashStatistics();
 	
 	
 	
-	public static ObjectRegistryGrowingRange New()
+	public static DefaultObjectRegistry New()
 	{
-		return ObjectRegistryGrowingRange.New();
+		return DefaultObjectRegistry.New();
 	}
 	
 }

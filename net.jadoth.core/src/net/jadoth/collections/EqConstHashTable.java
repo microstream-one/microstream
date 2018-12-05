@@ -28,7 +28,7 @@ import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
@@ -54,16 +54,16 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		);
 	}
 
 	public static final <K, V> EqConstHashTable<K, V> NewCustom(final int initialHashLength)
 	{
 		return new EqConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		);
 	}
 
@@ -71,8 +71,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		);
 	}
 
@@ -82,9 +82,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		);
 	}
 	
@@ -95,7 +95,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<K, V>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 	
@@ -107,7 +107,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<K, V>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		).internalAddEntries(entries, mapper);
 	}
 
@@ -118,9 +118,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 
@@ -137,7 +137,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		return new EqConstHashTable<K, V>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -149,9 +149,9 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -170,7 +170,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
 			notNull(hashEqualator)
 		);
@@ -183,7 +183,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -195,8 +195,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -220,8 +220,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(entries);
 	}
@@ -248,8 +248,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
@@ -263,8 +263,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		final EqConstHashTable<K1, V1> newMap = new EqConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity),
-			Hashing.<K1>hashEqualityValue()
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.<K1>hashEqualityValue()
 		);
 		entries.iterate(new Consumer<KeyValue<K, V>>()
 		{
@@ -461,7 +461,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	final int internalRehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int reqCapacity = Hashing.padHashLength((int)(this.size / this.hashDensity));
+		final int reqCapacity = XHashing.padHashLength((int)(this.size / this.hashDensity));
 		
 		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots =
 			ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity)
@@ -1174,7 +1174,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return Hashing.<K, V>wrapAsKeyValue(EqConstHashTable.this.hashEqualator);
+		return XHashing.<K, V>wrapAsKeyValue(EqConstHashTable.this.hashEqualator);
 	}
 
 

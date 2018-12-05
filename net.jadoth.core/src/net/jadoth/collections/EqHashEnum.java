@@ -23,7 +23,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.XTypes;
@@ -41,25 +41,25 @@ implements XEnum<E>, HashCollection<E>, Composition
 		return new EqHashEnum<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.<E>hashEqualityValue()
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqHashEnum<E> NewCustom(final int initialCapacity)
 	{
 		return new EqHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
-			Hashing.<E>hashEqualityValue()
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
 	public static final <E> EqHashEnum<E> NewCustom(final int initialCapacity, final float hashDensity)
 	{
 		return new EqHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
-			Hashing.hashDensity(hashDensity),
-			Hashing.<E>hashEqualityValue()
+			XHashing.padHashLength(initialCapacity),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.<E>hashEqualityValue()
 		);
 	}
 
@@ -74,7 +74,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR,
 			hashEqualator
 		);
@@ -95,8 +95,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialCapacity),
+			XHashing.validateHashDensity(hashDensity),
 			hashEqualator
 		);
 	}
@@ -104,7 +104,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@SafeVarargs
 	public static final <E> EqHashEnum<E> New(final E... entries)
 	{
-		return NewCustom(Hashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
+		return NewCustom(XHashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
 	}
 
 	public static final <E> EqHashEnum<E> New(final XGettingCollection<E> entries)
@@ -115,7 +115,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@SafeVarargs
 	public static final <E> EqHashEnum<E> NewCustom(final float hashDensity, final E... entries)
 	{
-		return NewCustom(Hashing.<E>hashEqualityValue(), hashDensity, entries);
+		return NewCustom(XHashing.<E>hashEqualityValue(), hashDensity, entries);
 	}
 
 	@SafeVarargs
@@ -132,8 +132,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 	)
 	{
 		return new EqHashEnum<E>(
-			Hashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(entries.length), // might be too big if entries contains a lot of duplicates
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		).addAll(entries);
 	}
@@ -434,7 +434,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 			return this.capacity;
 		}
 
-		final int newCapacity = Hashing.padHashLength(requiredCapacity);
+		final int newCapacity = XHashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -447,7 +447,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	public final int rehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                               reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
+		final int                               reqCapacity   = XHashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainEntryLinkedHashedStrong<E>[] slots         = ChainEntryLinkedHashedStrong.<E>array(reqCapacity);
 		final int                               range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super E>          hashEqualator = this.hashEqualator;
@@ -517,7 +517,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = XHashing.validateHashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 

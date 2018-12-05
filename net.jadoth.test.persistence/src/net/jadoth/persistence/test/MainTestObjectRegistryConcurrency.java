@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import static net.jadoth.math.XMath.random;
 
 import net.jadoth.concurrency.XThreads;
-import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
+import net.jadoth.persistence.internal.DefaultObjectRegistry;
 import net.jadoth.typing.XTypes;
 
 @SuppressWarnings("deprecation")
@@ -15,7 +15,7 @@ public class MainTestObjectRegistryConcurrency
 
 	static final Object[] objects = new Object[COUNT];
 	static final long[]   oids    = new long[COUNT];
-	static final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(HASH_DENSITY);
+	static final DefaultObjectRegistry reg = DefaultObjectRegistry.New(HASH_DENSITY);
 	
 	static
 	{

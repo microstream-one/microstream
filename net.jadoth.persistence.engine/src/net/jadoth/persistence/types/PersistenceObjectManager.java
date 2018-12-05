@@ -52,7 +52,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		@Override
 		public void cleanUp()
 		{
-			this.objectRegistry.cleanUp();
+			this.objectRegistry.consolidate();
 		}
 
 		@Override

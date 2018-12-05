@@ -3,7 +3,7 @@ package net.jadoth.persistence.test;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatistics;
 import net.jadoth.low.XVM;
-import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
+import net.jadoth.persistence.internal.DefaultObjectRegistry;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 
@@ -18,7 +18,7 @@ public class MainTestObjectRegistryPerformance
 	public static void main(final String[] args)
 	{
 //		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(1);
-		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New();
+		final DefaultObjectRegistry reg = DefaultObjectRegistry.New();
 		
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
