@@ -10,24 +10,26 @@ import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatisticsBucketBased;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
+import net.jadoth.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
 import net.jadoth.persistence.exceptions.PersistenceExceptionNullObjectId;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.typing.KeyValue;
 
-public final class ObjectRegistryGrowingRange implements PersistenceObjectRegistry
+public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
 	/* (27.11.2018 TM)TODO: ObjectRegistry housekeeping thread
 	 * - tryCleanUp() method to random-sample-check for trimmable buckets arrays (empty buckets and/or orphans)
 	 * - thread with weak back-reference to this registry to make it stop automatically.
 	 * - "lastRegister" timestamp to not interrupt registering-heavy phases.
+	 * - some special methods like ensureCapacity must set the timestamp, too, to avoid counterproductive behavior.
 	 * - the usual config values for check intervals, sample size, etc.
 	 * - start() and stop() method in the registry for explicit control.
-	 * - a size increase ensures the thread is running, a clearAll/truncateAll terminates it.
+	 * - a size increase ensures the thread is running, any clear/truncate terminates it.
 	 */
 	
 	/* Funny find:
@@ -76,18 +78,45 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	public static final boolean isValidHashDensity(final float desiredHashDensity)
+	{
+		return XHashing.isValidHashDensity(desiredHashDensity);
+	}
 
-	public static ObjectRegistryGrowingRange New()
+	public static final float validateHashDensity(final float desiredHashDensity)
+	{
+		return XHashing.validateHashDensity(desiredHashDensity);
+	}
+	
+	public static final boolean isValidCapacity(final long desiredCapacity)
+	{
+		return desiredCapacity > 0;
+	}
+
+	public static final long validateCapacity(final long desiredCapacity)
+	{
+		if(!isValidCapacity(desiredCapacity))
+		{
+			throw new PersistenceExceptionInvalidObjectRegistryCapacity(desiredCapacity);
+		}
+		
+		return desiredCapacity;
+	}
+	
+	
+
+	public static DefaultObjectRegistry New()
 	{
 		return New(defaultHashDensity());
 	}
 
-	public static ObjectRegistryGrowingRange New(final long minimumCapacity)
+	public static DefaultObjectRegistry New(final long minimumCapacity)
 	{
 		return New(defaultHashDensity(), minimumCapacity);
 	}
 
-	public static ObjectRegistryGrowingRange New(final float hashDensity)
+	public static DefaultObjectRegistry New(final float hashDensity)
 	{
 		return New(hashDensity, 1);
 	}
@@ -102,13 +131,16 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	 * @param hashDensity.
 	 * @return
 	 */
-	public static ObjectRegistryGrowingRange New(
+	public static DefaultObjectRegistry New(
 		final float hashDensity    ,
 		final long  minimumCapacity
 	)
 	{
-		return new ObjectRegistryGrowingRange()
-			.internalSetConfiguration(Hashing.hashDensity(hashDensity), XMath.positive(minimumCapacity))
+		return new DefaultObjectRegistry()
+			.internalSetConfiguration(
+				validateHashDensity(hashDensity),
+				validateCapacity(minimumCapacity)
+			)
 			.internalReset()
 		;
 	}
@@ -119,14 +151,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// instance fields //
 	////////////////////
 	
-	private Entry[][] oidHashTable     ;
-	private Entry[][] refHashTable     ;
-	private int       hashRange        ;
-	private float     hashDensity      ;
-	private long      capacityHighBound;
-	private long      capacityLowValue ;
-	private long      minimumCapacity  ;
-	private long      size             ;
+	private Entry[][] oidHashTable;
+	private Entry[][] refHashTable;
+	private int       hashRange   ; // bit mask / modulo value used for hashing.
+	private float     hashDensity ; // average number of buckets per hash table slot for well-distributed hash values.
+	private long      capacity    ; // upper rebuild threshold.
+	private long      minCapacity ; // minimum capacity
+	private long      size        ;
 	
 	// integrated special constants registry
 	private EqHashTable<Long, Object> constantsHotRegistry = EqHashTable.New();
@@ -139,7 +170,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	// constructors //
 	/////////////////
 
-	ObjectRegistryGrowingRange()
+	DefaultObjectRegistry()
 	{
 		super();
 	}
@@ -149,37 +180,146 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+
+	@Override
+	public final synchronized int hashRange()
+	{
+		return this.oidHashTable.length;
+	}
 	
-	final ObjectRegistryGrowingRange internalSetConfiguration(
+	private int internalHashLength()
+	{
+		return this.hashRange + 1;
+	}
+
+	@Override
+	public final synchronized float hashDensity()
+	{
+		return this.hashDensity;
+	}
+	
+	@Override
+	public final synchronized long minimumCapacity()
+	{
+		return this.minCapacity;
+	}
+
+	@Override
+	public final synchronized long capacity()
+	{
+		return this.capacity;
+	}
+
+	@Override
+	public final synchronized long size()
+	{
+		return this.size;
+	}
+
+	@Override
+	public final synchronized boolean isEmpty()
+	{
+		return this.size == 0;
+	}
+	
+	private void internalSetHashDensity(final float validHashDensity)
+	{
+		this.hashDensity = validHashDensity;
+	}
+	
+	private void internalSetMinimumCapacity(final long validMinimumCapacity)
+	{
+		this.minCapacity = validMinimumCapacity;
+	}
+	
+	@Override
+	public synchronized boolean setHashDensity(final float hashDensity)
+	{
+		this.internalSetHashDensity(validateHashDensity(hashDensity));
+		
+		this.internalUpdateCapacities();
+		return this.ensureCapacity(this.minCapacity);
+	}
+	
+	@Override
+	public final synchronized boolean setConfiguration(
 		final float hashDensity    ,
 		final long  minimumCapacity
 	)
 	{
-		this.hashDensity     = hashDensity    ;
-		this.minimumCapacity = minimumCapacity;
+		// both values are checked before modifying any state
+		validateHashDensity(hashDensity);
+		validateCapacity(minimumCapacity);
+		
+		this.internalSetHashDensity(hashDensity);
+		this.internalSetMinimumCapacity(minimumCapacity);
+		
+		this.internalUpdateCapacities();
+		return this.ensureCapacity(minimumCapacity);
+	}
+	
+	@Override
+	public final synchronized boolean setMinimumCapacity(final long minimumCapacity)
+	{
+		this.internalSetMinimumCapacity(validateCapacity(minimumCapacity));
+		
+		this.internalUpdateCapacities();
+		return this.ensureCapacity(minimumCapacity);
+	}
+	
+	@Override
+	public final synchronized boolean ensureCapacity(final long desiredCapacity)
+	{
+		/*
+		 * Cannot use capacityHigh here, as this method is called after changing capacity-defining values.
+		 * Instead, the actual hash length is checked to determine if the tables really are too small.
+		 */
+		
+		validateCapacity(desiredCapacity);
+		final int requiredHashLength = this.calculateRequiredHashLength(desiredCapacity);
+		if(requiredHashLength > this.internalHashLength())
+		{
+			this.synchRebuild(requiredHashLength);
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	
+	final DefaultObjectRegistry internalSetConfiguration(
+		final float hashDensity    ,
+		final long  minimumCapacity
+	)
+	{
+		this.internalSetHashDensity(hashDensity);
+		this.internalSetMinimumCapacity(minimumCapacity);
+		
 		return this;
 	}
 	
-	private int hashLength()
+	final DefaultObjectRegistry internalReset()
 	{
-		return this.hashRange + 1;
+		return this.internalReset(this.minCapacity);
 	}
 	
-	final ObjectRegistryGrowingRange internalReset()
-	{
-		return this.internalReset(this.minimumCapacity);
-	}
-	
-	final ObjectRegistryGrowingRange internalReset(final long minimumCapacity)
+	final DefaultObjectRegistry internalReset(final long minimumCapacity)
 	{
 		this.size = 0;
-		final int hashLength = Hashing.padHashLength((long)(minimumCapacity / this.hashDensity));
+		final int hashLength = this.calculateRequiredHashLength(minimumCapacity);
 		this.setHashTables(
 			this.createHashTable(hashLength),
 			this.createHashTable(hashLength)
 		);
 				
 		return this;
+	}
+	
+	private int calculateRequiredHashLength(final long minimumCapacity)
+	{
+		return XHashing.padHashLength((long)(minimumCapacity / this.hashDensity));
 	}
 		
 	private void setHashTables(final Entry[][] oidHashTable, final Entry[][] refHashTable)
@@ -197,20 +337,10 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	
 	private void internalUpdateCapacities()
 	{
-		final int hashLength = this.hashLength();
-		
-		this.capacityHighBound = hashLength >= XMath.highestPowerOf2_int()
+		this.capacity = this.internalHashLength() >= XMath.highestPowerOf2_int()
 			? Long.MAX_VALUE
-			: (long)(this.hashLength() * this.hashDensity)
+			: (long)(this.internalHashLength() * this.hashDensity)
 		;
-		this.capacityLowValue = (long)(
-			Hashing.padHashLength(
-				Math.max(
-					(long)(this.minimumCapacity / this.hashDensity),
-					hashLength / 2)
-				)
-			* this.hashDensity
-		);
 	}
 
 	private synchronized boolean synchronizedAdd(final long objectId, final Object object)
@@ -222,14 +352,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 		synchInsertEntry(this.oidHashTable, this.refHashTable, new Entry(objectId, object), this.hashRange);
 
-		if(++this.size >= this.capacityHighBound)
+		if(++this.size >= this.capacity)
 		{
 			this.synchIncreaseStorage();
 		}
 
 		return true;
 	}
-	
 	
 	private boolean synchAddCheck(final long objectId, final Object object)
 	{
@@ -310,7 +439,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 
 		synchInsertEntry(this.oidHashTable, this.refHashTable, new Entry(objectId, object), this.hashRange);
 
-		if(++this.size >= this.capacityHighBound)
+		if(++this.size >= this.capacity)
 		{
 			this.synchIncreaseStorage();
 		}
@@ -364,27 +493,85 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 	@Override
-	public synchronized void cleanUp()
+	public synchronized boolean consolidate()
 	{
-		/* FIXME ObjectRegistryGrowingRange#cleanUp()
-		 * - count all non-empty entries.
-		 * - rebuild if required
-		 * - consolidate all buckets
-		 */
-		throw new net.jadoth.meta.NotImplementedYetError();
+		// both tables always have the same length
+		final Entry[][] oidHashTable = this.oidHashTable;
+		final Entry[][] refHashTable = this.refHashTable;
+		
+		int size = 0;
+		for(int h = 0; h < oidHashTable.length; h++)
+		{
+			// the primary branch (per oids) is used to determine the size
+			size += synchCleanUpBucket(oidHashTable, h);
+			
+			// the secondard branch is just updated
+			synchCleanUpBucket(refHashTable, h);
+		}
+		
+		this.size = size;
+		
+		return this.synchCheckForDecrease();
+	}
+	
+	private static int synchCleanUpBucket(final Entry[][] hashTable, final int h)
+	{
+		final Entry[] buckets = hashTable[h];
+		if(buckets == null)
+		{
+			return 0;
+		}
+		
+		int entryCount = 0;
+		for(int i = 0; i < buckets.length; i++)
+		{
+			if(buckets[i] != null && buckets[i].get() != null)
+			{
+				entryCount++;
+			}
+		}
+		
+		if(entryCount == 0)
+		{
+			hashTable[h] = null;
+			return 0;
+		}
+		
+		final Entry[] newBuckets = new Entry[entryCount];
+		int t = 0;
+		for(int i = 0; i < buckets.length; i++)
+		{
+			if(buckets[i] != null && buckets[i].get() != null)
+			{
+				newBuckets[t++] = buckets[i];
+			}
+		}
+		
+		return t;
+	}
+	
+	private boolean synchCheckForDecrease()
+	{
+		final int requiredHashLength = this.calculateRequiredHashLength(this.size);
+		if(requiredHashLength != this.internalHashLength())
+		{
+			this.synchRebuild(requiredHashLength);
+			
+			return true;
+		}
+		
+		return false;
 	}
 
-
-
-	private static long lookupOid(final Entry[] refBuckets, final Object object)
+	private static long lookupOid(final Entry[] buckets, final Object object)
 	{
-		if(refBuckets != null)
+		if(buckets != null)
 		{
-			for(int i = 0; i < refBuckets.length; i++)
+			for(int i = 0; i < buckets.length; i++)
 			{
-				if(refBuckets[i] != null && refBuckets[i].get() == object)
+				if(buckets[i] != null && buckets[i].get() == object)
 				{
-					return refBuckets[i].objectId;
+					return buckets[i].objectId;
 				}
 			}
 		}
@@ -392,15 +579,15 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return Persistence.nullId();
 	}
 
-	private static Object lookupObject(final Entry[] oidBuckets, final long oid)
+	private static Object lookupObject(final Entry[] buckets, final long oid)
 	{
-		if(oidBuckets != null)
+		if(buckets != null)
 		{
-			for(int i = 0; i < oidBuckets.length; i++)
+			for(int i = 0; i < buckets.length; i++)
 			{
-				if(oidBuckets[i] != null && oidBuckets[i].objectId == oid)
+				if(buckets[i] != null && buckets[i].objectId == oid)
 				{
-					return oidBuckets[i].get();
+					return buckets[i].get();
 				}
 			}
 		}
@@ -408,13 +595,13 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		return null;
 	}
 
-	private static boolean containsOid(final Entry[] oidBuckets, final long oid)
+	private static boolean containsOid(final Entry[] buckets, final long oid)
 	{
-		if(oidBuckets != null)
+		if(buckets != null)
 		{
-			for(int i = 0; i < oidBuckets.length; i++)
+			for(int i = 0; i < buckets.length; i++)
 			{
-				if(oidBuckets[i] != null && oidBuckets[i].objectId == oid)
+				if(buckets[i] != null && buckets[i].objectId == oid)
 				{
 					return true;
 				}
@@ -424,11 +611,11 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	}
 
 
-	private static void validateEntryOid(final Entry entry, final long oid, final Object ref)
+	private static void validateEntryOid(final Entry entry, final long objectId, final Object object)
 	{
-		if(entry.objectId != oid)
+		if(entry.objectId != objectId)
 		{
-			throw new PersistenceExceptionConsistencyObjectId(ref, entry.objectId, oid);
+			throw new PersistenceExceptionConsistencyObjectId(object, entry.objectId, objectId);
 		}
 	}
 
@@ -475,10 +662,10 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		}
 	}
 
-	private static void synchInsertEntry(final Entry[][] slotsPerOid, final Entry[][] slotsPerRef, final Entry entry)
+	private static void synchInsertEntry(final Entry[][] oidHashTable, final Entry[][] refHashTable, final Entry entry)
 	{
-		synchPutEntry(slotsPerOid, (int)entry.objectId & slotsPerOid.length - 1, entry);
-		synchPutEntry(slotsPerRef,      entry.refHash  & slotsPerOid.length - 1, entry);
+		synchPutEntry(oidHashTable, (int)entry.objectId & oidHashTable.length - 1, entry);
+		synchPutEntry(refHashTable,      entry.refHash  & oidHashTable.length - 1, entry);
 	}
 	
 	// The parameter order significantly influences performance. Do not change.
@@ -563,46 +750,6 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 			}
 		}
 	}
-
-	@Override
-	public final synchronized long size()
-	{
-		return this.size;
-	}
-
-	@Override
-	public final synchronized boolean isEmpty()
-	{
-		return this.size == 0;
-	}
-
-	@Override
-	public final synchronized int hashRange()
-	{
-		return this.oidHashTable.length;
-	}
-
-	@Override
-	public final synchronized float hashDensity()
-	{
-		return this.hashDensity;
-	}
-	
-	@Override
-	public synchronized ObjectRegistryGrowingRange setHashDensity(final float hashDensity)
-	{
-		// (28.11.2018 TM)NOTE: this implementation will be replaced soon. No point in improving it.
-		throw new net.jadoth.meta.NotImplementedYetError();
-//		this.hashDensity = Hashing.hashDensity(hashDensity);
-//		// ToDO: recalculate capacity, check for rebuild
-//		return this;
-	}
-
-	@Override
-	public final synchronized long capacity()
-	{
-		return this.capacityHighBound;
-	}
 	
 	@Override
 	public final synchronized void clear()
@@ -638,7 +785,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		// reinitialize storage strucuture with at least enough capacity for the incoming constants.
 		this.synchEnsureConstantsColdStorage();
 		
-		this.internalReset(Math.max(this.constantsColdStorageObjects.length, this.minimumCapacity));
+		this.internalReset(Math.max(this.constantsColdStorageObjects.length, this.minCapacity));
 		
 		this.reregisterConstants();
 	}
@@ -647,7 +794,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 	public final synchronized void truncateAll()
 	{
 		// hash table reset, no constants reregistering.
-		this.internalReset(this.minimumCapacity);
+		this.internalReset();
 	}
 
 	@Override
@@ -939,6 +1086,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		{
 			distributionTable.add(l, zero);
 		}
+		
 		distributionTable.keys().sort(XSort::compare);
 	}
 
@@ -975,12 +1123,7 @@ public final class ObjectRegistryGrowingRange implements PersistenceObjectRegist
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		/**
-		 * @return {@code true} if this entry has lost its referent.
-		 *
-		 * @see #isEmpty()
-		 */
+		
 		final boolean isEmpty()
 		{
 			return this.get() == null;

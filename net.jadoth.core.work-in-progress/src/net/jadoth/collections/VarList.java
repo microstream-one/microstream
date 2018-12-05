@@ -19,7 +19,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional.IndexProcedure;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 
@@ -676,7 +676,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final Equalator<? super E> equality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 	@Override

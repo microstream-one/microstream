@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.persistence.internal.ObjectRegistryGrowingRange;
+import net.jadoth.persistence.internal.DefaultObjectRegistry;
 
 
 public class MainTestObjectRegistry
@@ -12,7 +12,7 @@ public class MainTestObjectRegistry
 
 	public static void main(final String[] args)
 	{
-		final ObjectRegistryGrowingRange reg = ObjectRegistryGrowingRange.New(COUNT);
+		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(COUNT);
 
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)

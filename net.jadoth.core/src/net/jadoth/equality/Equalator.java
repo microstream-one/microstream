@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.Comparator;
 import java.util.function.Predicate;
 
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 
 /**
  * @author Thomas Muenz
@@ -42,13 +42,13 @@ public interface Equalator<T>
 	public static <E> Equalator<E> value()
 	{
 		// reusing the same instances has neither memory nor performance disadvantages, only referential advantages
-		return Hashing.hashEqualityValue();
+		return XHashing.hashEqualityValue();
 	}
 
 	public static <E> Equalator<E> identity()
 	{
 		// reusing the same instances has neither memory nor performance disadvantages, only referential advantages
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 

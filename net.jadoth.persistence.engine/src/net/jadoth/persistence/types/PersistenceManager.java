@@ -124,7 +124,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		@Override
 		public final void cleanUp()
 		{
-			this.objectRegistry.cleanUp();
+			this.objectRegistry.consolidate();
 		}
 				
 		@Override

@@ -36,7 +36,7 @@ import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
@@ -71,7 +71,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	)
 	{
 		return new HashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -82,7 +82,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	{
 		return new HashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity)
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 
@@ -92,8 +92,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	)
 	{
 		return new HashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 	public static final <K, V> HashTable<K, V> New(
@@ -112,8 +112,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	)
 	{
 		return new HashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity)
 		).internalAddEntries(entries);
 	}
 
@@ -142,8 +142,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	)
 	{
 		return new HashTable<K, V>(
-			Hashing.calculateHashLength(desiredCapacity, hashDensity),
-			Hashing.hashDensity(hashDensity)
+			XHashing.calculateHashLength(desiredCapacity, hashDensity),
+			XHashing.validateHashDensity(hashDensity)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -169,7 +169,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	{
 		final HashTable<KO, VO> newMap = new HashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity)
+			XHashing.validateHashDensity(hashDensity)
 		);
 		entries.iterate(e->
 		{
@@ -761,7 +761,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			return this.capacity;
 		}
 
-		final int newCapacity = Hashing.padHashLength(requiredCapacity);
+		final int newCapacity = XHashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -801,7 +801,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = XHashing.validateHashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 
@@ -1150,7 +1150,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final HashEqualator<K> hashEquality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -1910,7 +1910,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return Hashing.keyValueHashEqualityKeyIdentity();
+		return XHashing.keyValueHashEqualityKeyIdentity();
 	}
 
 	@Override

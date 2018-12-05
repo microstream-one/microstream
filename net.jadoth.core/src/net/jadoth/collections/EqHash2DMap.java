@@ -8,7 +8,7 @@ import java.util.function.Function;
 import net.jadoth.collections.types.X2DMap;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 
@@ -21,8 +21,8 @@ public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composit
 	public static final <K1, K2, V> EqHash2DMap<K1, K2, V> New()
 	{
 		return new EqHash2DMap<>(
-			Hashing.<K1>hashEqualityValue(),
-			Hashing.<K2>hashEqualityValue()
+			XHashing.<K1>hashEqualityValue(),
+			XHashing.<K2>hashEqualityValue()
 		);
 	}
 
@@ -57,8 +57,8 @@ public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composit
 	)
 	{
 		super();
-		this.k1HashEqualator = coalesce(k1HashEqualator, Hashing.<K1>hashEqualityValue());
-		this.k2HashEqualator = coalesce(k2HashEqualator, Hashing.<K2>hashEqualityValue());
+		this.k1HashEqualator = coalesce(k1HashEqualator, XHashing.<K1>hashEqualityValue());
+		this.k2HashEqualator = coalesce(k2HashEqualator, XHashing.<K2>hashEqualityValue());
 		this.tree1           = EqHashTable.<K1, EqHashTable<K2, V>>New(this.k1HashEqualator);
 	}
 

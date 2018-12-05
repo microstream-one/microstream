@@ -30,7 +30,7 @@ import net.jadoth.functional.Aggregator;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
@@ -88,7 +88,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength)
 	{
 		return new ConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -97,15 +97,15 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		return new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity)
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 
 	public static final <K, V> ConstHashTable<K, V> NewCustom(final int initialHashLength, final float hashDensity)
 	{
 		return new ConstHashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 	public static final <K, V> ConstHashTable<K, V> New(
@@ -125,8 +125,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity)
 		).internalAddEntries(entries);
 	}
 
@@ -154,8 +154,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	)
 	{
 		return new ConstHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -168,7 +168,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	{
 		final ConstHashTable<KO, VO> newMap = new ConstHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity)
+			XHashing.validateHashDensity(hashDensity)
 		);
 		entries.iterate(e->
 		{
@@ -596,7 +596,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<K> hashEquality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -1008,7 +1008,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return Hashing.keyValueHashEqualityKeyIdentity();
+		return XHashing.keyValueHashEqualityKeyIdentity();
 	}
 
 

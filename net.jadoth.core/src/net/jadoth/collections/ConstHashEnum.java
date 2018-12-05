@@ -18,7 +18,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.XTypes;
 
@@ -42,7 +42,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	public static final <E> ConstHashEnum<E> NewCustom(final int initialCapacity)
 	{
 		return new ConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
+			XHashing.padHashLength(initialCapacity),
 			DEFAULT_HASH_FACTOR
 		);
 	}
@@ -50,8 +50,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	public static final <E> ConstHashEnum<E> NewCustom(final int initialCapacity, final float hashDensity)
 	{
 		return new ConstHashEnum<>(
-			Hashing.padHashLength(initialCapacity),
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(initialCapacity),
+			XHashing.validateHashDensity(hashDensity)
 		);
 	}
 
@@ -61,8 +61,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	)
 	{
 		final ConstHashEnum<E> newEnum = new ConstHashEnum<>(
-			Hashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
-			Hashing.hashDensity(hashDensity)
+			XHashing.padHashLength(entries.size()), // might be too big if entries contains a lot of duplicates
+			XHashing.validateHashDensity(hashDensity)
 		);
 		newEnum.internalAddAll(entries);
 		return newEnum;
@@ -72,8 +72,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	public static final <E> ConstHashEnum<E> NewCustom(final float hashDensity, final E... entries)
 	{
 		final ConstHashEnum<E> newEnum = new ConstHashEnum<>(
-			Hashing.calculateHashLength(entries.length, hashDensity),
-			Hashing.hashDensity(hashDensity)
+			XHashing.calculateHashLength(entries.length, hashDensity),
+			XHashing.validateHashDensity(hashDensity)
 		);
 		for(final E e : entries)
 		{
@@ -383,7 +383,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	@Override
 	public final HashEqualator<E> hashEquality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 	@Override
@@ -774,7 +774,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	@Override
 	public final HashEqualator<E> equality()
 	{
-		return Hashing.hashEqualityIdentity();
+		return XHashing.hashEqualityIdentity();
 	}
 
 }

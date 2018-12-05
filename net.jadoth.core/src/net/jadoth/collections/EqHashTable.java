@@ -35,7 +35,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.hashing.Hashing;
+import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.KeyValue;
@@ -65,7 +65,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		);
 	}
 
@@ -74,9 +74,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
-			Hashing.hashEqualityValue()
+			XHashing.hashEqualityValue()
 		);
 	}
 
@@ -86,8 +86,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		);
 	}
 
@@ -97,9 +97,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		);
 	}
 	public static final <K, V> EqHashTable<K, V> New(
@@ -118,9 +118,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		).internalAddEntries(entries);
 	}
 
@@ -149,9 +149,9 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
-			Hashing.hashEqualityValue()
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
+			XHashing.hashEqualityValue()
 		).internalAddEntries(new ArrayView<>(entries));
 	}
 
@@ -172,7 +172,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			Hashing.padHashLength(initialHashLength),
+			XHashing.padHashLength(initialHashLength),
 			DEFAULT_HASH_FACTOR,
 			notNull(hashEqualator)
 		);
@@ -185,7 +185,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	{
 		return new EqHashTable<>(
 			DEFAULT_HASH_LENGTH,
-			Hashing.hashDensity(hashDensity),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -197,8 +197,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		);
 	}
@@ -223,8 +223,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(entries);
 	}
@@ -251,8 +251,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	)
 	{
 		return new EqHashTable<K, V>(
-			Hashing.padHashLength(initialHashLength),
-			Hashing.hashDensity(hashDensity),
+			XHashing.padHashLength(initialHashLength),
+			XHashing.validateHashDensity(hashDensity),
 			notNull(hashEqualator)
 		).internalAddEntries(new ArrayView<>(entries));
 	}
@@ -848,7 +848,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 			return this.capacity;
 		}
 
-		final int newCapacity = Hashing.padHashLength(requiredCapacity);
+		final int newCapacity = XHashing.padHashLength(requiredCapacity);
 		if(this.slots.length != newCapacity)
 		{
 			this.rebuildStorage(newCapacity); // rebuild storage with new capacity
@@ -861,7 +861,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	public final int rehash()
 	{
 		// local helper variables, including capacity recalculation while at rebuilding anyway
-		final int                                          reqCapacity   = Hashing.padHashLength((int)(this.size / this.hashDensity));
+		final int                                          reqCapacity   = XHashing.padHashLength((int)(this.size / this.hashDensity));
 		final ChainMapEntryLinkedHashedStrongStrong<K, V>[] slots         = ChainMapEntryLinkedHashedStrongStrong.<K, V>array(reqCapacity);
 		final int                                          range         = reqCapacity >= Integer.MAX_VALUE ? Integer.MAX_VALUE : reqCapacity - 1;
 		final HashEqualator<? super K>                     hashEqualator = this.hashEqualator;
@@ -931,7 +931,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final void setHashDensity(final float hashDensity)
 	{
-		this.capacity = (int)(this.slots.length * (this.hashDensity = Hashing.hashDensity(hashDensity))); // cast caps at max value
+		this.capacity = (int)(this.slots.length * (this.hashDensity = XHashing.validateHashDensity(hashDensity))); // cast caps at max value
 		this.optimize();
 	}
 
@@ -2065,7 +2065,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final HashEqualator<KeyValue<K, V>> equality()
 	{
-		return Hashing.<K, V>wrapAsKeyValue(EqHashTable.this.hashEqualator);
+		return XHashing.<K, V>wrapAsKeyValue(EqHashTable.this.hashEqualator);
 	}
 
 	@Override
