@@ -51,7 +51,7 @@ public interface PersistenceStorer<M> extends Storer
 		 */
 		public PersistenceStorer<M> createLazyStorer(
 			PersistenceObjectManager         objectManager     ,
-			PersistenceObjectSupplier        objectSupplier    ,
+			PersistenceObjectRetriever        objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
@@ -70,7 +70,7 @@ public interface PersistenceStorer<M> extends Storer
 		 */
 		public default PersistenceStorer<M> createStorer(
 			final PersistenceObjectManager         objectManager     ,
-			final PersistenceObjectSupplier        objectSupplier    ,
+			final PersistenceObjectRetriever        objectSupplier    ,
 			final PersistenceTypeHandlerManager<M> typeManager       ,
 			final PersistenceTarget<M>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
@@ -98,7 +98,7 @@ public interface PersistenceStorer<M> extends Storer
 		 */
 		public PersistenceStorer<M> createEagerStorer(
 			PersistenceObjectManager             objectManager     ,
-			PersistenceObjectSupplier            objectSupplier    ,
+			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider

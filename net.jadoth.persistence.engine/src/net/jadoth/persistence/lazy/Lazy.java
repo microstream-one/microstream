@@ -2,7 +2,7 @@ package net.jadoth.persistence.lazy;
 
 import net.jadoth.chars.XChars;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceObjectSupplier;
+import net.jadoth.persistence.types.PersistenceObjectRetriever;
 import net.jadoth.reference.LazyReferencing;
 
 
@@ -69,12 +69,12 @@ public final class Lazy<T> implements LazyReferencing<T>
 		return register(new Lazy<>(null, objectId, null));
 	}
 
-	public static final <T> Lazy<T> New(final long objectId, final PersistenceObjectSupplier loader)
+	public static final <T> Lazy<T> New(final long objectId, final PersistenceObjectRetriever loader)
 	{
 		return register(new Lazy<>(null, objectId, loader));
 	}
 
-	public static final <T> Lazy<T> New(final T subject, final long objectId, final PersistenceObjectSupplier loader)
+	public static final <T> Lazy<T> New(final T subject, final long objectId, final PersistenceObjectRetriever loader)
 	{
 		return register(new Lazy<>(subject, objectId, loader));
 	}
@@ -112,7 +112,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	/**
 	 * The cached object id of the not loaded actual instance to later load it lazily.
 	 * Although this value never changes logically during the lifetime of an instance,
-	 * it might be delayed initialized. See {@link #link(long, PersistenceObjectSupplier)} and its use site(s).
+	 * it might be delayed initialized. See {@link #link(long, PersistenceObjectRetriever)} and its use site(s).
 	 */
 	// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for samge package in another project
 	transient long objectId;
@@ -124,7 +124,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	 * in the first place but did not to do its work later lazyely. Apart from this idea,
 	 * there is no "hard" contract on what the loader instance should specifically be.
 	 */
-	private transient PersistenceObjectSupplier loader;
+	private transient PersistenceObjectRetriever loader;
 
 
 
@@ -150,7 +150,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	 * @param objectId the subject's object id under which it can be reconstructed by the provided loader
 	 * @param loader the loader used to reconstruct the actual instance originally referenced
 	 */
-	private Lazy(final T subject, final long objectId, final PersistenceObjectSupplier loader)
+	private Lazy(final T subject, final long objectId, final PersistenceObjectRetriever loader)
 	{
 		super();
 		this.subject  = subject ;
@@ -203,7 +203,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 		}
 	}
 
-	final synchronized void setLoader(final PersistenceObjectSupplier loader)
+	final synchronized void setLoader(final PersistenceObjectRetriever loader)
 	{
 		/*
 		 * this method might be called when storing or building to/from different sources
@@ -222,7 +222,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 		this.loader = loader;
 	}
 
-	final synchronized void link(final long objectId, final PersistenceObjectSupplier loader)
+	final synchronized void link(final long objectId, final PersistenceObjectRetriever loader)
 	{
 		this.validateObjectIdToBeSet(objectId);
 		this.objectId = objectId;
@@ -270,7 +270,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	private synchronized void load()
 	{
 		// this context doesn't have to do anything on an exception inside the get(), just pass it along
-		this.subject = (T)this.loader.get(this.objectId);
+		this.subject = (T)this.loader.getObject(this.objectId);
 	}
 
 	final synchronized void clearIfTimedout(final long millisecondThreshold)

@@ -1,7 +1,5 @@
 package net.jadoth.persistence.types;
 
-
-
 public interface PersistenceLoader<M> extends PersistenceRetrieving
 {
 	public PersistenceRoots loadRoots();
@@ -13,8 +11,9 @@ public interface PersistenceLoader<M> extends PersistenceRetrieving
 	public interface Creator<M>
 	{
 		public PersistenceLoader<M> createBuilder(
-			PersistenceContext<M>        district,
-			PersistenceSourceSupplier<M> source
+			final PersistenceTypeHandlerLookup<M> typeLookup,
+			final PersistenceObjectRegistry       registry  ,
+			PersistenceSourceSupplier<M>          source
 		);
 	}
 

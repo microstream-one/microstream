@@ -1,6 +1,7 @@
 package net.jadoth.persistence.types;
 
 
+// (06.12.2018 TM)FIXME: delete?
 public interface PersistenceBuildItem<M>
 {
 	public interface Creator<M, I extends PersistenceBuildItem<M>>

@@ -13,9 +13,10 @@ import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceBuildItem;
 import net.jadoth.persistence.types.PersistenceBuilder;
-import net.jadoth.persistence.types.PersistenceContext;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
+import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 
 public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedure
 {
@@ -43,7 +44,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceContext<Binary>                    district;
+		// may be a relay lookup that provides special handlers providing logic
+		private final PersistenceTypeHandlerLookup<Binary>           typeLookup;
+		private final PersistenceObjectRegistry                      registry  ;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 
 		private final PersistenceInstanceHandler skipObjectRegisterer = (oid, instance) ->
@@ -58,10 +61,14 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		// constructors     //
 		/////////////////////
 
-		protected AbstractImplementation(final PersistenceContext<Binary> district)
+		protected AbstractImplementation(
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry
+		)
 		{
 			super();
-			this.district = notNull(district);
+			this.typeLookup = notNull(typeLookup);
+			this.registry   = notNull(registry)  ;
 		}
 
 
@@ -108,26 +115,26 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		private Object getEffectiveInstance(final Entry entry)
 		{
 			/* tricky concurrent part:
-			 * if a proper district instance already was registered, simply use that.
+			 * if a proper context instance already was registered, simply use that.
 			 *
 			 * Otherwise:
-			 * try to register thread-locally created instance as the district instance for the OID at this point and in
-			 * the process use a meanwhile created and registered district instance instead and ignore the own local one
+			 * try to register thread-locally created instance as the context instance for the OID at this point and in
+			 * the process use a meanwhile created and registered context instance instead and ignore the own local one
 			 *
 			 * This way, every thread will use the same instance for a given OID even if multiple threads
 			 * are loading and creating different instances for the same OID concurrently.
 			 * The only requirement is that the registry's register method is thread-safe.
 			 *
-			 * Note that the district field is still a thread-local field, just one that points to an instance
-			 * known by the district. The only true multithread-ly used part is the district itself.
+			 * Note that the context field is still a thread-local field, just one that points to an instance
+			 * known by the context. The only true multithread-ly used part is the context itself.
 			 *
-			 * Note on instance type: both ways that set instances here (local and district),
+			 * Note on instance type: both ways that set instances here (local and context),
 			 * namely registry and type handler, are trusted to provide (instantiate or know) instances of the
 			 * correct type.
 			 */
-			return entry.districtInstance != null
-				? entry.districtInstance
-				: (entry.districtInstance = this.district.optionalRegisterObject(
+			return entry.contextInstance != null
+				? entry.contextInstance
+				: (entry.contextInstance = this.registry.optionalRegisterObject(
 					entry.oid,
 					entry.localInstance
 				))
@@ -138,7 +145,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			final PersistenceTypeHandler<Binary, ?> handler;
 			
-			if((handler = this.district.lookupTypeHandler(oid, tid)) == null)
+			if((handler = this.typeLookup.lookupTypeHandler(oid, tid)) == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
 			}
@@ -146,9 +153,9 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			return handler;
 		}
 
-		protected Entry createBuildItem(final long objectId, final long typeId)
+		protected final Entry createBuildItem(final long objectId, final long typeId)
 		{
-			final Entry buildItem = this.district.createBuildItem(this, objectId, typeId);
+			final Entry buildItem = this.createBuildItem(objectId, typeId);
 			
 			if(buildItem.handler == null)
 			{
@@ -179,12 +186,12 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 //			);
 
 			/* (08.07.2015 TM)TODO: unnecessary local instance
-			 * there was a case where an unnecessary local instance was created because the district instance could not
+			 * there was a case where an unnecessary local instance was created because the context instance could not
 			 * have been found before. The instance was an enum constants array, so it should have been findable already.
 			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
 			 * special case (constant registration or whatever)
 			 */
-			if(buildItem.districtInstance == null)
+			if(buildItem.contextInstance == null)
 			{
 				buildItem.localInstance = buildItem.handler.create(buildItem);
 			}
@@ -197,8 +204,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			/*
 			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
-			 * Note that the handler has been provided by the district instance, so it can already be a
-			 * district-specific handler implementation.
+			 * Note that the handler has been provided by the context instance, so it can already be a
+			 * context-specific handler implementation.
 			 */
 
 //			XDebug.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
@@ -221,7 +228,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		@Override
 		public final Entry createBuildItem(final long oid)
 		{
-			return this.district.createBuildItem(this, oid);
+			return this.createSkipBuildItem(oid, null);
 		}
 
 		protected void addChunks(final XGettingCollection<? extends Binary> chunks)
@@ -351,7 +358,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				{
 					continue;
 				}
-				entry.handler.complete(entry, entry.districtInstance, this);
+				entry.handler.complete(entry, entry.contextInstance, this);
 			}
 		}
 
@@ -359,16 +366,11 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			for(Entry entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
-				if(type.isInstance(entry.districtInstance))
+				if(type.isInstance(entry.contextInstance))
 				{
-					collector.accept(type.cast(entry.districtInstance));
+					collector.accept(type.cast(entry.contextInstance));
 				}
 			}
-		}
-
-		protected final void commit()
-		{
-			this.district.commit();
 		}
 
 		@Override
@@ -411,7 +413,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		protected final Object internalGetFirst()
 		{
-			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.districtInstance;
+			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.contextInstance;
 		}
 
 		private void rebuildBuildItems()
@@ -453,7 +455,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		 * - null
 		 * - already registered as complete build item
 		 * - registered as to be skipped dummy build item
-		 * - decided by the district to be already present (e.g. a class/constant/entity that shall not be updated)
+		 * - decided by the context to be already present (e.g. a class/constant/entity that shall not be updated)
 		 */
 		protected final boolean isUnrequiredReference(final long oid)
 		{
@@ -472,8 +474,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 				}
 			}
 
-			// if district deems the reference to be unrequired, simply register it as a build item right away
-			if(this.district.handleKnownObject(oid, this.skipObjectRegisterer))
+			// if the context deems the reference to be unrequired, simply register it as a build item right away
+			if(this.context.handleKnownObject(oid, this.skipObjectRegisterer))
 			{
 				return true;
 			}
@@ -503,7 +505,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 					return;
 				}
 			}
-			this.putBuildItem(this.createBuildItem(oid));
+			this.putBuildItem(this.createSkipBuildItem(oid, null));
 		}
 
 		protected final void clearBuildItems()
@@ -521,8 +523,6 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		//////////////////////////
 		// build items map end //
 		//////////////////////////////////////////////////////////////////////////
-
-
 	}
 
 
@@ -535,7 +535,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 
 		final long oid;
 		PersistenceTypeHandler<Binary, Object> handler;
-		Object districtInstance, localInstance;
+		Object contextInstance, localInstance;
 		Entry next, link;
 
 
@@ -548,26 +548,14 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		{
 			super();
 			this.oid = 0L;
-			
-			// fields are already initialized to null by the JVM. No need to do the work twice.
-//			this.handler          = null;
-//			this.districtInstance = null;
-//			this.localInstance    = null;
-//			this.link             = null;
-//			this.next             = null;
 		}
 
-		Entry(final long oid, final Object districtInstance, final PersistenceTypeHandler<Binary, Object> handler)
+		Entry(final long oid, final Object contextInstance, final PersistenceTypeHandler<Binary, Object> handler)
 		{
 			super();
-			this.oid              = oid    ;
-			this.handler          = handler;
-			this.districtInstance = districtInstance;
-			
-			// fields are already initialized to null by the JVM. No need to do the work twice.
-//			this.localInstance    = null   ;
-//			this.link             = null   ;
-//			this.next             = null   ;
+			this.oid             = oid             ;
+			this.handler         = handler         ;
+			this.contextInstance = contextInstance;
 		}
 
 

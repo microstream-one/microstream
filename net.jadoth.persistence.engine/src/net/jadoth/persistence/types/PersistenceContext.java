@@ -6,16 +6,9 @@ import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
 
 
 
-/* Note from Idea:
- * (06.10.2012): PersistenceDistrict
- * How about bundling Registry and TypeHandlerLookup together in a kind of district instance?
- * The two are closely related in practice because local (e.g. thread-local) participants of a
- * persistence network may for example only create/update instances in a local registry,
- * while in a global registry, instances my only be validated instead of actually updated.
- * So the global registry would need another closely related set of type handlers than a local
- * "do-whatever-i-like"-registry.
- * The bundle type could also provide means to synchronize all/selected instances from one to another
- * (e.g. to validate&merge from local into global context).
+/**
+ * Type to define a local persistence context for handling entities. For example to separate the entity tracking state
+ * (registry) in a usage for communiction from the global registry tracking the application's persistent entity graph.
  */
 public interface PersistenceContext<M>
 {
@@ -57,7 +50,7 @@ public interface PersistenceContext<M>
 	public Object lookupObject(long objectId, long typeId);
 
 	/**
-	 * Commits all uncommitted instances to an effective state, e.g. a parent district or global object registry.
+	 * Commits all uncommitted instances to an effective state, e.g. a parent context or global object registry.
 	 * May be a no-op if no such action is applicable (e.g. global object registry is already used internally or
 	 * used registry is a local stand-alone instance)
 	 */
@@ -82,11 +75,11 @@ public interface PersistenceContext<M>
 		// instance fields  //
 		/////////////////////
 
-		// may be a relay lookup that provides special handlers with filtering
+		// may be a relay lookup that provides special handlers providing logic
 		private final PersistenceTypeHandlerLookup<M> typeLookup;
 		
 		// global registry to synch with other threads
-		private final PersistenceObjectRegistry       registry  ;
+		private final PersistenceObjectRegistry registry;
 
 
 
