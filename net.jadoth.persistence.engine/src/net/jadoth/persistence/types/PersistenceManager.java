@@ -51,6 +51,33 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 	public void close();
 
 
+	
+	public static <M> PersistenceManager<M> New(
+		final PersistenceObjectRegistry        objectRegistering ,
+		final PersistenceObjectManager         objectManager     ,
+		final PersistenceTypeHandlerManager<M> typeHandlerManager,
+		final PersistenceContextCreator<M>     contextCreator    ,
+		final PersistenceStorer.Creator<M>     storerCreator     ,
+		final PersistenceLoader.Creator<M>     loaderCreator     ,
+		final PersistenceRegisterer.Creator    registererCreator ,
+		final PersistenceTarget<M>             target            ,
+		final PersistenceSource<M>             source            ,
+		final BufferSizeProviderIncremental    bufferSizeProvider
+	)
+	{
+		return new PersistenceManager.Implementation<>(
+			notNull(objectRegistering) ,
+			notNull(objectManager)     ,
+			notNull(typeHandlerManager),
+			notNull(contextCreator)    ,
+			notNull(storerCreator)     ,
+			notNull(loaderCreator)     ,
+			notNull(registererCreator) ,
+			notNull(target)            ,
+			notNull(source)            ,
+			notNull(bufferSizeProvider)
+		);
+	}
 
 	public final class Implementation<M> implements PersistenceManager<M>, Unpersistable
 	{
@@ -58,20 +85,21 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		// instance fields  //
 		/////////////////////
 
-		// swizzling components //
-		private final PersistenceObjectRegistry                  objectRegistry    ;
-		private final PersistenceObjectManager             objectManager     ;
-		private final PersistenceRegisterer.Creator    registererCreator ;
+		// instance registration components //
+		private final PersistenceObjectRegistry     objectRegistry   ;
+		private final PersistenceObjectManager      objectManager    ;
+		private final PersistenceRegisterer.Creator registererCreator;
 
 		// instance handling components //
 		private final PersistenceTypeHandlerManager<M> typeHandlerManager;
+		private final PersistenceContextCreator<M>     contextCreator    ;
 		private final PersistenceStorer.Creator<M>     storerCreator     ;
 		private final PersistenceLoader.Creator<M>     loaderCreator     ;
 		private final BufferSizeProviderIncremental    bufferSizeProvider;
 
 		// source and target //
-		private final PersistenceSource<M>             source            ;
-		private final PersistenceTarget<M>             target            ;
+		private final PersistenceSource<M> source;
+		private final PersistenceTarget<M> target;
 
 
 
@@ -79,11 +107,12 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final PersistenceObjectRegistry                  objectRegistering ,
-			final PersistenceObjectManager             objectManager     ,
+		Implementation(
+			final PersistenceObjectRegistry        objectRegistering ,
+			final PersistenceObjectManager         objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
-			final PersistenceStorer.Creator<M>     storerCreatorDeep ,
+			final PersistenceContextCreator<M>     contextCreator    ,
+			final PersistenceStorer.Creator<M>     storerCreator     ,
 			final PersistenceLoader.Creator<M>     loaderCreator     ,
 			final PersistenceRegisterer.Creator    registererCreator ,
 			final PersistenceTarget<M>             target            ,
@@ -92,15 +121,16 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		)
 		{
 			super();
-			this.objectRegistry     = notNull(objectRegistering );
-			this.objectManager      = notNull(objectManager     );
-			this.typeHandlerManager = notNull(typeHandlerManager);
-			this.storerCreator      = notNull(storerCreatorDeep );
-			this.registererCreator  = notNull(registererCreator );
-			this.loaderCreator      = notNull(loaderCreator     );
-			this.target             = notNull(target            );
-			this.source             = notNull(source            );
-			this.bufferSizeProvider = notNull(bufferSizeProvider);
+			this.objectRegistry     = objectRegistering ;
+			this.objectManager      = objectManager     ;
+			this.typeHandlerManager = typeHandlerManager;
+			this.contextCreator     = contextCreator    ;
+			this.storerCreator      = storerCreator     ;
+			this.loaderCreator      = loaderCreator     ;
+			this.registererCreator  = registererCreator ;
+			this.target             = target            ;
+			this.source             = source            ;
+			this.bufferSizeProvider = bufferSizeProvider;
 		}
 
 
@@ -259,7 +289,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceLoader<M> createLoader()
 		{
 			return this.loaderCreator.createBuilder(
-				this.typeHandlerManager.createDistrict(this.objectRegistry),
+				this.contextCreator.createContext(this.objectRegistry, this.typeHandlerManager),
 				this
 			);
 		}

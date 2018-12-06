@@ -13,7 +13,7 @@ public interface PersistenceLoader<M> extends PersistenceRetrieving
 	public interface Creator<M>
 	{
 		public PersistenceLoader<M> createBuilder(
-			PersistenceDistrict<M>        district,
+			PersistenceContext<M>        district,
 			PersistenceSourceSupplier<M> source
 		);
 	}

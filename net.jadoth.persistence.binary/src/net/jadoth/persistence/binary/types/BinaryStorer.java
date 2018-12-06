@@ -3,6 +3,7 @@ package net.jadoth.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
@@ -11,7 +12,6 @@ import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerManager;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reference._intReference;
 import net.jadoth.util.BufferSizeProviderIncremental;
 
@@ -651,8 +651,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			@Override
 			public final BinaryStorer createLazyStorer(
-				final PersistenceObjectManager                  objectManager     ,
-				final PersistenceObjectSupplier                 objectSupplier    ,
+				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectSupplier             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
@@ -669,8 +669,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 			@Override
 			public BinaryStorer createEagerStorer(
-				final PersistenceObjectManager                  objectManager     ,
-				final PersistenceObjectSupplier                 objectSupplier    ,
+				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectSupplier             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider

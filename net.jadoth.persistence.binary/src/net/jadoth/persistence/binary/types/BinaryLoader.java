@@ -5,7 +5,7 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.persistence.types.PersistenceDistrict;
+import net.jadoth.persistence.types.PersistenceContext;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceObjectSupplier;
 import net.jadoth.persistence.types.PersistenceRoots;
@@ -19,7 +19,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 	{
 		@Override
 		public BinaryLoader createBuilder(
-			PersistenceDistrict<Binary>       district,
+			PersistenceContext<Binary>       district,
 			PersistenceSourceSupplier<Binary> source
 		);
 	}
@@ -47,7 +47,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		 */
 		public Implementation(
 			final PersistenceSourceSupplier<Binary> source   ,
-			final PersistenceDistrict<Binary>       district ,
+			final PersistenceContext<Binary>       district ,
 			final LoadItemsChain                    loadItems
 		)
 		{
@@ -248,7 +248,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 	{
 		@Override
 		public BinaryLoader createBuilder(
-			final PersistenceDistrict<Binary>        district,
+			final PersistenceContext<Binary>        district,
 			final PersistenceSourceSupplier<Binary> source
 		)
 		{
@@ -287,7 +287,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		@Override
 		public BinaryLoader createBuilder(
-			final PersistenceDistrict<Binary>        district,
+			final PersistenceContext<Binary>        district,
 			final PersistenceSourceSupplier<Binary> source
 		)
 		{
