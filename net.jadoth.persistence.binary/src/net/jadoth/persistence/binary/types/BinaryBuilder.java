@@ -13,7 +13,7 @@ import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceBuildItem;
 import net.jadoth.persistence.types.PersistenceBuilder;
-import net.jadoth.persistence.types.PersistenceDistrict;
+import net.jadoth.persistence.types.PersistenceContext;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
@@ -43,7 +43,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceDistrict<Binary>                    district;
+		private final PersistenceContext<Binary>                    district;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 
 		private final PersistenceInstanceHandler skipObjectRegisterer = (oid, instance) ->
@@ -58,7 +58,7 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 		// constructors     //
 		/////////////////////
 
-		protected AbstractImplementation(final PersistenceDistrict<Binary> district)
+		protected AbstractImplementation(final PersistenceContext<Binary> district)
 		{
 			super();
 			this.district = notNull(district);

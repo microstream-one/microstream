@@ -17,7 +17,7 @@ import net.jadoth.persistence.types.PersistenceBuildItem.Creator;
  * The bundle type could also provide means to synchronize all/selected instances from one to another
  * (e.g. to validate&merge from local into global context).
  */
-public interface PersistenceDistrict<M>
+public interface PersistenceContext<M>
 {
 	public <I extends PersistenceBuildItem<M>> I createBuildItem(
 		PersistenceBuildItem.Creator<M, I> creator ,
@@ -64,8 +64,19 @@ public interface PersistenceDistrict<M>
 	public void commit();
 
 
+	
+	public static <M> PersistenceContext<M> New(
+		final PersistenceObjectRegistry       registry  ,
+		final PersistenceTypeHandlerLookup<M> typeLookup
+	)
+	{
+		return new PersistenceContext.Implementation<>(
+			notNull(registry)  ,
+			notNull(typeLookup)
+		);
+	}
 
-	public class Implementation<M> implements PersistenceDistrict<M>
+	public class Implementation<M> implements PersistenceContext<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -83,15 +94,15 @@ public interface PersistenceDistrict<M>
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final PersistenceObjectRegistry       registry  ,
 			final PersistenceTypeHandlerLookup<M> typeLookup
 
 		)
 		{
 			super();
-			this.registry   = notNull(registry)  ;
-			this.typeLookup = notNull(typeLookup);
+			this.registry   = registry  ;
+			this.typeLookup = typeLookup;
 		}
 
 
@@ -121,13 +132,11 @@ public interface PersistenceDistrict<M>
 			final long          typeId
 		)
 		{
-			// type handler lookup (potential miss / validation error, etc.) must be executed BEFORE tid registration
+			// type handler lookup (potential miss / validation error, etc.).
 			return creator.createBuildItem(
 				objectId,
 				(PersistenceTypeHandler<M, Object>)this.lookupTypeHandler(objectId, typeId),
-				// (26.11.2018 TM)NOTE: since the removal of the TID registration, the ensure method is nonsense.
 				this.lookupObject(objectId)
-//				this.ensureRegisteredObjectId(objectId)
 			);
 		}
 
@@ -142,12 +151,6 @@ public interface PersistenceDistrict<M>
 				this.lookupObject(objectId)
 			);
 		}
-		
-//		@Override
-//		public Object ensureRegisteredObjectId(final long objectId)
-//		{
-//			return this.registry.registerObjectId(objectId);
-//		}
 		
 		@Override
 		public Object optionalRegisterObject(final long objectId, final Object object)

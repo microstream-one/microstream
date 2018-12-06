@@ -39,7 +39,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 	public PersistenceTypeHandlerManager<M> initialize();
 
-	public PersistenceDistrict<M> createDistrict(PersistenceObjectRegistry registry);
+	public PersistenceContext<M> createContext(PersistenceObjectRegistry registry);
 
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
@@ -703,9 +703,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final PersistenceDistrict<M> createDistrict(final PersistenceObjectRegistry registry)
+		public final PersistenceContext<M> createContext(final PersistenceObjectRegistry registry)
 		{
-			return new PersistenceDistrict.Implementation<>(registry, this.typeHandlerRegistry);
+			return new PersistenceContext.Implementation<>(registry, this.typeHandlerRegistry);
 		}
 
 		@Override
