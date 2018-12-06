@@ -96,7 +96,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 	static Object testBuilding(final PersistenceManager<Binary> persistenceManager)
 	{
 		XDebug.println("Loading...");
-		final Object loaded = persistenceManager.get(1100000000000070001L);
+		final Object loaded = persistenceManager.getObject(1100000000000070001L);
 		System.out.println(loaded);
 //		System.out.println(Arrays.toString((int[])loaded));
 //		System.out.println(Arrays.toString((double[])loaded));

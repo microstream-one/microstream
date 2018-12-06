@@ -4,11 +4,11 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.persistence.lazy.LazyReferenceManager;
-import net.jadoth.persistence.types.PersistenceObjectSupplier;
+import net.jadoth.persistence.types.PersistenceObjectRetriever;
 
 public class MainTestLazyReferenceHandling
 {
-	static final PersistenceObjectSupplier DUMMY_LOADER = o -> null;
+	static final PersistenceObjectRetriever DUMMY_LOADER = o -> null;
 
 
 	public static void main(final String[] args) throws Exception

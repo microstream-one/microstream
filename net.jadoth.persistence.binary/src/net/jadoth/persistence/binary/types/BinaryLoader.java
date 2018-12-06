@@ -5,12 +5,13 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.persistence.types.PersistenceContext;
 import net.jadoth.persistence.types.PersistenceLoader;
-import net.jadoth.persistence.types.PersistenceObjectSupplier;
+import net.jadoth.persistence.types.PersistenceObjectRegistry;
+import net.jadoth.persistence.types.PersistenceObjectRetriever;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.PersistenceSource;
 import net.jadoth.persistence.types.PersistenceSourceSupplier;
+import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 import net.jadoth.reference._intReference;
 
 public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
@@ -19,8 +20,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 	{
 		@Override
 		public BinaryLoader createBuilder(
-			PersistenceContext<Binary>       district,
-			PersistenceSourceSupplier<Binary> source
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry  ,
+			PersistenceSourceSupplier<Binary>          source
 		);
 	}
 
@@ -46,12 +48,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		 * (optional) commit to parent global object registry
 		 */
 		public Implementation(
-			final PersistenceSourceSupplier<Binary> source   ,
-			final PersistenceContext<Binary>       district ,
-			final LoadItemsChain                    loadItems
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry  ,
+			final PersistenceSourceSupplier<Binary>    source    ,
+			final LoadItemsChain                       loadItems
 		)
 		{
-			super(district);
+			super(typeLookup, registry);
 			this.sourceSupplier = notNull(source)   ;
 			this.loadItems      = notNull(loadItems);
 		}
@@ -159,23 +162,22 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		{
 			this.readLoadOnce();
 			this.build();
-			this.commit();
 			final Object instance = this.internalGetFirst();
 			this.clearBuildItems();
-			// XDebug.debugln("Returning instance.");
+
 			return instance;
 		}
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
-		public final synchronized Object get(final long oid)
+		public final synchronized Object getObject(final long oid)
 		{
 			this.requireReference(oid);
 			this.readLoadOidData();
 			this.build();
-			this.commit();
 			final Object instance = this.getBuildInstance(oid);
 			this.clearBuildItems();
+			
 			return instance;
 		}
 
@@ -189,7 +191,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 			}
 			this.readLoadOidData();
 			this.build();
-			this.commit();
 			this.populate(collector, oids);
 			this.clearBuildItems();
 			return collector;
@@ -235,7 +236,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 		}
 
 		@Override
-		public PersistenceObjectSupplier getObjectSupplier()
+		public PersistenceObjectRetriever getObjectSupplier()
 		{
 			return this.sourceSupplier;
 		}
@@ -248,11 +249,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 	{
 		@Override
 		public BinaryLoader createBuilder(
-			final PersistenceContext<Binary>        district,
-			final PersistenceSourceSupplier<Binary> source
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry  ,
+			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
-			return new BinaryLoader.Implementation(source, district, new LoadItemsChain.Simple());
+			return new BinaryLoader.Implementation(typeLookup, registry, source, new LoadItemsChain.Simple());
 		}
 
 	}
@@ -287,13 +289,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, BinaryBuilder
 
 		@Override
 		public BinaryLoader createBuilder(
-			final PersistenceContext<Binary>        district,
-			final PersistenceSourceSupplier<Binary> source
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry  ,
+			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
 			return new BinaryLoader.Implementation(
+				typeLookup,
+				registry,
 				source,
-				district,
 				new LoadItemsChain.ChannelHashing(this.hashSizeProvider.get())
 			);
 		}

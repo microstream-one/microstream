@@ -56,7 +56,6 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		final PersistenceObjectRegistry        objectRegistering ,
 		final PersistenceObjectManager         objectManager     ,
 		final PersistenceTypeHandlerManager<M> typeHandlerManager,
-		final PersistenceContextCreator<M>     contextCreator    ,
 		final PersistenceStorer.Creator<M>     storerCreator     ,
 		final PersistenceLoader.Creator<M>     loaderCreator     ,
 		final PersistenceRegisterer.Creator    registererCreator ,
@@ -69,7 +68,6 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			notNull(objectRegistering) ,
 			notNull(objectManager)     ,
 			notNull(typeHandlerManager),
-			notNull(contextCreator)    ,
 			notNull(storerCreator)     ,
 			notNull(loaderCreator)     ,
 			notNull(registererCreator) ,
@@ -92,7 +90,6 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 
 		// instance handling components //
 		private final PersistenceTypeHandlerManager<M> typeHandlerManager;
-		private final PersistenceContextCreator<M>     contextCreator    ;
 		private final PersistenceStorer.Creator<M>     storerCreator     ;
 		private final PersistenceLoader.Creator<M>     loaderCreator     ;
 		private final BufferSizeProviderIncremental    bufferSizeProvider;
@@ -111,7 +108,6 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			final PersistenceObjectRegistry        objectRegistering ,
 			final PersistenceObjectManager         objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
-			final PersistenceContextCreator<M>     contextCreator    ,
 			final PersistenceStorer.Creator<M>     storerCreator     ,
 			final PersistenceLoader.Creator<M>     loaderCreator     ,
 			final PersistenceRegisterer.Creator    registererCreator ,
@@ -124,7 +120,6 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			this.objectRegistry     = objectRegistering ;
 			this.objectManager      = objectManager     ;
 			this.typeHandlerManager = typeHandlerManager;
-			this.contextCreator     = contextCreator    ;
 			this.storerCreator      = storerCreator     ;
 			this.loaderCreator      = loaderCreator     ;
 			this.registererCreator  = registererCreator ;
@@ -275,21 +270,22 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public final Object get(final long oid)
+		public final Object getObject(final long oid)
 		{
 			final Object cachedInstance;
 			if((cachedInstance = this.objectManager.lookupObject(oid)) != null)
 			{
 				return cachedInstance;
 			}
-			return this.createLoader().get(oid);
+			return this.createLoader().getObject(oid);
 		}
 
 		@Override
 		public final PersistenceLoader<M> createLoader()
 		{
 			return this.loaderCreator.createBuilder(
-				this.contextCreator.createContext(this.objectRegistry, this.typeHandlerManager),
+				this.typeHandlerManager,
+				this.objectRegistry,
 				this
 			);
 		}

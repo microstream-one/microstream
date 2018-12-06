@@ -1,9 +1,9 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceSourceSupplier<M> extends PersistenceObjectSupplier
+public interface PersistenceSourceSupplier<M> extends PersistenceObjectRetriever
 {
 	@Override
-	public Object get(long oid);
+	public Object getObject(long oid);
 
 	public PersistenceSource<M> source();
 }

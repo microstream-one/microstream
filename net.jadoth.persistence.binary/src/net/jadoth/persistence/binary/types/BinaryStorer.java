@@ -7,7 +7,7 @@ import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
-import net.jadoth.persistence.types.PersistenceObjectSupplier;
+import net.jadoth.persistence.types.PersistenceObjectRetriever;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -87,11 +87,11 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		// instance fields //
 		////////////////////
 
-		// (12.04.2013)XXX: encapsulate by "PersistenceDistrictManager" complementary to builder?
-		private final PersistenceObjectManager                  objectManager ;
-		private final PersistenceObjectSupplier                 objectSupplier;
-		private final PersistenceTypeHandlerManager<Binary> typeManager   ;
-		private final PersistenceTarget<Binary>             target        ;
+		// (12.04.2013)XXX: encapsulate by "PersistenceContextManager" complementary to builder?
+		private final PersistenceObjectManager              objectManager  ;
+		private final PersistenceObjectRetriever            objectRetriever;
+		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
+		private final PersistenceTarget<Binary>             target         ;
 		
 		// channel hashing fields
 		private final BufferSizeProviderIncremental bufferSizeProvider;
@@ -104,8 +104,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		 * - the storer instance can be explicitly initialized to a certain capacity.
 		 * - clearing after committing can simply null the array reference, easing garbage collection.
 		 */
-		final   Item   head      = new Item(null, 0L, null, null);
-		private Item   tail      = this.head                     ;
+		final   Item   head = new Item(null, 0L, null, null);
+		private Item   tail = this.head;
 		private Item[] hashSlots;
 		private int    hashRange;
 		private long   itemCount;
@@ -117,8 +117,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 
 		protected Implementation(
-			final PersistenceObjectManager                  objectManager     ,
-			final PersistenceObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectRetriever             objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -127,7 +127,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			super();
 			this.objectManager      = notNull(objectManager)         ;
-			this.objectSupplier     = notNull(objectSupplier)        ;
+			this.objectRetriever     = notNull(objectSupplier)        ;
 			this.typeManager        = notNull(typeManager)           ;
 			this.target             = notNull(target)                ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
@@ -215,9 +215,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final PersistenceObjectSupplier getObjectSupplier()
+		public final PersistenceObjectRetriever getObjectSupplier()
 		{
-			return this.objectSupplier;
+			return this.objectRetriever;
 		}
 
 		@Override
@@ -520,7 +520,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		ImplementationEager(
 			final PersistenceObjectManager                  objectManager     ,
-			final PersistenceObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectRetriever                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -580,7 +580,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public BinaryStorer createLazyStorer(
 			PersistenceObjectManager                  objectManager     ,
-			PersistenceObjectSupplier                 objectSupplier    ,
+			PersistenceObjectRetriever                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -589,7 +589,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public default BinaryStorer createStorer(
 			final PersistenceObjectManager                  objectManager     ,
-			final PersistenceObjectSupplier                 objectSupplier    ,
+			final PersistenceObjectRetriever                 objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
@@ -601,7 +601,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public BinaryStorer createEagerStorer(
 			PersistenceObjectManager                  objectManager     ,
-			PersistenceObjectSupplier                 objectSupplier    ,
+			PersistenceObjectRetriever                 objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -652,7 +652,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			@Override
 			public final BinaryStorer createLazyStorer(
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectSupplier             objectSupplier    ,
+				final PersistenceObjectRetriever             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
@@ -670,7 +670,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			@Override
 			public BinaryStorer createEagerStorer(
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectSupplier             objectSupplier    ,
+				final PersistenceObjectRetriever             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
