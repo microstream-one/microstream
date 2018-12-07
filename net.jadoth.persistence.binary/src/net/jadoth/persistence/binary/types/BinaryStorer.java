@@ -118,7 +118,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		protected Implementation(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever             objectSupplier    ,
+			final PersistenceObjectRetriever            objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -127,7 +127,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			super();
 			this.objectManager      = notNull(objectManager)         ;
-			this.objectRetriever     = notNull(objectSupplier)        ;
+			this.objectRetriever    = notNull(objectSupplier)        ;
 			this.typeManager        = notNull(typeManager)           ;
 			this.target             = notNull(target)                ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
@@ -181,9 +181,16 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				return oidLocal;
 			}
 
+			/* (07.12.2018 TM)TODO: JET-48 solution
+			 * maybe decouple objectManager here into objectRegistry and objectIdProvider,
+			 * then then lookup and id ensuring must happen under the SAME lock, otherwise concurrency bug.
+			 * The contextDispatcher could then replace the objectRegistry and objectIdProvider by local instaces.
+			 * alternatively, a while objectmanager wrapper could be used here without change.
+			 */
 			final long oidGlobal;
 			if((oidGlobal = this.objectManager.lookupObjectId(instance)) != Persistence.nullId())
 			{
+				// (07.12.2018 TM)FIXME: explain eager/lazy here
 				return oidGlobal;
 			}
 
@@ -198,11 +205,12 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				return Persistence.nullId();
 			}
 
+			// (07.12.2018 TM)FIXME: update comment
 			/*
-			 * "forced" still means that if this storer has already stored the encountered instance,
-			 * it won't store it again. That would not only be data-wise redundant and unnecessary,
+			 * "Eager" must still meansthat if this storer has already stored the passed instance,
+			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
 			 * but would also create infinite storing loops and overflows.
-			 * So "forced" can only mean to not check the global registry, but it must still mean to check
+			 * So "eager" can only mean to not check the global registry, but it must still mean to check
 			 * the local registry.
 			 */
 			final long oidLocal;
@@ -403,7 +411,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 					return e.oid;
 				}
 			}
-			return 0L;
+			
+			return Persistence.nullId();
 		}
 
 		
@@ -500,6 +509,12 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public final void registerSkip(final Object instance)
 		{
+			/* (07.12.2018 TM)FIXME: why only lookup? What if it's not registered, yet?
+			 * The whole skipping thing must be overhauled:
+			 * - why register the oid? as a kind of lazy special case storing? Must be commented, then.
+			 * - if handler == null indicates a skip-entry, then handler must be checked for null.
+			 *   alternative: dummy handler that does nothing.
+			 */
 			this.registerOid(instance, null, this.objectManager.lookupObjectId(instance));
 		}
 		
@@ -519,8 +534,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 		
 		ImplementationEager(
-			final PersistenceObjectManager                  objectManager     ,
-			final PersistenceObjectRetriever                 objectSupplier    ,
+			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectRetriever            objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -579,8 +594,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	{
 		@Override
 		public BinaryStorer createLazyStorer(
-			PersistenceObjectManager                  objectManager     ,
-			PersistenceObjectRetriever                 objectSupplier    ,
+			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -588,8 +603,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		@Override
 		public default BinaryStorer createStorer(
-			final PersistenceObjectManager                  objectManager     ,
-			final PersistenceObjectRetriever                 objectSupplier    ,
+			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectRetriever            objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
@@ -600,8 +615,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		@Override
 		public BinaryStorer createEagerStorer(
-			PersistenceObjectManager                  objectManager     ,
-			PersistenceObjectRetriever                 objectSupplier    ,
+			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider

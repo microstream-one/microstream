@@ -132,6 +132,8 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			 * namely registry and type handler, are trusted to provide (instantiate or know) instances of the
 			 * correct type.
 			 */
+			// (07.12.2018 TM)FIXME: difference between contextInstance and localInstance? Relevant?
+			// (07.12.2018 TM)FIXME: must lock registry here explicitely in case it is changed to being unsynchronized.
 			return entry.contextInstance != null
 				? entry.contextInstance
 				: (entry.contextInstance = this.registry.optionalRegisterObject(

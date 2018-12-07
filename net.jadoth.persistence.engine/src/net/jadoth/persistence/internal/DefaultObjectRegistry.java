@@ -351,6 +351,27 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 
 	private synchronized boolean synchronizedAdd(final long objectId, final Object object)
 	{
+		/* (07.12.2018 TM)XXX: Use simple hash chain
+		 * When the lookups have to use the entry instances, anyway, the hash chain
+		 * can be built directly by them, without an intermediate array.
+		 * The memory requirement for the references stay the same, but the array header would be omitted.
+		 * Memory consumption would almost stay the same for different hash densities (-> test)
+		 * Also better registration (maybe even bugfix):
+		 * - check for existing oid. If yes, check consistent reference, update or exception, etc.
+		 * - if not, register by object, first.
+		 * - if an entry already holds that object, then consistency exception.
+		 *   (because if it were a consistent entry, the oid lookup would already have found it.)
+		 * - if no entry holds that object, add new entry
+		 * - check refHash first to avoid costly referent lookups. because that case should actually never happen anyway
+		 */
+		
+		/* (07.12.2018 TM)FIXME: superfluous synchronized?
+		 * Could it be that making this implementation explicitely synchronized is superfluous?
+		 * Because:
+		 * - The calling context must explicitely lock it, anyway. E.g. lock it, check instance, assign oid, register.
+		 * - The methods don't consist of complex parts where one can be un-synchronized. It's always the whole thing.
+		 */
+		
 		if(this.synchAddCheck(objectId, object))
 		{
 			return false;
