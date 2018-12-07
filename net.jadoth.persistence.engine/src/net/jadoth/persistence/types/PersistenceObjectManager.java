@@ -84,12 +84,6 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		@Override
 		public long ensureObjectId(final Object object)
 		{
-			long oid; // quick read-only check for already registered oid
-			if((oid = this.lookupObjectId(object)) != 0L)
-			{
-				return oid;
-			}
-
 			// Class instances can be passed here as well if they are normally referenced in an object graph.
 			if(object instanceof Class<?>)
 			{
@@ -104,7 +98,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 				throw new RuntimeException("Invalid Class metadata instance: " + object.toString());
 			}
 
-			// if not found either assign new oid or return the meanwhile registered oid
+			long oid;
 			synchronized(this.objectRegistry)
 			{
 				if((oid = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
