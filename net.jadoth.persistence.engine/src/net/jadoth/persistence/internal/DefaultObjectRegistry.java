@@ -180,6 +180,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public final synchronized DefaultObjectRegistry Clone()
+	{
+		return DefaultObjectRegistry.New(this.hashDensity, this.minCapacity);
+	}
 
 	@Override
 	public final synchronized int hashRange()

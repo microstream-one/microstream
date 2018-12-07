@@ -8,6 +8,7 @@ import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.BufferSizeProviderIncremental;
+import net.jadoth.util.Clonable;
 import net.jadoth.util.InstanceDispatcher;
 
 
@@ -23,28 +24,12 @@ import net.jadoth.util.InstanceDispatcher;
  * @param <M>
  */
 public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
+extends Clonable<PersistenceFoundation<M, F>>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
-	
-	/**
-	 * This method creates a new instance of the same {@link Class} of the instance on which this method is called.
-	 * Whatever initializations required to create a functional new instance are performed.
-	 * <p>
-	 * However, this method does NOT create a copy of the current instance. (A common mistake is to confuse cloning
-	 * with copying: cloning creates a duplicate with only equal initial state while copying creates a duplicate
-	 * with equal full state. Example: a clone of an adult would not be an identical adult, but just an embryo with
-	 * equal DNA. An identical adult would be a copy, not a clone.)
-	 * <p>
-	 * This method is effectively a constructor called on an existing instance. The use case of such a method is
-	 * to eliminate the need to redundantly pass a second instance or constructor if a clone of an instance is needed.<br>
-	 * To indicate the constructor-like character of this method, the pattern of starting the name with a capital letter
-	 * is applied to this method (and to workaround the botch-job protected method the moronic JDK developers created)
-	 * 
-	 * @return a clone of this instance.
-	 */
+	@Override
 	public PersistenceFoundation<M, F> Clone();
-	
 
 	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
@@ -82,6 +67,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public PersistenceTypeManager getTypeManager();
 
 	public PersistenceTypeHandlerManager<M> getTypeHandlerManager();
+	
+	public PersistenceContextDispatcher<M> getContextDispatcher();
 
 	public PersistenceTypeHandlerProvider<M> getTypeHandlerProvider();
 
@@ -176,6 +163,8 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 	public F setStorerCreator(PersistenceStorer.Creator<M> storerCreator);
 
 	public F setTypeHandlerManager(PersistenceTypeHandlerManager<M> typeHandlerManager);
+	
+	public F setContextDispatcher(PersistenceContextDispatcher<M> contextDispatcher);
 
 	public F setTypeManager(PersistenceTypeManager typeManager);
 
@@ -303,6 +292,11 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 
 
 
+	public static <M> PersistenceFoundation<M, ?> New()
+	{
+		return new PersistenceFoundation.Implementation<>();
+	}
+	
 	public class Implementation<M, F extends PersistenceFoundation.Implementation<M, ?>>
 	extends InstanceDispatcher.Implementation
 	implements PersistenceFoundation<M, F>, Unpersistable
@@ -318,6 +312,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceTypeRegistry          typeRegistry      ;
 		private PersistenceObjectRegistry        objectRegistry    ;
 		private PersistenceTypeHandlerManager<M> typeHandlerManager;
+		private PersistenceContextDispatcher<M>  contextDispatcher ;
 		private PersistenceStorer.Creator<M>     storerCreator     ;
 		private PersistenceRegisterer.Creator    registererCreator ;
 		private PersistenceLoader.Creator<M>     builderCreator    ;
@@ -370,6 +365,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
 		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Implementation()
+		{
+			super();
+		}
 		
 		
 		
@@ -474,6 +480,17 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			}
 			
 			return this.typeHandlerManager;
+		}
+		
+		@Override
+		public PersistenceContextDispatcher<M> getContextDispatcher()
+		{
+			if(this.contextDispatcher == null)
+			{
+				this.contextDispatcher = this.dispatch(this.ensureContextDispatcher());
+			}
+			
+			return this.contextDispatcher;
 		}
 
 		@Override
@@ -1047,6 +1064,15 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			this.typeHandlerManager = typeHandlerManager;
 			return this.$();
 		}
+		
+		@Override
+		public F setContextDispatcher(
+			final PersistenceContextDispatcher<M> contextDispatcher
+		)
+		{
+			this.contextDispatcher = contextDispatcher;
+			return this.$();
+		}
 
 		@Override
 		public F setObjectRegistry(
@@ -1522,6 +1548,11 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 			;
 			return newTypeHandlerManager;
 		}
+		
+		protected PersistenceContextDispatcher<M> ensureContextDispatcher()
+		{
+			return PersistenceContextDispatcher.NoOp();
+		}
 
 		protected PersistenceRegisterer.Creator ensureRegistererCreator()
 		{
@@ -1845,6 +1876,7 @@ public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
 					this.getObjectRegistry(),
 					this.getObjectManager(),
 					typeHandlerManager,
+					this.getContextDispatcher(),
 					this.getStorerCreator(),
 					this.getBuilderCreator(),
 					this.getRegistererCreator(),

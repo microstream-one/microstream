@@ -22,7 +22,7 @@ public final class EmbeddedStorage
 	 */
 	public static final EmbeddedStorageFoundation<?> createFoundation()
 	{
-		return new EmbeddedStorageFoundation.Implementation<>();
+		return EmbeddedStorageFoundation.New();
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(

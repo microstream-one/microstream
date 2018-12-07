@@ -51,6 +51,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
 	
+	
+	public static EmbeddedStorageFoundation<?> New()
+	{
+		return new EmbeddedStorageFoundation.Implementation<>();
+	}
 
 	public class Implementation<F extends EmbeddedStorageFoundation.Implementation<?>>
 	extends StorageFoundation.Implementation<F>
@@ -61,6 +66,17 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		/////////////////////
 
 		private EmbeddedStorageConnectionFoundation<?> connectionFoundation;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation()
+		{
+			super();
+		}
 
 		
 

@@ -10,6 +10,7 @@ import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
+import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
@@ -175,8 +176,16 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	
 	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
 	{
+		/*
+		 * Communication normally doesn't update a central/globale object registry (= object graph) directly,
+		 * but uses a local one that is discarded after every message.
+		 * In case this shall change, a custom-configured foundation can be passed instead.
+		 */
 		return new ComPersistenceAdaptorBinary.Creator.Default(
-			BinaryPersistenceFoundation.New(),
+			BinaryPersistenceFoundation.New()
+				.setContextDispatcher(
+					PersistenceContextDispatcher.LocalObjectRegistry()
+				),
 			BufferSizeProvider.New()
 		);
 	}
