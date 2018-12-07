@@ -39,8 +39,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 	public PersistenceTypeHandlerManager<M> initialize();
 
-	public PersistenceContext<M> createContext(PersistenceObjectRegistry registry);
-
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
 	public default void update(final PersistenceTypeDictionary typeDictionary)
@@ -700,12 +698,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 			
 			return handler;
-		}
-
-		@Override
-		public final PersistenceContext<M> createContext(final PersistenceObjectRegistry registry)
-		{
-			return new PersistenceContext.Implementation<>(registry, this.typeHandlerRegistry);
 		}
 
 		@Override

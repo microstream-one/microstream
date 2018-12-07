@@ -475,12 +475,27 @@ public interface BinaryBuilder extends PersistenceBuilder<Binary>, _longProcedur
 			}
 
 			// if the context deems the reference to be unrequired, simply register it as a build item right away
-			if(this.context.handleKnownObject(oid, this.skipObjectRegisterer))
+			// (07.12.2018 TM)TODO: not sure if this is still required. removing it might speed up loading.
+			if(this.handleKnownObject(oid, this.skipObjectRegisterer))
 			{
 				return true;
 			}
+			
 			// reaching here means the reference is really required to be resolved (loaded)
 			return false;
+		}
+		
+		private boolean handleKnownObject(final long objectId, final PersistenceInstanceHandler handler)
+		{
+			final Object instance = this.registry.lookupObject(objectId);
+			if(instance == null)
+			{
+				return false;
+			}
+			
+			handler.handle(objectId, instance);
+			
+			return true;
 		}
 
 		protected final Object getBuildInstance(final long oid)

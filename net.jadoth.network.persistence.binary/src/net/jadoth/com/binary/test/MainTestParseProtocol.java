@@ -12,6 +12,7 @@ import net.jadoth.files.XFiles;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
+import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceObjectIdProvider;
 import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
@@ -26,6 +27,9 @@ public class MainTestParseProtocol
 			))
 			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())
+			.setContextDispatcher(
+				PersistenceContextDispatcher.LocalObjectRegistry()
+			)
 		;
 				
 		final ComFoundation.Default<?> foundation = Com.Foundation()
