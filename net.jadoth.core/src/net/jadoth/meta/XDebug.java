@@ -4,6 +4,7 @@ import static net.jadoth.time.XTime.now;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
 import net.jadoth.low.XVM;
+import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 
 
@@ -507,6 +509,25 @@ public final class XDebug
 	public static void printDirectByteBuffer(final ByteBuffer bb)
 	{
 		XDebug.println(Arrays.toString(copyDirectByteBuffer(bb)));
+	}
+	
+	public static void printInstanceSizeInfo(final Class<?> c)
+	{
+		System.out.println(
+			XVM.byteSizeInstance(c) + " byte size of one instance of "
+			+ c.getName()
+		);
+		XReflect.reverseIterateAllClassFields(c, f ->
+		{
+			if(!Modifier.isStatic(f.getModifiers()))
+			{
+				System.out.println(XVM.objectFieldOffset(f) + ": " + f.getName());
+			}
+		});
+		System.out.println(
+			XVM.byteSizeObjectHeader() + " Object header size (" + XVM.byteSizeArrayObject(0) + " array header size)."
+				+ " Reference byte size = " + XVM.byteSizeReference() + "."
+		);
 	}
 
 

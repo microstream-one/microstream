@@ -2,7 +2,6 @@ package net.jadoth.persistence.test;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatistics;
-import net.jadoth.low.XVM;
 import net.jadoth.persistence.internal.DefaultObjectRegistry;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
@@ -17,20 +16,14 @@ public class MainTestObjectRegistryPerformance
 
 	public static void main(final String[] args)
 	{
-//		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(1);
-		final DefaultObjectRegistry reg = DefaultObjectRegistry.New();
+		DefaultObjectRegistry.printEntryInstanceSizeInfo();
+		final DefaultObjectRegistry reg = DefaultObjectRegistry.New(); // [0.75f; 2.0f] Rest is nonsense.
 		
 		final Object[] objects = new Object[COUNT];
 		for(int i = 0; i < objects.length; i++)
 		{
 			objects[i] = new Object();
 		}
-		
-		System.out.println(
-			"Reference byte size = " + XVM.byteSizeReference()
-			+ ", object header size = " + XVM.byteSizeObjectHeader()
-			+ ", array header size = " + XVM.byteSizeArrayObject(0)
-		);
 
 		for(int r = 1; r <= RUNS; r++)
 		{
@@ -50,7 +43,7 @@ public class MainTestObjectRegistryPerformance
 				+ " (" + (tStop - tStart) / COUNT + " per entry)"
 			);
 			System.gc();
-//			printObjectRegistryStatistics(reg);
+			printObjectRegistryStatistics(reg);
 		}
 
 	}
@@ -58,6 +51,9 @@ public class MainTestObjectRegistryPerformance
 	static void printObjectRegistryStatistics(final PersistenceObjectRegistry reg)
 	{
 		final XGettingTable<String, ? extends HashStatistics> stats = reg.createHashStatistics();
+		System.out.println("---");
+		System.out.println(HashStatistics.class.getSimpleName());
+		System.out.println("---");
 		stats.iterate(e ->
 		{
 			System.out.println(e.key());
