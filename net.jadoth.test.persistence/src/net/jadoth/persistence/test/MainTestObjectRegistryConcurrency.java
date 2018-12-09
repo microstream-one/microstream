@@ -69,7 +69,7 @@ public class MainTestObjectRegistryConcurrency
 				{
 					final int index = random(COUNT);
 					System.err.println("Removing "+oids[index]);
-					reg.removeObjectById(oids[index]);
+//					reg.removeObjectById(oids[index]);
 					XThreads.sleep(DELAY<<3);
 				}
 			}
