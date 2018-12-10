@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-public interface PersistenceObjectManager extends PersistenceObjectLookup, PersistenceObjectIdLookup, PersistenceObjectIdHolder
+public interface PersistenceObjectManager extends PersistenceObjectLookup, PersistenceObjectIdHolder
 {
 	public default long ensureObjectId(final Object object)
 	{
@@ -21,8 +21,20 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 	public PersistenceObjectManager updateCurrentObjectId(long currentObjectId);
 
 
+	
+	
+	public static PersistenceObjectManager.Implementation New(
+		final PersistenceObjectRegistry   objectRegistry,
+		final PersistenceObjectIdProvider oidProvider
+	)
+	{
+		return new PersistenceObjectManager.Implementation(
+			notNull(objectRegistry),
+			notNull(oidProvider)
+		);
+	}
 
-	public class Implementation implements PersistenceObjectManager
+	public final class Implementation implements PersistenceObjectManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
@@ -30,10 +42,6 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 
 		private final PersistenceObjectIdProvider oidProvider   ;
 		private final PersistenceObjectRegistry   objectRegistry;
-		/*
-		 * Note that the type manager may not be a tid-assigning (master) manager on a type slave side!
-		 * It must be a retrieving type handler manager instead.
-		 */
 
 
 
@@ -41,14 +49,14 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
+		Implementation(
 			final PersistenceObjectRegistry   objectRegistry,
 			final PersistenceObjectIdProvider oidProvider
 		)
 		{
 			super();
-			this.oidProvider    = notNull(oidProvider)   ;
-			this.objectRegistry = notNull(objectRegistry);
+			this.objectRegistry = objectRegistry;
+			this.oidProvider    = oidProvider   ;
 		}
 
 
@@ -78,16 +86,6 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 
 			return this.objectRegistry.lookupObject(oid);
 		}
-
-//		protected long internalLookupExistingTypeId(final Class<?> type)
-//		{
-//			final long tid;
-//			if((tid = this.objectRegistry.lookupTypeId(type)) == 0L)
-//			{
-//				throw new PersistenceExceptionConsistencyUnknownType(type);
-//			}
-//			return tid;
-//		}
 		
 		private void validate(final Object object)
 		{

@@ -2,6 +2,8 @@ package net.jadoth.persistence.types;
 
 public interface PersistenceContextDispatcher<M>
 {
+	// loading //
+	
 	public default PersistenceTypeHandlerLookup<M> dispatchTypeHandlerLookup(
 		final PersistenceTypeHandlerLookup<M> typeHandlerLookup
 	)
@@ -14,6 +16,22 @@ public interface PersistenceContextDispatcher<M>
 	)
 	{
 		return objectRegistry;
+	}
+	
+	// storing //
+	
+	public default PersistenceTypeHandlerManager<M> dispatchTypeHandlerManager(
+		final PersistenceTypeHandlerManager<M> typeHandlerManager
+	)
+	{
+		return typeHandlerManager;
+	}
+	
+	public default PersistenceObjectManager dispatchObjectManager(
+		final PersistenceObjectManager objectManager
+	)
+	{
+		return objectManager;
 	}
 	
 	

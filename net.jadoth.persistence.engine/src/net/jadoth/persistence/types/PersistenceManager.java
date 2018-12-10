@@ -167,10 +167,10 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createLazyStorer()
 		{
 			return this.storerCreator.createLazyStorer(
-				this.objectManager     ,
-				this                   ,
-				this.typeHandlerManager,
-				this.target            ,
+				this.contextDispatcher.dispatchObjectManager(this.objectManager),
+				this,
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
+				this.target,
 				this.bufferSizeProvider
 			);
 		}
@@ -179,10 +179,10 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createStorer()
 		{
 			return this.storerCreator.createStorer(
-				this.objectManager     ,
-				this                   ,
-				this.typeHandlerManager,
-				this.target            ,
+				this.contextDispatcher.dispatchObjectManager(this.objectManager),
+				this,
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
+				this.target,
 				this.bufferSizeProvider
 			);
 		}
@@ -191,10 +191,10 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createEagerStorer()
 		{
 			return this.storerCreator.createEagerStorer(
-				this.objectManager     ,
-				this                   ,
-				this.typeHandlerManager,
-				this.target            ,
+				this.contextDispatcher.dispatchObjectManager(this.objectManager),
+				this,
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
+				this.target,
 				this.bufferSizeProvider
 			);
 		}
@@ -203,10 +203,10 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createStorer(final PersistenceStorer.Creator<M> storerCreator)
 		{
 			return storerCreator.createStorer(
-				this.objectManager     ,
-				this                   ,
-				this.typeHandlerManager,
-				this.target            ,
+				this.contextDispatcher.dispatchObjectManager(this.objectManager),
+				this,
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
+				this.target,
 				this.bufferSizeProvider
 			);
 		}

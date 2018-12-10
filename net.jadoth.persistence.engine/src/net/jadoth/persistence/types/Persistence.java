@@ -382,7 +382,7 @@ public class Persistence
 	}
 
 	public static final boolean getCached(
-		final PersistenceObjectIdLookup oidResolver ,
+		final PersistenceObjectIdResolver oidResolver ,
 		final Object[]                  target      ,
 		final int                       targetOffset,
 		final long[]                    oids

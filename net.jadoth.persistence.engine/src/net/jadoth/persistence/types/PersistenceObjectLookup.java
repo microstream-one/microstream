@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceObjectLookup
+public interface PersistenceObjectLookup extends PersistenceObjectIdLookup, PersistenceObjectIdResolver
 {
-	public long lookupObjectId(Object object);
+	// only typing interface so far.
 }

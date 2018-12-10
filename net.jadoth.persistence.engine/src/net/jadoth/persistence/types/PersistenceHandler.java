@@ -15,6 +15,6 @@ public interface PersistenceHandler extends PersistenceFunction
 	 */
 	public <T> long applyEager(T instance);
 	
-	public PersistenceObjectRetriever getObjectSupplier();
+	public PersistenceObjectRetriever getObjectRetriever();
 	
 }

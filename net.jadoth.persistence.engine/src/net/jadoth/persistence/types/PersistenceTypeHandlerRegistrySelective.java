@@ -32,7 +32,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 		/////////////////////
 
 		private final PersistenceTypeHandlerRegistry<M> handlerRegistry;
-		private final PersistenceObjectLookup           objectLookup   ;
+		private final PersistenceObjectIdLookup         objectIdLookup ;
 
 		private final HashMapIdObject<PersistenceTypeHandler<M, ?>> oidToHandler = HashMapIdObject.New();
 		private final MiniMap<Object, PersistenceTypeHandler<M, ?>> objToHandler = new MiniMap<>();
@@ -45,12 +45,12 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 
 		public Implementation(
 			final PersistenceTypeHandlerRegistry<M> handlerRegistry,
-			final PersistenceObjectLookup objectLookup
+			final PersistenceObjectIdLookup         objectIdLookup
 		)
 		{
 			super();
 			this.handlerRegistry = notNull(handlerRegistry);
-			this.objectLookup    = notNull(objectLookup   );
+			this.objectIdLookup  = notNull(objectIdLookup );
 		}
 
 
@@ -152,7 +152,7 @@ public interface PersistenceTypeHandlerRegistrySelective<M> extends PersistenceT
 				throw new PersistenceExceptionTypeHandlerConsistencyWrongHandler(object.getClass(), typeHandler);
 			}
 			final long oid;
-			if((oid = this.objectLookup.lookupObjectId(object)) == 0L)
+			if((oid = this.objectIdLookup.lookupObjectId(object)) == 0L)
 			{
 				throw new PersistenceExceptionConsistencyUnknownObject(object);
 			}
