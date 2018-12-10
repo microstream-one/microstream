@@ -116,7 +116,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		}
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
-		protected void handleAllReferences(Entry item)
+		protected void handleAllReferences(Item item)
 		{
 			// iterate over all new build items (relocated loaded and created unrequested items alike)
 			while((item = item.next) != null)
@@ -138,7 +138,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			}
 		}
 
-		private Object getEffectiveInstance(final Entry entry)
+		private Object getEffectiveInstance(final Item entry)
 		{
 			/* tricky concurrent part:
 			 * if a proper context instance already was registered, simply use that.
@@ -185,7 +185,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		protected void createInstanceBuildItem(final long address) throws ClassCastException
 		{
 			// get the build item for the instance with the type handler and maybe an existing global instance
-			final Entry buildItem = this.createBuildItem(
+			final Item buildItem = this.createBuildItem(
 				BinaryPersistence.getEntityObjectId(address),
 				BinaryPersistence.getEntityTypeId(address)
 			);
@@ -215,7 +215,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			this.putBuildItem(buildItem);
 		}
 
-		protected void handleReferences(final Entry entry)
+		protected void handleReferences(final Item entry)
 		{
 			/*
 			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
@@ -238,34 +238,28 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			this.requireReference(refOid);
 		}
 
-
-		// (10.12.2018 TM)FIXME: /!\ refactoring error
-		private Entry createBuildItem(
+		private Item createBuildItem(
 			final long                                   oid        ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
 			final Object                                 instance
 		)
 		{
-			return new Entry(oid, instance, typeHandler);
+			return new Item(oid, instance, typeHandler);
 		}
 		
-		private Entry createBuildItem(final long oid)
-		{
-			return this.createSkipBuildItem(oid, null);
-		}
-
-		private Entry createSkipBuildItem(final long oid, final Object instance)
+		private Item createSkipBuildItem(final long oid, final Object instance)
 		{
 			// skip items do not require a type handler, only oid and optional instance
-			return new Entry(oid, instance, null);
+			return new Item(oid, instance, null);
 		}
 		
-		private Entry createBuildItem(final long objectId, final long typeId)
+		private Item createBuildItem(final long objectId, final long typeId)
 		{
-			final PersistenceTypeHandler<Binary, Object> typeHandler = this.typeHandlerLookup.lookupTypeHandler(
-				objectId,
-				typeId
-			);
+			// at one point or another, a nasty ?->Object cast is necessary. Safety guaranteed by logic.
+			@SuppressWarnings("unchecked")
+			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
+				this.typeHandlerLookup.lookupTypeHandler(objectId, typeId)
+			;
 			
 			if(typeHandler == null)
 			{
@@ -294,7 +288,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 
 		private void buildInstances()
 		{
-			for(Entry entry = this.buildItemsHead.next; entry != null; entry = entry.next)
+			for(Item entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
@@ -367,7 +361,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			 *
 			 * If the thought turns out to be not a problem at all, comment here accordingly.
 			 */
-			for(Entry entry = this.buildItemsHead.next; entry != null; entry = entry.next)
+			for(Item entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
@@ -375,17 +369,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 					continue;
 				}
 				entry.handler.complete(entry, entry.contextInstance, this);
-			}
-		}
-
-		private <T> void internalCollectByType(final Consumer<? super T> collector, final Class<T> type)
-		{
-			for(Entry entry = this.buildItemsHead.next; entry != null; entry = entry.next)
-			{
-				if(type.isInstance(entry.contextInstance))
-				{
-					collector.accept(type.cast(entry.contextInstance));
-				}
 			}
 		}
 
@@ -402,11 +385,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		// build items map //
 		////////////////////
 
-		private final Entry   buildItemsHead      = new Entry()                         ;
-		private       Entry   buildItemsTail      = this.buildItemsHead                 ;
-		private       int     buildItemsSize                                            ;
-		private       Entry[] buildItemsHashSlots = new Entry[DEFAULT_HASH_SLOTS_LENGTH];
-		private       int     buildItemsHashRange = this.buildItemsHashSlots.length - 1 ;
+		private final Item   buildItemsHead      = new Item()                         ;
+		private       Item   buildItemsTail      = this.buildItemsHead                ;
+		private       int    buildItemsSize                                           ;
+		private       Item[] buildItemsHashSlots = new Item[DEFAULT_HASH_SLOTS_LENGTH];
+		private       int    buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
 
 
@@ -424,10 +407,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			}
 
 			final int newRange; // potential int overflow ignored deliberately
-			final Entry[] newSlots = new Entry[(newRange = (this.buildItemsHashSlots.length << 1) - 1) + 1];
-			for(Entry entry : this.buildItemsHashSlots)
+			final Item[] newSlots = new Item[(newRange = (this.buildItemsHashSlots.length << 1) - 1) + 1];
+			for(Item entry : this.buildItemsHashSlots)
 			{
-				for(Entry next; entry != null; entry = next)
+				for(Item next; entry != null; entry = next)
 				{
 					next = entry.link;
 					entry.link = newSlots[(int)(entry.oid & newRange)];
@@ -438,7 +421,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			this.buildItemsHashRange = newRange;
 		}
 
-		private void putBuildItem(final Entry entry)
+		private void putBuildItem(final Item entry)
 		{
 			entry.link = this.buildItemsHashSlots[(int)(entry.oid & this.buildItemsHashRange)];
 			this.buildItemsHashSlots[(int)(entry.oid & this.buildItemsHashRange)] =
@@ -465,7 +448,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			}
 
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(Entry e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(e.oid == oid)
 				{
@@ -500,7 +483,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		private Object getBuildInstance(final long oid)
 		{
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(Entry e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(e.oid == oid)
 				{
@@ -512,24 +495,27 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 
 		private void registerSkipOid(final long oid)
 		{
-			for(Entry e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(e.oid == oid)
 				{
 					return;
 				}
 			}
+			
 			this.putBuildItem(this.createSkipBuildItem(oid, null));
 		}
 
 		private void clearBuildItems()
 		{
 			(this.buildItemsTail = this.buildItemsHead).next = null;
-			final Entry[] slots = this.buildItemsHashSlots;
+			final Item[] slots = this.buildItemsHashSlots;
+			
 			for(int i = 0; i < slots.length; i++)
 			{
 				slots[i] = null;
 			}
+			
 			this.buildItemsSize = 0;
 			this.anchor.clear(); // release helper anchor to allow the chunks to be collected
 		}
@@ -615,7 +601,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			this.loadItems.clear();
 			
 			// remember last buildItem that already has its references registered for later iteration
-			final Entry referenceHandlingBaseItem = this.buildItemsTail;
+			final Item referenceHandlingBaseItem = this.buildItemsTail;
 
 			/*
 			 * Create build items for ALL instances prior to handling references to ensure that already loaded
@@ -739,7 +725,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 
 		
 		
-		static final class Entry extends Binary
+		static final class Item extends Binary
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields  //
@@ -748,7 +734,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			final long oid;
 			PersistenceTypeHandler<Binary, Object> handler;
 			Object contextInstance, localInstance;
-			Entry next, link;
+			Item next, link;
 
 
 
@@ -756,17 +742,17 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 			// constructors     //
 			/////////////////////
 
-			Entry()
+			Item()
 			{
 				super();
 				this.oid = 0L;
 			}
 
-			Entry(final long oid, final Object contextInstance, final PersistenceTypeHandler<Binary, Object> handler)
+			Item(final long oid, final Object contextInstance, final PersistenceTypeHandler<Binary, Object> handler)
 			{
 				super();
-				this.oid             = oid             ;
-				this.handler         = handler         ;
+				this.oid             = oid            ;
+				this.handler         = handler        ;
 				this.contextInstance = contextInstance;
 			}
 
