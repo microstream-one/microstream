@@ -2,15 +2,23 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-public interface PersistenceObjectManager extends PersistenceObjectLookup
+public interface PersistenceObjectManager extends PersistenceObjectLookup, PersistenceObjectIdLookup, PersistenceObjectIdHolder
 {
-	public long ensureObjectId(Object object);
+	public default long ensureObjectId(final Object object)
+	{
+		return this.ensureObjectId(object, null);
+	}
+	
+	public long ensureObjectId(Object object, PersistenceAcceptor newObjectIdCallback);
 
-	public void cleanUp();
+	public void consolidate();
+	
 
+	@Override
 	public long currentObjectId();
 
-	public void updateCurrentObjectId(long currentObjectId);
+	@Override
+	public PersistenceObjectManager updateCurrentObjectId(long currentObjectId);
 
 
 
@@ -50,7 +58,7 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		////////////
 
 		@Override
-		public void cleanUp()
+		public void consolidate()
 		{
 			this.objectRegistry.consolidate();
 		}
@@ -80,11 +88,9 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 //			}
 //			return tid;
 //		}
-
-		@Override
-		public long ensureObjectId(final Object object)
+		
+		private void validate(final Object object)
 		{
-			// Class instances can be passed here as well if they are normally referenced in an object graph.
 			if(object instanceof Class<?>)
 			{
 				/* (23.11.2018 TM)FIXME: proper check for invalid types
@@ -97,22 +103,33 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 				// (23.11.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Invalid Class metadata instance: " + object.toString());
 			}
+		}
 
-			long oid;
+		@Override
+		public long ensureObjectId(final Object object)
+		{
+			return this.ensureObjectId(object, null);
+		}
+		
+		@Override
+		public long ensureObjectId(final Object object, final PersistenceAcceptor newObjectIdCallback)
+		{
 			synchronized(this.objectRegistry)
 			{
+				long oid;
 				if((oid = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
 				{
+					this.validate(object);
 					oid = this.oidProvider.provideNextObjectId();
+					if(newObjectIdCallback != null)
+					{
+						newObjectIdCallback.accept(oid, object);
+					}
 					this.objectRegistry.registerObject(oid, object);
 				}
+				
+				return oid;
 			}
-
-//			XDebug.debugln(XChars.systemString(this) + " assigned \n" + oid
-//				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
-//			);
-			
-			return oid;
 		}
 
 		@Override
@@ -125,16 +142,18 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup
 		}
 
 		@Override
-		public void updateCurrentObjectId(final long currentObjectId)
+		public PersistenceObjectManager updateCurrentObjectId(final long currentObjectId)
 		{
 			synchronized(this.objectRegistry)
 			{
 				if(this.oidProvider.currentObjectId() >= currentObjectId)
 				{
-					return;
+					return this;
 				}
 				this.oidProvider.updateCurrentObjectId(currentObjectId);
 			}
+			
+			return this;
 		}
 
 	}

@@ -102,7 +102,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		 * might defeat the purpose of memory freeing lazy referencing if no
 		 * other strong reference to the subject is present at the moment.
 		 */
-		instance.setLoader(builder.getObjectSupplier());
+		instance.setLoader(builder.getObjectRetriever());
 	}
 
 	@Override

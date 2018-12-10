@@ -10,10 +10,10 @@ public interface PersistenceLoader<M> extends PersistenceRetrieving
 
 	public interface Creator<M>
 	{
-		public PersistenceLoader<M> createBuilder(
-			final PersistenceTypeHandlerLookup<M> typeLookup,
-			final PersistenceObjectRegistry       registry  ,
-			PersistenceSourceSupplier<M>          source
+		public PersistenceLoader<M> createLoader(
+			PersistenceTypeHandlerLookup<M> typeLookup,
+			PersistenceObjectRegistry       registry  ,
+			PersistenceSourceSupplier<M>    source
 		);
 	}
 

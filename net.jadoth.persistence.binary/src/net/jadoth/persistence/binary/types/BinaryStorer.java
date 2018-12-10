@@ -4,6 +4,7 @@ import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
@@ -50,7 +51,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	 * 
 	 * @author TM
 	 */
-	public class Implementation implements BinaryStorer, PersistenceHandler
+	public class Implementation implements BinaryStorer, PersistenceHandler, PersistenceAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -180,21 +181,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			{
 				return oidLocal;
 			}
-
-			/* (07.12.2018 TM)TODO: JET-48 solution
-			 * maybe decouple objectManager here into objectRegistry and objectIdProvider,
-			 * then then lookup and id ensuring must happen under the SAME lock, otherwise concurrency bug.
-			 * The contextDispatcher could then replace the objectRegistry and objectIdProvider by local instaces.
-			 * alternatively, a while objectmanager wrapper could be used here without change.
+			
+			/*
+			 * Lazy storing logic:
+			 * If the instance already has an OID registered with it (= already known / handled globally),
+			 * it is assumed to be already stored and therefore not stored here ("again").
+			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
 			 */
-			final long oidGlobal;
-			if((oidGlobal = this.objectManager.lookupObjectId(instance)) != Persistence.nullId())
-			{
-				// (07.12.2018 TM)FIXME: explain eager/lazy here
-				return oidGlobal;
-			}
-
-			return this.registerAdd(instance);
+			return this.objectManager.ensureObjectId(instance, this);
 		}
 		
 		@Override
@@ -207,7 +201,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			// (07.12.2018 TM)FIXME: update comment
 			/*
-			 * "Eager" must still meansthat if this storer has already stored the passed instance,
+			 * "Eager" must still means that if this storer has already stored the passed instance,
 			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
 			 * but would also create infinite storing loops and overflows.
 			 * So "eager" can only mean to not check the global registry, but it must still mean to check
@@ -219,6 +213,11 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				return oidLocal;
 			}
 
+			/*
+			 * Eager storing logic:
+			 * If the instance is not locally already handled (already stored by this storer), it is
+			 * stored, no matter if necessary or not.
+			 */
 			return this.registerAdd(instance);
 		}
 
@@ -470,20 +469,25 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
 		
-		protected final long registerAdd(final Object instance)
+		@Override
+		public final void accept(final long oid, final Object instance)
 		{
-			final long oid;
-
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
 			this.tail = this.tail.next = this.registerOid(
 				instance,
 				this.typeManager.ensureTypeHandler(instance),
-				oid = this.objectManager.ensureObjectId(instance)
+				oid
 			);
+		}
+		
+		protected final long registerAdd(final Object instance)
+		{
+			final long oid = this.objectManager.ensureObjectId(instance);
+			this.accept(oid, instance);
 
 			return oid;
 		}
-		
+				
 		public final Item registerOid(
 			final Object                                 instance   ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,

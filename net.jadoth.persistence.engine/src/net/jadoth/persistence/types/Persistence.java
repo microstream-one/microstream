@@ -382,10 +382,10 @@ public class Persistence
 	}
 
 	public static final boolean getCached(
-		final PersistenceObjectIdResolving oidResolver ,
-		final Object[]                 target      ,
-		final int                      targetOffset,
-		final long[]                   oids
+		final PersistenceObjectIdLookup oidResolver ,
+		final Object[]                  target      ,
+		final int                       targetOffset,
+		final long[]                    oids
 	)
 	{
 		for(int i = 0; i < oids.length; i++)

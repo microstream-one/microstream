@@ -39,6 +39,12 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 	public PersistenceObjectRegistry objectRegistry();
 	
 	public PersistenceTypeDictionary typeDictionary();
+
+	@Override
+	public long currentObjectId();
+
+	@Override
+	public PersistenceManager<M> updateCurrentObjectId(long currentObjectId);
 	
 	@Override
 	public PersistenceSource<M> source();
@@ -152,7 +158,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public final void cleanUp()
+		public final void consolidate()
 		{
 			this.objectRegistry.consolidate();
 		}
@@ -243,6 +249,13 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
 			return this.objectManager.ensureObjectId(object);
 		}
+		
+		@Override
+		public final long ensureObjectId(final Object object, final PersistenceAcceptor newObjectIdCallback)
+		{
+			this.typeHandlerManager.ensureTypeHandler(object.getClass());
+			return this.objectManager.ensureObjectId(object, newObjectIdCallback);
+		}
 
 		@Override
 		public long currentObjectId()
@@ -288,7 +301,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		@Override
 		public final PersistenceLoader<M> createLoader()
 		{
-			return this.loaderCreator.createBuilder(
+			return this.loaderCreator.createLoader(
 				this.contextDispatcher.dispatchTypeHandlerLookup(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectRegistry(this.objectRegistry),
 				this
@@ -315,9 +328,12 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public synchronized void updateCurrentObjectId(final long currentObjectId)
+		public synchronized PersistenceManager.Implementation<M> updateCurrentObjectId(
+			final long currentObjectId
+		)
 		{
 			this.objectManager.updateCurrentObjectId(currentObjectId);
+			return this;
 		}
 
 		@Override
