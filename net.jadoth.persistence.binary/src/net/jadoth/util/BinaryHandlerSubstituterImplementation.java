@@ -4,8 +4,8 @@ import net.jadoth.collections.BinaryHandlerEqHashEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 /**
@@ -52,7 +52,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 		final Binary                        bytes   ,
 		final Substituter.Implementation<?> instance,
 		final long                          oid     ,
-		final PersistenceHandler                handler
+		final PersistenceStoreHandler                handler
 	)
 	{
 		synchronized(instance)
@@ -72,12 +72,12 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	public final void update(
 		final Binary                        bytes   ,
 		final Substituter.Implementation<?> instance,
-		final PersistenceBuildLinker            builder
+		final PersistenceLoadHandler        handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, builder);
+			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, handler);
 		}
 	}
 
@@ -85,7 +85,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	public void complete(
 		final Binary                        medium  ,
 		final Substituter.Implementation<?> instance,
-		final PersistenceBuildLinker            builder
+		final PersistenceLoadHandler        handler
 	)
 	{
 		synchronized(instance)

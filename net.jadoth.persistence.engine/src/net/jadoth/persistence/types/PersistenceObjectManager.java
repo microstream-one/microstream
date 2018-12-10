@@ -2,7 +2,10 @@ package net.jadoth.persistence.types;
 
 import static net.jadoth.X.notNull;
 
-public interface PersistenceObjectManager extends PersistenceObjectLookup, PersistenceObjectIdHolder
+import net.jadoth.util.Cloneable;
+
+public interface PersistenceObjectManager
+extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
 	public default long ensureObjectId(final Object object)
 	{
@@ -19,6 +22,16 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 
 	@Override
 	public PersistenceObjectManager updateCurrentObjectId(long currentObjectId);
+	
+	/**
+	 * Useful for {@link PersistenceContextDispatcher}.
+	 * @return A Clone of this instance as described in {@link Cloneable}.
+	 */
+	@Override
+	public default PersistenceObjectManager Clone()
+	{
+		return Cloneable.super.Clone();
+	}
 
 
 	
@@ -40,8 +53,8 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 		// instance fields  //
 		/////////////////////
 
-		private final PersistenceObjectIdProvider oidProvider   ;
 		private final PersistenceObjectRegistry   objectRegistry;
+		private final PersistenceObjectIdProvider oidProvider   ;
 
 
 
@@ -64,17 +77,40 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public PersistenceObjectManager.Implementation Clone()
+		{
+			/*
+			 * This basically turns the globally connected manager instance into a standalone clone.
+			 * The oidProvider must support cloning, e.g. be transient instead of persisting into a
+			 * single target location.
+			 */
+			synchronized(this.objectRegistry)
+			{
+				return new PersistenceObjectManager.Implementation(
+					this.objectRegistry.Clone(),
+					this.oidProvider.Clone()
+				);
+			}
+		}
 
 		@Override
 		public void consolidate()
 		{
-			this.objectRegistry.consolidate();
+			synchronized(this.objectRegistry)
+			{
+				this.objectRegistry.consolidate();
+			}
 		}
 
 		@Override
 		public long lookupObjectId(final Object object)
 		{
-			return this.objectRegistry.lookupObjectId(object);
+			synchronized(this.objectRegistry)
+			{
+				return this.objectRegistry.lookupObjectId(object);
+			}
 		}
 
 		@Override
@@ -83,8 +119,10 @@ public interface PersistenceObjectManager extends PersistenceObjectLookup, Persi
 //			XDebug.debugln(XChars.systemString(this) + " looking up \n" + oid
 //				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
 //			);
-
-			return this.objectRegistry.lookupObject(oid);
+			synchronized(this.objectRegistry)
+			{
+				return this.objectRegistry.lookupObject(oid);
+			}
 		}
 		
 		private void validate(final Object object)

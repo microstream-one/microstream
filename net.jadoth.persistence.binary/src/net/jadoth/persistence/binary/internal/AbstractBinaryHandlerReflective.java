@@ -23,11 +23,11 @@ import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
@@ -301,7 +301,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceHandler handler)
+	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeFixedSize(
 			bytes                   ,
@@ -319,7 +319,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public abstract T create(final Binary bytes);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -341,7 +341,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

@@ -43,16 +43,16 @@ public interface PersistenceStorer<M> extends Storer
 		 * instance registered in the global object registry and associated an biunique OID.
 		 * 
 		 * @param objectManager
-		 * @param objectSupplier
+		 * @param objectRetriever
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
 		 * @return
 		 */
 		public PersistenceStorer<M> createLazyStorer(
-			PersistenceObjectManager         objectManager     ,
-			PersistenceObjectRetriever        objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
+			PersistenceObjectManager         objectManager     ,
+			PersistenceObjectRetriever       objectRetriever   ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
@@ -62,21 +62,21 @@ public interface PersistenceStorer<M> extends Storer
 		 * (the "default default" in a way) is to delegate the call to {@link #createLazyStorer()}.
 		 * 
 		 * @param objectManager
-		 * @param objectSupplier
+		 * @param objectRetriever
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
 		 * @return
 		 */
 		public default PersistenceStorer<M> createStorer(
-			final PersistenceObjectManager         objectManager     ,
-			final PersistenceObjectRetriever        objectSupplier    ,
 			final PersistenceTypeHandlerManager<M> typeManager       ,
+			final PersistenceObjectManager         objectManager     ,
+			final PersistenceObjectRetriever       objectRetriever   ,
 			final PersistenceTarget<M>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
 		)
 		{
-			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
+			return this.createLazyStorer(typeManager, objectManager, objectRetriever, target, bufferSizeProvider);
 		}
 		
 		/**
@@ -90,16 +90,16 @@ public interface PersistenceStorer<M> extends Storer
 		 * to the remaning entities.
 		 * 
 		 * @param objectManager
-		 * @param objectSupplier
+		 * @param objectRetriever
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
 		 * @return
 		 */
 		public PersistenceStorer<M> createEagerStorer(
-			PersistenceObjectManager             objectManager     ,
-			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<M> typeManager       ,
+			PersistenceObjectManager         objectManager     ,
+			PersistenceObjectRetriever       objectRetriever   ,
 			PersistenceTarget<M>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);

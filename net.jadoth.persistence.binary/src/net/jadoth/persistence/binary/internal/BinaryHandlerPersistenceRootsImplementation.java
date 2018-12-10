@@ -9,13 +9,13 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
@@ -97,7 +97,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final Binary                          bytes   ,
 		final PersistenceRoots.Implementation instance,
 		final long                            oid     ,
-		final PersistenceHandler                  handler
+		final PersistenceStoreHandler                  handler
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -192,7 +192,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	public final void update(
 		final Binary                          bytes   ,
 		final PersistenceRoots.Implementation instance,
-		final PersistenceBuildLinker              builder
+		final PersistenceLoadHandler          handler
 	)
 	{
 		/*

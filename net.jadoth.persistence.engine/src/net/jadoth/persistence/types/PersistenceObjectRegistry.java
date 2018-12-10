@@ -3,15 +3,14 @@ package net.jadoth.persistence.types;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.hashing.HashStatistics;
 import net.jadoth.persistence.internal.DefaultObjectRegistry;
-import net.jadoth.util.Clonable;
+import net.jadoth.util.Cloneable;
 
 /**
  * A registry type for biunique associations of arbitrary objects with ids.
  *
  * @author Thomas Muenz
  */
-public interface PersistenceObjectRegistry
-extends PersistenceObjectLookup, Clonable<PersistenceObjectRegistry>
+public interface PersistenceObjectRegistry extends PersistenceObjectLookup, Cloneable<PersistenceObjectRegistry>
 {
 	/* funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
@@ -19,8 +18,8 @@ extends PersistenceObjectLookup, Clonable<PersistenceObjectRegistry>
 	 */
 	
 	/**
-	 * Might be useful in {@link PersistenceContextDispatcher}.
-	 * @return
+	 * Useful for {@link PersistenceContextDispatcher}.
+	 * @return A Clone of this instance as described in {@link Cloneable}.
 	 */
 	@Override
 	public PersistenceObjectRegistry Clone();

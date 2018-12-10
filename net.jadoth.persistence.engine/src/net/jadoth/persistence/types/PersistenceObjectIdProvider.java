@@ -1,6 +1,9 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceObjectIdProvider extends PersistenceObjectIdHolder
+import net.jadoth.util.Cloneable;
+
+public interface PersistenceObjectIdProvider
+extends PersistenceObjectIdHolder, Cloneable<PersistenceObjectIdProvider>
 {
 	public long provideNextObjectId();
 
@@ -11,7 +14,16 @@ public interface PersistenceObjectIdProvider extends PersistenceObjectIdHolder
 
 	@Override
 	public PersistenceObjectIdProvider updateCurrentObjectId(long currentObjectId);
-
+	
+	/**
+	 * Useful for {@link PersistenceContextDispatcher}.
+	 * @return A Clone of this instance as described in {@link Cloneable}.
+	 */
+	@Override
+	public default PersistenceObjectIdProvider Clone()
+	{
+		return Cloneable.super.Clone();
+	}
 	
 	
 	public static PersistenceObjectIdProvider Transient()
@@ -49,6 +61,12 @@ public interface PersistenceObjectIdProvider extends PersistenceObjectIdHolder
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
 		/////////////////////
+		
+		@Override
+		public final synchronized PersistenceObjectIdProvider.Transient Clone()
+		{
+			return new PersistenceObjectIdProvider.Transient(this.currentObjectId);
+		}
 
 		@Override
 		public final synchronized long provideNextObjectId()
@@ -107,6 +125,12 @@ public interface PersistenceObjectIdProvider extends PersistenceObjectIdHolder
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public PersistenceObjectIdProvider.Failing Clone()
+		{
+			return new PersistenceObjectIdProvider.Failing();
+		}
 
 		@Override
 		public PersistenceObjectIdProvider.Failing initializeObjectId()

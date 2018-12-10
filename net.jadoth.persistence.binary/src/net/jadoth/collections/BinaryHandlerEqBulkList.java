@@ -10,10 +10,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
 
@@ -77,10 +77,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary         bytes   ,
-		final EqBulkList<?>  instance,
-		final long           oid     ,
-		final PersistenceHandler handler
+		final Binary                  bytes   ,
+		final EqBulkList<?>           instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
@@ -109,7 +109,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceLoadHandler builder)
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));

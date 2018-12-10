@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCustomValueVariableLength<BigInteger>
 {
@@ -29,7 +29,7 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final BigInteger instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final BigInteger instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeArray_byte(bytes, this.typeId(), oid, instance.toByteArray());
 	}

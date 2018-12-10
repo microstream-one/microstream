@@ -5,8 +5,8 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.lazy.Lazy;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativeCustom<Lazy<?>>
@@ -32,7 +32,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:
 		 *
@@ -96,7 +96,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Lazy<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final Lazy<?> instance, final PersistenceLoadHandler builder)
 	{
 		/* intentionally no subject lookup here as premature strong referencing
 		 * might defeat the purpose of memory freeing lazy referencing if no
@@ -106,7 +106,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 	}
 
 	@Override
-	public final void complete(final Binary medium, final Lazy<?> instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final Lazy<?> instance, final PersistenceLoadHandler builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

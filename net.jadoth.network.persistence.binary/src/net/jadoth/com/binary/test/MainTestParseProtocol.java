@@ -28,7 +28,7 @@ public class MainTestParseProtocol
 			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())
 			.setContextDispatcher(
-				PersistenceContextDispatcher.LocalObjectRegistry()
+				PersistenceContextDispatcher.LocalObjectRegistration()
 			)
 		;
 				

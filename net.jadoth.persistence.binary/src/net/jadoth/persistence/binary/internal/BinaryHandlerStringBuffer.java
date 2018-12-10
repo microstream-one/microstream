@@ -4,8 +4,8 @@ import net.jadoth.X;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstractStringBuilder<StringBuffer>
@@ -26,7 +26,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final StringBuffer instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final StringBuffer instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		final char[] value;
 		final long address;
@@ -44,7 +44,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	}
 
 	@Override
-	public void update(final Binary bytes, final StringBuffer instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final StringBuffer instance, final PersistenceLoadHandler builder)
 	{
 		final long lengthChars = BinaryPersistence.getBuildItemContentLength(bytes) - LENGTH_LENGTH;
 		final long buildItemAddress = bytes.buildItemAddress();

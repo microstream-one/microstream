@@ -4,8 +4,8 @@ import java.util.Date;
 
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomValueFixedLength<Date>
 {
@@ -39,7 +39,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Date instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final Date instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		// the data content of a date is simple the timestamp long, nothing else
 		XVM.set_long(
@@ -55,7 +55,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	}
 
 	@Override
-	public void update(final Binary bytes, final Date instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler builder)
 	{
 		instance.setTime(XVM.get_long(bytes.buildItemAddress()));
 	}

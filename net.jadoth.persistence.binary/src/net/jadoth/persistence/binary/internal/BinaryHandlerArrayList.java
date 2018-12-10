@@ -6,9 +6,9 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.Persistence;
 
 
@@ -57,7 +57,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 		final Binary         bytes   ,
 		final ArrayList<?>   instance,
 		final long           oid     ,
-		final PersistenceHandler handler
+		final PersistenceStoreHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -80,7 +80,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler builder)
 	{
 		instance.ensureCapacity(BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET));
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(

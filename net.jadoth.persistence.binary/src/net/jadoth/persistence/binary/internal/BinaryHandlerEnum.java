@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 
@@ -121,7 +121,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
 	{
 		/* (09.06.2017 TM)FIXME: BinaryHandlerEnum#update()
 		 * must not set Enum#ordinal and Enum#name, but rather validate the loaded data's consistency in regard

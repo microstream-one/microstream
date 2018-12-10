@@ -12,10 +12,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
 
@@ -101,10 +101,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary            bytes   ,
-		final EqHashTable<?, ?> instance,
-		final long              oid     ,
-		final PersistenceHandler    handler
+		final Binary                  bytes   ,
+		final EqHashTable<?, ?>       instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
@@ -145,7 +145,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceLoadHandler builder)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final EqHashTable<Object, Object> collectingInstance = (EqHashTable<Object, Object>)instance;
@@ -185,7 +185,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceLoadHandler builder)
 	{
 		// rehash all previously unhashed collected elements
 		instance.rehash();

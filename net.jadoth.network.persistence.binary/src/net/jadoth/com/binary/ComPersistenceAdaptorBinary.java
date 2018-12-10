@@ -177,14 +177,14 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
 	{
 		/*
-		 * Communication normally doesn't update a central/globale object registry (= object graph) directly,
+		 * Communication normally doesn't update a central/global object registry (= object graph) directly,
 		 * but uses a local one that is discarded after every message.
 		 * In case this shall change, a custom-configured foundation can be passed instead.
 		 */
 		return new ComPersistenceAdaptorBinary.Creator.Default(
 			BinaryPersistenceFoundation.New()
 				.setContextDispatcher(
-					PersistenceContextDispatcher.LocalObjectRegistry()
+					PersistenceContextDispatcher.LocalObjectRegistration()
 				),
 			BufferSizeProvider.New()
 		);

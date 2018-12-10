@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceBuildLinker extends PersistenceObjectIdResolver
+public interface PersistenceLoadHandler extends PersistenceObjectIdResolver
 {
 	public PersistenceObjectRetriever getObjectRetriever();
 }

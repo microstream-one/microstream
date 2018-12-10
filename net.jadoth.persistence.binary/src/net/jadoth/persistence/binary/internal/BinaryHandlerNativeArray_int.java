@@ -2,8 +2,8 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNativeArrayPrimitive<int[]>
 {
@@ -23,7 +23,7 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final int[] array, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final int[] array, final long oid, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeArray_int(bytes, this.typeId(), oid, array);
 	}
@@ -35,7 +35,7 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	}
 
 	@Override
-	public void update(final Binary bytes, final int[] instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final int[] instance, final PersistenceLoadHandler builder)
 	{
 		BinaryPersistence.updateArray_int(instance, bytes);
 	}

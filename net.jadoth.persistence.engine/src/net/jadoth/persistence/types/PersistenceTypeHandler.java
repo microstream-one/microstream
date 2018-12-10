@@ -36,12 +36,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	public void iteratePersistedReferences(M medium, _longProcedure iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, PersistenceHandler linker);
+	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
 
 	public T    create(M medium);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public void update(M medium, T instance, PersistenceBuildLinker builder);
+	public void update(M medium, T instance, PersistenceLoadHandler builder);
 
 	/**
 	 * Completes an initially built instance after all loaded instances have been built.
@@ -52,7 +52,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * @param instance
 	 * @param builder
 	 */
-	public void complete(M medium, T instance, PersistenceBuildLinker builder);
+	public void complete(M medium, T instance, PersistenceLoadHandler builder);
 
 	/* (06.10.2012)XXX: PersistenceDomainTypeHandler<M,T> ?
 	 * to bind a generic TypeHandler to a specific registry inside a Domain

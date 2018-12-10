@@ -61,7 +61,7 @@ import net.jadoth.persistence.lazy.BinaryHandlerLazyReference;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -309,7 +309,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putByte(address, VM.getByte(src, srcOffset));
@@ -324,7 +324,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putShort(address, VM.getShort(src, srcOffset));
@@ -339,7 +339,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putInt(address, VM.getInt(src, srcOffset));
@@ -354,7 +354,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putLong(address, VM.getLong(src, srcOffset));
@@ -369,7 +369,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         src      ,
 			final long           srcOffset,
 			final long           address  ,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putLong(address, handler.apply(VM.getObject(src, srcOffset)));
@@ -384,7 +384,7 @@ public final class BinaryPersistence extends Persistence
 			final Object         source       ,
 			final long           sourceOffset ,
 			final long           targetAddress,
-			final PersistenceHandler handler
+			final PersistenceStoreHandler handler
 		)
 		{
 			VM.putLong(targetAddress, handler.applyEager(VM.getObject(source, sourceOffset)));
@@ -654,7 +654,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeFixedSize(
 		final Binary                   bytes        ,
-		final PersistenceHandler           handler      ,
+		final PersistenceStoreHandler           handler      ,
 		final long                     contentLength,
 		final long                     typeId       ,
 		final long                     objectId     ,
