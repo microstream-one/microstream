@@ -1,11 +1,15 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceObjectIdProvider extends PersistenceObjectIdLookup
+public interface PersistenceObjectIdProvider extends PersistenceObjectIdHolder
 {
 	public long provideNextObjectId();
 
 	public PersistenceObjectIdProvider initializeObjectId();
+	
+	@Override
+	public long currentObjectId();
 
+	@Override
 	public PersistenceObjectIdProvider updateCurrentObjectId(long currentObjectId);
 
 	

@@ -10,7 +10,8 @@ import net.jadoth.util.Clonable;
  *
  * @author Thomas Muenz
  */
-public interface PersistenceObjectRegistry extends PersistenceObjectLookup, Clonable<PersistenceObjectRegistry>
+public interface PersistenceObjectRegistry
+extends PersistenceObjectLookup, PersistenceObjectIdLookup, Clonable<PersistenceObjectRegistry>
 {
 	/* funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451
