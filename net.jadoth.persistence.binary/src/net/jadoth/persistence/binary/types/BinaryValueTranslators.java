@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.low.XVM;
-import net.jadoth.persistence.types.PersistenceObjectIdLookup;
+import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.typing.TypeMapping;
 
@@ -191,7 +191,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_byte();
@@ -201,7 +201,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_boolean();
@@ -211,7 +211,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_short();
@@ -221,7 +221,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_char();
@@ -231,7 +231,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_int();
@@ -241,7 +241,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_float();
@@ -251,7 +251,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_long();
@@ -261,7 +261,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		return sourceAddress + XVM.byteSize_double();
@@ -273,7 +273,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -284,7 +284,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_byte(sourceAddress));
@@ -295,7 +295,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -306,7 +306,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_byte(sourceAddress));
@@ -317,7 +317,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -328,7 +328,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -339,7 +339,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -350,7 +350,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_byte(sourceAddress));
@@ -363,7 +363,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)to_int(XVM.get_boolean(sourceAddress)));
@@ -374,7 +374,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, XVM.get_boolean(sourceAddress));
@@ -385,7 +385,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)to_int(XVM.get_boolean(sourceAddress)));
@@ -396,7 +396,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)to_int(XVM.get_boolean(sourceAddress)));
@@ -407,7 +407,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
@@ -418,7 +418,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
@@ -429,7 +429,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
@@ -440,7 +440,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
@@ -453,7 +453,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_short(sourceAddress));
@@ -464,7 +464,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_short(sourceAddress));
@@ -475,7 +475,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, XVM.get_short(sourceAddress));
@@ -486,7 +486,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_short(sourceAddress));
@@ -497,7 +497,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, XVM.get_short(sourceAddress));
@@ -508,7 +508,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_short(sourceAddress));
@@ -519,7 +519,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, XVM.get_short(sourceAddress));
@@ -530,7 +530,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_short(sourceAddress));
@@ -543,7 +543,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_char(sourceAddress));
@@ -554,7 +554,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_char(sourceAddress));
@@ -565,7 +565,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)XVM.get_char(sourceAddress));
@@ -576,7 +576,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, XVM.get_char(sourceAddress));
@@ -587,7 +587,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, XVM.get_char(sourceAddress));
@@ -598,7 +598,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_char(sourceAddress));
@@ -609,7 +609,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, XVM.get_char(sourceAddress));
@@ -620,7 +620,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_char(sourceAddress));
@@ -633,7 +633,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_int(sourceAddress));
@@ -644,7 +644,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_int(sourceAddress));
@@ -655,7 +655,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)XVM.get_int(sourceAddress));
@@ -666,7 +666,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_int(sourceAddress));
@@ -677,7 +677,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, XVM.get_int(sourceAddress));
@@ -688,7 +688,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_int(sourceAddress));
@@ -699,7 +699,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, XVM.get_int(sourceAddress));
@@ -710,7 +710,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_int(sourceAddress));
@@ -723,7 +723,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_float(sourceAddress));
@@ -734,7 +734,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_float(sourceAddress));
@@ -745,7 +745,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)XVM.get_float(sourceAddress));
@@ -756,7 +756,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_float(sourceAddress));
@@ -767,7 +767,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, (int)XVM.get_float(sourceAddress));
@@ -778,7 +778,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_float(sourceAddress));
@@ -789,7 +789,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, (long)XVM.get_float(sourceAddress));
@@ -800,7 +800,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_float(sourceAddress));
@@ -813,7 +813,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_long(sourceAddress));
@@ -824,7 +824,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_long(sourceAddress));
@@ -835,7 +835,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)XVM.get_long(sourceAddress));
@@ -846,7 +846,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_long(sourceAddress));
@@ -857,7 +857,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, (int)XVM.get_long(sourceAddress));
@@ -868,7 +868,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, XVM.get_long(sourceAddress));
@@ -879,7 +879,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, XVM.get_long(sourceAddress));
@@ -890,7 +890,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_long(sourceAddress));
@@ -903,7 +903,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_byte(target, targetOffset, (byte)XVM.get_double(sourceAddress));
@@ -914,7 +914,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_boolean(target, targetOffset, 0 != XVM.get_double(sourceAddress));
@@ -925,7 +925,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_short(target, targetOffset, (short)XVM.get_double(sourceAddress));
@@ -936,7 +936,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_char(target, targetOffset, (char)XVM.get_double(sourceAddress));
@@ -947,7 +947,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_int(target, targetOffset, (int)XVM.get_double(sourceAddress));
@@ -958,7 +958,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_float(target, targetOffset, (float)XVM.get_double(sourceAddress));
@@ -969,7 +969,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_long(target, targetOffset, (long)XVM.get_double(sourceAddress));
@@ -980,7 +980,7 @@ public final class BinaryValueTranslators
 		final long                      sourceAddress,
 		final Object                    target       ,
 		final long                      targetOffset ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		XVM.set_double(target, targetOffset, XVM.get_double(sourceAddress));

@@ -1387,5 +1387,60 @@ Ich hab gestern daheim ein bisschen rum\'fcberlegt und auch schon implementiert 
 Damit wird das eine rundum-sorglos ObjectRegistry mit minimalem Speicherverbrauch und trotzdem sehr hoher Performance.\par
 \par
 Jetzt muss ich das nur noch darauf umbauen.\par
+\par
+\par
+\par
+2018-12-10\par
+\par
+Siehe JET-48 Kommentare.\par
+Mal recherchieren, wie das in dem Storer ist...\par
+\par
+Storer ObjectManager Verwendung:\par
+\par
+1.)\par
+#apply\par
+this.objectManager.lookupObjectId(instance)\par
+\par
+2.)\par
+In #registerAdd\par
+this.objectManager.ensureObjectId(instance)\par
+\par
+Ablauf:\par
+1.) store aufruf (lazy)\par
+2.) initialier registerAdd() Aufruf mit ensureObjectId(). Denn die \'fcbergebene Instanz wird immer gespeichert.\par
+3.) item chain processing mit je einem apply() Aufruf pro Instanz\par
+Apply Ablauf:\par
+4.) storer-local OID-lookup\par
+5.) this.objectManager.lookupObjectId(instance) ("lazy" storing)\par
+6.) registerAdd() Aufruf mit this.objectManager.ensureObjectId()\par
+\par
+Zun\'e4chst mal ist hier Redundanz im Code:\par
+Bei 5) wird ein lookupObjectId gemacht, bei 6) dann (intern) nochmal ein lookup und dann erst die neue ID vergeben.\par
+Besser w\'e4re:\par
+- lock holen\par
+- lookup, wenn erfolgreich, OID zur\'fcckgeben\par
+- ansonsten neue OID vergeben, lokal registrieren und zur\'fcckgeben.\par
+- lock freigeben\par
+\par
+Das Dumme daran ist: Um das so zu machen, m\'fcsste die ObjectManager Kapselung hier aufgespalten werden. Das wiederum kann ObjectManager Implementierungen ruinieren bzw. unm\'f6glich machen.\par
+\par
+L\'f6sung:\par
+Es muss eine ensureObjectId Variante mit callback geben, was getan werden soll, wenn eine neue ID vergeben wird.\par
+Das mag eine zus\'e4tzliche Funktionsinstanz sein, aber immer noch sehr viel billiger als ein doppelter lookup und besser als eine ruinierte ObjectManager Implementierung.\par
+\par
+Variante implementiert. Storer darauf umgebaut. Kommentare zu lazy/eager Logik geschrieben.\par
+\par
+So. Damit zur\'fcck zum eigentlichen Thema: Wenn der ObjectManager f\'fcr das ContextDispatching nicht zerissen werden soll, muss es noch einen Zwischentyp geben. Einen ObjectIdEnsurer oder so. Mal rechechieren ...\par
+Dabei paar Sachen aufr\'e4umen und umbenennen.\par
+Den ganzen PersistenceBuilder Quatsch braucht eigentlich auch niemand. In Loader reinkonsolidieren.\par
+Dabei createBuildItem Methode gefunden, die sich selbst aufruft. Kann ja wohl nicht sein. Recherchieren in \'e4lteren Branches.\par
+Ach, da wurde das District Ged\'f6ns aufgerufen, das ich rausgel\'f6scht hab und dann unaufmerksam einen bug reinrefactort hab.\par
+Fixen.\par
+\par
+ContextDispatcher erweitern f\'fcr Storer.\par
+Allerdings kann mit einem durchgereichten ObjectManager ja noch immer keine Registry gewrappt werden ...\par
+Hm. Es sei denn, macht gibt dem ObjectManager ein Clone().\par
+Das w\'fcrde dann sogar gleich neue, resettete OidProvider Instanzen erzeugen.\par
+Hm. K\'f6nnte passen.\par
 }
  

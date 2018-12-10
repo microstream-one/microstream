@@ -1515,12 +1515,11 @@ extends Clonable<PersistenceFoundation<M, F>>
 
 		protected PersistenceObjectManager ensureObjectManager()
 		{
-			final PersistenceObjectManager newObjectManager =
-				new PersistenceObjectManager.Implementation(
-					this.getObjectRegistry(),
-					this.getObjectIdProvider()
-				)
-			;
+			final PersistenceObjectManager newObjectManager = PersistenceObjectManager.New(
+				this.getObjectRegistry(),
+				this.getObjectIdProvider()
+			);
+			
 			return newObjectManager;
 		}
 

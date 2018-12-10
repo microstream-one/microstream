@@ -2,5 +2,5 @@ package net.jadoth.persistence.types;
 
 public interface PersistenceObjectIdLookup
 {
-	public Object lookupObject(long oid);
+	public long lookupObjectId(Object object);
 }

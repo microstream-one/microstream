@@ -62,7 +62,7 @@ import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceHandler;
-import net.jadoth.persistence.types.PersistenceObjectIdLookup;
+import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.typing.KeyValue;
@@ -399,7 +399,7 @@ public final class BinaryPersistence extends Persistence
 			final long                      sourceAddress,
 			final Object                    target       ,
 			final long                      targetOffset ,
-			final PersistenceObjectIdLookup idResolver
+			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			VM.putByte(target, targetOffset, VM.getByte(sourceAddress));
@@ -414,7 +414,7 @@ public final class BinaryPersistence extends Persistence
 			final long                      sourceAddress,
 			final Object                    target       ,
 			final long                      targetOffset ,
-			final PersistenceObjectIdLookup idResolver
+			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			VM.putShort(target, targetOffset, VM.getShort(sourceAddress));
@@ -429,7 +429,7 @@ public final class BinaryPersistence extends Persistence
 			final long                      sourceAddress,
 			final Object                    target       ,
 			final long                      targetOffset ,
-			final PersistenceObjectIdLookup idResolver
+			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			VM.putInt(target, targetOffset, VM.getInt(sourceAddress));
@@ -444,7 +444,7 @@ public final class BinaryPersistence extends Persistence
 			final long                      sourceAddress,
 			final Object                    target       ,
 			final long                      targetOffset ,
-			final PersistenceObjectIdLookup idResolver
+			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			VM.putLong(target, targetOffset, VM.getLong(sourceAddress));
@@ -459,7 +459,7 @@ public final class BinaryPersistence extends Persistence
 			final long                      sourceAddress,
 			final Object                    target       ,
 			final long                      targetOffset ,
-			final PersistenceObjectIdLookup idResolver
+			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			VM.putObject(target, targetOffset, idResolver.lookupObject(VM.getLong(sourceAddress)));
@@ -474,7 +474,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                    src        ,
 			final long                      srcOffset  ,
 			final long                      address    ,
-			final PersistenceObjectIdLookup oidResolver
+			final PersistenceObjectIdResolver oidResolver
 		)
 		{
 			return VM.getByte(src, srcOffset) == VM.getByte(address);
@@ -488,7 +488,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                    src        ,
 			final long                      srcOffset  ,
 			final long                      address    ,
-			final PersistenceObjectIdLookup oidResolver
+			final PersistenceObjectIdResolver oidResolver
 		)
 		{
 			return VM.getShort(src, srcOffset) == VM.getShort(address);
@@ -502,7 +502,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                    src        ,
 			final long                      srcOffset  ,
 			final long                      address    ,
-			final PersistenceObjectIdLookup oidResolver
+			final PersistenceObjectIdResolver oidResolver
 		)
 		{
 			return VM.getInt(src, srcOffset) == VM.getInt(address);
@@ -516,7 +516,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                    src        ,
 			final long                      srcOffset  ,
 			final long                      address    ,
-			final PersistenceObjectIdLookup oidResolver
+			final PersistenceObjectIdResolver oidResolver
 		)
 		{
 			return VM.getLong(src, srcOffset) == VM.getLong(address);
@@ -530,7 +530,7 @@ public final class BinaryPersistence extends Persistence
 			final Object                    src        ,
 			final long                      srcOffset  ,
 			final long                      address    ,
-			final PersistenceObjectIdLookup oidResolver
+			final PersistenceObjectIdResolver oidResolver
 		)
 		{
 			return VM.getObject(src, srcOffset) == oidResolver.lookupObject(VM.getLong(address));
@@ -675,7 +675,7 @@ public final class BinaryPersistence extends Persistence
 		final BinaryValueSetter[]       setters      ,
 		final long[]                    memoryOffsets,
 		final long                      dataAddress  ,
-		final PersistenceObjectIdLookup idResolver
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		long address = dataAddress;
@@ -691,7 +691,7 @@ public final class BinaryPersistence extends Persistence
 		final long[]                    memoryOffsets,
 		final long[]                    binaryOffsets,
 		final long                      address      ,
-		final PersistenceObjectIdLookup oidResolver
+		final PersistenceObjectIdResolver oidResolver
 	)
 	{
 		for(int i = 0; i < equalators.length; i++)
@@ -1634,7 +1634,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary                    bytes           ,
 		final T                         instance        ,
 		final int[]                     referenceOffsets,
-		final PersistenceObjectIdLookup oidResolver
+		final PersistenceObjectIdResolver oidResolver
 	)
 	{
 		final long referencesBinaryOffset = bytes.entityContentAddress;
@@ -1732,7 +1732,7 @@ public final class BinaryPersistence extends Persistence
 	public static final void updateArrayObjectReferences(
 		final Binary                    bytes       ,
 		final long                      binaryOffset,
-		final PersistenceObjectIdLookup oidResolver ,
+		final PersistenceObjectIdResolver oidResolver ,
 		final Object[]                  array       ,
 		final int                       offset      ,
 		final int                       length
@@ -1758,7 +1758,7 @@ public final class BinaryPersistence extends Persistence
 	public static final void collectElementsIntoArray(
 		final Binary                    bytes       ,
 		final long                      binaryOffset,
-		final PersistenceObjectIdLookup oidResolver ,
+		final PersistenceObjectIdResolver oidResolver ,
 		final Object[]                  target
 	)
 	{
@@ -1775,7 +1775,7 @@ public final class BinaryPersistence extends Persistence
 	public static final int collectListObjectReferences(
 		final Binary                    bytes       ,
 		final long                      binaryOffset,
-		final PersistenceObjectIdLookup oidResolver ,
+		final PersistenceObjectIdResolver oidResolver ,
 		final Consumer<Object>          collector
 	)
 	{
@@ -1794,7 +1794,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary                    bytes       ,
 		final long                      binaryOffset,
 		final int                       length      ,
-		final PersistenceObjectIdLookup oidResolver ,
+		final PersistenceObjectIdResolver oidResolver ,
 		final Consumer<Object>          collector
 	)
 	{
@@ -1813,7 +1813,7 @@ public final class BinaryPersistence extends Persistence
 		final Binary                     bytes       ,
 		final long                       binaryOffset,
 		final int                        length      ,
-		final PersistenceObjectIdLookup  oidResolver ,
+		final PersistenceObjectIdResolver  oidResolver ,
 		final BiConsumer<Object, Object> collector
 	)
 	{

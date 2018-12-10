@@ -74,7 +74,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		}
 
 		// link to object supplier (internal logic can either update, discard or throw exception on mismatch)
-		instance.link(referenceOid, handler.getObjectSupplier());
+		instance.link(referenceOid, handler.getObjectRetriever());
 
 		// lazy reference instance must be stored in any case
 		XVM.set_long(

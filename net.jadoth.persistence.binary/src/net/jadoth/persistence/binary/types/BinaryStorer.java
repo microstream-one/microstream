@@ -198,10 +198,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			{
 				return Persistence.nullId();
 			}
-
-			// (07.12.2018 TM)FIXME: update comment
+			
 			/*
-			 * "Eager" must still means that if this storer has already stored the passed instance,
+			 * "Eager" must still mean that if this storer has already stored the passed instance,
 			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
 			 * but would also create infinite storing loops and overflows.
 			 * So "eager" can only mean to not check the global registry, but it must still mean to check
@@ -215,14 +214,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			/*
 			 * Eager storing logic:
-			 * If the instance is not locally already handled (already stored by this storer), it is
-			 * stored, no matter if necessary or not.
+			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
 			 */
 			return this.registerAdd(instance);
 		}
 
 		@Override
-		public final PersistenceObjectRetriever getObjectSupplier()
+		public final PersistenceObjectRetriever getObjectRetriever()
 		{
 			return this.objectRetriever;
 		}
