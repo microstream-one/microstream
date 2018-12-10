@@ -35,7 +35,20 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		);
 	}
 
-
+	public static BinaryLoader.Implementation New(
+		final PersistenceTypeHandlerLookup<Binary> typeLookup,
+		final PersistenceObjectRegistry            registry  ,
+		final PersistenceSourceSupplier<Binary>    source    ,
+		final LoadItemsChain                       loadItems
+	)
+	{
+		return new BinaryLoader.Implementation(
+			notNull(typeLookup),
+			notNull(registry)  ,
+			notNull(source)    ,
+			notNull(loadItems)
+		);
+	}
 
 	public final class Implementation implements BinaryLoader
 	{
@@ -51,7 +64,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		/////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
-		private final PersistenceTypeHandlerLookup<Binary>           typeLookup;
+		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup;
 		private final PersistenceObjectRegistry                      registry  ;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 
@@ -70,11 +83,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		// constructors     //
 		/////////////////////
 
-		/* (17.12.2012)TODO: thread local object registry
-		 * for fast thread local graph building
-		 * (optional) commit to parent global object registry
-		 */
-		public Implementation(
+		Implementation(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup,
 			final PersistenceObjectRegistry            registry  ,
 			final PersistenceSourceSupplier<Binary>    source    ,
@@ -82,10 +91,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		)
 		{
 			super();
-			this.typeLookup     = notNull(typeLookup);
-			this.registry       = notNull(registry)  ;
-			this.sourceSupplier = notNull(source)    ;
-			this.loadItems      = notNull(loadItems) ;
+			this.typeHandlerLookup = typeLookup;
+			this.registry          = registry  ;
+			this.sourceSupplier    = source    ;
+			this.loadItems         = loadItems ;
 		}
 
 
@@ -93,7 +102,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
 
 		final void createInstanceBuildItems(final Binary bytes)
 		{
@@ -165,7 +173,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		{
 			final PersistenceTypeHandler<Binary, ?> handler;
 			
-			if((handler = this.typeLookup.lookupTypeHandler(oid, tid)) == null)
+			if((handler = this.typeHandlerLookup.lookupTypeHandler(oid, tid)) == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
 			}
@@ -254,16 +262,22 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuil
 		
 		private Entry createBuildItem(final long objectId, final long typeId)
 		{
-			// (10.12.2018 TM)FIXME: /!\ refactoring error
-			final Entry buildItem = this.createBuildItem(objectId, typeId);
+			final PersistenceTypeHandler<Binary, Object> typeHandler = this.typeHandlerLookup.lookupTypeHandler(
+				objectId,
+				typeId
+			);
 			
-			if(buildItem.handler == null)
+			if(typeHandler == null)
 			{
 				// at this point, a handler must definitely be present
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
 			}
 			
-			return buildItem;
+			return this.createBuildItem(
+				objectId,
+				typeHandler,
+				this.registry.lookupObject(objectId)
+			);
 		}
 
 		@Override
