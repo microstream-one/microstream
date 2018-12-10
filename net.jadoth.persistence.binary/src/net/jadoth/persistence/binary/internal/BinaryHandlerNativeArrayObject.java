@@ -7,9 +7,9 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.reflect.XReflect;
 
@@ -64,7 +64,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final A instance, final long oid, final PersistenceHandler handler)
+	public final void store(final Binary bytes, final A instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeArrayContentAsList(
 			bytes                      ,
@@ -88,7 +88,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void update(final Binary bytes, final A instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final A instance, final PersistenceLoadHandler builder)
 	{
 		// better check length consistency here
 		final Object[] arrayInstance = (Object[])instance;

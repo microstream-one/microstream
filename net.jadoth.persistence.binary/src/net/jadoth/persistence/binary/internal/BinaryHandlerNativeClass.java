@@ -3,8 +3,8 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
 
@@ -46,7 +46,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Class<?> instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final Class<?> instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		// no-op, static state is not stored
 	}
@@ -91,7 +91,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 	}
 
 	@Override
-	public void update(final Binary bytes, final Class<?> instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final Class<?> instance, final PersistenceLoadHandler builder)
 	{
 		// no-op, see create()
 	}

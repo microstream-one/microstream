@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeLong extends AbstractBinaryHandlerNativeCustomValueFixedLength<Long>
 {
@@ -22,7 +22,7 @@ public final class BinaryHandlerNativeLong extends AbstractBinaryHandlerNativeCu
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Long instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final Long instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeLong(bytes, this.typeId(), oid, instance.longValue());
 	}

@@ -12,10 +12,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
 
@@ -101,10 +101,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary                 bytes   ,
-		final EqConstHashTable<?, ?> instance,
-		final long                   oid     ,
-		final PersistenceHandler         handler
+		final Binary                  bytes   ,
+		final EqConstHashTable<?, ?>  instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
@@ -148,7 +148,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 	public final void update(
 		final Binary                 bytes   ,
 		final EqConstHashTable<?, ?> instance,
-		final PersistenceBuildLinker     builder
+		final PersistenceLoadHandler handler
 	)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
@@ -158,23 +158,23 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 		XVM.setObject(
 			instance,
 			XVM.objectFieldOffset(FIELD_EQUALATOR),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 		XVM.setObject(
 			instance,
 			XVM.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
+			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
 		);
 		XVM.setObject(
 			instance,
 			XVM.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
+			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
 		);
 		instance.size = BinaryPersistence.collectKeyValueReferences(
 			bytes,
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			builder,
+			handler,
 			new BiConsumer<Object, Object>()
 			{
 				@Override
@@ -189,7 +189,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashTable<?, ?> instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final EqConstHashTable<?, ?> instance, final PersistenceLoadHandler builder)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();

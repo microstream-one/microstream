@@ -7,10 +7,10 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 /**
@@ -63,10 +63,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 
 	@Override
 	public final void store(
-		final Binary         bytes   ,
-		final ConstList<?>   instance,
-		final long           oid     ,
-		final PersistenceHandler handler
+		final Binary                  bytes   ,
+		final ConstList<?>            instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		final Object[] arrayInstance = instance.data;
@@ -85,7 +85,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceLoadHandler builder)
 	{
 		final Object[] arrayInstance = instance.data;
 

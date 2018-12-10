@@ -7,7 +7,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 
@@ -29,13 +29,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final PersistenceBuildLinker builder)
+	public void update(final Binary medium, final T instance, final PersistenceLoadHandler builder)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)

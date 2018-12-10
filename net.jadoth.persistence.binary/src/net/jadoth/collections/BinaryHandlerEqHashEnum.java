@@ -12,11 +12,11 @@ import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomC
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
-import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
+import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.reflect.XReflect;
 
 
@@ -103,9 +103,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	}
 
 	public static final void staticUpdate(
-		final Binary             bytes   ,
-		final EqHashEnum<?>      instance,
-		final PersistenceBuildLinker builder
+		final Binary                 bytes   ,
+		final EqHashEnum<?>          instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
@@ -118,14 +118,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		XVM.setObject(
 			instance,
 			XVM.objectFieldOffset(FIELD_EQULATOR),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
 		instance.size = BinaryPersistence.collectListObjectReferences(
 			bytes                 ,
 			BINARY_OFFSET_ELEMENTS,
-			builder               ,
+			handler               ,
 			new Consumer<Object>()
 			{
 				@Override
@@ -191,10 +191,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary         bytes   ,
-		final EqHashEnum<?>  instance,
-		final long           oid     ,
-		final PersistenceHandler handler
+		final Binary                  bytes   ,
+		final EqHashEnum<?>           instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		staticStore(bytes, instance, this.typeId(), oid, handler);
@@ -207,13 +207,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceLoadHandler builder)
 	{
 		staticUpdate(bytes, instance, builder);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceBuildLinker builder)
+	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceLoadHandler builder)
 	{
 		staticComplete(medium, instance);
 	}

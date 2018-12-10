@@ -11,7 +11,7 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
@@ -23,7 +23,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 import net.jadoth.reference._intReference;
 
-public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceBuildLinker, _longProcedure
+public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler, _longProcedure
 {
 	public interface Creator extends PersistenceLoader.Creator<Binary>
 	{

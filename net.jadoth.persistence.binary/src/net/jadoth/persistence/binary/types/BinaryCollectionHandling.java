@@ -7,8 +7,8 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.typing.KeyValue;
 
@@ -163,10 +163,10 @@ public final class BinaryCollectionHandling
 	 * @return
 	 */
 	public static final int updateSizedArrayObjectReferences(
-		final Binary         bytes       ,
-		final long           headerOffset,
-		final Object[]       array       ,
-		final PersistenceBuildLinker builder
+		final Binary                 bytes       ,
+		final long                   headerOffset,
+		final Object[]               array       ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		final int size = X.checkArrayRange(getSizedArrayElementCount(bytes, headerOffset));
@@ -177,7 +177,7 @@ public final class BinaryCollectionHandling
 		BinaryPersistence.updateArrayObjectReferences(
 			bytes,
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			builder,
+			handler,
 			array,
 			0,
 			size

@@ -4,10 +4,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 /**
@@ -64,10 +64,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary         bytes   ,
-		final BulkList<?>    instance,
-		final long           oid     ,
-		final PersistenceHandler handler
+		final Binary                  bytes   ,
+		final BulkList<?>             instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
 	)
 	{
 		BinaryCollectionHandling.storeSizedArray(
@@ -88,7 +88,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final BulkList<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary bytes, final BulkList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
@@ -96,7 +96,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 			bytes                    ,
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
-			builder
+			handler
 		);
 	}
 

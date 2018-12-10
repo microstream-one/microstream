@@ -9,9 +9,9 @@ import net.jadoth.low.XVM;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
@@ -68,7 +68,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceHandler handler)
+	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
@@ -95,7 +95,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceBuildLinker builder)
+	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
 	{
 		final int elementCount = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
@@ -121,7 +121,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceBuildLinker builder)
+	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
 	{
 		final Object helper = rawData.getHelper();
 		

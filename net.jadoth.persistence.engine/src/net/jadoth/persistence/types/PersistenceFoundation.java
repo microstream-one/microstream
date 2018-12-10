@@ -8,7 +8,7 @@ import net.jadoth.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import net.jadoth.typing.TypeMapping;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.BufferSizeProviderIncremental;
-import net.jadoth.util.Clonable;
+import net.jadoth.util.Cloneable;
 import net.jadoth.util.InstanceDispatcher;
 
 
@@ -24,7 +24,7 @@ import net.jadoth.util.InstanceDispatcher;
  * @param <M>
  */
 public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
-extends Clonable<PersistenceFoundation<M, F>>
+extends Cloneable<PersistenceFoundation<M, F>>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
@@ -1550,7 +1550,7 @@ extends Clonable<PersistenceFoundation<M, F>>
 		
 		protected PersistenceContextDispatcher<M> ensureContextDispatcher()
 		{
-			return PersistenceContextDispatcher.NoOp();
+			return PersistenceContextDispatcher.PassThrough();
 		}
 
 		protected PersistenceRegisterer.Creator ensureRegistererCreator()

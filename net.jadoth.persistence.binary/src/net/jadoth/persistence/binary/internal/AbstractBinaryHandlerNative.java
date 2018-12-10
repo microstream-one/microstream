@@ -11,9 +11,9 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldComplex;
@@ -154,7 +154,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public abstract void store(Binary bytes, T instance, long oid, PersistenceHandler linker);
+	public abstract void store(Binary bytes, T instance, long oid, PersistenceStoreHandler handler);
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
@@ -172,7 +172,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	public abstract T create(Binary bytes);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* No-op update logic by default. This is useful for all immutable value types (String, Integer, etc.).
 		 * Value types never get updated. The value is only set once at instance creation time.
@@ -181,7 +181,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public void complete(final Binary medium, final T instance, final PersistenceBuildLinker builder)
+	public void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

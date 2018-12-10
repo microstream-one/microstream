@@ -6,7 +6,7 @@ import static net.jadoth.X.notNull;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
 import net.jadoth.persistence.types.PersistenceObjectRetriever;
 import net.jadoth.persistence.types.PersistenceStorer;
@@ -51,7 +51,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	 * 
 	 * @author TM
 	 */
-	public class Implementation implements BinaryStorer, PersistenceHandler, PersistenceAcceptor
+	public class Implementation implements BinaryStorer, PersistenceStoreHandler, PersistenceAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -119,7 +119,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		protected Implementation(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectSupplier    ,
+			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -128,7 +128,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			super();
 			this.objectManager      = notNull(objectManager)         ;
-			this.objectRetriever    = notNull(objectSupplier)        ;
+			this.objectRetriever    = notNull(objectRetriever)       ;
 			this.typeManager        = notNull(typeManager)           ;
 			this.target             = notNull(target)                ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
@@ -537,14 +537,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		ImplementationEager(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectSupplier    ,
+			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
 			final int                                   channelCount
 		)
 		{
-			super(objectManager, objectSupplier, typeManager, target, bufferSizeProvider, channelCount);
+			super(objectManager, objectRetriever, typeManager, target, bufferSizeProvider, channelCount);
 		}
 		
 		
@@ -596,30 +596,30 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	{
 		@Override
 		public BinaryStorer createLazyStorer(
-			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
+			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectRetriever            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
 		
 		@Override
 		public default BinaryStorer createStorer(
-			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectSupplier    ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
+			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
 		)
 		{
-			return this.createLazyStorer(objectManager, objectSupplier, typeManager, target, bufferSizeProvider);
+			return this.createLazyStorer(typeManager, objectManager, objectRetriever, target, bufferSizeProvider);
 		}
 		
 		@Override
 		public BinaryStorer createEagerStorer(
-			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectSupplier    ,
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
+			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectRetriever            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -668,16 +668,16 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			@Override
 			public final BinaryStorer createLazyStorer(
-				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
+				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectRetriever            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
 				return new BinaryStorer.Implementation(
 					objectManager          ,
-					objectSupplier         ,
+					objectRetriever        ,
 					typeManager            ,
 					target                 ,
 					bufferSizeProvider     ,
@@ -686,16 +686,16 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 			@Override
 			public BinaryStorer createEagerStorer(
-				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever             objectSupplier    ,
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
+				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectRetriever            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
 				return new BinaryStorer.ImplementationEager(
 					objectManager          ,
-					objectSupplier         ,
+					objectRetriever        ,
 					typeManager            ,
 					target                 ,
 					bufferSizeProvider     ,

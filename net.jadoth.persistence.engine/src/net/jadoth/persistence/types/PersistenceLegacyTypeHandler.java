@@ -25,7 +25,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 
 	@Override
-	public default void store(final M medium, final T instance, final long objectId, final PersistenceHandler handler)
+	public default void store(final M medium, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		// (13.09.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -201,13 +201,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public void update(final M medium, final T instance, final PersistenceBuildLinker builder)
+		public void update(final M medium, final T instance, final PersistenceLoadHandler builder)
 		{
 			this.typeHandler.update(medium, instance, builder);
 		}
 
 		@Override
-		public void complete(final M medium, final T instance, final PersistenceBuildLinker builder)
+		public void complete(final M medium, final T instance, final PersistenceLoadHandler builder)
 		{
 			this.typeHandler.complete(medium, instance, builder);
 		}

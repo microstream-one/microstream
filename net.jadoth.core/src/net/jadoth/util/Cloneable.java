@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-public interface Clonable<S>
+public interface Cloneable<S>
 {
 	/**
 	 * This method creates a new instance of the same {@link Class}, specified by <S>, of the instance on which
@@ -20,5 +20,8 @@ public interface Clonable<S>
 	 * 
 	 * @return a clone of this instance.
 	 */
-	public S Clone();
+	public default S Clone()
+	{
+		throw new UnsupportedOperationException();
+	}
 }

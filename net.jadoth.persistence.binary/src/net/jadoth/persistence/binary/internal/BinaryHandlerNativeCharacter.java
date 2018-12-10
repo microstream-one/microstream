@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNativeCustomValueFixedLength<Character>
 {
@@ -22,7 +22,7 @@ public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerNat
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Character instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final Character instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		BinaryPersistence.storeCharacter(bytes, this.typeId(), oid, instance.charValue());
 	}

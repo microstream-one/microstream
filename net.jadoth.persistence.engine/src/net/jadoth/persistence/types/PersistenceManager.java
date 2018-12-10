@@ -55,7 +55,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 	 * Closes all ties to outside resources, if applicable. Typ
 	 */
 	public void close();
-
+	
 
 	
 	public static <M> PersistenceManager<M> New(
@@ -144,7 +144,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+						
 		@Override
 		public final PersistenceObjectRegistry objectRegistry()
 		{
@@ -167,9 +167,9 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createLazyStorer()
 		{
 			return this.storerCreator.createLazyStorer(
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this,
-				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -179,9 +179,9 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createStorer()
 		{
 			return this.storerCreator.createStorer(
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this,
-				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -191,9 +191,9 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createEagerStorer()
 		{
 			return this.storerCreator.createEagerStorer(
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this,
-				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -203,9 +203,9 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final PersistenceStorer<M> createStorer(final PersistenceStorer.Creator<M> storerCreator)
 		{
 			return storerCreator.createStorer(
+				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this,
-				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -214,7 +214,11 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		@Override
 		public final PersistenceRegisterer createRegisterer()
 		{
-			return this.registererCreator.createRegisterer(this.objectManager, this.typeHandlerManager);
+			// undispatched (for now)
+			return this.registererCreator.createRegisterer(
+				this.objectManager,
+				this.typeHandlerManager
+			);
 		}
 
 		@Override

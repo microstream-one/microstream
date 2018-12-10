@@ -6,8 +6,8 @@ import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceBuildLinker;
-import net.jadoth.persistence.types.PersistenceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
 
 
@@ -70,7 +70,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final PersistenceHandler handler)
+	public void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -82,7 +82,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceBuildLinker builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
 	{
 		throw new UnsupportedOperationException();
 	}

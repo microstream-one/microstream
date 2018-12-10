@@ -1,6 +1,6 @@
 package net.jadoth.persistence.types;
 
-public interface PersistenceHandler extends PersistenceFunction
+public interface PersistenceStoreHandler extends PersistenceFunction
 {
 	/**
 	 * The "natural" way of handling an instance as defined by the implementation.

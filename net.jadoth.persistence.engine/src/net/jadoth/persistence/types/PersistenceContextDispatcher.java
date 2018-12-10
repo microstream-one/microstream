@@ -36,30 +36,29 @@ public interface PersistenceContextDispatcher<M>
 	
 	
 	
-	public static <M> PersistenceContextDispatcher.NoOp<M> NoOp()
+	public static <M> PersistenceContextDispatcher.PassThrough<M> PassThrough()
 	{
-		return new PersistenceContextDispatcher.NoOp<>();
+		return new PersistenceContextDispatcher.PassThrough<>();
 	}
 	
-	public static <M> PersistenceContextDispatcher.LocalObjectRegistry<M> LocalObjectRegistry()
+	public static <M> PersistenceContextDispatcher.LocalObjectRegistration<M> LocalObjectRegistration()
 	{
-		return new PersistenceContextDispatcher.LocalObjectRegistry<>();
+		return new PersistenceContextDispatcher.LocalObjectRegistration<>();
 	}
 	
-	public final class NoOp<M> implements PersistenceContextDispatcher<M>
+	public final class PassThrough<M> implements PersistenceContextDispatcher<M>
 	{
-		NoOp()
+		PassThrough()
 		{
 			super();
 		}
 		
 		// once again missing interface stateless instantiation.
-		
 	}
 	
-	public final class LocalObjectRegistry<M> implements PersistenceContextDispatcher<M>
+	public final class LocalObjectRegistration<M> implements PersistenceContextDispatcher<M>
 	{
-		LocalObjectRegistry()
+		LocalObjectRegistration()
 		{
 			super();
 		}
@@ -70,6 +69,14 @@ public interface PersistenceContextDispatcher<M>
 		)
 		{
 			return objectRegistry.Clone();
+		}
+		
+		@Override
+		public final PersistenceObjectManager dispatchObjectManager(
+			final PersistenceObjectManager objectManager
+		)
+		{
+			return objectManager.Clone();
 		}
 		
 	}
