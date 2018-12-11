@@ -311,7 +311,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		
 		private ByteOrder parseByteOrder(final String input)
 		{
-			return XVM.lookupByteOrder(input);
+			return XVM.resolveByteOrder(input);
 		}
 		
 		private PersistenceIdStrategy parseIdStrategy(final String input)

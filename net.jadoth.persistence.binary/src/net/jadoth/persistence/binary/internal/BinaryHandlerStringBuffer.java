@@ -34,7 +34,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 			address = bytes.storeEntityHeader(((long)instance.length() << 1) + LENGTH_LENGTH, this.typeId(), oid),
 			(value = XVM.accessChars(instance)).length
 		);
-		XVM.copyArray(value, address, 0, instance.length());
+		XVM.copyArrayToAddress(value, 0, instance.length(), address);
 	}
 
 	@Override

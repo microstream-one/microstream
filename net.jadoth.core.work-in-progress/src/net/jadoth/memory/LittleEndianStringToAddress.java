@@ -139,10 +139,10 @@ public final class LittleEndianStringToAddress
 	{
 		if(value)
 		{
-			XVM.copyArray(STRING_BOOLEAN_TRUE, address);
+			XVM.copyArrayToAddress(STRING_BOOLEAN_TRUE, address);
 			return address + STRING_BYTE_LENGTH_BOOLEAN_TRUE;
 		}
-		XVM.copyArray(STRING_BOOLEAN_FALSE, address);
+		XVM.copyArrayToAddress(STRING_BOOLEAN_FALSE, address);
 		return address + STRING_BYTE_LENGTH_BOOLEAN_FALSE;
 	}
 
@@ -195,7 +195,11 @@ public final class LittleEndianStringToAddress
 	{
 		// (25.02.2013 TM)TODO: Float.toString(): optimize horrible moron-code from JDK
 		final String valueString = Float.toString(value);
-		XVM.copyString(valueString, address);
+		
+		// endless copying around and around because of JDK moron code.
+		final char[] valueArray = valueString.toCharArray();
+		XVM.copyArrayToAddress(valueArray, address);
+		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.
 	}
 
@@ -203,7 +207,11 @@ public final class LittleEndianStringToAddress
 	{
 		// (25.02.2013 TM)TODO: Double.toString(): optimize horrible moron-code from JDK
 		final String valueString = Double.toString(value);
-		XVM.copyString(valueString, address);
+		
+		// endless copying around and around because of JDK moron code.
+		final char[] valueArray = valueString.toCharArray();
+		XVM.copyArrayToAddress(valueArray, address);
+		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.
 	}
 
@@ -214,7 +222,7 @@ public final class LittleEndianStringToAddress
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArray(STRING_LONG_MIN_VALUE, address);
+			XVM.copyArrayToAddress(STRING_LONG_MIN_VALUE, address);
 			return address + STRING_BYTE_LENGTH_LONG_MIN_VALUE;
 		}
 		XVM.set_char(address, '-');
@@ -226,7 +234,7 @@ public final class LittleEndianStringToAddress
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArray(STRING_INT_MIN_VALUE, address);
+			XVM.copyArrayToAddress(STRING_INT_MIN_VALUE, address);
 			return address + STRING_BYTE_LENGTH_INT_MIN_VALUE;
 		}
 		XVM.set_char(address, '-');

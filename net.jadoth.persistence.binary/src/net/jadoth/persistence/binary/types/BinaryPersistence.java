@@ -61,8 +61,8 @@ import net.jadoth.persistence.lazy.BinaryHandlerLazyReference;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.typing.KeyValue;
@@ -70,22 +70,12 @@ import net.jadoth.typing.XTypes;
 import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Unsafe;
-//CHECKSTYLE.ON: IllegalImport
 
 public final class BinaryPersistence extends Persistence
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
-
-	/* (12.09.2018 TM)TODO: test Unsafe consolidation
-	 * Test and refactor or comment if this constant can be replaced by XVM calls without losing performance.
-	 * The idea is to have exactely one class that has ties to a JVM-vendor specific class and that encapsulates
-	 * them. So in theory, it should suffice to replace just that one class to port the framework but still have
-	 * low level access.
-	 * OR they replace the clumsy "Unsafe" by something standardized, of course.
-	 */
-	static final Unsafe VM = (Unsafe)XVM.getSystemInstance();
 
 	static final int
 		LENGTH_LONG = Long.BYTES                          ,
@@ -261,12 +251,12 @@ public final class BinaryPersistence extends Persistence
 		
 	public static final long getEntityTypeId(final long entityAddress)
 	{
-		return VM.getLong(entityAddress + OFFSET_TID);
+		return XVM.get_long(entityAddress + OFFSET_TID);
 	}
 
 	public static final long getEntityObjectId(final long entityAddress)
 	{
-		return VM.getLong(entityAddress + OFFSET_OID);
+		return XVM.get_long(entityAddress + OFFSET_OID);
 	}
 
 	public static final long entityContentAddress(final long entityAddress)
@@ -312,7 +302,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putByte(address, VM.getByte(src, srcOffset));
+			XVM.set_byte(address, XVM.get_byte(src, srcOffset));
 			return address + Byte.BYTES;
 		}
 	};
@@ -327,7 +317,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putShort(address, VM.getShort(src, srcOffset));
+			XVM.set_short(address, XVM.get_short(src, srcOffset));
 			return address + Short.BYTES;
 		}
 	};
@@ -342,7 +332,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putInt(address, VM.getInt(src, srcOffset));
+			XVM.set_int(address, XVM.get_int(src, srcOffset));
 			return address + Integer.BYTES;
 		}
 	};
@@ -357,7 +347,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putLong(address, VM.getLong(src, srcOffset));
+			XVM.set_long(address, XVM.get_long(src, srcOffset));
 			return address + Long.BYTES;
 		}
 	};
@@ -372,7 +362,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putLong(address, handler.apply(VM.getObject(src, srcOffset)));
+			XVM.set_long(address, handler.apply(XVM.getObject(src, srcOffset)));
 			return address + LENGTH_OID;
 		}
 	};
@@ -387,7 +377,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceStoreHandler handler
 		)
 		{
-			VM.putLong(targetAddress, handler.applyEager(VM.getObject(source, sourceOffset)));
+			XVM.set_long(targetAddress, handler.applyEager(XVM.getObject(source, sourceOffset)));
 			return targetAddress + LENGTH_OID;
 		}
 	};
@@ -402,7 +392,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			VM.putByte(target, targetOffset, VM.getByte(sourceAddress));
+			XVM.set_byte(target, targetOffset, XVM.get_byte(sourceAddress));
 			return sourceAddress + Byte.BYTES;
 		}
 	};
@@ -417,7 +407,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			VM.putShort(target, targetOffset, VM.getShort(sourceAddress));
+			XVM.set_short(target, targetOffset, XVM.get_short(sourceAddress));
 			return sourceAddress + Short.BYTES;
 		}
 	};
@@ -432,7 +422,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			VM.putInt(target, targetOffset, VM.getInt(sourceAddress));
+			XVM.set_int(target, targetOffset, XVM.get_int(sourceAddress));
 			return sourceAddress + Integer.BYTES;
 		}
 	};
@@ -447,7 +437,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			VM.putLong(target, targetOffset, VM.getLong(sourceAddress));
+			XVM.set_long(target, targetOffset, XVM.get_long(sourceAddress));
 			return sourceAddress + Long.BYTES;
 		}
 	};
@@ -462,7 +452,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			VM.putObject(target, targetOffset, idResolver.lookupObject(VM.getLong(sourceAddress)));
+			XVM.setObject(target, targetOffset, idResolver.lookupObject(XVM.get_long(sourceAddress)));
 			return sourceAddress + LENGTH_OID;
 		}
 	};
@@ -477,7 +467,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver oidResolver
 		)
 		{
-			return VM.getByte(src, srcOffset) == VM.getByte(address);
+			return XVM.get_byte(src, srcOffset) == XVM.get_byte(address);
 		}
 	};
 
@@ -491,7 +481,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver oidResolver
 		)
 		{
-			return VM.getShort(src, srcOffset) == VM.getShort(address);
+			return XVM.get_short(src, srcOffset) == XVM.get_short(address);
 		}
 	};
 
@@ -505,7 +495,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver oidResolver
 		)
 		{
-			return VM.getInt(src, srcOffset) == VM.getInt(address);
+			return XVM.get_int(src, srcOffset) == XVM.get_int(address);
 		}
 	};
 
@@ -519,7 +509,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver oidResolver
 		)
 		{
-			return VM.getLong(src, srcOffset) == VM.getLong(address);
+			return XVM.get_long(src, srcOffset) == XVM.get_long(address);
 		}
 	};
 
@@ -533,7 +523,7 @@ public final class BinaryPersistence extends Persistence
 			final PersistenceObjectIdResolver oidResolver
 		)
 		{
-			return VM.getObject(src, srcOffset) == oidResolver.lookupObject(VM.getLong(address));
+			return XVM.getObject(src, srcOffset) == oidResolver.lookupObject(XVM.get_long(address));
 		}
 	};
 
@@ -714,7 +704,7 @@ public final class BinaryPersistence extends Persistence
 		{
 			if(referenceOffsets[i] != 0)
 			{
-				iterator.apply(VM.getObject(instance, referenceOffsets[i]));
+				iterator.apply(XVM.getObject(instance, referenceOffsets[i]));
 			}
 		}
 	}
@@ -731,7 +721,7 @@ public final class BinaryPersistence extends Persistence
 		final long boundAddress = address + count * LENGTH_OID;
 		for(long a = address; a < boundAddress; a += LENGTH_OID)
 		{
-			iterator.accept(VM.getLong(a));
+			iterator.accept(XVM.get_long(a));
 		}
 	}
 
@@ -764,7 +754,7 @@ public final class BinaryPersistence extends Persistence
 		final long boundAddress = elementsStartAddress + count * elementLength;
 		for(long a = elementsStartAddress; a < boundAddress; a += elementLength)
 		{
-			iterator.accept(VM.getLong(a + elementOffset));
+			iterator.accept(XVM.get_long(a + elementOffset));
 		}
 	}
 
@@ -792,7 +782,7 @@ public final class BinaryPersistence extends Persistence
 		final long boundAddress = bytes.entityContentAddress + boundOffset;
 		for(long address = bytes.entityContentAddress + startOffset; address < boundAddress; address += LENGTH_LONG)
 		{
-			iterator.accept(VM.getLong(address));
+			iterator.accept(XVM.get_long(address));
 		}
 	}
 
@@ -801,14 +791,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength(array.length);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_BYTE_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			array.length
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -822,14 +809,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength(array.length);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_BOOLEAN_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			array.length
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -838,14 +822,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 1);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_SHORT_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << 1 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -854,14 +835,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 1);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_CHAR_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << 1 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -870,14 +848,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 2);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_INT_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << 2 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -886,14 +861,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 2);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_FLOAT_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << 2 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -902,14 +874,11 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << BITS_3);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_LONG_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << BITS_3 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
@@ -918,69 +887,66 @@ public final class BinaryPersistence extends Persistence
 		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << BITS_3);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		VM.putLong(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		VM.putLong(binaryArrayElementCountAddress(storeAddress), array.length);
-		VM.copyMemory(
+		XVM.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
+		XVM.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XVM.copyArrayToAddress(
 			array,
-			Unsafe.ARRAY_DOUBLE_BASE_OFFSET,
-			null,
-			binaryArrayElementDataAddress(storeAddress),
-			(long)array.length << BITS_3 // calculating again should be faster than writing a local length variable
+			binaryArrayElementDataAddress(storeAddress)
 		);
 	}
 
 	public static final long store_int(final long address, final int value)
 	{
-		VM.putInt(address, value);
+		XVM.set_int(address, value);
 		return address + Integer.BYTES;
 	}
 
 	public static final long store_long(final long address, final long value)
 	{
-		VM.putLong(address, value);
+		XVM.set_long(address, value);
 		return address + Long.BYTES;
 	}
 
 	public static final void storeByte(final Binary bytes, final long tid, final long oid, final byte value)
 	{
-		VM.putByte(bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		XVM.set_byte(bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
 	public static final void storeBoolean(final Binary bytes, final long tid, final long oid, final boolean value)
 	{
 		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
 		// and where is Boolean.BYTES? Does a boolean not have a binary size? JDK pros... .
-		VM.putBoolean(null, bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		XVM.set_boolean(null, bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
 	public static final void storeShort(final Binary bytes, final long tid, final long oid, final short value)
 	{
-		VM.putShort(bytes.storeEntityHeader(Short.BYTES, tid, oid), value);
+		XVM.set_short(bytes.storeEntityHeader(Short.BYTES, tid, oid), value);
 	}
 
 	public static final void storeCharacter(final Binary bytes, final long tid, final long oid, final char value)
 	{
-		VM.putChar(bytes.storeEntityHeader(Character.BYTES, tid, oid), value);
+		XVM.set_char(bytes.storeEntityHeader(Character.BYTES, tid, oid), value);
 	}
 
 	public static final void storeInteger(final Binary bytes, final long tid, final long oid, final int value)
 	{
-		VM.putInt(bytes.storeEntityHeader(Integer.BYTES, tid, oid), value);
+		XVM.set_int(bytes.storeEntityHeader(Integer.BYTES, tid, oid), value);
 	}
 
 	public static final void storeFloat(final Binary bytes, final long tid, final long oid, final float value)
 	{
-		VM.putFloat(bytes.storeEntityHeader(Float.BYTES, tid, oid), value);
+		XVM.set_float(bytes.storeEntityHeader(Float.BYTES, tid, oid), value);
 	}
 
 	public static final void storeLong(final Binary bytes, final long tid, final long oid, final long value)
 	{
-		VM.putLong(bytes.storeEntityHeader(Long.BYTES, tid, oid), value);
+		XVM.set_long(bytes.storeEntityHeader(Long.BYTES, tid, oid), value);
 	}
 
 	public static final void storeDouble(final Binary bytes, final long tid, final long oid, final double value)
 	{
-		VM.putDouble(bytes.storeEntityHeader(Double.BYTES, tid, oid), value);
+		XVM.set_double(bytes.storeEntityHeader(Double.BYTES, tid, oid), value);
 	}
 
 	public static final void storeStateless(final Binary bytes, final long tid, final long oid)
@@ -1232,49 +1198,52 @@ public final class BinaryPersistence extends Persistence
 
 	public static final Byte buildByte(final Binary bytes)
 	{
-		return new Byte(VM.getByte(bytes.entityContentAddress));
+		return new Byte(XVM.get_byte(bytes.entityContentAddress));
 	}
 
 	public static final Boolean buildBoolean(final Binary bytes)
 	{
-		return new Boolean(VM.getBoolean(null, bytes.entityContentAddress));
+		return new Boolean(XVM.get_boolean(null, bytes.entityContentAddress));
 	}
 
 	public static final Short buildShort(final Binary bytes)
 	{
-		return new Short(VM.getShort(bytes.entityContentAddress));
+		return new Short(XVM.get_short(bytes.entityContentAddress));
 	}
 
 	public static final Character buildCharacter(final Binary bytes)
 	{
-		return new Character(VM.getChar(bytes.entityContentAddress));
+		return new Character(XVM.get_char(bytes.entityContentAddress));
 	}
 
 	public static final Integer buildInteger(final Binary bytes)
 	{
-		return new Integer(VM.getInt(bytes.entityContentAddress));
+		return new Integer(XVM.get_int(bytes.entityContentAddress));
 	}
 
 	public static final Float buildFloat(final Binary bytes)
 	{
-		return new Float(VM.getFloat(bytes.entityContentAddress));
+		return new Float(XVM.get_float(bytes.entityContentAddress));
 	}
 
 	public static final Long buildLong(final Binary bytes)
 	{
-		return new Long(VM.getLong(bytes.entityContentAddress));
+		return new Long(XVM.get_long(bytes.entityContentAddress));
 	}
 
 	public static final Double buildDouble(final Binary bytes)
 	{
-		return new Double(VM.getDouble(bytes.entityContentAddress));
+		return new Double(XVM.get_double(bytes.entityContentAddress));
 	}
+	
+	
+	// (11.12.2018 TM)FIXME: remove all Unsafe references by using XVM util methods
 
 	public static final byte[] buildArray_byte(final Binary bytes)
 	{
 		final long elementCount = binaryArrayElementCount(bytes.entityContentAddress);
 		final byte[] array;
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array = new byte[X.checkArrayRange(elementCount)],
@@ -1298,7 +1267,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		final long elementCount = binaryArrayElementCount(valueAddress);
 		final char[] array;
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(valueAddress),
 			array = new char[X.checkArrayRange(elementCount)],
@@ -1317,7 +1286,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_byte(final byte[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1333,7 +1302,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_boolean(final boolean[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1349,7 +1318,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_short(final short[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1365,7 +1334,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_char(final char[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1381,7 +1350,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_int(final int[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1397,7 +1366,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_float(final float[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1423,7 +1392,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void updateArray_double(final double[] array, final Binary bytes)
 	{
-		VM.copyMemory(
+		XVM.copyRange(
 			null,
 			binaryArrayElementDataAddress(bytes.entityContentAddress),
 			array,
@@ -1440,23 +1409,23 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long getBuildItemContentLength(final Binary bytes)
 	{
-		return VM.getLong(bytes.entityContentAddress - LENGTH_LTO) - LENGTH_LTO;
+		return XVM.get_long(bytes.entityContentAddress - LENGTH_LTO) - LENGTH_LTO;
 	}
 
 	public static final long getBuildItemTypeId(final Binary bytes)
 	{
-		return VM.getLong(bytes.entityContentAddress - LENGTH_TO);
+		return XVM.get_long(bytes.entityContentAddress - LENGTH_TO);
 	}
 
 	public static final long getBuildItemObjectId(final Binary bytes)
 	{
-		return VM.getLong(bytes.entityContentAddress - LENGTH_OID);
+		return XVM.get_long(bytes.entityContentAddress - LENGTH_OID);
 	}
 
 	public static final long getEntityLength(final long entityAddress)
 	{
 		// (06.09.2014)TODO: test and comment if " + 0L" gets eliminated by JIT
-		return VM.getLong(entityAddress + OFFSET_LEN);
+		return XVM.get_long(entityAddress + OFFSET_LEN);
 	}
 
 	public static final BinaryValueStorer getStorer_byte()
@@ -1640,11 +1609,11 @@ public final class BinaryPersistence extends Persistence
 		final long referencesBinaryOffset = bytes.entityContentAddress;
 		for(int i = 0; i < referenceOffsets.length; i++)
 		{
-			VM.putObject(
+			XVM.setObject(
 				instance,
-				(long)referenceOffsets[i],
+				referenceOffsets[i],
 				oidResolver.lookupObject(
-					VM.getLong(referencesBinaryOffset + referenceBinaryLength(i))
+					XVM.get_long(referencesBinaryOffset + referenceBinaryLength(i))
 				)
 			);
 		}
@@ -1658,12 +1627,12 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long getListBinaryLength(final long address)
 	{
-		return VM.getLong(address + LIST_OFFSET_LENGTH);
+		return XVM.get_long(address + LIST_OFFSET_LENGTH);
 	}
 
 	public static final long getListElementCount(final long address)
 	{
-		return VM.getLong(address + LIST_OFFSET_COUNT);
+		return XVM.get_long(address + LIST_OFFSET_COUNT);
 	}
 
 	public static final long getListElementsAddress(final long address)
@@ -1836,41 +1805,19 @@ public final class BinaryPersistence extends Persistence
 
 
 
-	@SuppressWarnings("unchecked") // safe by method parameter
 	public static final <T> T blankMemoryInstantiate(final Class<T> type)
 	{
-		try
-		{
-			return (T)VM.allocateInstance(type);
-		}
-		catch(final InstantiationException e)
-		{
-			/* sry but checked exceptions and functional programming (or any clean architecture)
-			 * just don't get along with each other.
-			 */
-			throw new InstantiationRuntimeException(e);
-		}
+		return XVM.allocateInstance(type);
 	}
 
 	public static final <T> BinaryInstantiator<T> blankMemoryInstantiator(final Class<T> type)
 	{
 		return new BinaryInstantiator<T>()
 		{
-			@SuppressWarnings("unchecked") // safe by method parameter
 			@Override
 			public T newInstance(final long buildItemAddress) throws InstantiationRuntimeException
 			{
-				try
-				{
-					return (T)VM.allocateInstance(type);
-				}
-				catch(final InstantiationException e)
-				{
-					/* sry but checked exceptions and functional programming (or any clean architecture)
-					 * just don't get along with each other.
-					 */
-					throw new InstantiationRuntimeException(e);
-				}
+				return BinaryPersistence.blankMemoryInstantiate(type);
 			}
 		};
 	}
