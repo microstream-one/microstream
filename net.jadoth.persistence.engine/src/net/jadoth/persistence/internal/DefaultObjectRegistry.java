@@ -28,9 +28,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 * - With hash density 1.0, every entry also occupies 2 additional references (8/16 bytes) in the hash tables.
 	 * 
 	 * Conclusion:
-	 * The major memory eater is the rather big JDK WeakReference implementation.
-	 * Increasing the hash density up to 16.0 can be reasonable to minimize the implementation's memory consumption.
-	 * Blame the rest on the JDK.
+	 * The major memory eater is the rather big JDK WeakReference implementation, but it sadly is the only way to
+	 * get the essential weak referencing semantic. A weak referencing array would be incredibly more efficient,
+	 * but, of course, the Java developers didn't think about that.
+	 * The rest is already so optimized as to memory consumption and performance, that choosing a different
+	 * hash density makes only a small difference.
 	 * 
 	 * Hash Density values (+/- COOPS):
 	 * 0.75f: 60/104 bytes per entry, 110% performance.
@@ -57,12 +59,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return 1.0f;
 	}
 	
-	static final int hash(final Object object)
-	{
-		return System.identityHashCode(object);
-	}
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -93,8 +90,17 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return desiredCapacity;
 	}
 	
+	static final int hash(final Object object)
+	{
+		return System.identityHashCode(object);
+	}
 	
-
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static constructors //
+	////////////////////////
+	
 	public static DefaultObjectRegistry New()
 	{
 		return New(defaultHashDensity());
@@ -583,7 +589,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return object;
 	}
 	
-	// rebuild and consolidation //
+	// rebuilding and consolidation //
 	
 	@Override
 	public final synchronized boolean consolidate()
@@ -807,7 +813,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.internalReset();
 	}
 	
-	// Constants logic //
+	// Constants handling //
 	
 	private void internalReregisterConstants()
 	{
@@ -881,7 +887,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.constantsColdStorageObjectIds = constantsObjectIds;
 	}
 	
-	// HashStatistics logic //
+	// HashStatistics //
 	
 	@Override
 	public final synchronized XGettingTable<String, HashStatisticsBucketBased> createHashStatistics()
@@ -962,9 +968,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return count;
 	}
 	
-	private static void registerDistribution(final EqHashTable<Long, Long> distributionTable, final Long bucketLength)
+	private static void registerDistribution(
+		final EqHashTable<Long, Long> distributionTable,
+		final Long                    bucketLength
+	)
 	{
-		// (28.11.2018 TM)NOTE: this is pretty ineffecient. Could be done much more efficient if required.
+		// rather inefficient. Could be done much more efficient if required.
 		final Long count = distributionTable.get(bucketLength);
 		if(count == null)
 		{
@@ -998,20 +1007,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 
 	static final class Entry extends WeakReference<Object>
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
 		final long objectId;
 		      int  refHash ;
-		      Entry oidNext;
-		      Entry refNext;
-
-		      
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
+		      Entry oidNext, refNext;
 		
 		Entry(final long objectId, final Object referent, final Entry oidNext, final Entry refnext)
 		{
@@ -1025,9 +1023,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	
-	///////////////////////////////////////////////////////////////////////////
-	// main method //
-	////////////////
 	
 	public static final void printEntryInstanceSizeInfo()
 	{
