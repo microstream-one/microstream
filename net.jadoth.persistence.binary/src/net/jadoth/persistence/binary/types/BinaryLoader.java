@@ -11,8 +11,8 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XVM;
 import net.jadoth.math.XMath;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLoader;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceObjectRetriever;
@@ -295,8 +295,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				{
 					continue;
 				}
-				// MARKER: BinaryBuilder#buildInstance()
-//				XDebug.debugln("building instance " + entry.oid + " of type " + entry.handler.typeName());
+
 				// all buildItems that have a handler must be complete and valid to be updated.
 				/* (10.09.2015 TM)TODO: already existing instance gets updated (error for a DB situation)
 				 * Why does the global instance have to be updated?
@@ -456,8 +455,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				}
 			}
 
-			// if the context deems the reference to be unrequired, simply register it as a build item right away
-			// (07.12.2018 TM)TODO: not sure if this is still required. removing it might speed up loading.
+			// if a reference is unrequired (e.g. constant), simply register it as a build item right away
 			if(this.handleKnownObject(oid, this.skipObjectRegisterer))
 			{
 				return true;

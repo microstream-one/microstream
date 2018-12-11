@@ -369,7 +369,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public final synchronized Object lookupObject(final long objectId)
 	{
-		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.refNext)
+		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
 			if(e.objectId == objectId)
 			{
@@ -453,7 +453,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			)
 		;
 		
-		if(++this.size >= this.capacity)
+		if(++this.size > this.capacity)
 		{
 			this.internalIncreaseStorage();
 		}
@@ -563,7 +563,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		final int refHash = hash(object);
 		for(Entry e = this.refHashTable[refHash & this.hashRange]; e != null; e = e.refNext)
 		{
-			if(e.refHash == refHash && e.get() == object)
+			// intentionally no check of refHash first as the hash table is assumed to be rather flat.
+			if(e.get() == object)
 			{
 				throw new PersistenceExceptionConsistencyObjectId(object, e.objectId, objectId);
 			}
@@ -836,7 +837,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 		final Object[] constantsObjects   = this.constantsColdStorageObjects  ;
 		final long[]   constantsObjectIds = this.constantsColdStorageObjectIds;
-		
+				
 		final int constantsLength = constantsObjects.length;
 		for(int i = 0; i < constantsLength; i++)
 		{
@@ -860,19 +861,21 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	private void internalBuildConstantsColdStorage()
 	{
+		
 		final EqHashTable<Long, Object> constantsHotRegistry = this.constantsHotRegistry;
 		
 		final int      constantCount      = X.checkArrayRange(constantsHotRegistry.size());
 		final Object[] constantsObjects   = new Object[constantCount];
 		final long[]   constantsObjectIds = new long[constantCount];
 		
-		final int i = 0;
+		int i = 0;
 		for(final KeyValue<Long, Object> e : constantsHotRegistry)
 		{
 			constantsObjects[i] = e.value();
 			constantsObjectIds[i] = e.key();
+			i++;
 		}
-
+		
 		this.constantsHotRegistry          = null;
 		this.constantsColdStorageObjects   = constantsObjects;
 		this.constantsColdStorageObjectIds = constantsObjectIds;
