@@ -19,13 +19,13 @@ import net.jadoth.test.corp.logic.TestImportExport;
 import net.jadoth.time.XTime;
 
 
-public class MainTestStoreCustomersPerformance
+public class MainTestStoreSakilaCustomersPerformance
 {
 	/**
 	 * Since the Jetstream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
-	static final File DIRECTORY = new File("C:/" + MainTestStoreCustomersPerformance.class.getSimpleName());
+	static final File DIRECTORY = new File("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName());
 	
 	static
 	{
@@ -37,7 +37,7 @@ public class MainTestStoreCustomersPerformance
 	 * Using multiple channels (a combination of a thread with an exclusive storage directory) is significant for
 	 * any question concerning performance.
 	 */
-	static final int CHANNEL_COUNT = 4;
+	static final int CHANNEL_COUNT = 1;
 
 	/**
 	 * The application's entity graph root node/instance.

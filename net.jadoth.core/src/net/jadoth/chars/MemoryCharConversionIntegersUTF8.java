@@ -146,7 +146,7 @@ public final class MemoryCharConversionIntegersUTF8
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArray(CHARS_MIN_VALUE_long, address);
+			XVM.copyArrayToAddress(CHARS_MIN_VALUE_long, address);
 			return address + MAX_BYTE_COUNT_long;
 		}
 		return put_longPositive(-value, putMinus(address)); // standard negative case normalization
@@ -157,7 +157,7 @@ public final class MemoryCharConversionIntegersUTF8
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArray(CHARS_MIN_VALUE_int, address);
+			XVM.copyArrayToAddress(CHARS_MIN_VALUE_int, address);
 			return address + MAX_BYTE_COUNT_int;
 		}
 		return put_intPositive(-value, putMinus(address)); // standard negative case normalization

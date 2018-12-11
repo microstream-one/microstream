@@ -634,12 +634,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			if(value)
 			{
-				XVM.copyArray(this.literalTrue, this.writeAddress);
+				XVM.copyArrayToAddress(this.literalTrue, this.writeAddress);
 				this.writeAddress += this.literalByteLengthTrue;
 			}
 			else
 			{
-				XVM.copyArray(this.literalFalse, this.writeAddress);
+				XVM.copyArrayToAddress(this.literalFalse, this.writeAddress);
 				this.writeAddress += this.literalByteLengthFalse;
 			}
 		}

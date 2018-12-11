@@ -92,14 +92,14 @@ public final class MemoryCharConversion_doubleUTF8
 		// head method with a bunch of special case handling
 		if(Double.isNaN(value))
 		{
-			XVM.copyArray(CHARS_NAN, address);
+			XVM.copyArrayToAddress(CHARS_NAN, address);
 			return address + CHARS_NAN.length;
 		}
 		if(value < DOUBLE_ZERO)
 		{
 			if(value == Double.NEGATIVE_INFINITY)
 			{
-				XVM.copyArray(CHARS_NEGATIVE_INFINITY, address);
+				XVM.copyArrayToAddress(CHARS_NEGATIVE_INFINITY, address);
 				return address + CHARS_NEGATIVE_INFINITY.length;
 			}
 			XVM.set_byte(address, MINUS);
@@ -108,18 +108,18 @@ public final class MemoryCharConversion_doubleUTF8
 		if(value == DOUBLE_ZERO)
 		{
 			// this case is so common that is pays off to handle it specifically
-			XVM.copyArray(CHARS_ZERO, address);
+			XVM.copyArrayToAddress(CHARS_ZERO, address);
 			return address + CHARS_ZERO.length;
 		}
 		if(value == DOUBLE_ONE)
 		{
 			// this case is so common that is pays off to handle it specifically
-			XVM.copyArray(CHARS_ONE, address);
+			XVM.copyArrayToAddress(CHARS_ONE, address);
 			return address + CHARS_ONE.length;
 		}
 		if(value == Double.POSITIVE_INFINITY)
 		{
-			XVM.copyArray(CHARS_POSITIVE_INFINITY, address);
+			XVM.copyArrayToAddress(CHARS_POSITIVE_INFINITY, address);
 			return address + CHARS_POSITIVE_INFINITY.length;
 		}
 		return put_doublePositive(value, address);
@@ -170,7 +170,7 @@ public final class MemoryCharConversion_doubleUTF8
 		if(exponent == 7)
 		{
 			// what do you know: special case inside a special case
-			XVM.copyArray(CHARS_NORM_THRESH_HIGH, address);
+			XVM.copyArrayToAddress(CHARS_NORM_THRESH_HIGH, address);
 			return address + CHARS_NORM_THRESH_HIGH.length;
 		}
 		

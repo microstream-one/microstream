@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import net.jadoth.exceptions.InstantiationRuntimeException;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
@@ -1025,7 +1026,7 @@ public final class XVM
 	{
 		VM.copyMemory(null, address, target, Unsafe.ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
 	}
-
+	
 	public static final void copyRangeToArray(
 		final long   address,
 		final byte[] target,
@@ -1036,43 +1037,16 @@ public final class XVM
 		VM.copyMemory(null, address, target, Unsafe.ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
 	}
 
-	public static final void copyArrayToAddress(final byte[] array, final long address)
-	{
-		VM.copyMemory(array, Unsafe.ARRAY_BYTE_BASE_OFFSET, null, address, array.length);
-	}
+	
+	
+	// copyArrayToAddress //
 
-	public static final byte[] directByteBufferToArray(final ByteBuffer directByteBuffer)
-	{
-		final byte[] bytes;
-		copyRangeToArray(
-			getDirectByteBufferAddress(directByteBuffer),
-			bytes = new byte[directByteBuffer.limit()]
-		);
-		return bytes;
-	}
-
-	public static final void copyArray(
-		final char[] source       ,
-		final long   targetAddress,
-		final int    sourceOffset ,
-		final int    sourceCount
-	)
-	{
-		VM.copyMemory(
-			source,
-			Unsafe.ARRAY_CHAR_BASE_OFFSET + (long)sourceOffset << BITS1,
-			null,
-			targetAddress,
-			(long)sourceCount << BITS1
-		);
-	}
-
-	public static final void copyArray(final byte[] array, final long targetAddress)
+	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
 	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final byte[] array        ,
 		final int    offset       ,
 		final int    length       ,
@@ -1081,8 +1055,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
 	}
+	
+	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final boolean[] array        ,
 		final int       offset       ,
 		final int       length       ,
@@ -1091,8 +1070,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
 	}
+	
+	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final short[] array        ,
 		final int     offset       ,
 		final int     length       ,
@@ -1102,12 +1086,12 @@ public final class XVM
 		VM.copyMemory(array, Unsafe.ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
 
-	public static final void copyArray(final char[] array, final long targetAddress)
+	public static final void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
 	}
-
-	public static final void copyArray(
+	
+	public static final void copyArrayToAddress(
 		final char[] array        ,
 		final int    offset       ,
 		final int    length       ,
@@ -1116,8 +1100,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
+	
+	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final int[] array        ,
 		final int   offset       ,
 		final int   length       ,
@@ -1126,8 +1115,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
+	
+	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final float[] array        ,
 		final int     offset       ,
 		final int     length       ,
@@ -1136,8 +1130,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
+	
+	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final long[]   array        ,
 		final int      offset       ,
 		final int      length       ,
@@ -1146,8 +1145,13 @@ public final class XVM
 	{
 		VM.copyMemory(array, Unsafe.ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
+	
+	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, Unsafe.ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+	}
 
-	public static final void copyArray(
+	public static final void copyArrayToAddress(
 		final double[] array        ,
 		final int      offset       ,
 		final int      length       ,
@@ -1157,44 +1161,34 @@ public final class XVM
 		VM.copyMemory(array, Unsafe.ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
 
-	public static final void copyString(final String string, final long targetAddress)
-	{
-		VM.copyMemory(
-			accessChars(string),
-			Unsafe.ARRAY_CHAR_BASE_OFFSET,
-			null,
-			targetAddress,
-			string.length() * Unsafe.ARRAY_CHAR_INDEX_SCALE
-		);
-	}
+	
 
-
-	public static final byte get_byte(final byte[] data, final int offset)
+	public static final byte get_byteFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getByte(data, BABO + offset);
 	}
 
-	public static final boolean get_boolean(final byte[] data, final int offset)
+	public static final boolean get_booleanFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getBoolean(data, ZABO + offset);
 	}
 
-	public static final short get_short(final byte[] data, final int offset)
+	public static final short get_shortFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getShort(data, SABO + offset);
 	}
 
-	public static final char get_char(final byte[] data, final int offset)
+	public static final char get_charFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getChar(data, CABO + offset);
 	}
 
-	public static final int get_int(final byte[] data, final int offset)
+	public static final int get_intFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getInt(data, IABO + offset);
 	}
 
-	public static final float get_float(final byte[] data, final int offset)
+	public static final float get_floatFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getFloat(data, FABO + offset);
 	}
@@ -1204,7 +1198,7 @@ public final class XVM
 		return VM.getLong(data, LABO + offset);
 	}
 
-	public static final double get_double(final byte[] data, final int offset)
+	public static final double get_doubleFromBytes(final byte[] data, final int offset)
 	{
 		return VM.getDouble(data, DABO + offset);
 	}
@@ -1265,7 +1259,7 @@ public final class XVM
 	}
 	
 	// because they (he) couldn't have implemented that where it belongs.
-	public static ByteOrder lookupByteOrder(final String name)
+	public static ByteOrder resolveByteOrder(final String name)
 	{
 		if(name.equals(ByteOrder.BIG_ENDIAN.toString()))
 		{
@@ -1280,6 +1274,28 @@ public final class XVM
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static final <T> T allocateInstance(final Class<T> c) throws InstantiationRuntimeException
+	{
+		try
+		{
+			return (T)VM.allocateInstance(c);
+		}
+		catch(final InstantiationException e)
+		{
+			throw new InstantiationRuntimeException(e);
+		}
+	}
+
+	public static final byte[] directByteBufferToArray(final ByteBuffer directByteBuffer)
+	{
+		final byte[] bytes;
+		copyRangeToArray(
+			getDirectByteBufferAddress(directByteBuffer),
+			bytes = new byte[directByteBuffer.limit()]
+		);
+		return bytes;
+	}
 	
 
 	
