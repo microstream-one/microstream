@@ -23,7 +23,7 @@ import sun.nio.ch.DirectBuffer;
  *
  * @author Thomas Muenz
  */
-public final class XVM
+public final class XMemory
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -31,30 +31,22 @@ public final class XVM
 
 	private static final Unsafe VM = (Unsafe)getSystemInstance();
 
-
-	private static final long
-		BABO = Unsafe.ARRAY_BYTE_BASE_OFFSET   ,
-		ZABO = Unsafe.ARRAY_BOOLEAN_BASE_OFFSET,
-		SABO = Unsafe.ARRAY_SHORT_BASE_OFFSET  ,
-		CABO = Unsafe.ARRAY_CHAR_BASE_OFFSET   ,
-		IABO = Unsafe.ARRAY_INT_BASE_OFFSET    ,
-		FABO = Unsafe.ARRAY_FLOAT_BASE_OFFSET  ,
-		LABO = Unsafe.ARRAY_LONG_BASE_OFFSET   ,
-		DABO = Unsafe.ARRAY_DOUBLE_BASE_OFFSET
-	;
-
 	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
 
 	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-	private static final int MEMORY_ALIGNMENT_FACTOR =                           8;
-	private static final int MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1;
-	private static final int MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO   ;
+	private static final int
+		MEMORY_ALIGNMENT_FACTOR =                           8,
+		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
+		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
+	;
 
 	// constant names documentating that a value shall be shifted by n bits. Also to get CheckStyle off my back.
-	private static final int BITS1 = 1;
-	private static final int BITS2 = 2;
-	private static final int BITS3 = 3;
+	private static final int
+		BITS1 = 1,
+		BITS2 = 2,
+		BITS3 = 3
+	;
 
 	private static final int
 		BIT_SIZE_1_BYTE  = 8                       ,
@@ -89,7 +81,7 @@ public final class XVM
 	public static final Object getSystemInstance()
 	{
 		// all that clumsy detour ... x_x
-		if(XVM.class.getClassLoader() == null)
+		if(XMemory.class.getClassLoader() == null)
 		{
 			return Unsafe.getUnsafe(); // Not on bootclasspath
 		}
@@ -97,17 +89,12 @@ public final class XVM
 		{
 			final Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
 			theUnsafe.setAccessible(true);
-			return theUnsafe.get(XVM.class);
+			return theUnsafe.get(XMemory.class);
 		}
 		catch(final Exception e)
 		{
 			throw new Error("Could not obtain access to sun.misc.Unsafe", e);
 		}
-	}
-
-	public static final void throwUnchecked(final Throwable t)
-	{
-		VM.throwException(t);
 	}
 	
 
@@ -175,16 +162,6 @@ public final class XVM
 		}
 		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
 	}
-
-	
-	/* (18.09.2018 TM)TODO: Clean up XVM
-	 * Move out / delete all methods that are not absolutely required and/or don't use
-	 * Unsafe or direct memory access in the first place.
-	 * e.g.:
-	 * - deallocateDirectByteBuffer
-	 * - throwUnchecked
-	 * - defaultBufferSize
-	 */
 	
 	/**
 	 * No idea if this method is really (still?) necesssary, but it sounds reasonable.
@@ -586,7 +563,7 @@ public final class XVM
 	{
 		// min logic should be unnecessary but better exclude any source for potential errors
 		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = XVM.class.getDeclaredFields();
+		final Field[] declaredFields = XMemory.class.getDeclaredFields();
 		for(final Field field : declaredFields)
 		{
 			if(Modifier.isStatic(field.getModifiers()))
@@ -600,7 +577,7 @@ public final class XVM
 		}
 		if(minOffset == Long.MAX_VALUE)
 		{
-			throw new Error("Could not find object header dummy field in class " + XVM.class);
+			throw new Error("Could not find object header dummy field in class " + XMemory.class);
 		}
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
 	}
@@ -661,25 +638,6 @@ public final class XVM
 		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
 	}
 
-	public static final void ensureClassInitialized(final Class<?>... classes)
-	{
-		for(final Class<?> c : classes)
-		{
-			ensureClassInitialized(c);
-		}
-	}
-
-	public static final void ensureClassInitialized(final Class<?> c)
-	{
-		VM.ensureClassInitialized(notNull(c));
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> T instantiate(final Class<T> c) throws InstantiationException
-	{
-		return (T)VM.allocateInstance(notNull(c));
-	}
-
 	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
 	{
 		if(byteSize != byteSize_byte()
@@ -695,7 +653,7 @@ public final class XVM
 		int primFieldsCount = 0;
 		for(int i = 0; i < fields.length; i++)
 		{
-			if(fields[i].getType().isPrimitive() && XVM.byteSizePrimitive(fields[i].getType()) == byteSize)
+			if(fields[i].getType().isPrimitive() && XMemory.byteSizePrimitive(fields[i].getType()) == byteSize)
 			{
 				primFields[primFieldsCount++] = fields[i];
 			}
@@ -712,7 +670,7 @@ public final class XVM
 			{
 				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
 			}
-			length += XVM.byteSizePrimitive(primFields[i].getType());
+			length += XMemory.byteSizePrimitive(primFields[i].getType());
 		}
 		return length;
 	}
@@ -746,7 +704,7 @@ public final class XVM
 	public static byte[] toByteArray(final long value)
 	{
 		final byte[] bytes = new byte[byteSize_long()];
-		putLong(bytes, 0, value);
+		put_long(bytes, 0, value);
 		return bytes;
 	}
 	
@@ -775,32 +733,32 @@ public final class XVM
 		return VM.pageSize();
 	}
 
-	public static void putShort(final byte[] bytes, final int index, final short value)
+	public static void put_short(final byte[] bytes, final int index, final short value)
 	{
 		VM.putShort(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void putChar(final byte[] bytes, final int index, final char value)
+	public static void put_char(final byte[] bytes, final int index, final char value)
 	{
 		VM.putChar(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void putInt(final byte[] bytes, final int index, final int value)
+	public static void put_int(final byte[] bytes, final int index, final int value)
 	{
 		VM.putInt(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void putFloat(final byte[] bytes, final int index, final float value)
+	public static void put_float(final byte[] bytes, final int index, final float value)
 	{
 		VM.putFloat(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void putLong(final byte[] bytes, final int index, final long value)
+	public static void put_long(final byte[] bytes, final int index, final long value)
 	{
 		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void putDouble(final byte[] bytes, final int index, final double value)
+	public static void put_double(final byte[] bytes, final int index, final double value)
 	{
 		VM.putDouble(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
@@ -918,7 +876,8 @@ public final class XVM
 
 	public static final void set_boolean(final long address, final boolean value)
 	{
-		VM.putBoolean(null, address, value); // why is the 2-arg variant missing?
+		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
+		VM.putBoolean(null, address, value);
 	}
 
 	public static final void set_short(final long address, final short value)
@@ -1012,29 +971,54 @@ public final class XVM
 		VM.copyMemory(source, sourceOffset, target, targetOffset, length);
 	}
 
-	public static final void copyRangeToArray(final long address, final byte[] target)
+	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
-		VM.copyMemory(null, address, target, Unsafe.ARRAY_BYTE_BASE_OFFSET, target.length);
-	}
-
-	public static final void copyRangeToArray(final long address, final char[] target)
-	{
-		VM.copyMemory(null, address, target, Unsafe.ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
-	}
-
-	public static final void copyRangeToArray(final long address, final long[] target)
-	{
-		VM.copyMemory(null, address, target, Unsafe.ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BYTE_BASE_OFFSET, target.length);
 	}
 	
 	public static final void copyRangeToArray(
-		final long   address,
-		final byte[] target,
-		final int    targetIndex,
+		final long   sourceAddress,
+		final byte[] target       ,
+		final int    targetIndex  ,
 		final long   length
 	)
 	{
-		VM.copyMemory(null, address, target, Unsafe.ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET, target.length);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final short[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final char[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final float[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final long[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+	}
+
+	public static final void copyRangeToArray(final long sourceAddress, final double[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
 	}
 
 	
@@ -1165,42 +1149,42 @@ public final class XVM
 
 	public static final byte get_byteFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getByte(data, BABO + offset);
+		return VM.getByte(data, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + offset);
 	}
 
 	public static final boolean get_booleanFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getBoolean(data, ZABO + offset);
+		return VM.getBoolean(data, (long)Unsafe.ARRAY_BOOLEAN_BASE_OFFSET + offset);
 	}
 
 	public static final short get_shortFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getShort(data, SABO + offset);
+		return VM.getShort(data, (long)Unsafe.ARRAY_SHORT_BASE_OFFSET + offset);
 	}
 
 	public static final char get_charFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getChar(data, CABO + offset);
+		return VM.getChar(data, (long)Unsafe.ARRAY_CHAR_BASE_OFFSET + offset);
 	}
 
 	public static final int get_intFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getInt(data, IABO + offset);
+		return VM.getInt(data, (long)Unsafe.ARRAY_INT_BASE_OFFSET + offset);
 	}
 
 	public static final float get_floatFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getFloat(data, FABO + offset);
+		return VM.getFloat(data, (long)Unsafe.ARRAY_FLOAT_BASE_OFFSET + offset);
 	}
 
 	public static final long get_longFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getLong(data, LABO + offset);
+		return VM.getLong(data, (long)Unsafe.ARRAY_LONG_BASE_OFFSET + offset);
 	}
 
 	public static final double get_doubleFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getDouble(data, DABO + offset);
+		return VM.getDouble(data, (long)Unsafe.ARRAY_DOUBLE_BASE_OFFSET + offset);
 	}
 
 	public static final long allocate(final long bytes)
@@ -1213,7 +1197,7 @@ public final class XVM
 		return VM.reallocateMemory(address, bytes);
 	}
 
-	public static final void setMemory(final long address, final long length, final byte value)
+	public static final void fillRange(final long address, final long length, final byte value)
 	{
 		VM.setMemory(address, length, value);
 	}
@@ -1275,7 +1259,7 @@ public final class XVM
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static final <T> T allocateInstance(final Class<T> c) throws InstantiationRuntimeException
+	public static final <T> T instantiate(final Class<T> c) throws InstantiationRuntimeException
 	{
 		try
 		{
@@ -1295,6 +1279,31 @@ public final class XVM
 			bytes = new byte[directByteBuffer.limit()]
 		);
 		return bytes;
+	}
+
+	
+
+	
+	////////////////////////////////////////////////////////////////////////
+	// some nasty util methods not directly related to memory operations //
+	//////////////////////////////////////////////////////////////////////
+
+	public static final void throwUnchecked(final Throwable t)
+	{
+		VM.throwException(t);
+	}
+	
+	public static final void ensureClassInitialized(final Class<?>... classes)
+	{
+		for(final Class<?> c : classes)
+		{
+			ensureClassInitialized(c);
+		}
+	}
+
+	public static final void ensureClassInitialized(final Class<?> c)
+	{
+		VM.ensureClassInitialized(c);
 	}
 	
 
@@ -1324,8 +1333,6 @@ public final class XVM
 		
 		return object;
 	}
-	
-	////////////////////////////////////////////////////
 
 
 
@@ -1334,7 +1341,7 @@ public final class XVM
 	 */
 	Object fieldOffsetWorkaroundDummy;
 
-	private XVM()
+	private XMemory()
 	{
 		throw new Error();
 	}

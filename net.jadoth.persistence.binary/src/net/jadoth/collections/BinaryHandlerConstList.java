@@ -2,7 +2,7 @@ package net.jadoth.collections;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -96,7 +96,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(XVM.get_long(binaryRefOffset + (i << BITS_3)));
+			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + (i << BITS_3)));
 		}
 	}
 

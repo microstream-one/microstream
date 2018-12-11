@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -95,7 +95,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		XVM.set_long(
+		XMemory.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
@@ -122,9 +122,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		);
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
-		XVM.setObject(
+		XMemory.setObject(
 			instance,
-			XVM.objectFieldOffset(FIELD_EQULATOR),
+			XMemory.objectFieldOffset(FIELD_EQULATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 	}

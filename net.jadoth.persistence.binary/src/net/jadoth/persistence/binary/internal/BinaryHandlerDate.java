@@ -2,7 +2,7 @@ package net.jadoth.persistence.binary.internal;
 
 import java.util.Date;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
@@ -42,7 +42,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	public void store(final Binary bytes, final Date instance, final long oid, final PersistenceStoreHandler handler)
 	{
 		// the data content of a date is simple the timestamp long, nothing else
-		XVM.set_long(
+		XMemory.set_long(
 			bytes.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), oid),
 			instance.getTime()
 		);
@@ -51,13 +51,13 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	@Override
 	public Date create(final Binary bytes)
 	{
-		return new Date(XVM.get_long(bytes.buildItemAddress()));
+		return new Date(XMemory.get_long(bytes.buildItemAddress()));
 	}
 
 	@Override
 	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler builder)
 	{
-		instance.setTime(XVM.get_long(bytes.buildItemAddress()));
+		instance.setTime(XMemory.get_long(bytes.buildItemAddress()));
 	}
 
 }

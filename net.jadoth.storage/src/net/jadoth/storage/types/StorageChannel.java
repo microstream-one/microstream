@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
@@ -660,8 +660,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				// (14.07.2016 TM)TODO: make configuration dynamic
 				final int  markBufferLength         = 10000;
 				final long markingWaitTimeMs        =    10;
-				final int  loadingBufferSize        =  XVM.defaultBufferSize();
-				final int  readingDefaultBufferSize =  XVM.defaultBufferSize();
+				final int  loadingBufferSize        =  XMemory.defaultBufferSize();
+				final int  readingDefaultBufferSize =  XMemory.defaultBufferSize();
 
 				final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
 

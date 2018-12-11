@@ -1,6 +1,6 @@
 package net.jadoth.chars;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 public final class MemoryCharConversionIntegers
 {
@@ -34,7 +34,7 @@ public final class MemoryCharConversionIntegers
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
 	static final transient int
-		BYTE_SIZE_CHAR       = XVM.byteSize_char()                           ,
+		BYTE_SIZE_CHAR       = XMemory.byteSize_char()                           ,
 		BYTE_SIZE_DOUBLECHAR = 2 * BYTE_SIZE_CHAR                               ,
 		MAX_BYTE_COUNT_byte  = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_byte ,
 		MAX_BYTE_COUNT_short = BYTE_SIZE_CHAR * XChars.MAX_CHAR_COUNT_short,
@@ -92,20 +92,20 @@ public final class MemoryCharConversionIntegers
 
 	private static long putMinus(final long address)
 	{
-		XVM.set_char(address, '-');
+		XMemory.set_char(address, '-');
 		return address + BYTE_SIZE_CHAR;
 	}
 
 	private static long put1Char(final int singleDigitValue, final long address)
 	{
-		XVM.set_char(address, (char)('0' + singleDigitValue));
+		XMemory.set_char(address, (char)('0' + singleDigitValue));
 		return address + BYTE_SIZE_CHAR;
 	}
 
 	private static long put2Chars(final int doubleDigitValue, final long address)
 	{
-		XVM.set_char(address                 , XChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue]);
-		XVM.set_char(address + BYTE_SIZE_CHAR, XChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue]);
+		XMemory.set_char(address                 , XChars.DECIMAL_CHAR_TABLE_10S[doubleDigitValue]);
+		XMemory.set_char(address + BYTE_SIZE_CHAR, XChars.DECIMAL_CHAR_TABLE_01S[doubleDigitValue]);
 		return address + BYTE_SIZE_DOUBLECHAR;
 	}
 
@@ -114,7 +114,7 @@ public final class MemoryCharConversionIntegers
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArrayToAddress(XChars.CHARS_MIN_VALUE_long, address);
+			XMemory.copyArrayToAddress(XChars.CHARS_MIN_VALUE_long, address);
 			return address + MAX_BYTE_COUNT_long;
 		}
 		return put_longPositive(-value, putMinus(address)); // standard negative case normalization
@@ -125,7 +125,7 @@ public final class MemoryCharConversionIntegers
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArrayToAddress(XChars.CHARS_MIN_VALUE_int, address);
+			XMemory.copyArrayToAddress(XChars.CHARS_MIN_VALUE_int, address);
 			return address + MAX_BYTE_COUNT_int;
 		}
 		return put_intPositive(-value, putMinus(address)); // standard negative case normalization

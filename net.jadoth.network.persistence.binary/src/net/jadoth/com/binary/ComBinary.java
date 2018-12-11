@@ -14,7 +14,7 @@ import net.jadoth.com.ComFoundation;
 import net.jadoth.com.ComHost;
 import net.jadoth.com.ComHostChannelAcceptor;
 import net.jadoth.com.XSockets;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 public class ComBinary
@@ -37,7 +37,7 @@ public class ComBinary
 	
 	public static long getChunkHeaderContentLength(final ByteBuffer directByteBuffer)
 	{
-		return XVM.get_long(XVM.getDirectByteBufferAddress(directByteBuffer));
+		return XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer));
 	}
 	
 	public static ByteBuffer setChunkHeaderContentLength(
@@ -46,7 +46,7 @@ public class ComBinary
 	)
 	{
 		directByteBuffer.clear().limit(ComBinary.chunkHeaderLength());
-		XVM.set_long(XVM.getDirectByteBufferAddress(directByteBuffer), contentLength);
+		XMemory.set_long(XMemory.getDirectByteBufferAddress(directByteBuffer), contentLength);
 		return directByteBuffer;
 	}
 	

@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.network.types.Network;
 import net.jadoth.network.types.NetworkConnectionSocket;
@@ -174,13 +174,13 @@ public final class LogicSimpleNetwork
 	public static final void sendString(final String string, final SocketChannel channel, final int responseTimeout)
 		throws IOException
 	{
-		sendString(string, channel, ByteBuffer.allocateDirect(XVM.pageSize()), responseTimeout);
+		sendString(string, channel, ByteBuffer.allocateDirect(XMemory.pageSize()), responseTimeout);
 	}
 
 	public static final void sendString(final String string, final SocketChannel channel)
 		throws IOException
 	{
-		sendString(string, channel, ByteBuffer.allocateDirect(XVM.pageSize()), DEFAULT_RESPONSE_TIMEOUT);
+		sendString(string, channel, ByteBuffer.allocateDirect(XMemory.pageSize()), DEFAULT_RESPONSE_TIMEOUT);
 	}
 
 	// reading //
@@ -278,14 +278,14 @@ public final class LogicSimpleNetwork
 	)
 		throws IOException
 	{
-		return readString(channel, ByteBuffer.allocateDirect(XVM.pageSize()), responseTimeout, maxStringLength);
+		return readString(channel, ByteBuffer.allocateDirect(XMemory.pageSize()), responseTimeout, maxStringLength);
 	}
 
 	public static final String readString(final SocketChannel channel, final int maxStringLength) throws IOException
 	{
 		return readString(
 			channel,
-			ByteBuffer.allocateDirect(XVM.pageSize()),
+			ByteBuffer.allocateDirect(XMemory.pageSize()),
 			DEFAULT_RESPONSE_TIMEOUT,
 			maxStringLength
 		);

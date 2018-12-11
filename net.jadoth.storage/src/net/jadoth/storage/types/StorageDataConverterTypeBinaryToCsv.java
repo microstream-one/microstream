@@ -25,7 +25,7 @@ import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.FileException;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -92,9 +92,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 		static final transient int
 			FLUSH_BUFFER_RANGE     = 100, // 100 should be enough for any single value (max is 25 chars for double)
 
-			STRING_BYTE_SIZE_CHAR         =     XVM.byteSize_char(), // a char always occupies 2 bytes in memory
-			LITERAL_BYTE_SIZE_SINGLE_CHAR = 1 * XVM.byteSize_byte(), // a UTF-8 single chars occupies only 1 byte
-			LITERAL_BYTE_SIZE_HEXDEC_BYTE = 2 * XVM.byteSize_byte()  // a byte literal 2 single UTF chars, e.g. "FF".
+			STRING_BYTE_SIZE_CHAR         =     XMemory.byteSize_char(), // a char always occupies 2 bytes in memory
+			LITERAL_BYTE_SIZE_SINGLE_CHAR = 1 * XMemory.byteSize_byte(), // a UTF-8 single chars occupies only 1 byte
+			LITERAL_BYTE_SIZE_HEXDEC_BYTE = 2 * XMemory.byteSize_byte()  // a byte literal 2 single UTF chars, e.g. "FF".
 		;
 
 		static final transient short[] BYTE_MAP = new short[0x100];
@@ -234,7 +234,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			return Math.max(
 				(writeBufferSize & ~3) == writeBufferSize ? writeBufferSize : (writeBufferSize & ~3) + 4,
-				XVM.defaultBufferSize()
+				XMemory.defaultBufferSize()
 			);
 		}
 
@@ -296,13 +296,13 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.literalByteLengthTrue   = this.literalTrue.length                            ;
 			this.literalByteLengthFalse  = this.literalFalse.length                           ;
 
-			this.readBufferSize          = Math.max(readBufferSize, XVM.defaultBufferSize());
+			this.readBufferSize          = Math.max(readBufferSize, XMemory.defaultBufferSize());
 			this.readBufferNormal        = ByteBuffer.allocateDirect(this.readBufferSize)      ;
 			this.readBufferLarge         = ByteBuffer.allocateDirect(0); // don't squander memory if normal size is already huge
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
 			this.writeBuffer             = ByteBuffer.allocateDirect(this.writeBufferSize)    ;
-			this.writeStart              = XVM.getDirectByteBufferAddress(this.writeBuffer)   ;
+			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer)   ;
 			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()    ;
 			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE               ;
 			this.writeAddress            = this.writeStart                                    ;
@@ -427,12 +427,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.checkForFlush();
 
 			// write record separator not before it is required a by new record (this method call)
-			XVM.set_byte(this.writeAddress, this.recordSeparator);
+			XMemory.set_byte(this.writeAddress, this.recordSeparator);
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(
 				BinaryPersistence.getEntityObjectId(entityAddress),
 				this.writeAddress + 1
 			);
-			XVM.set_byte(this.writeAddress, valueSeparator);
+			XMemory.set_byte(this.writeAddress, valueSeparator);
 			this.writeAddress += LITERAL_BYTE_SIZE_SINGLE_CHAR;
 
 			long address = BinaryPersistence.entityContentAddress(entityAddress);
@@ -619,7 +619,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final void write(final byte value) throws IOException
 		{
 			this.checkForFlush();
-			XVM.set_byte(this.writeAddress++, value);
+			XMemory.set_byte(this.writeAddress++, value);
 		}
 
 		final void write_byte(final byte value) throws IOException
@@ -634,12 +634,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			if(value)
 			{
-				XVM.copyArrayToAddress(this.literalTrue, this.writeAddress);
+				XMemory.copyArrayToAddress(this.literalTrue, this.writeAddress);
 				this.writeAddress += this.literalByteLengthTrue;
 			}
 			else
 			{
-				XVM.copyArrayToAddress(this.literalFalse, this.writeAddress);
+				XMemory.copyArrayToAddress(this.literalFalse, this.writeAddress);
 				this.writeAddress += this.literalByteLengthFalse;
 			}
 		}
@@ -654,11 +654,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			this.checkForFlush();
 
-			XVM.set_byte(this.writeAddress, this.literalDelimiter);
+			XMemory.set_byte(this.writeAddress, this.literalDelimiter);
 			if(c == this.literalDelimiter || c == this.escaper || this.escapeHandler.needsEscaping(c))
 			{
 				// escaping case: write escaper, advance address, then handle the actual character
-				XVM.set_byte(this.writeAddress + LITERAL_BYTE_SIZE_SINGLE_CHAR, this.escaper);
+				XMemory.set_byte(this.writeAddress + LITERAL_BYTE_SIZE_SINGLE_CHAR, this.escaper);
 				this.writeAddress = MemoryCharConversionUTF8.writeUTF8(
 					this.writeAddress + 2 * LITERAL_BYTE_SIZE_SINGLE_CHAR,
 					this.escapeHandler.transformEscapedChar(c)
@@ -671,7 +671,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					c
 				) + LITERAL_BYTE_SIZE_SINGLE_CHAR;
 			}
-			XVM.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.literalDelimiter);
+			XMemory.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.literalDelimiter);
 		}
 
 		final void write_int(final int value) throws IOException
@@ -693,7 +693,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			if(value == Persistence.nullId())
 			{
 				// a reference is merely a primitive id long, so null is the numerical literal '0'
-				XVM.set_byte(this.writeAddress++, (byte)'0');
+				XMemory.set_byte(this.writeAddress++, (byte)'0');
 				return;
 			}
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(value, this.writeAddress);
@@ -716,7 +716,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					address = valueWriter.writeValue(address);
 					this.write(listSeparator);
 				}
-				XVM.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.listTerminator);
+				XMemory.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.listTerminator);
 				this.write(listSeparator);
 			}
 			this.closeComplexLiteral(elementCount);
@@ -745,7 +745,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			if(elementCount > 0)
 			{
-				XVM.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.listTerminator);
+				XMemory.set_byte(this.writeAddress - LITERAL_BYTE_SIZE_SINGLE_CHAR, this.listTerminator);
 			}
 			else
 			{
@@ -782,11 +782,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 			long address = this.writeAddress;
 			for(long readAddress = readStart; readAddress < readBound; readAddress += STRING_BYTE_SIZE_CHAR)
 			{
-				final char c = XVM.get_char(readAddress);
+				final char c = XMemory.get_char(readAddress);
 				if(c == literalDelimiter || c == escaper || escapeHandler.needsEscaping(c))
 				{
 					// escaping case: write escaper, advance address, then handle the actual character
-					XVM.set_byte(address, escaper);
+					XMemory.set_byte(address, escaper);
 					address = MemoryCharConversionUTF8.writeUTF8(
 						address + LITERAL_BYTE_SIZE_SINGLE_CHAR,
 						escapeHandler.transformEscapedChar(c)
@@ -805,7 +805,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				}
 			}
 
-			XVM.set_byte(address, literalDelimiter);
+			XMemory.set_byte(address, literalDelimiter);
 			this.writeAddress = address + LITERAL_BYTE_SIZE_SINGLE_CHAR;
 		}
 
@@ -818,8 +818,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			for(long readAddress = readStart; readAddress < readBound; readAddress++)
 			{
-				final byte value = XVM.get_byte(readAddress);
-				XVM.set_short(address, BYTE_MAP[value >= 0 ? value : 256 + value]);
+				final byte value = XMemory.get_byte(readAddress);
+				XMemory.set_short(address, BYTE_MAP[value >= 0 ? value : 256 + value]);
 				if((address += LITERAL_BYTE_SIZE_HEXDEC_BYTE) >= flushBound)
 				{
 					address = this.flushWriteBuffer(address);
@@ -837,8 +837,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_byte(XVM.get_byte(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_byte();
+					ImplementationUTF8.this.write_byte(XMemory.get_byte(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_byte();
 				}
 			};
 		}
@@ -850,8 +850,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_boolean(XVM.get_boolean(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_boolean();
+					ImplementationUTF8.this.write_boolean(XMemory.get_boolean(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_boolean();
 				}
 			};
 		}
@@ -863,8 +863,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_short(XVM.get_short(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_short();
+					ImplementationUTF8.this.write_short(XMemory.get_short(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_short();
 				}
 			};
 		}
@@ -876,8 +876,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_char(XVM.get_char(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_char();
+					ImplementationUTF8.this.write_char(XMemory.get_char(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_char();
 				}
 			};
 		}
@@ -889,8 +889,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_int(XVM.get_int(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_int();
+					ImplementationUTF8.this.write_int(XMemory.get_int(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_int();
 				}
 			};
 		}
@@ -902,8 +902,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_float(XVM.get_float(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_float();
+					ImplementationUTF8.this.write_float(XMemory.get_float(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_float();
 				}
 			};
 		}
@@ -915,8 +915,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_long(XVM.get_long(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_long();
+					ImplementationUTF8.this.write_long(XMemory.get_long(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_long();
 				}
 			};
 		}
@@ -928,8 +928,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_double(XVM.get_double(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_double();
+					ImplementationUTF8.this.write_double(XMemory.get_double(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_double();
 				}
 			};
 		}
@@ -941,8 +941,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.writeReference(XVM.get_long(valueReadAddress));
-					return valueReadAddress + XVM.byteSize_long();
+					ImplementationUTF8.this.writeReference(XMemory.get_long(valueReadAddress));
+					return valueReadAddress + XMemory.byteSize_long();
 				}
 			};
 		}
@@ -1035,7 +1035,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 
 			// large buffer has to be enlarged
-			XVM.deallocateDirectByteBuffer(this.readBufferLarge);
+			XMemory.deallocateDirectByteBuffer(this.readBufferLarge);
 			return this.readBufferLarge = ByteBuffer.allocateDirect(X.checkArrayRange(nextEntityLength));
 		}
 

@@ -2,7 +2,7 @@ package net.jadoth.storage.types;
 
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.MemoryRangeCopier;
 
@@ -72,8 +72,8 @@ public interface StorageEntity
 
 		// Quite a lot, but that's the price of simplicity and performance (GC etc.)
 		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).
-			XVM.byteSizeInstance(StorageEntity.Implementation.class)
-			+ XVM.byteSizeReference() // take into account oid hash table slot in entity cache
+			XMemory.byteSizeInstance(StorageEntity.Implementation.class)
+			+ XMemory.byteSizeReference() // take into account oid hash table slot in entity cache
 		;
 
 		// enough for ~17 years since class initialization with 256ms resolution.
@@ -429,7 +429,7 @@ public interface StorageEntity
 
 		final void putCacheData(final long sourceAddress, final long length)
 		{
-			XVM.copyRange(sourceAddress, this.cacheAddress = XVM.allocate(length), length);
+			XMemory.copyRange(sourceAddress, this.cacheAddress = XMemory.allocate(length), length);
 		}
 
 		final void updateStorageInformation(
@@ -585,7 +585,7 @@ public interface StorageEntity
 //				System.out.flush();
 //			}
 			final long currentDataLength = this.cachedDataLength();
-			XVM.free(this.cacheAddress());
+			XMemory.free(this.cacheAddress());
 			this.cacheAddress = 0;
 			this.onlyRefsCached = false;
 			return currentDataLength;

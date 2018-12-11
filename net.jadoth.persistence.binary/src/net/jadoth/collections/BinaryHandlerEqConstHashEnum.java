@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -34,7 +34,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	// space offset for one oid
 	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidLength();
 	// one float offset to sized array
-	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()      ;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()      ;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqConstHashEnum.class, HashEqualator.class);
@@ -106,13 +106,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		XVM.set_long(
+		XMemory.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		XVM.set_float(
+		XMemory.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -140,9 +140,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 		}
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
-		XVM.setObject(
+		XMemory.setObject(
 			instance,
-			XVM.objectFieldOffset(FIELD_EQULATOR),
+			XMemory.objectFieldOffset(FIELD_EQULATOR),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 

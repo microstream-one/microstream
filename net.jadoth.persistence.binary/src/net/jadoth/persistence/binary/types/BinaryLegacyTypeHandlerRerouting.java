@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -68,7 +68,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
 			X.checkArrayRange(BinaryPersistence.entityTotalLength(binaryContentLength))
 		);
-		final long newEntityAddress = XVM.getDirectByteBufferAddress(directByteBuffer);
+		final long newEntityAddress = XMemory.getDirectByteBufferAddress(directByteBuffer);
 		
 		// header bytes for the mapped format (new length, new TID, same OID) at the newly allocated memory.
 		BinaryPersistence.storeEntityHeader(

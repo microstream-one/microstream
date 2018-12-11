@@ -5,7 +5,7 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.meta.XDebug;
 
 
@@ -33,7 +33,7 @@ public final class DEBUGStorage
 	public static final byte[] extractMemory(final long address, final int length)
 	{
 		final byte[] array = new byte[length];
-		XVM.copyRangeToArray(address, array);
+		XMemory.copyRangeToArray(address, array);
 		return array;
 	}
 

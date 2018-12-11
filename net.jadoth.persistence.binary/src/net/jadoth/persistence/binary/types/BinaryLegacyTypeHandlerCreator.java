@@ -9,7 +9,7 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
@@ -89,7 +89,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			for(final PersistenceTypeDefinitionMemberField member : members)
 			{
 				final Field field = notNull(member.field());
-				final long fieldOffset = XVM.objectFieldOffset(field);
+				final long fieldOffset = XMemory.objectFieldOffset(field);
 				memberOffsets.add(member, fieldOffset);
 			}
 			

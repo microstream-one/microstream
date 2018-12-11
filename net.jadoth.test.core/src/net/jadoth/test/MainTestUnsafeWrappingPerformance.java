@@ -2,7 +2,7 @@ package net.jadoth.test;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance
@@ -11,7 +11,7 @@ public class MainTestUnsafeWrappingPerformance
 	private static final int RUNS = 100;
 	private static final long[] TIMES = new long[RUNS];
 
-	private static final Unsafe vm = (Unsafe)XVM.getSystemInstance();
+	private static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
 
 
 
@@ -19,7 +19,7 @@ public class MainTestUnsafeWrappingPerformance
 	{
 		final ByteBuffer bb = ByteBuffer.allocateDirect((int)(SIZE * 4));
 //		final ByteBuffer bb = ByteBuffer.allocateDirect(SIZE * 4);
-		final long address = XVM.getDirectByteBufferAddress(bb);
+		final long address = XMemory.getDirectByteBufferAddress(bb);
 
 
 		for(int r = 0; r < RUNS; r++)

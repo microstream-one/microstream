@@ -7,7 +7,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeIdStrategy;
@@ -49,7 +49,7 @@ public class Com
 	
 	public static ByteOrder byteOrder()
 	{
-		return XVM.nativeByteOrder();
+		return XMemory.nativeByteOrder();
 	}
 	
 	/**
@@ -108,8 +108,8 @@ public class Com
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length);
-		final long dbbAddress = XVM.getDirectByteBufferAddress(dbb);
-		XVM.copyArrayToAddress(assembledProtocolBytes, dbbAddress);
+		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
+		XMemory.copyArrayToAddress(assembledProtocolBytes, dbbAddress);
 		// the bytebuffer's position remains at 0, limit at capacity. Both are correct for the first reading call.
 		
 		return dbb;

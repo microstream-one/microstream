@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 
@@ -11,14 +11,14 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 	public default long resolveMinimumLengthFromPrimitiveType(final Class<?> primitiveType)
 	{
 		// binary length is equal to memory byte size
-		return XVM.byteSizePrimitive(primitiveType);
+		return XMemory.byteSizePrimitive(primitiveType);
 	}
 
 	@Override
 	public default long resolveMaximumLengthFromPrimitiveType(final Class<?> primitiveType)
 	{
 		// binary length is equal to memory byte size
-		return XVM.byteSizePrimitive(primitiveType);
+		return XMemory.byteSizePrimitive(primitiveType);
 	}
 
 	@Override

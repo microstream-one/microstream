@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.reflect.XReflect;
 
 public final class VolatileFlag
@@ -11,7 +11,7 @@ public final class VolatileFlag
 
 	// CHECKSTYLE.OFF: ConstantName: field names are intentionally unchanged
 
-	private static final long FIELD_OFFSET_state = XVM.objectFieldOffset(
+	private static final long FIELD_OFFSET_state = XMemory.objectFieldOffset(
 		XReflect.getInstanceFieldOfType(VolatileFlag.class, int.class)
 	);
 
@@ -49,12 +49,12 @@ public final class VolatileFlag
 
 	public final boolean on()
 	{
-		return !XVM.compareAndSwap_int(this, FIELD_OFFSET_state, 0, 1);
+		return !XMemory.compareAndSwap_int(this, FIELD_OFFSET_state, 0, 1);
 	}
 
 	public final boolean off()
 	{
-		return XVM.compareAndSwap_int(this, FIELD_OFFSET_state, 1, 0);
+		return XMemory.compareAndSwap_int(this, FIELD_OFFSET_state, 1, 0);
 	}
 
 	public final VolatileFlag set(final boolean state)

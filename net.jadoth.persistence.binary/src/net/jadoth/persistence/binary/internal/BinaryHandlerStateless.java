@@ -1,12 +1,12 @@
 package net.jadoth.persistence.binary.internal;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
-public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
+public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -24,22 +24,20 @@ public class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 	////////////
 
 	@Override
-	public void store(final Binary medium, final T instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  medium  ,
+		final T                       instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
+	)
 	{
 		BinaryPersistence.storeStateless(medium, this.typeId(), oid);
 	}
 
 	@Override
-	public T create(final Binary medium)
+	public final T create(final Binary medium)
 	{
-		try
-		{
-			return XVM.instantiate(this.type());
-		}
-		catch(final InstantiationException e)
-		{
-			throw new RuntimeException(e); // (10.04.2013)EXCP: proper exception
-		}
+		return XMemory.instantiate(this.type());
 	}
 
 }

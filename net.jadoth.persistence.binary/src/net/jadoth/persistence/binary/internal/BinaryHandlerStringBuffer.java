@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -30,17 +30,17 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	{
 		final char[] value;
 		final long address;
-		XVM.set_int(
+		XMemory.set_int(
 			address = bytes.storeEntityHeader(((long)instance.length() << 1) + LENGTH_LENGTH, this.typeId(), oid),
-			(value = XVM.accessChars(instance)).length
+			(value = XMemory.accessChars(instance)).length
 		);
-		XVM.copyArrayToAddress(value, 0, instance.length(), address);
+		XMemory.copyArrayToAddress(value, 0, instance.length(), address);
 	}
 
 	@Override
 	public StringBuffer create(final Binary bytes)
 	{
-		return new StringBuffer(X.checkArrayRange(XVM.get_long(bytes.buildItemAddress())));
+		return new StringBuffer(X.checkArrayRange(XMemory.get_long(bytes.buildItemAddress())));
 	}
 
 	@Override
@@ -48,8 +48,8 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	{
 		final long lengthChars = BinaryPersistence.getBuildItemContentLength(bytes) - LENGTH_LENGTH;
 		final long buildItemAddress = bytes.buildItemAddress();
-		instance.ensureCapacity(X.checkArrayRange(XVM.get_long(buildItemAddress)));
-		XVM.setData(instance, null, buildItemAddress + LENGTH_LENGTH, lengthChars);
+		instance.ensureCapacity(X.checkArrayRange(XMemory.get_long(buildItemAddress)));
+		XMemory.setData(instance, null, buildItemAddress + LENGTH_LENGTH, lengthChars);
 	}
 
 //	@Override

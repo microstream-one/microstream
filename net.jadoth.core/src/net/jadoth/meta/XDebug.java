@@ -23,7 +23,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 
@@ -495,9 +495,9 @@ public final class XDebug
 	
 	public static byte[] copyDirectByteBufferRange(final ByteBuffer bb, final int offset, final int length)
 	{
-		final long address = XVM.getDirectByteBufferAddress(bb);
+		final long address = XMemory.getDirectByteBufferAddress(bb);
 		final byte[] data = new byte[length];
-		XVM.copyRangeToArray(address + XArrays.validateArrayIndex(length, offset), data);
+		XMemory.copyRangeToArray(address + XArrays.validateArrayIndex(length, offset), data);
 		return data;
 	}
 	
@@ -514,19 +514,19 @@ public final class XDebug
 	public static void printInstanceSizeInfo(final Class<?> c)
 	{
 		System.out.println(
-			XVM.byteSizeInstance(c) + " byte size of one instance of "
+			XMemory.byteSizeInstance(c) + " byte size of one instance of "
 			+ c.getName()
 		);
 		XReflect.reverseIterateAllClassFields(c, f ->
 		{
 			if(!Modifier.isStatic(f.getModifiers()))
 			{
-				System.out.println(XVM.objectFieldOffset(f) + ": " + f.getName());
+				System.out.println(XMemory.objectFieldOffset(f) + ": " + f.getName());
 			}
 		});
 		System.out.println(
-			XVM.byteSizeObjectHeader() + " Object header size (" + XVM.byteSizeArrayObject(0) + " array header size)."
-				+ " Reference byte size = " + XVM.byteSizeReference() + "."
+			XMemory.byteSizeObjectHeader() + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
+				+ " Reference byte size = " + XMemory.byteSizeReference() + "."
 		);
 	}
 

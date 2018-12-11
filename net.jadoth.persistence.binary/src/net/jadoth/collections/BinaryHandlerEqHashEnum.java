@@ -7,7 +7,7 @@ import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -34,7 +34,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                          0, // oid for eqltr ref
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidLength(), // offset for one oid
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()        // offset for one float
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()        // offset for one float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
@@ -82,13 +82,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		XVM.set_long(
+		XMemory.set_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			persister.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		XVM.set_float(
+		XMemory.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -115,9 +115,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
-		XVM.setObject(
+		XMemory.setObject(
 			instance,
-			XVM.objectFieldOffset(FIELD_EQULATOR),
+			XMemory.objectFieldOffset(FIELD_EQULATOR),
 			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
 		);
 
