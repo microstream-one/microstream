@@ -1453,5 +1453,44 @@ Aha, exception beim Laden:\par
 Cached Integer Konstante wird in der Datenbank nicht gefunden. Das ist erst mal richtig, weil die ja nicht abgespeichert werden (sollte evtl. mal ge\'e4ndert werden), aber die Frage ist, wieso die Konstanten-ID \'fcberhaupt angefordert wird.\par
 Mal recherchieren. Evtl. hat es was mit der Konsolidierung der Loaders oder mit dem Umbau der ObjectRegistry zu tun.\par
 K\'f6nnte was mit handleKnownObject() und isUnrequiredReference() zu tun haben.\par
+\par
+Die constantsHotRegistry enth\'e4lt nur 132 Eintr\'e4ge, aber eine plausible size von 1154.\par
+Debuggen.\par
+\par
+Aha:\par
+Beim Hin- und Herbuilden der constants hot und cold registry muss was schief gehen.\par
+\par
+\par
+Constants registration Ablauf:\par
+1.) registerConstant() registriert in haupt-registry, stellt hot constants registry sicher, f\'fcgt dort hinzu.\par
+2.) rebuild der haupt-registry stellt cold constants registry sicher.\par
+Einfach mal printlns in die beiden building methoden reinbauen.\par
+Debuggen ...\par
+\par
+Tja. Wenn man beim Umkopieren in Arrays den Index nicht inkrementiert, dann kommt \'fcberraschenderweise nur Mist raus.\par
+Fixen.\par
+Testen.\par
+\par
+Das sieht jetzt korrekt aus. Aber es gibt trotzdem noch fehlschlagende Lookups nach Konstanten-IDs, obwohl Konstanten registriert sind.\par
+Debuggen.\par
+\par
+\par
+9000000000000005147 wird nicht gefunden.\par
+\par
+Debuggen.\par
+\par
+Zwischendrin unn\'f6tigen Shrink untersuchen.\par
+Da wird durch >= anstatt > capacity um 1 zu fr\'fch vergr\'f6\'dfert und der (korrekte) decrease check verkleinert wieder. Haha.\par
+Pr\'fcfen und umstellen auf ">". Testen. Passt.\par
+\par
+Wieder weitersuchen am eigentlichen Problem:\par
+Ach, da wird zum checken der oid-hashchain durch einen copy&paste Fehler refNext verwendet. Dann ist das kein Wunder ...\par
+Fixen.\par
+Gleich noch vorsichtshalber alle hashchain Iterierungen durchschauen.\par
+Sonst kein solcher Fehler mehr.\par
+\par
+Wieder testen. Passt.\par
+\par
+Debug-\'c4nderungen aufr\'e4umen.\par
 }
  
