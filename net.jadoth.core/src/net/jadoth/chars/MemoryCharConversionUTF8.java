@@ -1,6 +1,6 @@
 package net.jadoth.chars;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 
 public final class MemoryCharConversionUTF8
@@ -88,14 +88,14 @@ public final class MemoryCharConversionUTF8
 		if(isSingleByte(c))
 		{
 			// simple case: single byte character with a value of < 128 (or 0x80)
-			XVM.set_byte(address, (byte)c);
+			XMemory.set_byte(address, (byte)c);
 			return address + 1;
 		}
 		else if(c < THRESHOLD_2_BYTE)
 		{
 			// intermediate case: double byte character with a value of [128;2048[ (or [0x80;0x800[)
-			XVM.set_byte(address    , (byte)(0xC0 | c >> 6       ));
-			XVM.set_byte(address + 1, (byte)(0x80 | c      & 0x3F));
+			XMemory.set_byte(address    , (byte)(0xC0 | c >> 6       ));
+			XMemory.set_byte(address + 1, (byte)(0x80 | c      & 0x3F));
 			return address + 2;
 		}
 		/* would actually have to check for Surrogates here, but, well, surrogate hacking stuff...
@@ -104,9 +104,9 @@ public final class MemoryCharConversionUTF8
 		else
 		{
 			// all other characters get encoded as 3 bytes.
-			XVM.set_byte(address    , (byte)(0xE0 | c >> 12       ));
-			XVM.set_byte(address + 1, (byte)(0x80 | c >>  6 & 0x3F));
-			XVM.set_byte(address + 2, (byte)(0x80 | c       & 0x3F));
+			XMemory.set_byte(address    , (byte)(0xE0 | c >> 12       ));
+			XMemory.set_byte(address + 1, (byte)(0x80 | c >>  6 & 0x3F));
+			XMemory.set_byte(address + 2, (byte)(0x80 | c       & 0x3F));
 			return address + 3;
 		}
 	}
@@ -139,7 +139,7 @@ public final class MemoryCharConversionUTF8
 	public static final long writeUTF8(final long address, final String string)
 	{
 		// avoid copying potentially huge amounts of data repeatedly like the last noob.
-		return writeUTF8(address, XVM.accessChars(string));
+		return writeUTF8(address, XMemory.accessChars(string));
 	}
 
 	public static final long writeUTF8(final long address, final VarString vs)

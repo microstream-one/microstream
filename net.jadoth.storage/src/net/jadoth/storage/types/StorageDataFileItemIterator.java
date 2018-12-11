@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 
@@ -38,7 +38,7 @@ public interface StorageDataFileItemIterator
 		public default ByteBuffer provideInitialBuffer()
 		{
 			// page-sized direct byte buffer as default
-			return ByteBuffer.allocateDirect(XVM.defaultBufferSize());
+			return ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
 		}
 
 		/**
@@ -71,7 +71,7 @@ public interface StorageDataFileItemIterator
 			/* anything below page size is unreasonable and slows down initialization significantly.
 			 * Also, this capping passively / automatically defends against nonsense values (<= header length).
 			 */
-			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, XVM.defaultBufferSize()));
+			return new ConstantSizedBufferProvider(Math.max(bufferCapacity, XMemory.defaultBufferSize()));
 		}
 
 		/**
@@ -222,7 +222,7 @@ public interface StorageDataFileItemIterator
 
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					nextEntityLength = processBufferedEntities(
-						XVM.getDirectByteBufferAddress(buffer),
+						XMemory.getDirectByteBufferAddress(buffer),
 						buffer.limit(),
 						fileChannel,
 						itemProcessor
@@ -254,7 +254,7 @@ public interface StorageDataFileItemIterator
 			final long bufferBound      = startAddress + bufferDataLength;
 
 			// every entity start must be at least one long size before the actual bound to safely read its length
-			final long entityStartBound = bufferBound - XVM.byteSize_long();
+			final long entityStartBound = bufferBound - XMemory.byteSize_long();
 
 			// iteration variable, initialized with the data start address
 			long address = startAddress;

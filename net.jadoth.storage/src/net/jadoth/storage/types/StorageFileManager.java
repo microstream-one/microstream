@@ -17,7 +17,7 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;
@@ -166,11 +166,11 @@ public interface StorageFileManager
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = XVM.getDirectByteBufferAddress(this.entryBufferFileCreation)  ,
-			entryBufferStoreAddress          = XVM.getDirectByteBufferAddress(this.entryBufferStore)         ,
-			entryBufferTransferAddress       = XVM.getDirectByteBufferAddress(this.entryBufferTransfer)      ,
-			entryBufferFileDeletionAddress   = XVM.getDirectByteBufferAddress(this.entryBufferFileDeletion)  ,
-			entryBufferFileTruncationAddress = XVM.getDirectByteBufferAddress(this.entryBufferFileTruncation)
+			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation)  ,
+			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore)         ,
+			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer)      ,
+			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion)  ,
+			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation)
 		;
 
 		{
@@ -360,7 +360,7 @@ public interface StorageFileManager
 			buffer.clear();
 			if(buffer != this.standardByteBuffer)
 			{
-				XVM.deallocateDirectByteBuffer(buffer); // hope this works, not tested yet
+				XMemory.deallocateDirectByteBuffer(buffer); // hope this works, not tested yet
 			}
 		}
 
@@ -678,7 +678,7 @@ public interface StorageFileManager
 			try
 			{
 				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
-				this.putLiveEntityData(entity, XVM.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
+				this.putLiveEntityData(entity, XMemory.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
 			}
 			catch(final Exception e)
 			{

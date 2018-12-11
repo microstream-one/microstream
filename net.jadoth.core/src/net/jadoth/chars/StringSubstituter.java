@@ -2,7 +2,7 @@ package net.jadoth.chars;
 
 import java.util.function.Consumer;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 public final class StringSubstituter implements StringStamper
 {
@@ -132,7 +132,7 @@ public final class StringSubstituter implements StringStamper
 		final int hash = XChars.internalHashCode(chars, offset, length);
 		for(Entry e = this.slots[this.range & hash]; e != null; e = e.link)
 		{
-			if(e.hash == hash && e.item.length() == length && equals(XVM.accessChars(e.item), chars, offset, length))
+			if(e.hash == hash && e.item.length() == length && equals(XMemory.accessChars(e.item), chars, offset, length))
 			{
 				return e.item;
 			}

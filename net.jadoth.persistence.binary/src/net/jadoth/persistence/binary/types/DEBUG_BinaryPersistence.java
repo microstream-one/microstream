@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeLink;
 
 // CHECKSTYLE.OFF: MagicNumber: just a deprecated debugging class
@@ -17,14 +17,14 @@ public final class DEBUG_BinaryPersistence
 	public static final String oidToString(final long oid)
 	{
 		final byte[] bytes = new byte[8];
-		XVM.putLong(bytes, 0, oid);
+		XMemory.put_long(bytes, 0, oid);
 		return "OID = " + oid + " (" + New().addHexDec(bytes) + ")";
 	}
 
 	public static final String tidToString(final long tid)
 	{
 		final byte[] bytes = new byte[8];
-		XVM.putLong(bytes, 0, tid);
+		XMemory.put_long(bytes, 0, tid);
 		return "TID = " + tid + " (" + New().addHexDec(bytes) + ")";
 	}
 

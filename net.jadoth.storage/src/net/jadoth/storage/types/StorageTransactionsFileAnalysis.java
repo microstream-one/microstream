@@ -15,7 +15,7 @@ import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 public interface StorageTransactionsFileAnalysis
 {
@@ -73,11 +73,11 @@ public interface StorageTransactionsFileAnalysis
 		 * -24         S.O.M.E .C.O.M.M.E.N.T.
 		 */
 		static final byte
-			LENGTH_ENTRY_LENGTH               = (byte)XVM.byteSize_byte()                              ,
-			LENGTH_ENTRY_TYPE                 = (byte)XVM.byteSize_byte()                              ,
-			LENGTH_ENTRY_TIMESTAMP            = (byte)XVM.byteSize_long()                              ,
-			LENGTH_FILE_LENGTH                = (byte)XVM.byteSize_long()                              ,
-			LENGTH_FILE_NUMBER                = (byte)XVM.byteSize_long()                              ,
+			LENGTH_ENTRY_LENGTH               = (byte)XMemory.byteSize_byte()                              ,
+			LENGTH_ENTRY_TYPE                 = (byte)XMemory.byteSize_byte()                              ,
+			LENGTH_ENTRY_TIMESTAMP            = (byte)XMemory.byteSize_long()                              ,
+			LENGTH_FILE_LENGTH                = (byte)XMemory.byteSize_long()                              ,
+			LENGTH_FILE_NUMBER                = (byte)XMemory.byteSize_long()                              ,
 
 			TYPE_FILE_CREATION                = 0  /* length: 26 | binary header pattern: 1A00 */         ,
 			TYPE_STORE                        = 1  /* length: 18 | binary header pattern: 1201 */         ,
@@ -131,8 +131,8 @@ public interface StorageTransactionsFileAnalysis
 
 		public static void initializeEntry(final long address, final byte length, final byte type)
 		{
-			XVM.set_byte(address + OFFSET_COMMON_LENGTH, length);
-			XVM.set_byte(address + OFFSET_COMMON_TYPE  , type  );
+			XMemory.set_byte(address + OFFSET_COMMON_LENGTH, length);
+			XMemory.set_byte(address + OFFSET_COMMON_TYPE  , type  );
 		}
 
 		public static void initializeEntryFileCreation(final long address)
@@ -162,8 +162,8 @@ public interface StorageTransactionsFileAnalysis
 
 		public static void setEntryCommon(final long address, final long fileLength, final long timestamp)
 		{
-			XVM.set_long(address + OFFSET_COMMON_FILE_LENGTH, fileLength);
-			XVM.set_long(address + OFFSET_COMMON_TIMESTAMP  , timestamp );
+			XMemory.set_long(address + OFFSET_COMMON_FILE_LENGTH, fileLength);
+			XMemory.set_long(address + OFFSET_COMMON_TIMESTAMP  , timestamp );
 		}
 
 		public static void setEntryFileCreation(
@@ -174,37 +174,37 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
+			XMemory.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
 		}
 
 		public static byte getEntryLength(final long address)
 		{
-			return XVM.get_byte(address + OFFSET_COMMON_LENGTH);
+			return XMemory.get_byte(address + OFFSET_COMMON_LENGTH);
 		}
 
 		public static byte getEntryType(final long address)
 		{
-			return XVM.get_byte(address + OFFSET_COMMON_TYPE);
+			return XMemory.get_byte(address + OFFSET_COMMON_TYPE);
 		}
 
 		public static long getEntryTimestamp(final long address)
 		{
-			return XVM.get_long(address + OFFSET_COMMON_TIMESTAMP);
+			return XMemory.get_long(address + OFFSET_COMMON_TIMESTAMP);
 		}
 
 		public static long getFileLength(final long address)
 		{
-			return XVM.get_long(address + OFFSET_COMMON_FILE_LENGTH);
+			return XMemory.get_long(address + OFFSET_COMMON_FILE_LENGTH);
 		}
 
 		public static long getFileNumber(final long address)
 		{
-			return XVM.get_long(address + OFFSET_COMMON_FILE_NUMBER);
+			return XMemory.get_long(address + OFFSET_COMMON_FILE_NUMBER);
 		}
 
 		public static long getSpecialOffset(final long address)
 		{
-			return XVM.get_long(address + OFFSET_COMMON_SPECIAL_OFFSET);
+			return XMemory.get_long(address + OFFSET_COMMON_SPECIAL_OFFSET);
 		}
 
 		public static void setEntryStore(final long address, final long fileLength, final long timestamp)
@@ -221,8 +221,8 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER   , sourcefileNumber );
-			XVM.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, sourcefileOffset );
+			XMemory.set_long(address + OFFSET_COMMON_FILE_NUMBER   , sourcefileNumber );
+			XMemory.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, sourcefileOffset );
 		}
 
 		public static void setEntryFileDeletion(
@@ -233,7 +233,7 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
+			XMemory.set_long(address + OFFSET_COMMON_FILE_NUMBER, fileNumber);
 		}
 
 		public static void setEntryFileTruncation(
@@ -245,8 +245,8 @@ public interface StorageTransactionsFileAnalysis
 		)
 		{
 			setEntryCommon(address, fileLength, timestamp);
-			XVM.set_long(address + OFFSET_COMMON_FILE_NUMBER   , fileNumber);
-			XVM.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, oldLength );
+			XMemory.set_long(address + OFFSET_COMMON_FILE_NUMBER   , fileNumber);
+			XMemory.set_long(address + OFFSET_COMMON_SPECIAL_OFFSET, oldLength );
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
@@ -281,8 +281,8 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XVM.defaultBufferSize());
-			final long       address = XVM.getDirectByteBufferAddress(buffer);
+			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
+			final long       address = XMemory.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part
 			while(currentFilePosition < boundPosition)
@@ -516,7 +516,7 @@ public interface StorageTransactionsFileAnalysis
 		{
 			// 2 bytes per char are required
 			final char[] array = new char[(int)availableItemLength >> 1];
-			XVM.copyRangeToArray(address, array);
+			XMemory.copyRangeToArray(address, array);
 			this.vs.add(array);
 			return true;
 		}

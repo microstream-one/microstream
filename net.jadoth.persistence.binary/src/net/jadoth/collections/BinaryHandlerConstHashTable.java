@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
@@ -33,7 +33,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 		BINARY_OFFSET_KEYS         =                                                    0,
 		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidLength(),
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidLength(),
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XVM.byteSize_float()
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()
 	;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
@@ -113,15 +113,15 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		XVM.set_long(
+		XMemory.set_long(
 			contentAddress + BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		XVM.set_long(
+		XMemory.set_long(
 			contentAddress + BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		XVM.set_float(
+		XMemory.set_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -149,14 +149,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 		}
 
 		// set satellite instances (must be done on memory-level due to final modifier. Little hacky, but okay)
-		XVM.setObject(
+		XMemory.setObject(
 			instance,
-			XVM.objectFieldOffset(FIELD_KEYS),
+			XMemory.objectFieldOffset(FIELD_KEYS),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
 		);
-		XVM.setObject(
+		XMemory.setObject(
 			instance,
-			XVM.objectFieldOffset(FIELD_VALUES),
+			XMemory.objectFieldOffset(FIELD_VALUES),
 			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
 		);
 		BinaryPersistence.collectKeyValueReferences(

@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
 import net.jadoth.chars.XChars;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 
 public class MainTestObjectRegistryMemoryConsumtion
@@ -37,7 +37,7 @@ public class MainTestObjectRegistryMemoryConsumtion
 	
 	static void printMemoryFootprintPerEntry64bit(final double hashDensity, final String note)
 	{
-		printMemoryFootprintPerEntry64bit(XVM.byteSizeReference(), hashDensity, note);
+		printMemoryFootprintPerEntry64bit(XMemory.byteSizeReference(), hashDensity, note);
 	}
 	
 	static void printMemoryFootprintPerEntry64bit(final int refByteSize, final double hashDensity, final String note)

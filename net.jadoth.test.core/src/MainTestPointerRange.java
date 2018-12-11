@@ -1,16 +1,16 @@
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 
 public class MainTestPointerRange
 {
 	public static void main(final String[] args)
 	{
-		final int pageSize = XVM.pageSize();
+		final int pageSize = XMemory.pageSize();
 		
 		
 		while(true)
 		{
-			final long pointer = XVM.allocate(pageSize);
+			final long pointer = XMemory.allocate(pageSize);
 			System.out.println(pointer);
 		}
 	}

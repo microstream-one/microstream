@@ -1,6 +1,6 @@
 package net.jadoth.memory;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 public final class LittleEndianStringToAddress
 {
@@ -113,25 +113,25 @@ public final class LittleEndianStringToAddress
 	{
 		if(value == '\n')
 		{
-			XVM.set_int(address, N);
+			XMemory.set_int(address, N);
 			return address + BYTE_LENGTH_ESCAPED_CHAR;
 		}
 		if(value == '\r')
 		{
-			XVM.set_int(address, R);
+			XMemory.set_int(address, R);
 			return address + BYTE_LENGTH_ESCAPED_CHAR;
 		}
 		if(value == '\\')
 		{
-			XVM.set_int(address, B);
+			XMemory.set_int(address, B);
 			return address + BYTE_LENGTH_ESCAPED_CHAR;
 		}
 		if(value == '"')
 		{
-			XVM.set_int(address, Q);
+			XMemory.set_int(address, Q);
 			return address + BYTE_LENGTH_ESCAPED_CHAR;
 		}
-		XVM.set_char(address, value);
+		XMemory.set_char(address, value);
 		return address + BYTE_LENGTH_CHAR;
 	}
 
@@ -139,17 +139,17 @@ public final class LittleEndianStringToAddress
 	{
 		if(value)
 		{
-			XVM.copyArrayToAddress(STRING_BOOLEAN_TRUE, address);
+			XMemory.copyArrayToAddress(STRING_BOOLEAN_TRUE, address);
 			return address + STRING_BYTE_LENGTH_BOOLEAN_TRUE;
 		}
-		XVM.copyArrayToAddress(STRING_BOOLEAN_FALSE, address);
+		XMemory.copyArrayToAddress(STRING_BOOLEAN_FALSE, address);
 		return address + STRING_BYTE_LENGTH_BOOLEAN_FALSE;
 	}
 
 	public static final long toHexDecString(final byte value, final long address)
 	{
 		// (25.02.2013)FIXME: fix negative offset
-		XVM.set_int(address, LITTLE_ENDIAN_HEX_DEC[value >= 0 ? value : BYTE_NEGATIVE_RANGE + value]);
+		XMemory.set_int(address, LITTLE_ENDIAN_HEX_DEC[value >= 0 ? value : BYTE_NEGATIVE_RANGE + value]);
 		return address + BYTE_LENGTH_HEX_DEC_BYTE;
 	}
 
@@ -175,7 +175,7 @@ public final class LittleEndianStringToAddress
 	{
 		if(value < 0)
 		{
-			XVM.set_char(address, '-');
+			XMemory.set_char(address, '-');
 			return toStringPositiveInit5(-value, address + 2);
 		}
 		return toStringPositiveInit5(value, address); // normal case
@@ -185,7 +185,7 @@ public final class LittleEndianStringToAddress
 	{
 		if(value < 0)
 		{
-			XVM.set_char(address, '-');
+			XMemory.set_char(address, '-');
 			return toStringPositiveInit5(-value, address + 2);
 		}
 		return toStringPositiveInit5(value, address); // normal case
@@ -198,7 +198,7 @@ public final class LittleEndianStringToAddress
 		
 		// endless copying around and around because of JDK moron code.
 		final char[] valueArray = valueString.toCharArray();
-		XVM.copyArrayToAddress(valueArray, address);
+		XMemory.copyArrayToAddress(valueArray, address);
 		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.
 	}
@@ -210,7 +210,7 @@ public final class LittleEndianStringToAddress
 		
 		// endless copying around and around because of JDK moron code.
 		final char[] valueArray = valueString.toCharArray();
-		XVM.copyArrayToAddress(valueArray, address);
+		XMemory.copyArrayToAddress(valueArray, address);
 		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.
 	}
@@ -222,10 +222,10 @@ public final class LittleEndianStringToAddress
 		if(value == Long.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArrayToAddress(STRING_LONG_MIN_VALUE, address);
+			XMemory.copyArrayToAddress(STRING_LONG_MIN_VALUE, address);
 			return address + STRING_BYTE_LENGTH_LONG_MIN_VALUE;
 		}
-		XVM.set_char(address, '-');
+		XMemory.set_char(address, '-');
 		return toStringPositiveLong(-value, address + 2); // standard negative case normalization
 	}
 
@@ -234,10 +234,10 @@ public final class LittleEndianStringToAddress
 		if(value == Integer.MIN_VALUE)
 		{
 			// unnegatable special negative case
-			XVM.copyArrayToAddress(STRING_INT_MIN_VALUE, address);
+			XMemory.copyArrayToAddress(STRING_INT_MIN_VALUE, address);
 			return address + STRING_BYTE_LENGTH_INT_MIN_VALUE;
 		}
-		XVM.set_char(address, '-');
+		XMemory.set_char(address, '-');
 		return toStringPositiveInt(-value, address + 2); // standard negative case normalization
 	}
 
@@ -394,13 +394,13 @@ public final class LittleEndianStringToAddress
 
 	private static long put1Char(final int singleDigitValue, final long address)
 	{
-		XVM.set_char(address, (char)(ASCII_OFFSET_DIGITS + singleDigitValue));
+		XMemory.set_char(address, (char)(ASCII_OFFSET_DIGITS + singleDigitValue));
 		return address + BYTE_LENGTH_CHAR;
 	}
 
 	private static long put2Chars(final int doubleDigitValue, final long address)
 	{
-		XVM.set_int(address, LITTLE_ENDIAN_CHARS_00TO99[doubleDigitValue]);
+		XMemory.set_int(address, LITTLE_ENDIAN_CHARS_00TO99[doubleDigitValue]);
 		return address + BYTE_LENGTH_2_CHARS;
 	}
 

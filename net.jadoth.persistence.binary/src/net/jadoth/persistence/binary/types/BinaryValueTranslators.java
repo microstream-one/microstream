@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.typing.TypeMapping;
@@ -194,7 +194,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_byte();
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 	
 	public static long skip_boolean(
@@ -204,7 +204,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_boolean();
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 	
 	public static long skip_short(
@@ -214,7 +214,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_short();
+		return sourceAddress + XMemory.byteSize_short();
 	}
 	
 	public static long skip_char(
@@ -224,7 +224,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_char();
+		return sourceAddress + XMemory.byteSize_char();
 	}
 	
 	public static long skip_int(
@@ -234,7 +234,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_int();
+		return sourceAddress + XMemory.byteSize_int();
 	}
 	
 	public static long skip_float(
@@ -244,7 +244,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_float();
+		return sourceAddress + XMemory.byteSize_float();
 	}
 	
 	public static long skip_long(
@@ -254,7 +254,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_long();
+		return sourceAddress + XMemory.byteSize_long();
 	}
 	
 	public static long skip_double(
@@ -264,7 +264,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XVM.byteSize_double();
+		return sourceAddress + XMemory.byteSize_double();
 	}
 		
 	
@@ -276,8 +276,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_byte(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_boolean(
@@ -287,8 +287,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_short(
@@ -298,8 +298,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_short(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_char(
@@ -309,8 +309,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_int(
@@ -320,8 +320,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_int(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_float(
@@ -331,8 +331,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_float(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_long(
@@ -342,8 +342,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_long(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 	public static long copy_byteTo_double(
@@ -353,8 +353,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_byte(sourceAddress));
-		return sourceAddress + XVM.byteSize_byte();
+		XMemory.set_double(target, targetOffset, XMemory.get_byte(sourceAddress));
+		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 
@@ -366,8 +366,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_byte(target, targetOffset, (byte)to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_boolean(
@@ -377,8 +377,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, XVM.get_boolean(sourceAddress));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_boolean(target, targetOffset, XMemory.get_boolean(sourceAddress));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_short(
@@ -388,8 +388,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_short(target, targetOffset, (short)to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_char(
@@ -399,8 +399,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_char(target, targetOffset, (char)to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_int(
@@ -410,8 +410,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_int(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_float(
@@ -421,8 +421,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_float(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_long(
@@ -432,8 +432,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_long(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 	public static long copy_booleanTo_double(
@@ -443,8 +443,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, to_int(XVM.get_boolean(sourceAddress)));
-		return sourceAddress + XVM.byteSize_boolean();
+		XMemory.set_double(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
 
@@ -456,8 +456,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_boolean(
@@ -467,8 +467,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_short(
@@ -478,8 +478,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_short(target, targetOffset, XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_char(
@@ -489,8 +489,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_int(
@@ -500,8 +500,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_int(target, targetOffset, XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_float(
@@ -511,8 +511,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_float(target, targetOffset, XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_long(
@@ -522,8 +522,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_long(target, targetOffset, XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 	public static long copy_shortTo_double(
@@ -533,8 +533,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_short(sourceAddress));
-		return sourceAddress + XVM.byteSize_short();
+		XMemory.set_double(target, targetOffset, XMemory.get_short(sourceAddress));
+		return sourceAddress + XMemory.byteSize_short();
 	}
 
 
@@ -546,8 +546,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_boolean(
@@ -557,8 +557,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_short(
@@ -568,8 +568,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_short(target, targetOffset, (short)XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_char(
@@ -579,8 +579,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_char(target, targetOffset, XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_int(
@@ -590,8 +590,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_int(target, targetOffset, XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_float(
@@ -601,8 +601,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_float(target, targetOffset, XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_long(
@@ -612,8 +612,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_long(target, targetOffset, XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 	public static long copy_charTo_double(
@@ -623,8 +623,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_char(sourceAddress));
-		return sourceAddress + XVM.byteSize_char();
+		XMemory.set_double(target, targetOffset, XMemory.get_char(sourceAddress));
+		return sourceAddress + XMemory.byteSize_char();
 	}
 
 
@@ -636,8 +636,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_boolean(
@@ -647,8 +647,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_short(
@@ -658,8 +658,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_short(target, targetOffset, (short)XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_char(
@@ -669,8 +669,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_int(
@@ -680,8 +680,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_int(target, targetOffset, XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 	
 	public static long copy_intTo_float(
@@ -691,8 +691,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_float(target, targetOffset, XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_long(
@@ -702,8 +702,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_long(target, targetOffset, XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 	public static long copy_intTo_double(
@@ -713,8 +713,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_int(sourceAddress));
-		return sourceAddress + XVM.byteSize_int();
+		XMemory.set_double(target, targetOffset, XMemory.get_int(sourceAddress));
+		return sourceAddress + XMemory.byteSize_int();
 	}
 
 
@@ -726,8 +726,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_boolean(
@@ -737,8 +737,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_short(
@@ -748,8 +748,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_short(target, targetOffset, (short)XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_char(
@@ -759,8 +759,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_int(
@@ -770,8 +770,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, (int)XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_int(target, targetOffset, (int)XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_float(
@@ -781,8 +781,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_float(target, targetOffset, XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_long(
@@ -792,8 +792,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, (long)XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_long(target, targetOffset, (long)XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 	public static long copy_floatTo_double(
@@ -803,8 +803,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_float(sourceAddress));
-		return sourceAddress + XVM.byteSize_float();
+		XMemory.set_double(target, targetOffset, XMemory.get_float(sourceAddress));
+		return sourceAddress + XMemory.byteSize_float();
 	}
 
 
@@ -816,8 +816,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_boolean(
@@ -827,8 +827,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_short(
@@ -838,8 +838,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_short(target, targetOffset, (short)XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_char(
@@ -849,8 +849,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_int(
@@ -860,8 +860,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, (int)XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_int(target, targetOffset, (int)XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_float(
@@ -871,8 +871,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_float(target, targetOffset, XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_long(
@@ -882,8 +882,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_long(target, targetOffset, XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 	public static long copy_longTo_double(
@@ -893,8 +893,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_long(sourceAddress));
-		return sourceAddress + XVM.byteSize_long();
+		XMemory.set_double(target, targetOffset, XMemory.get_long(sourceAddress));
+		return sourceAddress + XMemory.byteSize_long();
 	}
 
 
@@ -906,8 +906,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_byte(target, targetOffset, (byte)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_boolean(
@@ -917,8 +917,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_boolean(target, targetOffset, 0 != XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_short(
@@ -928,8 +928,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_short(target, targetOffset, (short)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_short(target, targetOffset, (short)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_char(
@@ -939,8 +939,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_char(target, targetOffset, (char)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_char(target, targetOffset, (char)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_int(
@@ -950,8 +950,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_int(target, targetOffset, (int)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_int(target, targetOffset, (int)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_float(
@@ -961,8 +961,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_float(target, targetOffset, (float)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_float(target, targetOffset, (float)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_long(
@@ -972,8 +972,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_long(target, targetOffset, (long)XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_long(target, targetOffset, (long)XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 
 	public static long copy_doubleTo_double(
@@ -983,8 +983,8 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XVM.set_double(target, targetOffset, XVM.get_double(sourceAddress));
-		return sourceAddress + XVM.byteSize_double();
+		XMemory.set_double(target, targetOffset, XMemory.get_double(sourceAddress));
+		return sourceAddress + XMemory.byteSize_double();
 	}
 	
 	

@@ -17,7 +17,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
@@ -86,7 +86,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                     ;
 			if(fieldType.isPrimitive())
 			{
-				primitiveTotalBinaryLength += XVM.byteSizePrimitive(fieldType);
+				primitiveTotalBinaryLength += XMemory.byteSizePrimitive(fieldType);
 				prmStorers[p] = storer;
 				prmSetters[p] = setter;
 				prmFields [p] = fieldsDeclaredOrder[i];
@@ -166,7 +166,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
 
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
-		XVM.ensureClassInitialized(type);
+		XMemory.ensureClassInitialized(type);
 
 		this.instanceFields          = filter(allFields, not(XReflect::isStatic)                            );
 		this.instanceReferenceFields = filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
@@ -199,8 +199,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.membersInDeclaredOrder = resolveMembersInDeclaredOrder(fieldsDeclaredOrder, typeDescriptionMembers);
 		
 		// reference field offsets fit either way, because the relative order of reference fields is maintained.
-		this.allBinaryOffsets = XVM.objectFieldOffsets(fieldsPersistdOrder);
-		this.refBinaryOffsets = XVM.objectFieldOffsets(refFieldsBothOrders);
+		this.allBinaryOffsets = XMemory.objectFieldOffsets(fieldsPersistdOrder);
+		this.refBinaryOffsets = XMemory.objectFieldOffsets(refFieldsBothOrders);
 		
 		// references are always stored at the beginnnig of the content (0 bytes after header)
 		this.referenceOffsetStart = 0;

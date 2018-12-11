@@ -1,6 +1,6 @@
 package net.jadoth.util.chars;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 
 public class MainTestParseIntegerPerformance
 {
@@ -17,7 +17,7 @@ public class MainTestParseIntegerPerformance
 		{
 			final long value = (long)(Math.random() * Math.pow(10, Math.random() * 12));
 //			final long value = (long)(Math.random() * Long.MAX_VALUE);
-			CHARS[i] = XVM.accessChars(STRINGS[i] = Long.toString(value));
+			CHARS[i] = XMemory.accessChars(STRINGS[i] = Long.toString(value));
 
 			totalLength += CHARS[i].length;
 		}

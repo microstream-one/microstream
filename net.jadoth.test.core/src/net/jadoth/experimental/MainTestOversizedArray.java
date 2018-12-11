@@ -2,12 +2,12 @@ package net.jadoth.experimental;
 
 import java.util.Arrays;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestOversizedArray
 {
-	static final Unsafe vm = (Unsafe)XVM.getSystemInstance();
+	static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
 	static final long BABO = Unsafe.ARRAY_BYTE_BASE_OFFSET;
 	static final long LABO = Unsafe.ARRAY_LONG_BASE_OFFSET;
 

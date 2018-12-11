@@ -4,7 +4,7 @@ import net.jadoth.X;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.types.PersistenceFunction;
@@ -23,7 +23,7 @@ public final class BinaryCollectionHandling
 	 */
 	private static final long
 		SIZED_ARRAY_OFFSET_LENGTH   = 0L                       , // length is the first (and only) header value
-		SIZED_ARRAY_LENGTH_HEADER   = XVM.byteSize_long()   , // header only consists of length
+		SIZED_ARRAY_LENGTH_HEADER   = XMemory.byteSize_long()   , // header only consists of length
 		SIZED_ARRAY_OFFSET_ELEMENTS = SIZED_ARRAY_LENGTH_HEADER  // element list begins after header
 	;
 
@@ -90,7 +90,7 @@ public final class BinaryCollectionHandling
 		);
 
 		// store specific header (only consisting of array capacity value)
-		XVM.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
+		XMemory.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
 
 		// store content: array content up to size, trailing nulls are cut off.
 		BinaryPersistence.storeArrayContentAsList(
@@ -209,7 +209,7 @@ public final class BinaryCollectionHandling
 		 * may be longer than X bytes.)
 		 */
 		return X.checkArrayRange(
-			XVM.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
+			XMemory.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
 

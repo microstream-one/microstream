@@ -1,14 +1,14 @@
 package net.jadoth.experimental;
 
 import net.jadoth.collections.VarList;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.typing.XTypes;
 
 public class MainTestVarListPerformance
 {
 	public static void main(final String[] args)
 	{
-		System.out.println(XVM.byteSizeReference());
+		System.out.println(XMemory.byteSizeReference());
 
 		final int size = 1_000_000;
 

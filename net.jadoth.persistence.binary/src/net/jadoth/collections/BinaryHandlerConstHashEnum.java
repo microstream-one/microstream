@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -27,7 +27,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 	/////////////////////
 
 	static final long BINARY_OFFSET_HASH_DENSITY =                       0;
-	static final long BINARY_OFFSET_ELEMENTS     = XVM.byteSize_float(); // one float offset to sized array
+	static final long BINARY_OFFSET_ELEMENTS     = XMemory.byteSize_float(); // one float offset to sized array
 
 
 
@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 		);
 
 		// store hash density as (sole) header value
-		XVM.set_float(contentAddress, instance.hashDensity);
+		XMemory.set_float(contentAddress, instance.hashDensity);
 	}
 
 	@Override

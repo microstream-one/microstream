@@ -1,6 +1,6 @@
 package net.jadoth.persistence.lazy;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -77,7 +77,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		instance.link(referenceOid, handler.getObjectRetriever());
 
 		// lazy reference instance must be stored in any case
-		XVM.set_long(
+		XMemory.set_long(
 			bytes.storeEntityHeader(BinaryPersistence.referenceBinaryLength(1), this.typeId(), oid),
 			referenceOid
 		);
@@ -92,7 +92,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		return Lazy.New(XVM.get_long(bytes.buildItemAddress()), null);
+		return Lazy.New(XMemory.get_long(bytes.buildItemAddress()), null);
 	}
 
 	@Override

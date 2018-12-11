@@ -1,6 +1,6 @@
 package net.jadoth.util;
 
-import net.jadoth.low.XVM;
+import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Immutable;
 import net.jadoth.typing.Stateless;
@@ -9,7 +9,7 @@ public interface BufferSizeProvider
 {
 	public default long provideBufferSize()
 	{
-		return XVM.defaultBufferSize();
+		return XMemory.defaultBufferSize();
 	}
 	
 	public static BufferSizeProvider New()
