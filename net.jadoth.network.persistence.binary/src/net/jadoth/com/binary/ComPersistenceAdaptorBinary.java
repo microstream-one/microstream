@@ -21,7 +21,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	@Override
 	public default ComPersistenceAdaptorBinary<C> initializePersistenceFoundation(
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
-		final PersistenceIdStrategy                     idStrategy
+		final PersistenceIdStrategy                 idStrategy
 	)
 	{
 		ComPersistenceAdaptor.super.initializePersistenceFoundation(typeDictionaryProvider, idStrategy);
@@ -36,9 +36,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	public static ComPersistenceAdaptorBinary.Default New(
 		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider,
-		final PersistenceIdStrategy              hostInitIdStrategy,
+		final PersistenceIdStrategy          hostInitIdStrategy,
 		final XGettingEnum<Class<?>>         entityTypes       ,
-		final PersistenceIdStrategy              hostIdStrategy
+		final PersistenceIdStrategy          hostIdStrategy
 	)
 	{
 		return new ComPersistenceAdaptorBinary.Default(
@@ -70,9 +70,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		protected Abstract(
 			final BinaryPersistenceFoundation<?> foundation        ,
 			final BufferSizeProvider             bufferSizeProvider,
-			final PersistenceIdStrategy              hostInitIdStrategy,
+			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final PersistenceIdStrategy              hostIdStrategy
+			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
 			super(hostInitIdStrategy, entityTypes, hostIdStrategy);
@@ -114,9 +114,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		protected Default(
 			final BinaryPersistenceFoundation<?> foundation        ,
 			final BufferSizeProvider             bufferSizeProvider,
-			final PersistenceIdStrategy              hostInitIdStrategy,
+			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final PersistenceIdStrategy              hostIdStrategy
+			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
 			super(foundation, bufferSizeProvider, hostInitIdStrategy, entityTypes, hostIdStrategy);
@@ -278,9 +278,9 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 
 			@Override
 			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(
-				final PersistenceIdStrategy      hostIdStrategyInitialization,
+				final PersistenceIdStrategy  hostIdStrategyInitialization,
 				final XGettingEnum<Class<?>> entityTypes                 ,
-				final PersistenceIdStrategy      hostIdStrategy
+				final PersistenceIdStrategy  hostIdStrategy
 			)
 			{
 				return ComPersistenceAdaptorBinary.New(

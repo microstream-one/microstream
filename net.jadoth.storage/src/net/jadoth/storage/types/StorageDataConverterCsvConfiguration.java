@@ -354,7 +354,7 @@ public interface StorageDataConverterCsvConfiguration
 		@Override
 		public final String objectIdColumnName()
 		{
-			return Persistence.objectIdName();
+			return Persistence.objectIdLabel();
 		}
 
 		@Override

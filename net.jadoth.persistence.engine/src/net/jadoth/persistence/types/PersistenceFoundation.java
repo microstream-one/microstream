@@ -1481,12 +1481,12 @@ extends Cloneable<PersistenceFoundation<M, F>>
 
 		protected PersistenceObjectIdProvider ensureObjectIdProvider()
 		{
-			throw new MissingFoundationPartException(PersistenceObjectIdProvider.class);
+			return PersistenceObjectIdProvider.Transient();
 		}
 
 		protected PersistenceTypeIdProvider ensureTypeIdProvider()
 		{
-			throw new MissingFoundationPartException(PersistenceTypeIdProvider.class);
+			return PersistenceTypeIdProvider.Transient();
 		}
 
 		protected PersistenceObjectRegistry ensureObjectRegistry()

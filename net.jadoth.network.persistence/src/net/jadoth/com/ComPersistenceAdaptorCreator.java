@@ -9,15 +9,15 @@ import net.jadoth.persistence.types.PersistenceIdStrategy;
 public interface ComPersistenceAdaptorCreator<C>
 {
 	public ComPersistenceAdaptor<C> createPersistenceAdaptor(
-		PersistenceIdStrategy      hostIdStrategyInitialization,
+		PersistenceIdStrategy  hostIdStrategyInitialization,
 		XGettingEnum<Class<?>> entityTypes                 ,
-		PersistenceIdStrategy      hostIdStrategy
+		PersistenceIdStrategy  hostIdStrategy
 	);
 	
 	public default ComPersistenceAdaptor<C> createHostPersistenceAdaptor(
-		final PersistenceIdStrategy      hostIdStrategyInitialization,
+		final PersistenceIdStrategy  hostIdStrategyInitialization,
 		final XGettingEnum<Class<?>> entityTypes                 ,
-		final PersistenceIdStrategy      hostIdStrategy
+		final PersistenceIdStrategy  hostIdStrategy
 	)
 	{
 		return this.createPersistenceAdaptor(
