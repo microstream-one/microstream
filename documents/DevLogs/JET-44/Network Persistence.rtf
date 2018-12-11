@@ -1442,5 +1442,15 @@ Allerdings kann mit einem durchgereichten ObjectManager ja noch immer keine Regi
 Hm. Es sei denn, macht gibt dem ObjectManager ein Clone().\par
 Das w\'fcrde dann sogar gleich neue, resettete OidProvider Instanzen erzeugen.\par
 Hm. K\'f6nnte passen.\par
+\par
+\par
+\par
+2018-12-11\par
+\par
+Mal Test laufen lassen.\par
+\par
+Aha, exception beim Laden:\par
+Cached Integer Konstante wird in der Datenbank nicht gefunden. Das ist erst mal richtig, weil die ja nicht abgespeichert werden (sollte evtl. mal ge\'e4ndert werden), aber die Frage ist, wieso die Konstanten-ID \'fcberhaupt angefordert wird.\par
+Mal recherchieren. Evtl. hat es was mit der Konsolidierung der Loaders oder mit dem Umbau der ObjectRegistry zu tun.\par
 }
  
