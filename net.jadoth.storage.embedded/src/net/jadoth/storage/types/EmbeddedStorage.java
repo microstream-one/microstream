@@ -7,11 +7,8 @@ import java.io.File;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
-import net.jadoth.persistence.types.PersistenceIdStrategy;
-import net.jadoth.persistence.types.PersistenceObjectIdProvider;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
 import net.jadoth.persistence.types.PersistenceTypeEvaluator;
-import net.jadoth.persistence.types.PersistenceTypeIdProvider;
 
 public final class EmbeddedStorage
 {
@@ -26,13 +23,11 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler,
-		final PersistenceIdStrategy              idStrategy
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
 	)
 	{
 		return ConnectionFoundation(
 			typeDictionaryIoHandler      ,
-			idStrategy                   ,
 			Persistence::isPersistable   ,
 			Persistence::isTypeIdMappable
 		);
@@ -40,18 +35,12 @@ public final class EmbeddedStorage
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
-		final PersistenceIdStrategy              idStrategy                 ,
 		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
 		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
 	)
 	{
-		final PersistenceObjectIdProvider objectIdProvider = idStrategy.objectIdStragegy().createObjectIdProvider();
-		final PersistenceTypeIdProvider   typeIdProvider   = idStrategy.typeIdStragegy().createTypeIdProvider();
-		
 		return EmbeddedStorageConnectionFoundation.New()
 			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler    )
-			.setObjectIdProvider           (objectIdProvider           )
-			.setTypeIdProvider             (typeIdProvider             )
 			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable   )
 			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
 		;
@@ -60,8 +49,7 @@ public final class EmbeddedStorage
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(final File directory)
 	{
 		return ConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory),
-			PersistenceIdStrategy.NewInDirectory(directory)
+			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory)
 		);
 	}
 

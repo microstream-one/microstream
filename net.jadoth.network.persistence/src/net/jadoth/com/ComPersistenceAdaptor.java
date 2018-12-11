@@ -182,9 +182,9 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceIdStrategy      hostInitIdStrategy;
+		private final PersistenceIdStrategy  hostInitIdStrategy;
 		private final XGettingEnum<Class<?>> entityTypes       ;
-		private final PersistenceIdStrategy      hostIdStrategy    ;
+		private final PersistenceIdStrategy  hostIdStrategy    ;
 		
 		private transient PersistenceTypeDictionaryView cachedTypeDictionary     ;
 		private transient boolean                       initializedHostFoundation;
@@ -196,9 +196,9 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		/////////////////
 		
 		protected Abstract(
-			final PersistenceIdStrategy      hostInitIdStrategy,
+			final PersistenceIdStrategy  hostInitIdStrategy,
 			final XGettingEnum<Class<?>> entityTypes       ,
-			final PersistenceIdStrategy      hostIdStrategy
+			final PersistenceIdStrategy  hostIdStrategy
 		)
 		{
 			super();

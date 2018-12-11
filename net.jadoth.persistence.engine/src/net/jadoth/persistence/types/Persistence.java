@@ -147,19 +147,19 @@ public class Persistence
 
 	// CHECKSTYLE.ON: ConstantName
 
-	static final String OBJECT_ID_NAME       = "ObjectId";
-	static final String OBJECT_ID_NAME_SHORT = "OID";
+	static final String OBJECT_ID_LABEL  = "ObjectId";
+	static final String OBJECT_ID_LABEL_SHORT = "OID";
 
 
 
-	public static final String objectIdName()
+	public static final String objectIdLabel()
 	{
-		return OBJECT_ID_NAME;
+		return OBJECT_ID_LABEL;
 	}
 
-	public static final String objectIdShortName()
+	public static final String objectIdShortLabel()
 	{
-		return OBJECT_ID_NAME_SHORT;
+		return OBJECT_ID_LABEL_SHORT;
 	}
 
 	/**
