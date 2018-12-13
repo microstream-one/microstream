@@ -6,6 +6,7 @@ import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
@@ -25,9 +26,12 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerPrimitive(final Class<T> type)
+	public BinaryHandlerPrimitive(
+		final Class<T>            type               ,
+		final BinaryValueAccessor binaryValueAccessor
+	)
 	{
-		super(type);
+		super(type, binaryValueAccessor);
 
 		final long primitiveBinaryLength = BinaryPersistence.resolvePrimitiveFieldBinaryLength(type);
 		this.member = X.Constant(

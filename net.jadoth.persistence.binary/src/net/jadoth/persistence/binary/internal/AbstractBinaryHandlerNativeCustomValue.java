@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XGettingSequence;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 
 
@@ -13,10 +14,11 @@ extends AbstractBinaryHandlerNativeCustom<T>
 
 	public AbstractBinaryHandlerNativeCustomValue(
 		final Class<T>                                                    type  ,
+		final BinaryValueAccessor                            binaryValueAccessor,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMember> fields
 	)
 	{
-		super(type, fields);
+		super(type, binaryValueAccessor, fields);
 	}
 	
 	

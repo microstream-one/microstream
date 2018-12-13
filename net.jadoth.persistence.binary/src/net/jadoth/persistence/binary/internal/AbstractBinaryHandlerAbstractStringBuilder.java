@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
-
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 
 public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends AbstractStringBuilder*/>
 extends AbstractBinaryHandlerNativeCustom<B>
@@ -18,10 +18,14 @@ extends AbstractBinaryHandlerNativeCustom<B>
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerAbstractStringBuilder(final Class<B> type)
+	public AbstractBinaryHandlerAbstractStringBuilder(
+		final Class<B>            type               ,
+		final BinaryValueAccessor binaryValueAccessor
+	)
 	{
 		super(
 			type,
+			binaryValueAccessor,
 			pseudoFields(
 				pseudoField(long.class, "capacity"),
 				chars("value")

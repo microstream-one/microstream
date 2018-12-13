@@ -6,10 +6,11 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceStoreHandler;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
@@ -38,10 +39,11 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerArrayList()
+	public BinaryHandlerArrayList(final BinaryValueAccessor binaryValueAccessor)
 	{
 		super(
 			typeWorkaround(),
+			binaryValueAccessor,
 			BinaryCollectionHandling.sizedArrayPseudoFields()
 		);
 	}

@@ -11,6 +11,7 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
@@ -107,10 +108,11 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 
 	protected AbstractBinaryHandlerNative(
 		final Class<T>                                                    type   ,
+		final BinaryValueAccessor                             binaryValueAccessor,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
 	)
 	{
-		super(type);
+		super(type, binaryValueAccessor);
 		this.members = validateAndImmure(members);
 		
 		long binaryLengthMinimum = 0, binaryLengthMaximum = 0;

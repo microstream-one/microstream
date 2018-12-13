@@ -3,6 +3,7 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -12,9 +13,12 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerStateless(final Class<T> type)
+	public AbstractBinaryHandlerStateless(
+		final Class<T>            type               ,
+		final BinaryValueAccessor binaryValueAccessor
+	)
 	{
-		super(type, X.empty());
+		super(type, binaryValueAccessor, X.empty());
 	}
 
 

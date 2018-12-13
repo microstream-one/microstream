@@ -21,12 +21,13 @@ import net.jadoth.low.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberField;
@@ -144,7 +145,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	private final long                                                 binaryContentLength    ;
 	private final BinaryValueStorer[]                                  binaryStorers          ;
 	private final BinaryValueSetter[]                                  memorySetters          ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInPersistdOrder                ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInPersistdOrder ;
 	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInDeclaredOrder ;
 	private final boolean                                              hasReferences          ;
 
@@ -156,12 +157,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 	protected AbstractBinaryHandlerReflective(
 		final Class<T>                              type                      ,
+		final BinaryValueAccessor                   binaryValueAccessor       ,
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
 	)
 	{
-		super(type);
+		super(type, binaryValueAccessor);
 		
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
 
