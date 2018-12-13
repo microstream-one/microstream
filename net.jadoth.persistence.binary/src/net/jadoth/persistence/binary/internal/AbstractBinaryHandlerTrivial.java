@@ -7,8 +7,9 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 
 public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.AbstractImplementation<T>
@@ -17,9 +18,12 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	// constructors     //
 	/////////////////////
 
-	public AbstractBinaryHandlerTrivial(final Class<T> type)
+	public AbstractBinaryHandlerTrivial(
+		final Class<T>            type               ,
+		final BinaryValueAccessor binaryValueAccessor
+	)
 	{
-		super(type);
+		super(type, binaryValueAccessor);
 	}
 
 
