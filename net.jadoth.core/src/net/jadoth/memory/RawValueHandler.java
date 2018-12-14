@@ -1,12 +1,38 @@
-package net.jadoth.persistence.binary.types;
+package net.jadoth.memory;
 
-import net.jadoth.low.XMemory;
+import java.nio.ByteOrder;
 
 /* (13.12.2018 TM)TODO: test if a direct class is faster than an interface.
- * This is a low-level operation that doesn't need to have total multiple inheritence etc.
+ * This is a low-level operation utility that doesn't need to have totally flexible multiple inheritence etc.
  */
-public interface BinaryValueAccessor
+public interface RawValueHandler
 {
+	public static RawValueHandler Derive(final ByteOrder nativeByteOrder, final ByteOrder targetByteOrder)
+	{
+		/*
+		 * It is currently assumed that there are only two occuring situations:
+		 * 1.) Native and target byte orders are the same (e.g. LE/LE or BE/BE), making direct handling sufficient.
+		 * 2.) Native and target byte orders are either LE/BE or BE/LE. Both can be handled by swapping the bytes.
+		 * Anything else, like "mixed endian" / "middle endian", or whatever other moronities morons out there
+		 * can come up with, are ignored intentionally.
+		 */
+		if(targetByteOrder == ByteOrder.nativeOrder())
+		{
+			return RawValueHandler.Direct();
+		}
+		if(nativeByteOrder == ByteOrder.BIG_ENDIAN && targetByteOrder == ByteOrder.BIG_ENDIAN)
+		{
+			return RawValueHandler.Swapping();
+		}
+		if(nativeByteOrder == ByteOrder.LITTLE_ENDIAN && targetByteOrder == ByteOrder.LITTLE_ENDIAN)
+		{
+			return RawValueHandler.Swapping();
+		}
+		
+		throw new Error("Byte order moronity encountered.");
+	}
+	
+	
 	public default byte get_byte(final long address)
 	{
 		return XMemory.get_byte(address);
@@ -91,9 +117,33 @@ public interface BinaryValueAccessor
 	
 	
 	
-	public final class Implementation implements BinaryValueAccessor
+	public static RawValueHandler.Direct Direct()
 	{
-		// stateless interface instantiation is missing
+		return new RawValueHandler.Direct();
+	}
+	
+	public final class Direct implements RawValueHandler
+	{
+		Direct()
+		{
+			super();
+		}
+	}
+	
+	public static RawValueHandler.Swapping Swapping()
+	{
+		return new RawValueHandler.Swapping();
+	}
+	
+	public final class Swapping implements RawValueHandler
+	{
+		Swapping()
+		{
+			super();
+			// FIXME BinaryValueAccessor.Swapping
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
 	}
 	
 }

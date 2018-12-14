@@ -1,6 +1,6 @@
 package net.jadoth.util.chars;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 public class MainTestParseIntegerPerformance
 {

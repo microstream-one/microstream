@@ -4,7 +4,7 @@ import net.jadoth.X;
 import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.types.PersistenceFunction;

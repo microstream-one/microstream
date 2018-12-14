@@ -2,7 +2,7 @@ package net.jadoth.experimental;
 
 import java.lang.reflect.Field;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeStatic

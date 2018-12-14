@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test.setter;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 public class Setters
 {

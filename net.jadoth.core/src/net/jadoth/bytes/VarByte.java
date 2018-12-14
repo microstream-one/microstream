@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
 import net.jadoth.functional._byteProcedure;
-import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
+import net.jadoth.memory.XMemory;
 
 
 

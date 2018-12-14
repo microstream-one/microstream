@@ -6,6 +6,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XTable;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -34,6 +35,8 @@ extends PersistenceFoundation<Binary, F>
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
+	public RawValueHandler getValueAccessor();
+	
 	// (16.11.2018 TM)TODO: JET-49: handle divergent target ByteOrder
 	public ByteOrder getTargetByteOrder();
 	
@@ -56,6 +59,8 @@ extends PersistenceFoundation<Binary, F>
 	);
 	
 	public F setTargetByteOrder(ByteOrder targetByteOrder);
+
+	public F setValueAccessor(RawValueHandler valueAccessor);
 
 
 	
@@ -81,6 +86,7 @@ extends PersistenceFoundation<Binary, F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
+		private RawValueHandler                    valueAccessor          ;
 		private ByteOrder                              targetByteOrder        ;
 		
 		
@@ -167,6 +173,17 @@ extends PersistenceFoundation<Binary, F>
 			return this.targetByteOrder;
 		}
 		
+		@Override
+		public RawValueHandler getValueAccessor()
+		{
+			if(this.valueAccessor == null)
+			{
+				this.valueAccessor = this.dispatch(this.ensureValueAccessor());
+			}
+			
+			return this.valueAccessor;
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -208,6 +225,13 @@ extends PersistenceFoundation<Binary, F>
 			return this.$();
 		}
 		
+		@Override
+		public F setValueAccessor(final RawValueHandler valueAccessor)
+		{
+			this.valueAccessor = valueAccessor;
+			return this.$();
+		}
+		
 	
 
 		///////////////////////////////////////////////////////////////////////////
@@ -217,13 +241,18 @@ extends PersistenceFoundation<Binary, F>
 		@Override
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
-			return BinaryStorer.Creator(() -> 1);
+			return BinaryStorer.Creator(
+				this.getValueAccessor(),
+				() -> 1
+			);
 		}
 
 		@Override
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
-			return new BinaryLoader.CreatorSimple();
+			return new BinaryLoader.CreatorSimple(
+				this.getValueAccessor()
+			);
 		}
 
 		@Override
@@ -292,6 +321,11 @@ extends PersistenceFoundation<Binary, F>
 		protected ByteOrder ensureTargetByteOrder()
 		{
 			return ByteOrder.nativeOrder();
+		}
+		
+		protected RawValueHandler ensureValueAccessor()
+		{
+			return RawValueHandler.Derive(ByteOrder.nativeOrder(), this.getTargetByteOrder());
 		}
 		
 	}

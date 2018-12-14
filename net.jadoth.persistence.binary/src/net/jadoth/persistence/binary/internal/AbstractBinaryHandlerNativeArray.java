@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldComplex;
 
@@ -36,11 +35,10 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 
 	public AbstractBinaryHandlerNativeArray(
 		final Class<A>                                                               arrayType   ,
-		final BinaryValueAccessor                                             binaryValueAccessor,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
 	)
 	{
-		super(arrayType, binaryValueAccessor, pseudoFields);
+		super(arrayType, pseudoFields);
 	}
 
 

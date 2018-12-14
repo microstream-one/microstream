@@ -1,7 +1,7 @@
 package net.jadoth.persistence.test;
 
 import net.jadoth.chars.XChars;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 
 public class MainTestObjectRegistryMemoryConsumtion

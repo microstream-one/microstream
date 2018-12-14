@@ -1,7 +1,7 @@
 package net.jadoth.experimental;
 
 import net.jadoth.collections.VarList;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.typing.XTypes;
 
 public class MainTestVarListPerformance

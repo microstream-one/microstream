@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 

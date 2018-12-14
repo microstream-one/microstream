@@ -2,9 +2,9 @@ package net.jadoth.storage.types;
 
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.binary.types.MemoryRangeCopier;
+import net.jadoth.persistence.binary.types.MemoryRangeReader;
 
 
 /**
@@ -568,12 +568,12 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final void copyCachedData(final MemoryRangeCopier entityDataCollector)
+		public final void copyCachedData(final MemoryRangeReader entityDataCollector)
 		{
 			this.ensureCachedFullData();
 			this.touch();
 //			final byte[] buffer = DEBUGStorage.extractMemory(this.cacheAddress(), 32);
-			entityDataCollector.copyMemory(this.cacheAddress(), this.length);
+			entityDataCollector.readMemory(this.cacheAddress(), this.length);
 		}
 
 		@Override

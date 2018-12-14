@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeLink;
 
 // CHECKSTYLE.OFF: MagicNumber: just a deprecated debugging class

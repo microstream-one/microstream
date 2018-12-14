@@ -3,12 +3,16 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.memory.RawValueHandler;
+
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
 public abstract class Binary implements Chunks
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
+	
+	private final RawValueHandler rawValueHandler;
 	
 	/*
 	 * sneaky hardcoded field for performance reasons.
@@ -27,9 +31,21 @@ public abstract class Binary implements Chunks
 	
 	
 	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	protected Binary(final RawValueHandler rawValueHandler)
+	{
+		super();
+		this.rawValueHandler = rawValueHandler;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
+
 	@Override
 	public abstract ByteBuffer[] buffers();
 
@@ -114,6 +130,89 @@ public abstract class Binary implements Chunks
 	public final synchronized Object getHelper()
 	{
 		return this.helperState;
+	}
+	
+
+	protected final byte get_byte(final long address)
+	{
+		return this.rawValueHandler.get_byte(address);
+	}
+	
+	protected final boolean get_boolean(final long address)
+	{
+		return this.rawValueHandler.get_boolean(address);
+	}
+	
+	protected final short get_short(final long address)
+	{
+		return this.rawValueHandler.get_short(address);
+	}
+	
+	protected final char get_char(final long address)
+	{
+		return this.rawValueHandler.get_char(address);
+	}
+	
+	protected final int get_int(final long address)
+	{
+		return this.rawValueHandler.get_int(address);
+	}
+	
+	protected final float get_float(final long address)
+	{
+		return this.rawValueHandler.get_float(address);
+	}
+	
+	protected final long get_long(final long address)
+	{
+		return this.rawValueHandler.get_long(address);
+	}
+	
+	protected final double get_double(final long address)
+	{
+		return this.rawValueHandler.get_double(address);
+	}
+	
+	
+	
+	protected final void set_byte(final long address, final byte value)
+	{
+		this.rawValueHandler.set_byte(address, value);
+	}
+	
+	protected final void set_boolean(final long address, final boolean value)
+	{
+		this.rawValueHandler.set_boolean(address, value);
+	}
+	
+	protected final void set_short(final long address, final short value)
+	{
+		this.rawValueHandler.set_short(address, value);
+	}
+	
+	protected final void set_char(final long address, final char value)
+	{
+		this.rawValueHandler.set_char(address, value);
+	}
+	
+	protected final void set_int(final long address, final int value)
+	{
+		this.rawValueHandler.set_int(address, value);
+	}
+	
+	protected final void set_float(final long address, final float value)
+	{
+		this.rawValueHandler.set_float(address, value);
+	}
+	
+	protected final void set_long(final long address, final long value)
+	{
+		this.rawValueHandler.set_long(address, value);
+	}
+	
+	protected final void set_double(final long address, final double value)
+	{
+		this.rawValueHandler.set_double(address, value);
 	}
 	
 }

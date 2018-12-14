@@ -6,7 +6,7 @@ import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceFunction;

@@ -2,8 +2,8 @@ package net.jadoth.persistence.test.setter;
 
 import java.text.DecimalFormat;
 
-import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
+import net.jadoth.memory.XMemory;
 
 public class MainTestSetterPerformance
 {

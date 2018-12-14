@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.XArrays;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
 import sun.misc.Unsafe;

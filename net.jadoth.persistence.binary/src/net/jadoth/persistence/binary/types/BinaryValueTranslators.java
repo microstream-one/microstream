@@ -1,6 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.typing.TypeMapping;

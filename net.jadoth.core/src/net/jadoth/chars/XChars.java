@@ -20,7 +20,7 @@ import net.jadoth.bytes.VarByte;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.NumberRangeException;
 import net.jadoth.functional._charProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 
 

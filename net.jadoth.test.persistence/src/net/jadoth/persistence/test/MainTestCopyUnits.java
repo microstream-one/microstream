@@ -1,6 +1,6 @@
 package net.jadoth.persistence.test;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestCopyUnits

@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.typing.XTypes;

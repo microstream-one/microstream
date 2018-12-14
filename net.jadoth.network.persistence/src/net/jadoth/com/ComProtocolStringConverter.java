@@ -11,7 +11,7 @@ import net.jadoth.chars.XParsing;
 import net.jadoth.chars._charArrayRange;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceIdStrategyStringConverter;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;

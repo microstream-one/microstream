@@ -2,7 +2,7 @@ package net.jadoth.util.chars;
 
 import net.jadoth.chars.XChars;
 import net.jadoth.collections.BulkList;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 public class MainTestSplitAndTrim
 {

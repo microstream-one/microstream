@@ -9,7 +9,7 @@ import net.jadoth.collections.HashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingMap;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;

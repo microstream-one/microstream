@@ -15,7 +15,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CSV;
 import net.jadoth.util.csv.CsvConfiguration;

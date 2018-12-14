@@ -1,6 +1,6 @@
 package net.jadoth.persistence.lazy;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;

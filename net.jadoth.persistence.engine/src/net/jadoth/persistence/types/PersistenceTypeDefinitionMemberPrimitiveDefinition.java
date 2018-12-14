@@ -2,7 +2,7 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 
 

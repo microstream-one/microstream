@@ -17,7 +17,7 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.storage.exceptions.StorageExceptionIoWritingChunk;

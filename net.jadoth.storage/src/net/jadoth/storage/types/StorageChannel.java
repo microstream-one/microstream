@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.Chunks;
 import net.jadoth.persistence.binary.types.ChunksBuffer;

@@ -23,7 +23,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.reflect.XReflect;
 import net.jadoth.typing.KeyValue;
 

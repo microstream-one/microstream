@@ -13,7 +13,8 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.RawValueHandler;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
@@ -26,6 +27,23 @@ import net.jadoth.persistence.types.PersistenceSource;
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
+	public static final BinaryFileSource New(final File file)
+	{
+		return new BinaryFileSource(
+			RawValueHandler.Direct(),
+			notNull(file)
+		);
+	}
+	
+	public static final BinaryFileSource New(final File file, final RawValueHandler rawValueHandler)
+	{
+		return new BinaryFileSource(
+			notNull(rawValueHandler),
+			notNull(file)
+		);
+	}
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
@@ -38,8 +56,9 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// instance fields //
 	////////////////////
 
-	private final File       file           ;
-	private final ByteBuffer chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
+	private final File            file           ;
+	private final RawValueHandler rawValueHandler;
+	private final ByteBuffer      chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
 
 
 
@@ -47,10 +66,11 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constructors //
 	/////////////////
 
-	public BinaryFileSource(final File file)
+	BinaryFileSource(final RawValueHandler rawValueHandler, final File file)
 	{
 		super();
-		this.file = notNull(file);
+		this.rawValueHandler = rawValueHandler;
+		this.file            = file           ;
 	}
 
 
@@ -60,7 +80,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	/////////////////////
 
 	private ByteBuffer readChunk(final ReadableByteChannel channel, final long chunkTotalLength)
-	throws IOException
+		throws IOException
 	{
 		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
@@ -70,7 +90,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	}
 
 	private Constant<Binary> read(final long fileLength, final ReadableByteChannel channel)
-	throws IOException
+		throws IOException
 	{
 		final BulkList<ByteBuffer> chunks = new BulkList<>();
 		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
@@ -78,12 +98,12 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
 			chunks.add(this.readChunk(channel, chunkTotalLength));
 		}
-		return X.<Binary>Constant(ChunksWrapper.New(chunks.toArray(ByteBuffer.class)));
+		return X.<Binary>Constant(ChunksWrapper.New(this.rawValueHandler, chunks.toArray(ByteBuffer.class)));
 	}
 	
 	private static final long readChunkLength(
-		final ByteBuffer          lengthBuffer,
-		final ReadableByteChannel channel     ,
+		final ByteBuffer          lengthBuffer ,
+		final ReadableByteChannel channel      ,
 		final MessageWaiter       messageWaiter
 	)
 		throws IOException

@@ -17,11 +17,10 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.exceptions.TypeCastException;
 import net.jadoth.functional.XFunc;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
-import net.jadoth.persistence.binary.types.BinaryValueAccessor;
 import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -157,13 +156,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 	protected AbstractBinaryHandlerReflective(
 		final Class<T>                              type                      ,
-		final BinaryValueAccessor                   binaryValueAccessor       ,
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
 	)
 	{
-		super(type, binaryValueAccessor);
+		super(type);
 		
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
 
