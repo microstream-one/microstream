@@ -2,7 +2,7 @@ package net.jadoth.chars;
 
 import java.util.function.Consumer;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 public final class StringSubstituter implements StringStamper
 {

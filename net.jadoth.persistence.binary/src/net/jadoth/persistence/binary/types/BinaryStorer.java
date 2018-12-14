@@ -3,12 +3,15 @@ package net.jadoth.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static net.jadoth.X.notNull;
 
+import net.jadoth.hashing.XHashing;
+import net.jadoth.math.XMath;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
-import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceObjectManager;
 import net.jadoth.persistence.types.PersistenceObjectRetriever;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceStorer;
 import net.jadoth.persistence.types.PersistenceTarget;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -63,32 +66,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return 1024; // anthing below 1024 doesn't pay of
 		}
 
-		protected static final int maximumSlotSize()
-		{
-			return 1_073_741_824; // technical 2^n int limit
-		}
-
-		protected static final int padCapacity(final long n)
-		{
-			if(n >= maximumSlotSize())
-			{
-				return maximumSlotSize();
-			}
-			int i = 1;
-			while(i < n)
-			{
-				i <<= 1;
-			}
-			return i;
-		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		// (12.04.2013)XXX: encapsulate by "PersistenceContextManager" complementary to builder?
+		
+		private final RawValueHandler                       rawValueHandler;
 		private final PersistenceObjectManager              objectManager  ;
 		private final PersistenceObjectRetriever            objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
@@ -118,6 +102,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 
 		protected Implementation(
+			final RawValueHandler                       rawValueHandler   ,
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -127,6 +112,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		)
 		{
 			super();
+			this.rawValueHandler    = notNull(rawValueHandler)       ;
 			this.objectManager      = notNull(objectManager)         ;
 			this.objectRetriever    = notNull(objectRetriever)       ;
 			this.typeManager        = notNull(typeManager)           ;
@@ -239,7 +225,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			{
 				return this;
 			}
-			this.internalInitialize(padCapacity(initialCapacity));
+			this.internalInitialize(XHashing.padHashLength(initialCapacity));
 			return this;
 		}
 
@@ -255,7 +241,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public PersistenceStorer<Binary> reinitialize(final long initialCapacity)
 		{
 			this.clear();
-			this.internalInitialize(padCapacity(initialCapacity));
+			this.internalInitialize(XHashing.padHashLength(initialCapacity));
 			return this;
 		}
 
@@ -264,15 +250,15 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.internalInitialize(defaultSlotSize());
 		}
 
-		protected void internalInitialize(final int pow2Capacity)
+		protected void internalInitialize(final int hashLength)
 		{
-			this.hashSlots = new Item[pow2Capacity];
-			this.hashRange = pow2Capacity - 1;
+			this.hashSlots = new Item[hashLength];
+			this.hashRange = hashLength - 1;
 			
 			final ChunksBuffer[] chunks = this.chunks;
 			for(int i = 0; i < chunks.length; i++)
 			{
-				chunks[i] = ChunksBuffer.New(this.bufferSizeProvider);
+				chunks[i] = ChunksBuffer.New(this.rawValueHandler, this.bufferSizeProvider);
 			}
 		}
 
@@ -288,7 +274,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public final long maximumCapacity()
 		{
-			return maximumSlotSize();
+			return Long.MAX_VALUE;
 		}
 
 		@Override
@@ -298,7 +284,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			{
 				return this;
 			}
-			this.rebuildStoreItems(padCapacity(desiredCapacity));
+			this.rebuildStoreItems(XHashing.padHashLength(desiredCapacity));
 			return this;
 		}
 
@@ -422,9 +408,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public final void rebuildStoreItems(final int newLength)
 		{
 			// moreless academic check for more than 1 billion entries
-			if(this.hashSlots.length >= maximumSlotSize())
+			if(this.hashSlots.length >= XMath.highestPowerOf2_int())
 			{
-				return; // note that aborting rebuild does not ruin anything, only performance degrades
+				return; // note that aborting rebuild does not ruin anything.
 			}
 
 			final int newRange;
@@ -536,6 +522,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 		
 		ImplementationEager(
+			final RawValueHandler                       rawValueHandler   ,
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -544,7 +531,15 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final int                                   channelCount
 		)
 		{
-			super(objectManager, objectRetriever, typeManager, target, bufferSizeProvider, channelCount);
+			super(
+				rawValueHandler   ,
+				objectManager     ,
+				objectRetriever   ,
+				typeManager       ,
+				target            ,
+				bufferSizeProvider,
+				channelCount
+			);
 		}
 		
 		
@@ -585,9 +580,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 	}
 		
-	public static BinaryStorer.Creator Creator(final _intReference chunkHashSizeProvider)
+	public static BinaryStorer.Creator Creator(
+		final RawValueHandler rawValueHandler      ,
+		final _intReference   chunkHashSizeProvider
+	)
 	{
 		return new BinaryStorer.Creator.Implementation(
+			notNull(rawValueHandler)      ,
 			notNull(chunkHashSizeProvider)
 		);
 	}
@@ -632,7 +631,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			// instance fields  //
 			/////////////////////
 
-			private final _intReference chunkHashSizeProvider;
+
+			private final RawValueHandler rawValueHandler      ;
+			private final _intReference   chunkHashSizeProvider;
 
 
 
@@ -640,9 +641,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			// constructors     //
 			/////////////////////
 
-			protected AbstractImplementation(final _intReference chunkHashSizeProvider)
+			protected AbstractImplementation(
+				final RawValueHandler rawValueHandler      ,
+				final _intReference   chunkHashSizeProvider
+			)
 			{
 				super();
+				this.rawValueHandler       = rawValueHandler      ;
 				this.chunkHashSizeProvider = chunkHashSizeProvider;
 			}
 
@@ -652,18 +657,26 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			// methods //
 			////////////
 			
-			protected int getChunkHashSize()
+			protected int chunkHashSize()
 			{
 				return this.chunkHashSizeProvider.get();
+			}
+			
+			protected RawValueHandler rawValueHandler()
+			{
+				return this.rawValueHandler;
 			}
 
 		}
 		
 		public final class Implementation extends AbstractImplementation
 		{
-			Implementation(final _intReference chunkHashSizeProvider)
+			Implementation(
+				final RawValueHandler rawValueHandler      ,
+				final _intReference   chunkHashSizeProvider
+			)
 			{
-				super(chunkHashSizeProvider);
+				super(rawValueHandler, chunkHashSizeProvider);
 			}
 
 			@Override
@@ -676,12 +689,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.Implementation(
-					objectManager          ,
-					objectRetriever        ,
-					typeManager            ,
-					target                 ,
-					bufferSizeProvider     ,
-					this.getChunkHashSize()
+					this.rawValueHandler(),
+					objectManager         ,
+					objectRetriever       ,
+					typeManager           ,
+					target                ,
+					bufferSizeProvider    ,
+					this.chunkHashSize()
 				);
 			}
 			@Override
@@ -694,12 +708,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.ImplementationEager(
-					objectManager          ,
-					objectRetriever        ,
-					typeManager            ,
-					target                 ,
-					bufferSizeProvider     ,
-					this.getChunkHashSize()
+					this.rawValueHandler(),
+					objectManager         ,
+					objectRetriever       ,
+					typeManager           ,
+					target                ,
+					bufferSizeProvider    ,
+					this.chunkHashSize()
 				);
 			}
 

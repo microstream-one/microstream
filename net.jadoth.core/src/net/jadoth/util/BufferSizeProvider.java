@@ -1,7 +1,7 @@
 package net.jadoth.util;
 
-import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
+import net.jadoth.memory.XMemory;
 import net.jadoth.typing.Immutable;
 import net.jadoth.typing.Stateless;
 

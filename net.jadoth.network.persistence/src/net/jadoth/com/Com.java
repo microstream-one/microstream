@@ -7,7 +7,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
 import net.jadoth.persistence.types.PersistenceObjectIdStrategy;
 import net.jadoth.persistence.types.PersistenceTypeIdStrategy;

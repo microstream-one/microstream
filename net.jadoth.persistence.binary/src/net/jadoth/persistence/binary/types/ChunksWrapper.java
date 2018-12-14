@@ -3,7 +3,8 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.RawValueHandler;
+import net.jadoth.memory.XMemory;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
@@ -15,9 +16,12 @@ public final class ChunksWrapper extends Binary
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksWrapper New(final ByteBuffer... chunkDirectBuffers)
+	public static final ChunksWrapper New(
+		final RawValueHandler rawValueHandler   ,
+		final ByteBuffer...   chunkDirectBuffers
+	)
 	{
-		return new ChunksWrapper(chunkDirectBuffers);
+		return new ChunksWrapper(rawValueHandler, chunkDirectBuffers);
 	}
 
 
@@ -38,9 +42,9 @@ public final class ChunksWrapper extends Binary
 	/////////////////////
 
 	// private constructor. Does not validate arguments!
-	private ChunksWrapper(final ByteBuffer[] chunks)
+	private ChunksWrapper(final RawValueHandler rawValueHandler, final ByteBuffer[] chunks)
 	{
-		super();
+		super(rawValueHandler);
 		final long[] startOffsets = new long[chunks.length];
 		final long[] boundOffsets = new long[chunks.length];
 		

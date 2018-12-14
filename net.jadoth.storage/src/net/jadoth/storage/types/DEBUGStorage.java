@@ -5,7 +5,7 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.collections.types.XList;
 import net.jadoth.files.XFiles;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.meta.XDebug;
 
 

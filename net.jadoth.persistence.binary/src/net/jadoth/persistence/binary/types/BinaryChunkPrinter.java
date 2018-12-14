@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 
 public final class BinaryChunkPrinter implements Consumer<Binary>

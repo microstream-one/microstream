@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;

@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.persistence.binary.types.MemoryRangeCopier;
+import net.jadoth.persistence.binary.types.MemoryRangeReader;
 
 
 
@@ -21,7 +21,7 @@ public interface StorageEntityCacheItem<I extends StorageEntityCacheItem<I>>
 
 	public StorageDataFile<I> storageFile();
 
-	public void copyCachedData(MemoryRangeCopier entityDataCollector);
+	public void copyCachedData(MemoryRangeReader entityDataCollector);
 
 	public long clearCache();
 

@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;

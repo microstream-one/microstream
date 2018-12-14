@@ -15,7 +15,7 @@ import net.jadoth.collections.ConstList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 
 public interface StorageTransactionsFileAnalysis
 {

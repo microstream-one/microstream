@@ -2,8 +2,8 @@ package net.jadoth.memory;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
+import net.jadoth.memory.XMemory;
 import sun.misc.Unsafe;
 
 

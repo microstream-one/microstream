@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.interfaces.Sized;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.typing.Clearable;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing._longKeyValue;

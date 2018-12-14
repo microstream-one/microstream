@@ -2,7 +2,7 @@ package net.jadoth.test;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance

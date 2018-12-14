@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.network.exceptions.NetworkExceptionTimeout;
 import net.jadoth.network.types.Network;
 import net.jadoth.network.types.NetworkConnectionSocket;

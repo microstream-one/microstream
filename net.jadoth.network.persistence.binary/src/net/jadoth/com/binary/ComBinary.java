@@ -14,7 +14,7 @@ import net.jadoth.com.ComFoundation;
 import net.jadoth.com.ComHost;
 import net.jadoth.com.ComHostChannelAcceptor;
 import net.jadoth.com.XSockets;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 
 public class ComBinary

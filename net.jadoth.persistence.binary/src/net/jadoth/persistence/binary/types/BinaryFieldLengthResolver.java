@@ -1,7 +1,7 @@
 package net.jadoth.persistence.binary.types;
 
 import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 

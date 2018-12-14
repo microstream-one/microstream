@@ -26,7 +26,7 @@ import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
 import net.jadoth.persistence.binary.internal.BinaryHandlerBigDecimal;
@@ -548,60 +548,53 @@ public final class BinaryPersistence extends Persistence
 		typeHandler.initializeTypeId(nativeTypeId);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers(
-		final BinaryValueAccessor binaryValueAccessor
-	)
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers()
 	{
-		/* (13.12.2018 TM)FIXME: JET-49: ValueAccessor strategy
-		 * Would work this way, but maybe it's better to move the logic to Binary, which gets passed anyway.
-		 * 
-		 */
-		
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
-			new BinaryHandlerPrimitive<>(byte   .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(boolean.class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(short  .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(char   .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(int    .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(float  .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(long   .class, binaryValueAccessor),
-			new BinaryHandlerPrimitive<>(double .class, binaryValueAccessor),
+			new BinaryHandlerPrimitive<>(byte   .class),
+			new BinaryHandlerPrimitive<>(boolean.class),
+			new BinaryHandlerPrimitive<>(short  .class),
+			new BinaryHandlerPrimitive<>(char   .class),
+			new BinaryHandlerPrimitive<>(int    .class),
+			new BinaryHandlerPrimitive<>(float  .class),
+			new BinaryHandlerPrimitive<>(long   .class),
+			new BinaryHandlerPrimitive<>(double .class),
 
 //			new BinaryHandlerNativeClass()    , // (18.09.2018 TM)NOTE: see comments in BinaryHandlerNativeClass.
-			new BinaryHandlerNativeByte(binaryValueAccessor)     ,
-			new BinaryHandlerNativeBoolean(binaryValueAccessor)  ,
-			new BinaryHandlerNativeShort(binaryValueAccessor)    ,
-			new BinaryHandlerNativeCharacter(binaryValueAccessor),
-			new BinaryHandlerNativeInteger(binaryValueAccessor)  ,
-			new BinaryHandlerNativeFloat(binaryValueAccessor)    ,
-			new BinaryHandlerNativeLong(binaryValueAccessor)     ,
-			new BinaryHandlerNativeDouble(binaryValueAccessor)   ,
+			new BinaryHandlerNativeByte()     ,
+			new BinaryHandlerNativeBoolean()  ,
+			new BinaryHandlerNativeShort()    ,
+			new BinaryHandlerNativeCharacter(),
+			new BinaryHandlerNativeInteger()  ,
+			new BinaryHandlerNativeFloat()    ,
+			new BinaryHandlerNativeLong()     ,
+			new BinaryHandlerNativeDouble()   ,
 			
-			new BinaryHandlerNativeVoid(binaryValueAccessor)     ,
+			new BinaryHandlerNativeVoid()     ,
 			
-			new BinaryHandlerNativeObject(binaryValueAccessor)   ,
+			new BinaryHandlerNativeObject()   ,
 			
-			new BinaryHandlerNativeString(binaryValueAccessor)   ,
-			new BinaryHandlerStringBuffer(binaryValueAccessor)   ,
-			new BinaryHandlerStringBuilder(binaryValueAccessor)  ,
+			new BinaryHandlerNativeString()   ,
+			new BinaryHandlerStringBuffer()   ,
+			new BinaryHandlerStringBuilder()  ,
 
-			new BinaryHandlerNativeArray_byte(binaryValueAccessor)   ,
-			new BinaryHandlerNativeArray_boolean(binaryValueAccessor),
-			new BinaryHandlerNativeArray_short(binaryValueAccessor)  ,
-			new BinaryHandlerNativeArray_char(binaryValueAccessor)   ,
-			new BinaryHandlerNativeArray_int(binaryValueAccessor)    ,
-			new BinaryHandlerNativeArray_float(binaryValueAccessor)  ,
-			new BinaryHandlerNativeArray_long(binaryValueAccessor)   ,
-			new BinaryHandlerNativeArray_double(binaryValueAccessor) ,
+			new BinaryHandlerNativeArray_byte()   ,
+			new BinaryHandlerNativeArray_boolean(),
+			new BinaryHandlerNativeArray_short()  ,
+			new BinaryHandlerNativeArray_char()   ,
+			new BinaryHandlerNativeArray_int()    ,
+			new BinaryHandlerNativeArray_float()  ,
+			new BinaryHandlerNativeArray_long()   ,
+			new BinaryHandlerNativeArray_double() ,
 
-			new BinaryHandlerArrayList(binaryValueAccessor) ,
-			new BinaryHandlerBigInteger(binaryValueAccessor),
-			new BinaryHandlerBigDecimal(binaryValueAccessor),
-			new BinaryHandlerFile(binaryValueAccessor)      ,
-			new BinaryHandlerDate(binaryValueAccessor)      ,
-			new BinaryHandlerHashSet(binaryValueAccessor)   ,
+			new BinaryHandlerArrayList() ,
+			new BinaryHandlerBigInteger(),
+			new BinaryHandlerBigDecimal(),
+			new BinaryHandlerFile()      ,
+			new BinaryHandlerDate()      ,
+			new BinaryHandlerHashSet()   ,
 
-			new BinaryHandlerLazyReference(binaryValueAccessor)
+			new BinaryHandlerLazyReference()
 			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
 		);
 		
@@ -620,21 +613,21 @@ public final class BinaryPersistence extends Persistence
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultCustomHandlers()
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
-			new BinaryHandlerBulkList(binaryValueAccessor)        ,
-			new BinaryHandlerLimitList(binaryValueAccessor)       ,
-			new BinaryHandlerFixedList(binaryValueAccessor)       ,
-			new BinaryHandlerConstList(binaryValueAccessor)       ,
-			new BinaryHandlerEqBulkList(binaryValueAccessor)      ,
-			new BinaryHandlerHashEnum(binaryValueAccessor)        ,
-			new BinaryHandlerConstHashEnum(binaryValueAccessor)   ,
-			new BinaryHandlerEqHashEnum(binaryValueAccessor)      ,
-			new BinaryHandlerEqConstHashEnum(binaryValueAccessor) ,
-			new BinaryHandlerHashTable(binaryValueAccessor)       ,
-			new BinaryHandlerConstHashTable(binaryValueAccessor)  ,
-			new BinaryHandlerEqHashTable(binaryValueAccessor)     ,
-			new BinaryHandlerEqConstHashTable(binaryValueAccessor),
+			new BinaryHandlerBulkList()        ,
+			new BinaryHandlerLimitList()       ,
+			new BinaryHandlerFixedList()       ,
+			new BinaryHandlerConstList()       ,
+			new BinaryHandlerEqBulkList()      ,
+			new BinaryHandlerHashEnum()        ,
+			new BinaryHandlerConstHashEnum()   ,
+			new BinaryHandlerEqHashEnum()      ,
+			new BinaryHandlerEqConstHashEnum() ,
+			new BinaryHandlerHashTable()       ,
+			new BinaryHandlerConstHashTable()  ,
+			new BinaryHandlerEqHashTable()     ,
+			new BinaryHandlerEqConstHashTable(),
 
-			new BinaryHandlerSubstituterImplementation(binaryValueAccessor)
+			new BinaryHandlerSubstituterImplementation()
 			/* (29.10.2013 TM)TODO: more framework default custom handlers
 			 * - VarString
 			 * - VarByte

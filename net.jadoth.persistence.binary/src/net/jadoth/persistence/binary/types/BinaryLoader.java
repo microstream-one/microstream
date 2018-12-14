@@ -8,8 +8,9 @@ import java.util.function.Consumer;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.low.XMemory;
 import net.jadoth.math.XMath;
+import net.jadoth.memory.RawValueHandler;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -36,16 +37,18 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 	}
 
 	public static BinaryLoader.Implementation New(
-		final PersistenceTypeHandlerLookup<Binary> typeLookup,
-		final PersistenceObjectRegistry            registry  ,
-		final PersistenceSourceSupplier<Binary>    source    ,
+		final RawValueHandler                      rawValueHandler,
+		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+		final PersistenceObjectRegistry            registry       ,
+		final PersistenceSourceSupplier<Binary>    source         ,
 		final LoadItemsChain                       loadItems
 	)
 	{
 		return new BinaryLoader.Implementation(
+			notNull(rawValueHandler),
 			notNull(typeLookup),
-			notNull(registry)  ,
-			notNull(source)    ,
+			notNull(registry),
+			notNull(source),
 			notNull(loadItems)
 		);
 	}
@@ -64,8 +67,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
-		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup;
-		private final PersistenceObjectRegistry                      registry  ;
+		private final RawValueHandler                                rawValueHandler          ;
+		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup        ;
+		private final PersistenceObjectRegistry                      registry                 ;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 
 		private final PersistenceInstanceHandler skipObjectRegisterer = (oid, instance) ->
@@ -84,17 +88,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup,
-			final PersistenceObjectRegistry            registry  ,
-			final PersistenceSourceSupplier<Binary>    source    ,
+			final RawValueHandler                      rawValueHandler,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final PersistenceSourceSupplier<Binary>    source         ,
 			final LoadItemsChain                       loadItems
 		)
 		{
 			super();
-			this.typeHandlerLookup = typeLookup;
-			this.registry          = registry  ;
-			this.sourceSupplier    = source    ;
-			this.loadItems         = loadItems ;
+			this.rawValueHandler   = rawValueHandler;
+			this.typeHandlerLookup = typeLookup     ;
+			this.registry          = registry       ;
+			this.sourceSupplier    = source         ;
+			this.loadItems         = loadItems      ;
 		}
 
 
@@ -244,13 +250,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final Object                                 instance
 		)
 		{
-			return new Item(oid, instance, typeHandler);
+			return new Item(this.rawValueHandler, oid, instance, typeHandler);
 		}
 		
 		private Item createSkipBuildItem(final long oid, final Object instance)
 		{
 			// skip items do not require a type handler, only oid and optional instance
-			return new Item(oid, instance, null);
+			return new Item(null, oid, instance, null);
 		}
 		
 		private Item createBuildItem(final long objectId, final long typeId)
@@ -742,13 +748,18 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 			Item()
 			{
-				super();
+				super(null);
 				this.oid = 0L;
 			}
 
-			Item(final long oid, final Object contextInstance, final PersistenceTypeHandler<Binary, Object> handler)
+			Item(
+				final RawValueHandler                        rawValueHandler,
+				final long                                   oid            ,
+				final Object                                 contextInstance,
+				final PersistenceTypeHandler<Binary, Object> handler
+			)
 			{
-				super();
+				super(rawValueHandler);
 				this.oid             = oid            ;
 				this.handler         = handler        ;
 				this.contextInstance = contextInstance;
@@ -848,6 +859,30 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 	public final class CreatorSimple implements BinaryLoader.Creator
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final RawValueHandler rawValueHandler;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		CreatorSimple(final RawValueHandler rawValueHandler)
+		{
+			super();
+			this.rawValueHandler = rawValueHandler;
+		}
+
+
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
 		@Override
 		public BinaryLoader createLoader(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup,
@@ -855,7 +890,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
-			return new BinaryLoader.Implementation(typeLookup, registry, source, new LoadItemsChain.Simple());
+			return new BinaryLoader.Implementation(
+				this.rawValueHandler,
+				typeLookup,
+				registry,
+				source,
+				new LoadItemsChain.Simple()
+			);
 		}
 
 	}
@@ -867,8 +908,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final _intReference hashSizeProvider;
+		
+		private final RawValueHandler rawValueHandler ;
+		private final _intReference   hashSizeProvider;
 
 
 
@@ -876,9 +918,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// constructors //
 		/////////////////
 
-		public CreatorChannelHashing(final _intReference hashSizeProvider)
+		public CreatorChannelHashing(
+			final RawValueHandler rawValueHandler ,
+			final _intReference   hashSizeProvider
+		)
 		{
 			super();
+			this.rawValueHandler  = rawValueHandler ;
 			this.hashSizeProvider = hashSizeProvider;
 		}
 
@@ -896,6 +942,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		)
 		{
 			return new BinaryLoader.Implementation(
+				this.rawValueHandler,
 				typeLookup,
 				registry,
 				source,
