@@ -3,6 +3,7 @@ package net.jadoth.com.binary;
 import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.collections.types.XGettingEnum;
@@ -159,17 +160,23 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		{
 			this.initializeClientPersistenceFoundation(protocol);
 			
+			final ByteOrder hostByteOrder = protocol.byteOrder();
+			
 			final BinaryPersistenceFoundation<?> foundation = this.persistenceFoundation();
 			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider(),
-				RawValueHandler.Derive(protocol.byteOrder())
+				RawValueHandler.Derive(hostByteOrder)
 			);
 			foundation.setPersistenceChannel(channel);
 						
-			// (16.11.2018 TM)TODO: JET-49: divergent target ByteOrder not supported yet in BinaryPersistence.
-			foundation.setTargetByteOrder(protocol.byteOrder());
+			/* (14.12.2018 TM)TODO: hostByteOrder used in two different places
+			 * It's a little weird that the hostByteOrder / RawValueHandler is used in two different places.
+			 * Or in other words, that the Binary instances for loading and storing are created at different places.
+			 * Maybe that could/should be consolidated.
+			 */
+			foundation.setTargetByteOrder(hostByteOrder);
 			
 			return foundation;
 		}

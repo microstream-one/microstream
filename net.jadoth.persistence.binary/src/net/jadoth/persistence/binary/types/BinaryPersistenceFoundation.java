@@ -37,7 +37,6 @@ extends PersistenceFoundation<Binary, F>
 	
 	public RawValueHandler getRawValueHandler();
 	
-	// (16.11.2018 TM)TODO: JET-49: handle divergent target ByteOrder
 	public ByteOrder getTargetByteOrder();
 	
 
