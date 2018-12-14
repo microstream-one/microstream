@@ -642,7 +642,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeFixedSize(
 		final Binary                   bytes        ,
-		final PersistenceStoreHandler           handler      ,
+		final PersistenceStoreHandler  handler      ,
 		final long                     contentLength,
 		final long                     typeId       ,
 		final long                     objectId     ,
@@ -659,10 +659,10 @@ public final class BinaryPersistence extends Persistence
 	}
 
 	public static final void updateFixedSize(
-		final Object                    instance     ,
-		final BinaryValueSetter[]       setters      ,
-		final long[]                    memoryOffsets,
-		final long                      dataAddress  ,
+		final Object                      instance     ,
+		final BinaryValueSetter[]         setters      ,
+		final long[]                      memoryOffsets,
+		final long                        dataAddress  ,
 		final PersistenceObjectIdResolver idResolver
 	)
 	{

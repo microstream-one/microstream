@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -1188,8 +1189,10 @@ Au\'dferdem einen Regression Bugfix, weil ich mit einem fr\'fcheren Aufh\'fcbsch
 \par
 \par
 2018-11-25\par
+
 \pard\par
 Nix wegen Familienerk\'e4ltung.\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1532,5 +1535,26 @@ Wenn sich das Ergebnis best\'e4tigt, w\'e4r ich mir dem Issue quasi schon fertig
 23:00\par
 \par
 BinaryValueAccessor Typ bauen.\par
+\par
+\par
+2018-12-14\par
+\par
+BinaryValueAccessor verschoben von TypeHandler nach Binary. Das ist super so. Die Binary Instanz wird eh rumgereicht.\par
+Evtl. kann man dort sogar das ganze direkte handling von Memory Adressen wegkapseln.\par
+\par
+JET-49 updaten.\par
+\par
+BinaryValueAccessor umbenennen zu RawValueHandler.\par
+Einbauen.\par
+\par
+Jetzt mal recherchieren zu Memory Adressen wegkapseln.\par
+\par
+Hm.\par
+Also die ganzen eh schon gekapselten Hilfsmethoden wie z.B. BinaryPersistence.storeFixedSize() m\'fcsste halt nach Binary verschoben werden.\par
+\par
+Aus den kombinierten Quelle->Ziel "BinaryValueStorer" m\'fcsste "BinaryValueGetter" (oder besser "RawValueGetter") werden, die einen Wert aus einer Instanz holen und dann an einen setter des RawValueHandlers \'fcbergeben.\par
+Das gleiche in gr\'fcn mit dem "BinaryValueSetter": Anstatt einen Wert von einer Quelladresse zu holen und auf eine Zieladresse oder in ein Zielobjekt zu schreiben, w\'fcrde der Wert von dem RawValueHandler geliefert und dann nur noch zum setzen \'fcbergeben werden.\par
+Das h\'e4tte aber wieder R\'fcckwirkungen auf die Value Converter f\'fcr das LegacyTypeMapping: Anstatt ~64 Einzelimplementierungen f\'fcr die Konvertierung, m\'fcsste es 8 8-fach Implementierungen geben, die jeden beliebigen primitive Quelltyp annehmen k\'f6nnen und zu einem primitive Zieltyp konvertieren.\par
+\par
 }
  
