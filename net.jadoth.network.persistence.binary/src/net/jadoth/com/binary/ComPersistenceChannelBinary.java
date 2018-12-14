@@ -10,6 +10,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
 import net.jadoth.com.XSockets;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
@@ -19,12 +20,14 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 {
 	public static ComPersistenceChannelBinary.Default New(
 		final SocketChannel      channel           ,
-		final BufferSizeProvider bufferSizeProvider
+		final BufferSizeProvider bufferSizeProvider,
+		final RawValueHandler    rawValueHandler
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
-			notNull(bufferSizeProvider)
+			notNull(bufferSizeProvider),
+			notNull(rawValueHandler)
 		);
 	}
 	
@@ -76,12 +79,25 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 	public final class Default extends ComPersistenceChannelBinary.Abstract<SocketChannel>
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final RawValueHandler rawValueHandler;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default(final SocketChannel channel, final BufferSizeProvider bufferSizeProvider)
+		Default(
+			final SocketChannel      channel           ,
+			final BufferSizeProvider bufferSizeProvider,
+			final RawValueHandler    rawValueHandler
+		)
 		{
 			super(channel, bufferSizeProvider);
+			this.rawValueHandler = rawValueHandler;
 		}
 		
 		
@@ -112,7 +128,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 				throw new PersistenceExceptionTransfer(e);
 			}
 			
-			return X.<Binary>Constant(ChunksWrapper.New(filledContentBuffer));
+			return X.<Binary>Constant(ChunksWrapper.New(this.rawValueHandler, filledContentBuffer));
 		}
 
 		@Override
@@ -121,7 +137,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			if(chunks.length != 1)
 			{
-				/* (11.08.2018 TM)TODO: binary chunks array ugliness
+				/* (11.08.2018 TM)XXX: binary chunks array ugliness
 				 * This is a somewhat unclean API:
 				 * Chunks is only an array because the Storage's channel hashing mechanism requires it.
 				 * But for each channel, there is only exactely one chunk.

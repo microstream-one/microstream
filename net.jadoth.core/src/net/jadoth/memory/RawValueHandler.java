@@ -7,6 +7,11 @@ import java.nio.ByteOrder;
  */
 public interface RawValueHandler
 {
+	public static RawValueHandler Derive(final ByteOrder targetByteOrder)
+	{
+		return Derive(ByteOrder.nativeOrder(), targetByteOrder);
+	}
+	
 	public static RawValueHandler Derive(final ByteOrder nativeByteOrder, final ByteOrder targetByteOrder)
 	{
 		/*
@@ -16,7 +21,7 @@ public interface RawValueHandler
 		 * Anything else, like "mixed endian" / "middle endian", or whatever other moronities morons out there
 		 * can come up with, are ignored intentionally.
 		 */
-		if(targetByteOrder == ByteOrder.nativeOrder())
+		if(targetByteOrder == nativeByteOrder)
 		{
 			return RawValueHandler.Direct();
 		}

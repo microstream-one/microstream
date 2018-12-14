@@ -9,6 +9,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -141,7 +142,8 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			{
 				final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 					connection,
-					this.bufferSizeProvider()
+					this.bufferSizeProvider(),
+					RawValueHandler.Direct() // host does not care about endianess, thus always using direct.
 				);
 				foundation.setPersistenceChannel(channel);
 			}
@@ -161,7 +163,8 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
-				this.bufferSizeProvider()
+				this.bufferSizeProvider(),
+				RawValueHandler.Derive(protocol.byteOrder())
 			);
 			foundation.setPersistenceChannel(channel);
 						

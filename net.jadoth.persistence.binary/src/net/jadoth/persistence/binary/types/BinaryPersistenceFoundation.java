@@ -35,7 +35,7 @@ extends PersistenceFoundation<Binary, F>
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 	
-	public RawValueHandler getValueAccessor();
+	public RawValueHandler getRawValueHandler();
 	
 	// (16.11.2018 TM)TODO: JET-49: handle divergent target ByteOrder
 	public ByteOrder getTargetByteOrder();
@@ -60,7 +60,7 @@ extends PersistenceFoundation<Binary, F>
 	
 	public F setTargetByteOrder(ByteOrder targetByteOrder);
 
-	public F setValueAccessor(RawValueHandler valueAccessor);
+	public F setRawValueHandler(RawValueHandler rawValueHandler);
 
 
 	
@@ -86,7 +86,7 @@ extends PersistenceFoundation<Binary, F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
-		private RawValueHandler                    valueAccessor          ;
+		private RawValueHandler                    rawValueHandler          ;
 		private ByteOrder                              targetByteOrder        ;
 		
 		
@@ -174,14 +174,14 @@ extends PersistenceFoundation<Binary, F>
 		}
 		
 		@Override
-		public RawValueHandler getValueAccessor()
+		public RawValueHandler getRawValueHandler()
 		{
-			if(this.valueAccessor == null)
+			if(this.rawValueHandler == null)
 			{
-				this.valueAccessor = this.dispatch(this.ensureValueAccessor());
+				this.rawValueHandler = this.dispatch(this.ensureRawValueHandler());
 			}
 			
-			return this.valueAccessor;
+			return this.rawValueHandler;
 		}
 		
 		
@@ -226,9 +226,9 @@ extends PersistenceFoundation<Binary, F>
 		}
 		
 		@Override
-		public F setValueAccessor(final RawValueHandler valueAccessor)
+		public F setRawValueHandler(final RawValueHandler rawValueHandler)
 		{
-			this.valueAccessor = valueAccessor;
+			this.rawValueHandler = rawValueHandler;
 			return this.$();
 		}
 		
@@ -242,7 +242,7 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
-				this.getValueAccessor(),
+				this.getRawValueHandler(),
 				() -> 1
 			);
 		}
@@ -251,7 +251,7 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorSimple(
-				this.getValueAccessor()
+				this.getRawValueHandler()
 			);
 		}
 
@@ -323,9 +323,11 @@ extends PersistenceFoundation<Binary, F>
 			return ByteOrder.nativeOrder();
 		}
 		
-		protected RawValueHandler ensureValueAccessor()
+		protected RawValueHandler ensureRawValueHandler()
 		{
-			return RawValueHandler.Derive(ByteOrder.nativeOrder(), this.getTargetByteOrder());
+			return RawValueHandler.Derive(
+				this.getTargetByteOrder()
+			);
 		}
 		
 	}
