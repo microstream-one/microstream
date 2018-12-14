@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
@@ -73,6 +74,7 @@ public interface StorageManager extends StorageController
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
 		private final StorageEntityMarkMonitor.Creator        entityMarkMonitorCreator     ;
+		private final RawValueHandler                         rawValueHandler              ;
 
 
 		// state flags //
@@ -117,6 +119,7 @@ public interface StorageManager extends StorageController
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
+			final RawValueHandler                       rawValueHandler              ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -127,7 +130,7 @@ public interface StorageManager extends StorageController
 			this.fileProvider                  = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator          = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController        = storageConfiguration.housekeepingController();
-			this.requestAcceptorCreator           = notNull(requestAcceptorCreator)              ;
+			this.requestAcceptorCreator        = notNull(requestAcceptorCreator)              ;
 			this.taskBrokerCreator             = notNull(taskBrokerCreator)                   ;
 			this.dataChunkValidatorProvider    = notNull(dataChunkValidatorProvider)          ;
 			this.channelCreator                = notNull(channelCreator)                      ;
@@ -145,6 +148,7 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
+			this.rawValueHandler               = notNull(rawValueHandler)                     ;
 
 			/* must not leave processing information implementation choice to outside context
 			 * as this implementation relys on an immutable thread count.
@@ -157,8 +161,8 @@ public interface StorageManager extends StorageController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final StorageConfiguration configuration()
@@ -195,12 +199,6 @@ public interface StorageManager extends StorageController
 		{
 			return this.isShuttingDown;
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
 
 		private void ensureRunning()
 		{
@@ -271,6 +269,7 @@ public interface StorageManager extends StorageController
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
+				this.rawValueHandler                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

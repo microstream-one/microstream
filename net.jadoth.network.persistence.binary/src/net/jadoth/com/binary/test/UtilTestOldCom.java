@@ -7,6 +7,7 @@ import net.jadoth.com.ComChannel;
 import net.jadoth.com.ComDefaultIdStrategy;
 import net.jadoth.com.binary.ComPersistenceChannelBinary;
 import net.jadoth.files.XFiles;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
@@ -38,7 +39,8 @@ public class UtilTestOldCom
 		
 		final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 			socketChannel,
-			BufferSizeProvider.New()
+			BufferSizeProvider.New(),
+			RawValueHandler.Direct()
 		);
 		foundation.setPersistenceChannel(channel);
 		

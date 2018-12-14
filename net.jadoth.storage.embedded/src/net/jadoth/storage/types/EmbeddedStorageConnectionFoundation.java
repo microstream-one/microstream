@@ -125,6 +125,7 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorChannelHashing(
+				this.getRawValueHandler(),
 				this.getStorageManager().channelController().channelCountProvider()
 			);
 		}
@@ -133,6 +134,7 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
+				this.getRawValueHandler(),
 				this.getStorageManager().channelCountProvider()
 			);
 		}

@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
+import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.Chunks;
@@ -100,6 +101,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
+		private final RawValueHandler                   rawValueHandler          ;
 		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
@@ -137,19 +139,21 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageChannelController          controller               ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
+			final RawValueHandler                   rawValueHandler          ,
 			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
 		{
 			super();
 			this.channelIndex              = notNegative(hashIndex)                ;
-			this.exceptionHandler          = notNull    (exceptionHandler)         ;
-			this.taskBroker                = notNull    (taskBroker)               ;
-			this.channelController         = notNull    (controller)               ;
-			this.fileManager               = notNull    (fileManager)              ;
-			this.entityCache               = notNull    (entityCache)              ;
-			this.housekeepingController    = notNull    (housekeepingController)   ;
-			this.loadingBufferSizeProvider = notNull    (loadingBufferSizeProvider);
+			this.exceptionHandler          =     notNull(exceptionHandler)         ;
+			this.taskBroker                =     notNull(taskBroker)               ;
+			this.channelController         =     notNull(controller)               ;
+			this.fileManager               =     notNull(fileManager)              ;
+			this.entityCache               =     notNull(entityCache)              ;
+			this.rawValueHandler           =     notNull(rawValueHandler)          ;
+			this.housekeepingController    =     notNull(housekeepingController)   ;
+			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
 		}
 
 
@@ -380,7 +384,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		
 		private ChunksBuffer createLoadingChunksBuffer()
 		{
-			return ChunksBuffer.New(this.loadingBufferSizeProvider);
+			return ChunksBuffer.New(this.rawValueHandler, this.loadingBufferSizeProvider);
 		}
 
 		@Override
@@ -623,6 +627,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
+			RawValueHandler                       rawValueHandler              ,
 			long                                  rootTypeId
 		);
 
@@ -654,6 +659,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
+				final RawValueHandler                      rawValueHandler              ,
 				final long                                 rootTypeId
 			)
 			{
@@ -717,6 +723,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						channelController        ,
 						housekeepingController   ,
 						entityCache              ,
+						rawValueHandler          ,
 						loadingBufferSizeProvider,
 						fileManager
 					);
