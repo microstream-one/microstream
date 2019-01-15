@@ -1556,5 +1556,71 @@ Aus den kombinierten Quelle->Ziel "BinaryValueStorer" m\'fcsste "BinaryValueGett
 Das gleiche in gr\'fcn mit dem "BinaryValueSetter": Anstatt einen Wert von einer Quelladresse zu holen und auf eine Zieladresse oder in ein Zielobjekt zu schreiben, w\'fcrde der Wert von dem RawValueHandler geliefert und dann nur noch zum setzen \'fcbergeben werden.\par
 Das h\'e4tte aber wieder R\'fcckwirkungen auf die Value Converter f\'fcr das LegacyTypeMapping: Anstatt ~64 Einzelimplementierungen f\'fcr die Konvertierung, m\'fcsste es 8 8-fach Implementierungen geben, die jeden beliebigen primitive Quelltyp annehmen k\'f6nnen und zu einem primitive Zieltyp konvertieren.\par
 \par
+\par
+2019-01-15\par
+\par
+Weiter gehts, genau ein Monat sp\'e4ter. Ich hab w\'e4hrend der Umzugsschufterei immer wieder mal dar\'fcber nachgedacht, aber hatte nie Zeit, es aufzuschreiben oder gar daran zu arbeiten.\par
+Meine \'dcberlegungen:\par
+- Die Binary Klasse kann direkt die API enthalten, um Werte zu setzen.\par
+- Ob die Variante f\'fcr ByteOrder-Konvertierung dann als Funktionsreferenz (evtl. mit null f\'fcr die Standardfall) oder als Ableitung gemacht wird, muss ausprobiert werden.\par
+- In diesem Zusammenhang k\'f6nnte die Binary Klasse auch bzgl. anderen Kleinigkeiten \'fcberarbeitet werden, z.B. indem sie intern die Channelverwaltung macht (Binary Instanz zeigt auf andere Binary Instanzen, mit sich selbst als Channel 0).\par
+- Alle generischen "storeList" usw. Methoden k\'f6nnen dann dort rein verschoben werden.\par
+- Idealerweise m\'fcsste dann sogar entfallen k\'f6nnen, dass man vorab wissen muss, wie lang ein entity werden wird, weil das Binary Ding einfach bei Bedarf eine weitere Instanzen mit einem neuen reservierten Speicherbereich anlegt.\par
+\par
+\par
+\par
+Also m\'fcsste es ungef\'e4hr so aussehen:\par
+\par
+State:\par
+- ein Binary ist die "head" Instanz als Arbeitsmedium f\'fcr einen gesamten Vorgang, z.B. einen Store.\par
+- die head Binary Instanz hat ein Array an Binaries, dessen L\'e4nge der Channel Anzahl entspricht. Index 0 ist die head Instanz selber.\par
+- Jede channel-spezifische Binary Instanz muss eine dynamisch wachsende Liste an DirectByteBuffer Instanzen haben und die aktuelle Addresse und bound in Feldern vorhalten\par
+\par
+/!\\ ein "voller" ByteBuffer muss ggf. auf ein paar Bytes vor seiner Capacity beschr\'e4nkt werden. Aber das geht mit limit().\par
+\par
+Idealerweise sollte die (eigentlich abstrakte) Binary Klasse selbst keinen state haben, damit abgeleitete Klassen nicht unn\'f6tig Speicher belegen. Bei Items (eine Instanz je entity) kann das durchaus relevant sein.\par
+\par
+Nochmal die aktuell vorhandenen Varianten (Ableitungen) durchdenken:\par
+1.) Item: Beim Laden wird pro Entity ein Item angelegt. Das ist n\'f6tig, weil sowieso ein Item pro Entity gebraucht wird und das dann auch gleich auf die Speicheradresse der Entity Daten aus dem ChunksBuffer zeigen kann.\par
+2.) ChunksBuffer: Beim Speichern und Laden wird pro Channel ein ChunksBuffer angelegt, der eine dynamisch wachsende Liste an ByteBuffers h\'e4lt und bei Bedarf als Array zur\'fcckgibt.\par
+3.) ChunksWrapper: benutzt von FileSource (nur debug-Spielerei) und ComPersistenceChannelBinary. Wrappt einfach nur eingelesene ByteBuffer ohne weitere Logik\par
+\par
+Binary#rawValueHandler ist die Logik f\'fcr die ByteOrder-Konvertierung. Wird vielleicht direkt in das neue Binary \'fcbernommen, vielleicht \'fcber Ableitung gemacht.\par
+Binary#entityContentAddress kommt zuk\'fcnftig direkt in die Item Klasse bzw. wird sowieso anders gel\'f6st, indem nur noch mit relativen Offsets mit Bound-Validierungs gearbeitet wird.\par
+Binary#helperState wird nur beim Laden verwendet, kommt also auch direkt in die Item Klasse.\par
+\par
+\par
+Neu vielleicht so:\par
+\par
+Binary:\par
+[keine Felder]\par
+\par
+ChannelChunks extends Binary:\par
+- ChannelChunks[] (dasselbe Array f\'fcr alle beteiligten ChannelChunks Instanzen)\par
+- ByteBuffer[] usw., so wie bisher in ChunkBuffer.\par
+\par
+ChunksWrapper kann entweder so bleiben, oder konsolidiert werden mit ChannelChunks.\par
+\par
+\par
+Nochmal recherchieren, wie das mit der Array ugliness (siehe XXX in ComBinary) ist.\par
+PersistenceTarget erwartet ein M[]. Das ist nur n\'f6tig wegen der Channelaufteilung in der Storage (siehe EmbeddedStorageBinaryTarget).\par
+Besser w\'e4re:\par
+Binary bekommt eine Methode Chunk[] hashedChunks() , die das Array zur\'fcck gibt.\par
+\par
+Im neuen Load Item k\'f6nnte die OID weggelassen werden, wenn man stattdessen von der sowieso vorhandenen entityContentAddress 8 bytes zur\'fcckgeht und den Wert ausliest. Dort liegt die n\'e4mlich. Immer.\par
+\par
+Das BuildItem bauen k\'f6nnte mit der neuen Kapselung auch besser gehen:\par
+Es muss nicht mit startOffset und boundOffset und tausend schleifen und expliziter Memory Adresse \'fcber 17 createItem() Aufrufe so eine Instanz gebaut werden, sondern einfach wie folgt:\par
+Das neue Binary definiert eine Methode, der man einen BuildItemAcceptor \'fcbergibt. Die l\'e4uft intern \'fcber den Speicherbereich (aus wie vielen einzelnen Segmenten der auch immer bestehen mag), zerst\'fcckelt den in lauter neue BuildItem Instanzen und \'fcbergibt jede davon an den Acceptor. Der kann sich dann OID, TID usw. \'fcber entsprechende, gekapselte Getter auf den Speicherbereich raussuchen und lookups auf TypeHandler und ContextInstance machen, wie er lustig ist. Passt.\par
+\par
+Mal Binary2 und BuildItem2 implementieren und anhand davon weiter \'fcberlegen.\par
+\par
+\par
+\par
+\par
+\par
+Methoden:\par
+\par
+\par
 }
  

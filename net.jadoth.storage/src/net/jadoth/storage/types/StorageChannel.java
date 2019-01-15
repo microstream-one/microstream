@@ -13,7 +13,7 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.Chunks;
+import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.Unpersistable;
@@ -33,7 +33,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public Binary collectLoadByTids(PersistenceIdSet loadTids);
 
-	public KeyValue<ByteBuffer[], long[]> storeEntities(long timestamp, Chunks chunkData);
+	public KeyValue<ByteBuffer[], long[]> storeEntities(long timestamp, Chunk chunkData);
 
 	public void rollbackChunkStorage();
 
@@ -352,7 +352,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public KeyValue<ByteBuffer[], long[]> storeEntities(final long timestamp, final Chunks chunkData)
+		public KeyValue<ByteBuffer[], long[]> storeEntities(final long timestamp, final Chunk chunkData)
 		{
 			// reset even if there is no new data to account for (potential) new data in other channel
 			this.entityCache.registerPendingStoreUpdate();
@@ -384,7 +384,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		
 		private ChunksBuffer createLoadingChunksBuffer()
 		{
-			return ChunksBuffer.New(this.rawValueHandler, this.loadingBufferSizeProvider);
+			return ChunksBuffer.New(this.loadingBufferSizeProvider);
 		}
 
 		@Override
