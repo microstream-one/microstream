@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.persistence.binary.types.Chunks;
+import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskCreator
@@ -16,7 +16,7 @@ public interface StorageRequestTaskCreator
 		StorageChannelController channelController
 	);
 
-	public StorageRequestTaskStoreEntities createSaveTask(Chunks[] medium);
+	public StorageRequestTaskStoreEntities createSaveTask(Chunk[] medium);
 
 	public StorageRequestTaskLoadByOids createLoadTaskByOids(PersistenceIdSet[] loadOids);
 
@@ -142,7 +142,7 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskStoreEntities createSaveTask(final Chunks[] medium)
+		public StorageRequestTaskStoreEntities createSaveTask(final Chunk[] medium)
 		{
 			return new StorageRequestTaskStoreEntities.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),

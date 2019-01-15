@@ -258,7 +258,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final ChunksBuffer[] chunks = this.chunks;
 			for(int i = 0; i < chunks.length; i++)
 			{
-				chunks[i] = ChunksBuffer.New(this.rawValueHandler, this.bufferSizeProvider);
+				chunks[i] = ChunksBuffer.New(this.bufferSizeProvider);
 			}
 		}
 

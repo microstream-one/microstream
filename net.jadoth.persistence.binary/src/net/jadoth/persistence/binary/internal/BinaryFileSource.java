@@ -98,7 +98,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
 			chunks.add(this.readChunk(channel, chunkTotalLength));
 		}
-		return X.<Binary>Constant(ChunksWrapper.New(this.rawValueHandler, chunks.toArray(ByteBuffer.class)));
+		return X.<Binary>Constant(ChunksWrapper.New(chunks.toArray(ByteBuffer.class)));
 	}
 	
 	private static final long readChunkLength(

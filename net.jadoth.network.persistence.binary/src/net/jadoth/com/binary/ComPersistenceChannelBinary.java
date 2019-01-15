@@ -128,7 +128,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 				throw new PersistenceExceptionTransfer(e);
 			}
 			
-			return X.<Binary>Constant(ChunksWrapper.New(this.rawValueHandler, filledContentBuffer));
+			return X.<Binary>Constant(ChunksWrapper.New(filledContentBuffer));
 		}
 
 		@Override
