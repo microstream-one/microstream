@@ -249,13 +249,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final Object                                 instance
 		)
 		{
-			return new Item(this.rawValueHandler, oid, instance, typeHandler);
+			return new Item(oid, instance, typeHandler);
 		}
 		
 		private Item createSkipBuildItem(final long oid, final Object instance)
 		{
 			// skip items do not require a type handler, only oid and optional instance
-			return new Item(null, oid, instance, null);
+			return new Item(oid, instance, null);
 		}
 		
 		private Item createBuildItem(final long objectId, final long typeId)
@@ -747,18 +747,17 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 			Item()
 			{
-				super(null);
+				super();
 				this.oid = 0L;
 			}
 
 			Item(
-				final RawValueHandler                        rawValueHandler,
 				final long                                   oid            ,
 				final Object                                 contextInstance,
 				final PersistenceTypeHandler<Binary, Object> handler
 			)
 			{
-				super(rawValueHandler);
+				super();
 				this.oid             = oid            ;
 				this.handler         = handler        ;
 				this.contextInstance = contextInstance;

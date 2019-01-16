@@ -3,7 +3,7 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 
 
-public interface Chunks
+public interface Chunk
 {
 	public ByteBuffer[] buffers();
 

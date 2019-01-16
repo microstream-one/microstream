@@ -141,7 +141,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private String                          protocolName             ;
 		private String                          protocolVersion          ;
 		private ByteOrder                       byteOrder                ;
-		private PersistenceIdStrategy               clientIdStrategy         ;
+		private PersistenceIdStrategy           clientIdStrategy         ;
 		private ComProtocolCreator              protocolCreator          ;
 		private ComProtocolProvider<C>          protocolProvider         ;
 		private ComProtocolProviderCreator<C>   protocolProviderCreator  ;
@@ -157,9 +157,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		private ComPersistenceAdaptor<C>        hostPersistenceAdaptor   ;
 		private ComPersistenceAdaptor<C>        clientPersistenceAdaptor ;
 		
-		private PersistenceIdStrategy               hostInitIdStrategy       ;
+		private PersistenceIdStrategy           hostInitIdStrategy       ;
 		private XEnum<Class<?>>                 entityTypes              ;
-		private PersistenceIdStrategy               hostIdStrategy           ;
+		private PersistenceIdStrategy           hostIdStrategy           ;
 		
 		private ComClientCreator<C>             clientCreator            ;
 		private ComConnectionLogicDispatcher<C> connectionLogicDispatcher;

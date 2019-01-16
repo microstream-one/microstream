@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.persistence.binary.types.Chunks;
+import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.util.UtilStackTrace;
 
@@ -23,7 +23,7 @@ public interface StorageTaskBroker
 	public StorageRequestTaskLoadByOids enqueueLoadTaskByOids(PersistenceIdSet[] loadOids)
 		throws InterruptedException;
 	
-	public StorageRequestTaskStoreEntities enqueueStoreTask(Chunks[] medium)
+	public StorageRequestTaskStoreEntities enqueueStoreTask(Chunk[] medium)
 		throws InterruptedException;
 
 	public default StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
@@ -344,7 +344,7 @@ public interface StorageTaskBroker
 		}
 
 		@Override
-		public final synchronized StorageRequestTaskStoreEntities enqueueStoreTask(final Chunks[] medium)
+		public final synchronized StorageRequestTaskStoreEntities enqueueStoreTask(final Chunk[] medium)
 			throws InterruptedException
 		{
 			this.validateChannelCount(medium);

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.binary.types.Chunks;
+import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.UtilStackTrace;
 
@@ -31,7 +31,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// instance fields  //
 		/////////////////////
 
-		private final Chunks[] data;
+		private final Chunk[] data;
 
 
 
@@ -39,7 +39,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// constructors     //
 		/////////////////////
 
-		Implementation(final long timestamp, final Chunks[] data)
+		Implementation(final long timestamp, final Chunk[] data)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
 			super(timestamp, data.length);
