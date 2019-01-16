@@ -1,28 +1,24 @@
 package net.jadoth.persistence.binary.types;
 
-import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+import net.jadoth.memory.XMemory;
 
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
-public abstract class Binary implements Chunk
+public abstract class Binary2
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
-	/*
-	 * sneaky hardcoded field for performance reasons.
-	 * Used only by build items for create/update address.
-	 * A little hacky, but worth it.
-	 * 
-	 * (14.09.2018 TM)NOTE: is it really faster? Is it really worth it?
-	 * Was it in the past? Is it still, with several years of JVM and JIT improvement?
-	 * Would it be slower or maybe even faster to have the field be final?
-	 * Or should the raw memory address not pollute the API?
+	/**
+	 * Depending on the deriving class, this is either a single entity's address for reading data
+	 * or the beginning of a store chunk for storing.
 	 */
-	long entityContentAddress;
-
-	private Object helperState;
+	long address;
+	
+	/**
+	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementation.
+	 */
+	private Object helper;
 	
 	
 	
@@ -30,7 +26,7 @@ public abstract class Binary implements Chunk
 	// constructors //
 	/////////////////
 	
-	protected Binary()
+	protected Binary2()
 	{
 		super();
 	}
@@ -40,36 +36,17 @@ public abstract class Binary implements Chunk
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	public abstract Chunk[] channelChunks();
 
-	@Override
-	public abstract ByteBuffer[] buffers();
-
-	/**
-	 * Writes the header (etc...).
-	 * <p>
-	 * Returns a memory address that is guaranteed to be safe for writing {@literal len} bytes.
-	 * Writing any more bytes will lead to unpredictable results, from (most likely) destroying
-	 * the byte stream's consistency up to crashing the VM immediately or at some point in the future.
-	 * <p>
-	 * DO NOT WRITE MORE THEN {@literal len} BYTES TO THE RETURNED ADDRESS!
-	 *
-	 * @param entityContentLength
-	 * @param entityTypeId
-	 * @param entityObjectId
-	 * @return
-	 */
-	public abstract long storeEntityHeader(
+	public abstract void storeEntityHeader(
 		final long entityContentLength,
 		final long entityTypeId       ,
 		final long entityObjectId
 	);
+	
 
-	public abstract long[] startOffsets();
-
-	public abstract long[] boundOffsets();
-
-	public abstract long   buildItemAddress();
-
+	// (15.01.2019 TM)TODO: check if #hasData can be replaced by or done in a smarter way.
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
 	 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.
@@ -78,15 +55,8 @@ public abstract class Binary implements Chunk
 	 */
 	public final boolean hasData()
 	{
-		return this.entityContentAddress != 0;
+		return this.address != 0;
 	}
-
-	// only for debug purposes!
-	protected abstract void internalIterateCurrentData(Consumer<byte[]> iterator);
-
-	protected abstract long[] internalGetStartOffsets();
-
-	protected abstract long[] internalGetBoundOffsets();
 	
 	/**
 	 * Helper instances can be used as temporary additional state for the duration of the building process.
@@ -105,7 +75,7 @@ public abstract class Binary implements Chunk
 	 */
 	public final synchronized void setHelper(final Object helper)
 	{
-		this.helperState = helper;
+		this.helper = helper;
 	}
 
 	/**
@@ -124,9 +94,93 @@ public abstract class Binary implements Chunk
 	 */
 	public final synchronized Object getHelper()
 	{
-		return this.helperState;
+		return this.helper;
 	}
-		
+	
+	// XXX Baustelle
+	
+
+	public byte get_byte(final long offset)
+	{
+		return XMemory.get_byte(this.address + offset);
+	}
+	
+	public boolean get_boolean(final long offset)
+	{
+		return XMemory.get_boolean(this.address + offset);
+	}
+	
+	public short get_short(final long offset)
+	{
+		return XMemory.get_short(this.address + offset);
+	}
+	
+	public char get_char(final long offset)
+	{
+		return XMemory.get_char(this.address + offset);
+	}
+	
+	public int get_int(final long offset)
+	{
+		return XMemory.get_int(this.address + offset);
+	}
+	
+	public float get_float(final long offset)
+	{
+		return XMemory.get_float(this.address + offset);
+	}
+	
+	public long get_long(final long offset)
+	{
+		return XMemory.get_long(this.address + offset);
+	}
+	
+	public double get_double(final long offset)
+	{
+		return XMemory.get_double(this.address + offset);
+	}
+	
+	
+	
+	public void set_byte(final long offset, final byte value)
+	{
+		XMemory.set_byte(this.address + offset, value);
+	}
+	
+	public void set_boolean(final long offset, final boolean value)
+	{
+		XMemory.set_boolean(this.address + offset, value);
+	}
+	
+	public void set_short(final long offset, final short value)
+	{
+		XMemory.set_short(this.address + offset, value);
+	}
+	
+	public void set_char(final long offset, final char value)
+	{
+		XMemory.set_char(this.address + offset, value);
+	}
+	
+	public void set_int(final long offset, final int value)
+	{
+		XMemory.set_int(this.address + offset, value);
+	}
+	
+	public void set_float(final long offset, final float value)
+	{
+		XMemory.set_float(this.address + offset, value);
+	}
+	
+	public void set_long(final long offset, final long value)
+	{
+		XMemory.set_long(this.address + offset, value);
+	}
+	
+	public void set_double(final long offset, final double value)
+	{
+		XMemory.set_double(this.address + offset, value);
+	}
+	
 }
 //CHECKSTYLE.ON: AbstractClassName
-

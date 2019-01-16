@@ -11,7 +11,7 @@ import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateI
 import net.jadoth.util.BufferSizeProviderIncremental;
 
 
-public final class ChunksBuffer extends Binary implements MemoryRangeReader
+public final class ChannelChunk extends Binary implements MemoryRangeReader
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -25,11 +25,11 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksBuffer New(
+	public static final ChannelChunk New(
 		final BufferSizeProviderIncremental bufferSizeProvider
 	)
 	{
-		return new ChunksBuffer(bufferSizeProvider);
+		return new ChannelChunk(bufferSizeProvider);
 	}
 
 
@@ -53,7 +53,9 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	// constructors     //
 	/////////////////////
 
-	ChunksBuffer(final BufferSizeProviderIncremental bufferSizeProvider)
+	ChannelChunk(
+		final BufferSizeProviderIncremental bufferSizeProvider
+	)
 	{
 		super();
 		this.bufferSizeProvider = notNull(bufferSizeProvider);
@@ -221,7 +223,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 		return buffers;
 	}
 
-	public final ChunksBuffer complete()
+	public final ChannelChunk complete()
 	{
 		if(this.currentBuffer == null)
 		{

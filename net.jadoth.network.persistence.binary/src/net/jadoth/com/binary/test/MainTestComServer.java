@@ -5,6 +5,7 @@ import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
 import net.jadoth.com.ComException;
+import net.jadoth.com.ComHost;
 import net.jadoth.com.ComHostChannel;
 import net.jadoth.com.binary.ComBinary;
 
@@ -44,7 +45,28 @@ public class MainTestComServer
 //		ComBinary.runHost(MainTestComServer::logAndBounce);
 		
 		// convenience & customization example 5
-		ComBinary.runHost();
+//		ComBinary.runHost();
+		
+		
+		
+		//  advanced example with arbitrary host address and business logic
+		
+		// setup the host instance for a custom address and business logic
+		final ComHost<?> host = ComBinary.Foundation()
+//			.setHostBindingAddress(new InetSocketAddress("www.myAddress.com", 1337))
+			.registerEntityTypes(Customer.class)
+			.setHostChannelAcceptor(hostChannel ->
+			{
+				// sessionless / stateless greeting service.
+				final Customer customer = (Customer)hostChannel.receive();
+				hostChannel.send("Welcome, " + customer.name());
+				hostChannel.close();
+			})
+			.createHost()
+		;
+		
+		// run the host, making it constantly listen for new connections and relaying them to the logic
+		host.run();
 	}
 	
 	/**

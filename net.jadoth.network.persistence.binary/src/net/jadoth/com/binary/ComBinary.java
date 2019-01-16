@@ -168,7 +168,7 @@ public class ComBinary
 	)
 	{
 		return Com.Host(
-			DefaultPersistenceAdaptorCreator()   ,
+			DefaultPersistenceAdaptorCreator(),
 			channelAcceptor
 		);
 	}
