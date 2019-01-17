@@ -13,6 +13,7 @@ import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingSequence;
@@ -376,14 +377,21 @@ public interface StorageFileManager
 			final long currentTotalLength = this.headFile.totalLength();
 
 			this.writer.write(this.headFile, dataBuffers);
-			this.writeTransactionsEntryStore(currentTotalLength + this.uncommittedDataLength, timestamp);
+			
+			final long newTotalLength = currentTotalLength + this.uncommittedDataLength;
+			if(newTotalLength < 0)
+			{
+				throwImpossibleStoreLengthException(timestamp, currentTotalLength, this.uncommittedDataLength, dataBuffers);
+			}
+			
+			this.writeTransactionsEntryStore(newTotalLength, timestamp);
 			this.flush();
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
 			this.resetFileCleanupCursor();
 //			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
 		}
-
+		
 		final void transferOneChainToHeadFile(final StorageDataFile.Implementation sourceFile)
 		{
 			final StorageDataFile.Implementation headFile = this.headFile           ;
@@ -1676,6 +1684,42 @@ public interface StorageFileManager
 			}
 
 
+		}
+		
+		static void throwImpossibleStoreLengthException(
+			final long         timestamp            ,
+			final long         currentTotalLength   ,
+			final long         uncommittedDataLength,
+			final ByteBuffer[] dataBuffers
+		)
+		{
+			final VarString vs = VarString.New();
+			vs
+			.add("Impossible store length:").lf()
+			.add("timestamp = ").add(timestamp).lf()
+			.add("currentTotalLength = ").add(currentTotalLength).lf()
+			.add("uncommittedDataLength = ").add(uncommittedDataLength).lf()
+			.add("resulting length = ").add(currentTotalLength + uncommittedDataLength).lf()
+			.add("dataBuffers: ")
+			;
+			if(dataBuffers.length == 0)
+			{
+				vs.add("[none]");
+			}
+			else
+			{
+				for(int i = 0; i < dataBuffers.length; i++)
+				{
+					vs.lf()
+					.add('#').add(i).add(": ")
+					.add("limit = ").add(dataBuffers[i].limit()).add(", ")
+					.add("position = ").add(dataBuffers[i].position()).add(", ")
+					.add("capacity = ").add(dataBuffers[i].capacity()).add(";")
+					;
+				}
+			}
+			
+			throw new StorageException(vs.toString());
 		}
 
 	}
