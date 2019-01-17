@@ -945,7 +945,13 @@ public final class XArrays
 		{
 			final Object[] data = ((AbstractSimpleArrayCollection<?>)source).internalGetStorageArray();
 			final int      size = ((AbstractSimpleArrayCollection<?>)source).internalSize();
-			System.arraycopy(source, 0, data, targetOffset, size);
+			System.arraycopy(
+				((AbstractSimpleArrayCollection<?>)source).internalGetStorageArray(),
+				0,
+				data,
+				targetOffset,
+				size
+			);
 		}
 		else
 		{
