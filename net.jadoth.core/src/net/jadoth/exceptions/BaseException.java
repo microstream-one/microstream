@@ -71,7 +71,7 @@ public class BaseException extends RuntimeException
 
 	public String assembleOutputString()
 	{
-		// JDK concept or improved concept based on if assembleDetailString is overwritten
+		// JDK concept or improved concept based on whether assembleDetailString is overwritten
 		final String detailString = this.assembleDetailString();
 		return detailString == null
 			? super.getMessage()

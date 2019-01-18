@@ -27,6 +27,7 @@ import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
+import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
 import net.jadoth.persistence.binary.internal.BinaryHandlerBigDecimal;
@@ -1597,6 +1598,7 @@ public final class BinaryPersistence extends Persistence
 		return XMemory.get_long(address + LIST_OFFSET_LENGTH);
 	}
 
+	@Deprecated
 	public static final long getListElementCount(final long address)
 	{
 		return XMemory.get_long(address + LIST_OFFSET_COUNT);
@@ -1605,6 +1607,34 @@ public final class BinaryPersistence extends Persistence
 	public static final long getListElementsAddress(final long address)
 	{
 		return address + LIST_OFFSET_ELEMENTS;
+	}
+	
+	public static final long getListElementCountNEW(
+		final long entityStartAddress,
+		final long listStartOffset   ,
+		final int  elementLength
+	)
+	{
+		final long listTotalLength = getListBinaryLength(entityStartAddress + listStartOffset);
+		final long listEntityCount = XMemory.get_long(entityStartAddress + listStartOffset + LIST_OFFSET_COUNT);
+		
+		// list metadata validation for safety AND security(!) reasons.
+		if(entityStartAddress + listStartOffset + listTotalLength > entityStartAddress + getEntityLength(elementLength)
+			|| listEntityCount * elementLength != listTotalLength
+		)
+		{
+			throw new BinaryPersistenceExceptionInvalidList(
+				getEntityLength(elementLength),
+				getEntityObjectId(entityStartAddress),
+				getEntityTypeId(listEntityCount),
+				listStartOffset,
+				listTotalLength,
+				listEntityCount,
+				elementLength
+			);
+		}
+		
+		return listEntityCount;
 	}
 
 

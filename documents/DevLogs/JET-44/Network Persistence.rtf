@@ -1616,11 +1616,26 @@ Das neue Binary definiert eine Methode, der man einen BuildItemAcceptor \'fcberg
 Mal Binary2 und BuildItem2 implementieren und anhand davon weiter \'fcberlegen.\par
 \par
 \par
+2019-01-18\par
 \par
+Die Spezialmethoden zum Speichern von Arrays usw. m\'fcssen dann auch in die Binary Klasse rein, damit die intern effizient arbeiten kann. Das passt aber auch strukturell gut dort rein.\par
+Dabei kann ich auch gleich das "array bombs" Problem fixen.\par
 \par
+Relevante Methoden:\par
+BinaryCollectionHandling#getSizedArrayLength\par
+BinaryPersistence#binaryArrayElementCount\par
 \par
-Methoden:\par
+Beide m\'fcssen so umgebaut werden, dass sie pr\'fcfen:\par
+- Elementzahl mal elementgr\'f6\'dfe plus listheaderl\'e4nge muss angegebene gesamtlistenl\'e4nge ergeben. (z.B. BinaryPersistence#calculateReferenceListTotalBinaryLength)\par
+- startoffset der liste plus angegebene gesamtlistenl\'e4nge darf die entityl\'e4nge nicht \'fcbersteigen.\par
 \par
+Daf\'fcr muss man die Methoden weiterhin umbauen von contentAddress auf entityAddress mit einem start offset dazu.\par
+Um die Methoden generisch zu halten, muss au\'dferdem zus\'e4tzlich die Elementl\'e4nge \'fcbergeben werden. Aktuell gibt es: 1, 2, 4, 8 byte und 2*8 byte f\'fcr KeyValue-Elemente.\par
+\par
+Besser (stabiler) w\'e4re wohl, zun\'e4chst mal diese \'c4nderung in den bisherigen Methoden umzusetzen und dann die ge\'e4nderten Methoden in die neue Klasse \'fcbernehmen.\par
+\par
+Neue Kernmethode bauen, die das alles validiert.\par
+JET-63 anlegen.\par
 \par
 }
  

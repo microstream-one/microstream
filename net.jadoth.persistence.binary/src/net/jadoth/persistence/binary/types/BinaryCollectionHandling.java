@@ -19,12 +19,12 @@ public final class BinaryCollectionHandling
 	/////////////////////
 
 	/* sized array binary layout:
-	 * [entity header][8 byte array length][list of elements without arrays' trailing nulls]
+	 * [entity header][8 byte array length][list of elements without the arrays' trailing nulls]
 	 */
 	private static final long
 		SIZED_ARRAY_OFFSET_LENGTH   = 0L                       , // length is the first (and only) header value
-		SIZED_ARRAY_LENGTH_HEADER   = XMemory.byteSize_long()   , // header only consists of length
-		SIZED_ARRAY_OFFSET_ELEMENTS = SIZED_ARRAY_LENGTH_HEADER  // element list begins after header
+		SIZED_ARRAY_LENGTH_HEADER   = XMemory.byteSize_long()  , // the header only consists of the length
+		SIZED_ARRAY_OFFSET_ELEMENTS = SIZED_ARRAY_LENGTH_HEADER  // the element list begins after the header
 	;
 
 

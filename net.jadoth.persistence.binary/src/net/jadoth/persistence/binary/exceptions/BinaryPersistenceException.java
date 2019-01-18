@@ -38,6 +38,4 @@ public class BinaryPersistenceException extends PersistenceException
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-
-
 }
