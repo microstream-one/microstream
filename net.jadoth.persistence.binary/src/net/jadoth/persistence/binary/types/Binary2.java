@@ -11,12 +11,12 @@ public abstract class Binary2
 	
 	/**
 	 * Depending on the deriving class, this is either a single entity's address for reading data
-	 * or the beginning of a store chunk for storing.
+	 * or the beginning of a store chunk for storing multiple entities in a row (for efficiency reasons).
 	 */
 	long address;
 	
 	/**
-	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementation.
+	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementations.
 	 */
 	private Object helper;
 	
@@ -96,9 +96,6 @@ public abstract class Binary2
 	{
 		return this.helper;
 	}
-	
-	// XXX Baustelle
-	
 
 	public byte get_byte(final long offset)
 	{
