@@ -141,7 +141,7 @@ public final class BinaryCollectionHandling
 	{
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = bytes.storeEntityHeader(
-			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(size * 2),
+			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(keyValueReferenceCount(size)),
 			tid,
 			oid
 		);
@@ -151,6 +151,12 @@ public final class BinaryCollectionHandling
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
+	}
+	
+	public static long keyValueReferenceCount(final long elementCount)
+	{
+		// obviously 2 references: the key and the value.
+		return elementCount * 2;
 	}
 
 
@@ -210,6 +216,18 @@ public final class BinaryCollectionHandling
 		 */
 		return X.checkArrayRange(
 			XMemory.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
+		);
+	}
+	
+	public static final long getListElementCount(
+		final Binary bytes          ,
+		final long   listStartOffset
+	)
+	{
+		return BinaryPersistence.getListElementCountNEW(
+			BinaryPersistence.entityAddressFromContentAddress(bytes.entityContentAddress),
+			listStartOffset,
+			keyValueReferenceCount(1)
 		);
 	}
 

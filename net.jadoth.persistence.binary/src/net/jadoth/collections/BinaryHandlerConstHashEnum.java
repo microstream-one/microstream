@@ -26,7 +26,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_HASH_DENSITY =                       0;
+	static final long BINARY_OFFSET_HASH_DENSITY =                        0;
 	static final long BINARY_OFFSET_ELEMENTS     = XMemory.byteSize_float(); // one float offset to sized array
 
 
@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)
