@@ -731,6 +731,7 @@ public final class BinaryPersistence extends Persistence
 	}
 
 
+	// (22.01.2019 TM)FIXME: JET-63: Where is this used?
 	public static final void iterateListElementReferencesWithElementOffset(
 		final Binary         bytes        ,
 		final long           listOffset   ,
@@ -741,7 +742,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		BinaryPersistence.iterateListElementReferencesAtAddressWithElementOffset(
 			BinaryPersistence.getListElementsAddress(bytes, listOffset),
-			BinaryPersistence.getListElementCount(bytes, listOffset),
+			BinaryPersistence.getListElementCountNEW(bytes.entityContentAddress, listOffset, elementLength),
 			elementOffset,
 			elementLength,
 			iterator
@@ -765,14 +766,14 @@ public final class BinaryPersistence extends Persistence
 
 
 	public static final void iterateListElementReferences(
-		final Binary         bytes   ,
-		final long           listOffset  ,
+		final Binary         bytes     ,
+		final long           listOffset,
 		final _longProcedure iterator
 	)
 	{
 		BinaryPersistence.iterateListElementReferencesAtAddress(
 			BinaryPersistence.getListElementsAddress(bytes, listOffset),
-			BinaryPersistence.getListElementCount(bytes, listOffset),
+			BinaryPersistence.getListElementCountReferences(bytes, listOffset),
 			iterator
 		);
 	}
@@ -1599,7 +1600,7 @@ public final class BinaryPersistence extends Persistence
 	private static final int LIST_OFFSET_ELEMENTS = 16;
 	private static final int LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS;
 
-	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method
+	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method use a validation, as well?
 	public static final long getListBinaryLength(final long address)
 	{
 		return XMemory.get_long(address + LIST_OFFSET_LENGTH);
@@ -1612,23 +1613,25 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final long getListElementCountNEW(
-		final long entityStartAddress,
-		final long listStartOffset   ,
-		final int  elementLength
+		final long entityContentAddress,
+		final long listStartOffset     ,
+		final long elementLength
 	)
 	{
-		final long listTotalLength = getListBinaryLength(entityStartAddress + listStartOffset + LIST_OFFSET_LENGTH);
-		final long listEntityCount = XMemory.get_long(entityStartAddress + listStartOffset + LIST_OFFSET_COUNT);
+		final long listTotalLength = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_LENGTH);
+		final long listEntityCount = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_COUNT);
+		
+		final long entityAddress = entityAddressFromContentAddress(entityContentAddress);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(entityStartAddress + listStartOffset + listTotalLength > entityStartAddress + getEntityLength(elementLength)
+		if(entityContentAddress + listStartOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
 			|| listEntityCount * elementLength != listTotalLength
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidList(
-				getEntityLength(elementLength),
-				getEntityObjectId(entityStartAddress),
-				getEntityTypeId(listEntityCount),
+				getEntityLength(entityAddress),
+				getEntityObjectId(entityAddress),
+				getEntityTypeId(entityAddress),
 				listStartOffset,
 				listTotalLength,
 				listEntityCount,
@@ -1652,7 +1655,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		return getListElementCountNEW(
-			entityAddressFromContentAddress(bytes.entityContentAddress),
+			bytes.entityContentAddress,
 			listStartOffset,
 			elementLength
 		);
@@ -1664,12 +1667,12 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		return getListElementCountNEW(
-			entityAddressFromContentAddress(bytes.entityContentAddress),
+			bytes.entityContentAddress,
 			listStartOffset,
 			LENGTH_OID
 		);
 	}
-
+	
 	public static final long getListElementsAddress(final Binary bytes)
 	{
 		return getListElementsAddress(bytes.entityContentAddress);
