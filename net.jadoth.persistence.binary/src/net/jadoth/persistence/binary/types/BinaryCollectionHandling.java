@@ -136,12 +136,12 @@ public final class BinaryCollectionHandling
 		final long                               headerOffset,
 		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
 		final long                               size        ,
-		final PersistenceFunction                    persister
+		final PersistenceFunction                persister
 	)
 	{
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = bytes.storeEntityHeader(
-			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(keyValueReferenceCount(size)),
+			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(size * keyValueReferenceCount()),
 			tid,
 			oid
 		);
@@ -153,10 +153,21 @@ public final class BinaryCollectionHandling
 		return contentAddress;
 	}
 	
-	public static long keyValueReferenceCount(final long elementCount)
+	/**
+	 * Obviously 2 references: the key and the value.
+	 */
+	private static final int KEY_VALUE_REFERENCE_COUNT = 2;
+	
+	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * BinaryPersistence.oidLength();
+	
+	public static final int keyValueReferenceCount()
 	{
-		// obviously 2 references: the key and the value.
-		return elementCount * 2;
+		return KEY_VALUE_REFERENCE_COUNT;
+	}
+	
+	public static final long keyValueBinaryLength()
+	{
+		return KEY_VALUE_BINARY_LENGTH;
 	}
 
 
@@ -219,15 +230,15 @@ public final class BinaryCollectionHandling
 		);
 	}
 	
-	public static final long getListElementCount(
+	public static final long getListElementCountKeyValue(
 		final Binary bytes          ,
 		final long   listStartOffset
 	)
 	{
 		return BinaryPersistence.getListElementCountNEW(
-			BinaryPersistence.entityAddressFromContentAddress(bytes.entityContentAddress),
+			bytes.entityContentAddress,
 			listStartOffset,
-			keyValueReferenceCount(1)
+			keyValueBinaryLength()
 		);
 	}
 
