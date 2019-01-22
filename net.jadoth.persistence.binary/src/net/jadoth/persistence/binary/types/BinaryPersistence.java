@@ -1593,17 +1593,13 @@ public final class BinaryPersistence extends Persistence
 	private static final int LIST_OFFSET_ELEMENTS = 16;
 	private static final int LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS;
 
+	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method do validation, as well?
 	public static final long getListBinaryLength(final long address)
 	{
 		return XMemory.get_long(address + LIST_OFFSET_LENGTH);
 	}
 
-	@Deprecated
-	public static final long getListElementCount(final long address)
-	{
-		return XMemory.get_long(address + LIST_OFFSET_COUNT);
-	}
-
+	// (22.01.2019 TM)FIXME: JET-63: check and remove/rename/comment
 	public static final long getListElementsAddress(final long address)
 	{
 		return address + LIST_OFFSET_ELEMENTS;
@@ -1615,10 +1611,10 @@ public final class BinaryPersistence extends Persistence
 		final int  elementLength
 	)
 	{
-		final long listTotalLength = getListBinaryLength(entityStartAddress + listStartOffset);
+		final long listTotalLength = getListBinaryLength(entityStartAddress + listStartOffset + LIST_OFFSET_LENGTH);
 		final long listEntityCount = XMemory.get_long(entityStartAddress + listStartOffset + LIST_OFFSET_COUNT);
 		
-		// list metadata validation for safety AND security(!) reasons.
+		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
 		if(entityStartAddress + listStartOffset + listTotalLength > entityStartAddress + getEntityLength(elementLength)
 			|| listEntityCount * elementLength != listTotalLength
 		)
