@@ -262,6 +262,12 @@ public final class BinaryPersistence extends Persistence
 	{
 		return entityAddress + LENGTH_ENTITY_HEADER;
 	}
+	
+	// (22.01.2019 TM)FIXME: temporary workaround for JET-63 and JET-49 restructuring
+	public static final long entityAddressFromContentAddress(final long entityContentAddress)
+	{
+		return entityContentAddress - LENGTH_ENTITY_HEADER;
+	}
 
 	public static final long storeEntityHeader(
 		final long entityAddress      ,
@@ -1593,7 +1599,7 @@ public final class BinaryPersistence extends Persistence
 	private static final int LIST_OFFSET_ELEMENTS = 16;
 	private static final int LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS;
 
-	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method do validation, as well?
+	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method
 	public static final long getListBinaryLength(final long address)
 	{
 		return XMemory.get_long(address + LIST_OFFSET_LENGTH);
@@ -1639,9 +1645,29 @@ public final class BinaryPersistence extends Persistence
 		return getListBinaryLength(bytes.entityContentAddress);
 	}
 
-	public static final long getListElementCount(final Binary bytes)
+	public static final long getListElementCount(
+		final Binary bytes          ,
+		final long   listStartOffset,
+		final int    elementLength
+	)
 	{
-		return getListElementCount(bytes.entityContentAddress);
+		return getListElementCountNEW(
+			entityAddressFromContentAddress(bytes.entityContentAddress),
+			listStartOffset,
+			elementLength
+		);
+	}
+	
+	public static final long getListElementCountReferences(
+		final Binary bytes          ,
+		final long   listStartOffset
+	)
+	{
+		return getListElementCountNEW(
+			entityAddressFromContentAddress(bytes.entityContentAddress),
+			listStartOffset,
+			LENGTH_OID
+		);
 	}
 
 	public static final long getListElementsAddress(final Binary bytes)
@@ -1649,14 +1675,10 @@ public final class BinaryPersistence extends Persistence
 		return getListElementsAddress(bytes.entityContentAddress);
 	}
 
+	// (22.01.2019 TM)FIXME: JET-63: check and remove/change/comment
 	public static final long getListBinaryLength(final Binary bytes, final long offset)
 	{
 		return getListBinaryLength(bytes.entityContentAddress + offset);
-	}
-
-	public static final long getListElementCount(final Binary bytes, final long offset)
-	{
-		return getListElementCount(bytes.entityContentAddress + offset);
 	}
 
 	public static final long getListElementsAddress(final Binary bytes, final long offset)
@@ -1692,21 +1714,23 @@ public final class BinaryPersistence extends Persistence
 	}
 
 	public static final void updateArrayObjectReferences(
-		final Binary                    bytes       ,
-		final long                      binaryOffset,
+		final Binary                      bytes       ,
+		final long                        binaryOffset,
 		final PersistenceObjectIdResolver oidResolver ,
-		final Object[]                  array       ,
-		final int                       offset      ,
-		final int                       length
+		final Object[]                    array       ,
+		final int                         offset      ,
+		final int                         length
 	)
 	{
-		if(BinaryPersistence.getListElementCount(bytes, binaryOffset) < length)
+		final long elementCount = BinaryPersistence.getListElementCountReferences(bytes, binaryOffset);
+		if(elementCount < length)
 		{
 			throw new BinaryPersistenceExceptionStateArrayLength(
 				array,
-				X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset))
+				X.checkArrayRange(elementCount)
 			);
 		}
+		
 		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
@@ -1735,13 +1759,13 @@ public final class BinaryPersistence extends Persistence
 	}
 
 	public static final int collectListObjectReferences(
-		final Binary                    bytes       ,
-		final long                      binaryOffset,
+		final Binary                      bytes       ,
+		final long                        binaryOffset,
 		final PersistenceObjectIdResolver oidResolver ,
-		final Consumer<Object>          collector
+		final Consumer<Object>            collector
 	)
 	{
-		final int size = X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, binaryOffset));
+		final int size = X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, binaryOffset));
 		BinaryPersistence.collectObjectReferences(
 			bytes       ,
 			binaryOffset,
