@@ -53,7 +53,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryCollectionHandling.getListElementCountKeyValue(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

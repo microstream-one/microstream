@@ -789,7 +789,20 @@ public interface BinaryReferenceTraverser
 		@Override
 		public final long apply(final long address, final _longProcedure procedure)
 		{
-			final long elementCount = BinaryPersistence.getListElementCount(address);
+			/* Note on security:
+			 * The traverser neither handles newly received data nor does it create new instances.
+			 * It always only traverses existing, already validated data.
+			 * 
+			 * (22.01.2019 TM)XXX: BinaryReferenceTraverser naively safe?
+			 * But is that assumption really true? Also in the future?
+			 * What it received data shall be traversed to analyze/etc. it?
+			 * A (intentionally) malformed element count would cause the traverser to read data
+			 * way beyond the limits of the to be traversed data.
+			 * 
+			 * Using the validating element count getter would require to know the element binary length.
+			 * And that can get very ugly if the element of a complex type has variable length on its own.
+			 */
+			final long elementCount = BinaryPersistence.getListElementCountNotValidating(address);
 
 			// apply all element traversers to each element
 			long a = BinaryPersistence.getListElementsAddress(address);

@@ -54,7 +54,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

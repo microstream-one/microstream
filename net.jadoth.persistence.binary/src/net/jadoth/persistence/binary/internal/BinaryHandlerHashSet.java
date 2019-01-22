@@ -9,8 +9,8 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
@@ -42,7 +42,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS));
 	}
 
 

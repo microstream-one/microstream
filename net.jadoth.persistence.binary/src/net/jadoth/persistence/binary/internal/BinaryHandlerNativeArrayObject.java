@@ -7,10 +7,10 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
@@ -81,7 +81,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final A create(final Binary bytes)
 	{
-		final long rawElementCount = BinaryPersistence.getListElementCount(bytes, BINARY_OFFSET_ELEMENTS);
+		final long rawElementCount = BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
 			Array.newInstance(this.componentType, X.checkArrayRange(rawElementCount))
 		);

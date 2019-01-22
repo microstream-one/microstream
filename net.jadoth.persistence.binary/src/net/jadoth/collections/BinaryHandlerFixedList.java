@@ -81,7 +81,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	@Override
 	public final FixedList<?> create(final Binary bytes)
 	{
-		return new FixedList<>(X.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return new FixedList<>(X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, 0)));
 	}
 
 	@Override

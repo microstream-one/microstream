@@ -1663,5 +1663,9 @@ Im Rahmen von JET-60 kann dann auch folgendes TODO in BinaryPersistence erledigt
 Also abgesehen davon, dass ich 17 mal unterbrochen worden bin wegen Bonus und Haus-Stuff, ist das validierung zentral einbauen im Detail ein bisschen knifflig.\par
 Nicht schwierig, aber es gibt alle m\'f6glichen Varianten an Methoden, wie z.B. getSizedArrayElementCount, die jetzt nach Varianten f\'fcr element length (primitive oder reference) aufgeteilt werden m\'fcssen.\par
 Dazu macht es Sinn, den Methodenwust an sich erst mal aufr\'e4umen.\par
+\par
+\par
+Hm. Der BinaryReferenceTraverser$InlinedComplexType k\'f6nnte extrem verkompliziert werden, wenn der die Bin\'e4rl\'e4nge eines Element kennen muss. Wenn ein Element selbst n\'e4mlich wieder variable L\'e4nge hat, wird's haarig.\par
+Aber eigentlich erzeugt der Traverser ja niemals Instanzen, sondern, wie der Name schon sagt, traversiert nur existierende. D.h. der k\'f6nnte eine nicht validierende Methode verwenden und die braucht dann auch die Elementl\'e4nge nicht, sondern funktioniert wie bisher. Dann bau ich das wieder so, aber mit einem Zusatz "NotValidating".\par
 }
  
