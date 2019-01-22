@@ -81,7 +81,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	@Override
 	public final ConstList<?> create(final Binary bytes)
 	{
-		return ConstList.New(X.checkArrayRange(BinaryPersistence.getListElementCount(bytes)));
+		return ConstList.New(X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, 0)));
 	}
 
 	@Override

@@ -162,6 +162,7 @@ public final class BinaryPersistence extends Persistence
 
 	static final long binaryArrayElementCount(final long valueAddress)
 	{
+		// (22.01.2019 TM)FIXME: JET-63: consolidate binaryArrayElementCount with ~Validating
 		return XMemory.get_long(binaryArrayElementCountAddress(valueAddress));
 	}
 
@@ -717,7 +718,7 @@ public final class BinaryPersistence extends Persistence
 	// (28.10.2013 TM)XXX: move all List~ handling methods to BinaryCollectionHandling? Or somewhere else?
 	// (28.10.2013 TM)XXX: consolidate "List~" naming with array (see "SizedArray").
 
-	static final void iterateListElementReferencesAtAddress(
+	static final void iterateReferenceRange(
 		final long           address ,
 		final long           count   ,
 		final _longProcedure iterator
@@ -742,7 +743,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		BinaryPersistence.iterateListElementReferencesAtAddressWithElementOffset(
 			BinaryPersistence.getListElementsAddress(bytes, listOffset),
-			BinaryPersistence.getListElementCountNEW(bytes.entityContentAddress, listOffset, elementLength),
+			BinaryPersistence.getListElementCountValidating(bytes.entityContentAddress, listOffset, elementLength),
 			elementOffset,
 			elementLength,
 			iterator
@@ -771,7 +772,7 @@ public final class BinaryPersistence extends Persistence
 		final _longProcedure iterator
 	)
 	{
-		BinaryPersistence.iterateListElementReferencesAtAddress(
+		BinaryPersistence.iterateReferenceRange(
 			BinaryPersistence.getListElementsAddress(bytes, listOffset),
 			BinaryPersistence.getListElementCountReferences(bytes, listOffset),
 			iterator
@@ -1612,7 +1613,12 @@ public final class BinaryPersistence extends Persistence
 		return address + LIST_OFFSET_ELEMENTS;
 	}
 	
-	public static final long getListElementCountNEW(
+	public static final long getListElementCountNotValidating(final long listStartAddress)
+	{
+		return XMemory.get_long(listStartAddress + LIST_OFFSET_COUNT);
+	}
+	
+	public static final long getListElementCountValidating(
 		final long entityContentAddress,
 		final long listStartOffset     ,
 		final long elementLength
@@ -1654,19 +1660,19 @@ public final class BinaryPersistence extends Persistence
 		final int    elementLength
 	)
 	{
-		return getListElementCountNEW(
+		return getListElementCountValidating(
 			bytes.entityContentAddress,
 			listStartOffset,
 			elementLength
 		);
 	}
-	
+		
 	public static final long getListElementCountReferences(
 		final Binary bytes          ,
 		final long   listStartOffset
 	)
 	{
-		return getListElementCountNEW(
+		return getListElementCountValidating(
 			bytes.entityContentAddress,
 			listStartOffset,
 			LENGTH_OID

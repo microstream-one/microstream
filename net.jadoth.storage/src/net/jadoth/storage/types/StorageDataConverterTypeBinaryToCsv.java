@@ -27,12 +27,12 @@ import net.jadoth.files.FileException;
 import net.jadoth.files.XFiles;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.csv.CsvConfiguration;
@@ -702,7 +702,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = BinaryPersistence.getListElementCount(valueReadAddress);
+			final long elementCount  = BinaryPersistence.getListElementCountNotValidating(valueReadAddress);
 			      long address       = BinaryPersistence.getListElementsAddress(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
@@ -726,7 +726,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = BinaryPersistence.getListElementCount(valueReadAddress);
+			final long elementCount = BinaryPersistence.getListElementCountNotValidating(valueReadAddress);
 			      long address      = BinaryPersistence.getListElementsAddress(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
