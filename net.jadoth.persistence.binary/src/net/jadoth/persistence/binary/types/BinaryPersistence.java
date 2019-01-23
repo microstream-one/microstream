@@ -80,15 +80,14 @@ public final class BinaryPersistence extends Persistence
 		LENGTH_LONG = Long.BYTES                          ,
 		LENGTH_LEN  = LENGTH_LONG                         ,
 		LENGTH_OID  = LENGTH_LONG                         ,
-		LENGTH_TID  = LENGTH_OID                          , // tid IS AN oid, so it must have the same length
+		LENGTH_TID  = LENGTH_OID                          , // TID is no longer an OID since legacy type mapping.
 		LENGTH_TO   = LENGTH_TID + LENGTH_OID             , // 8
 		LENGTH_LTO  = LENGTH_LEN + LENGTH_TID + LENGTH_OID  // 24
 	;
 
-	// header (currently) constists of only LEN, TID, OID. Extra constant has sementical reasons.
+	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
 	private static final int LENGTH_ENTITY_HEADER = LENGTH_LTO;
 
-	// can't include LABO here as traversal loop has to read length, thus checks iteration offset against LABO + size
 	private static final long
 		OFFSET_LEN = 0L                      ,
 		OFFSET_TID = OFFSET_LEN + LENGTH_LONG,
@@ -99,10 +98,10 @@ public final class BinaryPersistence extends Persistence
 	private static final int BITS_3 = 3;
 
 	private static final int
-		LIST_OFFSET_LENGTH   = 0                               ,
-		LIST_OFFSET_COUNT    = LIST_OFFSET_LENGTH + LENGTH_LONG,
-		LIST_OFFSET_ELEMENTS = LIST_OFFSET_COUNT  + LENGTH_LONG,
-		LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS
+		LIST_OFFSET_BYTE_LENGTH   = 0                                      ,
+		LIST_OFFSET_ELEMENT_COUNT = LIST_OFFSET_BYTE_LENGTH   + LENGTH_LONG,
+		LIST_OFFSET_ELEMENTS      = LIST_OFFSET_ELEMENT_COUNT + LENGTH_LONG,
+		LIST_HEADER_LENGTH        = LIST_OFFSET_ELEMENTS
 	;
 		
 	
@@ -110,16 +109,6 @@ public final class BinaryPersistence extends Persistence
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
-	public static final long binaryArrayMinimumLength()
-	{
-		return BINARY_ARRAY_OFFSET_ELEMENT_DATA;
-	}
-
-	public static final long binaryArrayMaximumLength()
-	{
-		return Long.MAX_VALUE;
-	}
 
 	/**
 	 * @return the length in bytes of a peristent item's length field (8 bytes).
@@ -127,11 +116,6 @@ public final class BinaryPersistence extends Persistence
 	public static final int lengthLength()
 	{
 		return LENGTH_LEN;
-	}
-
-	public static final int lengthListHeader()
-	{
-		return BINARY_ARRAY_OFFSET_ELEMENT_DATA;
 	}
 
 	public static final boolean isValidGapLength(final long gapLength)
@@ -143,91 +127,6 @@ public final class BinaryPersistence extends Persistence
 	public static final boolean isValidEntityLength(final long entityLength)
 	{
 		return entityLength >= LENGTH_LTO;
-	}
-
-	
-	static final long binaryArrayByteLengthAddress(final long valueAddress)
-	{
-		return valueAddress + BINARY_ARRAY_OFFSET_BYTE_LENGTH;
-	}
-
-	static final long binaryArrayByteLength(final long valueAddress)
-	{
-		return XMemory.get_long(binaryArrayByteLengthAddress(valueAddress));
-	}
-
-	static final long binaryArrayElementCountAddress(final long valueAddress)
-	{
-		return valueAddress + BINARY_ARRAY_OFFSET_ELEMENT_COUNT;
-	}
-
-	static final long binaryArrayElementCount(final long valueAddress)
-	{
-		// (22.01.2019 TM)FIXME: JET-63: consolidate binaryArrayElementCount with ~Validating
-		return XMemory.get_long(binaryArrayElementCountAddress(valueAddress));
-	}
-
-	static final long binaryArrayElementDataAddress(final long valueAddress)
-	{
-		return valueAddress + BINARY_ARRAY_OFFSET_ELEMENT_DATA;
-	}
-
-
-	public static final long binaryArrayByteLengthAddress(final Binary bytes)
-	{
-		return binaryArrayElementDataAddress(bytes.entityContentAddress);
-	}
-
-	public static final long binaryArrayByteLength(final Binary bytes)
-	{
-		return binaryArrayByteLength(bytes.entityContentAddress);
-	}
-
-	public static final long binaryArrayElementCountAddress(final Binary bytes)
-	{
-		return binaryArrayElementCountAddress(bytes.entityContentAddress);
-	}
-
-	public static final long binaryArrayElementCount(final Binary bytes)
-	{
-		return binaryArrayElementCount(bytes.entityContentAddress);
-	}
-
-	public static final long binaryArrayElementDataAddress(final Binary bytes)
-	{
-		return binaryArrayElementDataAddress(bytes.entityContentAddress);
-	}
-
-
-	public static final long binaryArrayByteLengthAddress(final Binary bytes, final long addressOffset)
-	{
-		return binaryArrayElementDataAddress(bytes.entityContentAddress + addressOffset);
-	}
-
-	public static final long binaryArrayByteLength(final Binary bytes, final long addressOffset)
-	{
-		return binaryArrayByteLength(bytes.entityContentAddress + addressOffset);
-	}
-
-	public static final long binaryArrayElementCountAddress(final Binary bytes, final long addressOffset)
-	{
-		return binaryArrayElementCountAddress(bytes.entityContentAddress + addressOffset);
-	}
-
-	public static final long binaryArrayElementCount(final Binary bytes, final long addressOffset)
-	{
-		return binaryArrayElementCount(bytes.entityContentAddress + addressOffset);
-	}
-
-	public static final long binaryArrayElementDataAddress(final Binary bytes, final long addressOffset)
-	{
-		return binaryArrayElementDataAddress(bytes.entityContentAddress + addressOffset);
-	}
-
-
-	public static final long calculateBinaryArrayByteLength(final long dataLength)
-	{
-		return BINARY_ARRAY_OFFSET_ELEMENT_DATA + dataLength; // element data offset equals header length
 	}
 
 	// (03.07.2013)TODO: entityHeaderLength() should never be required
@@ -298,6 +197,169 @@ public final class BinaryPersistence extends Persistence
 	{
 		return LENGTH_OID;
 	}
+	
+	
+	
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// binary list     //
+	////////////////////
+	
+	public static final int binaryListHeaderLength()
+	{
+		return LIST_HEADER_LENGTH;
+	}
+	
+	public static final long binaryListMinimumLength()
+	{
+		return LIST_HEADER_LENGTH;
+	}
+
+	public static final long binaryListMaximumLength()
+	{
+		return Long.MAX_VALUE;
+	}
+
+	public static final long calculateBinaryListByteLength(final long binaryListElementsByteLength)
+	{
+		return binaryListHeaderLength() + binaryListElementsByteLength;
+	}
+	
+	// binary list byte length //
+	
+	public static final long getBinaryListByteLength(final Binary bytes, final long binaryListOffset)
+	{
+		return getBinaryListByteLength(bytes.buildItemAddress() + binaryListOffset);
+	}
+
+	public static final long getBinaryListByteLength(final long binaryListAddress)
+	{
+		return XMemory.get_long(binaryListByteLengthAddress(binaryListAddress));
+	}
+	
+	static final long binaryListByteLengthAddress(final long binaryListAddress)
+	{
+		return binaryListAddress + LIST_OFFSET_BYTE_LENGTH;
+	}
+
+	// binary list element count //
+	
+	public static final long getBinaryListElementCountValidating(
+		final long entityContentAddress,
+		final long listStartOffset     ,
+		final long elementLength
+	)
+	{
+		final long listTotalLength = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_BYTE_LENGTH);
+		final long listEntityCount = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_ELEMENT_COUNT);
+		
+		final long entityAddress = entityAddressFromContentAddress(entityContentAddress);
+		
+		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
+		if(entityContentAddress + listStartOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
+			|| listEntityCount * elementLength != listTotalLength
+		)
+		{
+			throw new BinaryPersistenceExceptionInvalidList(
+				getEntityLength(entityAddress),
+				getEntityObjectId(entityAddress),
+				getEntityTypeId(entityAddress),
+				listStartOffset,
+				listTotalLength,
+				listEntityCount,
+				elementLength
+			);
+		}
+		
+		return listEntityCount;
+	}
+	
+	public static final long getBinaryListElementCountNotValidating(final Binary bytes, final long binaryListOffset)
+	{
+		return getBinaryListElementCountNotValidating(bytes.buildItemAddress() + binaryListOffset);
+	}
+
+	public static final long getBinaryListElementCountNotValidating(final long binaryListAddress)
+	{
+		return XMemory.get_long(binaryListElementCountAddress(binaryListAddress));
+	}
+	
+	static final long binaryListElementCountAddress(final long binaryListAddress)
+	{
+		return binaryListAddress + LIST_OFFSET_ELEMENT_COUNT;
+	}
+
+	// binary list elements address //
+
+	public static final long binaryListElementsAddress(final long binaryListAddress)
+	{
+		return binaryListAddress + LIST_OFFSET_ELEMENTS;
+	}
+
+	public static final long binaryListElementsAddress(final Binary bytes, final long binaryListOffset)
+	{
+		return binaryListElementsAddress(bytes.buildItemAddress() + binaryListOffset);
+	}
+	
+
+	// (23.01.2019 TM)FIXME: /!\ Baustelle Beginn.
+	
+	public static final long getListElementCount(
+		final Binary bytes          ,
+		final long   listStartOffset,
+		final int    elementLength
+	)
+	{
+		return getBinaryListElementCountValidating(
+			bytes.entityContentAddress,
+			listStartOffset,
+			elementLength
+		);
+	}
+		
+	public static final long getListElementCountReferences(
+		final Binary bytes          ,
+		final long   listStartOffset
+	)
+	{
+		return getBinaryListElementCountValidating(
+			bytes.entityContentAddress,
+			listStartOffset,
+			LENGTH_OID
+		);
+	}
+	
+	public static final long calculateReferenceListTotalBinaryLength(final long count)
+	{
+		return calculateBinaryListByteLength(referenceBinaryLength(count)); // 8 bytes per reference
+	}
+
+	public static final long calculateStringListContentBinaryLength(final String[] strings)
+	{
+		// precise size for each string (char list header plus 2 byte per char)
+		long listContentBinaryLength = 0;
+		for(final String string : strings)
+		{
+			listContentBinaryLength += calculateBinaryLengthChars(string.length());
+		}
+
+		return listContentBinaryLength;
+	}
+
+	public static final long calculateBinaryLengthChars(final long count)
+	{
+		return calculateBinaryListByteLength(count << 1);  // header plus 2 bytes per char
+	}
+	
+	// (23.01.2019 TM)FIXME: /!\ Baustelle Ende.
+	
+	
+	
+	
+	
+	
 
 	private static final BinaryValueStorer STORE_1 = new BinaryValueStorer()
 	{
@@ -743,8 +805,8 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		BinaryPersistence.iterateListElementReferencesAtAddressWithElementOffset(
-			BinaryPersistence.getListElementsAddress(bytes, listOffset),
-			BinaryPersistence.getListElementCountValidating(bytes.entityContentAddress, listOffset, elementLength),
+			BinaryPersistence.binaryListElementsAddress(bytes, listOffset),
+			BinaryPersistence.getBinaryListElementCountValidating(bytes.entityContentAddress, listOffset, elementLength),
 			elementOffset,
 			elementLength,
 			iterator
@@ -774,7 +836,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		BinaryPersistence.iterateReferenceRange(
-			BinaryPersistence.getListElementsAddress(bytes, listOffset),
+			BinaryPersistence.binaryListElementsAddress(bytes, listOffset),
 			BinaryPersistence.getListElementCountReferences(bytes, listOffset),
 			iterator
 		);
@@ -796,14 +858,14 @@ public final class BinaryPersistence extends Persistence
 
 	public static final void storeArray_byte(final Binary bytes, final long tid, final long oid, final byte[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength(array.length);
+		final long totalByteLength = calculateBinaryListByteLength(array.length);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
@@ -814,92 +876,92 @@ public final class BinaryPersistence extends Persistence
 		final boolean[] array
 	)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength(array.length);
+		final long totalByteLength = calculateBinaryListByteLength(array.length);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_short(final Binary bytes, final long tid, final long oid, final short[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 1);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << 1);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_char(final Binary bytes, final long tid, final long oid, final char[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 1);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << 1);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_int(final Binary bytes, final long tid, final long oid, final int[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 2);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << 2);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_float(final Binary bytes, final long tid, final long oid, final float[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << 2);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << 2);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_long(final Binary bytes, final long tid, final long oid, final long[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << BITS_3);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << BITS_3);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
 	public static final void storeArray_double(final Binary bytes, final long tid, final long oid, final double[] array)
 	{
-		final long totalByteLength = calculateBinaryArrayByteLength((long)array.length << BITS_3);
+		final long totalByteLength = calculateBinaryListByteLength((long)array.length << BITS_3);
 		final long storeAddress    = bytes.storeEntityHeader(totalByteLength, tid, oid);
 
-		XMemory.set_long(binaryArrayByteLengthAddress(storeAddress), totalByteLength);
-		XMemory.set_long(binaryArrayElementCountAddress(storeAddress), array.length);
+		XMemory.set_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
+		XMemory.set_long(binaryListElementCountAddress(storeAddress), array.length);
 		XMemory.copyArrayToAddress(
 			array,
-			binaryArrayElementDataAddress(storeAddress)
+			binaryListElementsAddress(storeAddress)
 		);
 	}
 
@@ -1025,8 +1087,8 @@ public final class BinaryPersistence extends Persistence
 		final long elementsCount
 	)
 	{
-		XMemory.set_long(storeAddress + LIST_OFFSET_LENGTH, calculateListTotalBinaryLength(elementsBinaryLength));
-		XMemory.set_long(storeAddress + LIST_OFFSET_COUNT , elementsCount);
+		XMemory.set_long(storeAddress + LIST_OFFSET_BYTE_LENGTH, calculateBinaryListByteLength(elementsBinaryLength));
+		XMemory.set_long(storeAddress + LIST_OFFSET_ELEMENT_COUNT , elementsCount);
 		return storeAddress + LIST_OFFSET_ELEMENTS;
 	}
 
@@ -1185,18 +1247,18 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final long listAddress  = bytes.entityContentAddress + offset;
-		final long elementCount = BinaryPersistence.binaryArrayElementCount(listAddress);
+		final long elementCount = BinaryPersistence.getBinaryListElementCountNotValidating(listAddress);
 
 		if(target.length != elementCount)
 		{
 			throw new RuntimeException(); // (22.10.2013 TM)EXCP: proper exception
 		}
 
-		long elementAddress = BinaryPersistence.binaryArrayElementDataAddress(listAddress); // first element address
+		long elementAddress = BinaryPersistence.binaryListElementsAddress(listAddress); // first element address
 		for(int i = 0; i < target.length; i++)
 		{
 			target[i] = XMemory.wrapCharsAsString(BinaryPersistence.buildArray_char(elementAddress)); // build element
-			elementAddress += BinaryPersistence.binaryArrayByteLength(elementAddress); // scroll to next element
+			elementAddress += BinaryPersistence.getBinaryListByteLength(elementAddress); // scroll to next element
 		}
 
 		// as this is an offset-based public method, it must return an offset, not an absolute address
@@ -1245,10 +1307,10 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final byte[] buildArray_byte(final Binary bytes)
 	{
-		final long elementCount = binaryArrayElementCount(bytes.entityContentAddress);
+		final long elementCount = getBinaryListElementCountNotValidating(bytes.entityContentAddress);
 		final byte[] array;
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array = new byte[X.checkArrayRange(elementCount)]
 		);
 		return array;
@@ -1266,10 +1328,10 @@ public final class BinaryPersistence extends Persistence
 
 	static final char[] buildArray_char(final long valueAddress)
 	{
-		final long elementCount = binaryArrayElementCount(valueAddress);
+		final long elementCount = getBinaryListElementCountNotValidating(valueAddress);
 		final char[] array;
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(valueAddress),
+			binaryListElementsAddress(valueAddress),
 			array = new char[X.checkArrayRange(elementCount)]
 		);
 		return array;
@@ -1279,101 +1341,101 @@ public final class BinaryPersistence extends Persistence
 
 	public static final byte[] createArray_byte(final Binary bytes)
 	{
-		return new byte[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new byte[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_byte(final byte[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final boolean[] createArray_boolean(final Binary bytes)
 	{
-		return new boolean[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new boolean[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_boolean(final boolean[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final short[] createArray_short(final Binary bytes)
 	{
-		return new short[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new short[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_short(final short[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final char[] createArray_char(final Binary bytes)
 	{
-		return new char[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new char[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_char(final char[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final int[] createArray_int(final Binary bytes)
 	{
-		return new int[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new int[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_int(final int[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final float[] createArray_float(final Binary bytes)
 	{
-		return new float[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new float[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_float(final float[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
 
 	public static final long[] createArray_long(final Binary bytes)
 	{
-		return new long[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new long[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_long(final long[] array, final Binary bytes)
 	{
-		XMemory.copyRangeToArray(binaryArrayElementDataAddress(bytes.entityContentAddress), array);
+		XMemory.copyRangeToArray(binaryListElementsAddress(bytes.entityContentAddress), array);
 	}
 
 	public static final double[] createArray_double(final Binary bytes)
 	{
-		return new double[X.checkArrayRange(binaryArrayElementCount(bytes.entityContentAddress))];
+		return new double[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_double(final double[] array, final Binary bytes)
 	{
 		XMemory.copyRangeToArray(
-			binaryArrayElementDataAddress(bytes.entityContentAddress),
+			binaryListElementsAddress(bytes.entityContentAddress),
 			array
 		);
 	}
@@ -1597,127 +1659,6 @@ public final class BinaryPersistence extends Persistence
 	}
 
 
-	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method use a validation, as well?
-	public static final long getListBinaryLength(final long address)
-	{
-		return XMemory.get_long(address + LIST_OFFSET_LENGTH);
-	}
-
-	// (22.01.2019 TM)FIXME: JET-63: check and remove/rename/comment
-	public static final long getListElementsAddress(final long address)
-	{
-		return address + LIST_OFFSET_ELEMENTS;
-	}
-	
-	public static final long getListElementCountNotValidating(final long listStartAddress)
-	{
-		return XMemory.get_long(listStartAddress + LIST_OFFSET_COUNT);
-	}
-	
-	public static final long getListElementCountValidating(
-		final long entityContentAddress,
-		final long listStartOffset     ,
-		final long elementLength
-	)
-	{
-		final long listTotalLength = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_LENGTH);
-		final long listEntityCount = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_COUNT);
-		
-		final long entityAddress = entityAddressFromContentAddress(entityContentAddress);
-		
-		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(entityContentAddress + listStartOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
-			|| listEntityCount * elementLength != listTotalLength
-		)
-		{
-			throw new BinaryPersistenceExceptionInvalidList(
-				getEntityLength(entityAddress),
-				getEntityObjectId(entityAddress),
-				getEntityTypeId(entityAddress),
-				listStartOffset,
-				listTotalLength,
-				listEntityCount,
-				elementLength
-			);
-		}
-		
-		return listEntityCount;
-	}
-
-
-	public static final long getListBinaryLength(final Binary bytes)
-	{
-		return getListBinaryLength(bytes.entityContentAddress);
-	}
-
-	public static final long getListElementCount(
-		final Binary bytes          ,
-		final long   listStartOffset,
-		final int    elementLength
-	)
-	{
-		return getListElementCountValidating(
-			bytes.entityContentAddress,
-			listStartOffset,
-			elementLength
-		);
-	}
-		
-	public static final long getListElementCountReferences(
-		final Binary bytes          ,
-		final long   listStartOffset
-	)
-	{
-		return getListElementCountValidating(
-			bytes.entityContentAddress,
-			listStartOffset,
-			LENGTH_OID
-		);
-	}
-	
-	public static final long getListElementsAddress(final Binary bytes)
-	{
-		return getListElementsAddress(bytes.entityContentAddress);
-	}
-
-	// (22.01.2019 TM)FIXME: JET-63: check and remove/change/comment
-	public static final long getListBinaryLength(final Binary bytes, final long offset)
-	{
-		return getListBinaryLength(bytes.entityContentAddress + offset);
-	}
-
-	public static final long getListElementsAddress(final Binary bytes, final long offset)
-	{
-		return getListElementsAddress(bytes.entityContentAddress + offset);
-	}
-
-	public static final long calculateListTotalBinaryLength(final long contentBinaryLength)
-	{
-		return LIST_HEADER_LENGTH + contentBinaryLength; // header plus content length
-	}
-
-	public static final long calculateReferenceListTotalBinaryLength(final long count)
-	{
-		return calculateListTotalBinaryLength(referenceBinaryLength(count)); // 8 bytes per reference
-	}
-
-	public static final long calculateStringListContentBinaryLength(final String[] strings)
-	{
-		// precise size for each string (char list header plus 2 byte per char)
-		long listContentBinaryLength = 0;
-		for(final String string : strings)
-		{
-			listContentBinaryLength += calculateBinaryLengthChars(string.length());
-		}
-
-		return listContentBinaryLength;
-	}
-
-	public static final long calculateBinaryLengthChars(final long count)
-	{
-		return calculateListTotalBinaryLength(count << 1);  // header plus 2 bytes per char
-	}
-
 	public static final void updateArrayObjectReferences(
 		final Binary                      bytes       ,
 		final long                        binaryOffset,
@@ -1736,7 +1677,7 @@ public final class BinaryPersistence extends Persistence
 			);
 		}
 		
-		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
+		final long binaryElementsStartAddress = BinaryPersistence.binaryListElementsAddress(bytes, binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
@@ -1753,7 +1694,7 @@ public final class BinaryPersistence extends Persistence
 		final Object[]                  target
 	)
 	{
-		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
+		final long binaryElementsStartAddress = BinaryPersistence.binaryListElementsAddress(bytes, binaryOffset);
 		for(int i = 0; i < target.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
@@ -1789,7 +1730,7 @@ public final class BinaryPersistence extends Persistence
 		final Consumer<Object>          collector
 	)
 	{
-		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
+		final long binaryElementsStartAddress = BinaryPersistence.binaryListElementsAddress(bytes, binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
 			collector.accept(
@@ -1808,7 +1749,7 @@ public final class BinaryPersistence extends Persistence
 		final BiConsumer<Object, Object> collector
 	)
 	{
-		final long binaryElementsStartAddress = BinaryPersistence.getListElementsAddress(bytes, binaryOffset);
+		final long binaryElementsStartAddress = BinaryPersistence.binaryListElementsAddress(bytes, binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
 			collector.accept(

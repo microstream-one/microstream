@@ -194,7 +194,7 @@ public final class BinaryCollectionHandling
 		final PersistenceLoadHandler handler
 	)
 	{
-		final long rawSize = BinaryPersistence.getListElementCountValidating(
+		final long rawSize = BinaryPersistence.getBinaryListElementCountValidating(
 			bytes.buildItemAddress()                ,
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			BinaryPersistence.oidLength()
@@ -242,7 +242,7 @@ public final class BinaryCollectionHandling
 		final long   listStartOffset
 	)
 	{
-		return BinaryPersistence.getListElementCountValidating(
+		return BinaryPersistence.getBinaryListElementCountValidating(
 			bytes.buildItemAddress(),
 			listStartOffset,
 			keyValueBinaryLength()
@@ -251,7 +251,7 @@ public final class BinaryCollectionHandling
 
 	public static final long getSizedArrayElementsAddress(final Binary bytes, final long headerOffset)
 	{
-		return BinaryPersistence.getListElementsAddress(bytes, headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS);
+		return BinaryPersistence.binaryListElementsAddress(bytes, headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS);
 	}
 
 	public static final void validateArrayLength(final Object[] array, final Binary bytes, final long headerOffset)
@@ -272,14 +272,14 @@ public final class BinaryCollectionHandling
 		final _longProcedure iterator
 	)
 	{
-		final long elementCount = BinaryPersistence.getListElementCountValidating(
+		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
 			bytes.buildItemAddress(),
 			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			BinaryPersistence.oidLength()
 		);
 		
 		BinaryPersistence.iterateReferenceRange(
-			BinaryPersistence.getListElementsAddress(bytes, offset + SIZED_ARRAY_OFFSET_ELEMENTS),
+			BinaryPersistence.binaryListElementsAddress(bytes, offset + SIZED_ARRAY_OFFSET_ELEMENTS),
 			elementCount,
 			iterator
 		);
@@ -291,14 +291,14 @@ public final class BinaryCollectionHandling
 		final _longProcedure iterator
 	)
 	{
-		final long elementCount = BinaryPersistence.getListElementCountValidating(
+		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
 			bytes.buildItemAddress(),
 			offset,
 			keyValueBinaryLength()
 		);
 
 		BinaryPersistence.iterateReferenceRange(
-			BinaryPersistence.getListElementsAddress(bytes, offset),
+			BinaryPersistence.binaryListElementsAddress(bytes, offset),
 			keyValueReferenceCount() * elementCount,
 			iterator
 		);

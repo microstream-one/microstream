@@ -181,7 +181,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.terminator                      = configuration.csvConfiguration().terminator()                  ;
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
-			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.lengthListHeader());
+			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.binaryListHeaderLength());
 			this.addressListHeaderUpdateBuffer   = XMemory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
 			this.addressEntityLengthUpdateBuffer = XMemory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
@@ -690,7 +690,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// update list header in binary form
 			this.retroUpdateListHeader(
 				currentFileOffset,
-				BinaryPersistence.calculateBinaryArrayByteLength(elementCount * XMemory.byteSize_boolean()),
+				BinaryPersistence.calculateBinaryListByteLength(elementCount * XMemory.byteSize_boolean()),
 				elementCount
 			);
 
@@ -930,7 +930,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.retroUpdateListHeader(
 				currentFileOffset,
 				binaryLength,
-				binaryLength - BinaryPersistence.lengthListHeader() >> bitDivisor
+				binaryLength - BinaryPersistence.binaryListHeaderLength() >> bitDivisor
 			);
 		}
 
