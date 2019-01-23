@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -1188,8 +1189,10 @@ Au\'dferdem einen Regression Bugfix, weil ich mit einem fr\'fcheren Aufh\'fcbsch
 \par
 \par
 2018-11-25\par
+
 \pard\par
 Nix wegen Familienerk\'e4ltung.\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1638,20 +1641,6 @@ JET-63 anlegen.\par
 \par
 2019-01-22\par
 \par
-09:00 JET\tab\tab JET-63\par
-09:15 Bonus\tab Telefonat mit XH zu BON-813. Immer die gleiche Stammdatenschei\'dfe. Die sollen mal ihren Schei\'df fixen.\par
-09:20 JET\tab\tab JET-63\par
-09:45 \tab\tab Ah Mist, TimeTac vergessen. Starten, kurze Pause, weitermachen, \'c4nderung f\'fcr ersten Eintrag beantragen.\par
-09:50 \tab\tab Weitermachen. Ich l\'f6sch jetzt einfach die alte Methode und bau alle Compilerfehler auf die neue um. So.\par
-10:10 Bonus\tab TeamViewer Sitzung mit XH zu BON-813 Fix.\par
-10:30 JET\tab\tab JET-63\par
-11:00 ---\tab\tab Pause\par
-11:15 Bonus\tab Telefonat mit XH.\par
-11:30 ---\tab\tab Pause\par
-16:45 JET\tab\tab JET-63. Nachdem der Sanit\'e4rtechniker nach 1 h Versp\'e4tung nun wieder weg ist und ich die Pause im TimeTac vergessen hatte, kann ich jetzt wieder weitermachen. Hurra.\par
-\par
-\par
-\par
 JET-63 weitermachen.\par
 Die validierende Methode m\'fcsste so passen. Jetzt alle spezifischeren list-Methoden auf die umstellen.\par
 \par
@@ -1667,5 +1656,14 @@ Dazu macht es Sinn, den Methodenwust an sich erst mal aufr\'e4umen.\par
 \par
 Hm. Der BinaryReferenceTraverser$InlinedComplexType k\'f6nnte extrem verkompliziert werden, wenn der die Bin\'e4rl\'e4nge eines Element kennen muss. Wenn ein Element selbst n\'e4mlich wieder variable L\'e4nge hat, wird's haarig.\par
 Aber eigentlich erzeugt der Traverser ja niemals Instanzen, sondern, wie der Name schon sagt, traversiert nur existierende. D.h. der k\'f6nnte eine nicht validierende Methode verwenden und die braucht dann auch die Elementl\'e4nge nicht, sondern funktioniert wie bisher. Dann bau ich das wieder so, aber mit einem Zusatz "NotValidating".\par
+\par
+Soweit alle Compilerfehler drau\'dfen. Mal committen und morgen die gemachten TODOs durchschauen.\par
+\par
+\par
+2019-01-23\par
+\par
+TODOs durchschauen.\par
+Es gibt ja redundante Konstanten und Logik einmal f\'fcr eine binary element list und einmal f\'fcr ein binary array. Beides ist aber das gleiche.\par
+Konsolidieren.\par
 }
  

@@ -99,11 +99,12 @@ public final class BinaryPersistence extends Persistence
 	private static final int BITS_3 = 3;
 
 	private static final int
-		BINARY_ARRAY_OFFSET_BYTE_LENGTH   = 0                                              ,
-		BINARY_ARRAY_OFFSET_ELEMENT_COUNT = BINARY_ARRAY_OFFSET_BYTE_LENGTH   + LENGTH_LONG,
-		BINARY_ARRAY_OFFSET_ELEMENT_DATA  = BINARY_ARRAY_OFFSET_ELEMENT_COUNT + LENGTH_LONG
+		LIST_OFFSET_LENGTH   = 0                               ,
+		LIST_OFFSET_COUNT    = LIST_OFFSET_LENGTH + LENGTH_LONG,
+		LIST_OFFSET_ELEMENTS = LIST_OFFSET_COUNT  + LENGTH_LONG,
+		LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS
 	;
-	
+		
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -1595,11 +1596,6 @@ public final class BinaryPersistence extends Persistence
 		}
 	}
 
-
-	private static final int LIST_OFFSET_LENGTH   =  0;
-	private static final int LIST_OFFSET_COUNT    =  8;
-	private static final int LIST_OFFSET_ELEMENTS = 16;
-	private static final int LIST_HEADER_LENGTH   = LIST_OFFSET_ELEMENTS;
 
 	// (22.01.2019 TM)FIXME: JET-63: shouldn't this method use a validation, as well?
 	public static final long getListBinaryLength(final long address)
