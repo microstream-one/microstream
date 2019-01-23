@@ -105,10 +105,10 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final String[] identifiers = instance.entries().keys().toArray(String.class);
 
 		// calculate all the lengths
-		final long instancesTotalBinLength    = BinaryPersistence.calculateReferenceListTotalBinaryLength(instances.length);
-		final long identifiersConentBinLength = BinaryPersistence.calculateStringListContentBinaryLength(identifiers);
-		final long totalContentLength         = instancesTotalBinLength
-			+ BinaryPersistence.calculateListTotalBinaryLength(identifiersConentBinLength)
+		final long instancesTotalBinLength     = BinaryPersistence.calculateReferenceListTotalBinaryLength(instances.length);
+		final long identifiersContentBinLength = BinaryPersistence.calculateStringListContentBinaryLength(identifiers);
+		final long totalContentLength          = instancesTotalBinLength
+			+ BinaryPersistence.calculateBinaryListByteLength(identifiersContentBinLength)
 		;
 
 		// store header for writing and reserving total length before writing content
@@ -120,21 +120,21 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		// store identifiers as list of inlined [char]s
 		BinaryPersistence.storeStringsAsList(
 			contentAddress + instancesTotalBinLength,
-			identifiersConentBinLength,
+			identifiersContentBinLength,
 			identifiers
 		);
 	}
 
 	private static long[] buildTempObjectIdArray(final Binary bytes)
 	{
-		final long amountOids = BinaryPersistence.binaryArrayElementCount(bytes, OFFSET_OID_LIST);
+		final long amountOids = BinaryPersistence.getBinaryListElementCountNotValidating(bytes, OFFSET_OID_LIST);
 		return new long[X.checkArrayRange(amountOids)];
 	}
 
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
 	{
-		final long offsetIdentifierList = BinaryPersistence.binaryArrayByteLength(bytes, OFFSET_OID_LIST);
-		final long amountIdentifiers    = BinaryPersistence.binaryArrayElementCount(bytes, offsetIdentifierList);
+		final long offsetIdentifierList = BinaryPersistence.getBinaryListByteLength(bytes, OFFSET_OID_LIST);
+		final long amountIdentifiers    = BinaryPersistence.getBinaryListElementCountNotValidating(bytes, offsetIdentifierList);
 
 		return new String[X.checkArrayRange(amountIdentifiers)];
 	}
@@ -150,13 +150,13 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private void fillObjectIds(final long[] oids, final Binary bytes)
 	{
-		final long offsetOidData = BinaryPersistence.binaryArrayElementDataAddress(bytes, OFFSET_OID_LIST);
+		final long offsetOidData = BinaryPersistence.binaryListElementsAddress(bytes, OFFSET_OID_LIST);
 		XMemory.copyRangeToArray(offsetOidData, oids);
 	}
 
 	private void fillIdentifiers(final String[] identifiers, final Binary bytes)
 	{
-		final long offsetIdentifierList = BinaryPersistence.binaryArrayByteLength(bytes, OFFSET_OID_LIST);
+		final long offsetIdentifierList = BinaryPersistence.getBinaryListByteLength(bytes, OFFSET_OID_LIST);
 
 		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
 	}

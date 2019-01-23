@@ -24,8 +24,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	// constants        //
 	/////////////////////
 
-	private static final int  BITS_3                    = 3;
-	private static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a simple array, so offset 0
+	private static final long BINARY_OFFSET_LIST = 0; // binary form is 100% just a simple list, so offset 0
 
 
 
@@ -90,13 +89,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		final Object[] arrayInstance = instance.data;
 
 		// length must be checked for consistency reasons
-		BinaryCollectionHandling.validateArrayLength(arrayInstance, bytes, BINARY_OFFSET_SIZED_ARRAY);
+		BinaryCollectionHandling.validateArrayLength(arrayInstance, bytes, BINARY_OFFSET_LIST);
 
-		final long binaryRefOffset = BinaryPersistence.getListElementsAddress(bytes);
+		final long binaryRefOffset = BinaryPersistence.binaryListElementsAddress(bytes, BINARY_OFFSET_LIST);
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + (i << BITS_3)));
+			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * BinaryPersistence.oidLength()));
 		}
 	}
 
@@ -109,7 +108,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
+		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_LIST, iterator);
 	}
 
 }

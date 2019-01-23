@@ -702,8 +702,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = BinaryPersistence.getListElementCountNotValidating(valueReadAddress);
-			      long address       = BinaryPersistence.getListElementsAddress(valueReadAddress);
+			final long elementCount  = BinaryPersistence.getBinaryListElementCountNotValidating(valueReadAddress);
+			      long address       = BinaryPersistence.binaryListElementsAddress(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
 
@@ -726,8 +726,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = BinaryPersistence.getListElementCountNotValidating(valueReadAddress);
-			      long address      = BinaryPersistence.getListElementsAddress(valueReadAddress);
+			final long elementCount = BinaryPersistence.getBinaryListElementCountNotValidating(valueReadAddress);
+			      long address      = BinaryPersistence.binaryListElementsAddress(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
 			this.write(this.listStarter);
@@ -954,11 +954,14 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
+					final long bound = valueReadAddress + BinaryPersistence.getBinaryListByteLength(valueReadAddress);
+					
 					ImplementationUTF8.this.write_chars(
-						BinaryPersistence.getListElementsAddress(valueReadAddress),
-						valueReadAddress + BinaryPersistence.getListBinaryLength(valueReadAddress)
+						BinaryPersistence.binaryListElementsAddress(valueReadAddress),
+						bound
 					);
-					return valueReadAddress + BinaryPersistence.getListBinaryLength(valueReadAddress);
+					
+					return bound;
 				}
 			};
 		}
@@ -970,11 +973,14 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
+					final long bound = valueReadAddress + BinaryPersistence.getBinaryListByteLength(valueReadAddress);
+					
 					ImplementationUTF8.this.write_bytes(
-						BinaryPersistence.getListElementsAddress(valueReadAddress),
-						valueReadAddress + BinaryPersistence.getListBinaryLength(valueReadAddress)
+						BinaryPersistence.binaryListElementsAddress(valueReadAddress),
+						bound
 					);
-					return valueReadAddress + BinaryPersistence.getListBinaryLength(valueReadAddress);
+					
+					return bound;
 				}
 			};
 		}
