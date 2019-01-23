@@ -283,7 +283,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	}
 
 	@Override
-	public final long buildItemAddress()
+	public final long entityContentAddress()
 	{
 		throw new UnsupportedOperationException();
 	}

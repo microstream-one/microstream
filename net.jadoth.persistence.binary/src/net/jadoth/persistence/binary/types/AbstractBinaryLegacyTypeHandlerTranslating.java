@@ -141,7 +141,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	public final void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
 	{
 		BinaryReferenceTraverser.iterateReferences(
-			rawData.buildItemAddress(),
+			rawData.entityContentAddress(),
 			this.referenceTraversers,
 			iterator
 		);

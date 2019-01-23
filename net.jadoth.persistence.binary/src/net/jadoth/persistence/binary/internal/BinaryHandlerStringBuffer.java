@@ -40,14 +40,14 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	@Override
 	public StringBuffer create(final Binary bytes)
 	{
-		return new StringBuffer(X.checkArrayRange(XMemory.get_long(bytes.buildItemAddress())));
+		return new StringBuffer(X.checkArrayRange(XMemory.get_long(bytes.entityContentAddress())));
 	}
 
 	@Override
 	public void update(final Binary bytes, final StringBuffer instance, final PersistenceLoadHandler builder)
 	{
 		final long lengthChars = BinaryPersistence.getBuildItemContentLength(bytes) - LENGTH_LENGTH;
-		final long buildItemAddress = bytes.buildItemAddress();
+		final long buildItemAddress = bytes.entityContentAddress();
 		instance.ensureCapacity(X.checkArrayRange(XMemory.get_long(buildItemAddress)));
 		XMemory.setData(instance, null, buildItemAddress + LENGTH_LENGTH, lengthChars);
 	}

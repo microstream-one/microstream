@@ -195,7 +195,7 @@ public final class BinaryCollectionHandling
 	)
 	{
 		final long rawSize = BinaryPersistence.getBinaryListElementCountValidating(
-			bytes.buildItemAddress()                ,
+			bytes                ,
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			BinaryPersistence.oidLength()
 		);
@@ -233,7 +233,7 @@ public final class BinaryCollectionHandling
 		 * may be longer than X bytes.)
 		 */
 		return X.checkArrayRange(
-			XMemory.get_long(bytes.buildItemAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
+			XMemory.get_long(bytes.entityContentAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
 	
@@ -243,7 +243,7 @@ public final class BinaryCollectionHandling
 	)
 	{
 		return BinaryPersistence.getBinaryListElementCountValidating(
-			bytes.buildItemAddress(),
+			bytes,
 			listStartOffset,
 			keyValueBinaryLength()
 		);
@@ -273,7 +273,7 @@ public final class BinaryCollectionHandling
 	)
 	{
 		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
-			bytes.buildItemAddress(),
+			bytes,
 			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			BinaryPersistence.oidLength()
 		);
@@ -292,7 +292,7 @@ public final class BinaryCollectionHandling
 	)
 	{
 		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
-			bytes.buildItemAddress(),
+			bytes,
 			offset,
 			keyValueBinaryLength()
 		);
