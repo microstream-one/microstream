@@ -225,6 +225,7 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final long getBinaryListByteLength(final Binary bytes, final long binaryListOffset)
 	{
+		// (23.01.2019 TM)FIXME: JET-63: Shouldn't this method do validation, too? And reuse for get~ElementCount?
 		return getBinaryListByteLength(bytes.entityContentAddress() + binaryListOffset);
 	}
 
