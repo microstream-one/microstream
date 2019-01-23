@@ -86,7 +86,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			instance                  ,
 			this.valueTranslators()   ,
 			this.targetOffsets()      ,
-			rawData.buildItemAddress(),
+			rawData.entityContentAddress(),
 			builder
 		);
 	}

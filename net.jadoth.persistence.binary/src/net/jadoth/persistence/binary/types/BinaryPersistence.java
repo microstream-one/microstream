@@ -164,12 +164,6 @@ public final class BinaryPersistence extends Persistence
 		return entityAddress + LENGTH_ENTITY_HEADER;
 	}
 	
-	// (22.01.2019 TM)FIXME: temporary workaround for JET-63 and JET-49 restructuring
-	public static final long entityAddressFromContentAddress(final long entityContentAddress)
-	{
-		return entityContentAddress - LENGTH_ENTITY_HEADER;
-	}
-
 	public static final long storeEntityHeader(
 		final long entityAddress      ,
 		final long entityContentLength, // note: entity CONTENT length (without header length!)
@@ -231,7 +225,7 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final long getBinaryListByteLength(final Binary bytes, final long binaryListOffset)
 	{
-		return getBinaryListByteLength(bytes.buildItemAddress() + binaryListOffset);
+		return getBinaryListByteLength(bytes.entityContentAddress() + binaryListOffset);
 	}
 
 	public static final long getBinaryListByteLength(final long binaryListAddress)
@@ -246,19 +240,24 @@ public final class BinaryPersistence extends Persistence
 
 	// binary list element count //
 	
+	public static final long entityAddressFromContentAddress(final long entityContentAddress)
+	{
+		return entityContentAddress - LENGTH_ENTITY_HEADER;
+	}
+	
 	public static final long getBinaryListElementCountValidating(
-		final long entityContentAddress,
-		final long listStartOffset     ,
-		final long elementLength
+		final Binary data         ,
+		final long   listOffset   ,
+		final long   elementLength
 	)
 	{
-		final long listTotalLength = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_BYTE_LENGTH);
-		final long listEntityCount = XMemory.get_long(entityContentAddress + listStartOffset + LIST_OFFSET_ELEMENT_COUNT);
+		final long listTotalLength = XMemory.get_long(data.entityContentAddress() + listOffset + LIST_OFFSET_BYTE_LENGTH);
+		final long listEntityCount = XMemory.get_long(data.entityContentAddress() + listOffset + LIST_OFFSET_ELEMENT_COUNT);
 		
-		final long entityAddress = entityAddressFromContentAddress(entityContentAddress);
+		final long entityAddress = entityAddressFromContentAddress(data.entityContentAddress());
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(entityContentAddress + listStartOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
+		if(data.entityContentAddress() + listOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
 			|| listEntityCount * elementLength != listTotalLength
 		)
 		{
@@ -266,7 +265,7 @@ public final class BinaryPersistence extends Persistence
 				getEntityLength(entityAddress),
 				getEntityObjectId(entityAddress),
 				getEntityTypeId(entityAddress),
-				listStartOffset,
+				listOffset,
 				listTotalLength,
 				listEntityCount,
 				elementLength
@@ -274,11 +273,6 @@ public final class BinaryPersistence extends Persistence
 		}
 		
 		return listEntityCount;
-	}
-	
-	public static final long getBinaryListElementCountNotValidating(final Binary bytes, final long binaryListOffset)
-	{
-		return getBinaryListElementCountNotValidating(bytes.buildItemAddress() + binaryListOffset);
 	}
 
 	public static final long getBinaryListElementCountNotValidating(final long binaryListAddress)
@@ -300,11 +294,10 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long binaryListElementsAddress(final Binary bytes, final long binaryListOffset)
 	{
-		return binaryListElementsAddress(bytes.buildItemAddress() + binaryListOffset);
+		return binaryListElementsAddress(bytes.entityContentAddress() + binaryListOffset);
 	}
 	
 
-	// (23.01.2019 TM)FIXME: /!\ Baustelle Beginn.
 	
 	public static final long getListElementCount(
 		final Binary bytes          ,
@@ -313,7 +306,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		return getBinaryListElementCountValidating(
-			bytes.entityContentAddress,
+			bytes,
 			listStartOffset,
 			elementLength
 		);
@@ -325,7 +318,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		return getBinaryListElementCountValidating(
-			bytes.entityContentAddress,
+			bytes,
 			listStartOffset,
 			LENGTH_OID
 		);
@@ -792,25 +785,6 @@ public final class BinaryPersistence extends Persistence
 		{
 			iterator.accept(XMemory.get_long(a));
 		}
-	}
-
-
-	// (22.01.2019 TM)FIXME: JET-63: Where is this used?
-	public static final void iterateListElementReferencesWithElementOffset(
-		final Binary         bytes        ,
-		final long           listOffset   ,
-		final long           elementOffset,
-		final long           elementLength,
-		final _longProcedure iterator
-	)
-	{
-		BinaryPersistence.iterateListElementReferencesAtAddressWithElementOffset(
-			BinaryPersistence.binaryListElementsAddress(bytes, listOffset),
-			BinaryPersistence.getBinaryListElementCountValidating(bytes.entityContentAddress, listOffset, elementLength),
-			elementOffset,
-			elementLength,
-			iterator
-		);
 	}
 
 	static final void iterateListElementReferencesAtAddressWithElementOffset(

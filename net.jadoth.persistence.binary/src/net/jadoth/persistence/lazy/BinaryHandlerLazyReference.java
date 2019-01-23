@@ -92,7 +92,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		return Lazy.New(XMemory.get_long(bytes.buildItemAddress()), null);
+		return Lazy.New(XMemory.get_long(bytes.entityContentAddress()), null);
 	}
 
 	@Override

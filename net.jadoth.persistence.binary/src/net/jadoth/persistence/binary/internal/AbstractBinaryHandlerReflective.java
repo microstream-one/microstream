@@ -335,7 +335,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			instance,
 			this.memorySetters,
 			this.allBinaryOffsets,
-			bytes.buildItemAddress(),
+			bytes.entityContentAddress(),
 			builder
 		);
 	}

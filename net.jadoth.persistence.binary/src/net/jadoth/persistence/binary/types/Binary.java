@@ -68,7 +68,7 @@ public abstract class Binary implements Chunk
 
 	public abstract long[] boundOffsets();
 
-	public abstract long   buildItemAddress();
+	public abstract long   entityContentAddress();
 
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.

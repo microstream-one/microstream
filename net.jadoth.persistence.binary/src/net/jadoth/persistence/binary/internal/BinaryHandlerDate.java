@@ -51,13 +51,13 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerNativeCustomVa
 	@Override
 	public Date create(final Binary bytes)
 	{
-		return new Date(XMemory.get_long(bytes.buildItemAddress()));
+		return new Date(XMemory.get_long(bytes.entityContentAddress()));
 	}
 
 	@Override
 	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler builder)
 	{
-		instance.setTime(XMemory.get_long(bytes.buildItemAddress()));
+		instance.setTime(XMemory.get_long(bytes.entityContentAddress()));
 	}
 
 }

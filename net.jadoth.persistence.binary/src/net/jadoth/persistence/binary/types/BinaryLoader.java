@@ -826,7 +826,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 
 			@Override
-			public final long buildItemAddress()
+			public final long entityContentAddress()
 			{
 				return this.entityContentAddress;
 			}

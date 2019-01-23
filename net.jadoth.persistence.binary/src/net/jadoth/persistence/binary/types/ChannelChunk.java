@@ -285,7 +285,7 @@ public final class ChannelChunk extends Binary implements MemoryRangeReader
 	}
 
 	@Override
-	public final long buildItemAddress()
+	public final long entityContentAddress()
 	{
 		throw new UnsupportedOperationException();
 	}

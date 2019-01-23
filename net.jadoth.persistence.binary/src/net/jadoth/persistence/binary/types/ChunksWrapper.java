@@ -112,7 +112,7 @@ public final class ChunksWrapper extends Binary
 	}
 
 	@Override
-	public final long buildItemAddress()
+	public final long entityContentAddress()
 	{
 		// optimization inheritance artifact: only single build item implementation has a build item address
 		throw new UnsupportedOperationException();
