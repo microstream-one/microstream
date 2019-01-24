@@ -47,7 +47,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 		return (Class)EqBulkList.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemArrayLength(final Binary bytes)
 	{
 		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 	}
@@ -105,14 +105,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqBulkList<?>>
 	public final EqBulkList<?> create(final Binary bytes)
 	{
 		// this method only creates shallow instances, so hashEqualator gets set during update like other references.
-		return new EqBulkList<>(null, BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
+		return new EqBulkList<>(null, getBuildItemArrayLength(bytes));
 	}
 
 	@Override
 	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceLoadHandler builder)
 	{
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(getBuildItemElementCount(bytes));
+		instance.ensureCapacity(getBuildItemArrayLength(bytes));
 
 		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes                    ,

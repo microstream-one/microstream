@@ -36,7 +36,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 		return (Class)LimitList.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemArrayLength(final Binary bytes)
 	{
 		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 	}
@@ -84,14 +84,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	@Override
 	public final LimitList<?> create(final Binary bytes)
 	{
-		return new LimitList<>(BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
+		return new LimitList<>(getBuildItemArrayLength(bytes));
 	}
 
 	@Override
 	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceLoadHandler builder)
 	{
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(getBuildItemElementCount(bytes));
+		instance.ensureCapacity(getBuildItemArrayLength(bytes));
 		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes                    ,
 			BINARY_OFFSET_SIZED_ARRAY,

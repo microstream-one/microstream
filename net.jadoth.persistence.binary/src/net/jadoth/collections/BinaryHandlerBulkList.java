@@ -36,7 +36,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 		return (Class)BulkList.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemArrayLength(final Binary bytes)
 	{
 		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 	}
@@ -84,14 +84,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<BulkList<?>>
 	@Override
 	public final BulkList<?> create(final Binary bytes)
 	{
-		return new BulkList<>(getBuildItemElementCount(bytes));
+		return new BulkList<>(getBuildItemArrayLength(bytes));
 	}
 
 	@Override
 	public final void update(final Binary bytes, final BulkList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(getBuildItemElementCount(bytes));
+		instance.ensureCapacity(getBuildItemArrayLength(bytes));
 		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes                    ,
 			BINARY_OFFSET_SIZED_ARRAY,
