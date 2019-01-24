@@ -702,7 +702,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = BinaryPersistence.getBinaryListElementCountNotValidating(valueReadAddress);
+			final long elementCount  = BinaryPersistence.getBinaryListElementCount(valueReadAddress);
 			      long address       = BinaryPersistence.binaryListElementsAddress(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
@@ -726,7 +726,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = BinaryPersistence.getBinaryListElementCountNotValidating(valueReadAddress);
+			final long elementCount = BinaryPersistence.getBinaryListElementCount(valueReadAddress);
 			      long address      = BinaryPersistence.binaryListElementsAddress(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 

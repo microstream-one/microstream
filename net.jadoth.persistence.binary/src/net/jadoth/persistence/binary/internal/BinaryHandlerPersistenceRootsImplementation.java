@@ -127,7 +127,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private static long[] buildTempObjectIdArray(final Binary bytes)
 	{
-		final long amountOids = BinaryPersistence.getBinaryListElementCountNotValidating(
+		final long amountOids = BinaryPersistence.getBinaryListElementCount(
 			bytes.entityContentAddress() + OFFSET_OID_LIST
 	);
 		return new long[X.checkArrayRange(amountOids)];
@@ -136,7 +136,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
 	{
 		final long offsetIdentifierList = BinaryPersistence.getBinaryListByteLength(bytes, OFFSET_OID_LIST);
-		final long amountIdentifiers    = BinaryPersistence.getBinaryListElementCountNotValidating(
+		final long amountIdentifiers    = BinaryPersistence.getBinaryListElementCount(
 			bytes.entityContentAddress() + offsetIdentifierList
 		);
 

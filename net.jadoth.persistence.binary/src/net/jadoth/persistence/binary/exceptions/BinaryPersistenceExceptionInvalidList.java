@@ -6,7 +6,7 @@ public class BinaryPersistenceExceptionInvalidList extends BinaryPersistenceExce
 	// static methods //
 	///////////////////
 	
-	public static final String messageBody()
+	public static String messageBody()
 	{
 		return "Invalid list data";
 	}
@@ -17,13 +17,11 @@ public class BinaryPersistenceExceptionInvalidList extends BinaryPersistenceExce
 	// instance fields //
 	////////////////////
 	
-	private final long entityLength    ;
-	private final long objectId        ;
-	private final long typeId          ;
-	private final long listStartOffset ;
-	private final long listTotalLength ;
-	private final long listElementCount;
-	private final long elementLength   ;
+	private final long entityLength   ;
+	private final long objectId       ;
+	private final long typeId         ;
+	private final long listStartOffset;
+	private final long listTotalLength;
 	
 	
 	
@@ -32,23 +30,19 @@ public class BinaryPersistenceExceptionInvalidList extends BinaryPersistenceExce
 	/////////////////////
 
 	public BinaryPersistenceExceptionInvalidList(
-		final long entityLength    ,
-		final long objectId        ,
-		final long typeId          ,
-		final long listStartOffset ,
-		final long listTotalLength ,
-		final long listElementCount,
-		final long elementLength
+		final long entityLength   ,
+		final long objectId       ,
+		final long typeId         ,
+		final long listStartOffset,
+		final long listTotalLength
 	)
 	{
 		super();
-		this.entityLength     = entityLength    ;
-		this.objectId         = objectId        ;
-		this.typeId           = typeId          ;
-		this.listStartOffset  = listStartOffset ;
-		this.listTotalLength  = listTotalLength ;
-		this.listElementCount = listElementCount;
-		this.elementLength    = elementLength   ;
+		this.entityLength    = entityLength   ;
+		this.objectId        = objectId       ;
+		this.typeId          = typeId         ;
+		this.listStartOffset = listStartOffset;
+		this.listTotalLength = listTotalLength;
 	}
 	
 	
@@ -57,18 +51,21 @@ public class BinaryPersistenceExceptionInvalidList extends BinaryPersistenceExce
 	// methods //
 	////////////
 	
-	@Override
-	public String assembleDetailString()
+	protected String assembleDetailStringBody()
 	{
 		return messageBody() + ": " +
 			"entityLength = "     + this.entityLength     + ", " +
 			"objectId = "         + this.objectId         + ", " +
 			"typeId = "           + this.typeId           + ", " +
 			"listStartOffset = "  + this.listStartOffset  + ", " +
-			"listTotalLength = "  + this.listTotalLength  + ", " +
-			"listElementCount = " + this.listElementCount + ", " +
-			"elementLength = "    + this.elementLength    + "."
+			"listTotalLength = "  + this.listTotalLength
 		;
+	}
+	
+	@Override
+	public String assembleDetailString()
+	{
+		return this.assembleDetailStringBody() + ".";
 	}
 	
 }
