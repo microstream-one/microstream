@@ -228,7 +228,7 @@ public final class BinaryCollectionHandling
 		 * - That ArrayList instance is serialized.
 		 * - The array length value in binary form would be max int, the following binary list would contain only 1 element.
 		 * - This means the resulting total length would indeed be tiny (currently 56 bytes).
-		 * - The ArrayList instance created from that information would, however, be around 2 GB in size.
+		 * - The ArrayList instance created from that information would, however, be around 8/16 GB in size.
 		 * All that would be perfectly correct. It is just an incredibly efficient binary form compression that cannot
 		 * be validated against the binary form of the sent instance.
 		 * 
