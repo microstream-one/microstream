@@ -195,7 +195,7 @@ public final class BinaryCollectionHandling
 	)
 	{
 		final long rawSize = BinaryPersistence.getBinaryListElementCountValidating(
-			bytes                ,
+			bytes                                     ,
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			BinaryPersistence.oidLength()
 		);
@@ -218,22 +218,33 @@ public final class BinaryCollectionHandling
 		return size;
 	}
 
-	public static final int getSizedArrayLength(final Binary bytes, final long headerOffset)
+	public static final int getSizedArrayLength(final Binary bytes, final long sizedArrayOffset)
 	{
-		/* (23.11.2018 TM)FIXME: Security: prevent array bombs
-		 * A forged binary form array could specifiy a max integer length despite actually
-		 * having very few or even no elements. The naive code below returns the array size
-		 * in good faith without checking its validity.
-		 * A validation would be very simple: the specified element count times the array element size
-		 * plus the header length must yield the total binary length of the binary form array.
-		 * Meaning in order for the receiver to accept and creae a 2 billion element array, there actually has to
-		 * be data for 2 billion elements.
-		 * Of course an attacker could still send an actual 2-billion-elements array, but it wouldn't be much
-		 * of an attack and it could be easily recognized and denied (e.g. no chunk received from outside
-		 * may be longer than X bytes.)
+		/* Note on validation for "array bombs" prevention
+		 * (see BinaryPersistence#getBinaryListElementCountValidating)
+		 * That kind of validation cannot be done here.
+		 * Consider the following scenario, which would be perfectly correct:
+		 * - An ArrayList is created with max int capacity and only one element (size is 1).
+		 * - That ArrayList instance is serialized.
+		 * - The array length value in binary form would be max int, the following binary list would contain only 1 element.
+		 * - This means the resulting total length would indeed be tiny (currently 56 bytes).
+		 * - The ArrayList instance created from that information would, however, be around 2 GB in size.
+		 * All that would be perfectly correct. It is just an incredibly efficient binary form compression that cannot
+		 * be validated against the binary form of the sent instance.
+		 * 
+		 * This means the actual security rationale at this point is:
+		 * Are external senders allowed to send "big" instances?
+		 * If they are, they must be trustworthy or controlled otherwise to not cause harm.
+		 * 
+		 * Should this cause problems, there are a number of actions that can be taken to prevent harm:
+		 * 1.) Specifically deny all types that are known to contain sized arrays (size and capacity).
+		 * 2.) Or write handlers for them that ignore the provided array length but always allocate an array
+		 *     that is "just" big enough to hold the sent data. However, caution: This can alter program behavior.
+		 * 3.) Handle out of memory errors by terminating the communication, thus releasing the occupied memory.
+		 * 
 		 */
 		return X.checkArrayRange(
-			XMemory.get_long(bytes.entityContentAddress() + headerOffset + SIZED_ARRAY_OFFSET_LENGTH)
+			XMemory.get_long(bytes.entityContentAddress() + sizedArrayOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
 	

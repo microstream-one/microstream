@@ -18,7 +18,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	// constants        //
 	/////////////////////
 
-	static final long SIZED_ARRAY_BINARY_OFFSET = 0; // binary form is 100% just a sized array, so offset 0
+	static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a sized array, so offset 0
 
 
 
@@ -30,6 +30,11 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	private static Class<ArrayList<?>> typeWorkaround()
 	{
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
+	}
+	
+	private static int getBuildItemArrayLength(final Binary bytes)
+	{
+		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 	}
 
 
@@ -64,7 +69,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 			bytes,
 			this.typeId(),
 			oid,
-			SIZED_ARRAY_BINARY_OFFSET,
+			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessStorage(instance),
 			instance.size(),
 			handler
@@ -75,17 +80,17 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	public final ArrayList<?> create(final Binary bytes)
 	{
 		return new ArrayList<>(
-			BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET)
+			getBuildItemArrayLength(bytes)
 		);
 	}
 
 	@Override
 	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler builder)
 	{
-		instance.ensureCapacity(BinaryCollectionHandling.getSizedArrayLength(bytes, SIZED_ARRAY_BINARY_OFFSET));
+		instance.ensureCapacity(getBuildItemArrayLength(bytes));
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes,
-			SIZED_ARRAY_BINARY_OFFSET,
+			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessStorage(instance),
 			builder
 		);
@@ -101,7 +106,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, SIZED_ARRAY_BINARY_OFFSET, iterator);
+		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
 }
