@@ -15,6 +15,7 @@ import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceIdStrategy;
+import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryViewProvider;
 import net.jadoth.util.BufferSizeProvider;
 
@@ -183,20 +184,44 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 				
 	}
 	
-	
+	/**
+	 * Calls {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} with the Com-specific
+	 * modfications set:<br>
+	 * PersistenceContextDispatcher.LocalObjectRegistration()<br>
+	 * PersistenceSizedArrayLengthController.Fitting()<br>
+	 * based on the followig rationale:<br>
+	 * <p>
+	 * PersistenceContextDispatcher.LocalObjectRegistration:<br>
+	 * Communication normally doesn't update a central/global object registry (= object graph) directly,
+	 * but uses a local one that is discarded after every message.
+	 * In case this shall change, a custom-configured foundation can be passed instead.
+	 * <p>
+	 * PersistenceSizedArrayLengthController.Fitting:<br>
+	 * Sized arrays shouldn't be unrestricted in length for use in comm. in order to prevent array bombs.
+	 * <p>
+	 * These aspects should be considered to be replicated when calling
+	 * {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} directly to pass an externally defined
+	 * {@link BinaryPersistenceFoundation} instance.
+	 * 
+	 * @return
+	 */
 	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
 	{
 		/*
 		 * Communication normally doesn't update a central/global object registry (= object graph) directly,
 		 * but uses a local one that is discarded after every message.
 		 * In case this shall change, a custom-configured foundation can be passed instead.
+		 * 
+		 * Also, sized arrays shouldn't be unrestricted in length for use in comm. in order to prevent array bombs.
 		 */
-		return new ComPersistenceAdaptorBinary.Creator.Default(
+		return Creator(
 			BinaryPersistenceFoundation.New()
 				.setContextDispatcher(
 					PersistenceContextDispatcher.LocalObjectRegistration()
-				),
-			BufferSizeProvider.New()
+				)
+				.setSizedArrayLengthController(
+					PersistenceSizedArrayLengthController.Fitting()
+				)
 		);
 	}
 	

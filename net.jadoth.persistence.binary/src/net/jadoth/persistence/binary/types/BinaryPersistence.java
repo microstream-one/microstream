@@ -64,6 +64,7 @@ import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
+import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
@@ -606,12 +607,14 @@ public final class BinaryPersistence extends Persistence
 		}
 	};
 
-	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry()
+	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
+		final PersistenceSizedArrayLengthController controller
+	)
 	{
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(nativeHandlers())
-			.registerTypeHandlers(defaultCustomHandlers())
+			.registerTypeHandlers(nativeHandlers(controller))
+			.registerTypeHandlers(defaultCustomHandlers(controller))
 		;
 		return defaultCustomTypeHandlerRegistry;
 	}
@@ -629,7 +632,9 @@ public final class BinaryPersistence extends Persistence
 		typeHandler.initializeTypeId(nativeTypeId);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers()
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers(
+		final PersistenceSizedArrayLengthController controller
+	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
 			new BinaryHandlerPrimitive<>(byte   .class),
@@ -668,7 +673,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 
-			new BinaryHandlerArrayList() ,
+			new BinaryHandlerArrayList(controller) ,
 			new BinaryHandlerBigInteger(),
 			new BinaryHandlerBigDecimal(),
 			new BinaryHandlerFile()      ,
@@ -691,22 +696,24 @@ public final class BinaryPersistence extends Persistence
 	 * - class loader
 	 * - any kind of io stream, channel, etc.
 	 */
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultCustomHandlers()
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultCustomHandlers(
+		final PersistenceSizedArrayLengthController controller
+	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
-			new BinaryHandlerBulkList()        ,
-			new BinaryHandlerLimitList()       ,
-			new BinaryHandlerFixedList()       ,
-			new BinaryHandlerConstList()       ,
-			new BinaryHandlerEqBulkList()      ,
-			new BinaryHandlerHashEnum()        ,
-			new BinaryHandlerConstHashEnum()   ,
-			new BinaryHandlerEqHashEnum()      ,
-			new BinaryHandlerEqConstHashEnum() ,
-			new BinaryHandlerHashTable()       ,
-			new BinaryHandlerConstHashTable()  ,
-			new BinaryHandlerEqHashTable()     ,
-			new BinaryHandlerEqConstHashTable(),
+			new BinaryHandlerBulkList(controller)  ,
+			new BinaryHandlerLimitList(controller) ,
+			new BinaryHandlerFixedList()           ,
+			new BinaryHandlerConstList()           ,
+			new BinaryHandlerEqBulkList(controller),
+			new BinaryHandlerHashEnum()            ,
+			new BinaryHandlerConstHashEnum()       ,
+			new BinaryHandlerEqHashEnum()          ,
+			new BinaryHandlerEqConstHashEnum()     ,
+			new BinaryHandlerHashTable()           ,
+			new BinaryHandlerConstHashTable()      ,
+			new BinaryHandlerEqHashTable()         ,
+			new BinaryHandlerEqConstHashTable()    ,
 
 			new BinaryHandlerSubstituterImplementation()
 			/* (29.10.2013 TM)TODO: more framework default custom handlers

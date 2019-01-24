@@ -73,12 +73,12 @@ public final class BinaryCollectionHandling
 
 
 	public static final long storeSizedArray(
-		final Binary          bytes       ,
-		final long            tid         ,
-		final long            oid         ,
-		final long            headerOffset,
-		final Object[]        array       ,
-		final int             size        ,
+		final Binary              bytes       ,
+		final long                tid         ,
+		final long                oid         ,
+		final long                headerOffset,
+		final Object[]            array       ,
+		final int                 size        ,
 		final PersistenceFunction persister
 	)
 	{
@@ -178,6 +178,15 @@ public final class BinaryCollectionHandling
 	{
 		return KEY_VALUE_BINARY_LENGTH;
 	}
+	
+	public static int getSizedArrayElementCount(final Binary bytes, final long headerOffset)
+	{
+		return X.checkArrayRange(BinaryPersistence.getBinaryListElementCountValidating(
+			bytes                                     ,
+			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
+			BinaryPersistence.oidLength()
+		));
+	}
 
 	/**
 	 * Updates the passed array up to the size defined by the binary data, returns the size.
@@ -194,18 +203,12 @@ public final class BinaryCollectionHandling
 		final PersistenceLoadHandler handler
 	)
 	{
-		final long rawSize = BinaryPersistence.getBinaryListElementCountValidating(
-			bytes                                     ,
-			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			BinaryPersistence.oidLength()
-		);
-		
-		if(array.length < rawSize)
+		final int size = getSizedArrayElementCount(bytes, headerOffset);
+		if(array.length < size)
 		{
 			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
 		}
 		
-		final int size = X.checkArrayRange(rawSize);
 		BinaryPersistence.updateArrayObjectReferences(
 			bytes,
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
