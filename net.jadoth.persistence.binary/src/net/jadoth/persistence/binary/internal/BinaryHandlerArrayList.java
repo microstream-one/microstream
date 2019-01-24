@@ -59,9 +59,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	
 	@Override
 	public final void store(
-		final Binary         bytes   ,
-		final ArrayList<?>   instance,
-		final long           oid     ,
+		final Binary                  bytes   ,
+		final ArrayList<?>            instance,
+		final long                    oid     ,
 		final PersistenceStoreHandler handler
 	)
 	{
