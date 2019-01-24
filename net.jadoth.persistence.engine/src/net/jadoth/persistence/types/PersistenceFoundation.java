@@ -147,6 +147,8 @@ extends Cloneable<PersistenceFoundation<M, F>>
 	public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator();
 	
 	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
+	
+	public PersistenceSizedArrayLengthController getSizedArrayLengthController();
 
 	public PersistenceRootResolver rootResolver();
 	
@@ -281,6 +283,8 @@ extends Cloneable<PersistenceFoundation<M, F>>
 	public F setLegacyTypeHandlingListener(PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener);
 
 	public F setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
+	
+	public F setSizedArrayLengthController(PersistenceSizedArrayLengthController sizedArrayLengthController);
 
 	
 
@@ -349,6 +353,7 @@ extends Cloneable<PersistenceFoundation<M, F>>
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
+		private PersistenceSizedArrayLengthController   sizedArrayLengthController ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
 		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
@@ -967,6 +972,17 @@ extends Cloneable<PersistenceFoundation<M, F>>
 		}
 		
 		@Override
+		public PersistenceSizedArrayLengthController getSizedArrayLengthController()
+		{
+			if(this.sizedArrayLengthController == null)
+			{
+				this.sizedArrayLengthController = this.dispatch(this.ensureSizedArrayLengthController());
+			}
+			
+			return this.sizedArrayLengthController;
+		}
+		
+		@Override
 		public PersistenceRootResolver rootResolver()
 		{
 			return this.rootResolver;
@@ -1158,6 +1174,13 @@ extends Cloneable<PersistenceFoundation<M, F>>
 		{
 			this.setPersistenceSource(persistenceChannel);
 			this.setPersistenceTarget(persistenceChannel);
+			return this.$();
+		}
+		
+		@Override
+		public F setSizedArrayLengthController(final PersistenceSizedArrayLengthController sizedArrayLengthController)
+		{
+			this.sizedArrayLengthController = sizedArrayLengthController;
 			return this.$();
 		}
 		
@@ -1783,6 +1806,12 @@ extends Cloneable<PersistenceFoundation<M, F>>
 			 * This method is just a stub for sub classes to override.
 			 */
 			return null;
+		}
+		
+		protected PersistenceSizedArrayLengthController ensureSizedArrayLengthController()
+		{
+			// unlimited by default to not change program behavior
+			return PersistenceSizedArrayLengthController.Unrestricted();
 		}
 
 		/* Explanation:

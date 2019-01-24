@@ -1,12 +1,13 @@
 package net.jadoth.collections;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
+import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollectionSizedArray;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
@@ -15,7 +16,7 @@ import net.jadoth.persistence.types.PersistenceStoreHandler;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerLimitList
-extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
+extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<LimitList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -36,23 +37,19 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 		return (Class)LimitList.class;
 	}
 
-	private static int getBuildItemArrayLength(final Binary bytes)
-	{
-		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
-	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerLimitList()
+	public BinaryHandlerLimitList(final PersistenceSizedArrayLengthController controller)
 	{
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.sizedArrayPseudoFields()
+			BinaryCollectionHandling.sizedArrayPseudoFields(),
+			controller
 		);
 	}
 
@@ -84,14 +81,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<LimitList<?>>
 	@Override
 	public final LimitList<?> create(final Binary bytes)
 	{
-		return new LimitList<>(getBuildItemArrayLength(bytes));
+		return new LimitList<>(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 	}
 
 	@Override
 	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceLoadHandler builder)
 	{
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(getBuildItemArrayLength(bytes));
+		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes                    ,
 			BINARY_OFFSET_SIZED_ARRAY,

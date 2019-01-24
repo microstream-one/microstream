@@ -267,7 +267,9 @@ extends PersistenceFoundation<Binary, F>
 		@Override
 		protected PersistenceCustomTypeHandlerRegistry<Binary> ensureCustomTypeHandlerRegistry()
 		{
-			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry();
+			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
+				this.getSizedArrayLengthController()
+			);
 		}
 
 		@Override

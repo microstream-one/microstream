@@ -9,10 +9,12 @@ import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCustomCollection<ArrayList<?>>
+public final class BinaryHandlerArrayList
+extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<ArrayList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -31,11 +33,6 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	{
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
 	}
-	
-	private static int getBuildItemArrayLength(final Binary bytes)
-	{
-		return BinaryCollectionHandling.getSizedArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
-	}
 
 
 
@@ -43,11 +40,12 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerArrayList()
+	public BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.sizedArrayPseudoFields()
+			BinaryCollectionHandling.sizedArrayPseudoFields(),
+			controller
 		);
 	}
 
@@ -79,15 +77,14 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerNativeCus
 	@Override
 	public final ArrayList<?> create(final Binary bytes)
 	{
-		return new ArrayList<>(
-			getBuildItemArrayLength(bytes)
-		);
+		return new ArrayList<>();
 	}
 
 	@Override
 	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler builder)
 	{
-		instance.ensureCapacity(getBuildItemArrayLength(bytes));
+		// length must be checked for consistency reasons
+		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		final int size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
 			bytes,
 			BINARY_OFFSET_SIZED_ARRAY,
