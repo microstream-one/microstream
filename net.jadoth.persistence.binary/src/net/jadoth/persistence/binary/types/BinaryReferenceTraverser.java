@@ -803,7 +803,7 @@ public interface BinaryReferenceTraverser
 			 * Using the validating element count getter would require to know the element binary length.
 			 * And that can get very ugly if the element of a complex type has variable length on its own.
 			 */
-			final long elementCount = BinaryPersistence.getBinaryListElementCountNotValidating(address);
+			final long elementCount = BinaryPersistence.getBinaryListElementCount(address);
 
 			// apply all element traversers to each element
 			long a = BinaryPersistence.binaryListElementsAddress(address);

@@ -28,6 +28,7 @@ import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
+import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
 import net.jadoth.persistence.binary.internal.BinaryHandlerBigDecimal;
@@ -223,10 +224,24 @@ public final class BinaryPersistence extends Persistence
 	
 	// binary list byte length //
 	
-	public static final long getBinaryListByteLength(final Binary bytes, final long binaryListOffset)
+	public static final long getBinaryListByteLength(final Binary data, final long listOffset)
 	{
-		// (23.01.2019 TM)FIXME: JET-63: Shouldn't this method do validation, too? And reuse for get~ElementCount?
-		return getBinaryListByteLength(bytes.entityContentAddress() + binaryListOffset);
+		final long entityAddress  = entityAddressFromContentAddress(data.entityContentAddress());
+		final long listByteLength = getBinaryListByteLength(data.entityContentAddress() + listOffset);
+		
+		// validation for safety AND security(!) reasons. E.g. to prevent reading beyond the entity data in memory.
+		if(data.entityContentAddress() + listOffset + listByteLength > entityAddress + getEntityLength(entityAddress))
+		{
+			throw new BinaryPersistenceExceptionInvalidList(
+				getEntityLength(entityAddress),
+				getEntityObjectId(entityAddress),
+				getEntityTypeId(entityAddress),
+				listOffset,
+				listByteLength
+			);
+		}
+				
+		return listByteLength;
 	}
 
 	public static final long getBinaryListByteLength(final long binaryListAddress)
@@ -252,31 +267,32 @@ public final class BinaryPersistence extends Persistence
 		final long   elementLength
 	)
 	{
-		final long listTotalLength = XMemory.get_long(data.entityContentAddress() + listOffset + LIST_OFFSET_BYTE_LENGTH);
-		final long listEntityCount = XMemory.get_long(data.entityContentAddress() + listOffset + LIST_OFFSET_ELEMENT_COUNT);
+		// note: does not reuse getBinaryListByteLength() intentionally since the exception here has more information
 		
-		final long entityAddress = entityAddressFromContentAddress(data.entityContentAddress());
+		final long entityAddress    = entityAddressFromContentAddress(data.entityContentAddress());
+		final long listByteLength   = getBinaryListByteLength(data.entityContentAddress() + listOffset);
+		final long listElementCount = getBinaryListElementCount(data.entityContentAddress() + listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(data.entityContentAddress() + listOffset + listTotalLength > entityAddress + getEntityLength(entityAddress)
-			|| listEntityCount * elementLength != listTotalLength
+		if(data.entityContentAddress() + listOffset + listByteLength > entityAddress + getEntityLength(entityAddress)
+			|| listElementCount * elementLength != listByteLength
 		)
 		{
-			throw new BinaryPersistenceExceptionInvalidList(
+			throw new BinaryPersistenceExceptionInvalidListElements(
 				getEntityLength(entityAddress),
 				getEntityObjectId(entityAddress),
 				getEntityTypeId(entityAddress),
 				listOffset,
-				listTotalLength,
-				listEntityCount,
+				listByteLength,
+				listElementCount,
 				elementLength
 			);
 		}
 		
-		return listEntityCount;
+		return listElementCount;
 	}
 
-	public static final long getBinaryListElementCountNotValidating(final long binaryListAddress)
+	public static final long getBinaryListElementCount(final long binaryListAddress)
 	{
 		return XMemory.get_long(binaryListElementCountAddress(binaryListAddress));
 	}
@@ -1222,7 +1238,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final long listAddress  = bytes.entityContentAddress + offset;
-		final long elementCount = BinaryPersistence.getBinaryListElementCountNotValidating(listAddress);
+		final long elementCount = BinaryPersistence.getBinaryListElementCount(listAddress);
 
 		if(target.length != elementCount)
 		{
@@ -1282,7 +1298,7 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final byte[] buildArray_byte(final Binary bytes)
 	{
-		final long elementCount = getBinaryListElementCountNotValidating(bytes.entityContentAddress);
+		final long elementCount = getBinaryListElementCount(bytes.entityContentAddress);
 		final byte[] array;
 		XMemory.copyRangeToArray(
 			binaryListElementsAddress(bytes.entityContentAddress),
@@ -1303,7 +1319,7 @@ public final class BinaryPersistence extends Persistence
 
 	static final char[] buildArray_char(final long valueAddress)
 	{
-		final long elementCount = getBinaryListElementCountNotValidating(valueAddress);
+		final long elementCount = getBinaryListElementCount(valueAddress);
 		final char[] array;
 		XMemory.copyRangeToArray(
 			binaryListElementsAddress(valueAddress),
@@ -1316,7 +1332,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final byte[] createArray_byte(final Binary bytes)
 	{
-		return new byte[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new byte[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_byte(final byte[] array, final Binary bytes)
@@ -1329,7 +1345,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final boolean[] createArray_boolean(final Binary bytes)
 	{
-		return new boolean[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new boolean[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_boolean(final boolean[] array, final Binary bytes)
@@ -1342,7 +1358,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final short[] createArray_short(final Binary bytes)
 	{
-		return new short[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new short[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_short(final short[] array, final Binary bytes)
@@ -1355,7 +1371,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final char[] createArray_char(final Binary bytes)
 	{
-		return new char[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new char[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_char(final char[] array, final Binary bytes)
@@ -1368,7 +1384,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final int[] createArray_int(final Binary bytes)
 	{
-		return new int[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new int[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_int(final int[] array, final Binary bytes)
@@ -1381,7 +1397,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final float[] createArray_float(final Binary bytes)
 	{
-		return new float[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new float[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_float(final float[] array, final Binary bytes)
@@ -1394,7 +1410,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long[] createArray_long(final Binary bytes)
 	{
-		return new long[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new long[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_long(final long[] array, final Binary bytes)
@@ -1404,7 +1420,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final double[] createArray_double(final Binary bytes)
 	{
-		return new double[X.checkArrayRange(getBinaryListElementCountNotValidating(bytes.entityContentAddress))];
+		return new double[X.checkArrayRange(getBinaryListElementCount(bytes.entityContentAddress))];
 	}
 
 	public static final void updateArray_double(final double[] array, final Binary bytes)
