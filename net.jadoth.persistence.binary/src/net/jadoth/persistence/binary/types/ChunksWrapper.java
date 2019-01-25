@@ -96,6 +96,18 @@ public final class ChunksWrapper extends Binary
 	}
 
 	@Override
+	public final boolean isEmpty()
+	{
+		return this.totalLength != 0;
+	}
+	
+	@Override
+	public final long totalLength()
+	{
+		return this.totalLength;
+	}
+
+	@Override
 	public final ByteBuffer[] buffers()
 	{
 		return this.buffers;
@@ -128,18 +140,6 @@ public final class ChunksWrapper extends Binary
 	public final void clear()
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public final boolean isEmpty()
-	{
-		return this.totalLength != 0;
-	}
-	
-	@Override
-	public final long totalLength()
-	{
-		return this.totalLength;
 	}
 
 }
