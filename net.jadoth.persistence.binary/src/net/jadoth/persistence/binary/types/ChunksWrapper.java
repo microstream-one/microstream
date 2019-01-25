@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
 
 import net.jadoth.memory.XMemory;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
@@ -129,13 +128,6 @@ public final class ChunksWrapper extends Binary
 	public final void clear()
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	protected final void internalIterateCurrentData(final Consumer<byte[]> iterator)
-	{
-		DEBUG_BinaryPersistence.iterateByteBuffers(this.buffers, iterator);
 	}
 
 	@Override

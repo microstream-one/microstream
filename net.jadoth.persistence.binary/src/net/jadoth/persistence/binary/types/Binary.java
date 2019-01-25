@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
 
 import net.jadoth.memory.XMemory;
 
@@ -261,13 +260,7 @@ public abstract class Binary implements Chunk
 
 	@Override
 	public abstract ByteBuffer[] buffers();
-
-
-
-
-	// only for debug purposes!
-	protected abstract void internalIterateCurrentData(Consumer<byte[]> iterator);
-				
+	
 }
 //CHECKSTYLE.ON: AbstractClassName
 

@@ -798,12 +798,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 
 			@Override
-			protected final void internalIterateCurrentData(final Consumer<byte[]> iterator)
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
 			public final long loadItemEntityContentAddress()
 			{
 				return this.address;

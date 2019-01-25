@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.types;
 import static net.jadoth.X.notNull;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.memory.XMemory;
@@ -286,31 +285,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	public final void setLoadItemEntityContentAddress(final long entityContentAddress)
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	protected final void internalIterateCurrentData(final Consumer<byte[]> iterator)
-	{
-		for(final ByteBuffer buffer : this.buffers)
-		{
-			if(buffer == null || buffer.position() == 0)
-			{
-				continue; // no data yet, only a reserved entry in the internal array
-			}
-
-			// defensive copy for debug purposes is very reasonable. Performance downside is irrelevant.
-			final byte[] bytes = new byte[buffer.limit()];
-			buffer.flip();
-			buffer.get(bytes);
-
-			// pass only a copy of the data, neither an actual bytebuffer nor the actual memory address
-			iterator.accept(bytes);
-		}
-
-		final long currentDataAddress = XMemory.getDirectByteBufferAddress(this.currentBuffer);
-		final byte[] bytes = new byte[X.checkArrayRange(this.currentAddress - currentDataAddress)];
-		XMemory.copyRangeToArray(currentDataAddress, bytes);
-		iterator.accept(bytes);
 	}
 
 	@Override
