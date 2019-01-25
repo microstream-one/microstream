@@ -67,6 +67,13 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public Chunk[] channelChunks()
+	{
+		// FIXME JET-49: ChunksBuffer#channelChunks()
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
 
 	private void setCurrent(final ByteBuffer byteBuffer)
 	{
@@ -233,57 +240,50 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 		this.currentBound   = 0L;
 		return this;
 	}
-
+	
 	@Override
-	public final long[] startOffsets()
+	public void iterateEntityData(final BinaryEntityDataReader reader)
 	{
 		if(this.currentBuffer != null)
 		{
-			throw new IllegalStateException("Cannot return offsets of incomplete chunks");
+			throw new IllegalStateException("Incomplete chunks");
 		}
-		return this.internalGetStartOffsets();
-	}
 
-	@Override
-	public final long[] boundOffsets()
-	{
-		if(this.currentBuffer != null)
-		{
-			throw new IllegalStateException("Cannot return offsets of incomplete chunks");
-		}
-		return this.internalGetBoundOffsets();
-	}
-
-	@Override
-	protected long[] internalGetBoundOffsets()
-	{
-		final ByteBuffer[] buffers      = this.buffers;
-		final int          buffersCount = this.currentBuffersIndex + 1;
-		final long[]       boundOffsets = new long[buffersCount];
-
+		final ByteBuffer[] buffers = this.buffers;
+		final int     buffersCount = this.currentBuffersIndex + 1;
+				
 		for(int i = 0; i < buffersCount; i++)
 		{
-			boundOffsets[i] = XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(); // already flipped
+			// buffer is already flipped
+			iterateBufferLoadItems(
+				XMemory.getDirectByteBufferAddress(buffers[i]),
+				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(),
+				reader
+			);
 		}
-		return boundOffsets;
 	}
-
-	@Override
-	protected final long[] internalGetStartOffsets()
+	
+	private static void iterateBufferLoadItems(
+		final long                   startAddress,
+		final long                   boundAddress,
+		final BinaryEntityDataReader reader
+	)
 	{
-		final ByteBuffer[] buffers      = this.buffers;
-		final int          buffersCount = this.currentBuffersIndex + 1;
-		final long[]       startOffsets = new long[buffersCount];
-
-		for(int i = 0; i < buffersCount; i++)
+		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
+		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
 		{
-			startOffsets[i] = XMemory.getDirectByteBufferAddress(buffers[i]);
+			reader.readBinaryEntityData(address);
 		}
-		return startOffsets;
 	}
 
 	@Override
-	public final long entityContentAddress()
+	public final long loadItemEntityContentAddress()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final void setLoadItemEntityContentAddress(final long entityContentAddress)
 	{
 		throw new UnsupportedOperationException();
 	}

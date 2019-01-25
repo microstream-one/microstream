@@ -26,10 +26,8 @@ public final class ChunksWrapper extends Binary
 	// instance fields  //
 	/////////////////////
 
-	private final ByteBuffer[] buffers     ;
-	private final long[]       startOffsets;
-	private final long[]       boundOffsets;
-	private final long         totalLength ;
+	private final ByteBuffer[] buffers    ;
+	private final long         totalLength;
 
 
 
@@ -41,8 +39,6 @@ public final class ChunksWrapper extends Binary
 	private ChunksWrapper(final ByteBuffer[] chunks)
 	{
 		super();
-		final long[] startOffsets = new long[chunks.length];
-		final long[] boundOffsets = new long[chunks.length];
 		
 		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
@@ -51,17 +47,12 @@ public final class ChunksWrapper extends Binary
 			{
 				throw new IllegalArgumentException();
 			}
-//			startOffsets[i] = BinaryPersistence.chunkDataAddress(chunks[i]);
-//			boundOffsets[i] = Memory.directByteBufferAddress(chunks[i]) + chunks[i].position();
-
-			boundOffsets[i] = (startOffsets[i] = XMemory.getDirectByteBufferAddress(chunks[i])) + chunks[i].position();
+			
 			totalLength += chunks[i].position();
 		}
 
-		this.buffers      = chunks      ;
-		this.startOffsets = startOffsets;
-		this.boundOffsets = boundOffsets;
-		this.totalLength  = totalLength ;
+		this.buffers     = chunks      ;
+		this.totalLength = totalLength ;
 	}
 
 
@@ -69,35 +60,46 @@ public final class ChunksWrapper extends Binary
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
+	
+	@Override
+	public void iterateEntityData(final BinaryEntityDataReader reader)
+	{
+		final ByteBuffer[] buffers = this.buffers;
+				
+		for(int i = 0; i < buffers.length; i++)
+		{
+			iterateBufferLoadItems(
+				XMemory.getDirectByteBufferAddress(buffers[i]),
+				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].position(),
+				reader
+			);
+		}
+	}
+	
+	private static void iterateBufferLoadItems(
+		final long                   startAddress,
+		final long                   boundAddress,
+		final BinaryEntityDataReader reader
+	)
+	{
+		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
+		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
+		{
+			reader.readBinaryEntityData(address);
+		}
+	}
+	
+	@Override
+	public Chunk[] channelChunks()
+	{
+		// FIXME JET-49: ChunksBuffer#channelChunks()
+		throw new net.jadoth.meta.NotImplementedYetError();
+	}
 
 	@Override
 	public final ByteBuffer[] buffers()
 	{
 		return this.buffers;
-	}
-
-	@Override
-	public final long[] startOffsets()
-	{
-		return this.startOffsets;
-	}
-
-	@Override
-	public final long[] boundOffsets()
-	{
-		return this.boundOffsets;
-	}
-
-	@Override
-	protected final long[] internalGetStartOffsets()
-	{
-		return this.startOffsets();
-	}
-
-	@Override
-	protected final long[] internalGetBoundOffsets()
-	{
-		return this.boundOffsets();
 	}
 
 	@Override
@@ -112,9 +114,14 @@ public final class ChunksWrapper extends Binary
 	}
 
 	@Override
-	public final long entityContentAddress()
+	public final long loadItemEntityContentAddress()
 	{
-		// optimization inheritance artifact: only single build item implementation has a build item address
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final void setLoadItemEntityContentAddress(final long entityContentAddress)
+	{
 		throw new UnsupportedOperationException();
 	}
 

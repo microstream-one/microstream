@@ -8,8 +8,8 @@ import java.nio.ByteBuffer;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
@@ -86,19 +86,19 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final int                 length        = translators.length     ;
 		final long[]              targetOffsets = this.targetOffsets()   ;
 				
-		long srcAddress = rawData.entityContentAddress;
+		long srcAddress = rawData.loadItemEntityContentAddress();
 		for(int i = 0; i < length; i++)
 		{
 			srcAddress = translators[i].setValueToMemory(srcAddress, null, targetContentAddress + targetOffsets[i], null);
 		}
 		
-		rawData.entityContentAddress = targetContentAddress;
+		rawData.setLoadItemEntityContentAddress(targetContentAddress);
 
 		// the current type handler can now create a new instance with correctly rearranged raw values
 		final T instance = this.typeHandler().create(rawData);
 
-		// registered to ensure deallocating raw memory at the end of the DBB's life. Neither sooner nor later.
-		rawData.setHelper(directByteBuffer);
+		// registered here to ensure deallocating raw memory at the end of the building process. Neither sooner nor later.
+		rawData.anchorHelper(directByteBuffer);
 		
 		return instance;
 	}

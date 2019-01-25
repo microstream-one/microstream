@@ -1,6 +1,5 @@
 package net.jadoth.persistence.binary.types;
 
-import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
@@ -8,7 +7,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.memory.XMemory;
 
 
-public final class BinaryChunkPrinter implements Consumer<Binary>
+public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityDataReader
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -68,43 +67,60 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 		super();
 		this.vc = vc;
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
 
-	private void printChunk(final long startAddress, final long bound)
+	@Override
+	public final void accept(final Binary e)
 	{
-		final long baseOffset = startAddress - 8;
-		for(long address = startAddress; address < bound;)
-		{
-			address += this.appendEntity(baseOffset, address);
-		}
+		this.appendBinary(e);
 	}
 
-	private long appendEntity(final long baseOffset, final long address)
+	public final VarString appendBinary(final Binary bytes)
 	{
-		final long totalLength = BinaryPersistence.getEntityLength(address);
-		final long typeId      = BinaryPersistence.getEntityTypeId(address);
-		final long objectId    = BinaryPersistence.getEntityObjectId(address);
-		final long dataLength  = BinaryPersistence.entityContentLength(totalLength);
-
-		final byte[] content = new byte[X.checkArrayRange(dataLength)];
-		XMemory.copyRangeToArray(BinaryPersistence.entityContentAddress(address), content);
-		printEntity(this.vc, address - baseOffset, totalLength, typeId, objectId, content).lf();
-		return totalLength;
-	}
-
-
-
-	private void printChunkHeader(final int chunkNumber, final long startOffset, final long chunkLength)
-	{
-		// length of the length in bytes (8)
-		final long ll = BinaryPersistence.lengthLength();
+		this.printHeader();
+		this.printEntities(bytes);
+		this.printFooter();
 		
-		this.vc.lf().add("Chunk #" + chunkNumber + " (length = 8 + " + chunkLength + ") @ " + (startOffset - ll)).lf()
+		return this.vc;
+	}
+
+	private void printHeader()
+	{
+		this.vc.lf()
 		.add("       Offset        |      Length         |      Type-Id        |      Object-Id      | Content" ).lf()
 		;
 		this.printSeperator();
 	}
+	
+	private void printEntities(final Binary bytes)
+	{
+		bytes.iterateEntityData(this);
+	}
+	
+	@Override
+	public final void readBinaryEntityData(final long entityAddress)
+	{
+		this.printEntity(entityAddress);
+	}
+	
+	private void printEntity(final long entityAddress)
+	{
+		final long totalLength = BinaryPersistence.getEntityLength(entityAddress);
+		final long typeId      = BinaryPersistence.getEntityTypeId(entityAddress);
+		final long objectId    = BinaryPersistence.getEntityObjectId(entityAddress);
+		final long dataLength  = BinaryPersistence.entityContentLength(totalLength);
 
-	private void printChunkFooter()
+		final byte[] content = new byte[X.checkArrayRange(dataLength)];
+		XMemory.copyRangeToArray(BinaryPersistence.entityContentAddress(entityAddress), content);
+		printEntity(this.vc, entityAddress, totalLength, typeId, objectId, content).lf();
+	}
+
+	private void printFooter()
 	{
 		this.printSeperator();
 	}
@@ -113,49 +129,5 @@ public final class BinaryChunkPrinter implements Consumer<Binary>
 	{
 		this.vc.add("-------------------------------------------------------------------------------------------").lf();
 	}
-
-	public final VarString appendByteBuffer(final ByteBuffer[] byteBuffer, final int number)
-	{
-		for(final ByteBuffer buffer : byteBuffer)
-		{
-			this.appendByteBuffer(buffer, number);
-		}
-		return this.vc;
-	}
-
-	private void appendByteBuffer(final ByteBuffer byteBuffer, final int number)
-	{
-		final long baseAddress = XMemory.getDirectByteBufferAddress(byteBuffer);
-//		this.appendChunk(number, BinaryPersistence.chunkDataAddress(baseAddress), baseAddress + byteBuffer.limit());
-		this.appendChunk(number, baseAddress, baseAddress + byteBuffer.limit());
-
-	}
-
-	public final VarString appendBinary(final Binary bytes)
-	{
-		// use sneaky debugging hook methods
-		final long[] startOffsets = bytes.internalGetStartOffsets();
-		final long[] boundOffsets = bytes.internalGetBoundOffsets();
-
-		for(int i = 0; i < startOffsets.length; i++)
-		{
-			this.appendChunk(i + 1, startOffsets[i], boundOffsets[i]);
-		}
-		return this.vc;
-	}
-
-	private void appendChunk(final int number, final long startOffset, final long boundOffset)
-	{
-		this.printChunkHeader(number, startOffset, boundOffset - startOffset);
-		this.printChunk(startOffset, boundOffset);
-		this.printChunkFooter();
-	}
-
-	@Override
-	public final void accept(final Binary e)
-	{
-		this.appendBinary(e);
-	}
-
 
 }

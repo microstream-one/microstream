@@ -247,7 +247,7 @@ public final class BinaryCollectionHandling
 		 * 
 		 */
 		return X.checkArrayRange(
-			XMemory.get_long(bytes.entityContentAddress() + sizedArrayOffset + SIZED_ARRAY_OFFSET_LENGTH)
+			XMemory.get_long(bytes.loadItemEntityContentAddress() + sizedArrayOffset + SIZED_ARRAY_OFFSET_LENGTH)
 		);
 	}
 	
