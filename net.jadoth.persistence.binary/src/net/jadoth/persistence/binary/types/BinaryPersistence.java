@@ -97,6 +97,9 @@ public final class BinaryPersistence extends Persistence
 //		OFFSET_DAT = OFFSET_OID + LENGTH_LONG // see LENGTH_ENTITY_HEADER
 	;
 
+	// special crazy sh*t negative OID offset
+	private static final long CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = OFFSET_OID - LENGTH_ENTITY_HEADER;
+
 	private static final int BITS_3 = 3;
 
 	private static final int
@@ -1456,7 +1459,14 @@ public final class BinaryPersistence extends Persistence
 
 	public static final long getBuildItemObjectId(final Binary bytes)
 	{
-		return XMemory.get_long(bytes.entityContentAddress - LENGTH_OID);
+		return XMemory.get_long(bytes.entityContentAddress + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
+	}
+	
+	// (25.01.2019 TM)FIXME: JET-49: should not be public and won't be after moving the logic to Binary
+	@Deprecated
+	public static final long contentAddressNegativeOffsetOid()
+	{
+		return CONTENT_ADDRESS_NEGATIVE_OFFSET_OID;
 	}
 
 	public static final long getEntityLength(final long entityAddress)

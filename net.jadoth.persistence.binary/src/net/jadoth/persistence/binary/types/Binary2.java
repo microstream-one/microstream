@@ -96,6 +96,11 @@ public abstract class Binary2
 	{
 		return this.helper;
 	}
+	
+	
+	/* (25.01.2019 TM)FIXME: JET-49: excplizit sets to a memory address should not be possible
+	 * better: a working address and offset-less setters with internal address advancing.
+	 */
 
 	public byte get_byte(final long offset)
 	{

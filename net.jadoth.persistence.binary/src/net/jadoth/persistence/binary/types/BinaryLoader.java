@@ -168,7 +168,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return entry.contextInstance != null
 				? entry.contextInstance
 				: (entry.contextInstance = this.registry.optionalRegisterObject(
-					entry.oid,
+					BinaryPersistence.getBuildItemObjectId(entry),
 					entry.localInstance
 				))
 			;
@@ -187,16 +187,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		// note: this method is guaranteed to be called only once per instance data
-		protected void createInstanceBuildItem(final long address) throws ClassCastException
+		protected void createInstanceBuildItem(final long entityAddress) throws ClassCastException
 		{
 			// get the build item for the instance with the type handler and maybe an existing global instance
-			final Item buildItem = this.createBuildItem(
-				BinaryPersistence.getEntityObjectId(address),
-				BinaryPersistence.getEntityTypeId(address)
-			);
-			
-			// content of item begins after instance header
-			buildItem.entityContentAddress = BinaryPersistence.entityContentAddress(address);
+			final Item buildItem = this.createBuildItem(entityAddress);
 
 //			XDebug.debugln("Item @ " + address + ":\n" +
 //				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
@@ -244,38 +238,56 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		private Item createBuildItem(
-			final long                                   oid        ,
-			final PersistenceTypeHandler<Binary, Object> typeHandler,
+			final long                                   entityContentAddress,
+			final PersistenceTypeHandler<Binary, Object> typeHandler         ,
 			final Object                                 instance
 		)
 		{
-			return new Item(oid, instance, typeHandler);
+			return new Item(entityContentAddress, instance, typeHandler);
 		}
 		
 		private Item createSkipBuildItem(final long oid, final Object instance)
 		{
-			// skip items do not require a type handler, only oid and optional instance
-			return new Item(oid, instance, null);
+			/*
+			 * A little hacky, but worth it:
+			 * Since Item does not hold an oid value explicitely, but instead reads it from the entity header in the
+			 * binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
+			 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
+			 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
+			 * of common case entities.
+			 */
+			
+			final ByteBuffer dbb = ByteBuffer.allocateDirect((int)-BinaryPersistence.contentAddressNegativeOffsetOid());
+			final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
+			XMemory.set_long(dbbAddress, oid); // oid gets set at offset 0.
+			
+			// skip items do not require a type handler, only oid (fakeContentAddress) and optional instance
+			return new Item(dbbAddress + dbb.capacity(), instance, null);
 		}
 		
-		private Item createBuildItem(final long objectId, final long typeId)
+		private Item createBuildItem(final long entityAddress)
 		{
 			// at one point or another, a nasty ?->Object cast is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
-				this.typeHandlerLookup.lookupTypeHandler(objectId, typeId)
+				this.typeHandlerLookup.lookupTypeHandler(
+					BinaryPersistence.getEntityObjectId(entityAddress),
+					BinaryPersistence.getEntityTypeId(entityAddress)
+				)
 			;
 			
 			if(typeHandler == null)
 			{
 				// at this point, a handler must definitely be present
-				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(typeId);
+				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
+					BinaryPersistence.getEntityTypeId(entityAddress)
+				);
 			}
 			
 			return this.createBuildItem(
-				objectId,
+				BinaryPersistence.entityContentAddress(entityAddress),
 				typeHandler,
-				this.registry.lookupObject(objectId)
+				this.registry.lookupObject(BinaryPersistence.getEntityObjectId(entityAddress))
 			);
 		}
 
@@ -389,7 +401,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// build items map //
 		////////////////////
 
-		private final Item   buildItemsHead      = new Item()                         ;
+		private final Item   buildItemsHead      = new Item(0, null, null)            ; // dummy
 		private       Item   buildItemsTail      = this.buildItemsHead                ;
 		private       int    buildItemsSize                                           ;
 		private       Item[] buildItemsHashSlots = new Item[DEFAULT_HASH_SLOTS_LENGTH];
@@ -417,8 +429,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				for(Item next; entry != null; entry = next)
 				{
 					next = entry.link;
-					entry.link = newSlots[(int)(entry.oid & newRange)];
-					newSlots[(int)(entry.oid & newRange)] = entry;
+					entry.link = newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange];
+					newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange] = entry;
 				}
 			}
 			this.buildItemsHashSlots = newSlots;
@@ -427,8 +439,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void putBuildItem(final Item entry)
 		{
-			entry.link = this.buildItemsHashSlots[(int)(entry.oid & this.buildItemsHashRange)];
-			this.buildItemsHashSlots[(int)(entry.oid & this.buildItemsHashRange)] =
+			entry.link = this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry)& this.buildItemsHashRange];
+			this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & this.buildItemsHashRange] =
 				this.buildItemsTail = this.buildItemsTail.next = entry
 			;
 			if(++this.buildItemsSize >= this.buildItemsHashRange)
@@ -454,7 +466,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.oid == oid)
+				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
 					return true;
 				}
@@ -488,7 +500,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.oid == oid)
+				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
 					return this.getEffectiveInstance(e);
 				}
@@ -500,7 +512,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		{
 			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.oid == oid)
+				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
 					return;
 				}
@@ -734,7 +746,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// instance fields  //
 			/////////////////////
 
-			final long oid;
 			PersistenceTypeHandler<Binary, Object> handler;
 			Object contextInstance, localInstance;
 			Item next, link;
@@ -745,22 +756,16 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// constructors     //
 			/////////////////////
 
-			Item()
-			{
-				super();
-				this.oid = 0L;
-			}
-
 			Item(
-				final long                                   oid            ,
-				final Object                                 contextInstance,
+				final long                                   entityContentAddress,
+				final Object                                 contextInstance     ,
 				final PersistenceTypeHandler<Binary, Object> handler
 			)
 			{
 				super();
-				this.oid             = oid            ;
-				this.handler         = handler        ;
-				this.contextInstance = contextInstance;
+				this.entityContentAddress = entityContentAddress;
+				this.handler              = handler             ;
+				this.contextInstance      = contextInstance     ;
 			}
 
 
@@ -768,7 +773,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-
+						
 			@Override
 			public final long storeEntityHeader(
 				final long entityContentLength,
