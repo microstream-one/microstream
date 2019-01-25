@@ -5,6 +5,7 @@ import static net.jadoth.chars.VarString.New;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeLink;
@@ -56,17 +57,17 @@ public final class DEBUG_BinaryPersistence
 	public static final String binaryToString(final Binary bytes)
 	{
 		final VarString vs = VarString.New(4096);
-		bytes.internalIterateCurrentData(new Consumer<byte[]>()
+		
+		bytes.iterateEntityData(entityAddress ->
 		{
-			@Override
-			public void accept(final byte[] e)
-			{
-				final String s = format8ByteWise(0,
-					New().addHexDec(e).toString()
-				);
-				vs.add(s);
-			}
+			final byte[] array = new byte[X.checkArrayRange(XMemory.get_long(entityAddress))];
+			XMemory.copyRangeToArray(entityAddress, array);
+			final String s = format8ByteWise(0,
+				VarString.New().addHexDec(array).toString()
+			);
+			vs.add(s).lf();
 		});
+		
 		return vs.toString();
 	}
 
