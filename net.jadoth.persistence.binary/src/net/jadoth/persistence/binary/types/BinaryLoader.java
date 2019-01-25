@@ -53,7 +53,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		);
 	}
 
-	public final class Implementation implements BinaryLoader
+	public final class Implementation implements BinaryLoader, BinaryEntityDataReader
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -108,17 +108,33 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		final void createInstanceBuildItems(final Binary bytes)
+		
+		@Override
+		public void readBinaryEntityData(final long entityAddress)
 		{
-			final long[] startOffsets = bytes.startOffsets();
-			final long[] boundOffsets = bytes.boundOffsets();
+			// get the build item for the instance with the type handler and maybe an existing global instance
+			final Item buildItem = this.createBuildItem(entityAddress);
 
-			// iterate all chunks to collect instance data (and effectively existing/created instances)
-			for(int i = 0; i < startOffsets.length; i++)
+//			XDebug.debugln("Item @ " + address + ":\n" +
+//				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
+//				"TID=" + BinaryPersistence.getEntityTypeId(address) + "\n" +
+//				"OID=" + BinaryPersistence.getEntityObjectId(address) + "\n" +
+//				"contentAddress=" + buildItem.entityContentAddress
+//			);
+
+			/* (08.07.2015 TM)TODO: unnecessary local instance
+			 * there was a case where an unnecessary local instance was created because the context instance could not
+			 * have been found before. The instance was an enum constants array, so it should have been findable already.
+			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
+			 * special case (constant registration or whatever)
+			 */
+			if(buildItem.contextInstance == null)
 			{
-				this.createInstanceBuildItems(startOffsets[i], boundOffsets[i]);
+				buildItem.localInstance = buildItem.handler.create(buildItem);
 			}
+
+			// register build item
+			this.putBuildItem(buildItem);
 		}
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
@@ -135,14 +151,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 		}
 		// CHECKSTYLE.ON: FinalParameters
-
-		private void createInstanceBuildItems(final long startAddress, final long boundAddress)
-		{
-			for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
-			{
-				this.createInstanceBuildItem(address);
-			}
-		}
 
 		private Object getEffectiveInstance(final Item entry)
 		{
@@ -186,34 +194,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return handler;
 		}
 
-		// note: this method is guaranteed to be called only once per instance data
-		protected void createInstanceBuildItem(final long entityAddress) throws ClassCastException
-		{
-			// get the build item for the instance with the type handler and maybe an existing global instance
-			final Item buildItem = this.createBuildItem(entityAddress);
-
-//			XDebug.debugln("Item @ " + address + ":\n" +
-//				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
-//				"TID=" + BinaryPersistence.getEntityTypeId(address) + "\n" +
-//				"OID=" + BinaryPersistence.getEntityObjectId(address) + "\n" +
-//				"contentAddress=" + buildItem.entityContentAddress
-//			);
-
-			/* (08.07.2015 TM)TODO: unnecessary local instance
-			 * there was a case where an unnecessary local instance was created because the context instance could not
-			 * have been found before. The instance was an enum constants array, so it should have been findable already.
-			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
-			 * special case (constant registration or whatever)
-			 */
-			if(buildItem.contextInstance == null)
-			{
-				buildItem.localInstance = buildItem.handler.create(buildItem);
-			}
-
-			// register build item
-			this.putBuildItem(buildItem);
-		}
-
 		protected void handleReferences(final Item entry)
 		{
 			/*
@@ -236,15 +216,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// oid is required to have data loaded even if instance is already in global registry
 			this.requireReference(refOid);
 		}
-
-		private Item createBuildItem(
-			final long                                   entityContentAddress,
-			final PersistenceTypeHandler<Binary, Object> typeHandler         ,
-			final Object                                 instance
-		)
-		{
-			return new Item(entityContentAddress, instance, typeHandler);
-		}
 		
 		private Item createSkipBuildItem(final long oid, final Object instance)
 		{
@@ -262,12 +233,18 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			XMemory.set_long(dbbAddress, oid); // oid gets set at offset 0.
 			
 			// skip items do not require a type handler, only oid (fakeContentAddress) and optional instance
-			return new Item(dbbAddress + dbb.capacity(), instance, null);
+			final Item skipItem = new Item(dbbAddress + dbb.capacity(), instance, null);
+			
+			// skip items will never use the helper instance for anything, since they are skip dummies.
+			skipItem.setHelper(dbb);
+			
+			return skipItem;
 		}
+		
 		
 		private Item createBuildItem(final long entityAddress)
 		{
-			// at one point or another, a nasty ?->Object cast is necessary. Safety guaranteed by logic.
+			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
 				this.typeHandlerLookup.lookupTypeHandler(
@@ -276,18 +253,18 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				)
 			;
 			
+			// proper build items must have a typeHandler
 			if(typeHandler == null)
 			{
-				// at this point, a handler must definitely be present
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
 					BinaryPersistence.getEntityTypeId(entityAddress)
 				);
 			}
 			
-			return this.createBuildItem(
+			return new Item(
 				BinaryPersistence.entityContentAddress(entityAddress),
-				typeHandler,
-				this.registry.lookupObject(BinaryPersistence.getEntityObjectId(entityAddress))
+				this.registry.lookupObject(BinaryPersistence.getEntityObjectId(entityAddress)),
+				typeHandler
 			);
 		}
 
@@ -636,7 +613,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			this.anchor.add(chunks);
 			for(final Binary chunk : this.anchor.last())
 			{
-				this.createInstanceBuildItems(chunk);
+				// iterate over all entity data parts in the chunk, creating build items for each one.
+				chunk.iterateEntityData(this);
 			}
 
 			/*
@@ -763,9 +741,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			)
 			{
 				super();
-				this.entityContentAddress = entityContentAddress;
-				this.handler              = handler             ;
-				this.contextInstance      = contextInstance     ;
+				this.address         = entityContentAddress;
+				this.handler         = handler             ;
+				this.contextInstance = contextInstance     ;
 			}
 
 
@@ -773,6 +751,35 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
+			
+			@Override
+			public final Chunk[] channelChunks()
+			{
+				throw new UnsupportedOperationException();
+			}
+			
+			@Override
+			public void iterateEntityData(final BinaryEntityDataReader reader)
+			{
+				// technically, a LoadItem could iterate its single data set, but designwise, it's not its task.
+				throw new UnsupportedOperationException();
+			}
+			
+			/**
+			 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
+			 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.
+			 *
+			 * @return whether this instances carries (actually "knows") binary build data or not.
+			 */
+			public final boolean hasData()
+			{
+				/*
+				 * since all proper build items are validated to have a non-null handler,
+				 * a null handler can be safely used to indicate skip items, i.e. no data.
+				 * 
+				 */
+				return this.handler != null;
+			}
 						
 			@Override
 			public final long storeEntityHeader(
@@ -797,43 +804,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 
 			@Override
-			protected final long[] internalGetStartOffsets()
+			public final long loadItemEntityContentAddress()
 			{
-				// (26.10.2013)NOTE: this is moreless only for debugging and should not be necessary for productive use
-				if(this.entityContentAddress == 0)
-				{
-					throw new IllegalStateException();
-				}
-				return new long[]{this.entityContentAddress};
+				return this.address;
 			}
-
+			
 			@Override
-			protected final long[] internalGetBoundOffsets()
+			public final void setLoadItemEntityContentAddress(final long entityContentAddress)
 			{
-				// (26.10.2013)NOTE: this is moreless only for debugging and should not be necessary for productive use
-				if(this.entityContentAddress == 0)
-				{
-					throw new IllegalStateException();
-				}
-				return new long[]{this.entityContentAddress + XMemory.get_long(this.entityContentAddress)};
-			}
-
-			@Override
-			public final long[] startOffsets()
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public final long[] boundOffsets()
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public final long entityContentAddress()
-			{
-				return this.entityContentAddress;
+				this.address = entityContentAddress;
 			}
 
 			@Override

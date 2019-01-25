@@ -97,7 +97,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	@Override
 	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
 	{
-		final int elementCount = getElementCount(rawData);
+		final int      elementCount   = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
 		
 		BinaryPersistence.collectElementsIntoArray(rawData, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
@@ -121,7 +121,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
+	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
 		final Object helper = rawData.getHelper();
 		

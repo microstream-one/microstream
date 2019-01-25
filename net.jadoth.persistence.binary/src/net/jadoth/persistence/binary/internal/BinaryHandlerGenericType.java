@@ -64,7 +64,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	@Override
 	public final T create(final Binary bytes)
 	{
-		return this.instantiator.newInstance(bytes.entityContentAddress());
+		return this.instantiator.newInstance(bytes.loadItemEntityContentAddress());
 	}
 
 }
