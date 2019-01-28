@@ -753,7 +753,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			////////////
 			
 			@Override
-			public final Chunk[] channelChunks()
+			public final Binary channelChunk(final int channelIndex)
+			{
+				throw new UnsupportedOperationException();
+			}
+			
+			@Override
+			public final int channelCount()
 			{
 				throw new UnsupportedOperationException();
 			}
@@ -761,7 +767,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			@Override
 			public void iterateEntityData(final BinaryEntityDataReader reader)
 			{
-				// technically, a LoadItem could iterate its single data set, but designwise, it's not its task.
+				// technically, the single data set could be iterated, but designwise, it's not the task, here.
 				throw new UnsupportedOperationException();
 			}
 			

@@ -41,7 +41,9 @@ public abstract class Binary implements Chunk
 	
 	// (25.01.2019 TM)NOTE: new with JET-49
 	
-	public abstract Chunk[] channelChunks();
+	public abstract Binary channelChunk(int channelIndex);
+	
+	public abstract int channelCount();
 	
 	public abstract void iterateEntityData(BinaryEntityDataReader reader);
 	

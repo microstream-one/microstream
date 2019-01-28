@@ -43,7 +43,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		protected abstract XGettingCollection<? extends M> internalRead(C connection)
 			 throws PersistenceExceptionTransfer;
 		
-		protected abstract void internalWrite(C channel, M[] data)
+		protected abstract void internalWrite(C channel, M data)
 			 throws PersistenceExceptionTransfer;
 
 		@Override
@@ -53,7 +53,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		}
 
 		@Override
-		public void write(final M[] data) throws PersistenceExceptionTransfer
+		public void write(final M data) throws PersistenceExceptionTransfer
 		{
 			this.internalWrite(this.connection, data);
 		}

@@ -81,7 +81,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		// channel hashing fields
 		private final BufferSizeProviderIncremental bufferSizeProvider;
 		private final int                           chunksHashRange   ;
-		private final ChunksBuffer[]                chunks            ;
+		
+		// cannot be final since every commit needs to pass an independant instance, anyway
+		private ChunksBuffer[] chunks;
 
 		/*
 		 * item hashing structures get initialized lazily for the following reasons:
@@ -118,9 +120,6 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.typeManager        = notNull(typeManager)           ;
 			this.target             = notNull(target)                ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
-			
-			// (28.01.2019 TM)FIXME: JET-49: Two different "chunks" arrays.
-			this.chunks             = new ChunksBuffer[chunkHashSize];
 			this.chunksHashRange    = chunkHashSize - 1              ;
 		}
 
@@ -135,25 +134,18 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return this.chunks[(int)(oid & this.chunksHashRange)];
 		}
 
-		protected Binary[] complete()
+		protected Binary complete()
 		{
 			// (21.03.2016 TM)NOTE: added to avoid NPEs
-			this.initialize();
+			this.ensureInitialized();
 
 			for(final ChunksBuffer chunk : this.chunks)
 			{
 				chunk.complete();
 			}
 
-			/*
-			 * Must return a local copy of the array as the task may not use this instance's interal array.
-			 * For example:
-			 * - storer clears the array after completing, while task needs an uncleared array to clear
-			 *   the chunks themselves
-			 * - task implementation might mutate the array, potentially ruining the storer's state
-			 * The chunks array is usually tiny (the length is equal to the channel count)
-			 */
-			return this.chunks.clone();
+			// all chunks know the array internally, so passing one means passing all. And there is always at least one.
+			return this.chunks[0];
 		}
 
 		@Override
@@ -257,7 +249,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.hashSlots = new Item[hashLength];
 			this.hashRange = hashLength - 1;
 			
-			final ChunksBuffer[] chunks = this.chunks;
+			final ChunksBuffer[] chunks = this.chunks = new ChunksBuffer[this.chunksHashRange + 1];
 			for(int i = 0; i < chunks.length; i++)
 			{
 				chunks[i] = ChunksBuffer.New(chunks, this.bufferSizeProvider);
@@ -362,18 +354,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		protected void clearChunks()
 		{
-			final ChunksBuffer[] chunks = this.chunks;
-			for(int i = 0; i < chunks.length; i++)
-			{
-				/* Note:
-				 * may explicitly NOT clear (deallocate) the current chunks
-				 * because in use with embedded (in-process) storage the chunks
-				 * might still be used by the storage worker threads to update their entity caches.
-				 * The released chunks must be handled by those threads if existing
-				 * or ultimately by the garbage collector (or by some tailored additional logic)
-				 */
-				chunks[i] = null;
-			}
+			/* Note:
+			 * may explicitly NOT clear (deallocate) the current chunks
+			 * because in use with embedded (in-process) storage the chunks
+			 * might still be used by the storage worker threads to update their entity caches.
+			 * The released chunks must be handled by those threads if existing
+			 * or ultimately by the garbage collector (or by some tailored additional logic)
+			 */
+			this.chunks = null;
 		}
 
 		@Override

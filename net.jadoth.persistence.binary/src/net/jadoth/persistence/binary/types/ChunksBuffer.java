@@ -77,9 +77,15 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	////////////
 	
 	@Override
-	public final Chunk[] channelChunks()
+	public final Binary channelChunk(final int channelIndex)
 	{
-		return this.channelBuffers;
+		return this.channelBuffers[channelIndex];
+	}
+	
+	@Override
+	public final int channelCount()
+	{
+		return this.channelBuffers.length;
 	}
 
 	private void setCurrent(final ByteBuffer byteBuffer)

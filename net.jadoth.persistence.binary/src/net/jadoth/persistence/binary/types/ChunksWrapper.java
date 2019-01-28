@@ -89,10 +89,15 @@ public final class ChunksWrapper extends Binary
 	}
 	
 	@Override
-	public Chunk[] channelChunks()
+	public final Binary channelChunk(final int channelIndex)
 	{
-		// FIXME JET-49: ChunksBuffer#channelChunks()
-		throw new net.jadoth.meta.NotImplementedYetError();
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final int channelCount()
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

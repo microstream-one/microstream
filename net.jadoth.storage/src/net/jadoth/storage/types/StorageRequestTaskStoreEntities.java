@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.meta.XDebug;
-import net.jadoth.persistence.binary.types.Chunk;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.util.UtilStackTrace;
 
@@ -31,7 +31,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// instance fields  //
 		/////////////////////
 
-		private final Chunk[] data;
+		private final Binary data;
 
 
 
@@ -39,10 +39,10 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// constructors     //
 		/////////////////////
 
-		Implementation(final long timestamp, final Chunk[] data)
+		Implementation(final long timestamp, final Binary data)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, data.length);
+			super(timestamp, data.channelCount());
 			this.data = data;
 		}
 
@@ -56,7 +56,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		protected final KeyValue<ByteBuffer[], long[]> internalProcessBy(final StorageChannel channel)
 		{
 //			this.DEBUG_Print(channel);
-			return channel.storeEntities(this.timestamp(), this.data[channel.channelIndex()]);
+			return channel.storeEntities(this.timestamp(), this.data.channelChunk(channel.channelIndex()));
 		}
 		
 		public final void DEBUG_Print(final StorageChannel channel)
@@ -132,9 +132,6 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		@Override
 		protected final void cleanUp(final StorageChannel channel)
 		{
-			// at this point the chunks are definitely not used anymore by anyone
-			this.data[channel.channelIndex()].clear();
-
 			// signal channel to cleanup the current store, e.g. remove pending store updates to re-enable GC sweeping
 			channel.cleanupStore();
 		}
