@@ -885,8 +885,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// instance fields //
 		////////////////////
 		
-		private final RawValueHandler rawValueHandler ;
-		private final _intReference   hashSizeProvider;
+		private final RawValueHandler rawValueHandler     ;
+		private final _intReference   channelCountProvider;
 
 
 
@@ -895,13 +895,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////
 
 		public CreatorChannelHashing(
-			final RawValueHandler rawValueHandler ,
-			final _intReference   hashSizeProvider
+			final RawValueHandler rawValueHandler     ,
+			final _intReference   channelCountProvider
 		)
 		{
 			super();
-			this.rawValueHandler  = rawValueHandler ;
-			this.hashSizeProvider = hashSizeProvider;
+			this.rawValueHandler      = rawValueHandler ;
+			this.channelCountProvider = channelCountProvider;
 		}
 
 
@@ -922,7 +922,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				typeLookup,
 				registry,
 				source,
-				new LoadItemsChain.ChannelHashing(this.hashSizeProvider.get())
+				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get())
 			);
 		}
 

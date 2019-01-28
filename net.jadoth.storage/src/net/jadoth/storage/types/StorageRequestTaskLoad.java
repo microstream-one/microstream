@@ -1,22 +1,22 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.storage.exceptions.StorageExceptionRequest;
 
 public interface StorageRequestTaskLoad extends StorageRequestTask
 {
-	public Binary[] result() throws StorageExceptionRequest;
+	public ChunksBuffer result() throws StorageExceptionRequest;
 
 
 
-	public abstract class AbstractImplementation extends StorageChannelTask.AbstractImplementation<Binary>
+	public abstract class AbstractImplementation extends StorageChannelTask.AbstractImplementation<ChunksBuffer>
 	implements StorageRequestTaskLoad
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		private final Binary[] result;
+		private final ChunksBuffer[] result;
 		
 
 
@@ -24,10 +24,10 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final long timestamp, final int hashRange)
+		protected AbstractImplementation(final long timestamp, final int channelCount)
 		{
-			super(timestamp, hashRange);
-			this.result = new Binary[hashRange];
+			super(timestamp, channelCount);
+			this.result = new ChunksBuffer[channelCount];
 		}
 
 		
@@ -36,21 +36,28 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 		// methods //
 		////////////
 		
+		protected final ChunksBuffer[] resultArray()
+		{
+			return this.result;
+		}
+		
 		@Override
-		protected void complete(final StorageChannel channel, final Binary result) throws InterruptedException
+		protected void complete(final StorageChannel channel, final ChunksBuffer result) throws InterruptedException
 		{
 			this.result[channel.channelIndex()] = result;
 			this.incrementCompletionProgress();
 		}
 		
 		@Override
-		public final Binary[] result() throws StorageExceptionRequest
+		public final ChunksBuffer result() throws StorageExceptionRequest
 		{
 			if(this.hasProblems())
 			{
 				throw new StorageExceptionRequest(this.problems());
 			}
-			return this.result;
+			
+			// all channel result instances share the result array and there is always at least one channel
+			return this.result[0];
 		}
 
 	}

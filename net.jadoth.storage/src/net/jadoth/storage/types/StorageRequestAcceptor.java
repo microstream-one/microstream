@@ -20,7 +20,7 @@ public interface StorageRequestAcceptor
 
 	// querying //
 
-	public Binary[] queryByObjectIds(PersistenceIdSet[] loadOids) throws StorageExceptionRequest, InterruptedException;
+	public Binary queryByObjectIds(PersistenceIdSet[] loadOids) throws StorageExceptionRequest, InterruptedException;
 
 	/*
 	 * required for refactoring: all instances of a certain type have to be queried, modified and stored again.
@@ -30,7 +30,7 @@ public interface StorageRequestAcceptor
 	 * Loading all instances of an entity type can quickly result in the whole database being loaded.
 	 * That responsibility must reside with the user.
 	 */
-	public Binary[] queryByTypeIds(PersistenceIdSet loadTids) throws StorageExceptionRequest, InterruptedException;
+	public Binary queryByTypeIds(PersistenceIdSet loadTids) throws StorageExceptionRequest, InterruptedException;
 
 	/* (23.06.2015 TM)TODO: queryTypeStatistics
 	 * how many entities per length in each type.
@@ -49,7 +49,7 @@ public interface StorageRequestAcceptor
 	 * - manual truncation of large data for e.g. clear a test database of large binaries / prim arrays / strings
 	 */
 
-	public Binary[] recallRoots() throws StorageExceptionRequest, InterruptedException;
+	public Binary recallRoots() throws StorageExceptionRequest, InterruptedException;
 
 	public boolean issueGarbageCollection(long nanoTimeBudgetBound) throws InterruptedException;
 
@@ -163,7 +163,7 @@ public interface StorageRequestAcceptor
 		}
 
 		@Override
-		public final Binary[] queryByObjectIds(final PersistenceIdSet[] loadOids) throws InterruptedException
+		public final Binary queryByObjectIds(final PersistenceIdSet[] loadOids) throws InterruptedException
 		{
 			// note: enabled accepting tasks has to be checked prior to calling this method (external concern)
 
@@ -175,13 +175,13 @@ public interface StorageRequestAcceptor
 		}
 
 		@Override
-		public Binary[] queryByTypeIds(final PersistenceIdSet loadTids) throws StorageExceptionRequest, InterruptedException
+		public Binary queryByTypeIds(final PersistenceIdSet loadTids) throws StorageExceptionRequest, InterruptedException
 		{
 			return waitOnTask(this.taskBroker.enqueueLoadTaskByTids(loadTids)).result();
 		}
 
 		@Override
-		public Binary[] recallRoots() throws StorageExceptionRequest, InterruptedException
+		public Binary recallRoots() throws StorageExceptionRequest, InterruptedException
 		{
 			return waitOnTask(this.taskBroker.enqueueRootsLoadTask()).result();
 		}

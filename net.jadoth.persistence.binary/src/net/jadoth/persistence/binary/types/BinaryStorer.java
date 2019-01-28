@@ -118,6 +118,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.typeManager        = notNull(typeManager)           ;
 			this.target             = notNull(target)                ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
+			
+			// (28.01.2019 TM)FIXME: JET-49: Two different "chunks" arrays.
 			this.chunks             = new ChunksBuffer[chunkHashSize];
 			this.chunksHashRange    = chunkHashSize - 1              ;
 		}
@@ -258,7 +260,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final ChunksBuffer[] chunks = this.chunks;
 			for(int i = 0; i < chunks.length; i++)
 			{
-				chunks[i] = ChunksBuffer.New(this.bufferSizeProvider);
+				chunks[i] = ChunksBuffer.New(chunks, this.bufferSizeProvider);
 			}
 		}
 

@@ -25,10 +25,14 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	/////////////////////
 
 	public static final ChunksBuffer New(
+		final ChunksBuffer[]                channelBuffers    ,
 		final BufferSizeProviderIncremental bufferSizeProvider
 	)
 	{
-		return new ChunksBuffer(bufferSizeProvider);
+		return new ChunksBuffer(
+			notNull(channelBuffers),
+			notNull(bufferSizeProvider)
+		);
 	}
 
 
@@ -37,8 +41,9 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	// instance fields  //
 	/////////////////////
 
+	private final ChunksBuffer[]                channelBuffers    ;
 	private final BufferSizeProviderIncremental bufferSizeProvider;
-
+	
 	private ByteBuffer[] buffers            ;
 	private int          currentBuffersIndex;
 	private ByteBuffer   currentBuffer      ;
@@ -52,10 +57,14 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	// constructors     //
 	/////////////////////
 
-	ChunksBuffer(final BufferSizeProviderIncremental bufferSizeProvider)
+	ChunksBuffer(
+		final ChunksBuffer[]                channelBuffers    ,
+		final BufferSizeProviderIncremental bufferSizeProvider
+	)
 	{
 		super();
-		this.bufferSizeProvider = notNull(bufferSizeProvider);
+		this.channelBuffers     = channelBuffers;
+		this.bufferSizeProvider = bufferSizeProvider;
 		this.setCurrent((this.buffers = new ByteBuffer[DEFAULT_BUFFERS_CAPACITY])[this.currentBuffersIndex = 0] =
 			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.provideBufferSize())))
 		;
@@ -68,10 +77,9 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	////////////
 	
 	@Override
-	public Chunk[] channelChunks()
+	public final Chunk[] channelChunks()
 	{
-		// FIXME JET-49: ChunksBuffer#channelChunks()
-		throw new net.jadoth.meta.NotImplementedYetError();
+		return this.channelBuffers;
 	}
 
 	private void setCurrent(final ByteBuffer byteBuffer)
@@ -240,8 +248,8 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 		return this;
 	}
 	
-	@Override
-	public void iterateEntityData(final BinaryEntityDataReader reader)
+	
+	private void iterateEntityDataLocal(final BinaryEntityDataReader reader)
 	{
 		if(this.currentBuffer != null)
 		{
@@ -259,6 +267,15 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(),
 				reader
 			);
+		}
+	}
+	
+	@Override
+	public void iterateEntityData(final BinaryEntityDataReader reader)
+	{
+		for(final ChunksBuffer channelBuffer : this.channelBuffers)
+		{
+			channelBuffer.iterateEntityDataLocal(reader);
 		}
 	}
 	

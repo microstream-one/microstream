@@ -12,7 +12,6 @@ import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.PersistenceIdSet;
@@ -27,11 +26,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 {
 	public StorageTypeDictionary typeDictionary();
 
-	public Binary collectLoadByOids(PersistenceIdSet loadOids);
+	public ChunksBuffer collectLoadByOids(ChunksBuffer[] channelChunks, PersistenceIdSet loadOids);
 
-	public Binary collectLoadRoots();
+	public ChunksBuffer collectLoadRoots(ChunksBuffer[] channelChunks);
 
-	public Binary collectLoadByTids(PersistenceIdSet loadTids);
+	public ChunksBuffer collectLoadByTids(ChunksBuffer[] channelChunks, PersistenceIdSet loadTids);
 
 	public KeyValue<ByteBuffer[], long[]> storeEntities(long timestamp, Chunk chunkData);
 
@@ -382,41 +381,42 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			return this.entityCache.typeDictionary();
 		}
 		
-		private ChunksBuffer createLoadingChunksBuffer()
+		private ChunksBuffer createLoadingChunksBuffer(final ChunksBuffer[] channelChunks)
 		{
-			return ChunksBuffer.New(this.loadingBufferSizeProvider);
+			return ChunksBuffer.New(channelChunks, this.loadingBufferSizeProvider);
 		}
 
 		@Override
-		public final Binary collectLoadByOids(final PersistenceIdSet loadOids)
+		public final ChunksBuffer collectLoadByOids(final ChunksBuffer[] resultArray, final PersistenceIdSet loadOids)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading " + loadOids.size() + " references");
 
 			/* it is probably best to start (any maybe continue) with lots of small, memory-agile
 			 * byte buffers than to estimate one sufficiently huge bulky byte buffer.
 			 */
-			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer(resultArray);
 			if(!loadOids.isEmpty())
 			{
 				// progress must have been incremented accordingly at task creation time
 				loadOids.iterate(new EntityCollectorByOid(this.entityCache, chunks));
 			}
+			
 			return chunks.complete();
 		}
 
 		@Override
-		public final Binary collectLoadRoots()
+		public final ChunksBuffer collectLoadRoots(final ChunksBuffer[] resultArray)
 		{
 			// pretty straight forward: cram all root instances the entity cache knows of into the buffer
-			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer(resultArray);
 			this.entityCache.copyRoots(chunks);
 			return chunks.complete();
 		}
 
 		@Override
-		public final Binary collectLoadByTids(final PersistenceIdSet loadTids)
+		public final ChunksBuffer collectLoadByTids(final ChunksBuffer[] resultArray, final PersistenceIdSet loadTids)
 		{
-			final ChunksBuffer chunks = this.createLoadingChunksBuffer();
+			final ChunksBuffer chunks = this.createLoadingChunksBuffer(resultArray);
 			if(!loadTids.isEmpty())
 			{
 				// progress must have been incremented accordingly at task creation time
