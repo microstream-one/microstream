@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.persistence.binary.types.Chunk;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.util.UtilStackTrace;
 
@@ -23,7 +23,7 @@ public interface StorageTaskBroker
 	public StorageRequestTaskLoadByOids enqueueLoadTaskByOids(PersistenceIdSet[] loadOids)
 		throws InterruptedException;
 	
-	public StorageRequestTaskStoreEntities enqueueStoreTask(Chunk[] medium)
+	public StorageRequestTaskStoreEntities enqueueStoreTask(Binary data)
 		throws InterruptedException;
 
 	public default StorageRequestTaskExportEntitiesByType enqueueExportTypesTask(
@@ -332,9 +332,9 @@ public interface StorageTaskBroker
 		 * 
 		 * @param channelArray
 		 */
-		private void validateChannelCount(final Object[] channelArray)
+		private void validateChannelCount(final int channelCount)
 		{
-			if(channelArray.length == this.channelCount)
+			if(channelCount == this.channelCount)
 			{
 				return;
 			}
@@ -344,13 +344,13 @@ public interface StorageTaskBroker
 		}
 
 		@Override
-		public final synchronized StorageRequestTaskStoreEntities enqueueStoreTask(final Chunk[] medium)
+		public final synchronized StorageRequestTaskStoreEntities enqueueStoreTask(final Binary data)
 			throws InterruptedException
 		{
-			this.validateChannelCount(medium);
+			this.validateChannelCount(data.channelCount());
 			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(medium);
+			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(data);
 			
 //			((StorageRequestTaskSaveEntities.Implementation)task).DEBUG_Print(null);
 			
@@ -364,7 +364,7 @@ public interface StorageTaskBroker
 		)
 			throws InterruptedException
 		{
-			this.validateChannelCount(loadOids);
+			this.validateChannelCount(loadOids.length);
 			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
 			final StorageRequestTaskLoadByOids task = this.taskCreator.createLoadTaskByOids(loadOids);

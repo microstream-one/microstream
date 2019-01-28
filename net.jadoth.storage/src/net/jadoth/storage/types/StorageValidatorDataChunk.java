@@ -1,10 +1,10 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.persistence.binary.types.Chunk;
+import net.jadoth.persistence.binary.types.Binary;
 
 public interface StorageValidatorDataChunk
 {
-	public void validateDataChunk(Chunk[] chunks);
+	public void validateDataChunk(Binary data);
 
 
 
@@ -24,7 +24,7 @@ public interface StorageValidatorDataChunk
 		}
 
 		@Override
-		public final void validateDataChunk(final Chunk[] byteBuffer)
+		public final void validateDataChunk(final Binary data)
 		{
 			// no-op
 		}

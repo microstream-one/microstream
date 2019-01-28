@@ -7,7 +7,7 @@ import net.jadoth.persistence.types.PersistenceTarget;
 public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 {
 	@Override
-	public void write(Binary[] data) throws PersistenceExceptionTransfer;
+	public void write(Binary data) throws PersistenceExceptionTransfer;
 
 
 
@@ -38,7 +38,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 		////////////
 
 		@Override
-		public final void write(final Binary[] data) throws PersistenceExceptionTransfer
+		public final void write(final Binary data) throws PersistenceExceptionTransfer
 		{
 			try
 			{

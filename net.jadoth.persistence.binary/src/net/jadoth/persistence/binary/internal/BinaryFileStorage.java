@@ -39,7 +39,7 @@ public final class BinaryFileStorage implements PersistenceChannel<Binary>
 	/////////////////////
 
 	@Override
-	public final void write(final Binary[] data) throws PersistenceExceptionTransfer
+	public final void write(final Binary data) throws PersistenceExceptionTransfer
 	{
 		this.target.write(data);
 	}

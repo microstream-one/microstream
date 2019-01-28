@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.storage.exceptions.StorageExceptionRequest;
 
@@ -16,7 +15,7 @@ public interface StorageRequestAcceptor
 {
 	// storing //
 
-	public void storeData(Chunk[] dataMedium) throws StorageExceptionRequest, InterruptedException;
+	public void storeData(Binary data) throws StorageExceptionRequest, InterruptedException;
 
 	// querying //
 
@@ -152,14 +151,14 @@ public interface StorageRequestAcceptor
 		////////////
 
 		@Override
-		public final void storeData(final Chunk[] dataMedium) throws InterruptedException
+		public final void storeData(final Binary data) throws InterruptedException
 		{
 			// note: enabled accepting tasks has to be checked prior to calling this method (external concern)
 
 			// prevalidate on the caller site before creating and enqueing a task (may be no-op)
-			this.prevalidatorDataChunk.validateDataChunk(dataMedium);
+			this.prevalidatorDataChunk.validateDataChunk(data);
 
-			waitOnTask(this.taskBroker.enqueueStoreTask(dataMedium));
+			waitOnTask(this.taskBroker.enqueueStoreTask(data));
 		}
 
 		@Override

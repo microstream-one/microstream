@@ -50,14 +50,11 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	/////////////////////
 
 	@Override
-	public void write(final Binary[] chunks) throws PersistenceExceptionTransfer
+	public void write(final Binary chunk) throws PersistenceExceptionTransfer
 	{
 		try(final FileChannel fch = this.createChannel(this.file))
 		{
-			for(final Binary chunk : chunks)
-			{
-				fch.write(chunk.buffers());
-			}
+			fch.write(chunk.buffers());
 		}
 		catch(final IOException e)
 		{

@@ -132,28 +132,9 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		}
 
 		@Override
-		protected void internalWrite(final SocketChannel channel, final Binary[] chunks)
+		protected void internalWrite(final SocketChannel channel, final Binary chunk)
 			throws PersistenceExceptionTransfer
 		{
-			if(chunks.length != 1)
-			{
-				/* (11.08.2018 TM)XXX: binary chunks array ugliness
-				 * This is a somewhat unclean API:
-				 * Chunks is only an array because the Storage's channel hashing mechanism requires it.
-				 * But for each channel, there is only exactely one chunk.
-				 * Here, there are no channels, so it appears that multiple chunks can/could/should be sent
-				 * at a time. Doing that would require another layer of meta-header: sending how many chunks
-				 * there are.
-				 * The clean way would probably be to nest the channel-chunks in the Binary type itself
-				 * and then provide an iterateChunks Method instead of an explicit array. Or something like that.
-				 * Or some specialized Binary meta type.
-				 * The short-term solution is to force the chunks length to be exactely 1, here.
-				 * Not pretty. The concept should be consolidated to cover both use cases nicely instead of ugly.
-				 */
-				throw new UnsupportedOperationException("Can only send one chunk at a time.");
-			}
-			final Binary chunk = chunks[0];
-			
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
 				this.ensureDefaultBuffer(),
 				chunk.totalLength()
