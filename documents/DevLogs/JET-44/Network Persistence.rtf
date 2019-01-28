@@ -1699,5 +1699,42 @@ Ich denk besser, als eine neue Binary2 Klasse machen, alles redundant dort rein 
 Als erstes mal das explizite Geld oid in Item \'fcberfl\'fcssig machen, indem das aus dem Entity Header direkt ausgelesen wird.\par
 \par
 Idee f\'fcr JET-58. Schnell aufschreiben. W\'e4hrend dem Schreiben weiter\'fcberlegen, verfeinern.\par
+\par
+\par
+\par
+2019-01-28\par
+\par
+Jetzt mal \'fcberlegen, wie ich das dumme Array wegbring.\par
+\par
+Kopiert von oben und aktualisiert:\par
+1.) Item: Beim Laden wird pro Entity ein Item angelegt. Das ist n\'f6tig, weil sowieso ein Item pro Entity gebraucht wird und das dann auch gleich auf die Speicheradresse der Entity Daten aus dem ChunksBuffer zeigen kann.\par
+2.) ChunksBuffer: Beim Speichern und Laden wird pro Channel ein ChunksBuffer angelegt, der eine dynamisch wachsende Liste an ByteBuffers h\'e4lt und bei Bedarf als Array zur\'fcckgibt.\par
+3.) ChunksWrapper: benutzt von FileSource (nur debug-Spielerei) und ComPersistenceChannelBinary. Wrappt einfach nur eingelesene ByteBuffer ohne weitere Logik\par
+\par
+Neu vielleicht so:\par
+\par
+Binary:\par
+Basisklasse\par
+\par
+LoadItem extends Binary\par
+Instanz f\'fcr ein einzelnes Entity, wird durch Iteration aller Entities in einer ChannelChunks Instanz erzeugt.\par
+\par
+ChannelChunks extends Binary:\par
+- ChannelChunks[] (dasselbe Array f\'fcr alle beteiligten ChannelChunks Instanzen)\par
+- ByteBuffer[] usw., so wie bisher in ChunkBuffer.\par
+\par
+ChunksWrapper kann entweder so bleiben, oder konsolidiert werden mit ChannelChunks.\par
+\par
+\par
+Nochmal recherchieren, wie das mit der Array ugliness (siehe XXX in ComBinary) ist.\par
+PersistenceTarget erwartet ein M[]. Das ist nur n\'f6tig wegen der Channelaufteilung in der Storage (siehe EmbeddedStorageBinaryTarget).\par
+Besser w\'e4re:\par
+Binary bekommt eine Methode Chunk[] hashedChunks() , die das Array zur\'fcck gibt.\par
+\par
+Es braucht eigentlich gar keine extra "Head" Klasse. Es reicht, wenn der ChunksBuffer ein Index-Array f\'fcr alle Channel ChunksBuffers kennt. Egal, welche Channel-Instanz man erwischt (eigentlich immer die von Channel 0), man kann auf alle Channel-ChunksBuffers zugreifen. Das ist auch gut und wichtig so, weil das builden der Entities Singlethreaded passiert und darum ein Thread auf die ChunksBuffers aller Storage Channels zugreifen k\'f6nnen muss.\par
+\par
+Mal schauen, wo ich das am besten einbau ...\par
+Storing sollte kein Problem sein, da ist die Instanzierung ja im Storer.\par
+Beim Loaden muss der Load StorageTask umgebaut werden, aber nicht viel, sollte leicht gehen.\par
 }
  
