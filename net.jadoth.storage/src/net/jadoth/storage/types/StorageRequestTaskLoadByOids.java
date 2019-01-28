@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
@@ -40,9 +40,9 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 		////////////
 
 		@Override
-		protected final Binary internalProcessBy(final StorageChannel channel)
+		protected final ChunksBuffer internalProcessBy(final StorageChannel channel)
 		{
-			return channel.collectLoadByOids(this.oidList[channel.channelIndex()]);
+			return channel.collectLoadByOids(this.resultArray(), this.oidList[channel.channelIndex()]);
 		}
 
 	}

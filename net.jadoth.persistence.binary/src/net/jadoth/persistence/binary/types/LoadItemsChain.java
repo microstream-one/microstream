@@ -237,7 +237,7 @@ public interface LoadItemsChain
 		// instance fields  //
 		/////////////////////
 
-		private final int     hashMod;
+		private final int     hashRange;
 		private final Entry[] hashChainHeads, hashChainTails;
 
 
@@ -246,11 +246,11 @@ public interface LoadItemsChain
 		// constructors     //
 		/////////////////////
 
-		public ChannelHashing(final int hashRange)
+		public ChannelHashing(final int channelCount)
 		{
 			super();
-			this.hashMod = hashRange - 1;
-			final Entry[] hashChainHeads = this.hashChainHeads = new Entry[hashRange];
+			this.hashRange = channelCount - 1;
+			final Entry[] hashChainHeads = this.hashChainHeads = new Entry[channelCount];
 			for(int i = 0; i < hashChainHeads.length; i++)
 			{
 				hashChainHeads[i] = new Entry(0);
@@ -286,8 +286,8 @@ public interface LoadItemsChain
 		{
 			final Entry entry;
 			(entry = new Entry(oid)).link = link;
-			return this.hashChainTails[(int)(this.hashMod & oid)] =
-				this.hashChainTails[(int)(this.hashMod & oid)].next = entry
+			return this.hashChainTails[(int)(this.hashRange & oid)] =
+				this.hashChainTails[(int)(this.hashRange & oid)].next = entry
 			;
 		}
 

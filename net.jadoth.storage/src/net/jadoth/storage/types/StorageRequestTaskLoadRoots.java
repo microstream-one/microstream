@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.ChunksBuffer;
 
 public interface StorageRequestTaskLoadRoots extends StorageRequestTaskLoad
 {
@@ -30,10 +30,10 @@ public interface StorageRequestTaskLoadRoots extends StorageRequestTaskLoad
 		////////////
 
 		@Override
-		protected final Binary internalProcessBy(final StorageChannel channel)
+		protected final ChunksBuffer internalProcessBy(final StorageChannel channel)
 		{
 			// every channel returns the roots instances (in binary form) that he knows of, potentially none at all.
-			return channel.collectLoadRoots();
+			return channel.collectLoadRoots(this.resultArray());
 		}
 
 	}
