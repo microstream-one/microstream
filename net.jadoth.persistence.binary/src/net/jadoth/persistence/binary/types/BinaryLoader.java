@@ -176,7 +176,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return entry.contextInstance != null
 				? entry.contextInstance
 				: (entry.contextInstance = this.registry.optionalRegisterObject(
-					BinaryPersistence.getBuildItemObjectId(entry),
+					entry.getBuildItemObjectId(),
 					entry.localInstance
 				))
 			;
@@ -228,7 +228,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 * of common case entities.
 			 */
 			
-			final ByteBuffer dbb = ByteBuffer.allocateDirect((int)-BinaryPersistence.contentAddressNegativeOffsetOid());
+			final ByteBuffer dbb = ByteBuffer.allocateDirect((int)-Binary.contentAddressNegativeOffsetOid());
 			final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
 			XMemory.set_long(dbbAddress, oid); // oid gets set at offset 0.
 			
@@ -406,8 +406,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				for(BinaryLoadItem next; entry != null; entry = next)
 				{
 					next = entry.link;
-					entry.link = newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange];
-					newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange] = entry;
+					entry.link = newSlots[(int)entry.getBuildItemObjectId() & newRange];
+					newSlots[(int)entry.getBuildItemObjectId() & newRange] = entry;
 				}
 			}
 			this.buildItemsHashSlots = newSlots;
@@ -416,8 +416,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void putBuildItem(final BinaryLoadItem entry)
 		{
-			entry.link = this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry)& this.buildItemsHashRange];
-			this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & this.buildItemsHashRange] =
+			entry.link = this.buildItemsHashSlots[(int)entry.getBuildItemObjectId()& this.buildItemsHashRange];
+			this.buildItemsHashSlots[(int)entry.getBuildItemObjectId() & this.buildItemsHashRange] =
 				this.buildItemsTail = this.buildItemsTail.next = entry
 			;
 			if(++this.buildItemsSize >= this.buildItemsHashRange)
@@ -443,7 +443,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return true;
 				}
@@ -477,7 +477,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return this.getEffectiveInstance(e);
 				}
@@ -489,7 +489,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		{
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return;
 				}

@@ -28,7 +28,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 		final String typeName
 	)
 	{
-		return BinaryPersistence.binaryListMinimumLength();
+		return Binary.binaryListMinimumLength();
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 		final String typeName
 	)
 	{
-		return BinaryPersistence.binaryListMaximumLength();
+		return Binary.binaryListMaximumLength();
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
 	)
 	{
-		return BinaryPersistence.binaryListMinimumLength();
+		return Binary.binaryListMinimumLength();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
 	)
 	{
-		return BinaryPersistence.binaryListMaximumLength();
+		return Binary.binaryListMaximumLength();
 	}
 
 

@@ -30,8 +30,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 
 	static final long
 		BINARY_OFFSET_KEYS         =                                                    0,
-		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidLength(),
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidLength(),
+		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidByteLength(),
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidByteLength(),
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()
 	;
 

@@ -32,9 +32,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	/////////////////////
 
 	static final long
-		BINARY_OFFSET_EQUALATOR    =                                                          0, // oid for eqltr ref
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidLength(), // offset for one oid
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()        // offset for one float
+		BINARY_OFFSET_EQUALATOR    =                                                              0, // oid for eqltr ref
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidByteLength(), // offset for 1 oid
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()           // offset for 1 float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
@@ -54,7 +54,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

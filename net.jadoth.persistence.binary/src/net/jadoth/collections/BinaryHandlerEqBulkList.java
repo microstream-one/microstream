@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 	/////////////////////
 
 	static final long BINARY_OFFSET_EQUALATOR   =                             0; // one oid for equalator reference
-	static final long BINARY_OFFSET_SIZED_ARRAY = BinaryPersistence.oidLength(); // space offset for one oid
+	static final long BINARY_OFFSET_SIZED_ARRAY = BinaryPersistence.oidByteLength(); // space offset for one oid
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqBulkList.class, Equalator.class);

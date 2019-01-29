@@ -70,7 +70,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	{
 		final Object[] arrayInstance = instance.data;
 		final long contentAddress = bytes.storeEntityHeader(
-			BinaryPersistence.calculateReferenceListTotalBinaryLength(arrayInstance.length),
+			Binary.calculateReferenceListTotalBinaryLength(arrayInstance.length),
 			this.typeId(),
 			oid
 		);
@@ -80,7 +80,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	@Override
 	public final ConstList<?> create(final Binary bytes)
 	{
-		return ConstList.New(X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, 0)));
+		return ConstList.New(X.checkArrayRange(bytes.getListElementCountReferences(0)));
 	}
 
 	@Override
@@ -91,11 +91,11 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		// length must be checked for consistency reasons
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
 
-		final long binaryRefOffset = BinaryPersistence.binaryListElementsAddress(bytes, BINARY_OFFSET_LIST);
+		final long binaryRefOffset = bytes.binaryListElementsAddressRelative(BINARY_OFFSET_LIST);
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * BinaryPersistence.oidLength()));
+			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * BinaryPersistence.oidByteLength()));
 		}
 	}
 

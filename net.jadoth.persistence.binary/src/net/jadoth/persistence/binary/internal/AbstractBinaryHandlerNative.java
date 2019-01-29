@@ -55,8 +55,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	{
 		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Chars(
 			name,
-			BinaryPersistence.binaryListMinimumLength(),
-			BinaryPersistence.binaryListMaximumLength()
+			Binary.binaryListMinimumLength(),
+			Binary.binaryListMaximumLength()
 		);
 	}
 
@@ -64,8 +64,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	{
 		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Bytes(
 			name,
-			BinaryPersistence.binaryListMinimumLength(),
-			BinaryPersistence.binaryListMaximumLength()
+			Binary.binaryListMinimumLength(),
+			Binary.binaryListMaximumLength()
 		);
 	}
 
@@ -84,8 +84,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(
 			name,
 			X.ConstList(pseudoFields),
-			BinaryPersistence.binaryListMinimumLength(),
-			BinaryPersistence.binaryListMaximumLength()
+			Binary.binaryListMinimumLength(),
+			Binary.binaryListMaximumLength()
 		);
 	}
 

@@ -3,9 +3,7 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 
 import net.jadoth.functional._longProcedure;
-import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
-import net.jadoth.typing.KeyValue;
 
 public final class BinaryLoadItem extends Binary
 {
@@ -96,52 +94,24 @@ public final class BinaryLoadItem extends Binary
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
 		
-		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
-			this,
+		final long elementCount = this.getBinaryListElementCountValidating(
 			offset,
 			keyValueBinaryLength()
 		);
 
 		BinaryPersistence.iterateReferenceRange(
-			BinaryPersistence.binaryListElementsAddress(this, offset),
+			this.binaryListElementsAddressRelative(offset),
 			keyValueReferenceCount() * elementCount,
 			iterator
 		);
 	}
-	
-	@Override
-	public final long storeSizedKeyValuesAsEntries(
-		final long                               tid         ,
-		final long                               oid         ,
-		final long                               headerOffset,
-		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
-		final long                               size        ,
-		final PersistenceFunction                persister
-	)
-	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
 		
-		// store entity header including the complete content size (headerOffset + entries)
-		final long contentAddress = this.storeEntityHeader(
-			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(size * keyValueReferenceCount()),
-			tid,
-			oid
-		);
-
-		// store entries
-		BinaryPersistence.storeKeyValuesAsEntries(contentAddress + headerOffset, persister, keyValues, size);
-
-		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
-		return contentAddress;
-	}
-	
 	@Override
 	public final long getListElementCountKeyValue(final long listStartOffset)
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
 		
-		return BinaryPersistence.getBinaryListElementCountValidating(
-			this,
+		return this.getBinaryListElementCountValidating(
 			listStartOffset,
 			keyValueBinaryLength()
 		);

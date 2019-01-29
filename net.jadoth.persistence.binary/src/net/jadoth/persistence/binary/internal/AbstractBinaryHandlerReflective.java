@@ -109,7 +109,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		System.arraycopy(prmFields , 0, fieldsPersistdOrder, r, p);
 
 		// the values' total length is the length of all references plus the accumulated length of all primitives.
-		return r * BinaryPersistence.oidLength() + primitiveTotalBinaryLength;
+		return r * BinaryPersistence.oidByteLength() + primitiveTotalBinaryLength;
 	}
 	
 	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
@@ -303,8 +303,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeFixedSize(
-			bytes                   ,
+		bytes.storeFixedSize(
 			handler                  ,
 			this.binaryContentLength,
 			this.typeId()           ,
@@ -356,8 +355,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
-		BinaryPersistence.iterateBinaryReferences(
-			bytes                    ,
+		bytes.iterateBinaryReferences(
 			this.referenceOffsetStart,
 			this.referenceOffsetBound,
 			iterator
