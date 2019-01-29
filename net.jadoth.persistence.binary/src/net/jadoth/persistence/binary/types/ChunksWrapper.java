@@ -2,7 +2,10 @@ package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 
+import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.typing.KeyValue;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
@@ -143,6 +146,34 @@ public final class ChunksWrapper extends Binary
 
 	@Override
 	public final void clear()
+	{
+		throw new UnsupportedOperationException();
+	}
+			
+	@Override
+	public final void iterateKeyValueEntriesReferences(
+		final long           offset  ,
+		final _longProcedure iterator
+	)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final long storeSizedKeyValuesAsEntries(
+		final long                               tid         ,
+		final long                               oid         ,
+		final long                               headerOffset,
+		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
+		final long                               size        ,
+		final PersistenceFunction                persister
+	)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final long getListElementCountKeyValue(final long listStartOffset)
 	{
 		throw new UnsupportedOperationException();
 	}

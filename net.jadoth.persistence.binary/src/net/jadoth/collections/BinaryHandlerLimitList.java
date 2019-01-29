@@ -67,8 +67,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<LimitList<?>>
 		final PersistenceStoreHandler handler
 	)
 	{
-		BinaryCollectionHandling.storeSizedArray(
-			bytes                    ,
+		bytes.storeSizedArray(
 			this.typeId()            ,
 			oid                      ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -89,8 +88,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<LimitList<?>>
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
-		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
-			bytes                    ,
+		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			builder
@@ -106,7 +104,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<LimitList<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
+		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
 }

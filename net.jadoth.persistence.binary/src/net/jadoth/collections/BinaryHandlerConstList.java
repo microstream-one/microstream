@@ -89,7 +89,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		final Object[] arrayInstance = instance.data;
 
 		// length must be checked for consistency reasons
-		BinaryCollectionHandling.validateArrayLength(arrayInstance, bytes, BINARY_OFFSET_LIST);
+		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
 
 		final long binaryRefOffset = BinaryPersistence.binaryListElementsAddress(bytes, BINARY_OFFSET_LIST);
 		for(int i = 0; i < arrayInstance.length; i++)

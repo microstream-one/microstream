@@ -8,8 +8,6 @@ import net.jadoth.reflect.XReflect;
 
 public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 {
-
-	
 	public abstract class AbstractImplementation<T>
 	extends PersistenceTypeHandler.AbstractImplementation<Binary, T>
 	implements BinaryTypeHandler<T>

@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 
@@ -40,8 +39,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<T>
 	
 	protected final int determineArrayLength(final Binary data, final long sizedArrayOffset)
 	{
-		final int specifiedLength      = BinaryCollectionHandling.getSizedArrayLength(data, sizedArrayOffset);
-		final int actualElementCount   = BinaryCollectionHandling.getSizedArrayElementCount(data, sizedArrayOffset);
+		final int specifiedLength      = data.getSizedArrayLength(sizedArrayOffset);
+		final int actualElementCount   = data.getSizedArrayElementCount(sizedArrayOffset);
 		final int effectiveArrayLength = this.controller.controlArrayLength(specifiedLength, actualElementCount);
 		
 		return effectiveArrayLength;

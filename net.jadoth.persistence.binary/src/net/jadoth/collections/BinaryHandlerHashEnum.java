@@ -81,8 +81,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
-			bytes                 ,
+		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
 			oid                   ,
 			BINARY_OFFSET_ELEMENTS,

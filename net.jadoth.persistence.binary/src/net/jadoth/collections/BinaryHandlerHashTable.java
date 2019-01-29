@@ -9,7 +9,6 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
@@ -53,7 +52,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 
 	private static int getBuildItemElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryCollectionHandling.getListElementCountKeyValue(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)
@@ -100,8 +99,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = BinaryCollectionHandling.storeSizedKeyValuesAsEntries(
-			bytes                 ,
+		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
 			this.typeId()         ,
 			oid                   ,
 			BINARY_OFFSET_ELEMENTS,
@@ -177,9 +175,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS));
-		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES));
-		BinaryCollectionHandling.iterateKeyValueEntriesReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.accept(bytes.get_long(BINARY_OFFSET_KEYS));
+		iterator.accept(bytes.get_long(BINARY_OFFSET_VALUES));
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

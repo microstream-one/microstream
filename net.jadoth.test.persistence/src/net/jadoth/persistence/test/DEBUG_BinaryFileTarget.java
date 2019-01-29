@@ -28,7 +28,7 @@ public class DEBUG_BinaryFileTarget extends BinaryFileTarget
 	}
 
 	@Override
-	public void write(final Binary[] chunks) throws PersistenceExceptionTransfer
+	public void write(final Binary chunks) throws PersistenceExceptionTransfer
 	{
 //		final VarString vc = VarString.LargeVarString();
 //		final BinaryChunkPrinter printer = new BinaryChunkPrinter(vc);

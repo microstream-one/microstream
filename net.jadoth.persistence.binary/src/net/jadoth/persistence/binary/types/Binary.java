@@ -2,11 +2,49 @@ package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 
+import net.jadoth.X;
+import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
+import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
+import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.typing.KeyValue;
 
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
 public abstract class Binary implements Chunk
 {
+	///////////////////////////////////////////////////////////////////////////
+	// constants        //
+	/////////////////////
+	
+	/* sized array binary layout:
+	 * [entity header][8 byte array length][list of elements without the arrays' trailing nulls]
+	 */
+	private static final long
+		SIZED_ARRAY_OFFSET_LENGTH   = 0L                       , // length is the first (and only) header value
+		SIZED_ARRAY_LENGTH_HEADER   = XMemory.byteSize_long()  , // the header only consists of the length
+		SIZED_ARRAY_OFFSET_ELEMENTS = SIZED_ARRAY_LENGTH_HEADER  // the element list begins after the header
+	;
+	
+	/**
+	 * Obviously 2 references: the key and the value.
+	 */
+	private static final int KEY_VALUE_REFERENCE_COUNT = 2;
+	
+	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * BinaryPersistence.oidLength();
+	
+	public static final int keyValueReferenceCount()
+	{
+		return KEY_VALUE_REFERENCE_COUNT;
+	}
+	
+	public static final long keyValueBinaryLength()
+	{
+		return KEY_VALUE_BINARY_LENGTH;
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -38,17 +76,11 @@ public abstract class Binary implements Chunk
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	// (25.01.2019 TM)NOTE: new with JET-49
-	
-	public abstract Binary channelChunk(int channelIndex);
-	
-	public abstract int channelCount();
-	
-	public abstract void iterateEntityData(BinaryEntityDataReader reader);
-	
 		
 	// (25.01.2019 TM)NOTE: kept with JET-49
+
+	@Override
+	public abstract ByteBuffer[] buffers();
 	
 	/**
 	 * Helper instances can be used as temporary additional state for the duration of the building process.
@@ -256,13 +288,219 @@ public abstract class Binary implements Chunk
 		XMemory.set_double(this.address + offset, value);
 	}
 	
-	
-	
-	// (25.01.2019 TM)FIXME: old before JET-49
 
-	@Override
-	public abstract ByteBuffer[] buffers();
+	
+	// (25.01.2019 TM)NOTE: new with JET-49
+	
+	/* (29.01.2019 TM)TODO: "Binary" ugliness consolidation
+	 * Currently, the "Binary" class is an unclean "one size fits fall" implementation, providing API
+	 * for both storing and loading, forcing two distinct subclasses for each concern to dummy-implement
+	 * some methods and throw UnsupportedOperation exceptions.
+	 * The initial reason for this was that "Binary" was just a typing helper type to make the compiler check if
+	 * interface implementations (custom handlers etc) are compatible to each other.
+	 * However, it could very well be possible to specify the generics much more precisely, e.g. as
+	 * <B extends Binary>, maybe even with two arguments, like <L extends BinaryLoadItem> and <S extends BinaryStoreMedium>
+	 * For now, the "Binary" API-ugliness is kept, but it could very well pay off to restructure and clean it up.
+	 */
+	
+	public abstract Binary channelChunk(int channelIndex);
+	
+	public abstract int channelCount();
+	
+	public abstract void iterateEntityData(BinaryEntityDataReader reader);
+		
+	public abstract void iterateKeyValueEntriesReferences(
+		long           offset  ,
+		_longProcedure iterator
+	);
+	
+	public abstract long storeSizedKeyValuesAsEntries(
+		long                               tid         ,
+		long                               oid         ,
+		long                               headerOffset,
+		Iterable<? extends KeyValue<?, ?>> keyValues   ,
+		long                               size        ,
+		PersistenceFunction                persister
+	);
+	
+	public abstract long getListElementCountKeyValue(long listStartOffset);
+	
+	
+	
+	// (29.01.2019 TM)FIXME: -----------------------
+	
+	public final long storeSizedArray(
+		final long                tid         ,
+		final long                oid         ,
+		final long                headerOffset,
+		final Object[]            array       ,
+		final int                 size        ,
+		final PersistenceFunction persister
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		// store entity header including the complete content size (8 + elements)
+		final long contentAddress = this.storeEntityHeader(
+			headerOffset + SIZED_ARRAY_LENGTH_HEADER + BinaryPersistence.calculateReferenceListTotalBinaryLength(size),
+			tid,
+			oid
+		);
+
+		// store specific header (only consisting of array capacity value)
+		XMemory.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
+
+		// store content: array content up to size, trailing nulls are cut off.
+		BinaryPersistence.storeArrayContentAsList(
+			contentAddress + headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
+			persister,
+			array,
+			0,
+			size
+		);
+
+		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
+		return contentAddress;
+	}
+
+	public final long storeSizedIterableAsList(
+		final long            tid         ,
+		final long            oid         ,
+		final long            headerOffset,
+		final Iterable<?>     elements    ,
+		final long            size        ,
+		final PersistenceFunction persister
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		// store entity header including the complete content size (headerOffset + elements)
+		final long contentAddress = this.storeEntityHeader(
+			headerOffset + BinaryPersistence.calculateReferenceListTotalBinaryLength(size),
+			tid,
+			oid
+		);
+
+		// store elements
+		BinaryPersistence.storeIterableContentAsList(contentAddress + headerOffset, persister, elements, size);
+
+		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
+		return contentAddress;
+	}
+
+
+		
+
+	
+	public int getSizedArrayElementCount(final long headerOffset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		return X.checkArrayRange(BinaryPersistence.getBinaryListElementCountValidating(
+			this                                      ,
+			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
+			BinaryPersistence.oidLength()
+		));
+	}
+
+	/**
+	 * Updates the passed array up to the size defined by the binary data, returns the size.
+	 *
+	 * @param bytes
+	 * @param headerOffset
+	 * @param array
+	 * @return
+	 */
+	public final int updateSizedArrayObjectReferences(
+		final long                   headerOffset,
+		final Object[]               array       ,
+		final PersistenceLoadHandler handler
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		final int size = this.getSizedArrayElementCount(headerOffset);
+		if(array.length < size)
+		{
+			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
+		}
+		
+		BinaryPersistence.updateArrayObjectReferences(
+			this,
+			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
+			handler,
+			array,
+			0,
+			size
+		);
+		
+		return size;
+	}
+
+	public final int getSizedArrayLength(final long sizedArrayOffset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		/* Note on length validation for "array bombs" prevention
+		 * (see BinaryPersistence#getBinaryListElementCountValidating)
+		 * That kind of validation cannot be done here.
+		 * Consider the following scenario, which would be perfectly correct:
+		 * - An ArrayList is created with max int capacity and only one element (size is 1).
+		 * - That ArrayList instance is serialized.
+		 * - The array length value in binary form would be max int, the following binary list would contain only 1 element.
+		 * - This means the resulting total length would indeed be tiny (currently 56 bytes).
+		 * - The ArrayList instance created from that information would, however, be around 8/16 GB in size.
+		 * All that would be perfectly correct. It is just an incredibly efficient binary form compression of
+		 * a mostly empty array that cannot be validated against the binary form of the sent instance.
+		 * 
+		 * Instead, a customizable controller (PersistenceSizedArrayLengthController) is used in the calling context.
+		 */
+		return X.checkArrayRange(
+			XMemory.get_long(this.loadItemEntityContentAddress() + sizedArrayOffset + SIZED_ARRAY_OFFSET_LENGTH)
+		);
+	}
+
+	public final long getSizedArrayElementsAddress(final long headerOffset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		return BinaryPersistence.binaryListElementsAddress(this, headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS);
+	}
+
+	public final void validateArrayLength(final Object[] array, final long headerOffset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		if(array.length == BinaryPersistence.getListElementCountReferences(this, headerOffset))
+		{
+			return;
+		}
+		
+		throw new BinaryPersistenceExceptionStateArrayLength(
+			array,
+			X.checkArrayRange(BinaryPersistence.getListElementCountReferences(this, headerOffset))
+		);
+	}
+
+	public final void iterateSizedArrayElementReferences(
+		final long           offset  ,
+		final _longProcedure iterator
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		final long elementCount = BinaryPersistence.getBinaryListElementCountValidating(
+			this,
+			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
+			BinaryPersistence.oidLength()
+		);
+		
+		BinaryPersistence.iterateReferenceRange(
+			BinaryPersistence.binaryListElementsAddress(this, offset + SIZED_ARRAY_OFFSET_ELEMENTS),
+			elementCount,
+			iterator
+		);
+	}
 	
 }
 //CHECKSTYLE.ON: AbstractClassName
-

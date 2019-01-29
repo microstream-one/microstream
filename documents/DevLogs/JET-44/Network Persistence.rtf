@@ -1740,5 +1740,14 @@ Beim Loaden muss der Load StorageTask umgebaut werden, aber nicht viel, sollte l
 \par
 So. Storing und Loading umgebaut. Damit ist auch das h\'e4sslich-sinnlose Array in OGC verschwunden.\par
 So gef\'e4llt mir das.\par
+\par
+\par
+2019-01-29\par
+\par
+Weiter im Text:\par
+Jetzt alle Binary-Access-Abstraction Methoden in BinaryPersistence und BinaryCollectionHandling direkt nach Binary umziehen.\par
+Dann verschwinden die public API memory offsets (extremer Sicherheitsgewinn f\'fcr custom handler. Also "safety") und dann kann in diesen Methoden intern sehr leicht, nach au\'dfen unsichtbar und performant die optionale ByteOrder Konvertierung gemacht werden.\par
+\par
+\par
 }
  
