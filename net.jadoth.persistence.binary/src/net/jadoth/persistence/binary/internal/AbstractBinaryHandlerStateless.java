@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.X;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -26,7 +25,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	@Override
 	public final void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeStateless(bytes, this.typeId(), oid);
+		bytes.storeStateless(this.typeId(), oid);
 	}
 
 	@Override

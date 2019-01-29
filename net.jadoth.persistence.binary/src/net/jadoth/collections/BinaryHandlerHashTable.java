@@ -29,8 +29,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	/////////////////////
 
 	static final long BINARY_OFFSET_KEYS         =                                                    0;
-	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidLength();
-	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidLength();
+	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidByteLength();
+	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidByteLength();
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float();
 
 	// field type detour because there are sadly no field literals in Java (yet?).

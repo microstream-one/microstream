@@ -1748,6 +1748,12 @@ Weiter im Text:\par
 Jetzt alle Binary-Access-Abstraction Methoden in BinaryPersistence und BinaryCollectionHandling direkt nach Binary umziehen.\par
 Dann verschwinden die public API memory offsets (extremer Sicherheitsgewinn f\'fcr custom handler. Also "safety") und dann kann in diesen Methoden intern sehr leicht, nach au\'dfen unsichtbar und performant die optionale ByteOrder Konvertierung gemacht werden.\par
 \par
+Methoden sind soweit umgezogen.\par
+Noch haufenweise Compilerfehler f\'fcr nun nicht mehr passende Methodenaufrufe. Muss ich noch anpassen.\par
+Dann einige Methoden konsolidieren, damit m\'f6glichst keine absoluten Speicheradressen mehr verwendet werden.\par
+Und dann m\'fcssten eigentlich noch \'fcberall Validierungen von \'fcbergebenen offsets rein.\par
 \par
+Wenn ich diese drei Punkte gemacht hab, kann ich \'fcberlegen,wie ich die Logik zum ByteOrder Konvertieren rein bau (RawValueHandler Referenz oder besser Ableitung) und das dann machen.\par
+Dann ist es fertig.\par
 }
  

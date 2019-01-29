@@ -42,7 +42,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 
 

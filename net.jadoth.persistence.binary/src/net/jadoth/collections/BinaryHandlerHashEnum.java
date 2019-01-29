@@ -41,7 +41,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 
 	private static long getBuildItemElementCount(final Binary bytes)
 	{
-		return BinaryPersistence.getListElementCountReferences(bytes, BINARY_OFFSET_ELEMENTS);
+		return bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 	}
 
 	private static float getBuildItemHashDensity(final Binary bytes)

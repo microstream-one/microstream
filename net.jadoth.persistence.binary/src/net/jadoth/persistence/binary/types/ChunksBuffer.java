@@ -8,8 +8,6 @@ import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
-import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.typing.KeyValue;
 import net.jadoth.util.BufferSizeProviderIncremental;
 
 
@@ -329,19 +327,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	public final void iterateKeyValueEntriesReferences(
 		final long           offset  ,
 		final _longProcedure iterator
-	)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public final long storeSizedKeyValuesAsEntries(
-		final long                               tid         ,
-		final long                               oid         ,
-		final long                               headerOffset,
-		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
-		final long                               size        ,
-		final PersistenceFunction                persister
 	)
 	{
 		throw new UnsupportedOperationException();
