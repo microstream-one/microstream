@@ -113,7 +113,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public void readBinaryEntityData(final long entityAddress)
 		{
 			// get the build item for the instance with the type handler and maybe an existing global instance
-			final Item buildItem = this.createBuildItem(entityAddress);
+			final BinaryLoadItem buildItem = this.createBuildItem(entityAddress);
 
 //			XDebug.debugln("Item @ " + address + ":\n" +
 //				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
@@ -138,7 +138,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
-		protected void handleAllReferences(Item item)
+		protected void handleAllReferences(BinaryLoadItem item)
 		{
 			// iterate over all new build items (relocated loaded and created unrequested items alike)
 			while((item = item.next) != null)
@@ -152,7 +152,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 		// CHECKSTYLE.ON: FinalParameters
 
-		private Object getEffectiveInstance(final Item entry)
+		private Object getEffectiveInstance(final BinaryLoadItem entry)
 		{
 			/* tricky concurrent part:
 			 * if a proper context instance already was registered, simply use that.
@@ -194,7 +194,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return handler;
 		}
 
-		protected void handleReferences(final Item entry)
+		protected void handleReferences(final BinaryLoadItem entry)
 		{
 			/*
 			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
@@ -217,7 +217,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			this.requireReference(refOid);
 		}
 		
-		private Item createSkipBuildItem(final long oid, final Object instance)
+		private BinaryLoadItem createSkipBuildItem(final long oid, final Object instance)
 		{
 			/*
 			 * A little hacky, but worth it:
@@ -233,7 +233,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			XMemory.set_long(dbbAddress, oid); // oid gets set at offset 0.
 			
 			// skip items do not require a type handler, only oid (fakeContentAddress) and optional instance
-			final Item skipItem = new Item(dbbAddress + dbb.capacity(), instance, null);
+			final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity(), instance, null);
 			
 			// skip items will never use the helper instance for anything, since they are skip dummies.
 			skipItem.setHelper(dbb);
@@ -242,7 +242,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 		
 		
-		private Item createBuildItem(final long entityAddress)
+		private BinaryLoadItem createBuildItem(final long entityAddress)
 		{
 			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
@@ -261,7 +261,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				);
 			}
 			
-			return new Item(
+			return new BinaryLoadItem(
 				BinaryPersistence.entityContentAddress(entityAddress),
 				this.registry.lookupObject(BinaryPersistence.getEntityObjectId(entityAddress)),
 				typeHandler
@@ -282,7 +282,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void buildInstances()
 		{
-			for(Item entry = this.buildItemsHead.next; entry != null; entry = entry.next)
+			for(BinaryLoadItem entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
@@ -354,7 +354,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 *
 			 * If the thought turns out to be not a problem at all, comment here accordingly.
 			 */
-			for(Item entry = this.buildItemsHead.next; entry != null; entry = entry.next)
+			for(BinaryLoadItem entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
@@ -378,10 +378,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// build items map //
 		////////////////////
 
-		private final Item   buildItemsHead      = new Item(0, null, null)            ; // dummy
-		private       Item   buildItemsTail      = this.buildItemsHead                ;
+		private final BinaryLoadItem   buildItemsHead      = new BinaryLoadItem(0, null, null)            ; // dummy
+		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead                ;
 		private       int    buildItemsSize                                           ;
-		private       Item[] buildItemsHashSlots = new Item[DEFAULT_HASH_SLOTS_LENGTH];
+		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
 		private       int    buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
 
@@ -400,10 +400,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 
 			final int newRange; // potential int overflow ignored deliberately
-			final Item[] newSlots = new Item[(newRange = (this.buildItemsHashSlots.length << 1) - 1) + 1];
-			for(Item entry : this.buildItemsHashSlots)
+			final BinaryLoadItem[] newSlots = new BinaryLoadItem[(newRange = (this.buildItemsHashSlots.length << 1) - 1) + 1];
+			for(BinaryLoadItem entry : this.buildItemsHashSlots)
 			{
-				for(Item next; entry != null; entry = next)
+				for(BinaryLoadItem next; entry != null; entry = next)
 				{
 					next = entry.link;
 					entry.link = newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange];
@@ -414,7 +414,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			this.buildItemsHashRange = newRange;
 		}
 
-		private void putBuildItem(final Item entry)
+		private void putBuildItem(final BinaryLoadItem entry)
 		{
 			entry.link = this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry)& this.buildItemsHashRange];
 			this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & this.buildItemsHashRange] =
@@ -441,7 +441,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			}
 
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
@@ -475,7 +475,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		private Object getBuildInstance(final long oid)
 		{
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
@@ -487,7 +487,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void registerSkipOid(final long oid)
 		{
-			for(Item e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
 				{
@@ -501,7 +501,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		private void clearBuildItems()
 		{
 			(this.buildItemsTail = this.buildItemsHead).next = null;
-			final Item[] slots = this.buildItemsHashSlots;
+			final BinaryLoadItem[] slots = this.buildItemsHashSlots;
 			
 			for(int i = 0; i < slots.length; i++)
 			{
@@ -593,7 +593,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			this.loadItems.clear();
 			
 			// remember last buildItem that already has its references registered for later iteration
-			final Item referenceHandlingBaseItem = this.buildItemsTail;
+			final BinaryLoadItem referenceHandlingBaseItem = this.buildItemsTail;
 
 			/*
 			 * Create build items for ALL instances prior to handling references to ensure that already loaded
@@ -714,125 +714,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public PersistenceObjectRetriever getObjectRetriever()
 		{
 			return this.sourceSupplier;
-		}
-
-		
-		
-		static final class Item extends Binary
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
-
-			PersistenceTypeHandler<Binary, Object> handler;
-			Object contextInstance, localInstance;
-			Item next, link;
-
-
-
-			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
-
-			Item(
-				final long                                   entityContentAddress,
-				final Object                                 contextInstance     ,
-				final PersistenceTypeHandler<Binary, Object> handler
-			)
-			{
-				super();
-				this.address         = entityContentAddress;
-				this.handler         = handler             ;
-				this.contextInstance = contextInstance     ;
-			}
-
-
-
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-			
-			@Override
-			public final Binary channelChunk(final int channelIndex)
-			{
-				throw new UnsupportedOperationException();
-			}
-			
-			@Override
-			public final int channelCount()
-			{
-				throw new UnsupportedOperationException();
-			}
-			
-			@Override
-			public void iterateEntityData(final BinaryEntityDataReader reader)
-			{
-				// technically, the single data set could be iterated, but designwise, it's not the task, here.
-				throw new UnsupportedOperationException();
-			}
-			
-			/**
-			 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
-			 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.
-			 *
-			 * @return whether this instances carries (actually "knows") binary build data or not.
-			 */
-			public final boolean hasData()
-			{
-				/*
-				 * since all proper build items are validated to have a non-null handler,
-				 * a null handler can be safely used to indicate skip items, i.e. no data.
-				 * 
-				 */
-				return this.handler != null;
-			}
-						
-			@Override
-			public final long storeEntityHeader(
-				final long entityContentLength,
-				final long entityTypeId       ,
-				final long entityObjectId
-			)
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public final ByteBuffer[] buffers()
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public final long loadItemEntityContentAddress()
-			{
-				return this.address;
-			}
-			
-			@Override
-			public final void setLoadItemEntityContentAddress(final long entityContentAddress)
-			{
-				this.address = entityContentAddress;
-			}
-
-			@Override
-			public final void clear()
-			{
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public final boolean isEmpty()
-			{
-				throw new UnsupportedOperationException();
-			}
-			
-			@Override
-			public final long totalLength()
-			{
-				throw new UnsupportedOperationException();
-			}
-
 		}
 		
 	}

@@ -34,7 +34,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	// space offset for one oid
 	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidLength();
 	// one float offset to sized array
-	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()      ;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()     ;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqConstHashEnum.class, HashEqualator.class);
@@ -95,8 +95,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = BinaryCollectionHandling.storeSizedIterableAsList(
-			bytes                 ,
+		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
 			oid                   ,
 			BINARY_OFFSET_ELEMENTS,

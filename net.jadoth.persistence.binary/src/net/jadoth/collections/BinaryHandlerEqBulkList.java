@@ -81,8 +81,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
-		final long contentAddress = BinaryCollectionHandling.storeSizedArray(
-			bytes                    ,
+		final long contentAddress = bytes.storeSizedArray(
 			this.typeId()            ,
 			oid                      ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -111,8 +110,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 
-		instance.size = BinaryCollectionHandling.updateSizedArrayObjectReferences(
-			bytes                    ,
+		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			builder
@@ -137,7 +135,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
-		BinaryCollectionHandling.iterateSizedArrayElementReferences(bytes, BINARY_OFFSET_SIZED_ARRAY, iterator);
+		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
 }

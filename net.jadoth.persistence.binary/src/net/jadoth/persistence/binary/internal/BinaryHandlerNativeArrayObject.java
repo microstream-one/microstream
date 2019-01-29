@@ -5,7 +5,6 @@ import java.lang.reflect.Array;
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
@@ -92,7 +91,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	{
 		// better check length consistency here
 		final Object[] arrayInstance = (Object[])instance;
-		BinaryCollectionHandling.validateArrayLength(arrayInstance, bytes, BINARY_OFFSET_ELEMENTS);
+		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
 	
 		BinaryPersistence.collectElementsIntoArray(bytes, BINARY_OFFSET_ELEMENTS, builder, arrayInstance);
 	}
