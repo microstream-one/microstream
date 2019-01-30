@@ -1,6 +1,7 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
@@ -80,7 +81,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 		}
 		catch(final ReflectiveOperationException e)
 		{
-			final long typeId = bytes.getBuildItemObjectId();
+			final long typeId = BinaryPersistence.getBuildItemObjectId(bytes);
 			
 			// (16.05.2018 TM)EXcP: proper exception
 			throw new PersistenceExceptionTypeConsistency(
