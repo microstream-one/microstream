@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import net.jadoth.X;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -46,18 +45,10 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 	@Override
 	public void update(final Binary bytes, final StringBuilder instance, final PersistenceLoadHandler builder)
 	{
-		final long lengthChars = BinaryPersistence.getBuildItemContentLength(bytes) - LENGTH_LENGTH;
+		final long lengthChars = bytes.getBuildItemContentLength() - LENGTH_LENGTH;
 		final long buildItemAddress = bytes.loadItemEntityContentAddress();
 		instance.ensureCapacity(X.checkArrayRange(XMemory.get_long(buildItemAddress)));
 		XMemory.setData(instance, null, buildItemAddress + LENGTH_LENGTH, lengthChars);
 	}
-
-//	@Override
-//	public void copy(final StringBuilder source, final StringBuilder target)
-//	{
-//		target.ensureCapacity(source.length());
-//		target.setLength(0);
-//		target.append(source);
-//	}
 
 }

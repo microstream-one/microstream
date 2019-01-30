@@ -8,7 +8,6 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
@@ -115,10 +114,10 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final long contentAddress = bytes.storeEntityHeader(totalContentLength, this.typeId(), oid);
 
 		// store instances first to allow efficient references-only caching
-		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
+		Binary.storeArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
 
 		// store identifiers as list of inlined [char]s
-		BinaryPersistence.storeStringsAsList(
+		Binary.storeStringsAsList(
 			contentAddress + instancesTotalBinLength,
 			identifiersContentBinLength,
 			identifiers
@@ -162,7 +161,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	{
 		final long offsetIdentifierList = bytes.getBinaryListByteLengthRelative(OFFSET_OID_LIST);
 
-		BinaryPersistence.buildStrings(bytes, offsetIdentifierList, identifiers);
+		bytes.buildStrings(offsetIdentifierList, identifiers);
 	}
 
 	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
@@ -242,7 +241,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		// the nice thing about this layout is: the references can be accessed directly as if it was a simple list
-		BinaryPersistence.iterateListElementReferences(bytes, 0, iterator);
+		bytes.iterateListElementReferences(0, iterator);
 	}
 
 	@Override

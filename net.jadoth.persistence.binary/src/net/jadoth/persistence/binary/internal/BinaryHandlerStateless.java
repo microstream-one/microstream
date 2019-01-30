@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
@@ -31,7 +30,7 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 		final PersistenceStoreHandler handler
 	)
 	{
-		BinaryPersistence.storeStateless(medium, this.typeId(), oid);
+		medium.storeStateless(this.typeId(), oid);
 	}
 
 	@Override

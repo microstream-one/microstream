@@ -1,14 +1,11 @@
 package net.jadoth.collections;
 
-import java.util.function.Consumer;
-
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -49,7 +46,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -108,7 +105,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 	public final void update(final Binary bytes, final ConstHashEnum<?> instance, final PersistenceLoadHandler builder)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final ConstHashEnum<Object> collectingInstance = (ConstHashEnum<Object>)instance;
+		final ConstHashEnum<Object> casted = (ConstHashEnum<Object>)instance;
 
 		// validate to the best of possibilities
 		if(instance.size != 0)
@@ -116,18 +113,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 			throw new IllegalStateException(); // (26.10.2013)EXCP: proper exception
 		}
 
-		instance.size = BinaryPersistence.collectListObjectReferences(
-			bytes                 ,
+		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			builder               ,
-			new Consumer<Object>()
-			{
-				@Override
-				public void accept(final Object e)
-				{
-					collectingInstance.internalAdd(e);
-				}
-			}
+			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
@@ -141,7 +130,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashEnum<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

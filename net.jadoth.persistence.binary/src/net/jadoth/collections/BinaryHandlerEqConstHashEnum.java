@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
@@ -59,7 +58,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -130,7 +129,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	public final void update(final Binary bytes, final EqConstHashEnum<?> instance, final PersistenceLoadHandler builder)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final EqConstHashEnum<Object> collectingInstance = (EqConstHashEnum<Object>)instance;
+		final EqConstHashEnum<Object> casted = (EqConstHashEnum<Object>)instance;
 
 		// length must be checked for consistency reasons
 		if(instance.size != 0)
@@ -142,23 +141,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
-		instance.size = BinaryPersistence.collectListObjectReferences(
-			bytes                 ,
+		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			builder               ,
-			new Consumer<Object>()
-			{
-				@Override
-				public void accept(final Object e)
-				{
-					// unhashed because element instances are potentially not populated with data yet. see complete()
-					collectingInstance.internalCollectUnhashed(e);
-				}
-			}
+			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
@@ -180,8 +170,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -25,19 +24,19 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	@Override
 	public final void store(final Binary bytes, final boolean[] array, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeArray_boolean(bytes, this.typeId(), oid, array);
+		bytes.storeArray_boolean(this.typeId(), oid, array);
 	}
 
 	@Override
 	public final boolean[] create(final Binary bytes)
 	{
-		return BinaryPersistence.createArray_boolean(bytes);
+		return bytes.createArray_boolean();
 	}
 
 	@Override
 	public final void update(final Binary bytes, final boolean[] instance, final PersistenceLoadHandler builder)
 	{
-		BinaryPersistence.updateArray_boolean(instance, bytes);
+		bytes.updateArray_boolean(instance);
 	}
 
 }

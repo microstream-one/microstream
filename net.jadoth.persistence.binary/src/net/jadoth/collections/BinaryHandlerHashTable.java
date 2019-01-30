@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.function.BiConsumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
@@ -57,7 +56,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -140,26 +139,18 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
-		BinaryPersistence.collectKeyValueReferences(
-			bytes,
+		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
 			builder,
-			new BiConsumer<Object, Object>()
-			{
-				@Override
-				public void accept(final Object key, final Object value)
-				{
-					collectingInstance.internalAdd(key, value); // increments size as well
-				}
-			}
+			collectingInstance::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}

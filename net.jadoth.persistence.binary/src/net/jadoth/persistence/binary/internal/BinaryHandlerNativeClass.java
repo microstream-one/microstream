@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
@@ -55,7 +54,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 	public Class<?> create(final Binary bytes)
 	{
 		// as an entity, a class/type is identified by its unique name, not by a TypeId.
-		final String typeName = BinaryPersistence.buildString(bytes);
+		final String typeName = bytes.buildString();
 		
 		try
 		{
@@ -81,7 +80,7 @@ public final class BinaryHandlerNativeClass extends AbstractBinaryHandlerNativeC
 		}
 		catch(final ReflectiveOperationException e)
 		{
-			final long typeId = BinaryPersistence.getBuildItemObjectId(bytes);
+			final long typeId = bytes.getBuildItemObjectId();
 			
 			// (16.05.2018 TM)EXcP: proper exception
 			throw new PersistenceExceptionTypeConsistency(

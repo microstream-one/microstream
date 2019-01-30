@@ -5,7 +5,6 @@ import java.lang.reflect.Array;
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -65,8 +64,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final void store(final Binary bytes, final A instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeArrayContentAsList(
-			bytes                      ,
+		bytes.storeArrayContentAsList(
 			this.typeId()              ,
 			oid                        ,
 			0                          ,
@@ -93,7 +91,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 		final Object[] arrayInstance = (Object[])instance;
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
 	
-		BinaryPersistence.collectElementsIntoArray(bytes, BINARY_OFFSET_ELEMENTS, builder, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, arrayInstance);
 	}
 	
 	@Override
@@ -105,7 +103,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 	@Override

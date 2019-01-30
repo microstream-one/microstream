@@ -120,7 +120,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 	}
 
@@ -134,7 +134,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
+		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 

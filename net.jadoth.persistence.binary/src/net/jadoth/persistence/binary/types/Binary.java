@@ -825,45 +825,45 @@ public abstract class Binary implements Chunk
 	}
 	
 
-	public static final void storeByte(final Binary bytes, final long tid, final long oid, final byte value)
+	public final void storeByte(final long tid, final long oid, final byte value)
 	{
-		XMemory.set_byte(bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		XMemory.set_byte(this.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
-	public static final void storeBoolean(final Binary bytes, final long tid, final long oid, final boolean value)
+	public final void storeBoolean(final long tid, final long oid, final boolean value)
 	{
 		// where is Boolean.BYTES? Does a boolean not have a binary size? JDK pros... .
-		XMemory.set_boolean(bytes.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		XMemory.set_boolean(this.storeEntityHeader(Byte.BYTES, tid, oid), value);
 	}
 
-	public static final void storeShort(final Binary bytes, final long tid, final long oid, final short value)
+	public final void storeShort(final long tid, final long oid, final short value)
 	{
-		XMemory.set_short(bytes.storeEntityHeader(Short.BYTES, tid, oid), value);
+		XMemory.set_short(this.storeEntityHeader(Short.BYTES, tid, oid), value);
 	}
 
-	public static final void storeCharacter(final Binary bytes, final long tid, final long oid, final char value)
+	public final void storeCharacter(final long tid, final long oid, final char value)
 	{
-		XMemory.set_char(bytes.storeEntityHeader(Character.BYTES, tid, oid), value);
+		XMemory.set_char(this.storeEntityHeader(Character.BYTES, tid, oid), value);
 	}
 
-	public static final void storeInteger(final Binary bytes, final long tid, final long oid, final int value)
+	public final void storeInteger(final long tid, final long oid, final int value)
 	{
-		XMemory.set_int(bytes.storeEntityHeader(Integer.BYTES, tid, oid), value);
+		XMemory.set_int(this.storeEntityHeader(Integer.BYTES, tid, oid), value);
 	}
 
-	public static final void storeFloat(final Binary bytes, final long tid, final long oid, final float value)
+	public final void storeFloat(final long tid, final long oid, final float value)
 	{
-		XMemory.set_float(bytes.storeEntityHeader(Float.BYTES, tid, oid), value);
+		XMemory.set_float(this.storeEntityHeader(Float.BYTES, tid, oid), value);
 	}
 
-	public static final void storeLong(final Binary bytes, final long tid, final long oid, final long value)
+	public final void storeLong(final long tid, final long oid, final long value)
 	{
-		XMemory.set_long(bytes.storeEntityHeader(Long.BYTES, tid, oid), value);
+		XMemory.set_long(this.storeEntityHeader(Long.BYTES, tid, oid), value);
 	}
 
-	public static final void storeDouble(final Binary bytes, final long tid, final long oid, final double value)
+	public final void storeDouble(final long tid, final long oid, final double value)
 	{
-		XMemory.set_double(bytes.storeEntityHeader(Double.BYTES, tid, oid), value);
+		XMemory.set_double(this.storeEntityHeader(Double.BYTES, tid, oid), value);
 	}
 
 	public final void storeStateless(final long tid, final long oid)
@@ -886,18 +886,17 @@ public abstract class Binary implements Chunk
 		);
 	}
 
-	public static final long storeArrayContentAsList(
-		final Binary          bytes       ,
-		final long            typeId      ,
-		final long            objectId    ,
-		final long            binaryOffset,
+	public final long storeArrayContentAsList(
+		final long                typeId      ,
+		final long                objectId    ,
+		final long                binaryOffset,
 		final PersistenceFunction persister   ,
-		final Object[]        array       ,
-		final int             offset      ,
-		final int             length
+		final Object[]            array       ,
+		final int                 offset      ,
+		final int                 length
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(
+		final long contentAddress = this.storeEntityHeader(
 			binaryOffset + Binary.calculateReferenceListTotalBinaryLength(array.length),
 			typeId,
 			objectId
@@ -1103,8 +1102,7 @@ public abstract class Binary implements Chunk
 	}
 	
 
-	public static final long buildStrings(
-		final Binary   bytes ,
+	public final long buildStrings(
 		final long     offset,
 		final String[] target
 	)
@@ -1156,52 +1154,52 @@ public abstract class Binary implements Chunk
 //		return elementAddress - bytes.loadItemEntityContentAddress();
 //	}
 
-	public static final Byte buildByte(final Binary bytes)
+	public final Byte buildByte()
 	{
-		return new Byte(XMemory.get_byte(bytes.loadItemEntityContentAddress()));
+		return new Byte(XMemory.get_byte(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Boolean buildBoolean(final Binary bytes)
+	public final Boolean buildBoolean()
 	{
-		return new Boolean(XMemory.get_boolean(null, bytes.loadItemEntityContentAddress()));
+		return new Boolean(XMemory.get_boolean(null, this.loadItemEntityContentAddress()));
 	}
 
-	public static final Short buildShort(final Binary bytes)
+	public final Short buildShort()
 	{
-		return new Short(XMemory.get_short(bytes.loadItemEntityContentAddress()));
+		return new Short(XMemory.get_short(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Character buildCharacter(final Binary bytes)
+	public final Character buildCharacter()
 	{
-		return new Character(XMemory.get_char(bytes.loadItemEntityContentAddress()));
+		return new Character(XMemory.get_char(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Integer buildInteger(final Binary bytes)
+	public final Integer buildInteger()
 	{
-		return new Integer(XMemory.get_int(bytes.loadItemEntityContentAddress()));
+		return new Integer(XMemory.get_int(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Float buildFloat(final Binary bytes)
+	public final Float buildFloat()
 	{
-		return new Float(XMemory.get_float(bytes.loadItemEntityContentAddress()));
+		return new Float(XMemory.get_float(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Long buildLong(final Binary bytes)
+	public final Long buildLong()
 	{
-		return new Long(XMemory.get_long(bytes.loadItemEntityContentAddress()));
+		return new Long(XMemory.get_long(this.loadItemEntityContentAddress()));
 	}
 
-	public static final Double buildDouble(final Binary bytes)
+	public final Double buildDouble()
 	{
-		return new Double(XMemory.get_double(bytes.loadItemEntityContentAddress()));
+		return new Double(XMemory.get_double(this.loadItemEntityContentAddress()));
 	}
 	
-	public static final byte[] buildArray_byte(final Binary bytes)
+	public final byte[] buildArray_byte()
 	{
-		final long elementCount = getBinaryListElementCount(bytes.loadItemEntityContentAddress());
+		final long elementCount = getBinaryListElementCount(this.loadItemEntityContentAddress());
 		final byte[] array;
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array = new byte[X.checkArrayRange(elementCount)]
 		);
 		return array;
@@ -1230,103 +1228,103 @@ public abstract class Binary implements Chunk
 
 	// array restrukturierung marker //
 
-	public static final byte[] createArray_byte(final Binary bytes)
+	public final byte[] createArray_byte()
 	{
-		return new byte[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new byte[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_byte(final byte[] array, final Binary bytes)
+	public final void updateArray_byte(final byte[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final boolean[] createArray_boolean(final Binary bytes)
+	public final boolean[] createArray_boolean()
 	{
-		return new boolean[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new boolean[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_boolean(final boolean[] array, final Binary bytes)
+	public final void updateArray_boolean(final boolean[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final short[] createArray_short(final Binary bytes)
+	public final short[] createArray_short()
 	{
-		return new short[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new short[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_short(final short[] array, final Binary bytes)
+	public final void updateArray_short(final short[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final char[] createArray_char(final Binary bytes)
+	public final char[] createArray_char()
 	{
-		return new char[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new char[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_char(final char[] array, final Binary bytes)
+	public final void updateArray_char(final char[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final int[] createArray_int(final Binary bytes)
+	public final int[] createArray_int()
 	{
-		return new int[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new int[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_int(final int[] array, final Binary bytes)
+	public final void updateArray_int(final int[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final float[] createArray_float(final Binary bytes)
+	public final float[] createArray_float()
 	{
-		return new float[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new float[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_float(final float[] array, final Binary bytes)
+	public final void updateArray_float(final float[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
 
-	public static final long[] createArray_long(final Binary bytes)
+	public final long[] createArray_long()
 	{
-		return new long[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new long[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_long(final long[] array, final Binary bytes)
+	public final void updateArray_long(final long[] array)
 	{
-		XMemory.copyRangeToArray(binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()), array);
+		XMemory.copyRangeToArray(binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()), array);
 	}
 
-	public static final double[] createArray_double(final Binary bytes)
+	public final double[] createArray_double()
 	{
-		return new double[X.checkArrayRange(getBinaryListElementCount(bytes.loadItemEntityContentAddress()))];
+		return new double[X.checkArrayRange(getBinaryListElementCount(this.loadItemEntityContentAddress()))];
 	}
 
-	public static final void updateArray_double(final double[] array, final Binary bytes)
+	public final void updateArray_double(final double[] array)
 	{
 		XMemory.copyRangeToArray(
-			binaryListElementsAddressAbsolute(bytes.loadItemEntityContentAddress()),
+			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1419,14 +1417,13 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public static final void collectElementsIntoArray(
-		final Binary                    bytes       ,
-		final long                      binaryOffset,
+	public final void collectElementsIntoArray(
+		final long                        binaryOffset,
 		final PersistenceObjectIdResolver oidResolver ,
-		final Object[]                  target
+		final Object[]                    target
 	)
 	{
-		final long binaryElementsStartAddress = bytes.binaryListElementsAddressRelative(binaryOffset);
+		final long binaryElementsStartAddress = this.binaryListElementsAddressRelative(binaryOffset);
 		for(int i = 0; i < target.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
@@ -1470,15 +1467,14 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public static final int collectKeyValueReferences(
-		final Binary                     bytes       ,
+	public final int collectKeyValueReferences(
 		final long                       binaryOffset,
 		final int                        length      ,
 		final PersistenceObjectIdResolver  oidResolver ,
 		final BiConsumer<Object, Object> collector
 	)
 	{
-		final long binaryElementsStartAddress = bytes.binaryListElementsAddressRelative(binaryOffset);
+		final long binaryElementsStartAddress = this.binaryListElementsAddressRelative(binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
 			collector.accept(

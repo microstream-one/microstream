@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
@@ -59,7 +58,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 	public static final void staticStore(
@@ -108,7 +107,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 	)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final EqHashEnum<Object> collectingInstance = (EqHashEnum<Object>)instance;
+		final EqHashEnum<Object> casted = (EqHashEnum<Object>)instance;
 
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
@@ -117,23 +116,14 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
-		instance.size = BinaryPersistence.collectListObjectReferences(
-			bytes                 ,
+		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			handler               ,
-			new Consumer<Object>()
-			{
-				@Override
-				public void accept(final Object e)
-				{
-					// unhashed because element instances are potentially not populated with data yet. see complete()
-					collectingInstance.internalCollectUnhashed(e);
-				}
-			}
+			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
@@ -155,8 +145,8 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 
 	public static final void staticIteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		iterator.accept(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR));
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()

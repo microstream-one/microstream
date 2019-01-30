@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeShort extends AbstractBinaryHandlerNativeCustomValueFixedLength<Short>
@@ -24,13 +23,13 @@ public final class BinaryHandlerNativeShort extends AbstractBinaryHandlerNativeC
 	@Override
 	public void store(final Binary bytes, final Short instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeShort(bytes, this.typeId(), oid, instance.shortValue());
+		bytes.storeShort(this.typeId(), oid, instance.shortValue());
 	}
 
 	@Override
 	public Short create(final Binary bytes)
 	{
-		return BinaryPersistence.buildShort(bytes);
+		return bytes.buildShort();
 	}
 
 }

@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import java.math.BigInteger;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCustomValueVariableLength<BigInteger>
@@ -31,13 +30,13 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerNativeCu
 	@Override
 	public void store(final Binary bytes, final BigInteger instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeArray_byte(bytes, this.typeId(), oid, instance.toByteArray());
+		bytes.storeArray_byte(this.typeId(), oid, instance.toByteArray());
 	}
 
 	@Override
 	public BigInteger create(final Binary bytes)
 	{
-		return new BigInteger(BinaryPersistence.buildArray_byte(bytes));
+		return new BigInteger(bytes.buildArray_byte());
 	}
 	
 }

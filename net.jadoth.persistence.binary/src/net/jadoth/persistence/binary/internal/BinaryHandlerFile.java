@@ -3,7 +3,6 @@ package net.jadoth.persistence.binary.internal;
 import java.io.File;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerFile extends AbstractBinaryHandlerNativeCustomValueVariableLength<File>
@@ -31,13 +30,13 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerNativeCustomVa
 	@Override
 	public void store(final Binary bytes, final File instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeStringValue(bytes, this.typeId(), oid, instance.getPath());
+		bytes.storeStringValue(this.typeId(), oid, instance.getPath());
 	}
 
 	@Override
 	public File create(final Binary bytes)
 	{
-		return new File(BinaryPersistence.buildString(bytes));
+		return new File(bytes.buildString());
 	}
 
 }

@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.function.BiConsumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
@@ -64,7 +63,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -150,38 +149,29 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashTable<?, ?>>
 	)
 	{
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final EqConstHashTable<Object, Object> collectingInstance = (EqConstHashTable<Object, Object>)instance;
+		final EqConstHashTable<Object, Object> casted = (EqConstHashTable<Object, Object>)instance;
 
 		// set single instances (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			handler.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
-		instance.size = BinaryPersistence.collectKeyValueReferences(
-			bytes,
+		instance.size = bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
 			handler,
-			new BiConsumer<Object, Object>()
-			{
-				@Override
-				public void accept(final Object key, final Object value)
-				{
-					// unhashed because element instances are potentially not populated with data yet. see complete()
-					collectingInstance.internalCollectUnhashed(key, value);
-				}
-			}
+			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}

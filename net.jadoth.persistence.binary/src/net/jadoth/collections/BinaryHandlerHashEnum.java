@@ -5,7 +5,6 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -46,7 +45,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -112,8 +111,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(getBuildItemElementCount(bytes));
 
-		instance.size = BinaryPersistence.collectListObjectReferences(
-			bytes                 ,
+		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			builder               ,
 			collectingInstance::add
@@ -130,7 +128,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashEnum<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }
