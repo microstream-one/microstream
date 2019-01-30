@@ -56,6 +56,26 @@ public abstract class Binary implements Chunk
 	{
 		return KEY_VALUE_BINARY_LENGTH;
 	}
+		
+	public static final int binaryListHeaderLength()
+	{
+		return LIST_HEADER_LENGTH;
+	}
+	
+	public static final long binaryListMinimumLength()
+	{
+		return LIST_HEADER_LENGTH;
+	}
+
+	public static final long binaryListMaximumLength()
+	{
+		return Long.MAX_VALUE;
+	}
+
+	public static final long calculateBinaryListByteLength(final long binaryListElementsByteLength)
+	{
+		return binaryListHeaderLength() + binaryListElementsByteLength;
+	}
 	
 	
 	
@@ -528,27 +548,7 @@ public abstract class Binary implements Chunk
 			iterator
 		);
 	}
-	
-	public static final int binaryListHeaderLength()
-	{
-		return LIST_HEADER_LENGTH;
-	}
-	
-	public static final long binaryListMinimumLength()
-	{
-		return LIST_HEADER_LENGTH;
-	}
-
-	public static final long binaryListMaximumLength()
-	{
-		return Long.MAX_VALUE;
-	}
-
-	public static final long calculateBinaryListByteLength(final long binaryListElementsByteLength)
-	{
-		return binaryListHeaderLength() + binaryListElementsByteLength;
-	}
-	
+		
 	// binary list byte length //
 	
 	// (29.01.2019 TM)FIXME: JET-49: review and remove/rename ~Absolute methods
