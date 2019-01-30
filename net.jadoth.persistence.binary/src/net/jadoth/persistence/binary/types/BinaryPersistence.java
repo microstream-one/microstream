@@ -562,26 +562,6 @@ public final class BinaryPersistence extends Persistence
 		}
 	}
 
-	// (29.01.2019 TM)FIXME: JET-49 is this method used at all? (check after compiler errors are gone)
-	public static final boolean isEqualBinaryState(
-		final Object                    instance     ,
-		final BinaryValueEqualator[]    equalators   ,
-		final long[]                    memoryOffsets,
-		final long[]                    binaryOffsets,
-		final long                      address      ,
-		final PersistenceObjectIdResolver oidResolver
-	)
-	{
-		for(int i = 0; i < equalators.length; i++)
-		{
-			if(!equalators[i].equalValue(instance, address + binaryOffsets[i], memoryOffsets[i], oidResolver))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public static final void iterateInstanceReferences(
 		final PersistenceFunction iterator,
 		final Object instance,
