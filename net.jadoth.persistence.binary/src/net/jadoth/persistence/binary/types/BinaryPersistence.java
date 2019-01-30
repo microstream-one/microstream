@@ -2,6 +2,7 @@ package net.jadoth.persistence.binary.types;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 
 import net.jadoth.collections.BinaryHandlerBulkList;
 import net.jadoth.collections.BinaryHandlerConstHashEnum;
@@ -70,13 +71,13 @@ public final class BinaryPersistence extends Persistence
 	// constants        //
 	/////////////////////
 
-	static final int
+	private static final int
 		LENGTH_LEN  = Long.BYTES,
 		LENGTH_OID  = Long.BYTES,
 		LENGTH_TID  = Long.BYTES
 	;
 	
-	static final long
+	private static final long
 		OFFSET_LEN = 0L                     ,
 		OFFSET_TID = OFFSET_LEN + LENGTH_LEN,
 		OFFSET_OID = OFFSET_TID + LENGTH_TID,
@@ -84,7 +85,7 @@ public final class BinaryPersistence extends Persistence
 	;
 	
 	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
-	static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
+	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
 
 	/* (29.01.2019 TM)TODO: test and comment bit shifting multiplication performance
 	 * test and comment if this really makes a difference in performance.
@@ -126,6 +127,11 @@ public final class BinaryPersistence extends Persistence
 	public static final int entityHeaderLength()
 	{
 		return LENGTH_ENTITY_HEADER;
+	}
+	
+	protected static ByteBuffer allocateEntityHeaderDirectBuffer()
+	{
+		return ByteBuffer.allocateDirect(LENGTH_ENTITY_HEADER);
 	}
 
 	public static final long entityTotalLength(final long entityContentLength)
@@ -189,6 +195,32 @@ public final class BinaryPersistence extends Persistence
 	{
 		return entityContentAddress - LENGTH_ENTITY_HEADER;
 	}
+	
+	
+	// special crazy sh*t negative offsets
+	private static final long
+		CONTENT_ADDRESS_NEGATIVE_OFFSET_TID = BinaryPersistence.OFFSET_TID - BinaryPersistence.LENGTH_ENTITY_HEADER,
+		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = BinaryPersistence.OFFSET_OID - BinaryPersistence.LENGTH_ENTITY_HEADER
+	;
+		
+	public static final long getBuildItemContentLength(final Binary entityLoadItem)
+	{
+		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() - BinaryPersistence.LENGTH_ENTITY_HEADER)
+			- BinaryPersistence.LENGTH_ENTITY_HEADER
+		;
+	}
+	
+	public static final long getBuildItemTypeId(final Binary entityLoadItem)
+	{
+		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_TID);
+	}
+
+	public static final long getBuildItemObjectId(final Binary entityLoadItem)
+	{
+		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
+	}
+	
+	
 		
 	private static final BinaryValueStorer STORE_1 = new BinaryValueStorer()
 	{

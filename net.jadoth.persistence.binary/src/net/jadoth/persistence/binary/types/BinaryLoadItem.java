@@ -3,10 +3,40 @@ package net.jadoth.persistence.binary.types;
 import java.nio.ByteBuffer;
 
 import net.jadoth.functional._longProcedure;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
 public final class BinaryLoadItem extends Binary
 {
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryLoadItem SkipItem(final long objectId, final Object instance)
+	{
+		/*
+		 * A little hacky, but worth it:
+		 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
+		 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
+		 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
+		 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
+		 * of common case entities.
+		 */
+		final ByteBuffer dbb = BinaryPersistence.allocateEntityHeaderDirectBuffer();
+		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
+		BinaryPersistence.storeEntityHeader(dbbAddress, 0, 0, objectId);
+		
+		// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
+		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity(), instance, null);
+		
+		// skip items will never use the helper instance for anything, since they are skip dummies.
+		skipItem.setHelper(dbb);
+		
+		return skipItem;
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////

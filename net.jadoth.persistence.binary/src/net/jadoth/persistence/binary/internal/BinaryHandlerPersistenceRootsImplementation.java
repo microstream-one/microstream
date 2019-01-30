@@ -126,18 +126,14 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private static long[] buildTempObjectIdArray(final Binary bytes)
 	{
-		final long amountOids = Binary.getBinaryListElementCount(
-			bytes.loadItemEntityContentAddress() + OFFSET_OID_LIST
-	);
+		final long amountOids = bytes.getBinaryListElementCountUnvalidating(OFFSET_OID_LIST);
 		return new long[X.checkArrayRange(amountOids)];
 	}
 
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
 	{
 		final long offsetIdentifierList = Binary.getBinaryListByteLengthAbsolute(OFFSET_OID_LIST);
-		final long amountIdentifiers    = Binary.getBinaryListElementCount(
-			bytes.loadItemEntityContentAddress() + offsetIdentifierList
-		);
+		final long amountIdentifiers    = bytes.getBinaryListElementCountUnvalidating(offsetIdentifierList);
 
 		return new String[X.checkArrayRange(amountIdentifiers)];
 	}

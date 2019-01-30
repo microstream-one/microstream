@@ -75,7 +75,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			newEntityAddress                               ,
 			binaryContentLength                            ,
 			this.typeHandler().typeId()                    ,
-			rawData.getBuildItemObjectId()
+			BinaryPersistence.getBuildItemObjectId(rawData)
 		);
 		
 		// replacement binary content is filled and afterwards set as the productive content
