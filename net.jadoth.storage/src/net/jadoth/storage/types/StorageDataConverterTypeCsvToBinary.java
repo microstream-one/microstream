@@ -21,6 +21,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.XMemory;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -166,10 +167,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.typeDictionary                  = typeDictionary                                                 ;
 			this.fileProvider                    = fileProvider                                                   ;
 			// the * 2 is important for simplifying the flush check
-			this.bufferSize                      = Math.max(bufferSize, 2 * XMemory.defaultBufferSize())           ;
+			this.bufferSize                      = Math.max(bufferSize, 2 * XMemory.defaultBufferSize())          ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = XMemory.getDirectByteBufferAddress(this.byteBuffer)                ;
-			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()       ;
+			this.byteBufferStartAddress          = XMemory.getDirectByteBufferAddress(this.byteBuffer)            ;
+			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()      ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
 			this.literalTrue                     = configuration.literalBooleanTrue().toCharArray()               ;
@@ -181,10 +182,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.terminator                      = configuration.csvConfiguration().terminator()                  ;
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
-			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(BinaryPersistence.binaryListHeaderLength());
-			this.addressListHeaderUpdateBuffer   = XMemory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer)    ;
+			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(Binary.binaryListHeaderLength())     ;
+			this.addressListHeaderUpdateBuffer   = XMemory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer);
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
-			this.addressEntityLengthUpdateBuffer = XMemory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer)  ;
+			this.addressEntityLengthUpdateBuffer = XMemory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer);
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
 		}
@@ -690,7 +691,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// update list header in binary form
 			this.retroUpdateListHeader(
 				currentFileOffset,
-				BinaryPersistence.calculateBinaryListByteLength(elementCount * XMemory.byteSize_boolean()),
+				Binary.calculateBinaryListByteLength(elementCount * XMemory.byteSize_boolean()),
 				elementCount
 			);
 
@@ -930,7 +931,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.retroUpdateListHeader(
 				currentFileOffset,
 				binaryLength,
-				binaryLength - BinaryPersistence.binaryListHeaderLength() >> bitDivisor
+				binaryLength - Binary.binaryListHeaderLength() >> bitDivisor
 			);
 		}
 

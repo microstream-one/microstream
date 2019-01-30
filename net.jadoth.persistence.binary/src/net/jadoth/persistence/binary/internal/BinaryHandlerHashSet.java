@@ -8,7 +8,6 @@ import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
@@ -37,7 +36,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -99,7 +98,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		final int      elementCount   = getElementCount(rawData);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		BinaryPersistence.collectElementsIntoArray(rawData, BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
 	
 		rawData.setHelper(elementsHelper);
 	}
@@ -116,7 +115,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.FileException;
 import net.jadoth.files.XFiles;
 import net.jadoth.memory.XMemory;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
@@ -702,8 +703,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = BinaryPersistence.getBinaryListElementCount(valueReadAddress);
-			      long address       = BinaryPersistence.binaryListElementsAddressAbsolute(valueReadAddress);
+			final long elementCount  = Binary.getBinaryListElementCount(valueReadAddress);
+			      long address       = Binary.binaryListElementsAddressAbsolute(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
 
@@ -726,8 +727,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = BinaryPersistence.getBinaryListElementCount(valueReadAddress);
-			      long address      = BinaryPersistence.binaryListElementsAddressAbsolute(valueReadAddress);
+			final long elementCount = Binary.getBinaryListElementCount(valueReadAddress);
+			      long address      = Binary.binaryListElementsAddressAbsolute(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
 			this.write(this.listStarter);
@@ -954,10 +955,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + BinaryPersistence.getBinaryListByteLengthAbsolute(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListByteLengthAbsolute(valueReadAddress);
 					
 					ImplementationUTF8.this.write_chars(
-						BinaryPersistence.binaryListElementsAddressAbsolute(valueReadAddress),
+						Binary.binaryListElementsAddressAbsolute(valueReadAddress),
 						bound
 					);
 					
@@ -973,10 +974,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + BinaryPersistence.getBinaryListByteLengthAbsolute(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListByteLengthAbsolute(valueReadAddress);
 					
 					ImplementationUTF8.this.write_bytes(
-						BinaryPersistence.binaryListElementsAddressAbsolute(valueReadAddress),
+						Binary.binaryListElementsAddressAbsolute(valueReadAddress),
 						bound
 					);
 					

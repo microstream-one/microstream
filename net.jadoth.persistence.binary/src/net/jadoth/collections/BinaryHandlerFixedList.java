@@ -74,7 +74,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 			this.typeId(),
 			oid
 		);
-		BinaryPersistence.storeArrayContentAsList(contentAddress, handler, arrayInstance, 0, arrayInstance.length);
+		Binary.storeArrayContentAsList(contentAddress, handler, arrayInstance, 0, arrayInstance.length);
 	}
 
 	@Override
@@ -108,7 +108,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
-		BinaryPersistence.iterateListElementReferences(bytes, BINARY_OFFSET_LIST, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_LIST, iterator);
 	}
 
 }

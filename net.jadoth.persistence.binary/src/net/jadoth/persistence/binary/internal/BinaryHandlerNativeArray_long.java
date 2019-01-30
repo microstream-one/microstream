@@ -1,7 +1,6 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -25,19 +24,19 @@ public final class BinaryHandlerNativeArray_long extends AbstractBinaryHandlerNa
 	@Override
 	public void store(final Binary bytes, final long[] array, final long oid, final PersistenceStoreHandler handler)
 	{
-		BinaryPersistence.storeArray_long(bytes, this.typeId(), oid, array);
+		bytes.storeArray_long(this.typeId(), oid, array);
 	}
 
 	@Override
 	public long[] create(final Binary bytes)
 	{
-		return BinaryPersistence.createArray_long(bytes);
+		return bytes.createArray_long();
 	}
 
 	@Override
 	public void update(final Binary bytes, final long[] instance, final PersistenceLoadHandler builder)
 	{
-		BinaryPersistence.updateArray_long(instance, bytes);
+		bytes.updateArray_long(instance);
 	}
 
 }

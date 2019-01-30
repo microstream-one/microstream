@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import java.lang.reflect.Field;
-import java.util.function.BiConsumer;
 
 import net.jadoth.X;
 import net.jadoth.functional._longProcedure;
@@ -64,7 +63,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return BinaryPersistence.get_float(bytes, BINARY_OFFSET_HASH_DENSITY);
+		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 
@@ -152,32 +151,23 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_EQUALATOR))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_KEYS))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(BinaryPersistence.get_long(bytes, BINARY_OFFSET_VALUES))
+			builder.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
-		instance.size = BinaryPersistence.collectKeyValueReferences(
-			bytes,
+		instance.size = bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
 			builder,
-			new BiConsumer<Object, Object>()
-			{
-				@Override
-				public void accept(final Object key, final Object value)
-				{
-					// unhashed because element instances are potentially not populated with data yet. see complete()
-					collectingInstance.internalCollectUnhashed(key, value);
-				}
-			}
+			collectingInstance::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
