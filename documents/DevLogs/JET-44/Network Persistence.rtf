@@ -1811,6 +1811,11 @@ Jetzt ist noch zu tun:\par
 - Und dann ist zu \'fcberlegen, wie das eigentliche ByteOrder switching da rein kommt. Ggf. durch verschieben der entsprechenden Methoden in eine neue Vererbungsebene.\par
 \par
 \par
+Ich mach das jetzt doch so, dass nur simple getter und setter bzw. storer und reader overridet werden.\par
+Die JVM sollte den aufruf weg-jitten und der restliche Code muss nur einmal geschrieben werden.\par
+Passt.\par
+\par
+\par
 \par
 }
  
