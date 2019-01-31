@@ -6,7 +6,6 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -64,17 +63,17 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final ConstList<?>            instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		final Object[] arrayInstance = instance.data;
-		final long contentAddress = bytes.storeEntityHeader(
-			Binary.calculateReferenceListTotalBinaryLength(arrayInstance.length),
+		bytes.storeArray(
 			this.typeId(),
-			oid
+			objectId     ,
+			0            ,
+			handler      ,
+			instance.data
 		);
-		Binary.storeArrayContentAsList(contentAddress, handler, arrayInstance, 0, arrayInstance.length);
 	}
 
 	@Override

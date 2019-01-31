@@ -41,7 +41,7 @@ public final class XMemory
 		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
 	;
 
-	// constant names documentating that a value shall be shifted by n bits. Also to get CheckStyle off my back.
+	// constant names documenting that a value shall be shifted by n bits. Also to get CheckStyle off my back.
 	private static final int
 		BITS1 = 1,
 		BITS2 = 2,

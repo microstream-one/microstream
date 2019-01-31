@@ -99,29 +99,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 		final PersistenceStoreHandler         handler
 	)
 	{
-		// performance is not important here as roots only get stored once per system start and are very few in numbers
-		final Object[] instances   = instance.entries().values().toArray();
-		final String[] identifiers = instance.entries().keys().toArray(String.class);
-
-		// calculate all the lengths
-		final long instancesTotalBinLength     = Binary.calculateReferenceListTotalBinaryLength(instances.length);
-		final long identifiersContentBinLength = Binary.calculateStringListContentBinaryLength(identifiers);
-		final long totalContentLength          = instancesTotalBinLength
-			+ Binary.calculateBinaryListByteLength(identifiersContentBinLength)
-		;
-
-		// store header for writing and reserving total length before writing content
-		final long contentAddress = bytes.storeEntityHeader(totalContentLength, this.typeId(), oid);
-
-		// store instances first to allow efficient references-only caching
-		Binary.storeArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
-
-		// store identifiers as list of inlined [char]s
-		Binary.storeStringsAsList(
-			contentAddress + instancesTotalBinLength,
-			identifiersContentBinLength,
-			identifiers
-		);
+		bytes.storeRoots(this.typeId(), oid, instance.entries(), handler);
 	}
 
 	private static long[] buildTempObjectIdArray(final Binary bytes)

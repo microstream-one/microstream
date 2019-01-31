@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.jadoth.X;
+import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
@@ -349,12 +350,12 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final long storeSizedArray(
-		final long                tid         ,
-		final long                oid         ,
-		final long                headerOffset,
-		final Object[]            array       ,
-		final int                 size        ,
-		final PersistenceFunction persister
+		final long                    tid         ,
+		final long                    oid         ,
+		final long                    headerOffset,
+		final Object[]                array       ,
+		final int                     size        ,
+		final PersistenceStoreHandler persister
 	)
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
@@ -370,7 +371,7 @@ public abstract class Binary implements Chunk
 		XMemory.set_long(contentAddress + headerOffset + SIZED_ARRAY_OFFSET_LENGTH, array.length);
 
 		// store content: array content up to size, trailing nulls are cut off.
-		Binary.storeArrayContentAsList(
+		this.internalStoreArrayContentAsList(
 			contentAddress + headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			persister,
 			array,
@@ -380,6 +381,38 @@ public abstract class Binary implements Chunk
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
+	}
+	
+	public final void storeRoots(
+		final long                            typeId  ,
+		final long                            objectId,
+		final XGettingTable<String, Object>   entries ,
+		final PersistenceStoreHandler         handler
+	)
+	{
+		// performance is not important here as roots only get stored once per system start and are very few in numbers
+		final Object[] instances   = entries.values().toArray();
+		final String[] identifiers = entries.keys().toArray(String.class);
+
+		// calculate all the lengths
+		final long instancesTotalBinLength     = Binary.calculateReferenceListTotalBinaryLength(instances.length);
+		final long identifiersContentBinLength = Binary.calculateStringListContentBinaryLength(identifiers);
+		final long totalContentLength          = instancesTotalBinLength
+			+ Binary.calculateBinaryListByteLength(identifiersContentBinLength)
+		;
+
+		// store header for writing and reserving total length before writing content
+		final long contentAddress = this.storeEntityHeader(totalContentLength, typeId, objectId);
+
+		// store instances first to allow efficient references-only caching
+		this.internalStoreArrayContentAsList(contentAddress, handler, instances, 0, instances.length);
+
+		// store identifiers as list of inlined [char]s
+		Binary.storeStringsAsList(
+			contentAddress + instancesTotalBinLength,
+			identifiersContentBinLength,
+			identifiers
+		);
 	}
 
 	public final long storeSizedIterableAsList(
@@ -834,35 +867,45 @@ public abstract class Binary implements Chunk
 			chars.length
 		);
 	}
+	
+	public final long storeArray(
+		final long                    typeId      ,
+		final long                    objectId    ,
+		final long                    binaryOffset,
+		final PersistenceStoreHandler handler     ,
+		final Object[]                array
+	)
+	{
+		return this.storeArray(typeId, objectId, binaryOffset, handler, array, 0, array.length);
+	}
 
-	public final long storeArrayContentAsList(
-		final long                typeId      ,
-		final long                objectId    ,
-		final long                binaryOffset,
-		final PersistenceFunction persister   ,
-		final Object[]            array       ,
-		final int                 offset      ,
-		final int                 length
+	public final long storeArray(
+		final long                    typeId      ,
+		final long                    objectId    ,
+		final long                    binaryOffset,
+		final PersistenceStoreHandler handler     ,
+		final Object[]                array       ,
+		final int                     arrayOffset ,
+		final int                     arrayLength
 	)
 	{
 		final long contentAddress = this.storeEntityHeader(
-			binaryOffset + Binary.calculateReferenceListTotalBinaryLength(array.length),
+			binaryOffset + Binary.calculateReferenceListTotalBinaryLength(arrayLength),
 			typeId,
 			objectId
 		);
 
-		storeArrayContentAsList(contentAddress + binaryOffset, persister, array, offset, length);
+		this.internalStoreArrayContentAsList(contentAddress + binaryOffset, handler, array, arrayOffset, arrayLength);
 
 		return contentAddress;
 	}
 
-	// (29.01.2019 TM)FIXME: consolidate/transform into instance method
-	public static final void storeArrayContentAsList(
-		final long            storeAddress,
-		final PersistenceFunction persister   ,
-		final Object[]        array       ,
-		final int             offset      ,
-		final int             length
+	final void internalStoreArrayContentAsList(
+		final long                    storeAddress,
+		final PersistenceStoreHandler persister   ,
+		final Object[]                array       ,
+		final int                     offset      ,
+		final int                     length
 	)
 	{
 		final long elementsDataAddress = storeListHeader(
@@ -874,8 +917,50 @@ public abstract class Binary implements Chunk
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			XMemory.set_long(elementsDataAddress + referenceBinaryLength(i), persister.apply(array[i]));
+			this.store_long(elementsDataAddress + referenceBinaryLength(i), persister.apply(array[i]));
 		}
+	}
+	
+	// (31.01.2019 TM)FIXME: JET-49: derived class with byteorder switching overrides for these methods
+	
+	protected void store_byte(final long address, final byte value)
+	{
+		XMemory.set_byte(address, value);
+	}
+
+	protected void store_boolean(final long address, final boolean value)
+	{
+		XMemory.set_boolean(address, value);
+	}
+
+	protected void store_short(final long address, final short value)
+	{
+		XMemory.set_short(address, value);
+	}
+
+	protected void store_char(final long address, final char value)
+	{
+		XMemory.set_char(address, value);
+	}
+
+	protected void store_int(final long address, final int value)
+	{
+		XMemory.set_int(address, value);
+	}
+
+	protected void store_float(final long address, final float value)
+	{
+		XMemory.set_float(address, value);
+	}
+
+	protected void store_long(final long address, final long value)
+	{
+		XMemory.set_long(address, value);
+	}
+
+	protected void store_double(final long address, final double value)
+	{
+		XMemory.set_double(address, value);
 	}
 
 	public static final long storeListHeader(
@@ -1392,7 +1477,7 @@ public abstract class Binary implements Chunk
 	// constructors //
 	/////////////////
 	
-	protected Binary()
+	Binary()
 	{
 		super();
 	}
