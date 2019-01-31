@@ -12,7 +12,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.math.XMath;
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
@@ -583,7 +583,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			 */
 
 			// ensure (lookup or create) complete entity item for storing
-//			DEBUGStorage.println("looking for " + BinaryPersistence.getEntityObjectId(entityAddress));
+//			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
 			final StorageEntity.Implementation entry;
 			if((entry = this.getEntry(objectId)) != null)
 			{
@@ -592,22 +592,22 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				return entry;
 			}
 
-//			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
+//			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
 			return this.createEntity(objectId, type);
 		}
 
 		final StorageEntity.Implementation putEntity(final long entityAddress)
 		{
-//			DEBUGStorage.println("looking for " + BinaryPersistence.getEntityObjectId(entityAddress));
+//			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
 			final StorageEntity.Implementation entry;
-			if((entry = this.getEntry(BinaryPersistence.getEntityObjectId(entityAddress))) != null)
+			if((entry = this.getEntry(Binary.getEntityObjectId(entityAddress))) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
 				this.resetExistingEntityForUpdate(entry);
 				return entry;
 			}
 
-//			DEBUGStorage.println("creating " + BinaryPersistence.getEntityObjectId(entityAddress) + ", " + BinaryPersistence.getEntityTypeId(entityAddress) + ", [" + BinaryPersistence.getEntityLength(entityAddress) + "]");
+//			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
 	
 			/* the added try-catch showed no change in performance in a test.
 			 * loading ~25 million entities took from 32 to 75 seconds and depends overwhelmingly on
@@ -617,17 +617,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			try
 			{
 				return this.createEntity(
-					BinaryPersistence.getEntityObjectId(entityAddress),
-					this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
+					Binary.getEntityObjectId(entityAddress),
+					this.getType(Binary.getEntityTypeId(entityAddress))
 				);
 			}
 			catch(final Exception e)
 			{
 				throw new StorageException(
 					"Exception while creating entity ["
-					+ BinaryPersistence.getEntityLength(entityAddress) + "]["
-					+ BinaryPersistence.getEntityTypeId(entityAddress) + "]["
-					+ BinaryPersistence.getEntityObjectId(entityAddress) + "]"
+					+ Binary.getEntityLength(entityAddress) + "]["
+					+ Binary.getEntityTypeId(entityAddress) + "]["
+					+ Binary.getEntityObjectId(entityAddress) + "]"
 					, e
 				);
 			}
@@ -637,8 +637,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		final StorageEntity.Implementation initialCreateEntity(final long entityAddress)
 		{
 			final StorageEntity.Implementation entity = this.createEntity(
-				BinaryPersistence.getEntityObjectId(entityAddress),
-				this.getType(BinaryPersistence.getEntityTypeId(entityAddress))
+				Binary.getEntityObjectId(entityAddress),
+				this.getType(Binary.getEntityTypeId(entityAddress))
 			);
 			
 			return entity;
@@ -1076,12 +1076,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final long chunkBoundAddress = chunkStartAddress    + chunkLength      ;
 
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
-			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += BinaryPersistence.getEntityLength(adr))
+			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += Binary.getEntityLength(adr))
 			{
 				final StorageEntity.Implementation entity = this.putEntity(adr);
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
-					X.checkArrayRange(BinaryPersistence.getEntityLength(adr)),
+					X.checkArrayRange(Binary.getEntityLength(adr)),
 					file,
 					XTypes.to_int(storageBackset + adr)
 				);

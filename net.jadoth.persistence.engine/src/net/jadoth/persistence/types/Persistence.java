@@ -30,7 +30,7 @@ import net.jadoth.typing.KeyValue;
 
 public class Persistence
 {
-	// (23.11.2018 TM)TODO: cleanup Persistence class now that consolidation is complete.
+	// (23.11.2018 TM)TODO: cleanup Persistence class
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

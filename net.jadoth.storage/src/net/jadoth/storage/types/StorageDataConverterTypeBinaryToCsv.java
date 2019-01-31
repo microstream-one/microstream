@@ -27,7 +27,6 @@ import net.jadoth.files.FileException;
 import net.jadoth.files.XFiles;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -420,7 +419,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void processEntity(final long entityAddress) throws IOException
 		{
-			this.checkType(BinaryPersistence.getEntityTypeId(entityAddress));
+			this.checkType(Binary.getEntityTypeId(entityAddress));
 
 			final byte valueSeparator = this.valueSeparator;
 
@@ -430,13 +429,13 @@ public interface StorageDataConverterTypeBinaryToCsv
 			// write record separator not before it is required a by new record (this method call)
 			XMemory.set_byte(this.writeAddress, this.recordSeparator);
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(
-				BinaryPersistence.getEntityObjectId(entityAddress),
+				Binary.getEntityObjectId(entityAddress),
 				this.writeAddress + 1
 			);
 			XMemory.set_byte(this.writeAddress, valueSeparator);
 			this.writeAddress += LITERAL_BYTE_SIZE_SINGLE_CHAR;
 
-			long address = BinaryPersistence.entityContentAddress(entityAddress);
+			long address = Binary.entityContentAddress(entityAddress);
 			for(final ValueWriter writer : this.valueWriters)
 			{
 				address = writer.writeValue(address);
@@ -703,7 +702,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = Binary.getBinaryListElementCount(valueReadAddress);
+			final long elementCount  = Binary.getBinaryListElementCountAbsolute(valueReadAddress);
 			      long address       = Binary.binaryListElementsAddress(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
@@ -722,12 +721,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			this.closeComplexLiteral(elementCount);
 
-			return valueReadAddress + BinaryPersistence.getEntityLength(valueReadAddress);
+			return valueReadAddress + Binary.getEntityLength(valueReadAddress);
 		}
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = Binary.getBinaryListElementCount(valueReadAddress);
+			final long elementCount = Binary.getBinaryListElementCountAbsolute(valueReadAddress);
 			      long address      = Binary.binaryListElementsAddress(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
@@ -739,7 +738,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			this.closeComplexLiteral(elementCount);
 
-			return valueReadAddress + BinaryPersistence.getEntityLength(valueReadAddress);
+			return valueReadAddress + Binary.getEntityLength(valueReadAddress);
 		}
 
 		private void closeComplexLiteral(final long elementCount) throws IOException
@@ -995,13 +994,13 @@ public interface StorageDataConverterTypeBinaryToCsv
 		public boolean accept(final long entityAddress, final long availableEntityLength)
 		{
 			// check for gap and skip (report success/advance without taking any action)
-			if(BinaryPersistence.getEntityLength(entityAddress) < 0)
+			if(Binary.getEntityLength(entityAddress) < 0)
 			{
 				return true;
 			}
 
 			// check for incomplete entity data and report failure/reload.
-			if(availableEntityLength < BinaryPersistence.getEntityLength(entityAddress))
+			if(availableEntityLength < Binary.getEntityLength(entityAddress))
 			{
 				return false;
 			}

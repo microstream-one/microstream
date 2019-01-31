@@ -163,7 +163,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	{
 		final T instance = this.internalCreate(rawData);
 		this.listener.registerLegacyTypeHandlingCreation(
-			BinaryPersistence.getBuildItemObjectId(rawData),
+			rawData.getBuildItemObjectId(),
 			instance,
 			this.legacyTypeDefinition(),
 			this.typeHandler()

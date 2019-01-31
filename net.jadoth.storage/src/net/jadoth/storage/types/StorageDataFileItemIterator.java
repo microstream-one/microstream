@@ -6,7 +6,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 
 
 public interface StorageDataFileItemIterator
@@ -112,7 +112,7 @@ public interface StorageDataFileItemIterator
 				 */
 				if(nextEntityLength > this.buffer.capacity())
 				{
-					this.buffer.limit(BinaryPersistence.entityHeaderLength());
+					this.buffer.limit(Binary.entityHeaderLength());
 				}
 
 				return this.buffer;
@@ -266,7 +266,7 @@ public interface StorageDataFileItemIterator
 			while(true) // loop gets terminated by end-of-data recognition logic specific to the found case
 			{
 				// read length of current item (entity or gap)
-				itemLength = BinaryPersistence.getEntityLength(address);
+				itemLength = Binary.getEntityLength(address);
 
 				if(itemLength == 0)
 				{

@@ -8,7 +8,6 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNative;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -28,9 +27,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstHashTable<?, ?>>
 	/////////////////////
 
 	static final long
-		BINARY_OFFSET_KEYS         =                                                    0,
-		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + BinaryPersistence.oidByteLength(),
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + BinaryPersistence.oidByteLength(),
+		BINARY_OFFSET_KEYS         = 0                                                    ,
+		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.oidByteLength()  ,
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.oidByteLength()  ,
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()
 	;
 

@@ -114,9 +114,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final BinaryLoadItem buildItem = this.createBuildItem(entityAddress);
 
 //			XDebug.debugln("Item @ " + address + ":\n" +
-//				"LEN=" + BinaryPersistence.getEntityLength(address) + "\n" +
-//				"TID=" + BinaryPersistence.getEntityTypeId(address) + "\n" +
-//				"OID=" + BinaryPersistence.getEntityObjectId(address) + "\n" +
+//				"LEN=" + Binary.getEntityLength(address) + "\n" +
+//				"TID=" + Binary.getEntityTypeId(address) + "\n" +
+//				"OID=" + Binary.getEntityObjectId(address) + "\n" +
 //				"contentAddress=" + buildItem.entityContentAddress
 //			);
 
@@ -174,7 +174,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return entry.contextInstance != null
 				? entry.contextInstance
 				: (entry.contextInstance = this.registry.optionalRegisterObject(
-					BinaryPersistence.getBuildItemObjectId(entry),
+					entry.getBuildItemObjectId(),
 					entry.localInstance
 				))
 			;
@@ -207,6 +207,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void handleReference(final long refOid)
 		{
+			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well.
 			if(this.isUnrequiredReference(refOid))
 			{
 				return;
@@ -218,12 +219,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createBuildItem(final long entityAddress)
 		{
+			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well.
 			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
 				this.typeHandlerLookup.lookupTypeHandler(
-					BinaryPersistence.getEntityObjectId(entityAddress),
-					BinaryPersistence.getEntityTypeId(entityAddress)
+					Binary.getEntityObjectId(entityAddress),
+					Binary.getEntityTypeId(entityAddress)
 				)
 			;
 			
@@ -231,13 +233,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			if(typeHandler == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
-					BinaryPersistence.getEntityTypeId(entityAddress)
+					Binary.getEntityTypeId(entityAddress)
 				);
 			}
 			
 			return new BinaryLoadItem(
-				BinaryPersistence.entityContentAddress(entityAddress),
-				this.registry.lookupObject(BinaryPersistence.getEntityObjectId(entityAddress)),
+				Binary.entityContentAddress(entityAddress),
+				this.registry.lookupObject(Binary.getEntityObjectId(entityAddress)),
 				typeHandler
 			);
 		}
@@ -380,8 +382,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				for(BinaryLoadItem next; entry != null; entry = next)
 				{
 					next = entry.link;
-					entry.link = newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange];
-					newSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & newRange] = entry;
+					entry.link = newSlots[(int)entry.getBuildItemObjectId() & newRange];
+					newSlots[(int)entry.getBuildItemObjectId() & newRange] = entry;
 				}
 			}
 			this.buildItemsHashSlots = newSlots;
@@ -390,8 +392,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		private void putBuildItem(final BinaryLoadItem entry)
 		{
-			entry.link = this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & this.buildItemsHashRange];
-			this.buildItemsHashSlots[(int)BinaryPersistence.getBuildItemObjectId(entry) & this.buildItemsHashRange] =
+			entry.link = this.buildItemsHashSlots[(int)entry.getBuildItemObjectId() & this.buildItemsHashRange];
+			this.buildItemsHashSlots[(int)entry.getBuildItemObjectId() & this.buildItemsHashRange] =
 				this.buildItemsTail = this.buildItemsTail.next = entry
 			;
 			if(++this.buildItemsSize >= this.buildItemsHashRange)
@@ -417,7 +419,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return true;
 				}
@@ -451,7 +453,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return this.getEffectiveInstance(e);
 				}
@@ -463,7 +465,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		{
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(BinaryPersistence.getBuildItemObjectId(e) == oid)
+				if(e.getBuildItemObjectId() == oid)
 				{
 					return;
 				}

@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
 import sun.nio.ch.DirectBuffer;
@@ -147,20 +146,53 @@ public final class ChunksWrapper extends Binary
 	{
 		throw new UnsupportedOperationException();
 	}
-			
+	
 	@Override
-	public final void iterateKeyValueEntriesReferences(
-		final long           offset  ,
-		final _longProcedure iterator
-	)
+	public final byte get_byte(final long offset)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public final long getListElementCountKeyValue(final long listStartOffset)
+	public final boolean get_boolean(final long offset)
 	{
 		throw new UnsupportedOperationException();
 	}
-
+	
+	@Override
+	public final short get_short(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final char get_char(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final int get_int(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final float get_float(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final long get_long(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final double get_double(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+			
 }

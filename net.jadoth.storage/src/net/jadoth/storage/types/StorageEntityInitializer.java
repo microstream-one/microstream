@@ -11,7 +11,7 @@ import java.util.function.Function;
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 import net.jadoth.typing.XTypes;
 
@@ -123,13 +123,13 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 				 * meaning only the most current version of every entity (identified by its ObjectId).
 				 * All earlier versions are simply ignored, hence the "return false".
 				 */
-				if(entityCache.getEntry(BinaryPersistence.getEntityObjectId(bufferStartAddress + entityOffsets[i])) != null)
+				if(entityCache.getEntry(Binary.getEntityObjectId(bufferStartAddress + entityOffsets[i])) != null)
 				{
 					continue;
 				}
 				
 				final long                         entityAddress = bufferStartAddress + entityOffsets[i];
-				final long                         entityLength  = BinaryPersistence.getEntityLength(entityAddress);
+				final long                         entityLength  = Binary.getEntityLength(entityAddress);
 				final StorageEntity.Implementation entity        = entityCache.initialCreateEntity(entityAddress);
 				
 				entity.updateStorageInformation(XTypes.to_int(entityLength), file, entityOffsets[i]);
@@ -174,7 +174,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			
 			for(long address = bufferStartAddress; address < bufferBoundAddress;)
 			{
-				currentItemLength = BinaryPersistence.getEntityLength(address);
+				currentItemLength = Binary.getEntityLength(address);
 				
 				if(currentItemLength > 0)
 				{
@@ -228,11 +228,11 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		private static int[] createAllFilesOffsetsArray(final int largestFileLength)
 		{
 			/*
-			 * Assuming the lrgest file solely consists of stateless entities (only headers)
+			 * Assuming the largest file solely consists of stateless entities (only headers)
 			 * guarantees to have a large enough array and a fast algorithm using it for all files.
-			 * The largest file just shouldn't be too large (for other reasons, too).
+			 * The largest file just shouldn't be allowed too large (for other reasons, too).
 			 */
-			return new int[largestFileLength / BinaryPersistence.entityHeaderLength()];
+			return new int[largestFileLength / Binary.entityHeaderLength()];
 		}
 		
 		private static ByteBuffer allocateInitializationBuffer(final Iterable<? extends StorageInventoryFile> files)

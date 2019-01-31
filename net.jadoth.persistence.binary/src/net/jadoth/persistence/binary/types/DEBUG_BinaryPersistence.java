@@ -38,9 +38,9 @@ public final class DEBUG_BinaryPersistence
 		}
 		return new long[]
 		{
-			BinaryPersistence.getBuildItemContentLength(bytes),
-			BinaryPersistence.getBuildItemTypeId(bytes),
-			BinaryPersistence.getBuildItemObjectId(bytes)
+			bytes.getBuildItemContentLength(),
+			bytes.getBuildItemTypeId(),
+			bytes.getBuildItemObjectId()
 		};
 	}
 

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.storage.types.StorageDataFileItemIterator;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 import net.jadoth.storage.types.StorageLockedFile;
@@ -27,7 +27,7 @@ public class MainTestPrintDataFileInventory
 		@Override
 		public boolean accept(final long address, final long availableItemLength)
 		{
-			final long length = BinaryPersistence.getEntityLength(address);
+			final long length = Binary.getEntityLength(address);
 
 			// check for a gap
 			if(length < 0)
@@ -39,14 +39,14 @@ public class MainTestPrintDataFileInventory
 				return true;
 			}
 
-			if(availableItemLength < BinaryPersistence.entityHeaderLength())
+			if(availableItemLength < Binary.entityHeaderLength())
 			{
 				// signal to calling context that entity cannot be processed and header must be reloaded
 				return false;
 			}
 
-			final long objectId = BinaryPersistence.getEntityObjectId(address);
-			final long typeId   = BinaryPersistence.getEntityTypeId(address);
+			final long objectId = Binary.getEntityObjectId(address);
+			final long typeId   = Binary.getEntityTypeId(address);
 
 			System.out.println(this.fileOffset+"\t"+length+"\t"+typeId+"\t"+objectId);
 

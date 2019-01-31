@@ -3,7 +3,7 @@ package net.jadoth.storage.types;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.MemoryRangeReader;
 
 
@@ -346,8 +346,8 @@ public interface StorageEntity
 
 		private long calculateSimpleReferenceCacheLength()
 		{
-			return BinaryPersistence.entityTotalLength(
-				BinaryPersistence.referenceBinaryLength(this.simpleReferenceCount())
+			return Binary.entityTotalLength(
+				Binary.referenceBinaryLength(this.simpleReferenceCount())
 			);
 		}
 

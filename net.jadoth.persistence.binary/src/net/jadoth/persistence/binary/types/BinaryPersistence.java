@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.types;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
 
 import net.jadoth.collections.BinaryHandlerBulkList;
 import net.jadoth.collections.BinaryHandlerConstHashEnum;
@@ -22,7 +21,6 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
 import net.jadoth.functional.IndexProcedure;
 import net.jadoth.functional.InstanceDispatcherLogic;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
 import net.jadoth.persistence.binary.internal.BinaryHandlerBigDecimal;
@@ -57,9 +55,7 @@ import net.jadoth.persistence.lazy.BinaryHandlerLazyReference;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFunction;
-import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceSizedArrayLengthController;
-import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.typing.XTypes;
@@ -67,396 +63,19 @@ import net.jadoth.util.BinaryHandlerSubstituterImplementation;
 
 public final class BinaryPersistence extends Persistence
 {
-	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
-
-	private static final int
-		LENGTH_LEN  = Long.BYTES,
-		LENGTH_OID  = Long.BYTES,
-		LENGTH_TID  = Long.BYTES
-	;
-	
-	private static final long
-		OFFSET_LEN = 0L                     ,
-		OFFSET_TID = OFFSET_LEN + LENGTH_LEN,
-		OFFSET_OID = OFFSET_TID + LENGTH_TID,
-		OFFSET_DAT = OFFSET_OID + LENGTH_OID
-	;
-	
-	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
-	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
-
-	/* (29.01.2019 TM)TODO: test and comment bit shifting multiplication performance
-	 * test and comment if this really makes a difference in performance.
-	 * The redundant length is ugly.
-	 */
-	/**
-	 * "<< 3" is a performance optimization for "* 8".
-	 */
-	private static final int LONG_BYTE_LENGTH_BITSHIFT_COUNT = 3;
-
-
-		
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-
-	/**
-	 * @return the length in bytes of a peristent item's length field (8 bytes).
-	 */
-	public static final int lengthLength()
+	public static BinaryPersistenceFoundation<?> Foundation()
 	{
-		return LENGTH_LEN;
+		return Foundation(null);
 	}
 
-	public static final boolean isValidGapLength(final long gapLength)
+	public static BinaryPersistenceFoundation<?> Foundation(final InstanceDispatcherLogic dispatcher)
 	{
-		// gap total length cannot indicate less then its own length (length of the length field, 1 long)
-		return gapLength >= LENGTH_LEN;
-	}
-
-	public static final boolean isValidEntityLength(final long entityLength)
-	{
-		return entityLength >= LENGTH_ENTITY_HEADER;
-	}
-
-	// (03.07.2013)TODO: entityHeaderLength() should never be required
-	public static final int entityHeaderLength()
-	{
-		return LENGTH_ENTITY_HEADER;
-	}
-	
-	protected static ByteBuffer allocateEntityHeaderDirectBuffer()
-	{
-		return ByteBuffer.allocateDirect(LENGTH_ENTITY_HEADER);
-	}
-
-	public static final long entityTotalLength(final long entityContentLength)
-	{
-		// the total length is the content length plus the length of the header (containing length, Tid, Oid)
-		return entityContentLength + LENGTH_ENTITY_HEADER;
-	}
-	
-	public static final long entityContentLength(final long entityTotalLength)
-	{
-		// the content length is the total length minus the length of the header (containing length, Tid, Oid)
-		return entityTotalLength - LENGTH_ENTITY_HEADER;
-	}
-
-	// (23.05.2013 TM)XXX: Consolidate different naming patterns (with/without get~ etc)
-		
-	public static final long getEntityTypeId(final long entityAddress)
-	{
-		return XMemory.get_long(entityAddress + OFFSET_TID);
-	}
-
-	public static final long getEntityObjectId(final long entityAddress)
-	{
-		return XMemory.get_long(entityAddress + OFFSET_OID);
-	}
-
-	public static final long entityContentAddress(final long entityAddress)
-	{
-		return entityAddress + LENGTH_ENTITY_HEADER;
-	}
-	
-	public static final long storeEntityHeader(
-		final long entityAddress      ,
-		final long entityContentLength, // note: entity CONTENT length (without header length!)
-		final long entityTypeId       ,
-		final long entityObjectId
-	)
-	{
-		setEntityHeaderValues(entityAddress, entityTotalLength(entityContentLength), entityTypeId, entityObjectId);
-		return entityAddress + entityTotalLength(entityContentLength);
-	}
-
-	public static final void setEntityHeaderValues(
-		final long address       ,
-		final long entityLength  , // note: entity TOTAL length (including header length!)
-		final long entityTypeId  ,
-		final long entityObjectId
-	)
-	{
-		XMemory.set_long(address + OFFSET_LEN, entityLength  );
-		XMemory.set_long(address + OFFSET_TID, entityTypeId  );
-		XMemory.set_long(address + OFFSET_OID, entityObjectId);
-	}
-
-	public static final long oidByteLength()
-	{
-		return LENGTH_OID;
-	}
-		
-	public static final long entityAddressFromContentAddress(final long entityContentAddress)
-	{
-		return entityContentAddress - LENGTH_ENTITY_HEADER;
-	}
-	
-	
-	// special crazy sh*t negative offsets
-	private static final long
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_TID = BinaryPersistence.OFFSET_TID - BinaryPersistence.LENGTH_ENTITY_HEADER,
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = BinaryPersistence.OFFSET_OID - BinaryPersistence.LENGTH_ENTITY_HEADER
-	;
-		
-	public static final long getBuildItemContentLength(final Binary entityLoadItem)
-	{
-		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() - BinaryPersistence.LENGTH_ENTITY_HEADER)
-			- BinaryPersistence.LENGTH_ENTITY_HEADER
+		final BinaryPersistenceFoundation<?> foundation = BinaryPersistenceFoundation.New()
+			.setInstanceDispatcher(dispatcher)
 		;
+		return foundation;
 	}
 	
-	public static final long getBuildItemTypeId(final Binary entityLoadItem)
-	{
-		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_TID);
-	}
-
-	public static final long getBuildItemObjectId(final Binary entityLoadItem)
-	{
-		return XMemory.get_long(entityLoadItem.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
-	}
-	
-	
-		
-	private static final BinaryValueStorer STORE_1 = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         src      ,
-			final long           srcOffset,
-			final long           address  ,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_byte(address, XMemory.get_byte(src, srcOffset));
-			return address + Byte.BYTES;
-		}
-	};
-
-	private static final BinaryValueStorer STORE_2 = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         src      ,
-			final long           srcOffset,
-			final long           address  ,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_short(address, XMemory.get_short(src, srcOffset));
-			return address + Short.BYTES;
-		}
-	};
-
-	private static final BinaryValueStorer STORE_4 = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         src      ,
-			final long           srcOffset,
-			final long           address  ,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_int(address, XMemory.get_int(src, srcOffset));
-			return address + Integer.BYTES;
-		}
-	};
-
-	private static final BinaryValueStorer STORE_8 = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         src      ,
-			final long           srcOffset,
-			final long           address  ,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_long(address, XMemory.get_long(src, srcOffset));
-			return address + Long.BYTES;
-		}
-	};
-
-	private static final BinaryValueStorer STORE_REFERENCE = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         src      ,
-			final long           srcOffset,
-			final long           address  ,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_long(address, handler.apply(XMemory.getObject(src, srcOffset)));
-			return address + LENGTH_OID;
-		}
-	};
-	
-	private static final BinaryValueStorer STORE_REFERENCE_EAGER = new BinaryValueStorer()
-	{
-		@Override
-		public long storeValueFromMemory(
-			final Object         source       ,
-			final long           sourceOffset ,
-			final long           targetAddress,
-			final PersistenceStoreHandler handler
-		)
-		{
-			XMemory.set_long(targetAddress, handler.applyEager(XMemory.getObject(source, sourceOffset)));
-			return targetAddress + LENGTH_OID;
-		}
-	};
-
-	private static final BinaryValueSetter SETTER_1 = new BinaryValueSetter()
-	{
-		@Override
-		public long setValueToMemory(
-			final long                      sourceAddress,
-			final Object                    target       ,
-			final long                      targetOffset ,
-			final PersistenceObjectIdResolver idResolver
-		)
-		{
-			XMemory.set_byte(target, targetOffset, XMemory.get_byte(sourceAddress));
-			return sourceAddress + Byte.BYTES;
-		}
-	};
-
-	private static final BinaryValueSetter SETTER_2 = new BinaryValueSetter()
-	{
-		@Override
-		public long setValueToMemory(
-			final long                      sourceAddress,
-			final Object                    target       ,
-			final long                      targetOffset ,
-			final PersistenceObjectIdResolver idResolver
-		)
-		{
-			XMemory.set_short(target, targetOffset, XMemory.get_short(sourceAddress));
-			return sourceAddress + Short.BYTES;
-		}
-	};
-
-	private static final BinaryValueSetter SETTER_4 = new BinaryValueSetter()
-	{
-		@Override
-		public long setValueToMemory(
-			final long                      sourceAddress,
-			final Object                    target       ,
-			final long                      targetOffset ,
-			final PersistenceObjectIdResolver idResolver
-		)
-		{
-			XMemory.set_int(target, targetOffset, XMemory.get_int(sourceAddress));
-			return sourceAddress + Integer.BYTES;
-		}
-	};
-
-	private static final BinaryValueSetter SETTER_8 = new BinaryValueSetter()
-	{
-		@Override
-		public long setValueToMemory(
-			final long                      sourceAddress,
-			final Object                    target       ,
-			final long                      targetOffset ,
-			final PersistenceObjectIdResolver idResolver
-		)
-		{
-			XMemory.set_long(target, targetOffset, XMemory.get_long(sourceAddress));
-			return sourceAddress + Long.BYTES;
-		}
-	};
-
-	private static final BinaryValueSetter SETTER_REF = new BinaryValueSetter()
-	{
-		@Override
-		public long setValueToMemory(
-			final long                      sourceAddress,
-			final Object                    target       ,
-			final long                      targetOffset ,
-			final PersistenceObjectIdResolver idResolver
-		)
-		{
-			XMemory.setObject(target, targetOffset, idResolver.lookupObject(XMemory.get_long(sourceAddress)));
-			return sourceAddress + LENGTH_OID;
-		}
-	};
-
-	private static final BinaryValueEqualator EQUAL_1 = new BinaryValueEqualator()
-	{
-		@Override
-		public boolean equalValue(
-			final Object                    src        ,
-			final long                      srcOffset  ,
-			final long                      address    ,
-			final PersistenceObjectIdResolver oidResolver
-		)
-		{
-			return XMemory.get_byte(src, srcOffset) == XMemory.get_byte(address);
-		}
-	};
-
-	private static final BinaryValueEqualator EQUAL_2 = new BinaryValueEqualator()
-	{
-		@Override
-		public boolean equalValue(
-			final Object                    src        ,
-			final long                      srcOffset  ,
-			final long                      address    ,
-			final PersistenceObjectIdResolver oidResolver
-		)
-		{
-			return XMemory.get_short(src, srcOffset) == XMemory.get_short(address);
-		}
-	};
-
-	private static final BinaryValueEqualator EQUAL_4 = new BinaryValueEqualator()
-	{
-		@Override
-		public boolean equalValue(
-			final Object                    src        ,
-			final long                      srcOffset  ,
-			final long                      address    ,
-			final PersistenceObjectIdResolver oidResolver
-		)
-		{
-			return XMemory.get_int(src, srcOffset) == XMemory.get_int(address);
-		}
-	};
-
-	private static final BinaryValueEqualator EQUAL_8 = new BinaryValueEqualator()
-	{
-		@Override
-		public boolean equalValue(
-			final Object                    src        ,
-			final long                      srcOffset  ,
-			final long                      address    ,
-			final PersistenceObjectIdResolver oidResolver
-		)
-		{
-			return XMemory.get_long(src, srcOffset) == XMemory.get_long(address);
-		}
-	};
-
-	private static final BinaryValueEqualator EQUAL_REF = new BinaryValueEqualator()
-	{
-		@Override
-		public boolean equalValue(
-			final Object                    src        ,
-			final long                      srcOffset  ,
-			final long                      address    ,
-			final PersistenceObjectIdResolver oidResolver
-		)
-		{
-			return XMemory.getObject(src, srcOffset) == oidResolver.lookupObject(XMemory.get_long(address));
-		}
-	};
-
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
 		final PersistenceSizedArrayLengthController controller
 	)
@@ -468,8 +87,7 @@ public final class BinaryPersistence extends Persistence
 		;
 		return defaultCustomTypeHandlerRegistry;
 	}
-	
-	
+		
 	static final void initializeNativeTypeId(final PersistenceTypeHandler<Binary, ?> typeHandler)
 	{
 		final Long nativeTypeId = Persistence.getNativeTypeId(typeHandler.type());
@@ -577,306 +195,11 @@ public final class BinaryPersistence extends Persistence
 		return defaultHandlers;
 	}
 	
-
-
-	public static final void updateFixedSize(
-		final Object                      instance     ,
-		final BinaryValueSetter[]         setters      ,
-		final long[]                      memoryOffsets,
-		final long                        dataAddress  ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		long address = dataAddress;
-		for(int i = 0; i < setters.length; i++)
-		{
-			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
-		}
-	}
-
-	public static final void iterateInstanceReferences(
-		final PersistenceFunction iterator,
-		final Object instance,
-		final long[] referenceOffsets
-	)
-	{
-		for(int i = 0; i < referenceOffsets.length; i++)
-		{
-			if(referenceOffsets[i] != 0)
-			{
-				iterator.apply(XMemory.getObject(instance, referenceOffsets[i]));
-			}
-		}
-	}
-
-	// (28.10.2013 TM)XXX: consolidate "List~" naming with array (see "SizedArray").
-
-	static final void iterateReferenceRange(
-		final long           address ,
-		final long           count   ,
-		final _longProcedure iterator
-	)
-	{
-		final long boundAddress = address + count * LENGTH_OID;
-		for(long a = address; a < boundAddress; a += LENGTH_OID)
-		{
-			iterator.accept(XMemory.get_long(a));
-		}
-	}
-
-	static final void iterateListElementReferencesAtAddressWithElementOffset(
-		final long           elementsStartAddress,
-		final long           count               ,
-		final long           elementOffset       ,
-		final long           elementLength       ,
-		final _longProcedure iterator
-	)
-	{
-		final long boundAddress = elementsStartAddress + count * elementLength;
-		for(long a = elementsStartAddress; a < boundAddress; a += elementLength)
-		{
-			iterator.accept(XMemory.get_long(a + elementOffset));
-		}
-	}
-
-
-
-	public static final long store_int(final long address, final int value)
-	{
-		XMemory.set_int(address, value);
-		return address + Integer.BYTES;
-	}
-
-	public static final long store_long(final long address, final long value)
-	{
-		XMemory.set_long(address, value);
-		return address + Long.BYTES;
-	}
-
-
-	public static final long referenceBinaryLength(final long referenceCount)
-	{
-		return referenceCount << LONG_BYTE_LENGTH_BITSHIFT_COUNT; // reference (ID) binary length is 8
-	}
-
-	
-
-
-	public static final long getEntityLength(final long entityAddress)
-	{
-		// (06.09.2014)TODO: test and comment if " + 0L" gets eliminated by JIT
-		return XMemory.get_long(entityAddress + OFFSET_LEN);
-	}
-
-	public static final BinaryValueStorer getStorer_byte()
-	{
-		return STORE_1;
-	}
-	
-	public static final BinaryValueStorer getStorer_boolean()
-	{
-		return STORE_1;
-	}
-	
-	public static final BinaryValueStorer getStorer_short()
-	{
-		return STORE_2;
-	}
-	
-	public static final BinaryValueStorer getStorer_char()
-	{
-		return STORE_2;
-	}
-	
-	public static final BinaryValueStorer getStorer_int()
-	{
-		return STORE_4;
-	}
-	
-	public static final BinaryValueStorer getStorer_float()
-	{
-		return STORE_4;
-	}
-	
-	public static final BinaryValueStorer getStorer_long()
-	{
-		return STORE_8;
-	}
-	
-	public static final BinaryValueStorer getStorer_double()
-	{
-		return STORE_8;
-	}
-	
-	public static final BinaryValueStorer getStorerReference()
-	{
-		return STORE_REFERENCE;
-	}
-	
-	public static final BinaryValueStorer getStorerReferenceForced()
-	{
-		return STORE_REFERENCE_EAGER;
-	}
-
-	public static BinaryValueStorer getObjectValueStorer(
-		final Class<?> type    ,
-		final boolean  isForced
-	)
-		throws IllegalArgumentException
-	{
-		// primitive special cases
-		if(type.isPrimitive())
-		{
-			// "forced" is not applicable for primitive values
-			switch(XMemory.byteSizePrimitive(type))
-			{
-				case Byte.BYTES   : return STORE_1; // byte & boolean
-				case Short.BYTES  : return STORE_2; // short & char
-				case Integer.BYTES: return STORE_4; // int & float
-				case Long.BYTES   : return STORE_8; // long & double
-				default: throw new IllegalArgumentException();
-			}
-		}
-
-		// reference case. Either "forced" or normal.
-		return isForced
-			? STORE_REFERENCE_EAGER
-			: STORE_REFERENCE
-		;
-	}
-	
-	// (23.09.2018 TM)TODO: consolidate with BinaryValueSetters for Legacy Type Mapping value translating?
-
-	public static final BinaryValueSetter getSetter_byte()
-	{
-		return SETTER_1;
-	}
-	public static final BinaryValueSetter getSetter_boolean()
-	{
-		return SETTER_1;
-	}
-	public static final BinaryValueSetter getSetter_short()
-	{
-		return SETTER_2;
-	}
-	public static final BinaryValueSetter getSetter_char()
-	{
-		return SETTER_2;
-	}
-	public static final BinaryValueSetter getSetter_int()
-	{
-		return SETTER_4;
-	}
-	public static final BinaryValueSetter getSetter_float()
-	{
-		return SETTER_4;
-	}
-	public static final BinaryValueSetter getSetter_long()
-	{
-		return SETTER_8;
-	}
-	public static final BinaryValueSetter getSetter_double()
-	{
-		return SETTER_8;
-	}
-	public static final BinaryValueSetter getSetterReference()
-	{
-		return SETTER_REF;
-	}
-
-	public static BinaryValueSetter getObjectValueSetter(final Class<?> type)
-	{
-		// primitive special cases
-		if(type.isPrimitive())
-		{
-			switch(XMemory.byteSizePrimitive(type))
-			{
-				case Byte.BYTES   : return SETTER_1; // byte & boolean
-				case Short.BYTES  : return SETTER_2; // short & char
-				case Integer.BYTES: return SETTER_4; // int & float
-				case Long.BYTES   : return SETTER_8; // long & double
-				default: throw new IllegalArgumentException();
-			}
-		}
-
-		// normal case of standard reference
-		return SETTER_REF;
-	}
-
-	public static BinaryValueEqualator getObjectValueEqualator(final Class<?> type)
-	{
-		if(type.isPrimitive())
-		{
-			switch(XMemory.byteSizePrimitive(type))
-			{
-				case Byte.BYTES   : return EQUAL_1;
-				case Short.BYTES  : return EQUAL_2;
-				case Integer.BYTES: return EQUAL_4;
-				case Long.BYTES   : return EQUAL_8;
-				default: throw new IllegalArgumentException();
-			}
-		}
-		
-		return EQUAL_REF;
-	}
-
-	static final int binaryValueSize(final Class<?> type)
-	{
-		return type.isPrimitive() ? XMemory.byteSizePrimitive(type) : LENGTH_OID;
-	}
-
-	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
-	{
-		final int[] fieldOffsets = new int[XTypes.to_int(fields.size())];
-		fields.iterateIndexed(new IndexProcedure<Field>()
-		{
-			@Override
-			public void accept(final Field e, final long index)
-			{
-				fieldOffsets[(int)index] = binaryValueSize(e.getType());
-			}
-		});
-		return fieldOffsets;
-	}
-
-
-
-	public static final <T> T blankMemoryInstantiate(final Class<T> type)
-	{
-		return XMemory.instantiate(type);
-	}
-
-	public static final <T> BinaryInstantiator<T> blankMemoryInstantiator(final Class<T> type)
-	{
-		return new BinaryInstantiator<T>()
-		{
-			@Override
-			public T newInstance(final long buildItemAddress) throws InstantiationRuntimeException
-			{
-				return BinaryPersistence.blankMemoryInstantiate(type);
-			}
-		};
-	}
-
-	public static BinaryPersistenceFoundation<?> Foundation()
-	{
-		return Foundation(null);
-	}
-
-	public static BinaryPersistenceFoundation<?> Foundation(final InstanceDispatcherLogic dispatcher)
-	{
-		final BinaryPersistenceFoundation<?> foundation = BinaryPersistenceFoundation.New()
-			.setInstanceDispatcher(dispatcher)
-		;
-		return foundation;
-	}
-
-
 	public static final long resolveFieldBinaryLength(final Class<?> fieldType)
 	{
 		return fieldType.isPrimitive()
 			? resolvePrimitiveFieldBinaryLength(fieldType)
-			: oidByteLength()
+			: Binary.oidByteLength()
 		;
 	}
 
@@ -899,5 +222,71 @@ public final class BinaryPersistence extends Persistence
 		;
 		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
+	
+	static final int binaryValueSize(final Class<?> type)
+	{
+		return type.isPrimitive()
+			? XMemory.byteSizePrimitive(type)
+			: Binary.oidByteLength()
+		;
+	}
 
+	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
+	{
+		final int[] fieldOffsets = new int[XTypes.to_int(fields.size())];
+		fields.iterateIndexed(new IndexProcedure<Field>()
+		{
+			@Override
+			public void accept(final Field e, final long index)
+			{
+				fieldOffsets[(int)index] = binaryValueSize(e.getType());
+			}
+		});
+		return fieldOffsets;
+	}
+
+	public static final <T> T blankMemoryInstantiate(final Class<T> type)
+	{
+		return XMemory.instantiate(type);
+	}
+
+	public static final <T> BinaryInstantiator<T> blankMemoryInstantiator(final Class<T> type)
+	{
+		return new BinaryInstantiator<T>()
+		{
+			@Override
+			public T newInstance(final long buildItemAddress) throws InstantiationRuntimeException
+			{
+				return BinaryPersistence.blankMemoryInstantiate(type);
+			}
+		};
+	}
+
+	public static final void iterateInstanceReferences(
+		final PersistenceFunction iterator,
+		final Object              instance,
+		final long[]      referenceOffsets
+	)
+	{
+		for(int i = 0; i < referenceOffsets.length; i++)
+		{
+			if(referenceOffsets[i] != 0)
+			{
+				iterator.apply(XMemory.getObject(instance, referenceOffsets[i]));
+			}
+		}
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private BinaryPersistence()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }

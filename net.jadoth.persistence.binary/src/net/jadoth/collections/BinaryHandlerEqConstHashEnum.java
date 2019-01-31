@@ -31,7 +31,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	// one oid for equalator reference
 	static final long BINARY_OFFSET_EQUALATOR    =                                                          0;
 	// space offset for one oid
-	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + BinaryPersistence.oidByteLength();
+	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.oidByteLength();
 	// one float offset to sized array
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()     ;
 

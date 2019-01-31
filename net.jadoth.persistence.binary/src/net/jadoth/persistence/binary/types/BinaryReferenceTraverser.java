@@ -98,7 +98,7 @@ public interface BinaryReferenceTraverser
 		;
 
 		static final int
-			REFERENCE_LENGTH   = XTypes.to_int(BinaryPersistence.oidByteLength()),
+			REFERENCE_LENGTH   = XTypes.to_int(Binary.oidByteLength()),
 			REFERENCE_LENGTH_2 = REFERENCE_LENGTH * C2,
 			REFERENCE_LENGTH_3 = REFERENCE_LENGTH * C3,
 			REFERENCE_LENGTH_4 = REFERENCE_LENGTH * C4,

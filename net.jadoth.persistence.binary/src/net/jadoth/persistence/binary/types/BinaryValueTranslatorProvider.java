@@ -223,7 +223,7 @@ public interface BinaryValueTranslatorProvider
 		
 		private BinaryValueSetter provideReferenceResolver()
 		{
-			return BinaryPersistence.getSetterReference();
+			return BinaryValueFunctions.getSetterReference();
 		}
 		
 		private static void validateIsReferenceType(final PersistenceTypeDescriptionMember member)

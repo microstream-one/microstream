@@ -32,7 +32,7 @@ public class ComBinary
 	 */
 	public static int chunkHeaderLength()
 	{
-		return BinaryPersistence.lengthLength();
+		return Long.BYTES;
 	}
 	
 	public static long getChunkHeaderContentLength(final ByteBuffer directByteBuffer)
