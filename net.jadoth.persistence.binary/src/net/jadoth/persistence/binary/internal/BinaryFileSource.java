@@ -17,7 +17,6 @@ import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.binary.types.MessageWaiter;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
@@ -109,7 +108,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		throws IOException
 	{
 		// not complicated to read a long from a channel. Not complicated at all. Just crap.
-		lengthBuffer.clear().limit(BinaryPersistence.lengthLength());
+		lengthBuffer.clear().limit(Binary.lengthLength());
 		fillBuffer(lengthBuffer, channel, messageWaiter);
 //		return lengthBuffer.getLong();
 		/* OMG they convert every single primitive to big endian, even if it's just from the same machine

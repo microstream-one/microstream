@@ -20,9 +20,45 @@ import net.jadoth.typing.KeyValue;
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
 public abstract class Binary implements Chunk
 {
+	/* (29.01.2019 TM)TODO: "Binary" ugliness consolidation
+	 * Currently, the "Binary" class is an unclean "one size fits fall" implementation, providing API
+	 * for both storing and loading, forcing two distinct subclasses for each concern to dummy-implement
+	 * some methods and throw UnsupportedOperation exceptions.
+	 * The initial reason for this was that "Binary" was just a typing helper type to make the compiler check if
+	 * interface implementations (custom handlers etc) are compatible to each other.
+	 * However, it could very well be possible to specify the generics much more precisely, e.g. as
+	 * <B extends Binary>, maybe even with two arguments, like <L extends BinaryLoadItem> and <S extends BinaryStoreMedium>
+	 * For now, the "Binary" API-ugliness is kept, but it could very well pay off to restructure and clean it up.
+	 */
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
+
+	private static final int
+		LENGTH_LEN  = Long.BYTES,
+		LENGTH_OID  = Long.BYTES,
+		LENGTH_TID  = Long.BYTES
+	;
+	
+	private static final long
+		OFFSET_LEN = 0L                     ,
+		OFFSET_TID = OFFSET_LEN + LENGTH_LEN,
+		OFFSET_OID = OFFSET_TID + LENGTH_TID,
+		OFFSET_DAT = OFFSET_OID + LENGTH_OID
+	;
+	
+	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
+	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
+
+	/* (29.01.2019 TM)TODO: test and comment bit shifting multiplication performance
+	 * test and comment if this really makes a difference in performance.
+	 * The redundant length is ugly.
+	 */
+	/**
+	 * "<< 3" is a performance optimization for "* 8".
+	 */
+	private static final int LONG_BYTE_LENGTH_BITSHIFT_COUNT = 3;
 	
 	private static final int
 		LIST_OFFSET_BYTE_LENGTH   = 0                                     ,
@@ -45,7 +81,19 @@ public abstract class Binary implements Chunk
 	 */
 	private static final int KEY_VALUE_REFERENCE_COUNT = 2;
 	
-	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * BinaryPersistence.oidByteLength();
+	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * LENGTH_OID;
+	
+	// special crazy sh*t negative offsets
+	private static final long
+		CONTENT_ADDRESS_NEGATIVE_OFFSET_TID = OFFSET_TID - LENGTH_ENTITY_HEADER,
+		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = OFFSET_OID - LENGTH_ENTITY_HEADER
+	;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
 	
 	public static final int keyValueReferenceCount()
 	{
@@ -77,136 +125,112 @@ public abstract class Binary implements Chunk
 		return binaryListHeaderLength() + binaryListElementsByteLength;
 	}
 	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-	
-	/**
-	 * Depending on the deriving class, this is either a single entity's address for reading data
-	 * or the beginning of a store chunk for storing multiple entities in a row (for efficiency reasons).
-	 */
-	long address;
+	// (23.05.2013 TM)XXX: Consolidate different naming patterns (with/without get~ etc)
 
 	/**
-	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementations.
+	 * @return the length in bytes of a peristent item's length field (8 bytes).
 	 */
-	private Object helper;
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// constructors //
-	/////////////////
-	
-	protected Binary()
+	public static final int lengthLength()
 	{
-		super();
-	}
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// methods //
-	////////////
-		
-	// (25.01.2019 TM)NOTE: kept with JET-49
-
-	@Override
-	public abstract ByteBuffer[] buffers();
-	
-	/**
-	 * Helper instances can be used as temporary additional state for the duration of the building process.
-	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
-	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
-	 * fail or result in all elements being "equal". So building JDK hash collections required to pre-collect
-	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
-	 * <p>
-	 * Similar problems with other or complex custom handlers are conceivable.
-	 *<p>
-	 * Only one helper object can be registered per subject instance (the instance to be built).
-	 *
-	 * @param subject
-	 * @param helper
-	 * @return
-	 */
-	public final synchronized void setHelper(final Object helper)
-	{
-		if(this.helper instanceof HelperAnchor)
-		{
-			HelperAnchor anchor = (HelperAnchor)this.helper;
-			while(anchor.actualHelper instanceof HelperAnchor)
-			{
-				anchor = (HelperAnchor)anchor.actualHelper;
-			}
-			anchor.actualHelper = helper;
-		}
-		else
-		{
-			this.helper = helper;
-		}
+		return LENGTH_LEN;
 	}
 
-	/**
-	 * Helper instances can be used as temporary additional state for the duration of the building process.
-	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
-	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
-	 * failt or result in all elements being "equal". So building JDK hash collections required to pre-collect
-	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
-	 * <p>
-	 * Similar problems with other or complex custom handlers are conceivable.
-	 *<p>
-	 * Only one helper object can be registered per subject instance (the instance to be built).
-	 *
-	 * @param subject
-	 * @return
-	 */
-	public final synchronized Object getHelper()
+	public static final boolean isValidGapLength(final long gapLength)
 	{
-		if(this.helper instanceof HelperAnchor)
-		{
-			HelperAnchor anchor = (HelperAnchor)this.helper;
-			while(anchor.actualHelper instanceof HelperAnchor)
-			{
-				anchor = (HelperAnchor)anchor.actualHelper;
-			}
-			return anchor.actualHelper;
-		}
-		
-		return this.helper;
+		// gap total length cannot indicate less then its own length (length of the length field, 1 long)
+		return gapLength >= LENGTH_LEN;
+	}
+
+	public static final boolean isValidEntityLength(final long entityLength)
+	{
+		return entityLength >= LENGTH_ENTITY_HEADER;
+	}
+
+	public static final int entityHeaderLength()
+	{
+		return LENGTH_ENTITY_HEADER;
 	}
 	
-	public final synchronized void anchorHelper(final Object anchorSubject)
+	protected static ByteBuffer allocateEntityHeaderDirectBuffer()
 	{
-		this.helper = new HelperAnchor(anchorSubject, this.helper);
+		return ByteBuffer.allocateDirect(LENGTH_ENTITY_HEADER);
+	}
+
+	public static final long entityTotalLength(final long entityContentLength)
+	{
+		// the total length is the content length plus the length of the header (containing length, Tid, Oid)
+		return entityContentLength + LENGTH_ENTITY_HEADER;
 	}
 	
-	/**
-	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected
-	 * and cause its memory to be deallocated. Anchoring means it just has to be referenced by anything that lives
-	 * until the end of the entity loading/building process. It never has to be dereferenced again.
-	 * In order to not need another fixed field, which would needlessly occupy memory for EVERY entity in almost every
-	 * case, a "helper anchor" is used: a nifty instance that is clamped in between the actual load item and the actual
-	 * helper instance.
-	 * 
-	 * @author TM
-	 *
-	 */
-	static final class HelperAnchor
+	public static final long entityContentLength(final long entityTotalLength)
 	{
-		final Object anchorSubject;
-		      Object actualHelper;
-		
-		HelperAnchor(final Object anchorSubject, final Object actualHelper)
-		{
-			super();
-			this.anchorSubject = anchorSubject;
-			this.actualHelper  = actualHelper;
-		}
-		
+		// the content length is the total length minus the length of the header (containing length, Tid, Oid)
+		return entityTotalLength - LENGTH_ENTITY_HEADER;
 	}
 		
+	public static final long getEntityTypeId(final long entityAddress)
+	{
+		return XMemory.get_long(entityAddress + OFFSET_TID);
+	}
+
+	public static final long getEntityObjectId(final long entityAddress)
+	{
+		return XMemory.get_long(entityAddress + OFFSET_OID);
+	}
+
+	public static final long entityContentAddress(final long entityAddress)
+	{
+		return entityAddress + LENGTH_ENTITY_HEADER;
+	}
+	
+	public static final void setEntityHeaderValues(
+		final long address       ,
+		final long entityLength  , // note: entity TOTAL length (including header length!)
+		final long entityTypeId  ,
+		final long entityObjectId
+	)
+	{
+		XMemory.set_long(address + OFFSET_LEN, entityLength  );
+		XMemory.set_long(address + OFFSET_TID, entityTypeId  );
+		XMemory.set_long(address + OFFSET_OID, entityObjectId);
+	}
+
+	public static final int oidByteLength()
+	{
+		return LENGTH_OID;
+	}
+		
+	public static final long entityAddressFromContentAddress(final long entityContentAddress)
+	{
+		return entityContentAddress - LENGTH_ENTITY_HEADER;
+	}
+	
+	public final long getBuildItemContentLength()
+	{
+		return XMemory.get_long(this.loadItemEntityContentAddress() - LENGTH_ENTITY_HEADER)	- LENGTH_ENTITY_HEADER;
+	}
+	
+	public final long getBuildItemTypeId()
+	{
+		return XMemory.get_long(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_TID);
+	}
+
+	public final long getBuildItemObjectId()
+	{
+		return XMemory.get_long(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
+	}
+
+	public static final long referenceBinaryLength(final long referenceCount)
+	{
+		return referenceCount << LONG_BYTE_LENGTH_BITSHIFT_COUNT; // reference (ID) binary length is 8
+	}
+
+	public static final long getEntityLength(final long entityAddress)
+	{
+		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		return XMemory.get_long(entityAddress + OFFSET_LEN);
+	}
+			
 	/**
 	 * Writes the header (etc...).
 	 * <p>
@@ -227,123 +251,78 @@ public abstract class Binary implements Chunk
 		final long entityObjectId
 	);
 	
+	public static final long storeEntityHeader(
+		final long entityAddress      ,
+		final long entityContentLength, // note: entity CONTENT length (without header length!)
+		final long entityTypeId       ,
+		final long entityObjectId
+	)
+	{
+		setEntityHeaderValues(
+			entityAddress,
+			entityTotalLength(entityContentLength),
+			entityTypeId,
+			entityObjectId
+		);
+		
+		return entityAddress + entityTotalLength(entityContentLength);
+	}
+	
+	public final void iterateKeyValueEntriesReferences(
+		final long           offset  ,
+		final _longProcedure iterator
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		final long elementCount = this.getBinaryListElementCountValidating(
+			offset,
+			keyValueBinaryLength()
+		);
+
+		Binary.iterateReferenceRange(
+			this.binaryListElementsAddressRelative(offset),
+			keyValueReferenceCount() * elementCount,
+			iterator
+		);
+	}
+		
+	public final long getListElementCountKeyValue(final long listStartOffset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		
+		return this.getBinaryListElementCountValidating(
+			listStartOffset,
+			keyValueBinaryLength()
+		);
+	}
+	
 	public abstract long loadItemEntityContentAddress();
 	
 	public abstract void setLoadItemEntityContentAddress(long entityContentAddress);
 	
-
-	/* (25.01.2019 TM)FIXME: JET-49: excplizit sets to a memory address should not be possible
-	 * better: a working address and offset-less setters with internal address advancing.
-	 */
-
-	public final byte get_byte(final long offset)
-	{
-		return XMemory.get_byte(this.address + offset);
-	}
+	public abstract byte get_byte(long offset);
 	
-	public final boolean get_boolean(final long offset)
-	{
-		return XMemory.get_boolean(this.address + offset);
-	}
+	public abstract boolean get_boolean(long offset);
 	
-	public final short get_short(final long offset)
-	{
-		return XMemory.get_short(this.address + offset);
-	}
+	public abstract short get_short(long offset);
 	
-	public final char get_char(final long offset)
-	{
-		return XMemory.get_char(this.address + offset);
-	}
+	public abstract char get_char(long offset);
 	
-	public final int get_int(final long offset)
-	{
-		return XMemory.get_int(this.address + offset);
-	}
+	public abstract int get_int(long offset);
 	
-	public final float get_float(final long offset)
-	{
-		return XMemory.get_float(this.address + offset);
-	}
+	public abstract float get_float(long offset);
 	
-	public final long get_long(final long offset)
-	{
-		return XMemory.get_long(this.address + offset);
-	}
+	public abstract long get_long(long offset);
 	
-	public final double get_double(final long offset)
-	{
-		return XMemory.get_double(this.address + offset);
-	}
-	
-	
-	
-	public final void set_byte(final long offset, final byte value)
-	{
-		XMemory.set_byte(this.address + offset, value);
-	}
-	
-	public final void set_boolean(final long offset, final boolean value)
-	{
-		XMemory.set_boolean(this.address + offset, value);
-	}
-	
-	public final void set_short(final long offset, final short value)
-	{
-		XMemory.set_short(this.address + offset, value);
-	}
-	
-	public final void set_char(final long offset, final char value)
-	{
-		XMemory.set_char(this.address + offset, value);
-	}
-	
-	public final void set_int(final long offset, final int value)
-	{
-		XMemory.set_int(this.address + offset, value);
-	}
-	
-	public final void set_float(final long offset, final float value)
-	{
-		XMemory.set_float(this.address + offset, value);
-	}
-	
-	public final void set_long(final long offset, final long value)
-	{
-		XMemory.set_long(this.address + offset, value);
-	}
-	
-	public final void set_double(final long offset, final double value)
-	{
-		XMemory.set_double(this.address + offset, value);
-	}
-	
-
-	
-	// (25.01.2019 TM)NOTE: new with JET-49
-	
-	/* (29.01.2019 TM)TODO: "Binary" ugliness consolidation
-	 * Currently, the "Binary" class is an unclean "one size fits fall" implementation, providing API
-	 * for both storing and loading, forcing two distinct subclasses for each concern to dummy-implement
-	 * some methods and throw UnsupportedOperation exceptions.
-	 * The initial reason for this was that "Binary" was just a typing helper type to make the compiler check if
-	 * interface implementations (custom handlers etc) are compatible to each other.
-	 * However, it could very well be possible to specify the generics much more precisely, e.g. as
-	 * <B extends Binary>, maybe even with two arguments, like <L extends BinaryLoadItem> and <S extends BinaryStoreMedium>
-	 * For now, the "Binary" API-ugliness is kept, but it could very well pay off to restructure and clean it up.
-	 */
-	
+	public abstract double get_double(long offset);
+					
 	public abstract Binary channelChunk(int channelIndex);
 	
 	public abstract int channelCount();
 	
 	public abstract void iterateEntityData(BinaryEntityDataReader reader);
 		
-	public abstract void iterateKeyValueEntriesReferences(
-		long           offset  ,
-		_longProcedure iterator
-	);
-	
 	public final long storeSizedKeyValuesAsEntries(
 		final long                               tid         ,
 		final long                               oid         ,
@@ -368,10 +347,6 @@ public abstract class Binary implements Chunk
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
 	}
-	
-	public abstract long getListElementCountKeyValue(long listStartOffset);
-	
-	
 	
 	public final long storeSizedArray(
 		final long                tid         ,
@@ -432,17 +407,13 @@ public abstract class Binary implements Chunk
 		return contentAddress;
 	}
 
-
-		
-
-	
 	public int getSizedArrayElementCount(final long headerOffset)
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
 		
 		return X.checkArrayRange(this.getBinaryListElementCountValidating(
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			BinaryPersistence.oidByteLength()
+			LENGTH_OID
 		));
 	}
 
@@ -533,34 +504,32 @@ public abstract class Binary implements Chunk
 		
 		final long elementCount = this.getBinaryListElementCountValidating(
 			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			BinaryPersistence.oidByteLength()
+			LENGTH_OID
 		);
 		
-		BinaryPersistence.iterateReferenceRange(
+		Binary.iterateReferenceRange(
 			this.binaryListElementsAddressRelative(offset + SIZED_ARRAY_OFFSET_ELEMENTS),
 			elementCount,
 			iterator
 		);
 	}
-		
-	// binary list byte length //
-	
+			
 	// (29.01.2019 TM)FIXME: JET-49: review and remove/rename ~Absolute methods
 	
 	public final long getBinaryListByteLengthRelative(final long listOffset)
 	{
-		final long entityAddress  = BinaryPersistence.entityAddressFromContentAddress(this.loadItemEntityContentAddress());
+		final long entityAddress  = entityAddressFromContentAddress(this.loadItemEntityContentAddress());
 		final long listByteLength = getBinaryListByteLengthAbsolute(this.loadItemEntityContentAddress() + listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent reading beyond the entity data in memory.
 		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
 			>
-			entityAddress + BinaryPersistence.getEntityLength(entityAddress)
+			entityAddress + getEntityLength(entityAddress)
 		){
 			throw new BinaryPersistenceExceptionInvalidList(
-				BinaryPersistence.getEntityLength(entityAddress),
-				BinaryPersistence.getEntityObjectId(entityAddress),
-				BinaryPersistence.getEntityTypeId(entityAddress),
+				getEntityLength(entityAddress),
+				getEntityObjectId(entityAddress),
+				getEntityTypeId(entityAddress),
 				listOffset,
 				listByteLength
 			);
@@ -579,25 +548,24 @@ public abstract class Binary implements Chunk
 		return binaryListAddress + LIST_OFFSET_BYTE_LENGTH;
 	}
 	
-
 	public final long getBinaryListElementCountValidating(final long listOffset, final long elementLength)
 	{
 		// note: does not reuse getBinaryListByteLength() intentionally since the exception here has more information
 
-		final long entityAddress    = BinaryPersistence.entityAddressFromContentAddress(this.loadItemEntityContentAddress());
+		final long entityAddress    = entityAddressFromContentAddress(this.loadItemEntityContentAddress());
 		final long listByteLength   = getBinaryListByteLengthAbsolute(this.loadItemEntityContentAddress() + listOffset);
 		final long listElementCount = getBinaryListElementCountAbsolute(this.loadItemEntityContentAddress() + listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
 		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
-			> entityAddress + BinaryPersistence.getEntityLength(entityAddress)
+			> entityAddress + getEntityLength(entityAddress)
 			|| listElementCount * elementLength != listByteLength
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidListElements(
-				BinaryPersistence.getEntityLength(entityAddress),
-				BinaryPersistence.getEntityObjectId(entityAddress),
-				BinaryPersistence.getEntityTypeId(entityAddress),
+				getEntityLength(entityAddress),
+				getEntityObjectId(entityAddress),
+				getEntityTypeId(entityAddress),
 				listOffset,
 				listByteLength,
 				listElementCount,
@@ -623,8 +591,6 @@ public abstract class Binary implements Chunk
 		return binaryListAddress + LIST_OFFSET_ELEMENT_COUNT;
 	}
 
-	// binary list elements address //
-
 	public static final long binaryListElementsAddress(final long binaryListAddress)
 	{
 		return binaryListAddress + LIST_OFFSET_ELEMENTS;
@@ -634,9 +600,7 @@ public abstract class Binary implements Chunk
 	{
 		return binaryListElementsAddress(this.loadItemEntityContentAddress() + binaryListOffset);
 	}
-	
-
-	
+		
 	public final long getListElementCount(final long listStartOffset, final int elementLength)
 	{
 		return this.getBinaryListElementCountValidating(listStartOffset, elementLength);
@@ -646,13 +610,13 @@ public abstract class Binary implements Chunk
 	{
 		return this.getBinaryListElementCountValidating(
 			listStartOffset,
-			BinaryPersistence.oidByteLength()
+			LENGTH_OID
 		);
 	}
 	
 	public static final long calculateReferenceListTotalBinaryLength(final long count)
 	{
-		return calculateBinaryListByteLength(BinaryPersistence.referenceBinaryLength(count)); // 8 bytes per reference
+		return calculateBinaryListByteLength(referenceBinaryLength(count)); // 8 bytes per reference
 	}
 
 	public static final long calculateStringListContentBinaryLength(final String[] strings)
@@ -672,13 +636,12 @@ public abstract class Binary implements Chunk
 		return calculateBinaryListByteLength(count << 1);  // header plus 2 bytes per char
 	}
 	
-
 	public final void iterateListElementReferences(
 		final long           listOffset,
 		final _longProcedure iterator
 	)
 	{
-		BinaryPersistence.iterateReferenceRange(
+		Binary.iterateReferenceRange(
 			this.binaryListElementsAddressRelative(listOffset),
 			this.getListElementCountReferences(listOffset),
 			iterator
@@ -695,7 +658,7 @@ public abstract class Binary implements Chunk
 		
 		final long startAddress = this.loadItemEntityContentAddress() + startOffset;
 		final long boundAddress = this.loadItemEntityContentAddress() + boundOffset;
-		final long oidLength    = BinaryPersistence.oidByteLength();
+		final long oidLength    = LENGTH_OID;
 		
 		for(long address = startAddress; address < boundAddress; address += oidLength)
 		{
@@ -811,7 +774,6 @@ public abstract class Binary implements Chunk
 		);
 	}
 	
-
 	public final void storeByte(final long tid, final long oid, final byte value)
 	{
 		XMemory.set_byte(this.storeEntityHeader(Byte.BYTES, tid, oid), value);
@@ -905,14 +867,14 @@ public abstract class Binary implements Chunk
 	{
 		final long elementsDataAddress = storeListHeader(
 			storeAddress,
-			BinaryPersistence.referenceBinaryLength(length),
+			referenceBinaryLength(length),
 			length
 		);
 
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			XMemory.set_long(elementsDataAddress + BinaryPersistence.referenceBinaryLength(i), persister.apply(array[i]));
+			XMemory.set_long(elementsDataAddress + referenceBinaryLength(i), persister.apply(array[i]));
 		}
 	}
 
@@ -936,7 +898,7 @@ public abstract class Binary implements Chunk
 	{
 		final Iterator<?> iterator = elements.iterator();
 
-		final long referenceLength     = BinaryPersistence.referenceBinaryLength(1);
+		final long referenceLength     = referenceBinaryLength(1);
 		final long elementsBinaryRange = elementCount * referenceLength;
 		final long elementsDataAddress = storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
@@ -976,7 +938,7 @@ public abstract class Binary implements Chunk
 	{
 		final Iterator<? extends KeyValue<?, ?>> iterator = elements.iterator();
 
-		final long referenceLength = BinaryPersistence.referenceBinaryLength(1);
+		final long referenceLength = referenceBinaryLength(1);
 
 		// two references per entry
 		final long entryLength = 2 * referenceLength;
@@ -1012,8 +974,6 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-
-
 	public static final void storeStringsAsList(
 		final long     storeAddress            ,
 		final long     precalculatedContentBinaryLength,
@@ -1032,11 +992,6 @@ public abstract class Binary implements Chunk
 	)
 	{
 		long elementsDataAddress = storeListHeader(storeAddress, precalculatedContentBinaryLength, length);
-
-		// (23.02.2015 TM)NOTE: old
-//		Memory.set_long(storeAddress + LIST_OFFSET_LENGTH, precalculatedTotalLength);
-//		Memory.set_long(storeAddress + LIST_OFFSET_COUNT , length                  );
-//		long elementDataAddress = storeAddress + LIST_OFFSET_ELEMENTS;
 
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
@@ -1070,7 +1025,6 @@ public abstract class Binary implements Chunk
 		return elementsDataAddress + elementsBinaryLength;
 	}
 	
-
 	public final void storeFixedSize(
 		final PersistenceStoreHandler  handler      ,
 		final long                     contentLength,
@@ -1307,7 +1261,7 @@ public abstract class Binary implements Chunk
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
 			array[offset + i] = oidResolver.lookupObject(
-				XMemory.get_long(binaryElementsStartAddress + BinaryPersistence.referenceBinaryLength(i))
+				XMemory.get_long(binaryElementsStartAddress + referenceBinaryLength(i))
 			);
 		}
 	}
@@ -1323,7 +1277,7 @@ public abstract class Binary implements Chunk
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
 			target[i] = oidResolver.lookupObject(
-				XMemory.get_long(binaryElementsStartAddress + BinaryPersistence.referenceBinaryLength(i))
+				XMemory.get_long(binaryElementsStartAddress + referenceBinaryLength(i))
 			);
 		}
 	}
@@ -1356,7 +1310,7 @@ public abstract class Binary implements Chunk
 		{
 			collector.accept(
 				oidResolver.lookupObject(
-					XMemory.get_long(binaryElementsStartAddress + BinaryPersistence.referenceBinaryLength(i))
+					XMemory.get_long(binaryElementsStartAddress + referenceBinaryLength(i))
 				)
 			);
 		}
@@ -1375,15 +1329,172 @@ public abstract class Binary implements Chunk
 			collector.accept(
 				// key (on every nth oid position)
 				oidResolver.lookupObject(
-					XMemory.get_long(binaryElementsStartAddress + BinaryPersistence.referenceBinaryLength(i << 1))
+					XMemory.get_long(binaryElementsStartAddress + referenceBinaryLength(i << 1))
 				),
 				// value (on every (n + 1)th oid position)
 				oidResolver.lookupObject(
-					XMemory.get_long(binaryElementsStartAddress + BinaryPersistence.referenceBinaryLength(i << 1) + BinaryPersistence.oidByteLength())
+					XMemory.get_long(binaryElementsStartAddress + referenceBinaryLength(i << 1) + LENGTH_OID)
 				)
 			);
 		}
 		return length;
+	}
+	
+	static final void iterateReferenceRange(
+		final long           address ,
+		final long           count   ,
+		final _longProcedure iterator
+	)
+	{
+		final long objectIdLength = LENGTH_OID;
+		
+		final long boundAddress = address + count * objectIdLength;
+		for(long a = address; a < boundAddress; a += objectIdLength)
+		{
+			iterator.accept(XMemory.get_long(a));
+		}
+	}
+
+	public final void updateFixedSize(
+		final Object                      instance     ,
+		final BinaryValueSetter[]         setters      ,
+		final long[]                      memoryOffsets,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		long address = this.loadItemEntityContentAddress();
+		for(int i = 0; i < setters.length; i++)
+		{
+			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
+		}
+	}
+	
+	
+
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	/**
+	 * Depending on the deriving class, this is either a single entity's address for reading data
+	 * or the beginning of a store chunk for storing multiple entities in a row (for efficiency reasons).
+	 */
+	long address;
+
+	/**
+	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementations.
+	 */
+	private Object helper;
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	protected Binary()
+	{
+		super();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+		
+	@Override
+	public abstract ByteBuffer[] buffers();
+	
+	/**
+	 * Helper instances can be used as temporary additional state for the duration of the building process.
+	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
+	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
+	 * fail or result in all elements being "equal". So building JDK hash collections required to pre-collect
+	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
+	 * <p>
+	 * Similar problems with other or complex custom handlers are conceivable.
+	 *<p>
+	 * Only one helper object can be registered per subject instance (the instance to be built).
+	 *
+	 * @param subject
+	 * @param helper
+	 * @return
+	 */
+	public final synchronized void setHelper(final Object helper)
+	{
+		if(this.helper instanceof HelperAnchor)
+		{
+			HelperAnchor anchor = (HelperAnchor)this.helper;
+			while(anchor.actualHelper instanceof HelperAnchor)
+			{
+				anchor = (HelperAnchor)anchor.actualHelper;
+			}
+			anchor.actualHelper = helper;
+		}
+		else
+		{
+			this.helper = helper;
+		}
+	}
+
+	/**
+	 * Helper instances can be used as temporary additional state for the duration of the building process.
+	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
+	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
+	 * failt or result in all elements being "equal". So building JDK hash collections required to pre-collect
+	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
+	 * <p>
+	 * Similar problems with other or complex custom handlers are conceivable.
+	 *<p>
+	 * Only one helper object can be registered per subject instance (the instance to be built).
+	 *
+	 * @param subject
+	 * @return
+	 */
+	public final synchronized Object getHelper()
+	{
+		if(this.helper instanceof HelperAnchor)
+		{
+			HelperAnchor anchor = (HelperAnchor)this.helper;
+			while(anchor.actualHelper instanceof HelperAnchor)
+			{
+				anchor = (HelperAnchor)anchor.actualHelper;
+			}
+			return anchor.actualHelper;
+		}
+		
+		return this.helper;
+	}
+	
+	public final synchronized void anchorHelper(final Object anchorSubject)
+	{
+		this.helper = new HelperAnchor(anchorSubject, this.helper);
+	}
+	
+	/**
+	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected
+	 * and cause its memory to be deallocated. Anchoring means it just has to be referenced by anything that lives
+	 * until the end of the entity loading/building process. It never has to be dereferenced again.
+	 * In order to not need another fixed field, which would needlessly occupy memory for EVERY entity in almost every
+	 * case, a "helper anchor" is used: a nifty instance that is clamped in between the actual load item and the actual
+	 * helper instance.
+	 * 
+	 * @author TM
+	 *
+	 */
+	static final class HelperAnchor
+	{
+		final Object anchorSubject;
+		      Object actualHelper;
+		
+		HelperAnchor(final Object anchorSubject, final Object actualHelper)
+		{
+			super();
+			this.anchorSubject = anchorSubject;
+			this.actualHelper  = actualHelper;
+		}
+		
 	}
 	
 }

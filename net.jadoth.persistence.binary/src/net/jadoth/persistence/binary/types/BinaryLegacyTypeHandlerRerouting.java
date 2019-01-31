@@ -21,7 +21,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerRerouting<T> New(
-		final PersistenceTypeDefinition                  typeDefinition              ,
+		final PersistenceTypeDefinition                     typeDefinition              ,
 		final PersistenceTypeHandler<Binary, T>             typeHandler                 ,
 		final XGettingTable<BinaryValueSetter, Long>        translatorsWithTargetOffsets,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener
@@ -43,7 +43,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	/////////////////
 
 	BinaryLegacyTypeHandlerRerouting(
-		final PersistenceTypeDefinition                  typeDefinition  ,
+		final PersistenceTypeDefinition                     typeDefinition  ,
 		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
@@ -66,20 +66,20 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		
 		// so funny how the morons crippled their memory handling API to int just because there is a toArray somewhere.
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
-			X.checkArrayRange(BinaryPersistence.entityTotalLength(binaryContentLength))
+			X.checkArrayRange(Binary.entityTotalLength(binaryContentLength))
 		);
 		final long newEntityAddress = XMemory.getDirectByteBufferAddress(directByteBuffer);
 		
 		// header bytes for the mapped format (new length, new TID, same OID) at the newly allocated memory.
-		BinaryPersistence.storeEntityHeader(
-			newEntityAddress                               ,
-			binaryContentLength                            ,
-			this.typeHandler().typeId()                    ,
-			BinaryPersistence.getBuildItemObjectId(rawData)
+		Binary.storeEntityHeader(
+			newEntityAddress              ,
+			binaryContentLength           ,
+			this.typeHandler().typeId()   ,
+			rawData.getBuildItemObjectId()
 		);
 		
 		// replacement binary content is filled and afterwards set as the productive content
-		final long targetContentAddress = BinaryPersistence.entityContentAddress(newEntityAddress);
+		final long targetContentAddress = Binary.entityContentAddress(newEntityAddress);
 		
 		// note: DirectByteBuffer instantiation resets all bytes to 0, so no target value "Zeroer" is needed.
 		final BinaryValueSetter[] translators   = this.valueTranslators();
@@ -92,6 +92,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			srcAddress = translators[i].setValueToMemory(srcAddress, null, targetContentAddress + targetOffsets[i], null);
 		}
 		
+		// replace the original rawData's content address with the new address, effectively rerouting to the new data
 		rawData.setLoadItemEntityContentAddress(targetContentAddress);
 
 		// the current type handler can now create a new instance with correctly rearranged raw values

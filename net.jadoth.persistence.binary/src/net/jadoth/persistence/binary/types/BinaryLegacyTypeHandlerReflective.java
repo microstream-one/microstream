@@ -5,8 +5,8 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.exceptions.TypeCastException;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandlerReflective;
 
@@ -74,7 +74,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
-		 * This can be especially critical if a custom roo resolver returns an instance that does not match
+		 * This can be especially critical if a custom root resolver returns an instance that does not match
 		 * the type defined by the typeId.
 		 */
 		if(!this.type().isInstance(instance))
@@ -82,13 +82,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		BinaryPersistence.updateFixedSize(
-			instance                  ,
-			this.valueTranslators()   ,
-			this.targetOffsets()      ,
-			rawData.loadItemEntityContentAddress(),
-			builder
-		);
+		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), builder);
 	}
 
 	@Override

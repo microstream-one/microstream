@@ -22,7 +22,6 @@ import net.jadoth.files.XFiles;
 import net.jadoth.functional._charRangeProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
@@ -184,7 +183,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
 			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect(Binary.binaryListHeaderLength())     ;
 			this.addressListHeaderUpdateBuffer   = XMemory.getDirectByteBufferAddress(this.listHeaderUpdateBuffer);
-			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(BinaryPersistence.lengthLength())    ;
+			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(Binary.lengthLength())               ;
 			this.addressEntityLengthUpdateBuffer = XMemory.getDirectByteBufferAddress(this.entityLengthUpdateBuffer);
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
@@ -1148,7 +1147,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			int i = 1;
 			boolean hasVariableLength = false;
 
-			long entityBaseLength = BinaryPersistence.entityHeaderLength();
+			long entityBaseLength = Binary.entityHeaderLength();
 
 			for(final PersistenceTypeDescriptionMember member : members)
 			{

@@ -3,8 +3,6 @@ package net.jadoth.persistence.lazy;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
-import net.jadoth.persistence.lazy.Lazy;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
@@ -78,7 +76,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativ
 
 		// lazy reference instance must be stored in any case
 		XMemory.set_long(
-			bytes.storeEntityHeader(BinaryPersistence.referenceBinaryLength(1), this.typeId(), oid),
+			bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), oid),
 			referenceOid
 		);
 	}

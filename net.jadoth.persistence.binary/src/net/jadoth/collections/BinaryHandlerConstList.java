@@ -95,7 +95,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * BinaryPersistence.oidByteLength()));
+			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * Binary.oidByteLength()));
 		}
 	}
 

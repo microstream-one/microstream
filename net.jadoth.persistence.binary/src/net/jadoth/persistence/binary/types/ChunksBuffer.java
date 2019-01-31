@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteBuffer;
 
 import net.jadoth.X;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
 import net.jadoth.util.BufferSizeProviderIncremental;
@@ -207,13 +206,13 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 				this.currentAddress, entityContentLength, entityTypeId, entityObjectId
 			);
 		}
-		this.ensureFreeStoreCapacity(BinaryPersistence.entityTotalLength(entityContentLength));
+		this.ensureFreeStoreCapacity(Binary.entityTotalLength(entityContentLength));
 
 		/*
 		 * static methods returns entity bound address for updating this current address,
 		 * but content address has to be returned, so the content length has to be subtracted again
 		 */
-		return (this.currentAddress = BinaryPersistence.storeEntityHeader(
+		return (this.currentAddress = Binary.storeEntityHeader(
 			this.currentAddress,
 			entityContentLength,
 			entityTypeId,
@@ -322,20 +321,53 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	{
 		throw new UnsupportedOperationException();
 	}
-			
+	
 	@Override
-	public final void iterateKeyValueEntriesReferences(
-		final long           offset  ,
-		final _longProcedure iterator
-	)
+	public final byte get_byte(final long offset)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public final long getListElementCountKeyValue(final long listStartOffset)
+	public final boolean get_boolean(final long offset)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public final short get_short(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final char get_char(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final int get_int(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final float get_float(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final long get_long(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final double get_double(final long offset)
+	{
+		throw new UnsupportedOperationException();
+	}
+				
 }

@@ -10,7 +10,7 @@ import net.jadoth.collections.XArrays;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.storage.types.StorageDataFileItemIterator.ItemProcessor;
 
 
@@ -173,7 +173,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			@Override
 			public boolean accept(final long address, final long availableItemLength)
 			{
-				final long length = BinaryPersistence.getEntityLength(address);
+				final long length = Binary.getEntityLength(address);
 
 				// check for a gap
 				if(length < 0)
@@ -191,7 +191,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				}
 
 				// check for incomplete entity header
-				if(availableItemLength < BinaryPersistence.entityHeaderLength())
+				if(availableItemLength < Binary.entityHeaderLength())
 				{
 					// signal to calling context that entity cannot be processed and header must be reloaded
 					return false;
@@ -200,11 +200,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				final int intLength = X.checkArrayRange(length);
 
 				// read and validate entity head information
-				final long                             objectId     = BinaryPersistence.getEntityObjectId(address);
+				final long                             objectId     = Binary.getEntityObjectId(address);
 				final int                              channelIndex = (int)objectId & this.channelHash;
 				final StorageEntityType.Implementation type         = this.entityCaches[channelIndex].validateEntity(
 					intLength,
-					BinaryPersistence.getEntityTypeId(address),
+					Binary.getEntityTypeId(address),
 					objectId
 				);
 

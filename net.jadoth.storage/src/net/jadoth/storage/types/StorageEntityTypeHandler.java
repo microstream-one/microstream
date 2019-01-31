@@ -2,7 +2,7 @@ package net.jadoth.storage.types;
 
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
+import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
@@ -40,7 +40,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 
 		static long calculateMinimumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
-			long minimumEntityLength = BinaryPersistence.entityHeaderLength();
+			long minimumEntityLength = Binary.entityHeaderLength();
 
 			for(final PersistenceTypeDescriptionMember e : typeDescription.members())
 			{
@@ -53,7 +53,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 
 		static long calculateMaximumEntityLength(final PersistenceTypeDefinition typeDescription)
 		{
-			long maximumEntityLength = BinaryPersistence.entityHeaderLength();
+			long maximumEntityLength = Binary.entityHeaderLength();
 
 			// checks for overflow due to max long (="unlimited") member max length, returns max long in such cases.
 			for(final PersistenceTypeDescriptionMember e : typeDescription.members())
@@ -103,7 +103,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			this.isPrimitive          = typeDefinition.isPrimitiveType();
 			this.hasReferences        = typeDefinition.hasPersistedReferences();
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
-			this.simpleReferenceRange = this.simpleReferenceCount * BinaryPersistence.oidByteLength();
+			this.simpleReferenceRange = this.simpleReferenceCount * Binary.oidByteLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
 			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
 			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);
@@ -162,7 +162,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			{
 				// handling here spares a lot of traverser pointer chasing
 				BinaryReferenceTraverser.iterateReferenceRange(
-					BinaryPersistence.entityContentAddress(entityCacheAddress),
+					Binary.entityContentAddress(entityCacheAddress),
 					this.simpleReferenceRange,
 					procedure
 				);
@@ -170,7 +170,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			else
 			{
 				BinaryReferenceTraverser.iterateReferences(
-					BinaryPersistence.entityContentAddress(entityCacheAddress),
+					Binary.entityContentAddress(entityCacheAddress),
 					this.referenceTraversers,
 					procedure
 				);

@@ -21,6 +21,7 @@ import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+import net.jadoth.persistence.binary.types.BinaryValueFunctions;
 import net.jadoth.persistence.binary.types.BinaryValueSetter;
 import net.jadoth.persistence.binary.types.BinaryValueStorer;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -82,8 +83,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		{
 			final Class<?>          fieldType = fieldsDeclaredOrder[i].getType()                                      ;
 			final boolean           isForced  = eagerStoreEvaluator.isEagerStoring(entityType, fieldsDeclaredOrder[i]);
-			final BinaryValueStorer storer    = BinaryPersistence.getObjectValueStorer(fieldType, isForced)           ;
-			final BinaryValueSetter setter    = BinaryPersistence.getObjectValueSetter(fieldType)                     ;
+			final BinaryValueStorer storer    = BinaryValueFunctions.getObjectValueStorer(fieldType, isForced)        ;
+			final BinaryValueSetter setter    = BinaryValueFunctions.getObjectValueSetter(fieldType)                  ;
 			if(fieldType.isPrimitive())
 			{
 				primitiveTotalBinaryLength += XMemory.byteSizePrimitive(fieldType);
@@ -109,7 +110,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		System.arraycopy(prmFields , 0, fieldsPersistdOrder, r, p);
 
 		// the values' total length is the length of all references plus the accumulated length of all primitives.
-		return r * BinaryPersistence.oidByteLength() + primitiveTotalBinaryLength;
+		return r * Binary.oidByteLength() + primitiveTotalBinaryLength;
 	}
 	
 	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
@@ -204,7 +205,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		// references are always stored at the beginnnig of the content (0 bytes after header)
 		this.referenceOffsetStart = 0;
-		this.referenceOffsetBound = BinaryPersistence.referenceBinaryLength(this.instanceReferenceFields.size());
+		this.referenceOffsetBound = Binary.referenceBinaryLength(this.instanceReferenceFields.size());
 	}
 
 	
@@ -330,13 +331,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		BinaryPersistence.updateFixedSize(
-			instance,
-			this.memorySetters,
-			this.allBinaryOffsets,
-			bytes.loadItemEntityContentAddress(),
-			builder
-		);
+		bytes.updateFixedSize(instance, this.memorySetters, this.allBinaryOffsets, builder);
 	}
 
 	@Override

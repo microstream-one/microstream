@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
@@ -22,9 +21,9 @@ public final class BinaryLoadItem extends Binary
 		 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
 		 * of common case entities.
 		 */
-		final ByteBuffer dbb = BinaryPersistence.allocateEntityHeaderDirectBuffer();
+		final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
 		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
-		BinaryPersistence.storeEntityHeader(dbbAddress, 0, 0, objectId);
+		Binary.storeEntityHeader(dbbAddress, 0, 0, objectId);
 		
 		// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity(), instance, null);
@@ -115,39 +114,80 @@ public final class BinaryLoadItem extends Binary
 	{
 		this.address = entityContentAddress;
 	}
-		
+	
 	@Override
-	public final void iterateKeyValueEntriesReferences(
-		final long           offset  ,
-		final _longProcedure iterator
-	)
+	public final byte get_byte(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
-		
-		final long elementCount = this.getBinaryListElementCountValidating(
-			offset,
-			keyValueBinaryLength()
-		);
-
-		BinaryPersistence.iterateReferenceRange(
-			this.binaryListElementsAddressRelative(offset),
-			keyValueReferenceCount() * elementCount,
-			iterator
-		);
-	}
-		
-	@Override
-	public final long getListElementCountKeyValue(final long listStartOffset)
-	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
-		
-		return this.getBinaryListElementCountValidating(
-			listStartOffset,
-			keyValueBinaryLength()
-		);
+		return XMemory.get_byte(this.loadItemEntityContentAddress() + offset);
 	}
 	
+	@Override
+	public final boolean get_boolean(final long offset)
+	{
+		return XMemory.get_boolean(this.loadItemEntityContentAddress() + offset);
+	}
 	
+	@Override
+	public final short get_short(final long offset)
+	{
+		return XMemory.get_short(this.loadItemEntityContentAddress() + offset);
+	}
+	
+	@Override
+	public final char get_char(final long offset)
+	{
+		return XMemory.get_char(this.loadItemEntityContentAddress() + offset);
+	}
+	
+	@Override
+	public final int get_int(final long offset)
+	{
+		return XMemory.get_int(this.loadItemEntityContentAddress() + offset);
+	}
+	
+	@Override
+	public final float get_float(final long offset)
+	{
+		return XMemory.get_float(this.loadItemEntityContentAddress() + offset);
+	}
+	
+	@Override
+	public final long get_long(final long offset)
+	{
+		return XMemory.get_long(this.loadItemEntityContentAddress() + offset);
+	}
+	
+	@Override
+	public final double get_double(final long offset)
+	{
+		return XMemory.get_double(this.loadItemEntityContentAddress() + offset);
+	}
+		
+	/**
+	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected
+	 * and cause its memory to be deallocated. Anchoring means it just has to be referenced by anything that lives
+	 * until the end of the entity loading/building process. It never has to be dereferenced again.
+	 * In order to not need another fixed field, which would needlessly occupy memory for EVERY entity in almost every
+	 * case, a "helper anchor" is used: a nifty instance that is clamped in between the actual load item and the actual
+	 * helper instance.
+	 * 
+	 * @author TM
+	 *
+	 */
+	static final class HelperAnchor
+	{
+		final Object anchorSubject;
+		      Object actualHelper;
+		
+		HelperAnchor(final Object anchorSubject, final Object actualHelper)
+		{
+			super();
+			this.anchorSubject = anchorSubject;
+			this.actualHelper  = actualHelper;
+		}
+		
+	}
+			
 				
 	@Override
 	public final long storeEntityHeader(

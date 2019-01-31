@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -1188,8 +1189,10 @@ Au\'dferdem einen Regression Bugfix, weil ich mit einem fr\'fcheren Aufh\'fcbsch
 \par
 \par
 2018-11-25\par
+
 \pard\par
 Nix wegen Familienerk\'e4ltung.\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1766,5 +1769,48 @@ Nun zwischendurch geschriebene Todos abarbeiten, z.T. Overhauls.\par
 TODOs weitermachen.\par
 \par
 00:20 Ende\par
+\par
+\par
+\par
+2019-01-31\par
+\par
+Mir ist aufgefallen:\par
+Die ByteOrder-Switching Variante muss eigentlich \'fcber eine Ableitung passieren, weil eine Referenz auf einen RawValueHandler ja die BinaryLoadItem Instanzen (eine pro Entity) vergr\'f6\'dfern w\'fcrde.\par
+Au\'dferdem ist es wahrscheinlich imperformanter als die L\'f6sung \'fcber die Ableitung.\par
+\par
+Also Ableitung soll es sein.\par
+Das Problem daran:\par
+Die Binary Klasse ist aktuell 1500 Zeilen lang. Entweder, es m\'fcssten alle Werte-Getter und -Setter modularisiert werden, was Performance kostet, oder die komplette Klasse m\'fcsste einmal abgeleitet und die Methodenr\'fcmpfe umgeschrieben werden.\par
+Beides ziemlich bl\'f6d.\par
+\par
+Dabei f\'e4llt mir auf: So oder so m\'fcssen noch mehr (ALLE) der Binary Handling Methoden von BinaryPersistence nach Binary umgezogen werden, weil sie ja sonst nicht bon der ByteOrder Konvertierung (egal ob RawValueHandler oder Ableitung) abgedeckt werden. Also die auch noch umziehen.\par
+\par
+Ah, bzw. nicht alle, weil die letzte "schicht" an settern/gettern, ohne irgendwelche arithmetik, kann ja Werte "blind" setzen, ohne zu wissen, welche Order die haben.\par
+Aber bissl was muss noch umgezogen werden.\par
+\par
+Vielleicht muss es noch eine Ebene an Ableitung geben:\par
+Ganz oben nur stateless getting/setting Logik.\par
+Davon dann eine normale und eine Ableitung zum switchen.\par
+\par
+Und von denen beiden dann relativ kleine Ableitungen, die dann nur LoadItem bzw. ChunksBuffer sind.\par
+Die m\'fcssten halt dann redundant implementiert werden, hilft nix.\par
+\par
+Au\'dferdem aufgefallen: Es gibt ja alle m\'f6glichen API-Verflechtungen, wo OIDs aus den Bin\'e4rdaten gelesen und an einen Lookup oder Iterator \'fcbergeben werden.\par
+Die m\'fcssten dann auch alle eine Konvertierung machen. Das ist echt l\'e4stig. Und sehr fehleranf\'e4llig, weil die IDE da nicht mitdenken kann.\par
+\par
+Erst mal BinaryPersistence Klasse aufr\'e4umen, um einen \'dcberblick zu verschaffen, was binary data handling Logik ist und was Initialisierungszeug ist.\par
+Dann das binary data handling Zeug Methode f\'fcr Methode durchdenken, was davon bleiben kann und was nach Binary muss, um dort ByteOrder-modularisiert zu werden.\par
+Auch gleich wieder aufr\'e4umen. Z.B. unbenutzte Methoden usw.\par
+Am besten gleich die ganzen Functions in eine eigene Klasse "BinaryValueFunctions" verschieben.\par
+\par
+So. Jetzt hab ich die ganze Binary Access Handling Logik in die Binary Klasse rein und der Rest ist aufgeteilt auf zwei h\'fcbsch kleine spezialisierte Klassen.\par
+\par
+Jetzt ist noch zu tun:\par
+- Methoden konsolidieren, so dass m\'f6glichst keine absoluten Speicheradressen mehr vorkommen, keine redundante Logik mehr da ist, m\'f6glichst viel zu Instanzmethoden wird, die man dann mit einer Ableitung overriden kann.\par
+- Da m\'fcssten dann offset Validierungen rein.\par
+- Und dann ist zu \'fcberlegen, wie das eigentliche ByteOrder switching da rein kommt. Ggf. durch verschieben der entsprechenden Methoden in eine neue Vererbungsebene.\par
+\par
+\par
+\par
 }
  
