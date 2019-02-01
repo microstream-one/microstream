@@ -350,7 +350,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
-		bytes.iterateBinaryReferences(
+		bytes.iterateReferences(
 			this.referenceOffsetStart,
 			this.referenceOffsetBound,
 			iterator

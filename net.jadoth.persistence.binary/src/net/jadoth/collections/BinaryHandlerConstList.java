@@ -67,7 +67,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeArray(
+		bytes.storeReferences(
 			this.typeId(),
 			objectId     ,
 			0            ,
