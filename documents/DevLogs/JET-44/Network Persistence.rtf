@@ -1830,7 +1830,13 @@ Redundanzen zwischen "buildArray" und create&update Paar untersuchen. Konsolidie
 \par
 Restliche Methoden in Klasse Binary instanzifizieren bzw. die Compilerfehler dazu rausmachen.\par
 \par
-\par
+Einlesen ... erste Methode: storeChars().\par
+Ahja. Das Problem hier ist: im statischen Kontext wird mit absoluten Speicheradressen gearbeitet.\par
+Es w\'e4re aber besser, relative Offsets zu verwenden.\par
+Dazu muss ich aber erst die Implementierung umbauen, dass die den aktuellen Entity Offset zu ihrer Basisadresse mitf\'fchrt, auf den dann der entity-relative Offset draufgez\'e4hlt wird.\par
+Das wiederum hei\'dft, dass die Methode storeEntityHeader() umgebaut werden muss.\par
+Und das hat wiederum auswirkungen auf 28 andere Methoden.\par
+Im Detail ist das alles trivial, aber man muss halt Schritt f\'fcr Schritt relativ viel umstricken.\par
 \par
 }
  
