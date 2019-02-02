@@ -62,18 +62,19 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	@Override
 	protected T internalCreate(final Binary rawData)
 	{
-		final long binaryContentLength = this.typeHandler().membersPersistedLengthMaximum();
+		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
+		final long entityTotalLength   = Binary.entityTotalLength(entityContentLength);
 		
 		// so funny how the morons crippled their memory handling API to int just because there is a toArray somewhere.
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
-			X.checkArrayRange(Binary.entityTotalLength(binaryContentLength))
+			X.checkArrayRange(entityTotalLength)
 		);
 		final long newEntityAddress = XMemory.getDirectByteBufferAddress(directByteBuffer);
 		
 		// header bytes for the mapped format (new length, new TID, same OID) at the newly allocated memory.
-		Binary.storeEntityHeader(
+		Binary.setEntityHeaderRawValues(
 			newEntityAddress              ,
-			binaryContentLength           ,
+			entityTotalLength             ,
 			this.typeHandler().typeId()   ,
 			rawData.getBuildItemObjectId()
 		);

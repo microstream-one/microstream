@@ -23,7 +23,7 @@ public final class BinaryLoadItem extends Binary
 		 */
 		final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
 		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
-		Binary.storeEntityHeader(dbbAddress, 0, 0, objectId);
+		Binary.setEntityHeaderRawValues(dbbAddress, 0, 0, objectId);
 		
 		// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity(), instance, null);
