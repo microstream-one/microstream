@@ -80,7 +80,7 @@ public abstract class Binary implements Chunk
 	/**
 	 * Obviously 2 references: the key and the value.
 	 */
-	private static final int KEY_VALUE_REFERENCE_COUNT = 2;
+	private static final long KEY_VALUE_REFERENCE_COUNT = 2;
 	
 	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * LENGTH_OID;
 	
@@ -96,9 +96,9 @@ public abstract class Binary implements Chunk
 	// static methods //
 	///////////////////
 	
-	public static final int keyValueReferenceCount()
+	public static final long keyValueReferenceCount(final long elementCount)
 	{
-		return KEY_VALUE_REFERENCE_COUNT;
+		return KEY_VALUE_REFERENCE_COUNT * elementCount;
 	}
 	
 	public static final long keyValueBinaryLength()
@@ -184,18 +184,6 @@ public abstract class Binary implements Chunk
 		return entityAddress + LENGTH_ENTITY_HEADER;
 	}
 	
-	public static final void setEntityHeaderValues(
-		final long address       ,
-		final long entityLength  , // note: entity TOTAL length (including header length!)
-		final long entityTypeId  ,
-		final long entityObjectId
-	)
-	{
-		this.store_long(address + OFFSET_LEN, entityLength  );
-		this.store_long(address + OFFSET_TID, entityTypeId  );
-		this.store_long(address + OFFSET_OID, entityObjectId);
-	}
-
 	public static final int oidByteLength()
 	{
 		return LENGTH_OID;
@@ -252,21 +240,26 @@ public abstract class Binary implements Chunk
 		final long entityObjectId
 	);
 	
-	public static final long storeEntityHeader(
-		final long entityAddress      ,
-		final long entityContentLength, // note: entity CONTENT length (without header length!)
-		final long entityTypeId       ,
+	/**
+	 * "Raw" means without byte order transformation. This must be done in the calling context.
+	 * 
+	 * @param entityAddress
+	 * @param entityTotalLength
+	 * @param entityTypeId
+	 * @param entityObjectId
+	 * 
+	 * @return
+	 */
+	public static final void setEntityHeaderRawValues(
+		final long entityAddress    ,
+		final long entityTotalLength,
+		final long entityTypeId     ,
 		final long entityObjectId
 	)
 	{
-		setEntityHeaderValues(
-			entityAddress,
-			entityTotalLength(entityContentLength),
-			entityTypeId,
-			entityObjectId
-		);
-		
-		return entityAddress + entityTotalLength(entityContentLength);
+		XMemory.set_long(entityAddress + OFFSET_LEN, entityTotalLength);
+		XMemory.set_long(entityAddress + OFFSET_TID, entityTypeId     );
+		XMemory.set_long(entityAddress + OFFSET_OID, entityObjectId   );
 	}
 	
 	public final void iterateKeyValueEntriesReferences(
@@ -282,7 +275,7 @@ public abstract class Binary implements Chunk
 		);
 		
 		final long startAddress = this.binaryListElementsAddressRelative(offset);
-		final long boundAddress = startAddress + keyValueReferenceCount() * elementCount;
+		final long boundAddress = startAddress + keyValueReferenceCount(elementCount);
 		
 		this.iterateReferences(startAddress, boundAddress, iterator);
 	}
@@ -336,7 +329,7 @@ public abstract class Binary implements Chunk
 		
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = this.storeEntityHeader(
-			headerOffset + Binary.calculateReferenceListTotalBinaryLength(size * keyValueReferenceCount()),
+			headerOffset + Binary.calculateReferenceListTotalBinaryLength(keyValueReferenceCount(size)),
 			tid,
 			oid
 		);
@@ -830,7 +823,7 @@ public abstract class Binary implements Chunk
 	public final void storeStringValue(final long tid, final long oid, final String string)
 	{
 		final char[] chars = XMemory.accessChars(string); // thank god they fixed that stupid String storage mess
-		storeChars(
+		this.storeChars(
 			this.storeEntityHeader(
 				calculateBinaryLengthChars(chars.length),
 				tid,
@@ -992,16 +985,16 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public static final void storeStringsAsList(
+	public final void storeStringsAsList(
 		final long     storeAddress            ,
 		final long     precalculatedContentBinaryLength,
 		final String[] strings
 	)
 	{
-		storeStringsAsList(storeAddress, precalculatedContentBinaryLength, strings, 0, strings.length);
+		this.storeStringsAsList(storeAddress, precalculatedContentBinaryLength, strings, 0, strings.length);
 	}
 
-	public static final void storeStringsAsList(
+	public final void storeStringsAsList(
 		final long     storeAddress                    ,
 		final long     precalculatedContentBinaryLength,
 		final String[] strings                         ,
@@ -1014,16 +1007,16 @@ public abstract class Binary implements Chunk
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			elementsDataAddress = storeChars(elementsDataAddress, XMemory.accessChars(strings[i]));
+			elementsDataAddress = this.storeChars(elementsDataAddress, XMemory.accessChars(strings[i]));
 		}
 	}
 
-	public static final long storeChars(final long storeAddress, final char[] chars)
+	public final long storeChars(final long storeAddress, final char[] chars)
 	{
-		return storeChars(storeAddress, chars, 0, chars.length);
+		return this.storeChars(storeAddress, chars, 0, chars.length);
 	}
 
-	public static final long storeChars(
+	public final long storeChars(
 		final long   storeAddress,
 		final char[] chars       ,
 		final int    offset      ,
