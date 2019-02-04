@@ -1851,5 +1851,8 @@ Da muss wohl etwas mehr restrukturiert werden, damit es passt.\par
 Evtl. m\'fcsste es dann f\'fcr die Implementierungen der BinaryReferenceTraverser ein zweites Set geben, das die ByteOrder switcht.\par
 Das zieht sich dann wieder durch bis zum TypeHandler erzeugen. Dann m\'fcsste dort ein modularer Erzeuger rein. Das w\'e4r generell nicht schlecht, anstatt hardgecodet Konstruktoren aufzurufen.\par
 \par
+Oh. Dabei gefunden: Was genau gibt BinaryReferenceTraverser#count zur\'fcck? Zahl der Referenzen? Konstante Zahl der Referenzen (d.h. variable length h\'e4tte 0)? Anzahl der abgedeckten Bytes?\par
+Unterschiedliche Implementierungen scheinen hier unterschiedliche Konzepte zu verwenden. Evtl. Kommt daher sogar der GC-Bug, weil manche Referenzen nicht sicher erreicht werden. Wobei das dann 100% reproduzierbar sein m\'fcsste und keine Race Condition sein d\'fcrfte. Aber wie auch immer: Diese Methode ist seltsam und muss untersuchen, ggf. gefixt und ordentlich kommentiert werden.\par
+\par
 }
  

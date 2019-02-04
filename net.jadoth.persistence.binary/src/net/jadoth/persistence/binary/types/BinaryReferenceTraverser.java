@@ -11,7 +11,6 @@ import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
 import net.jadoth.reflect.XReflect;
-import net.jadoth.typing.XTypes;
 
 
 @FunctionalInterface
@@ -98,7 +97,7 @@ public interface BinaryReferenceTraverser
 		;
 
 		static final int
-			REFERENCE_LENGTH   = XTypes.to_int(Binary.oidByteLength()),
+			REFERENCE_LENGTH   = Binary.oidByteLength(),
 			REFERENCE_LENGTH_2 = REFERENCE_LENGTH * C2,
 			REFERENCE_LENGTH_3 = REFERENCE_LENGTH * C3,
 			REFERENCE_LENGTH_4 = REFERENCE_LENGTH * C4,
@@ -527,7 +526,7 @@ public interface BinaryReferenceTraverser
 			}
 
 			// otherwise truely complex types have to be traversed in the full complex way
-			return new BinaryReferenceTraverser.InlinedComplexType(traversers, true);
+			return new BinaryReferenceTraverser.InlinedComplexType(traversers);
 		}
 
 		public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
@@ -792,14 +791,12 @@ public interface BinaryReferenceTraverser
 
 	final class InlinedComplexType implements BinaryReferenceTraverser
 	{
-		final BinaryReferenceTraverser[] traversers   ;
-		final boolean                    hasReferences;
+		final BinaryReferenceTraverser[] traversers;
 
-		InlinedComplexType(final BinaryReferenceTraverser[] traversers, final boolean hasReferences)
+		InlinedComplexType(final BinaryReferenceTraverser[] traversers)
 		{
 			super();
-			this.traversers    = traversers;
-			this.hasReferences = hasReferences;
+			this.traversers = traversers;
 		}
 
 		@Override
@@ -834,13 +831,15 @@ public interface BinaryReferenceTraverser
 		@Override
 		public final int count()
 		{
+			// 0 means no constant amount of references. See calling methods of this method.
 			return 0;
 		}
 
 		@Override
 		public final boolean hasReferences()
 		{
-			return this.hasReferences;
+			// this type is only used if there is at least one reference. Otherwise, the variable length skipper is used.
+			return true;
 		}
 
 		@Override
