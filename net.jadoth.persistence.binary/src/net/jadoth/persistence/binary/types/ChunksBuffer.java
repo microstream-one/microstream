@@ -266,7 +266,7 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 		for(int i = 0; i < buffersCount; i++)
 		{
 			// buffer is already flipped
-			iterateBufferLoadItems(
+			this.iterateBufferLoadItems(
 				XMemory.getDirectByteBufferAddress(buffers[i]),
 				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(),
 				reader
@@ -283,14 +283,15 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 		}
 	}
 	
-	private static void iterateBufferLoadItems(
+	private void iterateBufferLoadItems(
 		final long                   startAddress,
 		final long                   boundAddress,
 		final BinaryEntityDataReader reader
 	)
 	{
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
-		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
+		// (04.02.2019 TM)FIXME: JET-49: must handle byte order switching here as well
+		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
 		{
 			reader.readBinaryEntityData(address);
 		}

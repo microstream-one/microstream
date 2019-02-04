@@ -168,13 +168,19 @@ public abstract class Binary implements Chunk
 		// the content length is the total length minus the length of the header (containing length, Tid, Oid)
 		return entityTotalLength - LENGTH_ENTITY_HEADER;
 	}
+
+	public final long getEntityLength(final long entityAddress)
+	{
+		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		return this.read_long(entityAddress + OFFSET_LEN);
+	}
 		
-	public static final long getEntityTypeId(final long entityAddress)
+	public final long getEntityTypeId(final long entityAddress)
 	{
 		return this.read_long(entityAddress + OFFSET_TID);
 	}
 
-	public static final long getEntityObjectId(final long entityAddress)
+	public final long getEntityObjectId(final long entityAddress)
 	{
 		return this.read_long(entityAddress + OFFSET_OID);
 	}
@@ -212,12 +218,6 @@ public abstract class Binary implements Chunk
 	public static final long referenceBinaryLength(final long referenceCount)
 	{
 		return referenceCount << LONG_BYTE_LENGTH_BITSHIFT_COUNT; // reference (ID) binary length is 8
-	}
-
-	public static final long getEntityLength(final long entityAddress)
-	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
-		return this.read_long(entityAddress + OFFSET_LEN);
 	}
 			
 	/**
@@ -317,8 +317,8 @@ public abstract class Binary implements Chunk
 	public abstract void iterateEntityData(BinaryEntityDataReader reader);
 		
 	public final long storeSizedKeyValuesAsEntries(
-		final long                               tid         ,
-		final long                               oid         ,
+		final long                               typeId      ,
+		final long                               objectId    ,
 		final long                               headerOffset,
 		final Iterable<? extends KeyValue<?, ?>> keyValues   ,
 		final long                               size        ,
@@ -330,12 +330,12 @@ public abstract class Binary implements Chunk
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = this.storeEntityHeader(
 			headerOffset + Binary.calculateReferenceListTotalBinaryLength(keyValueReferenceCount(size)),
-			tid,
-			oid
+			typeId,
+			objectId
 		);
 
 		// store entries
-		Binary.storeKeyValuesAsEntries(contentAddress + headerOffset, persister, keyValues, size);
+		this.storeKeyValuesAsEntries(contentAddress + headerOffset, persister, keyValues, size);
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
@@ -400,7 +400,7 @@ public abstract class Binary implements Chunk
 		this.internalStoreReferencesAsList(contentAddress, handler, instances, 0, instances.length);
 
 		// store identifiers as list of inlined [char]s
-		Binary.storeStringsAsList(
+		this.storeStringsAsList(
 			contentAddress + instancesTotalBinLength,
 			identifiersContentBinLength,
 			identifiers
@@ -426,7 +426,7 @@ public abstract class Binary implements Chunk
 		);
 
 		// store elements
-		Binary.storeIterableContentAsList(contentAddress + headerOffset, persister, elements, size);
+		this.storeIterableContentAsList(contentAddress + headerOffset, persister, elements, size);
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
@@ -549,12 +549,12 @@ public abstract class Binary implements Chunk
 		// validation for safety AND security(!) reasons. E.g. to prevent reading beyond the entity data in memory.
 		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
 			>
-			entityAddress + getEntityLength(entityAddress)
+			entityAddress + this.getEntityLength(entityAddress)
 		){
 			throw new BinaryPersistenceExceptionInvalidList(
-				getEntityLength(entityAddress),
-				getEntityObjectId(entityAddress),
-				getEntityTypeId(entityAddress),
+				this.getEntityLength(entityAddress),
+				this.getEntityObjectId(entityAddress),
+				this.getEntityTypeId(entityAddress),
 				listOffset,
 				listByteLength
 			);
@@ -583,14 +583,14 @@ public abstract class Binary implements Chunk
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
 		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
-			> entityAddress + getEntityLength(entityAddress)
+			> entityAddress + this.getEntityLength(entityAddress)
 			|| listElementCount * elementLength != listByteLength
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidListElements(
-				getEntityLength(entityAddress),
-				getEntityObjectId(entityAddress),
-				getEntityTypeId(entityAddress),
+				this.getEntityLength(entityAddress),
+				this.getEntityObjectId(entityAddress),
+				this.getEntityTypeId(entityAddress),
 				listOffset,
 				listByteLength,
 				listElementCount,
@@ -904,10 +904,10 @@ public abstract class Binary implements Chunk
 	}
 
 	public final void storeIterableContentAsList(
-		final long            storeAddress,
+		final long                storeAddress,
 		final PersistenceFunction persister   ,
-		final Iterable<?>     elements    ,
-		final long            elementCount
+		final Iterable<?>         elements    ,
+		final long                elementCount
 	)
 	{
 		final Iterator<?> iterator = elements.iterator();

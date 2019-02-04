@@ -219,7 +219,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createBuildItem(final long entityAddress)
 		{
-			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well.
+			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well. Which is tricky
 			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
