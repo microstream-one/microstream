@@ -70,20 +70,20 @@ public interface BinaryReferenceTraverser
 
 
 
+	public static boolean hasReferences(final BinaryReferenceTraverser[] traversers)
+	{
+		for(final BinaryReferenceTraverser traverser : traversers)
+		{
+			if(traverser.hasReferences())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static final class Static
 	{
-		static final boolean hasReferences(final BinaryReferenceTraverser[] traversers)
-		{
-			for(final BinaryReferenceTraverser traverser : traversers)
-			{
-				if(traverser.hasReferences())
-				{
-					return true;
-				}
-			}
-			return false;
-		}
 		
 		// to avoid suppressing CheckStyle warnings
 		static final int
@@ -521,7 +521,7 @@ public interface BinaryReferenceTraverser
 			}
 
 			// if the elements have no references at all, no matter how complex, the traversal can be skipped completely
-			if(!BinaryReferenceTraverser.Static.hasReferences(traversers))
+			if(!BinaryReferenceTraverser.hasReferences(traversers))
 			{
 				return SKIP_VARIABLE_LENGTH;
 			}
@@ -605,9 +605,29 @@ public interface BinaryReferenceTraverser
 
 	final class Analyzer implements Consumer<PersistenceTypeDescriptionMember>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		final BulkList<BinaryReferenceTraverser> traversers = BulkList.New(16);
 		int skipLength, referenceCount;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		public Analyzer()
+		{
+			super();
+		}
 
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		private void finishSkipRange()
 		{
@@ -774,11 +794,6 @@ public interface BinaryReferenceTraverser
 	{
 		final BinaryReferenceTraverser[] traversers   ;
 		final boolean                    hasReferences;
-
-		InlinedComplexType(final BinaryReferenceTraverser[] traversers)
-		{
-			this(traversers, Static.hasReferences(traversers));
-		}
 
 		InlinedComplexType(final BinaryReferenceTraverser[] traversers, final boolean hasReferences)
 		{
