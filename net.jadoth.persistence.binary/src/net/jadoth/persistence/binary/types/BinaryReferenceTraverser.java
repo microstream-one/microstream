@@ -18,7 +18,15 @@ public interface BinaryReferenceTraverser
 {
 	public long apply(long address, _longProcedure procedure);
 
-	public default int count()
+	/**
+	 * This method reports the amount of bytes that a particular instance of an implementing type covers or advances.
+	 * For example, an objectId is 8 bytes long. 5 objectIds are 40 bytes long.
+	 * Skipping 6 bytes (primitives) is 6 bytes long.
+	 * An implementation handling a variable length structure reports 0 bytes here.
+	 * 
+	 * @return
+	 */
+	public default int coveredConstantByteCount()
 	{
 		return 0;
 	}
@@ -118,7 +126,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C1;
 			}
@@ -133,7 +141,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C2;
 			}
@@ -148,7 +156,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C3;
 			}
@@ -163,7 +171,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C4;
 			}
@@ -178,7 +186,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C5;
 			}
@@ -193,7 +201,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C6;
 			}
@@ -208,7 +216,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C7;
 			}
@@ -223,7 +231,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return C8;
 			}
@@ -252,7 +260,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH;
 			}
@@ -275,7 +283,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_2;
 			}
@@ -299,7 +307,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_3;
 			}
@@ -325,7 +333,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_4;
 			}
@@ -351,7 +359,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_5;
 			}
@@ -377,7 +385,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_6;
 			}
@@ -403,7 +411,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_7;
 			}
@@ -429,7 +437,7 @@ public interface BinaryReferenceTraverser
 			}
 			
 			@Override
-			public int count()
+			public int coveredConstantByteCount()
 			{
 				return REFERENCE_LENGTH_8;
 			}
@@ -441,7 +449,7 @@ public interface BinaryReferenceTraverser
 			}
 		};
 
-		static final BinaryReferenceTraverser REFERENCE_VARIABLE_LENGTH = new BinaryReferenceTraverser()
+		static final BinaryReferenceTraverser REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED = new BinaryReferenceTraverser()
 		{
 			@Override
 			public final long apply(final long address, final _longProcedure procedure)
@@ -511,12 +519,23 @@ public interface BinaryReferenceTraverser
 			;
 		}
 
-		static final BinaryReferenceTraverser wrap(final BinaryReferenceTraverser[] traversers)
+		public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		)
 		{
-			// if elements are comprised solely of references, the traversal can be simplified (inlined)
-			if(traversers.length == 1 && traversers[0].hasReferences() && traversers[0].count() > 0)
+			return members.iterate(new Analyzer()).yield();
+		}
+
+		public static final BinaryReferenceTraverser deriveComplexVariableLengthTraversers(
+			final PersistenceTypeDescriptionMemberPseudoFieldComplex member
+		)
+		{
+			final BinaryReferenceTraverser[] traversers = Static.deriveReferenceTraversers(member.members());
+			
+			// if elements are comprised solely of references, the traversal can be simplified (inlined) to a variable length iteration
+			if(traversers.length == 1 && traversers[0].hasReferences() && traversers[0].coveredConstantByteCount() > 0)
 			{
-				return REFERENCE_VARIABLE_LENGTH;
+				return REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED;
 			}
 
 			// if the elements have no references at all, no matter how complex, the traversal can be skipped completely
@@ -529,29 +548,10 @@ public interface BinaryReferenceTraverser
 			return new BinaryReferenceTraverser.InlinedComplexType(traversers);
 		}
 
-		public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
-		)
-		{
-			return members.iterate(new Analyzer()).yield();
-		}
-
-		public static final BinaryReferenceTraverser deriveNested(
-			final PersistenceTypeDescriptionMemberPseudoFieldComplex member
-		)
-		{
-//			if(!member.hasReferences())
-//			{
-//				return Static.skipVariableLength;
-//			}
-
-			return Static.wrap(Static.deriveReferenceTraversers(member.members()));
-		}
-
 		public static int calculateSimpleReferenceCount(final BinaryReferenceTraverser[] traversers)
 		{
 			// check if structure is not suitable at all
-			if(traversers.length == 0 || !traversers[0].hasReferences() || traversers[0].count() == 0)
+			if(traversers.length == 0 || !traversers[0].hasReferences() || traversers[0].coveredConstantByteCount() == 0)
 			{
 				return 0;
 			}
@@ -566,7 +566,7 @@ public interface BinaryReferenceTraverser
 			}
 
 			// leading simple references guaranteed, calculate reference count
-			return traversers[0].count() / Static.REFERENCE_LENGTH;
+			return traversers[0].coveredConstantByteCount() / Static.REFERENCE_LENGTH;
 		}
 
 		/* important note:
@@ -664,7 +664,7 @@ public interface BinaryReferenceTraverser
 				if(member instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex)
 				{
 					this.traversers.add(
-						Static.deriveNested((PersistenceTypeDescriptionMemberPseudoFieldComplex)member)
+						Static.deriveComplexVariableLengthTraversers((PersistenceTypeDescriptionMemberPseudoFieldComplex)member)
 					);
 				}
 				else if(member.hasReferences())
@@ -732,7 +732,7 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public int count()
+		public int coveredConstantByteCount()
 		{
 			return this.referenceRange;
 		}
@@ -768,7 +768,7 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public int count()
+		public int coveredConstantByteCount()
 		{
 			return this.skipLength;
 		}
@@ -829,7 +829,7 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public final int count()
+		public final int coveredConstantByteCount()
 		{
 			// 0 means no constant amount of references. See calling methods of this method.
 			return 0;

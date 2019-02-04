@@ -1854,5 +1854,20 @@ Das zieht sich dann wieder durch bis zum TypeHandler erzeugen. Dann m\'fcsste do
 Oh. Dabei gefunden: Was genau gibt BinaryReferenceTraverser#count zur\'fcck? Zahl der Referenzen? Konstante Zahl der Referenzen (d.h. variable length h\'e4tte 0)? Anzahl der abgedeckten Bytes?\par
 Unterschiedliche Implementierungen scheinen hier unterschiedliche Konzepte zu verwenden. Evtl. Kommt daher sogar der GC-Bug, weil manche Referenzen nicht sicher erreicht werden. Wobei das dann 100% reproduzierbar sein m\'fcsste und keine Race Condition sein d\'fcrfte. Aber wie auch immer: Diese Methode ist seltsam und muss untersuchen, ggf. gefixt und ordentlich kommentiert werden.\par
 \par
+Also Problem kann es schon mal davon nicht geben, weil in den benutzen Algorithmen immer auch hasReferences() abgepr\'fcft wird.\par
+\par
+\par
+09:00 XDEV\tab\tab Mails, Teams.\par
+09:05 JET\tab\tab JET-49 weitermachen.\par
+10:05 ---\tab\tab Spontaner Heizungsbauer Termin wegen regelm\'e4\'dfigen Fehlern.\par
+11:05 JET\tab\tab JET-49 weitermachen.\par
+12:00 ---\tab\tab Mittag.\par
+13:05 Bonus\tab Standup Meeting.\par
+13:20 XDEV\tab\tab Zeiterfassung.\par
+13:30 JET\tab\tab JET-49 weitermachen.\par
+\par
+\par
+Okay, jetzt hab ich das alles wieder ordentlich durchgedacht und verstanden. Das stimmt schon so, nur die Benamung und der fehlende Kommentar war schlecht. Das hab ich mal verbessert.\par
+\par
 }
  
