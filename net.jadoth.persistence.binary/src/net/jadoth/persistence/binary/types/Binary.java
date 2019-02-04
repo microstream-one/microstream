@@ -875,7 +875,7 @@ public abstract class Binary implements Chunk
 		final int                     length
 	)
 	{
-		final long elementsDataAddress = storeListHeader(
+		final long elementsDataAddress = this.storeListHeader(
 			storeAddress,
 			referenceBinaryLength(length),
 			length
@@ -889,7 +889,7 @@ public abstract class Binary implements Chunk
 	}
 	
 	
-	public static final long storeListHeader(
+	public final long storeListHeader(
 		final long storeAddress        ,
 		final long elementsBinaryLength,
 		final long elementsCount
@@ -900,7 +900,7 @@ public abstract class Binary implements Chunk
 		return storeAddress + LIST_OFFSET_ELEMENTS;
 	}
 
-	public static final void storeIterableContentAsList(
+	public final void storeIterableContentAsList(
 		final long            storeAddress,
 		final PersistenceFunction persister   ,
 		final Iterable<?>     elements    ,
@@ -911,7 +911,7 @@ public abstract class Binary implements Chunk
 
 		final long referenceLength     = referenceBinaryLength(1);
 		final long elementsBinaryRange = elementCount * referenceLength;
-		final long elementsDataAddress = storeListHeader(storeAddress, elementsBinaryRange, elementCount);
+		final long elementsDataAddress = this.storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
 
 		long address = elementsDataAddress;
@@ -940,7 +940,7 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public static final void storeKeyValuesAsEntries(
+	public final void storeKeyValuesAsEntries(
 		final long                               storeAddress,
 		final PersistenceFunction                persister   ,
 		final Iterable<? extends KeyValue<?, ?>> elements    ,
@@ -955,7 +955,7 @@ public abstract class Binary implements Chunk
 		final long entryLength = 2 * referenceLength;
 
 		final long elementsBinaryRange = elementCount * entryLength;
-		final long elementsDataAddress = storeListHeader(storeAddress, elementsBinaryRange, elementCount);
+		final long elementsDataAddress = this.storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
 
 		long address = elementsDataAddress;
@@ -1002,7 +1002,7 @@ public abstract class Binary implements Chunk
 		final int      length
 	)
 	{
-		long elementsDataAddress = storeListHeader(storeAddress, precalculatedContentBinaryLength, length);
+		long elementsDataAddress = this.storeListHeader(storeAddress, precalculatedContentBinaryLength, length);
 
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
@@ -1025,7 +1025,7 @@ public abstract class Binary implements Chunk
 	{
 		// total binary length is header length plus content length
 		final long elementsBinaryLength = length * Character.BYTES;
-		final long elementsDataAddress  = storeListHeader(storeAddress, elementsBinaryLength, length);
+		final long elementsDataAddress  = this.storeListHeader(storeAddress, elementsBinaryLength, length);
 
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)

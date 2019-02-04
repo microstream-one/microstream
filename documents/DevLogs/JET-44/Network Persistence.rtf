@@ -1839,5 +1839,13 @@ Und das hat wiederum auswirkungen auf 28 andere Methoden.\par
 Im Detail ist das alles trivial, aber man muss halt Schritt f\'fcr Schritt relativ viel umstricken.\par
 \par
 Daf\'fcr muss auch erst mal die zweite, statische Methode storeEntityHeader() wegrefactort werden, weil das ja \'fcber Instanzmethoden laufen muss.\par
+\par
+\par
+2019-02-04\par
+\par
+Weitermachen.\par
+\par
+Hm. Binary#getBinaryListElementCountAbsolute kann nicht einfach so in eine Instanzmethode umgewandelt werden, weil die im BinaryReferenceTraverser statisch mit absoluter Adresse verwendet wird.\par
+Da muss wohl etwas mehr restrukturiert werden, damit es passt.\par
 }
  
