@@ -456,7 +456,7 @@ public interface BinaryReferenceTraverser
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
 				final long bound = address + Binary.getBinaryListByteLengthRawValue(address);
-				for(long a = Binary.binaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
+				for(long a = Binary.binaryListElementsAddressAbsolute(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					procedure.accept(XMemory.get_long(a));
 				}
@@ -818,7 +818,7 @@ public interface BinaryReferenceTraverser
 			final long elementCount = Binary.getBinaryListElementCountRawValue(address);
 
 			// apply all element traversers to each element
-			long a = Binary.binaryListElementsAddress(address);
+			long a = Binary.binaryListElementsAddressAbsolute(address);
 			for(long i = 0; i < elementCount; i++)
 			{
 				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, procedure);
