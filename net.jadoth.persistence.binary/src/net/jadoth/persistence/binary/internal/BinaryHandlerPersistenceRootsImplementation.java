@@ -110,7 +110,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private static String[] buildTempIdentifiersArray(final Binary bytes)
 	{
-		final long offsetIdentifierList = Binary.getBinaryListByteLengthAbsolute(OFFSET_OID_LIST);
+		final long offsetIdentifierList = bytes.getBinaryListByteLength(OFFSET_OID_LIST);
 		final long amountIdentifiers    = bytes.getBinaryListElementCountUnvalidating(offsetIdentifierList);
 
 		return new String[X.checkArrayRange(amountIdentifiers)];
@@ -127,13 +127,13 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 
 	private void fillObjectIds(final long[] oids, final Binary bytes)
 	{
-		final long offsetOidData = bytes.binaryListElementsAddressRelative(OFFSET_OID_LIST);
+		final long offsetOidData = bytes.binaryListElementsAddress(OFFSET_OID_LIST);
 		XMemory.copyRangeToArray(offsetOidData, oids);
 	}
 
 	private void fillIdentifiers(final String[] identifiers, final Binary bytes)
 	{
-		final long offsetIdentifierList = bytes.getBinaryListByteLengthRelative(OFFSET_OID_LIST);
+		final long offsetIdentifierList = bytes.getBinaryListByteLength(OFFSET_OID_LIST);
 
 		bytes.buildStrings(offsetIdentifierList, identifiers);
 	}

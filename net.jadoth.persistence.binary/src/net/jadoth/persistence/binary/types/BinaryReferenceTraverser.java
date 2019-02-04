@@ -455,7 +455,7 @@ public interface BinaryReferenceTraverser
 			public final long apply(final long address, final _longProcedure procedure)
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
-				final long bound = address + Binary.getBinaryListByteLengthAbsolute(address);
+				final long bound = address + Binary.getBinaryListByteLengthRawValue(address);
 				for(long a = Binary.binaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					procedure.accept(XMemory.get_long(a));
@@ -815,7 +815,7 @@ public interface BinaryReferenceTraverser
 			 * Using the validating element count getter would require to know the element binary length.
 			 * And that can get very ugly if the element of a complex type has variable length on its own.
 			 */
-			final long elementCount = Binary.getBinaryListElementCountAbsolute(address);
+			final long elementCount = Binary.getBinaryListElementCountRawValue(address);
 
 			// apply all element traversers to each element
 			long a = Binary.binaryListElementsAddress(address);

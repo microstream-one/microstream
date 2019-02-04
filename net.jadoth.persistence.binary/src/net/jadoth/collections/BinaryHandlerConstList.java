@@ -90,7 +90,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 		// length must be checked for consistency reasons
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
 
-		final long binaryRefOffset = bytes.binaryListElementsAddressRelative(BINARY_OFFSET_LIST);
+		final long binaryRefOffset = bytes.binaryListElementsAddress(BINARY_OFFSET_LIST);
 		for(int i = 0; i < arrayInstance.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
