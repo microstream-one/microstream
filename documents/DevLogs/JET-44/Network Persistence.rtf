@@ -1847,5 +1847,9 @@ Weitermachen.\par
 \par
 Hm. Binary#getBinaryListElementCountAbsolute kann nicht einfach so in eine Instanzmethode umgewandelt werden, weil die im BinaryReferenceTraverser statisch mit absoluter Adresse verwendet wird.\par
 Da muss wohl etwas mehr restrukturiert werden, damit es passt.\par
+\par
+Evtl. m\'fcsste es dann f\'fcr die Implementierungen der BinaryReferenceTraverser ein zweites Set geben, das die ByteOrder switcht.\par
+Das zieht sich dann wieder durch bis zum TypeHandler erzeugen. Dann m\'fcsste dort ein modularer Erzeuger rein. Das w\'e4r generell nicht schlecht, anstatt hardgecodet Konstruktoren aufzurufen.\par
+\par
 }
  

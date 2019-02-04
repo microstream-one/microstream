@@ -38,7 +38,9 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		return targetOffsets;
 	}
 	
-	public static final BinaryReferenceTraverser[] deriveReferenceTraversers(final PersistenceTypeDefinition typeDefinition)
+	public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
+		final PersistenceTypeDefinition typeDefinition
+	)
 	{
 		final BinaryReferenceTraverser[] referenceTraversers =
 			BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
