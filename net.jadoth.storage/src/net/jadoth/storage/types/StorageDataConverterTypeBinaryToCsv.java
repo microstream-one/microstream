@@ -702,7 +702,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = Binary.getBinaryListElementCountAbsolute(valueReadAddress);
+			final long elementCount  = Binary.getBinaryListElementCountRawValue(valueReadAddress);
 			      long address       = Binary.binaryListElementsAddress(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
@@ -726,7 +726,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
 		{
-			final long elementCount = Binary.getBinaryListElementCountAbsolute(valueReadAddress);
+			final long elementCount = Binary.getBinaryListElementCountRawValue(valueReadAddress);
 			      long address      = Binary.binaryListElementsAddress(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
@@ -954,7 +954,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListByteLengthAbsolute(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListByteLengthRawValue(valueReadAddress);
 					
 					ImplementationUTF8.this.write_chars(
 						Binary.binaryListElementsAddress(valueReadAddress),
@@ -973,7 +973,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListByteLengthAbsolute(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListByteLengthRawValue(valueReadAddress);
 					
 					ImplementationUTF8.this.write_bytes(
 						Binary.binaryListElementsAddress(valueReadAddress),
