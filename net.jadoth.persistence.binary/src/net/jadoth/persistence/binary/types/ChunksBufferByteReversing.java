@@ -5,7 +5,6 @@ import net.jadoth.util.BufferSizeProviderIncremental;
 
 public class ChunksBufferByteReversing extends ChunksBuffer
 {
-	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
