@@ -134,8 +134,8 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
-				this.getRawValueHandler(),
-				this.getStorageManager().channelCountProvider()
+				this.getStorageManager().channelCountProvider(),
+				this.isByteOrderMismatch()
 			);
 		}
 

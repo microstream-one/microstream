@@ -10,10 +10,10 @@ import java.util.function.Predicate;
 import net.jadoth.X;
 import net.jadoth.functional.ThrowingProcedure;
 import net.jadoth.functional._longProcedure;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Chunk;
 import net.jadoth.persistence.binary.types.ChunksBuffer;
+import net.jadoth.persistence.binary.types.ChunksBufferByteReversing;
 import net.jadoth.persistence.types.PersistenceIdSet;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageException;
@@ -100,7 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
-		private final RawValueHandler                   rawValueHandler          ;
+		private final boolean                           reverseBytes             ;
 		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
@@ -138,7 +138,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageChannelController          controller               ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
-			final RawValueHandler                   rawValueHandler          ,
+			final boolean                           reverseBytes             ,
 			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
@@ -150,9 +150,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.channelController         =     notNull(controller)               ;
 			this.fileManager               =     notNull(fileManager)              ;
 			this.entityCache               =     notNull(entityCache)              ;
-			this.rawValueHandler           =     notNull(rawValueHandler)          ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
+			this.reverseBytes              =             reverseBytes              ;
 		}
 
 
@@ -383,7 +383,10 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		
 		private ChunksBuffer createLoadingChunksBuffer(final ChunksBuffer[] channelChunks)
 		{
-			return ChunksBuffer.New(channelChunks, this.loadingBufferSizeProvider);
+			return this.reverseBytes
+				? ChunksBufferByteReversing.New(channelChunks, this.loadingBufferSizeProvider)
+				: ChunksBuffer.New(channelChunks, this.loadingBufferSizeProvider)
+			;
 		}
 
 		@Override
@@ -609,26 +612,26 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 	public interface Creator
 	{
 		public StorageChannel[] createChannels(
-			int                                   channelCount                 ,
-			StorageInitialDataFileNumberProvider  initialDataFileNumberProvider,
-			StorageExceptionHandler               exceptionHandler             ,
-			StorageDataFileEvaluator              fileDissolver                ,
-			StorageFileProvider                   storageFileProvider          ,
-			StorageEntityCacheEvaluator           entityCacheEvaluator         ,
-			StorageTypeDictionary                 typeDictionary               , // the connection to the exclusive storage (file or whatever)
-			StorageTaskBroker                     taskBroker                   , // the source for new tasks
-			StorageChannelController              channelController            , // simple hook to check if processing is still enabled
-			StorageHousekeepingController         housekeepingController       ,
-			StorageTimestampProvider              timestampProvider            ,
-			StorageFileReader.Provider            readerProvider               ,
-			StorageFileWriter.Provider            writerProvider               ,
-			StorageWriteListener                  writeListener                ,
-			StorageGCZombieOidHandler             zombieOidHandler             ,
-			StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
-			StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
-			StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-			RawValueHandler                       rawValueHandler              ,
-			long                                  rootTypeId
+			int                                  channelCount                 ,
+			StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
+			StorageExceptionHandler              exceptionHandler             ,
+			StorageDataFileEvaluator             fileDissolver                ,
+			StorageFileProvider                  storageFileProvider          ,
+			StorageEntityCacheEvaluator          entityCacheEvaluator         ,
+			StorageTypeDictionary                typeDictionary               , // the connection to the exclusive storage (file or whatever)
+			StorageTaskBroker                    taskBroker                   , // the source for new tasks
+			StorageChannelController             channelController            , // simple hook to check if processing is still enabled
+			StorageHousekeepingController        housekeepingController       ,
+			StorageTimestampProvider             timestampProvider            ,
+			StorageFileReader.Provider           readerProvider               ,
+			StorageFileWriter.Provider           writerProvider               ,
+			StorageWriteListener                 writeListener                ,
+			StorageGCZombieOidHandler            zombieOidHandler             ,
+			StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
+			StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
+			StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
+			boolean                              reverseBytes                 ,
+			long                                 rootTypeId
 		);
 
 
@@ -659,7 +662,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-				final RawValueHandler                      rawValueHandler              ,
+				final boolean                              reverseBytes                 ,
 				final long                                 rootTypeId
 			)
 			{
@@ -723,7 +726,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						channelController        ,
 						housekeepingController   ,
 						entityCache              ,
-						rawValueHandler          ,
+						reverseBytes             ,
 						loadingBufferSizeProvider,
 						fileManager
 					);

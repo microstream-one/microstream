@@ -10,9 +10,9 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
 import net.jadoth.com.XSockets;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
+import net.jadoth.persistence.binary.types.ChunksWrapperByteReversing;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.util.BufferSizeProvider;
 
@@ -21,13 +21,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 	public static ComPersistenceChannelBinary.Default New(
 		final SocketChannel      channel           ,
 		final BufferSizeProvider bufferSizeProvider,
-		final RawValueHandler    rawValueHandler
+		final boolean            reverseBytes
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider),
-			notNull(rawValueHandler)
+			        reverseBytes
 		);
 	}
 	
@@ -81,8 +81,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final RawValueHandler rawValueHandler;
+
+		private final boolean reverseBytes;
 		
 		
 		
@@ -93,11 +93,11 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		Default(
 			final SocketChannel      channel           ,
 			final BufferSizeProvider bufferSizeProvider,
-			final RawValueHandler    rawValueHandler
+			final boolean            reverseBytes
 		)
 		{
 			super(channel, bufferSizeProvider);
-			this.rawValueHandler = rawValueHandler;
+			this.reverseBytes = reverseBytes;
 		}
 		
 		
@@ -128,7 +128,15 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 				throw new PersistenceExceptionTransfer(e);
 			}
 			
-			return X.<Binary>Constant(ChunksWrapper.New(filledContentBuffer));
+			return X.<Binary>Constant(this.createChunksWrapper(filledContentBuffer));
+		}
+		
+		private ChunksWrapper createChunksWrapper(final ByteBuffer... byteBuffers)
+		{
+			return this.reverseBytes
+				? ChunksWrapper.New(byteBuffers)
+				: ChunksWrapperByteReversing.New(byteBuffers)
+			;
 		}
 
 		@Override

@@ -2,7 +2,6 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.exceptions.StorageExceptionNotAcceptingTasks;
@@ -74,7 +73,7 @@ public interface StorageManager extends StorageController
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
 		private final StorageEntityMarkMonitor.Creator        entityMarkMonitorCreator     ;
-		private final RawValueHandler                         rawValueHandler              ;
+		private final boolean                                 reverseBytes                 ;
 
 
 		// state flags //
@@ -119,7 +118,7 @@ public interface StorageManager extends StorageController
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-			final RawValueHandler                       rawValueHandler              ,
+			final boolean                               reverseBytes                 ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -148,7 +147,7 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
-			this.rawValueHandler               = notNull(rawValueHandler)                     ;
+			this.reverseBytes                  =         reverseBytes                         ;
 
 			/* must not leave processing information implementation choice to outside context
 			 * as this implementation relys on an immutable thread count.
@@ -269,7 +268,7 @@ public interface StorageManager extends StorageController
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
-				this.rawValueHandler                       ,
+				this.reverseBytes                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

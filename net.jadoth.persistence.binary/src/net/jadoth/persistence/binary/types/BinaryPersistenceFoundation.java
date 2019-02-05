@@ -6,7 +6,6 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XTable;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -34,14 +33,12 @@ extends PersistenceFoundation<Binary, F>
 	public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider();
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
-	
-	public RawValueHandler getRawValueHandler();
-	
+		
 	public ByteOrder getTargetByteOrder();
 	
 	public default boolean isByteOrderMismatch()
 	{
-		return this.getTargetByteOrder() != ByteOrder.nativeOrder();
+		return BinaryPersistence.isByteOrderMismatch(this.getTargetByteOrder());
 	}
 	
 
@@ -63,10 +60,6 @@ extends PersistenceFoundation<Binary, F>
 	);
 	
 	public F setTargetByteOrder(ByteOrder targetByteOrder);
-
-	public F setRawValueHandler(RawValueHandler rawValueHandler);
-
-
 	
 	@Override
 	public PersistenceManager<Binary> createPersistenceManager();
@@ -90,7 +83,6 @@ extends PersistenceFoundation<Binary, F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
-		private RawValueHandler                        rawValueHandler        ;
 		private ByteOrder                              targetByteOrder        ;
 		
 		
@@ -177,17 +169,6 @@ extends PersistenceFoundation<Binary, F>
 			return this.targetByteOrder;
 		}
 		
-		@Override
-		public RawValueHandler getRawValueHandler()
-		{
-			if(this.rawValueHandler == null)
-			{
-				this.rawValueHandler = this.dispatch(this.ensureRawValueHandler());
-			}
-			
-			return this.rawValueHandler;
-		}
-		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -229,13 +210,6 @@ extends PersistenceFoundation<Binary, F>
 			return this.$();
 		}
 		
-		@Override
-		public F setRawValueHandler(final RawValueHandler rawValueHandler)
-		{
-			this.rawValueHandler = rawValueHandler;
-			return this.$();
-		}
-		
 	
 
 		///////////////////////////////////////////////////////////////////////////
@@ -246,8 +220,8 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
-				this.getRawValueHandler(),
-				() -> 1
+				() -> 1,
+				this.isByteOrderMismatch()
 			);
 		}
 
@@ -327,13 +301,6 @@ extends PersistenceFoundation<Binary, F>
 		protected ByteOrder ensureTargetByteOrder()
 		{
 			return ByteOrder.nativeOrder();
-		}
-		
-		protected RawValueHandler ensureRawValueHandler()
-		{
-			return RawValueHandler.Derive(
-				this.getTargetByteOrder()
-			);
 		}
 		
 	}

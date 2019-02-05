@@ -1,7 +1,6 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
 import net.jadoth.util.InstanceDispatcher;
@@ -45,8 +44,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageOidMarkQueue.Creator getOidMarkQueueCreator();
 
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
-	
-	public RawValueHandler getRawValueHandler();
 
 	public StorageExceptionHandler getExceptionHandler();
 
@@ -92,8 +89,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 
-	public F setRawValueHandler(RawValueHandler rawValueHandler);
-
 
 
 	public StorageManager createStorageManager();
@@ -128,7 +123,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
-		private RawValueHandler                       rawValueHandler              ;
 
 		
 		
@@ -266,12 +260,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			return new StorageExceptionHandler.Implementation();
 		}
-		
-		protected RawValueHandler createRawValueHandler()
-		{
-			return RawValueHandler.Direct();
-		}
-		
 		
 		
 
@@ -474,17 +462,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.exceptionHandler;
 		}
-		
-		@Override
-		public RawValueHandler getRawValueHandler()
-		{
-			if(this.rawValueHandler == null)
-			{
-				this.rawValueHandler = this.dispatch(this.createRawValueHandler());
-			}
-			return this.rawValueHandler;
-		}
-		
 
 		@Override
 		public F setInitialDataFileNumberProvider(
@@ -639,14 +616,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			this.exceptionHandler = exceptionHandler;
 			return this.$();
 		}
-		
-		@Override
-		public F setRawValueHandler(final RawValueHandler rawValueHandler)
-		{
-			this.rawValueHandler = rawValueHandler;
-			return this.$();
-		}
-		
 
 		@Override
 		public StorageManager createStorageManager()
@@ -671,7 +640,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getRootOidSelectorProvider()      ,
 				this.getOidMarkQueueCreator()          ,
 				this.getEntityMarkMonitorCreator()     ,
-				this.getRawValueHandler()              ,
+				false                                  , // storage currently simply assumes always direct byte order.
 				this.getExceptionHandler()
 			);
 		}

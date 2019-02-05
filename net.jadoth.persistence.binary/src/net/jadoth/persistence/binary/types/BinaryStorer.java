@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceAcceptor;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -71,8 +70,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final RawValueHandler                       rawValueHandler;
+
+		private final boolean                               reverseBytes   ;
 		private final PersistenceObjectManager              objectManager  ;
 		private final PersistenceObjectRetriever            objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
@@ -104,23 +103,23 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 
 		protected Implementation(
-			final RawValueHandler                       rawValueHandler   ,
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
-			final int                                   chunkHashSize
+			final int                                   channelCount      ,
+			final boolean                               reverseBytes
 		)
 		{
 			super();
-			this.rawValueHandler    = notNull(rawValueHandler)       ;
-			this.objectManager      = notNull(objectManager)         ;
-			this.objectRetriever    = notNull(objectRetriever)       ;
-			this.typeManager        = notNull(typeManager)           ;
-			this.target             = notNull(target)                ;
-			this.bufferSizeProvider = notNull(bufferSizeProvider)    ;
-			this.chunksHashRange    = chunkHashSize - 1              ;
+			this.objectManager      = notNull(objectManager)     ;
+			this.objectRetriever    = notNull(objectRetriever)   ;
+			this.typeManager        = notNull(typeManager)       ;
+			this.target             = notNull(target)            ;
+			this.bufferSizeProvider = notNull(bufferSizeProvider);
+			this.chunksHashRange    =         channelCount - 1   ;
+			this.reverseBytes       =         reverseBytes       ;
 		}
 
 
@@ -249,11 +248,19 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.hashSlots = new Item[hashLength];
 			this.hashRange = hashLength - 1;
 			
+			this.createStoringChunksBuffers();
+		}
+		
+		private void createStoringChunksBuffers()
+		{
 			final ChunksBuffer[] chunks = this.chunks = new ChunksBuffer[this.chunksHashRange + 1];
 			for(int i = 0; i < chunks.length; i++)
 			{
 				// (05.02.2019 TM)FIXME: JET-49: reverseBytes flag
-				chunks[i] = ChunksBuffer.New(chunks, this.bufferSizeProvider);
+				chunks[i] = this.reverseBytes
+					? ChunksBufferByteReversing.New(chunks, this.bufferSizeProvider)
+					: ChunksBuffer.New(chunks, this.bufferSizeProvider)
+				;
 			}
 		}
 
@@ -513,23 +520,23 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		/////////////////
 		
 		ImplementationEager(
-			final RawValueHandler                       rawValueHandler   ,
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
-			final int                                   channelCount
+			final int                                   channelCount,
+			final boolean                               reverseBytes
 		)
 		{
 			super(
-				rawValueHandler   ,
 				objectManager     ,
 				objectRetriever   ,
 				typeManager       ,
 				target            ,
 				bufferSizeProvider,
-				channelCount
+				channelCount      ,
+				reverseBytes
 			);
 		}
 		
@@ -572,13 +579,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	}
 		
 	public static BinaryStorer.Creator Creator(
-		final RawValueHandler rawValueHandler      ,
-		final _intReference   chunkHashSizeProvider
+		final _intReference channelCountProvider,
+		final boolean       reverseBytes
 	)
 	{
 		return new BinaryStorer.Creator.Implementation(
-			notNull(rawValueHandler)      ,
-			notNull(chunkHashSizeProvider)
+			notNull(channelCountProvider),
+			        reverseBytes
 		);
 	}
 		
@@ -623,8 +630,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			/////////////////////
 
 
-			private final RawValueHandler rawValueHandler      ;
-			private final _intReference   chunkHashSizeProvider;
+			private final _intReference channelCountProvider;
+			private final boolean       reverseBytes         ;
 
 
 
@@ -633,13 +640,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			/////////////////////
 
 			protected AbstractImplementation(
-				final RawValueHandler rawValueHandler      ,
-				final _intReference   chunkHashSizeProvider
+				final _intReference channelCountProvider,
+				final boolean       reverseBytes
 			)
 			{
 				super();
-				this.rawValueHandler       = rawValueHandler      ;
-				this.chunkHashSizeProvider = chunkHashSizeProvider;
+				this.channelCountProvider = channelCountProvider;
+				this.reverseBytes         = reverseBytes        ;
 			}
 
 			
@@ -648,14 +655,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			// methods //
 			////////////
 			
-			protected int chunkHashSize()
+			protected int channelCount()
 			{
-				return this.chunkHashSizeProvider.get();
+				return this.channelCountProvider.get();
 			}
 			
-			protected RawValueHandler rawValueHandler()
+			protected boolean reverseBytes()
 			{
-				return this.rawValueHandler;
+				return this.reverseBytes;
 			}
 
 		}
@@ -663,11 +670,11 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public final class Implementation extends AbstractImplementation
 		{
 			Implementation(
-				final RawValueHandler rawValueHandler      ,
-				final _intReference   chunkHashSizeProvider
+				final _intReference channelCountProvider,
+				final boolean       reverseBytes
 			)
 			{
-				super(rawValueHandler, chunkHashSizeProvider);
+				super(channelCountProvider, reverseBytes);
 			}
 
 			@Override
@@ -680,13 +687,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.Implementation(
-					this.rawValueHandler(),
-					objectManager         ,
-					objectRetriever       ,
-					typeManager           ,
-					target                ,
-					bufferSizeProvider    ,
-					this.chunkHashSize()
+					objectManager      ,
+					objectRetriever    ,
+					typeManager        ,
+					target             ,
+					bufferSizeProvider ,
+					this.channelCount(),
+					this.reverseBytes()
 				);
 			}
 			@Override
@@ -699,13 +706,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.ImplementationEager(
-					this.rawValueHandler(),
-					objectManager         ,
-					objectRetriever       ,
-					typeManager           ,
-					target                ,
-					bufferSizeProvider    ,
-					this.chunkHashSize()
+					objectManager      ,
+					objectRetriever    ,
+					typeManager        ,
+					target             ,
+					bufferSizeProvider ,
+					this.channelCount(),
+					this.reverseBytes()
 				);
 			}
 
