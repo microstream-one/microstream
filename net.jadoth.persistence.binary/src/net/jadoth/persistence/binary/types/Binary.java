@@ -310,21 +310,55 @@ public abstract class Binary implements Chunk
 	
 	public abstract void setLoadItemEntityContentAddress(long entityContentAddress);
 	
-	public abstract byte get_byte(long offset);
-	
-	public abstract boolean get_boolean(long offset);
-	
-	public abstract short get_short(long offset);
-	
-	public abstract char get_char(long offset);
-	
-	public abstract int get_int(long offset);
-	
-	public abstract float get_float(long offset);
-	
-	public abstract long get_long(long offset);
-	
-	public abstract double get_double(long offset);
+
+
+	public final byte get_byte(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_byte(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final boolean get_boolean(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_boolean(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final short get_short(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_short(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final char get_char(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_char(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final int get_int(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_int(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final float get_float(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_float(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final long get_long(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_long(this.loadItemEntityContentAddress() + offset);
+	}
+
+	public final double get_double(final long offset)
+	{
+		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		return this.read_double(this.loadItemEntityContentAddress() + offset);
+	}
 					
 	public abstract Binary channelChunk(int channelIndex);
 	

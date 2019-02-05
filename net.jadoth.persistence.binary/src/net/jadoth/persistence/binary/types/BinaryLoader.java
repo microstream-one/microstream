@@ -2,13 +2,14 @@ package net.jadoth.persistence.binary.types;
 
 import static net.jadoth.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.functional._longProcedure;
 import net.jadoth.math.XMath;
-import net.jadoth.memory.RawValueHandler;
+import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -35,19 +36,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 	}
 
 	public static BinaryLoader.Implementation New(
-		final RawValueHandler                      rawValueHandler,
-		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
-		final PersistenceObjectRegistry            registry       ,
-		final PersistenceSourceSupplier<Binary>    source         ,
-		final LoadItemsChain                       loadItems
+		final PersistenceTypeHandlerLookup<Binary> typeLookup  ,
+		final PersistenceObjectRegistry            registry    ,
+		final PersistenceSourceSupplier<Binary>    source      ,
+		final LoadItemsChain                       loadItems   ,
+		final boolean                              reverseBytes
 	)
 	{
 		return new BinaryLoader.Implementation(
-			notNull(rawValueHandler),
 			notNull(typeLookup),
 			notNull(registry),
 			notNull(source),
-			notNull(loadItems)
+			notNull(loadItems),
+			reverseBytes
 		);
 	}
 
@@ -65,14 +66,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
-		private final RawValueHandler                                rawValueHandler          ;
+		private final boolean                                        reverseBytes             ;
 		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup        ;
 		private final PersistenceObjectRegistry                      registry                 ;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 
 		private final PersistenceInstanceHandler skipObjectRegisterer = (objectId, instance) ->
 			this.putBuildItem(
-				BinaryLoadItem.SkipItem(objectId, instance)
+				this.createSkipItem(objectId, instance)
 			)
 		;
 
@@ -86,19 +87,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		Implementation(
-			final RawValueHandler                      rawValueHandler,
-			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
-			final PersistenceObjectRegistry            registry       ,
-			final PersistenceSourceSupplier<Binary>    source         ,
-			final LoadItemsChain                       loadItems
+			final PersistenceTypeHandlerLookup<Binary> typeLookup  ,
+			final PersistenceObjectRegistry            registry    ,
+			final PersistenceSourceSupplier<Binary>    source      ,
+			final LoadItemsChain                       loadItems   ,
+			final boolean                              reverseBytes
 		)
 		{
 			super();
-			this.rawValueHandler   = rawValueHandler;
-			this.typeHandlerLookup = typeLookup     ;
-			this.registry          = registry       ;
-			this.sourceSupplier    = source         ;
-			this.loadItems         = loadItems      ;
+			this.typeHandlerLookup = typeLookup  ;
+			this.registry          = registry    ;
+			this.sourceSupplier    = source      ;
+			this.loadItems         = loadItems   ;
+			this.reverseBytes      = reverseBytes;
 		}
 
 
@@ -219,11 +220,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createBuildItem(final long entityAddress)
 		{
-			final BinaryLoadItem loadItem = new BinaryLoadItem(
+			final BinaryLoadItem loadItem = this.createLoadItem(
 				Binary.entityContentAddress(entityAddress)
 			);
 			
-			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well. Which is tricky
 			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
@@ -356,9 +356,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// build items map //
 		////////////////////
 
-		private final BinaryLoadItem   buildItemsHead      = new BinaryLoadItem(0); // dummy
-		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead  ;
-		private       int              buildItemsSize                             ;
+		private final BinaryLoadItem   buildItemsHead      = this.createLoadItem(0); // dummy
+		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead   ;
+		private       int              buildItemsSize                              ;
 		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
 		private       int              buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
@@ -473,7 +473,36 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				}
 			}
 			
-			this.putBuildItem(BinaryLoadItem.SkipItem(oid, null));
+			this.putBuildItem(this.createSkipItem(oid, null));
+		}
+		
+		private BinaryLoadItem createSkipItem(final long objectId, final Object instance)
+		{
+			/*
+			 * A little hacky, but worth it:
+			 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
+			 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
+			 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
+			 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
+			 * of common case entities.
+			 */
+			final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
+			final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
+			Binary.setEntityHeaderRawValues(dbbAddress, 0, 0, objectId);
+			
+			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
+			final BinaryLoadItem skipItem = this.createLoadItem(dbbAddress + dbb.capacity());
+			skipItem.contextInstance = instance;
+			
+			// skip items will never use the helper instance for anything, since they are skip dummies.
+			skipItem.setHelper(dbb);
+			
+			return skipItem;
+		}
+		
+		private BinaryLoadItem createLoadItem(final long entityContentAddress)
+		{
+			return new BinaryLoadItem(entityContentAddress);
 		}
 
 		private void clearBuildItems()
@@ -704,7 +733,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// instance fields //
 		////////////////////
 		
-		private final RawValueHandler rawValueHandler;
+		private final boolean reverseBytes;
 		
 		
 		
@@ -712,10 +741,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// constructors //
 		/////////////////
 		
-		CreatorSimple(final RawValueHandler rawValueHandler)
+		CreatorSimple(final boolean reverseBytes)
 		{
 			super();
-			this.rawValueHandler = rawValueHandler;
+			this.reverseBytes = reverseBytes;
 		}
 
 
@@ -732,11 +761,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		)
 		{
 			return new BinaryLoader.Implementation(
-				this.rawValueHandler,
 				typeLookup,
 				registry,
 				source,
-				new LoadItemsChain.Simple()
+				new LoadItemsChain.Simple(),
+				this.reverseBytes
 			);
 		}
 
@@ -749,9 +778,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final RawValueHandler rawValueHandler     ;
-		private final _intReference   channelCountProvider;
+
+		private final boolean       reverseBytes        ;
+		private final _intReference channelCountProvider;
 
 
 
@@ -760,12 +789,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////
 
 		public CreatorChannelHashing(
-			final RawValueHandler rawValueHandler     ,
-			final _intReference   channelCountProvider
+			final _intReference channelCountProvider,
+			final boolean       reverseBytes
 		)
 		{
 			super();
-			this.rawValueHandler      = rawValueHandler ;
+			this.reverseBytes         = reverseBytes        ;
 			this.channelCountProvider = channelCountProvider;
 		}
 
@@ -783,11 +812,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		)
 		{
 			return new BinaryLoader.Implementation(
-				this.rawValueHandler,
 				typeLookup,
 				registry,
 				source,
-				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get())
+				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get()),
+				this.reverseBytes
 			);
 		}
 

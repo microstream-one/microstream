@@ -2,6 +2,7 @@ package net.jadoth.memory;
 
 import java.nio.ByteOrder;
 
+// (05.02.2019 TM)FIXME: JET-49: Delete RawValueHandler
 /* (13.12.2018 TM)TODO: test if a direct class is faster than an interface.
  * This is a low-level operation utility that doesn't need to have totally flexible multiple inheritence etc.
  */

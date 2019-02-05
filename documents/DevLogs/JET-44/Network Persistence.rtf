@@ -1873,5 +1873,15 @@ Und erst mal fliegt die Variante raus, per OID einen TypeHandler Lookup zu mache
 So, jetzt w\'e4ren schon mal alle Compiler Fehler weg.\par
 Jetzt nur noch die 346345 TODOs anschauen.\par
 \par
+Und dann m\'fcssen ja da noch ByteOrder-Switchende Ableitungen her und irgendwie eine Fallunterscheidung, welche Implementierung verwendet werden soll.\par
+Wenn ich da das \'fcbliche Creator interface Pattern mach, k\'f6nnte das evtl. etwas imperformant beim Laden werden, wenn millionen build items erzeugt werden m\'fcssen.\par
+\par
+Mal eine BinaryLoadItemByteReversing Klasse ableiten und Byte-Umdreh-Methoden einbauen.\par
+\par
+LoadItem Instanzierung zusammenkonsolidieren.\par
+boolean reverseBytes einbauen und durchziehen bis runter (rauf?) in die Foundation.\par
+Dort eine entsprechende isByteOrderMismatch() Methode bauen.\par
+\par
+\par
 }
  
