@@ -8,6 +8,4 @@ public interface PersistenceTypeHandlerLookup<M> extends PersistenceTypeLookup
 
 	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
 
-	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long objectId, long typeId);
-
 }

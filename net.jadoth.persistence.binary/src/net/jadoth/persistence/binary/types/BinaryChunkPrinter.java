@@ -110,9 +110,9 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 	
 	private void printEntity(final long entityAddress)
 	{
-		final long totalLength = Binary.getEntityLength(entityAddress);
-		final long typeId      = Binary.getEntityTypeId(entityAddress);
-		final long objectId    = Binary.getEntityObjectId(entityAddress);
+		final long totalLength = Binary.getEntityLengthRawValue(entityAddress);
+		final long typeId      = Binary.getEntityTypeIdRawValue(entityAddress);
+		final long objectId    = Binary.getEntityObjectIdRawValue(entityAddress);
 		final long dataLength  = Binary.entityContentLength(totalLength);
 
 		final byte[] content = new byte[X.checkArrayRange(dataLength)];

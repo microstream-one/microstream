@@ -419,7 +419,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void processEntity(final long entityAddress) throws IOException
 		{
-			this.checkType(Binary.getEntityTypeId(entityAddress));
+			this.checkType(Binary.getEntityTypeIdRawValue(entityAddress));
 
 			final byte valueSeparator = this.valueSeparator;
 
@@ -429,7 +429,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			// write record separator not before it is required a by new record (this method call)
 			XMemory.set_byte(this.writeAddress, this.recordSeparator);
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(
-				Binary.getEntityObjectId(entityAddress),
+				Binary.getEntityObjectIdRawValue(entityAddress),
 				this.writeAddress + 1
 			);
 			XMemory.set_byte(this.writeAddress, valueSeparator);
@@ -721,7 +721,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			this.closeComplexLiteral(elementCount);
 
-			return valueReadAddress + Binary.getEntityLength(valueReadAddress);
+			return valueReadAddress + Binary.getEntityLengthRawValue(valueReadAddress);
 		}
 
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
@@ -738,7 +738,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			this.closeComplexLiteral(elementCount);
 
-			return valueReadAddress + Binary.getEntityLength(valueReadAddress);
+			return valueReadAddress + Binary.getEntityLengthRawValue(valueReadAddress);
 		}
 
 		private void closeComplexLiteral(final long elementCount) throws IOException
@@ -994,13 +994,13 @@ public interface StorageDataConverterTypeBinaryToCsv
 		public boolean accept(final long entityAddress, final long availableEntityLength)
 		{
 			// check for gap and skip (report success/advance without taking any action)
-			if(Binary.getEntityLength(entityAddress) < 0)
+			if(Binary.getEntityLengthRawValue(entityAddress) < 0)
 			{
 				return true;
 			}
 
 			// check for incomplete entity data and report failure/reload.
-			if(availableEntityLength < Binary.getEntityLength(entityAddress))
+			if(availableEntityLength < Binary.getEntityLengthRawValue(entityAddress))
 			{
 				return false;
 			}

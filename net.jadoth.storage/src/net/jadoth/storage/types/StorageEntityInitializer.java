@@ -123,13 +123,13 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 				 * meaning only the most current version of every entity (identified by its ObjectId).
 				 * All earlier versions are simply ignored, hence the "return false".
 				 */
-				if(entityCache.getEntry(Binary.getEntityObjectId(bufferStartAddress + entityOffsets[i])) != null)
+				if(entityCache.getEntry(Binary.getEntityObjectIdRawValue(bufferStartAddress + entityOffsets[i])) != null)
 				{
 					continue;
 				}
 				
 				final long                         entityAddress = bufferStartAddress + entityOffsets[i];
-				final long                         entityLength  = Binary.getEntityLength(entityAddress);
+				final long                         entityLength  = Binary.getEntityLengthRawValue(entityAddress);
 				final StorageEntity.Implementation entity        = entityCache.initialCreateEntity(entityAddress);
 				
 				entity.updateStorageInformation(XTypes.to_int(entityLength), file, entityOffsets[i]);
@@ -174,7 +174,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			
 			for(long address = bufferStartAddress; address < bufferBoundAddress;)
 			{
-				currentItemLength = Binary.getEntityLength(address);
+				currentItemLength = Binary.getEntityLengthRawValue(address);
 				
 				if(currentItemLength > 0)
 				{

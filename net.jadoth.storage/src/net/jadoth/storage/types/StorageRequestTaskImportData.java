@@ -173,7 +173,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			@Override
 			public boolean accept(final long address, final long availableItemLength)
 			{
-				final long length = Binary.getEntityLength(address);
+				final long length = Binary.getEntityLengthRawValue(address);
 
 				// check for a gap
 				if(length < 0)
@@ -200,11 +200,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				final int intLength = X.checkArrayRange(length);
 
 				// read and validate entity head information
-				final long                             objectId     = Binary.getEntityObjectId(address);
+				final long                             objectId     = Binary.getEntityObjectIdRawValue(address);
 				final int                              channelIndex = (int)objectId & this.channelHash;
 				final StorageEntityType.Implementation type         = this.entityCaches[channelIndex].validateEntity(
 					intLength,
-					Binary.getEntityTypeId(address),
+					Binary.getEntityTypeIdRawValue(address),
 					objectId
 				);
 

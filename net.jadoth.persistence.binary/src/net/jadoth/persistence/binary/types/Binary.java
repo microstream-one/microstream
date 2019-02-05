@@ -184,6 +184,22 @@ public abstract class Binary implements Chunk
 	{
 		return this.read_long(entityAddress + OFFSET_OID);
 	}
+	
+	public static final long getEntityLengthRawValue(final long entityAddress)
+	{
+		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		return XMemory.get_long(entityAddress + OFFSET_LEN);
+	}
+		
+	public static final long getEntityTypeIdRawValue(final long entityAddress)
+	{
+		return XMemory.get_long(entityAddress + OFFSET_TID);
+	}
+
+	public static final long getEntityObjectIdRawValue(final long entityAddress)
+	{
+		return XMemory.get_long(entityAddress + OFFSET_OID);
+	}
 
 	public static final long entityContentAddress(final long entityAddress)
 	{

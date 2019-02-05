@@ -266,7 +266,7 @@ public interface StorageDataFileItemIterator
 			while(true) // loop gets terminated by end-of-data recognition logic specific to the found case
 			{
 				// read length of current item (entity or gap)
-				itemLength = Binary.getEntityLength(address);
+				itemLength = Binary.getEntityLengthRawValue(address);
 
 				if(itemLength == 0)
 				{
