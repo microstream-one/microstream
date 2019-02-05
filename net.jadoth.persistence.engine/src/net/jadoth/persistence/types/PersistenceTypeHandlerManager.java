@@ -413,13 +413,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
-		{
-			// standard implementation does not consider actual objects
-			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
-		}
-
-		@Override
 		public final long lookupTypeId(final Class<?> type)
 		{
 			return this.typeHandlerRegistry.lookupTypeId(type);

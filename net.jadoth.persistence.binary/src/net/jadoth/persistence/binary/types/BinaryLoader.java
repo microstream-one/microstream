@@ -180,11 +180,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			;
 		}
 
-		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long oid, final long tid)
+		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long tid)
 		{
 			final PersistenceTypeHandler<Binary, ?> handler;
 			
-			if((handler = this.typeHandlerLookup.lookupTypeHandler(oid, tid)) == null)
+			if((handler = this.typeHandlerLookup.lookupTypeHandler(tid)) == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
 			}
@@ -219,13 +219,16 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createBuildItem(final long entityAddress)
 		{
+			final BinaryLoadItem loadItem = new BinaryLoadItem(
+				Binary.entityContentAddress(entityAddress)
+			);
+			
 			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well. Which is tricky
 			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
 				this.typeHandlerLookup.lookupTypeHandler(
-					Binary.getEntityObjectId(entityAddress),
-					Binary.getEntityTypeId(entityAddress)
+					loadItem.getBuildItemTypeId()
 				)
 			;
 			
@@ -233,15 +236,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			if(typeHandler == null)
 			{
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
-					Binary.getEntityTypeId(entityAddress)
+					loadItem.getBuildItemTypeId()
 				);
 			}
 			
-			return new BinaryLoadItem(
-				Binary.entityContentAddress(entityAddress),
-				this.registry.lookupObject(Binary.getEntityObjectId(entityAddress)),
-				typeHandler
-			);
+			loadItem.handler = typeHandler;
+			loadItem.contextInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId());
+			
+			return loadItem;
 		}
 
 		@Override
@@ -354,11 +356,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// build items map //
 		////////////////////
 
-		private final BinaryLoadItem   buildItemsHead      = new BinaryLoadItem(0, null, null)            ; // dummy
-		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead                ;
-		private       int    buildItemsSize                                           ;
+		private final BinaryLoadItem   buildItemsHead      = new BinaryLoadItem(0); // dummy
+		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead  ;
+		private       int              buildItemsSize                             ;
 		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
-		private       int    buildItemsHashRange = this.buildItemsHashSlots.length - 1;
+		private       int              buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
 
 

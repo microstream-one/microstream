@@ -600,7 +600,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 //			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
 			final StorageEntity.Implementation entry;
-			if((entry = this.getEntry(Binary.getEntityObjectId(entityAddress))) != null)
+			if((entry = this.getEntry(Binary.getEntityObjectIdRawValue(entityAddress))) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
 				this.resetExistingEntityForUpdate(entry);
@@ -617,17 +617,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			try
 			{
 				return this.createEntity(
-					Binary.getEntityObjectId(entityAddress),
-					this.getType(Binary.getEntityTypeId(entityAddress))
+					Binary.getEntityObjectIdRawValue(entityAddress),
+					this.getType(Binary.getEntityTypeIdRawValue(entityAddress))
 				);
 			}
 			catch(final Exception e)
 			{
 				throw new StorageException(
 					"Exception while creating entity ["
-					+ Binary.getEntityLength(entityAddress) + "]["
-					+ Binary.getEntityTypeId(entityAddress) + "]["
-					+ Binary.getEntityObjectId(entityAddress) + "]"
+					+ Binary.getEntityLengthRawValue(entityAddress) + "]["
+					+ Binary.getEntityTypeIdRawValue(entityAddress) + "]["
+					+ Binary.getEntityObjectIdRawValue(entityAddress) + "]"
 					, e
 				);
 			}
@@ -637,8 +637,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		final StorageEntity.Implementation initialCreateEntity(final long entityAddress)
 		{
 			final StorageEntity.Implementation entity = this.createEntity(
-				Binary.getEntityObjectId(entityAddress),
-				this.getType(Binary.getEntityTypeId(entityAddress))
+				Binary.getEntityObjectIdRawValue(entityAddress),
+				this.getType(Binary.getEntityTypeIdRawValue(entityAddress))
 			);
 			
 			return entity;
@@ -1076,12 +1076,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final long chunkBoundAddress = chunkStartAddress    + chunkLength      ;
 
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
-			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += Binary.getEntityLength(adr))
+			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += Binary.getEntityLengthRawValue(adr))
 			{
 				final StorageEntity.Implementation entity = this.putEntity(adr);
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
-					X.checkArrayRange(Binary.getEntityLength(adr)),
+					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
 					file,
 					XTypes.to_int(storageBackset + adr)
 				);

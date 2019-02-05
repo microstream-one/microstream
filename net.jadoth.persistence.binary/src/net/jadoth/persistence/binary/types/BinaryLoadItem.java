@@ -26,7 +26,8 @@ public final class BinaryLoadItem extends Binary
 		Binary.setEntityHeaderRawValues(dbbAddress, 0, 0, objectId);
 		
 		// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
-		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity(), instance, null);
+		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity());
+		skipItem.contextInstance = instance;
 		
 		// skip items will never use the helper instance for anything, since they are skip dummies.
 		skipItem.setHelper(dbb);
@@ -50,16 +51,10 @@ public final class BinaryLoadItem extends Binary
 	// constructors     //
 	/////////////////////
 
-	BinaryLoadItem(
-		final long                                   entityContentAddress,
-		final Object                                 contextInstance     ,
-		final PersistenceTypeHandler<Binary, Object> handler
-	)
+	BinaryLoadItem(final long entityContentAddress)
 	{
 		super();
-		this.address         = entityContentAddress;
-		this.handler         = handler             ;
-		this.contextInstance = contextInstance     ;
+		this.address = entityContentAddress;
 	}
 
 

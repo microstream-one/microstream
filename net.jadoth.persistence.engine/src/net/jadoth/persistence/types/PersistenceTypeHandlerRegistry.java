@@ -90,13 +90,6 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 			// standard registry does not consider actual objects
 			return this.lookupTypeHandler(XReflect.getClass(instance));
 		}
-
-		@Override
-		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long objectId, final long typeId)
-		{
-			// standard registry does not consider actual objects
-			return this.lookupTypeHandler(typeId);
-		}
 		
 		@Override
 		public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency

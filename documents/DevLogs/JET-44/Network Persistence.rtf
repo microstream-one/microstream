@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream Network Persistence Entwicklertagebuch\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream Network Persistence Entwicklertagebuch\par
 \b0\par
 2018-08-07\par
 \par
@@ -387,7 +388,7 @@ Veralteten Code l\'f6schen und committen f\'fcr bessere \'dcbersicht.\par
 \par
 17:15\par
 Confluence Seite "Jetstream f\'fcr Netzwerkkommunikation" schreiben.\par
-{\field{\*\fldinst{HYPERLINK "https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761"}}{\fldrslt{\ul\cf1 https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761 }}{\fldrslt{https://www.xdevcollaboration.com/pages/viewpage.action?pageId=51380761\ul0\cf0}}}}\f0\fs28\par
 \par
 18:30\par
 Kontrolllesen und Fehler korrigieren.\par
@@ -792,7 +793,7 @@ Das ist auch gar nicht viel zu machen ein paar <C> dranh\'e4ngen und 1-2 abstrak
 \par
 Mal recherchieren, ob es wirklich f\'fcr alle F\'e4lle reicht, einen ServerSocketChannel ohne IP Adresse zu erzeugen.\par
 Aha:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean }}{\fldrslt{https://stackoverflow.com/questions/11931175/what-does-wildcard-address-in-inetsocketaddress-mean\ul0\cf0}}}}\f0\fs28\par
 \par
 From the docs: The wildcard is a special local IP address. It usually means "any" and can only be used for bind operations.\par
 The value of this IP address is 0.0.0.0. If you have two network adapters, one with IP address 1.1.1.1 and one with IP address 2.2.2.2, then you can create a listening socket and bind it to 1.1.1.1 so that the socket will not bind to 2.2.2.2. You can also create a listening socket and bind it to 2.2.2.2, so that it will not bind to 1.1.1.1. If you do not care and want your socket to bind to all network cards, then you bind it to the wildcard address.\par
@@ -1188,8 +1189,10 @@ Au\'dferdem einen Regression Bugfix, weil ich mit einem fr\'fcheren Aufh\'fcbsch
 \par
 \par
 2018-11-25\par
+
 \pard\par
 Nix wegen Familienerk\'e4ltung.\par
+
 \pard\sl276\slmult1\par
 \par
 \par
@@ -1841,6 +1844,7 @@ Im Detail ist das alles trivial, aber man muss halt Schritt f\'fcr Schritt relat
 Daf\'fcr muss auch erst mal die zweite, statische Methode storeEntityHeader() wegrefactort werden, weil das ja \'fcber Instanzmethoden laufen muss.\par
 \par
 \par
+\par
 2019-02-04\par
 \par
 Weitermachen.\par
@@ -1856,18 +1860,18 @@ Unterschiedliche Implementierungen scheinen hier unterschiedliche Konzepte zu ve
 \par
 Also Problem kann es schon mal davon nicht geben, weil in den benutzen Algorithmen immer auch hasReferences() abgepr\'fcft wird.\par
 \par
-\par
-09:00 XDEV\tab\tab Mails, Teams.\par
-09:05 JET\tab\tab JET-49 weitermachen.\par
-10:05 ---\tab\tab Spontaner Heizungsbauer Termin wegen regelm\'e4\'dfigen Fehlern.\par
-11:05 JET\tab\tab JET-49 weitermachen.\par
-12:00 ---\tab\tab Mittag.\par
-13:05 Bonus\tab Standup Meeting.\par
-13:20 XDEV\tab\tab Zeiterfassung.\par
-13:30 JET\tab\tab JET-49 weitermachen.\par
-\par
-\par
 Okay, jetzt hab ich das alles wieder ordentlich durchgedacht und verstanden. Das stimmt schon so, nur die Benamung und der fehlende Kommentar war schlecht. Das hab ich mal verbessert.\par
+\par
+\par
+\par
+2019-02-05\par
+\par
+Das BinaryLoader#createBuildItem wird knifflig: da wird von einer Binary Implementierung an eine andere \'fcbergeben, um wieder eine Binary Instanz zu erzeugen. Und gerade das dazwischen br\'e4uchte jetzt auch eine Binary Implementierung.\par
+Muss ich evtl. ganz anders strukturieren.\par
+Und erst mal fliegt die Variante raus, per OID einen TypeHandler Lookup zu machen. Das wird nie benutzt, kann bei Bedarf auch anders gel\'f6st werden und kostet nur performance und Komplexit\'e4t.\par
+\par
+So, jetzt w\'e4ren schon mal alle Compiler Fehler weg.\par
+Jetzt nur noch die 346345 TODOs anschauen.\par
 \par
 }
  
