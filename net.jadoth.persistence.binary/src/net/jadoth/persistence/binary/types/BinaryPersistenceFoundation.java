@@ -39,6 +39,11 @@ extends PersistenceFoundation<Binary, F>
 	
 	public ByteOrder getTargetByteOrder();
 	
+	public default boolean isByteOrderMismatch()
+	{
+		return this.getTargetByteOrder() != ByteOrder.nativeOrder();
+	}
+	
 
 	
 	public F setCustomTranslatorLookup(
@@ -85,7 +90,7 @@ extends PersistenceFoundation<Binary, F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
-		private RawValueHandler                    rawValueHandler          ;
+		private RawValueHandler                        rawValueHandler        ;
 		private ByteOrder                              targetByteOrder        ;
 		
 		
@@ -250,7 +255,7 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorSimple(
-				this.getRawValueHandler()
+				this.isByteOrderMismatch()
 			);
 		}
 

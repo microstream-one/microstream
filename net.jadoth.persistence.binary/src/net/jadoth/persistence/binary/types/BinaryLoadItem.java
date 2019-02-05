@@ -2,41 +2,10 @@ package net.jadoth.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 
-import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
-public final class BinaryLoadItem extends Binary
+public class BinaryLoadItem extends Binary
 {
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static BinaryLoadItem SkipItem(final long objectId, final Object instance)
-	{
-		/*
-		 * A little hacky, but worth it:
-		 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
-		 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
-		 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
-		 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
-		 * of common case entities.
-		 */
-		final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
-		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
-		Binary.setEntityHeaderRawValues(dbbAddress, 0, 0, objectId);
-		
-		// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
-		final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity());
-		skipItem.contextInstance = instance;
-		
-		// skip items will never use the helper instance for anything, since they are skip dummies.
-		skipItem.setHelper(dbb);
-		
-		return skipItem;
-	}
-	
-	
-	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields  //
 	/////////////////////
@@ -110,53 +79,7 @@ public final class BinaryLoadItem extends Binary
 		this.address = entityContentAddress;
 	}
 	
-	@Override
-	public final byte get_byte(final long offset)
-	{
-		return XMemory.get_byte(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final boolean get_boolean(final long offset)
-	{
-		return XMemory.get_boolean(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final short get_short(final long offset)
-	{
-		return XMemory.get_short(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final char get_char(final long offset)
-	{
-		return XMemory.get_char(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final int get_int(final long offset)
-	{
-		return XMemory.get_int(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final float get_float(final long offset)
-	{
-		return XMemory.get_float(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final long get_long(final long offset)
-	{
-		return XMemory.get_long(this.loadItemEntityContentAddress() + offset);
-	}
-	
-	@Override
-	public final double get_double(final long offset)
-	{
-		return XMemory.get_double(this.loadItemEntityContentAddress() + offset);
-	}
+
 		
 	/**
 	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected

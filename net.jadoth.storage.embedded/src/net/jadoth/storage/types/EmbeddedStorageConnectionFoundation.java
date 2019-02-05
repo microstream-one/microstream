@@ -125,8 +125,8 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorChannelHashing(
-				this.getRawValueHandler(),
-				this.getStorageManager().channelController().channelCountProvider()
+				this.getStorageManager().channelController().channelCountProvider(),
+				this.isByteOrderMismatch()
 			);
 		}
 
