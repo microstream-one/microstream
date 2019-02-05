@@ -10,7 +10,7 @@ import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateI
 import net.jadoth.util.BufferSizeProviderIncremental;
 
 
-public final class ChunksBuffer extends Binary implements MemoryRangeReader
+public class ChunksBuffer extends Binary implements MemoryRangeReader
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -290,7 +290,6 @@ public final class ChunksBuffer extends Binary implements MemoryRangeReader
 	)
 	{
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
-		// (04.02.2019 TM)FIXME: JET-49: must handle byte order switching here as well
 		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
 		{
 			reader.readBinaryEntityData(address);

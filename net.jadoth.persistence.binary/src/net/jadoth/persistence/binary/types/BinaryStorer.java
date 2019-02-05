@@ -252,6 +252,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final ChunksBuffer[] chunks = this.chunks = new ChunksBuffer[this.chunksHashRange + 1];
 			for(int i = 0; i < chunks.length; i++)
 			{
+				// (05.02.2019 TM)FIXME: JET-49: reverseBytes flag
 				chunks[i] = ChunksBuffer.New(chunks, this.bufferSizeProvider);
 			}
 		}

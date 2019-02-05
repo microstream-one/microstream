@@ -177,6 +177,7 @@ public final class XMemory
 		{
 			return;
 		}
+		
 		final Cleaner cleaner = ((DirectBuffer)directByteBuffer).cleaner();
 		if(cleaner != null)
 		{
