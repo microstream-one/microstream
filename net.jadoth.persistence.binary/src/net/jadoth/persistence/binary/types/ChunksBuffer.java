@@ -24,7 +24,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksBuffer New(
+	public static ChunksBuffer New(
 		final ChunksBuffer[]                channelBuffers    ,
 		final BufferSizeProviderIncremental bufferSizeProvider
 	)

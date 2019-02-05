@@ -1,44 +1,34 @@
 package net.jadoth.persistence.binary.types;
 
-import static net.jadoth.X.notNull;
+import java.nio.ByteBuffer;
 
 import net.jadoth.memory.XMemory;
-import net.jadoth.util.BufferSizeProviderIncremental;
 
-public class ChunksBufferByteReversing extends ChunksBuffer
+
+public final class ChunksWrapperByteReversing extends ChunksWrapper
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static final ChunksBufferByteReversing New(
-		final ChunksBuffer[]                channelBuffers    ,
-		final BufferSizeProviderIncremental bufferSizeProvider
-	)
+	// static methods    //
+	/////////////////////
+
+	public static final ChunksWrapperByteReversing New(final ByteBuffer... chunkDirectBuffers)
 	{
-		return new ChunksBufferByteReversing(
-			notNull(channelBuffers),
-			notNull(bufferSizeProvider)
-		);
+		return new ChunksWrapperByteReversing(chunkDirectBuffers);
 	}
-	
+
+
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors //
-	/////////////////
-	
-	ChunksBufferByteReversing(
-		final ChunksBuffer[]                channelBuffers    ,
-		final BufferSizeProviderIncremental bufferSizeProvider
-	)
+	// constructors     //
+	/////////////////////
+
+	// private constructor. Does not validate arguments!
+	private ChunksWrapperByteReversing(final ByteBuffer[] chunks)
 	{
-		super(
-			channelBuffers    ,
-			bufferSizeProvider
-		);
+		super(chunks);
 	}
-	
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
@@ -227,3 +217,4 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	}
 	
 }
+

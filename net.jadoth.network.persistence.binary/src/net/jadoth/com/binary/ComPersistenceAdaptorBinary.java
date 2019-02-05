@@ -10,7 +10,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
-import net.jadoth.memory.RawValueHandler;
+import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -145,7 +145,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 				final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 					connection,
 					this.bufferSizeProvider(),
-					RawValueHandler.Direct() // host does not care about endianess, thus always using direct.
+					false // host does not care about endianess, thus always using direct byte order.
 				);
 				foundation.setPersistenceChannel(channel);
 			}
@@ -168,12 +168,12 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider(),
-				RawValueHandler.Derive(hostByteOrder)
+				BinaryPersistence.isByteOrderMismatch(hostByteOrder)
 			);
 			foundation.setPersistenceChannel(channel);
 						
 			/* (14.12.2018 TM)TODO: hostByteOrder used in two different places
-			 * It's a little weird that the hostByteOrder / RawValueHandler is used in two different places.
+			 * It's a little weird that the hostByteOrder is used in two different places.
 			 * Or in other words, that the Binary instances for loading and storing are created at different places.
 			 * Maybe that could/should be consolidated.
 			 */

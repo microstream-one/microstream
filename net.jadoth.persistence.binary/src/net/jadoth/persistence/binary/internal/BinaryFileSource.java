@@ -13,11 +13,11 @@ import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.Constant;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.memory.RawValueHandler;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
+import net.jadoth.persistence.binary.types.ChunksWrapperByteReversing;
 import net.jadoth.persistence.binary.types.MessageWaiter;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
 import net.jadoth.persistence.types.PersistenceIdSet;
@@ -26,21 +26,14 @@ import net.jadoth.persistence.types.PersistenceSource;
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
-	public static final BinaryFileSource New(final File file)
+	public static final BinaryFileSource New(final File file, final boolean reverseBytes)
 	{
 		return new BinaryFileSource(
-			RawValueHandler.Direct(),
-			notNull(file)
+			notNull(file),
+			reverseBytes
 		);
 	}
 	
-	public static final BinaryFileSource New(final File file, final RawValueHandler rawValueHandler)
-	{
-		return new BinaryFileSource(
-			notNull(rawValueHandler),
-			notNull(file)
-		);
-	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -55,9 +48,9 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// instance fields //
 	////////////////////
 
-	private final File            file           ;
-	private final RawValueHandler rawValueHandler;
-	private final ByteBuffer      chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
+	private final File       file           ;
+	private final boolean    reverseBytes   ;
+	private final ByteBuffer chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
 
 
 
@@ -65,11 +58,11 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constructors //
 	/////////////////
 
-	BinaryFileSource(final RawValueHandler rawValueHandler, final File file)
+	BinaryFileSource(final File file, final boolean reverseBytes)
 	{
 		super();
-		this.rawValueHandler = rawValueHandler;
-		this.file            = file           ;
+		this.reverseBytes = reverseBytes;
+		this.file         = file       ;
 	}
 
 
@@ -97,7 +90,15 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
 			chunks.add(this.readChunk(channel, chunkTotalLength));
 		}
-		return X.<Binary>Constant(ChunksWrapper.New(chunks.toArray(ByteBuffer.class)));
+		return X.<Binary>Constant(this.createChunksWrapper(chunks.toArray(ByteBuffer.class)));
+	}
+	
+	private ChunksWrapper createChunksWrapper(final ByteBuffer[] byteBuffers)
+	{
+		return this.reverseBytes
+			? ChunksWrapper.New(byteBuffers)
+			: ChunksWrapperByteReversing.New(byteBuffers)
+		;
 	}
 	
 	private static final long readChunkLength(

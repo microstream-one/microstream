@@ -8,13 +8,13 @@ import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
 
 
-public final class ChunksWrapper extends Binary
+public class ChunksWrapper extends Binary
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
 	/////////////////////
 
-	public static final ChunksWrapper New(final ByteBuffer... chunkDirectBuffers)
+	public static ChunksWrapper New(final ByteBuffer... chunkDirectBuffers)
 	{
 		return new ChunksWrapper(chunkDirectBuffers);
 	}
@@ -34,8 +34,8 @@ public final class ChunksWrapper extends Binary
 	// constructors     //
 	/////////////////////
 
-	// private constructor. Does not validate arguments!
-	private ChunksWrapper(final ByteBuffer[] chunks)
+	// internal constructor. Does not validate arguments!
+	protected ChunksWrapper(final ByteBuffer[] chunks)
 	{
 		super();
 		
@@ -82,6 +82,7 @@ public final class ChunksWrapper extends Binary
 	)
 	{
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
+		// (05.02.2019 TM)FIXME: JET-49: must reverse bytes when reading length
 		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
 		{
 			reader.readBinaryEntityData(address);

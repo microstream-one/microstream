@@ -502,7 +502,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createLoadItem(final long entityContentAddress)
 		{
-			return new BinaryLoadItem(entityContentAddress);
+			return this.reverseBytes
+				? new BinaryLoadItemByteReversing(entityContentAddress)
+				: new BinaryLoadItem(entityContentAddress)
+			;
 		}
 
 		private void clearBuildItems()
