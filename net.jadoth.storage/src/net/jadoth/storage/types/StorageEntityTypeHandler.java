@@ -91,12 +91,15 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		// constructors     //
 		/////////////////////
 
-		public Implementation(final PersistenceTypeDefinition typeDefinition)
+		public Implementation(
+			final PersistenceTypeDefinition typeDefinition ,
+			final boolean                   switchByteOrder
+		)
 		{
 			super();
 
 			final BinaryReferenceTraverser[] referenceTraversers =
-				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
+				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members(), switchByteOrder)
 			;
 
 			this.typeDefinition       = typeDefinition;

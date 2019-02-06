@@ -18,10 +18,11 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////
 	
 	public static <T> BinaryLegacyTypeHandlerReflective<T> New(
-		final PersistenceTypeDefinition                  typeDefinition              ,
+		final PersistenceTypeDefinition                     typeDefinition              ,
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
 		final XGettingTable<BinaryValueSetter, Long>        translatorsWithTargetOffsets,
-		final PersistenceLegacyTypeHandlingListener<Binary> listener
+		final PersistenceLegacyTypeHandlingListener<Binary> listener                    ,
+		final boolean                                       switchByteOrder
 	)
 	{
 		return new BinaryLegacyTypeHandlerReflective<>(
@@ -29,7 +30,8 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			notNull(typeHandler)                         ,
 			toTranslators(translatorsWithTargetOffsets)  ,
 			toTargetOffsets(translatorsWithTargetOffsets),
-			mayNull(listener)
+			mayNull(listener)                            ,
+			switchByteOrder
 		);
 	}
 	
@@ -44,10 +46,11 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
-		final PersistenceLegacyTypeHandlingListener<Binary> listener
+		final PersistenceLegacyTypeHandlingListener<Binary> listener        ,
+		final boolean                                       switchByteOrder
 	)
 	{
-		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener);
+		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener, switchByteOrder);
 	}
 	
 	

@@ -89,7 +89,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 
-
+	public default boolean isByteOrderMismatch()
+	{
+		// storage currently simply assumes always direct byte order.
+		return false;
+	}
 
 	public StorageManager createStorageManager();
 
@@ -203,7 +207,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageTypeDictionary createTypeDictionary()
 		{
-			return new StorageTypeDictionary.Implementation();
+			return new StorageTypeDictionary.Implementation(this.isByteOrderMismatch());
 		}
 
 		protected StorageChannelCountProvider createChannelCountProvider(final int channelCount)
@@ -640,7 +644,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getRootOidSelectorProvider()      ,
 				this.getOidMarkQueueCreator()          ,
 				this.getEntityMarkMonitorCreator()     ,
-				false                                  , // storage currently simply assumes always direct byte order.
+				this.isByteOrderMismatch()             ,
 				this.getExceptionHandler()
 			);
 		}
