@@ -21,13 +21,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 	public static ComPersistenceChannelBinary.Default New(
 		final SocketChannel      channel           ,
 		final BufferSizeProvider bufferSizeProvider,
-		final boolean            reverseBytes
+		final boolean            switchByteOrder
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider),
-			        reverseBytes
+			        switchByteOrder
 		);
 	}
 	
@@ -82,7 +82,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		// instance fields //
 		////////////////////
 
-		private final boolean reverseBytes;
+		private final boolean switchByteOrder;
 		
 		
 		
@@ -93,11 +93,11 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		Default(
 			final SocketChannel      channel           ,
 			final BufferSizeProvider bufferSizeProvider,
-			final boolean            reverseBytes
+			final boolean            switchByteOrder
 		)
 		{
 			super(channel, bufferSizeProvider);
-			this.reverseBytes = reverseBytes;
+			this.switchByteOrder = switchByteOrder;
 		}
 		
 		
@@ -133,7 +133,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		
 		private ChunksWrapper createChunksWrapper(final ByteBuffer... byteBuffers)
 		{
-			return this.reverseBytes
+			return this.switchByteOrder
 				? ChunksWrapper.New(byteBuffers)
 				: ChunksWrapperByteReversing.New(byteBuffers)
 			;

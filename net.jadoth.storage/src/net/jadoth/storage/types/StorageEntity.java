@@ -1,10 +1,10 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.functional.ThrowingProcedure;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.MemoryRangeReader;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 
 
 /**
@@ -540,7 +540,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final boolean iterateReferenceIds(final _longProcedure referenceIdIterator)
+		public final boolean iterateReferenceIds(final PersistenceObjectIdAcceptor referenceIdIterator)
 		{
 			if(!this.hasReferences())
 			{

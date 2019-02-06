@@ -100,7 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
-		private final boolean                           reverseBytes             ;
+		private final boolean                           switchByteOrder             ;
 		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
@@ -138,7 +138,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageChannelController          controller               ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
-			final boolean                           reverseBytes             ,
+			final boolean                           switchByteOrder             ,
 			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
@@ -152,7 +152,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.entityCache               =     notNull(entityCache)              ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
-			this.reverseBytes              =             reverseBytes              ;
+			this.switchByteOrder              =             switchByteOrder              ;
 		}
 
 
@@ -383,7 +383,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		
 		private ChunksBuffer createLoadingChunksBuffer(final ChunksBuffer[] channelChunks)
 		{
-			return this.reverseBytes
+			return this.switchByteOrder
 				? ChunksBufferByteReversing.New(channelChunks, this.loadingBufferSizeProvider)
 				: ChunksBuffer.New(channelChunks, this.loadingBufferSizeProvider)
 			;
@@ -630,7 +630,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 			StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 			StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-			boolean                              reverseBytes                 ,
+			boolean                              switchByteOrder                 ,
 			long                                 rootTypeId
 		);
 
@@ -662,7 +662,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-				final boolean                              reverseBytes                 ,
+				final boolean                              switchByteOrder                 ,
 				final long                                 rootTypeId
 			)
 			{
@@ -726,7 +726,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						channelController        ,
 						housekeepingController   ,
 						entityCache              ,
-						reverseBytes             ,
+						switchByteOrder             ,
 						loadingBufferSizeProvider,
 						fileManager
 					);

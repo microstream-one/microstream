@@ -16,7 +16,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
 		return new BinaryHandlerEnum<>(
@@ -24,7 +24,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 			allFields                 ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
-			reverseBytes
+			switchByteOrder
 		);
 	}
 	
@@ -88,10 +88,10 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
-		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, reverseBytes);
+		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.cachedEnumReferences = initializeEnumReferencesCache(type);
 	}
 

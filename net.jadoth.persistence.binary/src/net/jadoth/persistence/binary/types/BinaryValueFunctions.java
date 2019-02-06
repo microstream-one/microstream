@@ -315,11 +315,11 @@ public final class BinaryValueFunctions
 	public static BinaryValueStorer getObjectValueStorer(
 		final Class<?> type        ,
 		final boolean  isEager     ,
-		final boolean  reverseBytes
+		final boolean  switchByteOrder
 	)
 		throws IllegalArgumentException
 	{
-		if(reverseBytes)
+		if(switchByteOrder)
 		{
 			return getObjectValueStorerReversed(type, isEager);
 		}
@@ -372,9 +372,9 @@ public final class BinaryValueFunctions
 		;
 	}
 
-	public static BinaryValueSetter getObjectValueSetter(final Class<?> type, final boolean reverseBytes)
+	public static BinaryValueSetter getObjectValueSetter(final Class<?> type, final boolean switchByteOrder)
 	{
-		if(reverseBytes)
+		if(switchByteOrder)
 		{
 			return getObjectValueSetterReversed(type);
 		}

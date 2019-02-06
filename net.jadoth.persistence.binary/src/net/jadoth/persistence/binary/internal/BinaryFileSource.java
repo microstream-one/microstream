@@ -26,11 +26,11 @@ import net.jadoth.persistence.types.PersistenceSource;
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
-	public static final BinaryFileSource New(final File file, final boolean reverseBytes)
+	public static final BinaryFileSource New(final File file, final boolean switchByteOrder)
 	{
 		return new BinaryFileSource(
 			notNull(file),
-			reverseBytes
+			switchByteOrder
 		);
 	}
 	
@@ -49,7 +49,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	////////////////////
 
 	private final File       file           ;
-	private final boolean    reverseBytes   ;
+	private final boolean    switchByteOrder;
 	private final ByteBuffer chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
 
 
@@ -58,11 +58,11 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constructors //
 	/////////////////
 
-	BinaryFileSource(final File file, final boolean reverseBytes)
+	BinaryFileSource(final File file, final boolean switchByteOrder)
 	{
 		super();
-		this.reverseBytes = reverseBytes;
-		this.file         = file       ;
+		this.switchByteOrder = switchByteOrder;
+		this.file            = file           ;
 	}
 
 
@@ -95,7 +95,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	
 	private ChunksWrapper createChunksWrapper(final ByteBuffer[] byteBuffers)
 	{
-		return this.reverseBytes
+		return this.switchByteOrder
 			? ChunksWrapper.New(byteBuffers)
 			: ChunksWrapperByteReversing.New(byteBuffers)
 		;

@@ -68,7 +68,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final BinaryValueStorer[]                   storers            ,
 		final BinaryValueSetter[]                   setters            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoreEvaluator,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
 		final BinaryValueStorer[] refStorers = new BinaryValueStorer[   storers.length];
@@ -85,8 +85,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			final Class<?> fieldType = fieldsDeclaredOrder[i].getType()                                     ;
 			final boolean  isEager  = eagerStoreEvaluator.isEagerStoring(entityType, fieldsDeclaredOrder[i]);
 			
-			final BinaryValueStorer storer = BinaryValueFunctions.getObjectValueStorer(fieldType, isEager, reverseBytes);
-			final BinaryValueSetter setter = BinaryValueFunctions.getObjectValueSetter(fieldType, reverseBytes)    ;
+			final BinaryValueStorer storer = BinaryValueFunctions.getObjectValueStorer(fieldType, isEager, switchByteOrder);
+			final BinaryValueSetter setter = BinaryValueFunctions.getObjectValueSetter(fieldType, switchByteOrder)    ;
 			
 			if(fieldType.isPrimitive())
 			{
@@ -163,7 +163,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
 		super(type);
@@ -193,7 +193,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			this.binaryStorers        ,
 			this.memorySetters        ,
 			eagerStoringFieldEvaluator,
-			reverseBytes
+			switchByteOrder
 		);
 		
 		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembers =
