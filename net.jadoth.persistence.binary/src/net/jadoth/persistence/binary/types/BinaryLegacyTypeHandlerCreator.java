@@ -24,12 +24,14 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 {
 	public static BinaryLegacyTypeHandlerCreator New(
 		final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
-		final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+		final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener,
+		final boolean                                       switchByteOrder
 	)
 	{
 		return new BinaryLegacyTypeHandlerCreator.Implementation(
-			notNull(valueTranslatorProvider),
-			mayNull(legacyTypeHandlingListener)
+			notNull(valueTranslatorProvider)   ,
+			mayNull(legacyTypeHandlingListener),
+			switchByteOrder
 		);
 	}
 	
@@ -43,6 +45,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		
 		private final BinaryValueTranslatorProvider                 valueTranslatorProvider   ;
 		private final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener;
+		private final boolean                                       switchByteOrder           ;
 		
 		
 		
@@ -52,12 +55,14 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		
 		Implementation(
 			final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
-			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener
+			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener,
+			final boolean                                       switchByteOrder
 		)
 		{
 			super();
 			this.valueTranslatorProvider    = valueTranslatorProvider   ;
 			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
+			this.switchByteOrder            = switchByteOrder           ;
 		}
 		
 		
@@ -155,7 +160,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				mappingResult.legacyTypeDefinition(),
 				typeHandler                         ,
 				translatorsWithTargetOffsets        ,
-				this.legacyTypeHandlingListener
+				this.legacyTypeHandlingListener     ,
+				this.switchByteOrder
 			);
 		}
 
@@ -181,7 +187,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				mappingResult.legacyTypeDefinition(),
 				typeHandler                         ,
 				translatorsWithTargetOffsets        ,
-				this.legacyTypeHandlingListener
+				this.legacyTypeHandlingListener     ,
+				this.switchByteOrder
 			);
 		}
 		

@@ -35,8 +35,9 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// instance fields  //
 		/////////////////////
 
-		private final HashMapIdObject<StorageEntityTypeHandler> registry = HashMapIdObject.New();
-		private       PersistenceTypeDictionary                 dictionary;
+		private final HashMapIdObject<StorageEntityTypeHandler> registry        = HashMapIdObject.New();
+		private final boolean                                   switchByteOrder;
+		private       PersistenceTypeDictionary                 dictionary     ;
 
 		
 		
@@ -44,9 +45,10 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// constructors //
 		/////////////////
 		
-		public Implementation()
+		public Implementation(final boolean switchByteOrder)
 		{
 			super();
+			this.switchByteOrder = switchByteOrder;
 		}
 		
 
@@ -61,7 +63,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				this.registry.put(
 					typeDefinition.typeId(),
-					new StorageEntityTypeHandler.Implementation(typeDefinition)
+					new StorageEntityTypeHandler.Implementation(typeDefinition, this.switchByteOrder)
 				);
 			}
 		}

@@ -39,11 +39,15 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	}
 	
 	public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
-		final PersistenceTypeDefinition typeDefinition
+		final PersistenceTypeDefinition typeDefinition ,
+		final boolean                   switchByteOrder
 	)
 	{
 		final BinaryReferenceTraverser[] referenceTraversers =
-			BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members())
+			BinaryReferenceTraverser.Static.deriveReferenceTraversers(
+				typeDefinition.members(),
+				switchByteOrder
+			)
 		;
 		
 		return BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
@@ -72,7 +76,8 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
-		final PersistenceLegacyTypeHandlingListener<Binary> listener
+		final PersistenceLegacyTypeHandlingListener<Binary> listener        ,
+		final boolean                                       switchByteOrder
 	)
 	{
 		super(typeDefinition);
@@ -82,7 +87,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 		this.listener         = listener        ;
 		
 		// reference traversers mut be derived from the old type definition that fits the persisted form.
-		this.referenceTraversers = deriveReferenceTraversers(typeDefinition);
+		this.referenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
 	}
 	
 	

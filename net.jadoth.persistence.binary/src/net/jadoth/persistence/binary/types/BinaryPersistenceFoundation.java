@@ -271,7 +271,8 @@ extends PersistenceFoundation<Binary, F>
 		{
 			return BinaryLegacyTypeHandlerCreator.New(
 				this.ensureValueTranslatorProvider(),
-				this.getLegacyTypeHandlingListener()
+				this.getLegacyTypeHandlingListener(),
+				this.isByteOrderMismatch()
 			);
 		}
 		
