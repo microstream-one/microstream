@@ -19,7 +19,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		// instance fields //
 		////////////////////
 
-		private final PersistenceObjectManager             objectManager     ;
+		private final PersistenceObjectManager         objectManager     ;
 		private final PersistenceTypeHandlerManager<?> typeHandlerManager;
 
 		private final Entry[]                          oidsSlots         ;

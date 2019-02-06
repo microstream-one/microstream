@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import net.jadoth.X;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
@@ -9,6 +8,7 @@ import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
@@ -105,7 +105,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_LIST, iterator);
 	}

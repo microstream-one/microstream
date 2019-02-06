@@ -11,7 +11,6 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeConsistency;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
@@ -33,7 +32,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, PersistenceFunction iterator);
 
-	public void iteratePersistedReferences(M medium, _longProcedure iterator);
+	public void iteratePersistedReferences(M medium, PersistenceObjectIdAcceptor iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
 	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);

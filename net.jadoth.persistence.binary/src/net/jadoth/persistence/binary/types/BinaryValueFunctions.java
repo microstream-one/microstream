@@ -173,56 +173,6 @@ public final class BinaryValueFunctions
 		}
 	};
 
-	public static final BinaryValueStorer getStorer_byte()
-	{
-		return STORE_1;
-	}
-	
-	public static final BinaryValueStorer getStorer_boolean()
-	{
-		return STORE_1;
-	}
-	
-	public static final BinaryValueStorer getStorer_short()
-	{
-		return STORE_2;
-	}
-	
-	public static final BinaryValueStorer getStorer_char()
-	{
-		return STORE_2;
-	}
-	
-	public static final BinaryValueStorer getStorer_int()
-	{
-		return STORE_4;
-	}
-	
-	public static final BinaryValueStorer getStorer_float()
-	{
-		return STORE_4;
-	}
-	
-	public static final BinaryValueStorer getStorer_long()
-	{
-		return STORE_8;
-	}
-	
-	public static final BinaryValueStorer getStorer_double()
-	{
-		return STORE_8;
-	}
-	
-	public static final BinaryValueStorer getStorerReference()
-	{
-		return STORE_REFERENCE;
-	}
-	
-	public static final BinaryValueStorer getStorerReferenceForced()
-	{
-		return STORE_REFERENCE_EAGER;
-	}
-
 	public static BinaryValueStorer getObjectValueStorer(
 		final Class<?> type    ,
 		final boolean  isForced

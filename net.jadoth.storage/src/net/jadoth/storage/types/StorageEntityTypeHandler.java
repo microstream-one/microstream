@@ -1,9 +1,9 @@
 package net.jadoth.storage.types;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryReferenceTraverser;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDescriptionMember;
@@ -12,7 +12,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 {
 	public long simpleReferenceCount();
 
-	public void iterateReferences(long entityCacheAddress, _longProcedure procedure);
+	public void iterateReferences(long entityCacheAddress, PersistenceObjectIdAcceptor acceptor);
 
 	public void validateEntity(long length, long typeId, long objectId);
 
@@ -153,7 +153,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		}
 
 		@Override
-		public final void iterateReferences(final long entityCacheAddress, final _longProcedure procedure)
+		public final void iterateReferences(final long entityCacheAddress, final PersistenceObjectIdAcceptor acceptor)
 		{
 //			DEBUGStorage.println(Thread.currentThread().getName() + " iterating type " + this.typeName());
 //			System.out.flush();
@@ -164,7 +164,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 				BinaryReferenceTraverser.iterateReferenceRange(
 					Binary.entityContentAddress(entityCacheAddress),
 					this.simpleReferenceRange,
-					procedure
+					acceptor
 				);
 			}
 			else
@@ -172,7 +172,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 				BinaryReferenceTraverser.iterateReferences(
 					Binary.entityContentAddress(entityCacheAddress),
 					this.referenceTraversers,
-					procedure
+					acceptor
 				);
 			}
 		}

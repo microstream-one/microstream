@@ -4,10 +4,10 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandler;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlingListener;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceTypeDefinition;
 import net.jadoth.persistence.types.PersistenceTypeHandler;
 
@@ -140,7 +140,7 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
 
 	@Override
-	public final void iteratePersistedReferences(final Binary rawData, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
 	{
 		BinaryReferenceTraverser.iterateReferences(
 			rawData.loadItemEntityContentAddress(),

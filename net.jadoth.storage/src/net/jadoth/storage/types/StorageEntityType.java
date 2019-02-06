@@ -3,8 +3,8 @@ package net.jadoth.storage.types;
 import java.util.function.Predicate;
 
 import net.jadoth.functional.ThrowingProcedure;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.storage.exceptions.StorageException;
 
 
@@ -25,7 +25,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 	public long simpleReferenceDataCount();
 
-	public void iterateEntityReferenceIds(I entity, _longProcedure procedure);
+	public void iterateEntityReferenceIds(I entity, PersistenceObjectIdAcceptor iterator);
 
 	public StorageIdAnalysis validateEntities();
 
@@ -214,9 +214,12 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		}
 
 		@Override
-		public final void iterateEntityReferenceIds(final StorageEntity.Implementation entity, final _longProcedure procedure)
+		public final void iterateEntityReferenceIds(
+			final StorageEntity.Implementation entity  ,
+			final PersistenceObjectIdAcceptor  iterator
+		)
 		{
-			this.typeHandler.iterateReferences(entity.cacheAddress(), procedure);
+			this.typeHandler.iterateReferences(entity.cacheAddress(), iterator);
 		}
 
 		@Override

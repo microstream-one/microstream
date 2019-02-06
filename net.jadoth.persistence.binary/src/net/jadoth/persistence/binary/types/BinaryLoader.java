@@ -7,13 +7,13 @@ import java.util.function.Consumer;
 
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.math.XMath;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceLoader;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceObjectRetriever;
 import net.jadoth.persistence.types.PersistenceRoots;
@@ -23,7 +23,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandler;
 import net.jadoth.persistence.types.PersistenceTypeHandlerLookup;
 import net.jadoth.reference._intReference;
 
-public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler, _longProcedure
+public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler
 {
 	public interface Creator extends PersistenceLoader.Creator<Binary>
 	{
@@ -52,7 +52,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		);
 	}
 
-	public final class Implementation implements BinaryLoader, BinaryEntityDataReader
+	public final class Implementation implements BinaryLoader, BinaryEntityDataReader, PersistenceObjectIdAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //

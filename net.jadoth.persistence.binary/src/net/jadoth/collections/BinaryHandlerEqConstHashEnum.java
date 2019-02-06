@@ -3,16 +3,15 @@ package net.jadoth.collections;
 import java.lang.reflect.Field;
 
 import net.jadoth.X;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.reflect.XReflect;
 
@@ -168,7 +167,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
