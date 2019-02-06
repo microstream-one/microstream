@@ -4,11 +4,11 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 
 public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.AbstractImplementation<T>
@@ -49,7 +49,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary offset, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no-op, no references
 	}

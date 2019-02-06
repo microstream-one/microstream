@@ -5,7 +5,6 @@ import static net.jadoth.X.notNull;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
-import net.jadoth.functional._longProcedure;
 
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
@@ -188,7 +187,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public void iteratePersistedReferences(final M medium, final _longProcedure iterator)
+		public void iteratePersistedReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
 		{
 			// current type handler perfectly fits the old types structure, so it can be used here.
 			this.typeHandler.iteratePersistedReferences(medium, iterator);

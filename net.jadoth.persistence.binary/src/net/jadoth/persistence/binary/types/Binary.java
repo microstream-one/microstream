@@ -7,13 +7,13 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectIdResolver;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.typing.KeyValue;
@@ -279,8 +279,8 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void iterateKeyValueEntriesReferences(
-		final long           offset  ,
-		final _longProcedure iterator
+		final long                        offset  ,
+		final PersistenceObjectIdAcceptor iterator
 	)
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
@@ -571,8 +571,8 @@ public abstract class Binary implements Chunk
 	}
 
 	public final void iterateSizedArrayElementReferences(
-		final long           offset  ,
-		final _longProcedure iterator
+		final long                        offset  ,
+		final PersistenceObjectIdAcceptor iterator
 	)
 	{
 		// (29.01.2019 TM)FIXME: JET-49: offset validation
@@ -714,8 +714,8 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void iterateListElementReferences(
-		final long           listOffset,
-		final _longProcedure iterator
+		final long                        listOffset,
+		final PersistenceObjectIdAcceptor iterator
 	)
 	{
 		final long startAddress = this.binaryListElementsAddress(listOffset);
@@ -725,9 +725,9 @@ public abstract class Binary implements Chunk
 	}
 
 	public final void iterateReferences(
-		final long           startOffset,
-		final long           boundOffset,
-		final _longProcedure iterator
+		final long                        startOffset,
+		final long                        boundOffset,
+		final PersistenceObjectIdAcceptor iterator
 	)
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate offsets
@@ -765,8 +765,6 @@ public abstract class Binary implements Chunk
 		this.store_booleans(binaryListElementsAddressAbsolute(storeAddress), array);
 	}
 	
-	// (01.02.2019 TM)FIXME: JET-49: handle XMemory.copyArrayToAddress and XMemory.copyRangeToArray
-
 	public final void storeArray_short(final long typeId, final long objectId, final short[] array)
 	{
 		final long totalByteLength = calculateBinaryListByteLength((long)array.length * Short.BYTES);

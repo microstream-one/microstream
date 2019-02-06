@@ -4,8 +4,6 @@ import static net.jadoth.X.notNull;
 
 import java.util.function.Consumer;
 
-import net.jadoth.functional._longProcedure;
-
 
 /**
  * This is, of course, not a handler that is unreachable, but a handler for a type whose instances are
@@ -37,7 +35,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void iteratePersistedReferences(final M medium, final _longProcedure iterator)
+	public default void iteratePersistedReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}

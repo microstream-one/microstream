@@ -1,9 +1,9 @@
 package net.jadoth.persistence.binary.internal;
 
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceFunction;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 
 public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
@@ -33,7 +33,7 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary offset, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no references to iterate in arrays with primitive component type
 	}

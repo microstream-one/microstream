@@ -5,11 +5,11 @@ import static net.jadoth.X.notNull;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.types.XGettingTable;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceObjectRegistry;
 import net.jadoth.persistence.types.PersistenceRootEntry;
 import net.jadoth.persistence.types.PersistenceRootResolver;
@@ -212,7 +212,7 @@ extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		// the nice thing about this layout is: the references can be accessed directly as if it was a simple list
 		bytes.iterateListElementReferences(0, iterator);

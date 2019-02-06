@@ -7,12 +7,12 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableSequence;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryTypeHandler;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMember;
 import net.jadoth.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
@@ -163,7 +163,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public void iteratePersistedReferences(final Binary offset, final _longProcedure iterator)
+	public void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no-op, no references
 	}

@@ -1,10 +1,10 @@
 package net.jadoth.util;
 
 import net.jadoth.collections.BinaryHandlerEqHashEnum;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 import net.jadoth.persistence.types.PersistenceStoreHandler;
 
 
@@ -95,7 +95,7 @@ extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final _longProcedure iterator)
+	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);
 	}
