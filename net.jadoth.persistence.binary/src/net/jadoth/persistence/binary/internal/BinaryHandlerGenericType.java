@@ -13,19 +13,21 @@ import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
 public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerReflective<T>
 {
 	public static <T> BinaryHandlerGenericType<T> New(
-		final Class<T>                              type                   ,
-		final XGettingEnum<Field>                   allFields              ,
-		final PersistenceFieldLengthResolver        lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator,
-		final BinaryInstantiator<T>                 instantiator
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   allFields                 ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final BinaryInstantiator<T>                 instantiator              ,
+		final boolean                               reverseBytes
 	)
 	{
 		return new BinaryHandlerGenericType<>(
-			type                   ,
-			allFields              ,
-			lengthResolver         ,
-			mandatoryFieldEvaluator,
-			instantiator
+			type                      ,
+			allFields                 ,
+			lengthResolver            ,
+			eagerStoringFieldEvaluator,
+			instantiator              ,
+			reverseBytes
 		);
 	}
 	
@@ -44,14 +46,15 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	/////////////////////
 
 	protected BinaryHandlerGenericType(
-		final Class<T>                              type                   ,
-		final XGettingEnum<Field>                   allFields              ,
-		final PersistenceFieldLengthResolver        lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator,
-		final BinaryInstantiator<T>                 instantiator
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   allFields                 ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final BinaryInstantiator<T>                 instantiator              ,
+		final boolean                               reverseBytes
 	)
 	{
-		super(type, allFields, lengthResolver, mandatoryFieldEvaluator);
+		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, reverseBytes);
 		this.instantiator = notNull(instantiator);
 	}
 

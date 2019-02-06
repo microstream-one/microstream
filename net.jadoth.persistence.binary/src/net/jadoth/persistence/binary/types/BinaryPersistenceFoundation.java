@@ -239,7 +239,8 @@ extends PersistenceFoundation<Binary, F>
 			return new BinaryTypeHandlerCreator.Implementation(
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver(),
-				this.getReferenceFieldMandatoryEvaluator()
+				this.getReferenceFieldMandatoryEvaluator(),
+				this.isByteOrderMismatch()
 			);
 		}
 
@@ -294,7 +295,8 @@ extends PersistenceFoundation<Binary, F>
 			return BinaryValueTranslatorProvider.New(
 				this.getCustomTranslatorLookup()        ,
 				this.getTranslatorKeyBuilders()         ,
-				this.getValueTranslatorMappingProvider()
+				this.getValueTranslatorMappingProvider(),
+				this.isByteOrderMismatch()
 			);
 		}
 		
