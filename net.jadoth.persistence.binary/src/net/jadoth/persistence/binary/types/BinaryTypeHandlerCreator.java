@@ -28,14 +28,14 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		final PersistenceTypeAnalyzer               typeAnalyzer              ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
 		return new BinaryTypeHandlerCreator.Implementation(
 			notNull(typeAnalyzer)              ,
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
-			reverseBytes
+			switchByteOrder
 		);
 	}
 
@@ -47,8 +47,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// instance fields //
 		////////////////////
 		
-		// (06.02.2019 TM)FIXME: JET-49: reverseBytes -> switchByteOrder (projectwide)
-		final boolean reverseBytes;
+		final boolean switchByteOrder;
 		
 		
 		
@@ -60,11 +59,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final PersistenceTypeAnalyzer               typeAnalyzer           ,
 			final PersistenceFieldLengthResolver        lengthResolver         ,
 			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator,
-			final boolean                               reverseBytes
+			final boolean                               switchByteOrder
 		)
 		{
 			super(typeAnalyzer, lengthResolver, mandatoryFieldEvaluator);
-			this.reverseBytes = reverseBytes;
+			this.switchByteOrder = switchByteOrder;
 		}
 
 
@@ -104,7 +103,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.lengthResolver()                          ,
 				this.eagerStoringFieldEvaluator()                 ,
 				BinaryPersistence.blankMemoryInstantiator(type),
-				this.reverseBytes
+				this.switchByteOrder
 			);
 		}
 
@@ -119,7 +118,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				allFields                     ,
 				this.lengthResolver()         ,
 				this.eagerStoringFieldEvaluator(),
-				this.reverseBytes
+				this.switchByteOrder
 			);
 		}
 

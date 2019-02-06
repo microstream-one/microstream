@@ -71,7 +71,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		// instance fields //
 		////////////////////
 
-		private final boolean                               reverseBytes   ;
+		private final boolean                               switchByteOrder;
 		private final PersistenceObjectManager              objectManager  ;
 		private final PersistenceObjectRetriever            objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
@@ -109,7 +109,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
 			final int                                   channelCount      ,
-			final boolean                               reverseBytes
+			final boolean                               switchByteOrder
 		)
 		{
 			super();
@@ -119,7 +119,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.target             = notNull(target)            ;
 			this.bufferSizeProvider = notNull(bufferSizeProvider);
 			this.chunksHashRange    =         channelCount - 1   ;
-			this.reverseBytes       =         reverseBytes       ;
+			this.switchByteOrder    =         switchByteOrder    ;
 		}
 
 
@@ -256,7 +256,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final ChunksBuffer[] chunks = this.chunks = new ChunksBuffer[this.chunksHashRange + 1];
 			for(int i = 0; i < chunks.length; i++)
 			{
-				chunks[i] = this.reverseBytes
+				chunks[i] = this.switchByteOrder
 					? ChunksBufferByteReversing.New(chunks, this.bufferSizeProvider)
 					: ChunksBuffer.New(chunks, this.bufferSizeProvider)
 				;
@@ -524,8 +524,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
-			final int                                   channelCount,
-			final boolean                               reverseBytes
+			final int                                   channelCount      ,
+			final boolean                               switchByteOrder
 		)
 		{
 			super(
@@ -535,7 +535,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				target            ,
 				bufferSizeProvider,
 				channelCount      ,
-				reverseBytes
+				switchByteOrder
 			);
 		}
 		
@@ -579,12 +579,12 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 	public static BinaryStorer.Creator Creator(
 		final _intReference channelCountProvider,
-		final boolean       reverseBytes
+		final boolean       switchByteOrder
 	)
 	{
 		return new BinaryStorer.Creator.Implementation(
 			notNull(channelCountProvider),
-			        reverseBytes
+			        switchByteOrder
 		);
 	}
 		
@@ -630,7 +630,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 
 			private final _intReference channelCountProvider;
-			private final boolean       reverseBytes         ;
+			private final boolean       switchByteOrder     ;
 
 
 
@@ -640,12 +640,12 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 			protected AbstractImplementation(
 				final _intReference channelCountProvider,
-				final boolean       reverseBytes
+				final boolean       switchByteOrder
 			)
 			{
 				super();
 				this.channelCountProvider = channelCountProvider;
-				this.reverseBytes         = reverseBytes        ;
+				this.switchByteOrder      = switchByteOrder     ;
 			}
 
 			
@@ -659,9 +659,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				return this.channelCountProvider.get();
 			}
 			
-			protected boolean reverseBytes()
+			protected boolean switchByteOrder()
 			{
-				return this.reverseBytes;
+				return this.switchByteOrder;
 			}
 
 		}
@@ -670,10 +670,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			Implementation(
 				final _intReference channelCountProvider,
-				final boolean       reverseBytes
+				final boolean       switchByteOrder
 			)
 			{
-				super(channelCountProvider, reverseBytes);
+				super(channelCountProvider, switchByteOrder);
 			}
 
 			@Override
@@ -686,13 +686,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.Implementation(
-					objectManager      ,
-					objectRetriever    ,
-					typeManager        ,
-					target             ,
-					bufferSizeProvider ,
-					this.channelCount(),
-					this.reverseBytes()
+					objectManager         ,
+					objectRetriever       ,
+					typeManager           ,
+					target                ,
+					bufferSizeProvider    ,
+					this.channelCount()   ,
+					this.switchByteOrder()
 				);
 			}
 			@Override
@@ -705,13 +705,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			)
 			{
 				return new BinaryStorer.ImplementationEager(
-					objectManager      ,
-					objectRetriever    ,
-					typeManager        ,
-					target             ,
-					bufferSizeProvider ,
-					this.channelCount(),
-					this.reverseBytes()
+					objectManager         ,
+					objectRetriever       ,
+					typeManager           ,
+					target                ,
+					bufferSizeProvider    ,
+					this.channelCount()   ,
+					this.switchByteOrder()
 				);
 			}
 

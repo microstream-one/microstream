@@ -36,11 +36,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 	}
 
 	public static BinaryLoader.Implementation New(
-		final PersistenceTypeHandlerLookup<Binary> typeLookup  ,
-		final PersistenceObjectRegistry            registry    ,
-		final PersistenceSourceSupplier<Binary>    source      ,
-		final LoadItemsChain                       loadItems   ,
-		final boolean                              reverseBytes
+		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+		final PersistenceObjectRegistry            registry       ,
+		final PersistenceSourceSupplier<Binary>    source         ,
+		final LoadItemsChain                       loadItems      ,
+		final boolean                              switchByteOrder
 	)
 	{
 		return new BinaryLoader.Implementation(
@@ -48,7 +48,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			notNull(registry),
 			notNull(source),
 			notNull(loadItems),
-			reverseBytes
+			switchByteOrder
 		);
 	}
 
@@ -66,7 +66,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
-		private final boolean                                        reverseBytes             ;
+		private final boolean                                        switchByteOrder          ;
 		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup        ;
 		private final PersistenceObjectRegistry                      registry                 ;
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
@@ -87,19 +87,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup  ,
-			final PersistenceObjectRegistry            registry    ,
-			final PersistenceSourceSupplier<Binary>    source      ,
-			final LoadItemsChain                       loadItems   ,
-			final boolean                              reverseBytes
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final PersistenceSourceSupplier<Binary>    source         ,
+			final LoadItemsChain                       loadItems      ,
+			final boolean                              switchByteOrder
 		)
 		{
 			super();
-			this.typeHandlerLookup = typeLookup  ;
-			this.registry          = registry    ;
-			this.sourceSupplier    = source      ;
-			this.loadItems         = loadItems   ;
-			this.reverseBytes      = reverseBytes;
+			this.typeHandlerLookup = typeLookup     ;
+			this.registry          = registry       ;
+			this.sourceSupplier    = source         ;
+			this.loadItems         = loadItems      ;
+			this.switchByteOrder   = switchByteOrder;
 		}
 
 
@@ -344,7 +344,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		@Override
-		public final void accept(final long value)
+		public final void acceptObjectId(final long value)
 		{
 			this.handleReference(value);
 		}
@@ -502,7 +502,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private BinaryLoadItem createLoadItem(final long entityContentAddress)
 		{
-			return this.reverseBytes
+			return this.switchByteOrder
 				? new BinaryLoadItemByteReversing(entityContentAddress)
 				: new BinaryLoadItem(entityContentAddress)
 			;
@@ -736,7 +736,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// instance fields //
 		////////////////////
 		
-		private final boolean reverseBytes;
+		private final boolean switchByteOrder;
 		
 		
 		
@@ -744,10 +744,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// constructors //
 		/////////////////
 		
-		CreatorSimple(final boolean reverseBytes)
+		CreatorSimple(final boolean switchByteOrder)
 		{
 			super();
-			this.reverseBytes = reverseBytes;
+			this.switchByteOrder = switchByteOrder;
 		}
 
 
@@ -768,7 +768,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				registry,
 				source,
 				new LoadItemsChain.Simple(),
-				this.reverseBytes
+				this.switchByteOrder
 			);
 		}
 
@@ -782,7 +782,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// instance fields //
 		////////////////////
 
-		private final boolean       reverseBytes        ;
+		private final boolean       switchByteOrder     ;
 		private final _intReference channelCountProvider;
 
 
@@ -793,11 +793,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		public CreatorChannelHashing(
 			final _intReference channelCountProvider,
-			final boolean       reverseBytes
+			final boolean       switchByteOrder
 		)
 		{
 			super();
-			this.reverseBytes         = reverseBytes        ;
+			this.switchByteOrder      = switchByteOrder     ;
 			this.channelCountProvider = channelCountProvider;
 		}
 
@@ -819,7 +819,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				registry,
 				source,
 				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get()),
-				this.reverseBytes
+				this.switchByteOrder
 			);
 		}
 

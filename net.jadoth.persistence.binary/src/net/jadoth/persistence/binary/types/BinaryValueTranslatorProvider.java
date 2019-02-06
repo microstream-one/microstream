@@ -49,14 +49,14 @@ public interface BinaryValueTranslatorProvider
 		final XGettingMap<String, BinaryValueSetter>                      customTranslatorLookup  ,
 		final XGettingSequence<? extends BinaryValueTranslatorKeyBuilder> translatorKeyBuilders   ,
 		final BinaryValueTranslatorLookupProvider                         translatorLookupProvider,
-		final boolean                                                     reverseBytes
+		final boolean                                                     switchByteOrder
 	)
 	{
 		return new BinaryValueTranslatorProvider.Implementation(
 			mayNull(customTranslatorLookup),
 			unwrapKeyBuilders(translatorKeyBuilders),
 			notNull(translatorLookupProvider),
-			reverseBytes
+			switchByteOrder
 		);
 	}
 	
@@ -79,7 +79,7 @@ public interface BinaryValueTranslatorProvider
 		private final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ;
 		private final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ;
 		private final BinaryValueTranslatorLookupProvider    translatorLookupProvider;
-		private final boolean                                reverseBytes            ;
+		private final boolean                                switchByteOrder            ;
 		
 		private transient TypeMappingLookup<BinaryValueSetter> translatorLookup;
 		
@@ -93,14 +93,14 @@ public interface BinaryValueTranslatorProvider
 			final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ,
 			final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ,
 			final BinaryValueTranslatorLookupProvider    translatorLookupProvider,
-			final boolean                                reverseBytes
+			final boolean                                switchByteOrder
 		)
 		{
 			super();
 			this.customTranslatorLookup   = customTranslatorLookup  ;
 			this.translatorKeyBuilders    = translatorKeyBuilders   ;
 			this.translatorLookupProvider = translatorLookupProvider;
-			this.reverseBytes             = reverseBytes            ;
+			this.switchByteOrder             = switchByteOrder            ;
 		}
 		
 		
@@ -231,7 +231,7 @@ public interface BinaryValueTranslatorProvider
 		
 		private BinaryValueSetter provideReferenceResolver()
 		{
-			return BinaryValueFunctions.getObjectValueSetter(Object.class, this.reverseBytes);
+			return BinaryValueFunctions.getObjectValueSetter(Object.class, this.switchByteOrder);
 		}
 		
 		private static void validateIsReferenceType(final PersistenceTypeDescriptionMember member)

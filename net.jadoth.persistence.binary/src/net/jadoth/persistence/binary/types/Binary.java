@@ -667,15 +667,15 @@ public abstract class Binary implements Chunk
 	}
 
 	// (04.02.2019 TM)FIXME: JET-49: really public?
-	// (04.02.2019 TM)FIXME: JET-49: this is not "absolute", it is just an offset
-	public static final long binaryListElementsAddressAbsolute(final long binaryListAddress)
+	public static final long toBinaryListElementsAddress(final long binaryListAddress)
 	{
+		// works for both relative offsets and absolute addresses. It's just a sum.
 		return binaryListAddress + LIST_OFFSET_ELEMENTS;
 	}
 
 	public final long binaryListElementsAddress(final long binaryListOffset)
 	{
-		return binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress() + binaryListOffset);
+		return toBinaryListElementsAddress(this.loadItemEntityContentAddress() + binaryListOffset);
 	}
 		
 	public final long getListElementCount(final long listStartOffset, final int elementLength)
@@ -737,7 +737,7 @@ public abstract class Binary implements Chunk
 		
 		for(long address = startAddress; address < boundAddress; address += LENGTH_OID)
 		{
-			iterator.accept(this.read_long(address));
+			iterator.acceptObjectId(this.read_long(address));
 		}
 	}
 
@@ -748,7 +748,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_bytes(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_bytes(toBinaryListElementsAddress(storeAddress), array);
 	}
 
 	public final void storeArray_boolean(
@@ -762,7 +762,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_booleans(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_booleans(toBinaryListElementsAddress(storeAddress), array);
 	}
 	
 	public final void storeArray_short(final long typeId, final long objectId, final short[] array)
@@ -772,7 +772,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_shorts(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_shorts(toBinaryListElementsAddress(storeAddress), array);
 	}
 
 	public final void storeArray_char(final long tid, final long oid, final char[] array)
@@ -782,7 +782,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_chars(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_chars(toBinaryListElementsAddress(storeAddress), array);
 	}
 
 	public final void storeArray_int(final long tid, final long oid, final int[] array)
@@ -792,7 +792,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_ints(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_ints(toBinaryListElementsAddress(storeAddress), array);
 	}
 
 	public final void storeArray_float(final long tid, final long oid, final float[] array)
@@ -802,7 +802,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_floats(binaryListElementsAddressAbsolute(storeAddress),array);
+		this.store_floats(toBinaryListElementsAddress(storeAddress),array);
 	}
 
 	public final void storeArray_long(final long tid, final long oid, final long[] array)
@@ -812,7 +812,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_longs(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_longs(toBinaryListElementsAddress(storeAddress), array);
 	}
 
 	public final void storeArray_double(final long tid, final long oid, final double[] array)
@@ -822,7 +822,7 @@ public abstract class Binary implements Chunk
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
-		this.store_doubles(binaryListElementsAddressAbsolute(storeAddress), array);
+		this.store_doubles(toBinaryListElementsAddress(storeAddress), array);
 	}
 	
 	public final void storeByte(final long tid, final long oid, final byte value)
@@ -1169,7 +1169,7 @@ public abstract class Binary implements Chunk
 		final long elementCount = this.getBinaryListElementCountValidating(0, Byte.BYTES);
 		final byte[] array;
 		this.read_bytes(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array = new byte[X.checkArrayRange(elementCount)]
 		);
 		return array;
@@ -1184,7 +1184,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_bytes(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1199,7 +1199,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_booleans(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1213,7 +1213,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_shorts(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1272,7 +1272,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_ints(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1286,7 +1286,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_floats(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1299,7 +1299,7 @@ public abstract class Binary implements Chunk
 	public final void updateArray_long(final long[] array)
 	{
 		this.read_longs(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1313,7 +1313,7 @@ public abstract class Binary implements Chunk
 	{
 		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
 		this.read_doubles(
-			binaryListElementsAddressAbsolute(this.loadItemEntityContentAddress()),
+			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
 	}
@@ -1443,9 +1443,7 @@ public abstract class Binary implements Chunk
 	///////////////////////////////////////////////////////////////////////////
 	// byte order handling //
 	////////////////////////
-	
-	// (31.01.2019 TM)FIXME: JET-49: derived class with byteorder switching overrides for these methods
-	
+		
 	final byte read_byte(final long address)
 	{
 		return XMemory.get_byte(address);

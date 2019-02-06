@@ -66,7 +66,8 @@ public interface BinaryReferenceTraverser
 		final long addressBound = address + referenceRange;
 		for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 		{
-			iterator.accept(XMemory.get_long(a));
+			// (06.02.2019 TM)FIXME: JET-49
+			iterator.acceptObjectId(XMemory.get_long(a));
 		}
 	}
 
@@ -255,7 +256,7 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
 			{
-				procedure.accept(XMemory.get_long(address));
+				procedure.acceptObjectId(XMemory.get_long(address));
 				return address + REFERENCE_LENGTH;
 			}
 			
@@ -277,8 +278,8 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
 			{
-				procedure.accept(XMemory.get_long(address));
-				procedure.accept(XMemory.get_long(address + REFERENCE_LENGTH));
+				procedure.acceptObjectId(XMemory.get_long(address));
+				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
 				return address + REFERENCE_LENGTH_2;
 			}
 			
@@ -300,9 +301,9 @@ public interface BinaryReferenceTraverser
 			@Override
 			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
 			{
-				procedure.accept(XMemory.get_long(address));
-				procedure.accept(XMemory.get_long(address + REFERENCE_LENGTH));
-				procedure.accept(XMemory.get_long(address + REFERENCE_LENGTH_2));
+				procedure.acceptObjectId(XMemory.get_long(address));
+				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
+				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH_2));
 				return address + REFERENCE_LENGTH_3;
 			}
 			
@@ -327,7 +328,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_4;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -353,7 +354,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_5;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -379,7 +380,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_6;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -397,6 +398,7 @@ public interface BinaryReferenceTraverser
 			}
 		};
 
+		// (06.02.2019 TM)FIXME: JET-49: switchByteOrder variants!
 		static final BinaryReferenceTraverser REFERENCE_7 = new BinaryReferenceTraverser()
 		{
 			@Override
@@ -405,7 +407,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_7;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -431,7 +433,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + REFERENCE_LENGTH_8;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -456,9 +458,10 @@ public interface BinaryReferenceTraverser
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
 				final long bound = address + Binary.getBinaryListByteLengthRawValue(address);
-				for(long a = Binary.binaryListElementsAddressAbsolute(address); a < bound; a += REFERENCE_LENGTH)
+				for(long a = Binary.toBinaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.accept(XMemory.get_long(a));
+					// (06.02.2019 TM)FIXME: JET-49: must be byteorder-switching modular.
+					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				
 				return bound;
@@ -726,7 +729,8 @@ public interface BinaryReferenceTraverser
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
-				procedure.accept(XMemory.get_long(a));
+				// (06.02.2019 TM)FIXME: JET-49: switchByteOrder
+				procedure.acceptObjectId(XMemory.get_long(a));
 			}
 			return addressBound;
 		}
@@ -818,7 +822,7 @@ public interface BinaryReferenceTraverser
 			final long elementCount = Binary.getBinaryListElementCountRawValue(address);
 
 			// apply all element traversers to each element
-			long a = Binary.binaryListElementsAddressAbsolute(address);
+			long a = Binary.toBinaryListElementsAddress(address);
 			for(long i = 0; i < elementCount; i++)
 			{
 				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, procedure);

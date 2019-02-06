@@ -73,7 +73,7 @@ public interface StorageManager extends StorageController
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
 		private final StorageEntityMarkMonitor.Creator        entityMarkMonitorCreator     ;
-		private final boolean                                 reverseBytes                 ;
+		private final boolean                                 switchByteOrder                 ;
 
 
 		// state flags //
@@ -118,7 +118,7 @@ public interface StorageManager extends StorageController
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-			final boolean                               reverseBytes                 ,
+			final boolean                               switchByteOrder                 ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -147,7 +147,7 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
-			this.reverseBytes                  =         reverseBytes                         ;
+			this.switchByteOrder                  =         switchByteOrder                         ;
 
 			/* must not leave processing information implementation choice to outside context
 			 * as this implementation relys on an immutable thread count.
@@ -268,7 +268,7 @@ public interface StorageManager extends StorageController
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
-				this.reverseBytes                       ,
+				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 

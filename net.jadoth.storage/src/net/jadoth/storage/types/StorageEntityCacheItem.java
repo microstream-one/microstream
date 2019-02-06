@@ -1,7 +1,7 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.binary.types.MemoryRangeReader;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 
 
 
@@ -25,7 +25,7 @@ public interface StorageEntityCacheItem<I extends StorageEntityCacheItem<I>>
 
 	public long clearCache();
 
-	public boolean iterateReferenceIds(_longProcedure referenceIdIterator);
+	public boolean iterateReferenceIds(PersistenceObjectIdAcceptor referenceIdIterator);
 
 	public long exportTo(StorageLockedFile file);
 

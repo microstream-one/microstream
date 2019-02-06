@@ -18,7 +18,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final BinaryInstantiator<T>                 instantiator              ,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
 		return new BinaryHandlerGenericType<>(
@@ -27,7 +27,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
 			instantiator              ,
-			reverseBytes
+			switchByteOrder
 		);
 	}
 	
@@ -51,10 +51,10 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final BinaryInstantiator<T>                 instantiator              ,
-		final boolean                               reverseBytes
+		final boolean                               switchByteOrder
 	)
 	{
-		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, reverseBytes);
+		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.instantiator = notNull(instantiator);
 	}
 

@@ -147,7 +147,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashEnum<?>>
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 

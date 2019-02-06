@@ -190,9 +190,9 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqHashTable<?, ?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
-		iterator.accept(bytes.get_long(BINARY_OFFSET_KEYS));
-		iterator.accept(bytes.get_long(BINARY_OFFSET_VALUES));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_KEYS));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_VALUES));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 

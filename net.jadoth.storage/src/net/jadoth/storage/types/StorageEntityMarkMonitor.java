@@ -3,8 +3,8 @@ package net.jadoth.storage.types;
 import java.util.function.Supplier;
 
 import net.jadoth.chars.VarString;
-import net.jadoth.functional._longProcedure;
 import net.jadoth.persistence.types.Persistence;
+import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
 
 
 /**
@@ -16,7 +16,7 @@ import net.jadoth.persistence.types.Persistence;
  *
  * @author TM
  */
-public interface StorageEntityMarkMonitor extends _longProcedure
+public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 {
 	public void signalPendingStoreUpdate(StorageEntityCache<?> channel);
 
@@ -367,11 +367,11 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			 * this initializes the next marking.
 			 * From here on, pendingMarksCount can only be 0 again if marking is complete.
 			 */
-			this.accept(currentMaxRootOid);
+			this.acceptObjectId(currentMaxRootOid);
 		}
 
 		@Override
-		public final void accept(final long oid)
+		public final void acceptObjectId(final long oid)
 		{
 			// do not enqueue null oids, not even get the lock
 			if(oid == Persistence.nullId())
@@ -482,7 +482,7 @@ public interface StorageEntityMarkMonitor extends _longProcedure
 			}
 
 			@Override
-			public final void accept(final long oid)
+			public final void acceptObjectId(final long oid)
 			{
 				// do not enqueue null oids
 				if(oid == Persistence.nullId())

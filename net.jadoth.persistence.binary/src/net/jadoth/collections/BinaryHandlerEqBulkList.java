@@ -133,7 +133,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.accept(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
