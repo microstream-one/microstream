@@ -23,17 +23,19 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		throws PersistenceExceptionTypeNotPersistable;
 
 
-	
+	// (06.02.2019 TM)FIXME: JET-49: mandatoryFieldEvaluator -> eagerStoringFieldEvaluator projectwide
 	public static BinaryTypeHandlerCreator New(
-		final PersistenceTypeAnalyzer               typeAnalyzer           ,
-		final PersistenceFieldLengthResolver        lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+		final PersistenceTypeAnalyzer               typeAnalyzer              ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               reverseBytes
 	)
 	{
 		return new BinaryTypeHandlerCreator.Implementation(
-			notNull(typeAnalyzer)           ,
-			notNull(lengthResolver)         ,
-			notNull(mandatoryFieldEvaluator)
+			notNull(typeAnalyzer)              ,
+			notNull(lengthResolver)            ,
+			notNull(eagerStoringFieldEvaluator),
+			reverseBytes
 		);
 	}
 
@@ -42,16 +44,27 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 	implements BinaryTypeHandlerCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		// (06.02.2019 TM)FIXME: JET-49: reverseBytes -> switchByteOrder (projectwide)
+		final boolean reverseBytes;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors     //
 		/////////////////////
 
 		Implementation(
 			final PersistenceTypeAnalyzer               typeAnalyzer           ,
 			final PersistenceFieldLengthResolver        lengthResolver         ,
-			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator,
+			final boolean                               reverseBytes
 		)
 		{
 			super(typeAnalyzer, lengthResolver, mandatoryFieldEvaluator);
+			this.reverseBytes = reverseBytes;
 		}
 
 
@@ -89,8 +102,9 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				type                                           ,
 				persistableFields                              ,
 				this.lengthResolver()                          ,
-				this.mandatoryFieldEvaluator()                 ,
-				BinaryPersistence.blankMemoryInstantiator(type)
+				this.eagerStoringFieldEvaluator()                 ,
+				BinaryPersistence.blankMemoryInstantiator(type),
+				this.reverseBytes
 			);
 		}
 
@@ -104,7 +118,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				(Class<E>)type                ,
 				allFields                     ,
 				this.lengthResolver()         ,
-				this.mandatoryFieldEvaluator()
+				this.eagerStoringFieldEvaluator(),
+				this.reverseBytes
 			);
 		}
 

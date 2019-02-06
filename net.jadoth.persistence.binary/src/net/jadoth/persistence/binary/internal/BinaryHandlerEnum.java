@@ -5,24 +5,26 @@ import java.lang.reflect.Field;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.persistence.binary.types.Binary;
-import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import net.jadoth.persistence.types.PersistenceFieldLengthResolver;
+import net.jadoth.persistence.types.PersistenceLoadHandler;
 
 public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHandlerReflective<T>
 {
 	public static <T extends Enum<T>> BinaryHandlerEnum<T> New(
-		final Class<T>                              type                   ,
-		final XGettingEnum<Field>                   allFields              ,
-		final PersistenceFieldLengthResolver        lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   allFields                 ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               reverseBytes
 	)
 	{
 		return new BinaryHandlerEnum<>(
-			type                   ,
-			allFields              ,
-			lengthResolver         ,
-			mandatoryFieldEvaluator
+			type                      ,
+			allFields                 ,
+			lengthResolver            ,
+			eagerStoringFieldEvaluator,
+			reverseBytes
 		);
 	}
 	
@@ -82,13 +84,14 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	/////////////////////
 
 	protected BinaryHandlerEnum(
-		final Class<T>                              type                   ,
-		final XGettingEnum<Field>                   allFields              ,
-		final PersistenceFieldLengthResolver        lengthResolver         ,
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   allFields                 ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               reverseBytes
 	)
 	{
-		super(type, allFields, lengthResolver, mandatoryFieldEvaluator);
+		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, reverseBytes);
 		this.cachedEnumReferences = initializeEnumReferencesCache(type);
 	}
 

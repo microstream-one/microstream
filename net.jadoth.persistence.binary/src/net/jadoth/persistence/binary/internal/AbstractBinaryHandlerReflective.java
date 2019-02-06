@@ -67,7 +67,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final Field[]                               fieldsPersistdOrder,
 		final BinaryValueStorer[]                   storers            ,
 		final BinaryValueSetter[]                   setters            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoreEvaluator
+		final PersistenceEagerStoringFieldEvaluator eagerStoreEvaluator,
+		final boolean                               reverseBytes
 	)
 	{
 		final BinaryValueStorer[] refStorers = new BinaryValueStorer[   storers.length];
@@ -81,10 +82,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		int r = 0, p = 0;
 		for(int i = 0; i < fieldsDeclaredOrder.length; i++)
 		{
-			final Class<?>          fieldType = fieldsDeclaredOrder[i].getType()                                      ;
-			final boolean           isForced  = eagerStoreEvaluator.isEagerStoring(entityType, fieldsDeclaredOrder[i]);
-			final BinaryValueStorer storer    = BinaryValueFunctions.getObjectValueStorer(fieldType, isForced)        ;
-			final BinaryValueSetter setter    = BinaryValueFunctions.getObjectValueSetter(fieldType)                  ;
+			final Class<?> fieldType = fieldsDeclaredOrder[i].getType()                                     ;
+			final boolean  isEager  = eagerStoreEvaluator.isEagerStoring(entityType, fieldsDeclaredOrder[i]);
+			
+			final BinaryValueStorer storer = BinaryValueFunctions.getObjectValueStorer(fieldType, isEager, reverseBytes);
+			final BinaryValueSetter setter = BinaryValueFunctions.getObjectValueSetter(fieldType, reverseBytes)    ;
+			
 			if(fieldType.isPrimitive())
 			{
 				primitiveTotalBinaryLength += XMemory.byteSizePrimitive(fieldType);
@@ -159,7 +162,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final Class<T>                              type                      ,
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               reverseBytes
 	)
 	{
 		super(type);
@@ -188,7 +192,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			fieldsPersistdOrder       ,
 			this.binaryStorers        ,
 			this.memorySetters        ,
-			eagerStoringFieldEvaluator
+			eagerStoringFieldEvaluator,
+			reverseBytes
 		);
 		
 		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembers =

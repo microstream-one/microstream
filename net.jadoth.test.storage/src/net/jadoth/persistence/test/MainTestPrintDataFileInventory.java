@@ -27,7 +27,7 @@ public class MainTestPrintDataFileInventory
 		@Override
 		public boolean accept(final long address, final long availableItemLength)
 		{
-			final long length = Binary.getEntityLength(address);
+			final long length = Binary.getEntityLengthRawValue(address);
 
 			// check for a gap
 			if(length < 0)
@@ -45,8 +45,8 @@ public class MainTestPrintDataFileInventory
 				return false;
 			}
 
-			final long objectId = Binary.getEntityObjectId(address);
-			final long typeId   = Binary.getEntityTypeId(address);
+			final long objectId = Binary.getEntityObjectIdRawValue(address);
+			final long typeId   = Binary.getEntityTypeIdRawValue(address);
 
 			System.out.println(this.fileOffset+"\t"+length+"\t"+typeId+"\t"+objectId);
 

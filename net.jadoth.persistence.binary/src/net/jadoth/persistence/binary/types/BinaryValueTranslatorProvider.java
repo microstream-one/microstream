@@ -48,13 +48,15 @@ public interface BinaryValueTranslatorProvider
 	public static BinaryValueTranslatorProvider New(
 		final XGettingMap<String, BinaryValueSetter>                      customTranslatorLookup  ,
 		final XGettingSequence<? extends BinaryValueTranslatorKeyBuilder> translatorKeyBuilders   ,
-		final BinaryValueTranslatorLookupProvider                         translatorLookupProvider
+		final BinaryValueTranslatorLookupProvider                         translatorLookupProvider,
+		final boolean                                                     reverseBytes
 	)
 	{
 		return new BinaryValueTranslatorProvider.Implementation(
 			mayNull(customTranslatorLookup),
 			unwrapKeyBuilders(translatorKeyBuilders),
-			notNull(translatorLookupProvider)
+			notNull(translatorLookupProvider),
+			reverseBytes
 		);
 	}
 	
@@ -77,6 +79,7 @@ public interface BinaryValueTranslatorProvider
 		private final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ;
 		private final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ;
 		private final BinaryValueTranslatorLookupProvider    translatorLookupProvider;
+		private final boolean                                reverseBytes            ;
 		
 		private transient TypeMappingLookup<BinaryValueSetter> translatorLookup;
 		
@@ -89,13 +92,15 @@ public interface BinaryValueTranslatorProvider
 		Implementation(
 			final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ,
 			final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ,
-			final BinaryValueTranslatorLookupProvider    translatorLookupProvider
+			final BinaryValueTranslatorLookupProvider    translatorLookupProvider,
+			final boolean                                reverseBytes
 		)
 		{
 			super();
 			this.customTranslatorLookup   = customTranslatorLookup  ;
 			this.translatorKeyBuilders    = translatorKeyBuilders   ;
 			this.translatorLookupProvider = translatorLookupProvider;
+			this.reverseBytes             = reverseBytes            ;
 		}
 		
 		
@@ -176,7 +181,10 @@ public interface BinaryValueTranslatorProvider
 			);
 		}
 		
-		private BinaryValueSetter provideValueTranslator(final Class<?> sourceType, final Class<?> targetType)
+		private BinaryValueSetter provideValueTranslator(
+			final Class<?> sourceType,
+			final Class<?> targetType
+		)
 		{
 			final BinaryValueSetter translator = this.translatorLookup().lookup(sourceType, targetType);
 			if(translator != null)
@@ -223,7 +231,7 @@ public interface BinaryValueTranslatorProvider
 		
 		private BinaryValueSetter provideReferenceResolver()
 		{
-			return BinaryValueFunctions.getSetterReference();
+			return BinaryValueFunctions.getObjectValueSetter(Object.class, this.reverseBytes);
 		}
 		
 		private static void validateIsReferenceType(final PersistenceTypeDescriptionMember member)
@@ -327,7 +335,7 @@ public interface BinaryValueTranslatorProvider
 			}
 						
 			// generic fallback: for two reference fields, simply resolve the OID to a reference/instance.
-			return provideReferenceResolver(sourceMember, targetMember);
+			return this.provideReferenceResolver(sourceMember, targetMember);
 		}
 		
 		@Override

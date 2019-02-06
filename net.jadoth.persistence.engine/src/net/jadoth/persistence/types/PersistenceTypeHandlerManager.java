@@ -83,12 +83,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		// instance fields  //
 		/////////////////////
 
-		        final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ;
-		private final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ;
-		private final PersistenceTypeDictionaryManager    typeDictionaryManager;
-		private final PersistenceTypeEvaluator            typeEvaluator        ;
-		private final PersistenceTypeMismatchValidator<M> typeMismatchValidator;
-		private final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ;
+		        final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ;
+		private final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ;
+		private final PersistenceTypeDictionaryManager            typeDictionaryManager        ;
+		private final PersistenceTypeEvaluator                    typeEvaluator                ;
+		private final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ;
+		private final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
 		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
 		
 		private boolean initialized;

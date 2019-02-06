@@ -22,7 +22,7 @@ public interface PersistenceTypeHandlerCreator<M>
 
 		final PersistenceTypeAnalyzer               typeAnalyzer           ;
 		final PersistenceFieldLengthResolver        lengthResolver         ;
-		final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator;
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator;
 		
 		
 		
@@ -39,7 +39,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			super();
 			this.typeAnalyzer            = notNull(typeAnalyzer)           ;
 			this.lengthResolver          = notNull(lengthResolver)         ;
-			this.mandatoryFieldEvaluator = notNull(mandatoryFieldEvaluator);
+			this.eagerStoringFieldEvaluator = notNull(mandatoryFieldEvaluator);
 		}
 
 
@@ -53,9 +53,9 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.lengthResolver;
 		}
 		
-		public PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator()
+		public PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator()
 		{
-			return this.mandatoryFieldEvaluator;
+			return this.eagerStoringFieldEvaluator;
 		}
 
 		@Override

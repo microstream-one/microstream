@@ -33,7 +33,7 @@ public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 	{
 		super();
 		this.out         = notNull(out);
-		this.relayTarget = BinaryFileSource.New(file);
+		this.relayTarget = BinaryFileSource.New(file, false);
 	}
 
 
