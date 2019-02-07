@@ -7,6 +7,11 @@ import net.jadoth.typing.TypeMapping;
 
 public final class BinaryValueTranslators
 {
+	/* (07.02.2019 TM)FIXME: JET-49: BinaryValueTranslators
+	 * All of them require a byte order reversing variant
+	 * (OMFG!)
+	 */
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////

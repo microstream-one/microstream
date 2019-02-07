@@ -205,17 +205,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 			entry.handler.iteratePersistedReferences(entry, this);
 		}
-
-		private void handleReference(final long refOid)
-		{
-			// (31.01.2019 TM)FIXME: JET-49: must switch byte order here, as well.
-			if(this.isUnrequiredReference(refOid))
-			{
-				return;
-			}
-			// oid is required to have data loaded even if instance is already in global registry
-			this.requireReference(refOid);
-		}
 				
 		
 		private BinaryLoadItem createBuildItem(final long entityAddress)
@@ -344,9 +333,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		@Override
-		public final void acceptObjectId(final long value)
+		public final void acceptObjectId(final long objectId)
 		{
-			this.handleReference(value);
+			if(this.isUnrequiredReference(objectId))
+			{
+				return;
+			}
+			// oid is required to have data loaded even if instance is already in global registry
+			this.requireReference(objectId);
 		}
 
 

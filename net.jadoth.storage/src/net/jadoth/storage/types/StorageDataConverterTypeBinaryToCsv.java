@@ -724,7 +724,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			return valueReadAddress + Binary.getEntityLengthRawValue(valueReadAddress);
 		}
 
-		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress) throws IOException
+		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress)
+			throws IOException
 		{
 			final long elementCount = Binary.getBinaryListElementCountRawValue(valueReadAddress);
 			      long address      = Binary.toBinaryListElementsAddress(valueReadAddress);

@@ -67,7 +67,7 @@ public class ChunksWrapper extends Binary
 				
 		for(int i = 0; i < buffers.length; i++)
 		{
-			iterateBufferLoadItems(
+			this.iterateBufferLoadItems(
 				XMemory.getDirectByteBufferAddress(buffers[i]),
 				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].position(),
 				reader
@@ -75,17 +75,14 @@ public class ChunksWrapper extends Binary
 		}
 	}
 	
-	private static void iterateBufferLoadItems(
+	private void iterateBufferLoadItems(
 		final long                   startAddress,
 		final long                   boundAddress,
 		final BinaryEntityDataReader reader
 	)
 	{
-		// (07.02.2019 TM)FIXME: ///!\\\ BAUSTELLE
-		
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
-		// (05.02.2019 TM)FIXME: JET-49: must reverse bytes when reading length
-		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
+		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
 		{
 			reader.readBinaryEntityData(address);
 		}
@@ -134,6 +131,12 @@ public class ChunksWrapper extends Binary
 
 	@Override
 	public final long loadItemEntityContentAddress()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public final long loadItemEntityAddress()
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -471,6 +471,7 @@ public interface BinaryReferenceTraverser
 				final long bound = address + Binary.getBinaryListByteLengthRawValue(address);
 				for(long a = Binary.toBinaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
+					// see REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED_REVERSED for ByteOrder switching
 					procedure.acceptObjectId(XMemory.get_long(a));
 				}
 				
@@ -773,7 +774,7 @@ public interface BinaryReferenceTraverser
 				case C6: return REFERENCE_6_REVERSED;
 				case C7: return REFERENCE_7_REVERSED;
 				case C8: return REFERENCE_8_REVERSED;
-				default: return new ReferenceRangeTraverser(referenceCount * REFERENCE_LENGTH);
+				default: return new ReferenceRangeTraverserReversed(referenceCount * REFERENCE_LENGTH);
 			}
 		}
 
@@ -1006,6 +1007,7 @@ public interface BinaryReferenceTraverser
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
+				// see ReferenceRangeTraverserReversed for the ByteOrder switching alternative
 				procedure.acceptObjectId(XMemory.get_long(a));
 			}
 			

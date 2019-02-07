@@ -18,6 +18,12 @@ public final class BinaryLoadItemByteReversing extends BinaryLoadItem
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public final boolean isSwitchedByteOrder()
+	{
+		return true;
+	}
 
 	@Override
 	final short read_short(final long address)
@@ -58,37 +64,37 @@ public final class BinaryLoadItemByteReversing extends BinaryLoadItem
 	}
 
 	@Override
-	final void store_short(final long address, final short value)
+	public final void store_short(final long address, final short value)
 	{
 		XMemory.set_short(address, Short.reverseBytes(value));
 	}
 
 	@Override
-	final void store_char(final long address, final char value)
+	public final void store_char(final long address, final char value)
 	{
 		XMemory.set_char(address, Character.reverseBytes(value));
 	}
 
 	@Override
-	final void store_int(final long address, final int value)
+	public final void store_int(final long address, final int value)
 	{
 		XMemory.set_int(address, Integer.reverseBytes(value));
 	}
 
 	@Override
-	final void store_float(final long address, final float value)
+	public final void store_float(final long address, final float value)
 	{
 		XMemory.set_int(address, Integer.reverseBytes(Float.floatToRawIntBits(value)));
 	}
 
 	@Override
-	final void store_long(final long address, final long value)
+	public final void store_long(final long address, final long value)
 	{
 		XMemory.set_long(address, Long.reverseBytes(value));
 	}
 
 	@Override
-	final void store_double(final long address, final double value)
+	public final void store_double(final long address, final double value)
 	{
 		XMemory.set_long(address, Long.reverseBytes(Double.doubleToRawLongBits(value)));
 	}
