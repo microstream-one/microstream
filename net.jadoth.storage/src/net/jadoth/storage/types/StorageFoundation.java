@@ -1,11 +1,14 @@
 package net.jadoth.storage.types;
 
+import java.nio.ByteOrder;
+
 import net.jadoth.exceptions.MissingFoundationPartException;
+import net.jadoth.persistence.binary.types.BinaryByteOrderTargeting;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
 import net.jadoth.util.InstanceDispatcher;
 
-public interface StorageFoundation<F extends StorageFoundation<?>>
+public interface StorageFoundation<F extends StorageFoundation<?>> extends BinaryByteOrderTargeting<F>
 {
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 
@@ -89,12 +92,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 
-	public default boolean isByteOrderMismatch()
-	{
-		// storage currently simply assumes always direct byte order.
-		return false;
-	}
-
 	public StorageManager createStorageManager();
 
 
@@ -127,6 +124,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
+		private ByteOrder                             targetByteOrder              ;
 
 		
 		
@@ -151,118 +149,123 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return (F)this;
 		}
 		
-		// (14.12.2018 TM)XXX: rename all create~ to ensure~
+		
 
-		protected StorageGCZombieOidHandler createStorageGCZombieOidHandler()
+		protected StorageGCZombieOidHandler ensureStorageGCZombieOidHandler()
 		{
 			return new StorageGCZombieOidHandler.Implementation();
 		}
 
-		protected StorageConfiguration createConfiguration()
+		protected StorageConfiguration ensureConfiguration()
 		{
 			return Storage.Configuration();
 		}
 
-		protected StorageInitialDataFileNumberProvider createInitialDataFileNumberProvider()
+		protected StorageInitialDataFileNumberProvider ensureInitialDataFileNumberProvider()
 		{
 			return new StorageInitialDataFileNumberProvider.Implementation(1); // constant 1 by default
 		}
 
-		protected StorageDataFileEvaluator createStorageConfiguration()
+		protected StorageDataFileEvaluator ensureStorageConfiguration()
 		{
 			return this.getConfiguration().fileEvaluator();
 		}
 
-		protected StorageRequestAcceptor.Creator createRequestAcceptorCreator()
+		protected StorageRequestAcceptor.Creator ensureRequestAcceptorCreator()
 		{
 			return new StorageRequestAcceptor.Creator.Implementation();
 		}
 
-		protected StorageTaskBroker.Creator createTaskBrokerCreator()
+		protected StorageTaskBroker.Creator ensureTaskBrokerCreator()
 		{
 			return new StorageTaskBroker.Creator.Implementation();
 		}
 
-		protected StorageValidatorDataChunk.Provider createDataChunkValidatorProvider()
+		protected StorageValidatorDataChunk.Provider ensureDataChunkValidatorProvider()
 		{
 			return new StorageValidatorDataChunk.NoOp();
 		}
 
-		protected StorageChannel.Creator createChannelCreator()
+		protected StorageChannel.Creator ensureChannelCreator()
 		{
 			return new StorageChannel.Creator.Implementation();
 		}
 
-		protected StorageThreadProvider createThreadProvider()
+		protected StorageThreadProvider ensureThreadProvider()
 		{
 			return new StorageThreadProvider.Implementation();
 		}
 
-		protected StorageRequestTaskCreator createRequestTaskCreator()
+		protected StorageRequestTaskCreator ensureRequestTaskCreator()
 		{
 			return new StorageRequestTaskCreator.Implementation(
 				this.getTimestampProvider()
 			);
 		}
 
-		protected StorageTypeDictionary createTypeDictionary()
+		protected StorageTypeDictionary ensureTypeDictionary()
 		{
 			return new StorageTypeDictionary.Implementation(this.isByteOrderMismatch());
 		}
 
-		protected StorageChannelCountProvider createChannelCountProvider(final int channelCount)
+		protected StorageChannelCountProvider ensureChannelCountProvider(final int channelCount)
 		{
 			return new StorageChannelCountProvider.Implementation(channelCount);
 		}
 
-		protected StorageRootTypeIdProvider createRootTypeIdProvider()
+		protected StorageRootTypeIdProvider ensureRootTypeIdProvider()
 		{
 			throw new MissingFoundationPartException(StorageRootTypeIdProvider.class);
 		}
 
-		protected StorageTimestampProvider createTimestampProvider()
+		protected StorageTimestampProvider ensureTimestampProvider()
 		{
 			return new StorageTimestampProvider.Implementation();
 		}
 
-		protected StorageObjectIdRangeEvaluator createObjectIdRangeEvaluator()
+		protected StorageObjectIdRangeEvaluator ensureObjectIdRangeEvaluator()
 		{
 			return new StorageObjectIdRangeEvaluator.Implementation();
 		}
 
-		protected StorageFileReader.Provider createReaderProvider()
+		protected StorageFileReader.Provider ensureReaderProvider()
 		{
 			return new StorageFileReader.Provider.Implementation();
 		}
 
-		protected StorageFileWriter.Provider createWriterProvider()
+		protected StorageFileWriter.Provider ensureWriterProvider()
 		{
 			return new StorageFileWriter.Provider.Implementation();
 		}
 
-		protected StorageWriteListener.Provider createWriteListenerProvider()
+		protected StorageWriteListener.Provider ensureWriteListenerProvider()
 		{
 			return new StorageWriteListener.Provider.Implementation();
 		}
 
-		protected StorageRootOidSelector.Provider createRootOidSelectorProvider()
+		protected StorageRootOidSelector.Provider ensureRootOidSelectorProvider()
 		{
 			return new StorageRootOidSelector.Provider.Implementation();
 		}
 
-		protected StorageOidMarkQueue.Creator createOidMarkQueueCreator()
+		protected StorageOidMarkQueue.Creator ensureOidMarkQueueCreator()
 		{
 			return new StorageOidMarkQueue.Creator.Implementation();
 		}
 
-		protected StorageEntityMarkMonitor.Creator createEntityMarkMonitorCreator()
+		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
 		{
 			return new StorageEntityMarkMonitor.Creator.Implementation();
 		}
 
-		protected StorageExceptionHandler createExceptionHandler()
+		protected StorageExceptionHandler ensureExceptionHandler()
 		{
 			return new StorageExceptionHandler.Implementation();
+		}
+		
+		protected ByteOrder ensureTargetByteOrder()
+		{
+			return ByteOrder.nativeOrder();
 		}
 		
 		
@@ -272,7 +275,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.initialDataFileNumberProvider == null)
 			{
-				this.initialDataFileNumberProvider = this.dispatch(this.createInitialDataFileNumberProvider());
+				this.initialDataFileNumberProvider = this.dispatch(this.ensureInitialDataFileNumberProvider());
 			}
 			return this.initialDataFileNumberProvider;
 		}
@@ -282,7 +285,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.requestAcceptorCreator == null)
 			{
-				this.requestAcceptorCreator = this.dispatch(this.createRequestAcceptorCreator());
+				this.requestAcceptorCreator = this.dispatch(this.ensureRequestAcceptorCreator());
 			}
 			return this.requestAcceptorCreator;
 		}
@@ -292,7 +295,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.taskBrokerCreator == null)
 			{
-				this.taskBrokerCreator = this.dispatch(this.createTaskBrokerCreator());
+				this.taskBrokerCreator = this.dispatch(this.ensureTaskBrokerCreator());
 			}
 			return this.taskBrokerCreator;
 		}
@@ -302,7 +305,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.dataChunkValidatorProvider == null)
 			{
-				this.dataChunkValidatorProvider = this.dispatch(this.createDataChunkValidatorProvider());
+				this.dataChunkValidatorProvider = this.dispatch(this.ensureDataChunkValidatorProvider());
 			}
 			return this.dataChunkValidatorProvider;
 		}
@@ -312,7 +315,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.channelCreator == null)
 			{
-				this.channelCreator = this.dispatch(this.createChannelCreator());
+				this.channelCreator = this.dispatch(this.ensureChannelCreator());
 			}
 			return this.channelCreator;
 		}
@@ -322,7 +325,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.threadProvider == null)
 			{
-				this.threadProvider = this.dispatch(this.createThreadProvider());
+				this.threadProvider = this.dispatch(this.ensureThreadProvider());
 			}
 			return this.threadProvider;
 		}
@@ -332,7 +335,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.requestTaskCreator == null)
 			{
-				this.requestTaskCreator = this.dispatch(this.createRequestTaskCreator());
+				this.requestTaskCreator = this.dispatch(this.ensureRequestTaskCreator());
 			}
 			return this.requestTaskCreator;
 		}
@@ -342,7 +345,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.typeDictionary == null)
 			{
-				this.typeDictionary = this.dispatch(this.createTypeDictionary());
+				this.typeDictionary = this.dispatch(this.ensureTypeDictionary());
 			}
 			return this.typeDictionary;
 		}
@@ -352,7 +355,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.rootTypeIdProvider == null)
 			{
-				this.rootTypeIdProvider = this.dispatch(this.createRootTypeIdProvider());
+				this.rootTypeIdProvider = this.dispatch(this.ensureRootTypeIdProvider());
 			}
 			return this.rootTypeIdProvider;
 		}
@@ -362,7 +365,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.configuration == null)
 			{
-				this.configuration = this.dispatch(this.createConfiguration());
+				this.configuration = this.dispatch(this.ensureConfiguration());
 			}
 			return this.configuration;
 		}
@@ -372,7 +375,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.timestampProvider == null)
 			{
-				this.timestampProvider = this.dispatch(this.createTimestampProvider());
+				this.timestampProvider = this.dispatch(this.ensureTimestampProvider());
 			}
 			return this.timestampProvider;
 		}
@@ -382,7 +385,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.objectIdRangeEvaluator == null)
 			{
-				this.objectIdRangeEvaluator = this.dispatch(this.createObjectIdRangeEvaluator());
+				this.objectIdRangeEvaluator = this.dispatch(this.ensureObjectIdRangeEvaluator());
 			}
 			return this.objectIdRangeEvaluator;
 		}
@@ -392,7 +395,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.writerProvider == null)
 			{
-				this.writerProvider = this.dispatch(this.createWriterProvider());
+				this.writerProvider = this.dispatch(this.ensureWriterProvider());
 			}
 			return this.writerProvider;
 		}
@@ -402,7 +405,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.readerProvider == null)
 			{
-				this.readerProvider = this.dispatch(this.createReaderProvider());
+				this.readerProvider = this.dispatch(this.ensureReaderProvider());
 			}
 			return this.readerProvider;
 		}
@@ -412,7 +415,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.writeListenerProvider == null)
 			{
-				this.writeListenerProvider = this.dispatch(this.createWriteListenerProvider());
+				this.writeListenerProvider = this.dispatch(this.ensureWriteListenerProvider());
 			}
 			return this.writeListenerProvider;
 		}
@@ -422,7 +425,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.gCZombieOidHandler == null)
 			{
-				this.gCZombieOidHandler = this.dispatch(this.createStorageGCZombieOidHandler());
+				this.gCZombieOidHandler = this.dispatch(this.ensureStorageGCZombieOidHandler());
 			}
 			return this.gCZombieOidHandler;
 		}
@@ -432,7 +435,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.rootOidSelectorProvider == null)
 			{
-				this.rootOidSelectorProvider = this.dispatch(this.createRootOidSelectorProvider());
+				this.rootOidSelectorProvider = this.dispatch(this.ensureRootOidSelectorProvider());
 			}
 			return this.rootOidSelectorProvider;
 		}
@@ -442,7 +445,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.oidMarkQueueCreator == null)
 			{
-				this.oidMarkQueueCreator = this.dispatch(this.createOidMarkQueueCreator());
+				this.oidMarkQueueCreator = this.dispatch(this.ensureOidMarkQueueCreator());
 			}
 			return this.oidMarkQueueCreator;
 		}
@@ -452,7 +455,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.entityMarkMonitorCreator == null)
 			{
-				this.entityMarkMonitorCreator = this.dispatch(this.createEntityMarkMonitorCreator());
+				this.entityMarkMonitorCreator = this.dispatch(this.ensureEntityMarkMonitorCreator());
 			}
 			return this.entityMarkMonitorCreator;
 		}
@@ -462,11 +465,24 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.exceptionHandler == null)
 			{
-				this.exceptionHandler = this.dispatch(this.createExceptionHandler());
+				this.exceptionHandler = this.dispatch(this.ensureExceptionHandler());
 			}
 			return this.exceptionHandler;
 		}
+		
+		@Override
+		public ByteOrder getTargetByteOrder()
+		{
+			if(this.targetByteOrder == null)
+			{
+				this.targetByteOrder = this.dispatch(this.ensureTargetByteOrder());
+			}
+			
+			return this.targetByteOrder;
+		}
 
+		
+		
 		@Override
 		public F setInitialDataFileNumberProvider(
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider
@@ -620,6 +636,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			this.exceptionHandler = exceptionHandler;
 			return this.$();
 		}
+		
+		@Override
+		public F setTargetByteOrder(final ByteOrder targetByteOrder)
+		{
+			this.targetByteOrder = targetByteOrder;
+			return this.$();
+		}
+		
+		
 
 		@Override
 		public StorageManager createStorageManager()

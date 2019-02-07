@@ -23,7 +23,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		throws PersistenceExceptionTypeNotPersistable;
 
 
-	// (06.02.2019 TM)FIXME: JET-49: mandatoryFieldEvaluator -> eagerStoringFieldEvaluator projectwide
+	
 	public static BinaryTypeHandlerCreator New(
 		final PersistenceTypeAnalyzer               typeAnalyzer              ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
@@ -56,13 +56,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		/////////////////////
 
 		Implementation(
-			final PersistenceTypeAnalyzer               typeAnalyzer           ,
-			final PersistenceFieldLengthResolver        lengthResolver         ,
-			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator,
+			final PersistenceTypeAnalyzer               typeAnalyzer              ,
+			final PersistenceFieldLengthResolver        lengthResolver            ,
+			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 			final boolean                               switchByteOrder
 		)
 		{
-			super(typeAnalyzer, lengthResolver, mandatoryFieldEvaluator);
+			super(typeAnalyzer, lengthResolver, eagerStoringFieldEvaluator);
 			this.switchByteOrder = switchByteOrder;
 		}
 

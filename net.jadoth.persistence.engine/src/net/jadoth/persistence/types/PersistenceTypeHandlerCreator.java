@@ -31,15 +31,15 @@ public interface PersistenceTypeHandlerCreator<M>
 		/////////////////
 		
 		protected AbstractImplementation(
-			final PersistenceTypeAnalyzer               typeAnalyzer           ,
-			final PersistenceFieldLengthResolver        lengthResolver         ,
-			final PersistenceEagerStoringFieldEvaluator mandatoryFieldEvaluator
+			final PersistenceTypeAnalyzer               typeAnalyzer              ,
+			final PersistenceFieldLengthResolver        lengthResolver            ,
+			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
 		)
 		{
 			super();
-			this.typeAnalyzer            = notNull(typeAnalyzer)           ;
-			this.lengthResolver          = notNull(lengthResolver)         ;
-			this.eagerStoringFieldEvaluator = notNull(mandatoryFieldEvaluator);
+			this.typeAnalyzer               = notNull(typeAnalyzer)              ;
+			this.lengthResolver             = notNull(lengthResolver)            ;
+			this.eagerStoringFieldEvaluator = notNull(eagerStoringFieldEvaluator);
 		}
 
 

@@ -81,6 +81,8 @@ public class ChunksWrapper extends Binary
 		final BinaryEntityDataReader reader
 	)
 	{
+		// (07.02.2019 TM)FIXME: ///!\\\ BAUSTELLE
+		
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
 		// (05.02.2019 TM)FIXME: JET-49: must reverse bytes when reading length
 		for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))

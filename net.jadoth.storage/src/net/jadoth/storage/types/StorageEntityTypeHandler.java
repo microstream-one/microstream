@@ -84,6 +84,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		private final boolean                    hasReferences       ;
 		private final boolean                    isPrimitive         ;
 		private final boolean                    hasVariableLength   ;
+		private final boolean                    switchByteOrder     ;
 
 
 
@@ -111,6 +112,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
 			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);
 			this.hasVariableLength    = this.minimumEntityLength != this.maximumEntityLength;
+			this.switchByteOrder      = switchByteOrder;
 		}
 
 
@@ -156,15 +158,38 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		}
 
 		@Override
-		public final void iterateReferences(final long entityCacheAddress, final PersistenceObjectIdAcceptor acceptor)
+		public final void iterateReferences(
+			final long                        entityCacheAddress,
+			final PersistenceObjectIdAcceptor acceptor
+		)
 		{
 //			DEBUGStorage.println(Thread.currentThread().getName() + " iterating type " + this.typeName());
 //			System.out.flush();
 
 			if(this.simpleReferenceRange != 0)
 			{
-				// handling here spares a lot of traverser pointer chasing
-				BinaryReferenceTraverser.iterateReferenceRange(
+				// this special casing spares a lot of traverser pointer chasing
+				this.iterateSimpleReferences(entityCacheAddress, acceptor);
+			}
+			else
+			{
+				BinaryReferenceTraverser.iterateReferences(
+					Binary.entityContentAddress(entityCacheAddress),
+					this.referenceTraversers,
+					acceptor
+				);
+			}
+		}
+		
+		private void iterateSimpleReferences(
+			final long                        entityCacheAddress,
+			final PersistenceObjectIdAcceptor acceptor
+		)
+		{
+			// JVM might probably jit out the never occuring case
+			if(this.switchByteOrder)
+			{
+				BinaryReferenceTraverser.iterateReferenceRangeReversed(
 					Binary.entityContentAddress(entityCacheAddress),
 					this.simpleReferenceRange,
 					acceptor
@@ -172,9 +197,9 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			}
 			else
 			{
-				BinaryReferenceTraverser.iterateReferences(
+				BinaryReferenceTraverser.iterateReferenceRange(
 					Binary.entityContentAddress(entityCacheAddress),
-					this.referenceTraversers,
+					this.simpleReferenceRange,
 					acceptor
 				);
 			}
