@@ -58,9 +58,15 @@ public final class DEBUG_BinaryPersistence
 	{
 		final VarString vs = VarString.New(4096);
 		
+		final boolean isSwitchedByteOrder = bytes.isSwitchedByteOrder();
+		
 		bytes.iterateEntityData(entityAddress ->
 		{
-			final byte[] array = new byte[X.checkArrayRange(XMemory.get_long(entityAddress))];
+			final byte[] array = new byte[X.checkArrayRange(
+				isSwitchedByteOrder
+				? Long.reverseBytes(XMemory.get_long(entityAddress))
+				:                   XMemory.get_long(entityAddress)
+			)];
 			XMemory.copyRangeToArray(entityAddress, array);
 			final String s = format8ByteWise(0,
 				VarString.New().addHexDec(array).toString()

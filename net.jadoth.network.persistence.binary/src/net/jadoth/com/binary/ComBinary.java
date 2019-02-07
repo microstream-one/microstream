@@ -35,18 +35,31 @@ public class ComBinary
 		return Long.BYTES;
 	}
 	
-	public static long getChunkHeaderContentLength(final ByteBuffer directByteBuffer)
+	public static long getChunkHeaderContentLength(
+		final ByteBuffer directByteBuffer ,
+		final boolean    switchedByteOrder
+	)
 	{
-		return XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer));
+		return switchedByteOrder
+			? Long.reverseBytes(XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer)))
+			:                   XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer))
+		;
 	}
 	
 	public static ByteBuffer setChunkHeaderContentLength(
-		final ByteBuffer directByteBuffer,
-		final long       contentLength
+		final ByteBuffer directByteBuffer ,
+		final long       contentLength    ,
+		final boolean    switchedByteOrder
 	)
 	{
 		directByteBuffer.clear().limit(ComBinary.chunkHeaderLength());
-		XMemory.set_long(XMemory.getDirectByteBufferAddress(directByteBuffer), contentLength);
+		XMemory.set_long(
+			XMemory.getDirectByteBufferAddress(directByteBuffer),
+			switchedByteOrder
+			? Long.reverseBytes(contentLength)
+			:                   contentLength
+		);
+		
 		return directByteBuffer;
 	}
 	
@@ -73,8 +86,9 @@ public class ComBinary
 	
 	
 	public static ByteBuffer readChunk(
-		final SocketChannel channel      ,
-		final ByteBuffer    defaultBuffer
+		final SocketChannel channel          ,
+		final ByteBuffer    defaultBuffer    ,
+		final boolean       switchedByteOrder
 	)
 		throws ComException, ComExceptionTimeout
 	{
@@ -91,7 +105,8 @@ public class ComBinary
 		
 		// the header starts with the content length (and currently, that is the whole header)
 		final long chunkContentLength = ComBinary.getChunkHeaderContentLength(
-			filledHeaderBuffer
+			filledHeaderBuffer,
+			switchedByteOrder
 		);
 		
 		/* (13.11.2018 TM)NOTE:

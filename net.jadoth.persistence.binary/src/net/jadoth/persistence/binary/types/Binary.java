@@ -126,8 +126,6 @@ public abstract class Binary implements Chunk
 		return binaryListHeaderLength() + binaryListElementsByteLength;
 	}
 	
-	// (23.05.2013 TM)XXX: Consolidate different naming patterns (with/without get~ etc)
-
 	/**
 	 * @return the length in bytes of a peristent item's length field (8 bytes).
 	 */
@@ -168,21 +166,34 @@ public abstract class Binary implements Chunk
 		// the content length is the total length minus the length of the header (containing length, Tid, Oid)
 		return entityTotalLength - LENGTH_ENTITY_HEADER;
 	}
+	
+	
+	public boolean isSwitchedByteOrder()
+	{
+		return false;
+	}
 
-	public final long getEntityLength(final long entityAddress)
+	
+	public final long getEntityLength()
 	{
 		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
-		return this.read_long(entityAddress + OFFSET_LEN);
+		return this.read_long(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 		
-	public final long getEntityTypeId(final long entityAddress)
+	public final long getEntityTypeId()
 	{
-		return this.read_long(entityAddress + OFFSET_TID);
+		return this.read_long(this.loadItemEntityAddress() + OFFSET_TID);
 	}
 
-	public final long getEntityObjectId(final long entityAddress)
+	public final long getEntityObjectId()
 	{
-		return this.read_long(entityAddress + OFFSET_OID);
+		return this.read_long(this.loadItemEntityAddress() + OFFSET_OID);
+	}
+	
+	public final long getEntityBoundAddress()
+	{
+		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		return this.loadItemEntityAddress() + this.read_long(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 	
 	public static final long getEntityLengthRawValue(final long entityAddress)
@@ -309,6 +320,8 @@ public abstract class Binary implements Chunk
 	public abstract long loadItemEntityContentAddress();
 	
 	public abstract void setLoadItemEntityContentAddress(long entityContentAddress);
+	
+	public abstract long loadItemEntityAddress();
 	
 
 
@@ -587,24 +600,18 @@ public abstract class Binary implements Chunk
 		
 		this.iterateReferences(startAddress, boundAddress, iterator);
 	}
-			
-	// (29.01.2019 TM)FIXME: JET-49: review and remove/rename ~Absolute methods
-	
+				
 	public final long getBinaryListByteLength(final long listOffset)
 	{
-		// (04.02.2019 TM)FIXME: JET-49: overhaul to only use instance methods
-		final long entityAddress  = entityAddressFromContentAddress(this.loadItemEntityContentAddress());
 		final long listByteLength = this.getBinaryListByteLength(listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent reading beyond the entity data in memory.
-		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
-			>
-			entityAddress + this.getEntityLength(entityAddress)
-		){
+		if(this.loadItemEntityContentAddress() + listOffset + listByteLength > this.getEntityBoundAddress())
+		{
 			throw new BinaryPersistenceExceptionInvalidList(
-				this.getEntityLength(entityAddress),
-				this.getEntityObjectId(entityAddress),
-				this.getEntityTypeId(entityAddress),
+				this.getEntityLength(),
+				this.getEntityObjectId(),
+				this.getEntityTypeId(),
 				listOffset,
 				listByteLength
 			);
@@ -627,20 +634,18 @@ public abstract class Binary implements Chunk
 	{
 		// note: does not reuse getBinaryListByteLength() intentionally since the exception here has more information
 
-		final long entityAddress    = entityAddressFromContentAddress(this.loadItemEntityContentAddress());
 		final long listByteLength   = getBinaryListByteLengthRawValue(this.loadItemEntityContentAddress() + listOffset);
 		final long listElementCount = this.getBinaryListElementCountUnvalidating(listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(this.loadItemEntityContentAddress() + listOffset + listByteLength
-			> entityAddress + this.getEntityLength(entityAddress)
+		if(this.loadItemEntityContentAddress() + listOffset + listByteLength > this.getEntityBoundAddress()
 			|| listElementCount * elementLength != listByteLength
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidListElements(
-				this.getEntityLength(entityAddress),
-				this.getEntityObjectId(entityAddress),
-				this.getEntityTypeId(entityAddress),
+				this.getEntityLength(),
+				this.getEntityObjectId(),
+				this.getEntityTypeId(),
 				listOffset,
 				listByteLength,
 				listElementCount,
@@ -666,7 +671,6 @@ public abstract class Binary implements Chunk
 		return binaryListAddress + LIST_OFFSET_ELEMENT_COUNT;
 	}
 
-	// (04.02.2019 TM)FIXME: JET-49: really public?
 	public static final long toBinaryListElementsAddress(final long binaryListAddress)
 	{
 		// works for both relative offsets and absolute addresses. It's just a sum.
@@ -1484,47 +1488,49 @@ public abstract class Binary implements Chunk
 		return XMemory.get_double(address);
 	}
 	
-	final void store_byte(final long address, final byte value)
+	// (07.02.2019 TM)XXX: store~ methods should actually be internal and encapsulated with offset-based set~ methods.
+	
+	public final void store_byte(final long address, final byte value)
 	{
 		XMemory.set_byte(address, value);
 	}
 
-	final void store_boolean(final long address, final boolean value)
+	public final void store_boolean(final long address, final boolean value)
 	{
 		XMemory.set_boolean(address, value);
 	}
 
-	void store_short(final long address, final short value)
+	public void store_short(final long address, final short value)
 	{
 		XMemory.set_short(address, value);
 	}
 
-	void store_char(final long address, final char value)
+	public void store_char(final long address, final char value)
 	{
 		XMemory.set_char(address, value);
 	}
 
-	void store_int(final long address, final int value)
+	public void store_int(final long address, final int value)
 	{
 		XMemory.set_int(address, value);
 	}
 
-	void store_float(final long address, final float value)
+	public void store_float(final long address, final float value)
 	{
 		XMemory.set_float(address, value);
 	}
 
-	void store_long(final long address, final long value)
+	public void store_long(final long address, final long value)
 	{
 		XMemory.set_long(address, value);
 	}
 
-	void store_double(final long address, final double value)
+	public void store_double(final long address, final double value)
 	{
 		XMemory.set_double(address, value);
 	}
 	
-	final void read_bytes(final long address, final byte[] target)
+	public final void read_bytes(final long address, final byte[] target)
 	{
 		XMemory.copyRangeToArray(address, target);
 	}

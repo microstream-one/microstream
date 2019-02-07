@@ -1,7 +1,6 @@
 package net.jadoth.collections;
 
 import net.jadoth.X;
-import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.BinaryCollectionHandling;
@@ -89,13 +88,7 @@ extends AbstractBinaryHandlerNativeCustomCollection<ConstList<?>>
 
 		// length must be checked for consistency reasons
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
-
-		final long binaryRefOffset = bytes.binaryListElementsAddress(BINARY_OFFSET_LIST);
-		for(int i = 0; i < arrayInstance.length; i++)
-		{
-			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			arrayInstance[i] = builder.lookupObject(XMemory.get_long(binaryRefOffset + i * Binary.oidByteLength()));
-		}
+		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, builder, arrayInstance);
 	}
 
 	@Override

@@ -115,7 +115,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledContentBuffer = ComBinary.readChunk(channel, defaultBuffer);
+				filledContentBuffer = ComBinary.readChunk(channel, defaultBuffer, this.switchByteOrder);
 			}
 			catch(final ComException e)
 			{
@@ -145,7 +145,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
 				this.ensureDefaultBuffer(),
-				chunk.totalLength()
+				chunk.totalLength(),
+				this.switchByteOrder
 			);
 			
 			try

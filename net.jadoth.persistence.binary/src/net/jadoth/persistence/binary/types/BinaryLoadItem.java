@@ -72,6 +72,12 @@ public class BinaryLoadItem extends Binary
 	{
 		return this.address;
 	}
+
+	@Override
+	public final long loadItemEntityAddress()
+	{
+		return entityAddressFromContentAddress(this.address);
+	}
 	
 	@Override
 	public final void setLoadItemEntityContentAddress(final long entityContentAddress)

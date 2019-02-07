@@ -1919,5 +1919,39 @@ Paar weitere TODOs schreiben.\par
 2019-02-07\par
 \par
 TODOs abarbeiten.\par
+\par
+Oh. Eigentlich kann die Storage Ebene mit einer winzigen \'c4nderung nun auch ByteOrder Switching machen. Das bau ich mal ein.\par
+JET-49 updaten.\par
+\par
+Es gibt noch zahlreiche direkte Aufrufe von XMemory.get_long usw.\par
+Umbauen auf Binary#get_long.\par
+\par
+Dabei aufgefallen: f\'fcr set_long gilt das genauso, aber es gibt noch kein \'c4quivalent mit relativem offset in ChunksBuffer.\par
+Erst mal die store_~ Methoden public machen und auf die umstellen.\par
+Danach kann man mal konzentriert alle Methoden mit absoluten Adressen durch welche mit relativen Offsets ersetzen.\par
+\par
+Das ist in ziemlich vielen Custom Handler Implementierungen der Fall. Ist ja auch klar. Alle umbauen auf Binary-Methoden.\par
+\par
+OMG. Die ~1000 Zeilen BinaryValueTranslators brauchen nochmal 1000 Zeilen f\'fcr ByteOrder-reversing Varianten.\par
+SCHHHHHH....\par
+\par
+Au\'dferdem m\'fcssen folgende Methoden Aufruf f\'fcr Aufruf durchgecheckt werden:\par
+- XMemory.get_short()\par
+- XMemory.get_char()\par
+- XMemory.get_int()\par
+- XMemory.get_float()\par
+- XMemory.get_long()\par
+- XMemory.get_double()\par
+\par
+- XMemory.set_short()\par
+- XMemory.set_char()\par
+- XMemory.set_int()\par
+- XMemory.set_float()\par
+- XMemory.set_long()\par
+- XMemory.set_double()\par
+\par
+Und die ganzen copy~ array Methoden eigentlich auch.\par
+\par
+Oh Mann. Nochmal JET-49 updaten.\par
 }
  
