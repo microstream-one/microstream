@@ -1,14 +1,22 @@
 package net.jadoth.persistence.binary.internal;
 
+import net.jadoth.X;
+import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.PersistenceStoreHandler;
+
 public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends AbstractStringBuilder*/>
 extends AbstractBinaryHandlerNativeCustom<B>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
-
-	private   static final int  BITS_3        = 3                      ;
-	protected static final long LENGTH_LENGTH = Integer.SIZE >>> BITS_3;
+	
+	protected static final long LENGTH_LENGTH = Integer.BYTES;
+	
+	protected static final long
+		OFFSET_LENGTH = 0                            ,
+		OFFSET_CHARS  = OFFSET_LENGTH + LENGTH_LENGTH
+	;
 
 
 
@@ -32,8 +40,38 @@ extends AbstractBinaryHandlerNativeCustom<B>
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
-
-	// sadly, a common abstract handling logic can't be done because AbstractStringBuilder is not public (geniuses)
+	
+	protected final void storeData(
+		final Binary                  bytes   ,
+		final char[]                  data    ,
+		final int                     length  ,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
+	{
+		final long contentAddress = bytes.storeEntityHeader(
+			(long)length * Character.BYTES + LENGTH_LENGTH, this.typeId(), objectId
+		);
+		
+		bytes.store_int(contentAddress + OFFSET_LENGTH, data.length);
+		bytes.storeCharsDirect(contentAddress + OFFSET_CHARS, data, 0, length);
+	}
+	
+	protected final int readCapacity(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.get_long(OFFSET_LENGTH));
+	}
+	
+	protected final int readLength(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.getBuildItemContentLength() - LENGTH_LENGTH);
+	}
+	
+	protected final void readChars(final Binary bytes, final char[] target)
+	{
+		final int lengthChars = X.checkArrayRange(bytes.getBuildItemContentLength() - LENGTH_LENGTH);
+		bytes.readCharsDirect(bytes.getBuildItemContentLength() + OFFSET_CHARS, target, 0, lengthChars);
+	}
 
 	@Override
 	public final boolean hasInstanceReferences()

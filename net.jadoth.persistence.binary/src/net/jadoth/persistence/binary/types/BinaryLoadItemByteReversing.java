@@ -118,6 +118,16 @@ public final class BinaryLoadItemByteReversing extends BinaryLoadItem
 	}
 
 	@Override
+	final void read_chars(final long address, final char[] target, final int offset, final int length)
+	{
+		final int bound = offset + length;
+		for(int i = offset; i < bound; i++)
+		{
+			target[i] = this.read_char(address + (i - offset) * Character.BYTES);
+		}
+	}
+
+	@Override
 	final void read_ints(final long address, final int[] target)
 	{
 		for(int i = 0; i < target.length; i++)
@@ -168,6 +178,16 @@ public final class BinaryLoadItemByteReversing extends BinaryLoadItem
 		for(int i = 0; i < values.length; i++)
 		{
 			this.store_char(address + i * Character.BYTES, values[i]);
+		}
+	}
+	
+	@Override
+	final void store_chars(final long address, final char[] values, final int offset, final int length)
+	{
+		final int bound = offset + length;
+		for(int i = offset; i < bound; i++)
+		{
+			this.store_char(address + (i - offset) * Character.BYTES, values[i]);
 		}
 	}
 	

@@ -46,13 +46,13 @@ public interface BinaryReferenceTraverser
 	public static long iterateReferences(
 		final long                        address   ,
 		final BinaryReferenceTraverser[]  traversers,
-		final PersistenceObjectIdAcceptor procedure
+		final PersistenceObjectIdAcceptor acceptor
 	)
 	{
 		long a = address;
 		for(int i = 0; i < traversers.length; i++)
 		{
-			a = traversers[i].apply(a, procedure);
+			a = traversers[i].apply(a, acceptor);
 		}
 		return a;
 	}
@@ -133,7 +133,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_1 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C1;
 			}
@@ -148,7 +148,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_2 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C2;
 			}
@@ -163,7 +163,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_3 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C3;
 			}
@@ -178,7 +178,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_4 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C4;
 			}
@@ -193,7 +193,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_5 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C5;
 			}
@@ -208,7 +208,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_6 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C6;
 			}
@@ -223,7 +223,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_7 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C7;
 			}
@@ -238,7 +238,7 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser SKIP_8 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				return address + C8;
 			}
@@ -249,15 +249,36 @@ public interface BinaryReferenceTraverser
 				return C8;
 			}
 		};
+		
+		static final BinaryReferenceTraverser variableLengthSkipper(final boolean switchByteOrder)
+		{
+			return switchByteOrder
+				? SKIP_VARIABLE_LENGTH_REVERSED
+				: SKIP_VARIABLE_LENGTH
+			;
+		}
 
 		static final BinaryReferenceTraverser SKIP_VARIABLE_LENGTH =
 			new BinaryReferenceTraverser()
 			{
 				@Override
-				public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+				public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 				{
 					// first 8 bytes of inlined data is its total binary length
 					return address + XMemory.get_long(address);
+				}
+
+			}
+		;
+		
+		static final BinaryReferenceTraverser SKIP_VARIABLE_LENGTH_REVERSED =
+			new BinaryReferenceTraverser()
+			{
+				@Override
+				public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
+				{
+					// first 8 bytes of inlined data is its total binary length
+					return address + Long.reverseBytes(XMemory.get_long(address));
 				}
 
 			}
@@ -266,9 +287,9 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_1 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(XMemory.get_long(address));
+				acceptor.acceptObjectId(XMemory.get_long(address));
 				return address + REFERENCE_LENGTH;
 			}
 			
@@ -288,10 +309,10 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_2 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(XMemory.get_long(address));
-				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
+				acceptor.acceptObjectId(XMemory.get_long(address));
+				acceptor.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
 				return address + REFERENCE_LENGTH_2;
 			}
 			
@@ -311,11 +332,11 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_3 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(XMemory.get_long(address));
-				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
-				procedure.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH_2));
+				acceptor.acceptObjectId(XMemory.get_long(address));
+				acceptor.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH));
+				acceptor.acceptObjectId(XMemory.get_long(address + REFERENCE_LENGTH_2));
 				return address + REFERENCE_LENGTH_3;
 			}
 			
@@ -335,12 +356,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_4 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_4;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -361,12 +382,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_5 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_5;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -387,12 +408,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_6 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_6;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -413,12 +434,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_7 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_7;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -439,12 +460,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_8 = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_8;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				return bound;
 			}
@@ -465,14 +486,14 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
 				final long bound = address + Binary.getBinaryListByteLengthRawValue(address);
 				for(long a = Binary.toBinaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					// see REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED_REVERSED for ByteOrder switching
-					procedure.acceptObjectId(XMemory.get_long(a));
+					acceptor.acceptObjectId(XMemory.get_long(a));
 				}
 				
 				return bound;
@@ -495,9 +516,9 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_1_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
 				return address + REFERENCE_LENGTH;
 			}
 			
@@ -517,10 +538,10 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_2_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH)));
 				return address + REFERENCE_LENGTH_2;
 			}
 			
@@ -540,11 +561,11 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_3_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH)));
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH_2)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(address + REFERENCE_LENGTH_2)));
 				return address + REFERENCE_LENGTH_3;
 			}
 			
@@ -564,12 +585,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_4_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_4;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+					acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
 				return bound;
 			}
@@ -590,12 +611,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_5_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_5;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+					acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
 				return bound;
 			}
@@ -616,12 +637,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_6_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_6;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+					acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
 				return bound;
 			}
@@ -642,12 +663,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_7_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_7;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+					acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
 				return bound;
 			}
@@ -668,12 +689,12 @@ public interface BinaryReferenceTraverser
 		static final BinaryReferenceTraverser REFERENCE_8_REVERSED = new BinaryReferenceTraverser()
 		{
 			@Override
-			public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				final long bound = address + REFERENCE_LENGTH_8;
 				for(long a = address; a < bound; a += REFERENCE_LENGTH)
 				{
-					procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+					acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
 				return bound;
 			}
@@ -817,7 +838,7 @@ public interface BinaryReferenceTraverser
 			// if the elements have no references at all, no matter how complex, the traversal can be skipped completely
 			if(!BinaryReferenceTraverser.hasReferences(traversers))
 			{
-				return SKIP_VARIABLE_LENGTH;
+				return variableLengthSkipper(switchByteOrder);
 			}
 
 			// otherwise truely complex types have to be traversed in the full complex way
@@ -958,7 +979,9 @@ public interface BinaryReferenceTraverser
 				else
 				{
 					// anything else like [byte] and [char] are simply skippable
-					this.traversers.add(Static.SKIP_VARIABLE_LENGTH);
+					this.traversers.add(
+						Static.variableLengthSkipper(this.switchByteOrder)
+					);
 				}
 			}
 			else if(member.isReference())
@@ -1002,13 +1025,13 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+		public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 		{
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
 				// see ReferenceRangeTraverserReversed for the ByteOrder switching alternative
-				procedure.acceptObjectId(XMemory.get_long(a));
+				acceptor.acceptObjectId(XMemory.get_long(a));
 			}
 			
 			return addressBound;
@@ -1045,12 +1068,12 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+		public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 		{
 			final long addressBound = address + this.referenceRange;
 			for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 			{
-				procedure.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
+				acceptor.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 			}
 			
 			return addressBound;
@@ -1087,7 +1110,7 @@ public interface BinaryReferenceTraverser
 		}
 
 		@Override
-		public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+		public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 		{
 			return address + this.skipLength;
 		}
@@ -1146,7 +1169,7 @@ public interface BinaryReferenceTraverser
 		////////////
 
 		@Override
-		public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
+		public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 		{
 			/* Note on security:
 			 * The traverser neither handles newly received data nor does it create new instances.
@@ -1171,7 +1194,7 @@ public interface BinaryReferenceTraverser
 			long a = Binary.toBinaryListElementsAddress(address);
 			for(long i = 0; i < elementCount; i++)
 			{
-				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, procedure);
+				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, acceptor);
 			}
 
 			// return resulting address for recursive continued use
