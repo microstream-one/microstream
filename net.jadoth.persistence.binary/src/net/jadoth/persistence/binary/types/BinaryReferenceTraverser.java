@@ -66,8 +66,20 @@ public interface BinaryReferenceTraverser
 		final long addressBound = address + referenceRange;
 		for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
 		{
-			// (06.02.2019 TM)FIXME: JET-49
 			iterator.acceptObjectId(XMemory.get_long(a));
+		}
+	}
+	
+	public static void iterateReferenceRangeReversed(
+		final long                        address       ,
+		final long                        referenceRange,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		final long addressBound = address + referenceRange;
+		for(long a = address; a < addressBound; a += Static.REFERENCE_LENGTH)
+		{
+			iterator.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 		}
 	}
 
@@ -795,7 +807,10 @@ public interface BinaryReferenceTraverser
 			// if elements are comprised solely of references, the traversal can be simplified (inlined) to a variable length iteration
 			if(traversers.length == 1 && traversers[0].hasReferences() && traversers[0].coveredConstantByteCount() > 0)
 			{
-				return REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED;
+				return switchByteOrder
+					? REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED_REVERSED
+					: REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED
+				;
 			}
 
 			// if the elements have no references at all, no matter how complex, the traversal can be skipped completely
@@ -805,7 +820,7 @@ public interface BinaryReferenceTraverser
 			}
 
 			// otherwise truely complex types have to be traversed in the full complex way
-			return new BinaryReferenceTraverser.InlinedComplexType(traversers);
+			return new BinaryReferenceTraverser.InlinedComplexType(traversers, switchByteOrder);
 		}
 
 		public static int calculateSimpleReferenceCount(final BinaryReferenceTraverser[] traversers)
@@ -1099,13 +1114,34 @@ public interface BinaryReferenceTraverser
 
 	final class InlinedComplexType implements BinaryReferenceTraverser
 	{
-		final BinaryReferenceTraverser[] traversers;
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		final BinaryReferenceTraverser[] traversers     ;
+		final boolean                    switchByteOrder;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
-		InlinedComplexType(final BinaryReferenceTraverser[] traversers)
+		InlinedComplexType(
+			final BinaryReferenceTraverser[] traversers     ,
+			final boolean                    switchByteOrder
+		)
 		{
 			super();
-			this.traversers = traversers;
+			this.traversers      = traversers     ;
+			this.switchByteOrder = switchByteOrder;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final long apply(final long address, final PersistenceObjectIdAcceptor procedure)
@@ -1123,9 +1159,11 @@ public interface BinaryReferenceTraverser
 			 * Using the validating element count getter would require to know the element binary length.
 			 * And that can get very ugly if the element of a complex type has variable length on its own.
 			 */
-			final long elementCount = Binary.getBinaryListElementCountRawValue(address);
-			
-			// (06.02.2019 TM)FIXME: JET-49 variant
+			final long elementCountRawValue = Binary.getBinaryListElementCountRawValue(address);
+			final long elementCount = this.switchByteOrder
+				? Long.reverseBytes(elementCountRawValue)
+				: elementCountRawValue
+			;
 
 			// apply all element traversers to each element
 			long a = Binary.toBinaryListElementsAddress(address);

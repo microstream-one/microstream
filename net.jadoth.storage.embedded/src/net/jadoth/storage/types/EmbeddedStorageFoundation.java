@@ -112,7 +112,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		protected EmbeddedStorageRootTypeIdProvider createRootTypeIdProvider()
+		protected EmbeddedStorageRootTypeIdProvider ensureRootTypeIdProvider()
 		{
 			final EmbeddedStorageConnectionFoundation<?> escf          = this.getConnectionFoundation();
 			final PersistenceRootsProvider<Binary>       rootsProvider = escf.getRootsProvider();
@@ -267,7 +267,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		protected StorageObjectIdRangeEvaluator createObjectIdRangeEvaluator()
+		protected StorageObjectIdRangeEvaluator ensureObjectIdRangeEvaluator()
 		{
 			final PersistenceObjectIdProvider oip = this.getConnectionFoundation().getObjectIdProvider();
 			return (min, max) ->

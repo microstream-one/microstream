@@ -20,7 +20,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
  * @author Thomas Muenz
  */
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
-extends PersistenceFoundation<Binary, F>
+extends PersistenceFoundation<Binary, F>, BinaryByteOrderTargeting<F>
 {
 
 	@Override
@@ -34,14 +34,7 @@ extends PersistenceFoundation<Binary, F>
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
 		
-	public ByteOrder getTargetByteOrder();
 	
-	public default boolean isByteOrderMismatch()
-	{
-		return BinaryPersistence.isByteOrderMismatch(this.getTargetByteOrder());
-	}
-	
-
 	
 	public F setCustomTranslatorLookup(
 		XTable<String, BinaryValueSetter> customTranslatorLookup
@@ -58,8 +51,6 @@ extends PersistenceFoundation<Binary, F>
 	public F setValueTranslatorMappingProvider(
 		BinaryValueTranslatorMappingProvider valueTranslatorMappingProvider
 	);
-	
-	public F setTargetByteOrder(ByteOrder targetByteOrder);
 	
 	@Override
 	public PersistenceManager<Binary> createPersistenceManager();
