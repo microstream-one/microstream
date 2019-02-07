@@ -1001,6 +1001,16 @@ public final class XMemory
 	{
 		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
 	}
+	
+	public static final void copyRangeToArray(
+		final long   sourceAddress,
+		final char[] target       ,
+		final int    targetIndex  ,
+		final long   targetLength
+	)
+	{
+		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
+	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{

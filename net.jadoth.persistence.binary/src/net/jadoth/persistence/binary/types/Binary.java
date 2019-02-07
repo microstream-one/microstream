@@ -878,7 +878,7 @@ public abstract class Binary implements Chunk
 	public final void storeStringValue(final long tid, final long oid, final String string)
 	{
 		final char[] chars = XMemory.accessChars(string); // thank god they fixed that stupid String storage mess
-		this.storeChars(
+		this.storeCharsAsList(
 			this.storeEntityHeader(
 				calculateBinaryLengthChars(chars.length),
 				tid,
@@ -1062,16 +1062,16 @@ public abstract class Binary implements Chunk
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			elementsDataAddress = this.storeChars(elementsDataAddress, XMemory.accessChars(strings[i]));
+			elementsDataAddress = this.storeCharsAsList(elementsDataAddress, XMemory.accessChars(strings[i]));
 		}
 	}
 
-	public final long storeChars(final long storeAddress, final char[] chars)
+	public final long storeCharsAsList(final long storeAddress, final char[] chars)
 	{
-		return this.storeChars(storeAddress, chars, 0, chars.length);
+		return this.storeCharsAsList(storeAddress, chars, 0, chars.length);
 	}
 
-	public final long storeChars(
+	public final long storeCharsAsList(
 		final long   storeAddress,
 		final char[] chars       ,
 		final int    offset      ,
@@ -1089,6 +1089,26 @@ public abstract class Binary implements Chunk
 		}
 
 		return elementsDataAddress + elementsBinaryLength;
+	}
+	
+	public final void storeCharsDirect(
+		final long   address,
+		final char[] chars  ,
+		final int    offset ,
+		final int    length
+	)
+	{
+		this.store_chars(address, chars, offset, length);
+	}
+	
+	public final void readCharsDirect(
+		final long   address,
+		final char[] chars  ,
+		final int    offset ,
+		final int    length
+	)
+	{
+		this.read_chars(address, chars, offset, length);
 	}
 	
 	public final void storeFixedSize(
@@ -1550,6 +1570,11 @@ public abstract class Binary implements Chunk
 		XMemory.copyRangeToArray(address, target);
 	}
 
+	void read_chars(final long address, final char[] target, final int offset, final int length)
+	{
+		XMemory.copyRangeToArray(address, target, offset, length);
+	}
+
 	void read_ints(final long address, final int[] target)
 	{
 		XMemory.copyRangeToArray(address, target);
@@ -1588,6 +1613,11 @@ public abstract class Binary implements Chunk
 	void store_chars(final long address, final char[] values)
 	{
 		XMemory.copyArrayToAddress(values, address);
+	}
+	
+	void store_chars(final long address, final char[] values, final int offset, final int length)
+	{
+		XMemory.copyArrayToAddress(values, offset, length, address);
 	}
 	
 	void store_ints(final long address, final int[] values)

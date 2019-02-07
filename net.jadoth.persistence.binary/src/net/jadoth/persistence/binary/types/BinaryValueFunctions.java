@@ -307,14 +307,18 @@ public final class BinaryValueFunctions
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.setObject(target, targetOffset, idResolver.lookupObject(XMemory.get_long(sourceAddress)));
+			XMemory.setObject(
+				target,
+				targetOffset,
+				idResolver.lookupObject(Long.reverseBytes(XMemory.get_long(sourceAddress)))
+			);
 			return sourceAddress + Binary.oidByteLength();
 		}
 	};
 
 	public static BinaryValueStorer getObjectValueStorer(
-		final Class<?> type        ,
-		final boolean  isEager     ,
+		final Class<?> type           ,
+		final boolean  isEager        ,
 		final boolean  switchByteOrder
 	)
 		throws IllegalArgumentException
