@@ -26,10 +26,10 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_KEYS         =                                                    0;
-	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS   + Binary.oidByteLength();
-	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES + Binary.oidByteLength();
-	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float();
+	static final long BINARY_OFFSET_KEYS         =                                                   0;
+	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.oidByteLength();
+	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.oidByteLength();
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_KEYS   = XReflect.getInstanceFieldOfType(HashTable.class, HashTable.Keys.class);
@@ -105,15 +105,15 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		XMemory.set_long(
+		bytes.store_long(
 			contentAddress + BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		XMemory.set_long(
+		bytes.store_long(
 			contentAddress + BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		XMemory.set_float(
+		bytes.store_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);

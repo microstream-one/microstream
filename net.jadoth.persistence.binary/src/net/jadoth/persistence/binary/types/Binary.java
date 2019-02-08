@@ -7,10 +7,12 @@ import java.util.function.Consumer;
 
 import net.jadoth.X;
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.math.XMath;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import net.jadoth.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
+import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.types.PersistenceFunction;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
 import net.jadoth.persistence.types.PersistenceObjectIdAcceptor;
@@ -294,7 +296,7 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		final long elementCount = this.getBinaryListElementCountValidating(
 			offset,
@@ -309,7 +311,7 @@ public abstract class Binary implements Chunk
 		
 	public final long getListElementCountKeyValue(final long listStartOffset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		return this.getBinaryListElementCountValidating(
 			listStartOffset,
@@ -327,49 +329,49 @@ public abstract class Binary implements Chunk
 
 	public final byte get_byte(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_byte(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final boolean get_boolean(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_boolean(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final short get_short(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_short(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final char get_char(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_char(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final int get_int(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_int(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final float get_float(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_float(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final long get_long(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_long(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final double get_double(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		return this.read_double(this.loadItemEntityContentAddress() + offset);
 	}
 					
@@ -388,7 +390,7 @@ public abstract class Binary implements Chunk
 		final PersistenceFunction                persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = this.storeEntityHeader(
@@ -413,7 +415,7 @@ public abstract class Binary implements Chunk
 		final PersistenceStoreHandler persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		// store entity header including the complete content size (8 + elements)
 		final long contentAddress = this.storeEntityHeader(
@@ -479,7 +481,7 @@ public abstract class Binary implements Chunk
 		final PersistenceFunction persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		// store entity header including the complete content size (headerOffset + elements)
 		final long contentAddress = this.storeEntityHeader(
@@ -497,7 +499,7 @@ public abstract class Binary implements Chunk
 
 	public int getSizedArrayElementCount(final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		return X.checkArrayRange(this.getBinaryListElementCountValidating(
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
@@ -519,7 +521,7 @@ public abstract class Binary implements Chunk
 		final PersistenceLoadHandler handler
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		final int size = this.getSizedArrayElementCount(headerOffset);
 		if(array.length < size)
@@ -540,7 +542,7 @@ public abstract class Binary implements Chunk
 
 	public final int getSizedArrayLength(final long sizedArrayOffset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		/* Note on length validation for "array bombs" prevention
 		 * (see BinaryPersistence#getBinaryListElementCountValidating)
@@ -563,14 +565,14 @@ public abstract class Binary implements Chunk
 
 	public final long getSizedArrayElementsAddress(final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		return this.binaryListElementsAddress(headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS);
 	}
 
 	public final void validateArrayLength(final Object[] array, final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		if(array.length == this.getListElementCountReferences(headerOffset))
 		{
@@ -588,7 +590,7 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		// (29.01.2019 TM)FIXME: JET-49: offset validation
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
 		
 		final long elementCount = this.getBinaryListElementCountValidating(
 			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
@@ -629,6 +631,32 @@ public abstract class Binary implements Chunk
 	{
 		return binaryListAddress + LIST_OFFSET_BYTE_LENGTH;
 	}
+
+	
+	private void validateLoadItemContentLength(final long contentLength)
+	{
+		if(this.isValidLoadItemContentLength(XMath.positive(contentLength)))
+		{
+			return;
+		}
+		
+		// (08.02.2019 TM)EXCP: proper exception
+		throw new PersistenceException(
+			"Binary load item bounds violation: " + contentLength
+				+ " > " + this.getLoadItemAvailableContentLength()
+		);
+	}
+	
+	public final long getLoadItemAvailableContentLength()
+	{
+		// (06.09.2014)TODO: test and comment if " + 0" (OFFSET_LEN) gets eliminated by JIT
+		return entityContentLength(this.read_long(this.loadItemEntityAddress() + OFFSET_LEN));
+	}
+	
+	private boolean isValidLoadItemContentLength(final long contentLength)
+	{
+		return contentLength <= this.getLoadItemAvailableContentLength();
+	}
 	
 	public final long getBinaryListElementCountValidating(final long listOffset, final long elementLength)
 	{
@@ -638,7 +666,7 @@ public abstract class Binary implements Chunk
 		final long listElementCount = this.getBinaryListElementCountUnvalidating(listOffset);
 		
 		// validation for safety AND security(!) reasons. E.g. to prevent "Array Bombs", lists with fake element count.
-		if(this.loadItemEntityContentAddress() + listOffset + listByteLength > this.getEntityBoundAddress()
+		if(!this.isValidLoadItemContentLength(listOffset + listByteLength)
 			|| listElementCount * elementLength != listByteLength
 		)
 		{
@@ -734,7 +762,7 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate offsets
+		// (01.02.2019 TM)FIXME: JET-64: offset validations
 		
 		final long startAddress = this.loadItemEntityContentAddress() + startOffset;
 		final long boundAddress = this.loadItemEntityContentAddress() + boundOffset;
@@ -1206,7 +1234,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_byte(final byte[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length);
 		this.read_bytes(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1221,7 +1249,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_boolean(final boolean[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length);
 		this.read_booleans(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1235,7 +1263,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_short(final short[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length * Short.BYTES);
 		this.read_shorts(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1244,24 +1272,23 @@ public abstract class Binary implements Chunk
 
 	public final char[] createArray_char()
 	{
-		return this.createArray_charUnvalidating(0);
+		return this.createArray_char(0);
 	}
 	
-	public final char[] createArray_charUnvalidating(final long listOffset)
+	public final char[] createArray_char(final long listOffset)
 	{
 		return new char[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Character.BYTES))];
 	}
 
 	public final void updateArray_char(final char[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length * Short.BYTES);
 		this.updateArray_charUnvalidating(array, 0);
 	}
 	
 	final void updateArray_char(final char[] array, final long offset)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate offset
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(offset + array.length * Short.BYTES);
 		this.updateArray_charUnvalidating(array, offset);
 	}
 	
@@ -1280,8 +1307,8 @@ public abstract class Binary implements Chunk
 
 	public final char[] buildArray_char(final long listOffset)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate offset
-		final char[] array = this.createArray_charUnvalidating(listOffset);
+		// (01.02.2019 TM)FIXME: JET-64: offset validation
+		final char[] array = this.createArray_char(listOffset);
 		this.updateArray_charUnvalidating(array, listOffset);
 		
 		return array;
@@ -1294,7 +1321,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_int(final int[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length * Integer.BYTES);
 		this.read_ints(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1308,7 +1335,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_float(final float[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length * Float.BYTES);
 		this.read_floats(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1322,6 +1349,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_long(final long[] array)
 	{
+		this.validateLoadItemContentLength(array.length * Long.BYTES);
 		this.read_longs(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1335,7 +1363,7 @@ public abstract class Binary implements Chunk
 
 	public final void updateArray_double(final double[] array)
 	{
-		// (01.02.2019 TM)FIXME: JET-49: validate array length and list element count
+		this.validateLoadItemContentLength(array.length * Double.BYTES);
 		this.read_doubles(
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
@@ -1585,7 +1613,7 @@ public abstract class Binary implements Chunk
 		XMemory.copyRangeToArray(address, target);
 	}
 
-	void read_longs(final long address, final long[] target)
+	public void read_longs(final long address, final long[] target)
 	{
 		XMemory.copyRangeToArray(address, target);
 	}

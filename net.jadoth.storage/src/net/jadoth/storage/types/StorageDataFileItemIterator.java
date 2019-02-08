@@ -254,7 +254,7 @@ public interface StorageDataFileItemIterator
 			final long bufferBound      = startAddress + bufferDataLength;
 
 			// every entity start must be at least one long size before the actual bound to safely read its length
-			final long entityStartBound = bufferBound - XMemory.byteSize_long();
+			final long entityStartBound = bufferBound - Long.BYTES;
 
 			// iteration variable, initialized with the data start address
 			long address = startAddress;

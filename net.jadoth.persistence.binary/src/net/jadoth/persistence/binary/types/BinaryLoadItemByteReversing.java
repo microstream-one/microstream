@@ -146,7 +146,7 @@ public final class BinaryLoadItemByteReversing extends BinaryLoadItem
 	}
 
 	@Override
-	final void read_longs(final long address, final long[] target)
+	public final void read_longs(final long address, final long[] target)
 	{
 		for(int i = 0; i < target.length; i++)
 		{

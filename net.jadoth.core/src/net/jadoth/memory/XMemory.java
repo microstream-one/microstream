@@ -48,13 +48,6 @@ public final class XMemory
 		BITS3 = 3
 	;
 
-	private static final int
-		BIT_SIZE_1_BYTE  = 8                       ,
-		BIT_SIZE_2_BYTES = BIT_SIZE_1_BYTE << BITS1,
-		BIT_SIZE_4_BYTES = BIT_SIZE_1_BYTE << BITS2,
-		BIT_SIZE_8_BYTES = BIT_SIZE_1_BYTE << BITS3
-	;
-
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 	private static final long
 		OFFSET_String_value          = internalGetFieldOffset(String.class       , "value"      ),
@@ -374,42 +367,42 @@ public final class XMemory
 	
 	public static final int bitSize_byte()
 	{
-		return BIT_SIZE_1_BYTE;
+		return Byte.SIZE;
 	}
 
 	public static final int bitSize_boolean()
 	{
-		return BIT_SIZE_1_BYTE;
+		return Byte.SIZE;
 	}
 
 	public static final int bitSize_short()
 	{
-		return BIT_SIZE_2_BYTES;
+		return Short.SIZE;
 	}
 
 	public static final int bitSize_char()
 	{
-		return BIT_SIZE_2_BYTES;
+		return Character.SIZE;
 	}
 
 	public static final int bitSize_int()
 	{
-		return BIT_SIZE_4_BYTES;
+		return Integer.SIZE;
 	}
 
 	public static final int bitSize_float()
 	{
-		return BIT_SIZE_4_BYTES;
+		return Float.SIZE;
 	}
 
 	public static final int bitSize_long()
 	{
-		return BIT_SIZE_8_BYTES;
+		return Long.SIZE;
 	}
 
 	public static final int bitSize_double()
 	{
-		return BIT_SIZE_8_BYTES;
+		return Double.SIZE;
 	}
 
 

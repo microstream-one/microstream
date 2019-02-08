@@ -28,11 +28,11 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 	/////////////////////
 
 	// one oid for equalator reference
-	static final long BINARY_OFFSET_EQUALATOR    =                                                          0;
+	static final long BINARY_OFFSET_EQUALATOR    =                                                   0;
 	// space offset for one oid
 	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.oidByteLength();
 	// one float offset to sized array
-	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + XMemory.byteSize_float()     ;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqConstHashEnum.class, HashEqualator.class);
@@ -103,13 +103,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		XMemory.set_long(
+		bytes.store_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		XMemory.set_float(
+		bytes.store_float(
 			contentAddress + BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);

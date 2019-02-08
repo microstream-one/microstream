@@ -249,7 +249,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 	
 	public static long skip_long(
@@ -732,7 +732,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_boolean(
@@ -743,7 +743,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_short(
@@ -754,7 +754,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_char(
@@ -765,7 +765,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_int(
@@ -776,7 +776,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_int(target, targetOffset, (int)XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_float(
@@ -787,7 +787,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_long(
@@ -798,7 +798,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_long(target, targetOffset, (long)XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 	public static long copy_floatTo_double(
@@ -809,7 +809,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_float(sourceAddress));
-		return sourceAddress + XMemory.byteSize_float();
+		return sourceAddress + Float.BYTES;
 	}
 
 
