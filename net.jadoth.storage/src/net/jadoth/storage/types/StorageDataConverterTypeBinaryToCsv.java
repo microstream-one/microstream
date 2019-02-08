@@ -904,7 +904,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
 					ImplementationUTF8.this.write_float(XMemory.get_float(valueReadAddress));
-					return valueReadAddress + XMemory.byteSize_float();
+					return valueReadAddress + Float.BYTES;
 				}
 			};
 		}

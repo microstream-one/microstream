@@ -2,7 +2,6 @@ package net.jadoth.persistence.types;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
-import net.jadoth.memory.XMemory;
 
 
 
@@ -52,14 +51,14 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		;
 
 		private static final char[]
-			DEFINITION_byte    = (XMemory.bitSize_byte()    + _bit + _integer_signed ).toCharArray(),
-			DEFINITION_boolean = (XMemory.bitSize_boolean() + _bit + _boolean        ).toCharArray(),
-			DEFINITION_short   = (XMemory.bitSize_short()   + _bit + _integer_signed ).toCharArray(),
-			DEFINITION_char    = (XMemory.bitSize_char()    + _bit + _integer_unicode).toCharArray(),
-			DEFINITION_int     = (XMemory.bitSize_int()     + _bit + _integer_signed ).toCharArray(),
-			DEFINITION_float   = (XMemory.bitSize_float()   + _bit + _decimal_IEEE754).toCharArray(),
-			DEFINITION_long    = (XMemory.bitSize_long()    + _bit + _integer_signed ).toCharArray(),
-			DEFINITION_double  = (XMemory.bitSize_double()  + _bit + _decimal_IEEE754).toCharArray(),
+			DEFINITION_byte    = (Byte     .SIZE + _bit + _integer_signed ).toCharArray(),
+			DEFINITION_boolean = (Byte     .SIZE + _bit + _boolean        ).toCharArray(),
+			DEFINITION_short   = (Short    .SIZE + _bit + _integer_signed ).toCharArray(),
+			DEFINITION_char    = (Character.SIZE + _bit + _integer_unicode).toCharArray(),
+			DEFINITION_int     = (Integer  .SIZE + _bit + _integer_signed ).toCharArray(),
+			DEFINITION_float   = (Float    .SIZE + _bit + _decimal_IEEE754).toCharArray(),
+			DEFINITION_long    = (Long     .SIZE + _bit + _integer_signed ).toCharArray(),
+			DEFINITION_double  = (Double   .SIZE + _bit + _decimal_IEEE754).toCharArray(),
 			DEFINITION_void    = void.class.getSimpleName().toCharArray()
 		;
 

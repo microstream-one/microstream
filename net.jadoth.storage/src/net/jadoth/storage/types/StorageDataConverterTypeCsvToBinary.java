@@ -1634,7 +1634,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			this.checkForFlush();
 			XMemory.set_float(this.currentBufferAddress, value);
-			this.currentBufferAddress += XMemory.byteSize_float();
+			this.currentBufferAddress += Float.BYTES;
 		}
 
 		final void write_long(final long value)

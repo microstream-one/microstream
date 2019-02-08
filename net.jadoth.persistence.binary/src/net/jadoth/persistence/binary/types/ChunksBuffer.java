@@ -212,7 +212,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		Binary.setEntityHeaderRawValues(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
 		
 		
-		// (02.02.2019 TM)FIXME: JET-49: keep the current entity content address internally instead of externally
+		// (02.02.2019 TM)XXX: keep the current entity content address internally instead of externally
 		
 		// currentAddress is advanced to next entity, but this entity's content address has to be returned
 		return (this.currentAddress += entityTotalLength) - entityContentLength;

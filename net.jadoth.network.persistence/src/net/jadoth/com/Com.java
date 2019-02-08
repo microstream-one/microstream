@@ -49,7 +49,7 @@ public class Com
 	
 	public static ByteOrder byteOrder()
 	{
-		return XMemory.nativeByteOrder();
+		return ByteOrder.nativeOrder();
 	}
 	
 	/**

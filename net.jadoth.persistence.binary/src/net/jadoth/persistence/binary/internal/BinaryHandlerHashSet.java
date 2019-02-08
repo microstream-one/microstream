@@ -19,8 +19,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                       0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
+	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
 
 
 
@@ -80,7 +80,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		);
 
 		// store load factor as (sole) header value
-		XMemory.set_float(contentAddress, XMemory.accessLoadFactor(instance));
+		bytes.store_float(contentAddress, XMemory.accessLoadFactor(instance));
 	}
 
 	@Override

@@ -90,7 +90,7 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		XMemory.set_long(
+		bytes.store_long(
 			contentAddress + BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
