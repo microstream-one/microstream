@@ -4,5 +4,5 @@ import net.jadoth.typing.TypeMappingLookup;
 
 public interface BinaryValueTranslatorLookupProvider
 {
-	public TypeMappingLookup<BinaryValueSetter> mapping();
+	public TypeMappingLookup<BinaryValueSetter> mapping(boolean switchByteOrder);
 }

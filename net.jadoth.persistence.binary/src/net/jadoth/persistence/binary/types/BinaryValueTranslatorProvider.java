@@ -100,7 +100,7 @@ public interface BinaryValueTranslatorProvider
 			this.customTranslatorLookup   = customTranslatorLookup  ;
 			this.translatorKeyBuilders    = translatorKeyBuilders   ;
 			this.translatorLookupProvider = translatorLookupProvider;
-			this.switchByteOrder             = switchByteOrder            ;
+			this.switchByteOrder          = switchByteOrder         ;
 		}
 		
 		
@@ -113,7 +113,7 @@ public interface BinaryValueTranslatorProvider
 		{
 			if(this.translatorLookup == null)
 			{
-				this.translatorLookup = this.translatorLookupProvider.mapping();
+				this.translatorLookup = this.translatorLookupProvider.mapping(this.switchByteOrder);
 			}
 			
 			return this.translatorLookup;

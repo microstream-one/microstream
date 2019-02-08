@@ -12,7 +12,7 @@ import net.jadoth.typing.TypeMapping;
 public interface BinaryValueTranslatorMappingProvider extends BinaryValueTranslatorLookupProvider
 {
 	@Override
-	public TypeMapping<BinaryValueSetter> mapping();
+	public TypeMapping<BinaryValueSetter> mapping(boolean switchByteOrder);
 	
 	
 	
@@ -36,11 +36,11 @@ public interface BinaryValueTranslatorMappingProvider extends BinaryValueTransla
 		////////////
 		
 		@Override
-		public synchronized TypeMapping<BinaryValueSetter> mapping()
+		public synchronized TypeMapping<BinaryValueSetter> mapping(final boolean switchByteOrder)
 		{
 			if(this.typeMapping == null)
 			{
-				this.typeMapping = BinaryValueTranslators.createDefaultValueTranslators();
+				this.typeMapping = BinaryValueTranslators.createDefaultValueTranslators(switchByteOrder);
 			}
 
 			return this.typeMapping;
