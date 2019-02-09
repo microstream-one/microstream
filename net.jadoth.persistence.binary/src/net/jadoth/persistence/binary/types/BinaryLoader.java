@@ -489,7 +489,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			skipItem.contextInstance = instance;
 			
 			// skip items will never use the helper instance for anything, since they are skip dummies.
-			skipItem.setHelper(dbb);
+			skipItem.registerHelper(dbb, dbb);
 			
 			return skipItem;
 		}

@@ -103,7 +103,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final T instance = this.typeHandler().create(rawData);
 
 		// registered here to ensure deallocating raw memory at the end of the building process. Neither sooner nor later.
-		rawData.anchorHelper(directByteBuffer);
+		rawData.registerHelper(directByteBuffer, directByteBuffer);
 		
 		return instance;
 	}

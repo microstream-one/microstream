@@ -1680,10 +1680,7 @@ public abstract class Binary implements Chunk
 	 */
 	long address;
 
-	/**
-	 * Needed in single-entity {@link BuildItem2} anyway and negligible in mass-entity implementations.
-	 */
-	private Object helper;
+	private HelperEntry helperEntry;
 	
 	
 	
@@ -1720,21 +1717,19 @@ public abstract class Binary implements Chunk
 	 * @param helper
 	 * @return
 	 */
-	public final synchronized void setHelper(final Object helper)
+	public final synchronized void registerHelper(final Object key, final Object helper)
 	{
-		if(this.helper instanceof HelperAnchor)
+		// no hash table since the amount of helper objects is assumed to be tiny, anyway.
+		for(HelperEntry e = this.helperEntry; e != null; e = e.next)
 		{
-			HelperAnchor anchor = (HelperAnchor)this.helper;
-			while(anchor.actualHelper instanceof HelperAnchor)
+			if(e.key == key)
 			{
-				anchor = (HelperAnchor)anchor.actualHelper;
+				e.helper = helper;
+				return;
 			}
-			anchor.actualHelper = helper;
 		}
-		else
-		{
-			this.helper = helper;
-		}
+		
+		this.helperEntry = new HelperEntry(key, helper, this.helperEntry);
 	}
 
 	/**
@@ -1745,59 +1740,38 @@ public abstract class Binary implements Chunk
 	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
 	 * <p>
 	 * Similar problems with other or complex custom handlers are conceivable.
-	 *<p>
-	 * Only one helper object can be registered per subject instance (the instance to be built).
 	 *
 	 * @param subject
 	 * @return
 	 */
-	public final synchronized Object getHelper()
+	public final synchronized Object getHelper(final Object key)
 	{
-		if(this.helper instanceof HelperAnchor)
+		for(HelperEntry e = this.helperEntry; e != null; e = e.next)
 		{
-			HelperAnchor anchor = (HelperAnchor)this.helper;
-			while(anchor.actualHelper instanceof HelperAnchor)
+			if(e.key == key)
 			{
-				anchor = (HelperAnchor)anchor.actualHelper;
+				return e.helper;
 			}
-			return anchor.actualHelper;
 		}
 		
-		return this.helper;
+		return null;
 	}
 	
-	public final synchronized void anchorHelper(final Object anchorSubject)
+	static final class HelperEntry
 	{
-		this.helper = new HelperAnchor(anchorSubject, this.helper);
-	}
-	
-	/**
-	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected
-	 * and cause its memory to be deallocated. Anchoring means it just has to be referenced by anything that lives
-	 * until the end of the entity loading/building process. It never has to be dereferenced again.
-	 * In order to not need another fixed field, which would needlessly occupy memory for EVERY entity in almost every
-	 * case, a "helper anchor" is used: a nifty instance that is clamped in between the actual load item and the actual
-	 * helper instance.
-	 * 
-	 * @author TM
-	 *
-	 */
-	static final class HelperAnchor
-	{
-		final Object anchorSubject;
-		      Object actualHelper;
+		Object      key   ;
+		Object      helper;
+		HelperEntry next  ;
 		
-		HelperAnchor(final Object anchorSubject, final Object actualHelper)
+		HelperEntry(final Object key, final Object helper, final HelperEntry next)
 		{
 			super();
-			this.anchorSubject = anchorSubject;
-			this.actualHelper  = actualHelper;
+			this.key    = key  ;
+			this.helper = helper;
+			this.next   = next  ;
 		}
 		
 	}
-	
-	
-	
 	
 }
 //CHECKSTYLE.ON: AbstractClassName
