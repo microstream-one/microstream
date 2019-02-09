@@ -100,7 +100,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		
 		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
 	
-		rawData.setHelper(elementsHelper);
+		rawData.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	@Override
 	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		final Object helper = rawData.getHelper();
+		final Object helper = rawData.getHelper(instance);
 		
 		if(helper == null)
 		{
@@ -160,7 +160,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			}
 		}
 		
-		rawData.setHelper(null); // might help ease Garbage Collection
+		rawData.registerHelper(instance, null); // might help Garbage Collector
 	}
 
 }
